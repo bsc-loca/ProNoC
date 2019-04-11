@@ -1,0 +1,1223 @@
+#######################################################################
+##	File: pronoc.MPSOC
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.6.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$pronoc = bless( {
+                   'parameters_order' => {
+                                           'noc_type' => [
+                                                           'ROUTER_TYPE'
+                                                         ],
+                                           'noc_param' => [
+                                                            'NX',
+                                                            'NY',
+                                                            'V',
+                                                            'B',
+                                                            'Fpay',
+                                                            'TOPOLOGY',
+                                                            'ROUTE_NAME',
+                                                            'SSA_EN',
+                                                            'CONGESTION_INDEX',
+                                                            'ESCAP_VC_MASK',
+                                                            'VC_REALLOCATION_TYPE',
+                                                            'COMBINATION_TYPE',
+                                                            'MUX_TYPE',
+                                                            'C',
+                                                            'DEBUG_EN',
+                                                            'ADD_PIPREG_AFTER_CROSSBAR',
+                                                            'FIRST_ARBITER_EXT_P_EN',
+                                                            'AVC_ATOMIC_EN',
+                                                            'ROUTE_SUBFUNC'
+                                                          ]
+                                         },
+                   'gui_status' => {
+                                     'timeout' => 0,
+                                     'status' => 'ideal'
+                                   },
+                   'mpsoc_name' => 'pronoc',
+                   'tile' => {
+                               '1' => {},
+                               '14' => {},
+                               '4' => {},
+                               '7' => {},
+                               '2' => {},
+                               '3' => {},
+                               '13' => {},
+                               '9' => {},
+                               '5' => {
+                                        'param_setting' => 'Custom'
+                                      },
+                               '15' => {},
+                               '0' => {},
+                               '6' => {},
+                               '12' => {},
+                               '8' => {},
+                               '10' => {},
+                               '11' => {}
+                             },
+                   'socs' => {
+                               'ni_sep_test' => {
+                                                  'top' => bless( {
+                                                                    'parameters' => {
+                                                                                      'ram_Dw' => '32',
+                                                                                      'ram_Aw' => '12'
+                                                                                    },
+                                                                    'interface' => {
+                                                                                     'socket:ni[0]' => {
+                                                                                                         'ports' => {
+                                                                                                                      'ni_credit_out' => {
+                                                                                                                                           'intfc_port' => 'credit_out',
+                                                                                                                                           'instance_name' => 'ni_sep0',
+                                                                                                                                           'type' => 'output',
+                                                                                                                                           'range' => 'ni_V-1    :   0'
+                                                                                                                                         },
+                                                                                                                      'ni_current_y' => {
+                                                                                                                                          'range' => 'ni_Yw-1   :   0',
+                                                                                                                                          'type' => 'input',
+                                                                                                                                          'intfc_port' => 'current_y',
+                                                                                                                                          'instance_name' => 'ni_sep0'
+                                                                                                                                        },
+                                                                                                                      'ni_flit_out_wr' => {
+                                                                                                                                            'instance_name' => 'ni_sep0',
+                                                                                                                                            'intfc_port' => 'flit_out_wr',
+                                                                                                                                            'range' => '',
+                                                                                                                                            'type' => 'output'
+                                                                                                                                          },
+                                                                                                                      'ni_flit_in_wr' => {
+                                                                                                                                           'range' => '',
+                                                                                                                                           'type' => 'input',
+                                                                                                                                           'instance_name' => 'ni_sep0',
+                                                                                                                                           'intfc_port' => 'flit_in_wr'
+                                                                                                                                         },
+                                                                                                                      'ni_credit_in' => {
+                                                                                                                                          'type' => 'input',
+                                                                                                                                          'range' => 'ni_V-1    :   0',
+                                                                                                                                          'intfc_port' => 'credit_in',
+                                                                                                                                          'instance_name' => 'ni_sep0'
+                                                                                                                                        },
+                                                                                                                      'ni_flit_in' => {
+                                                                                                                                        'range' => 'ni_Fw-1   :   0',
+                                                                                                                                        'type' => 'input',
+                                                                                                                                        'intfc_port' => 'flit_in',
+                                                                                                                                        'instance_name' => 'ni_sep0'
+                                                                                                                                      },
+                                                                                                                      'ni_flit_out' => {
+                                                                                                                                         'range' => 'ni_Fw-1   :   0',
+                                                                                                                                         'type' => 'output',
+                                                                                                                                         'intfc_port' => 'flit_out',
+                                                                                                                                         'instance_name' => 'ni_sep0'
+                                                                                                                                       },
+                                                                                                                      'ni_current_x' => {
+                                                                                                                                          'instance_name' => 'ni_sep0',
+                                                                                                                                          'intfc_port' => 'current_x',
+                                                                                                                                          'range' => 'ni_Xw-1   :   0',
+                                                                                                                                          'type' => 'input'
+                                                                                                                                        }
+                                                                                                                    }
+                                                                                                       },
+                                                                                     'plug:reset[0]' => {
+                                                                                                          'ports' => {
+                                                                                                                       'ss_reset_in' => {
+                                                                                                                                          'type' => 'input',
+                                                                                                                                          'range' => '',
+                                                                                                                                          'intfc_port' => 'reset_i',
+                                                                                                                                          'instance_name' => 'clk_source0'
+                                                                                                                                        }
+                                                                                                                     }
+                                                                                                        },
+                                                                                     'plug:interrupt_peripheral[0]' => {
+                                                                                                                         'ports' => {
+                                                                                                                                      'ni_irq' => {
+                                                                                                                                                    'range' => '',
+                                                                                                                                                    'type' => 'output',
+                                                                                                                                                    'instance_name' => 'ni_sep0',
+                                                                                                                                                    'intfc_port' => 'int_o'
+                                                                                                                                                  }
+                                                                                                                                    }
+                                                                                                                       },
+                                                                                     'plug:enable[0]' => {
+                                                                                                           'ports' => {
+                                                                                                                        'aeMB_sys_ena_i' => {
+                                                                                                                                              'intfc_port' => 'enable_i',
+                                                                                                                                              'instance_name' => 'aeMB0',
+                                                                                                                                              'type' => 'input',
+                                                                                                                                              'range' => ''
+                                                                                                                                            }
+                                                                                                                      }
+                                                                                                         },
+                                                                                     'plug:clk[0]' => {
+                                                                                                        'ports' => {
+                                                                                                                     'ss_clk_in' => {
+                                                                                                                                      'intfc_port' => 'clk_i',
+                                                                                                                                      'instance_name' => 'clk_source0',
+                                                                                                                                      'type' => 'input',
+                                                                                                                                      'range' => ''
+                                                                                                                                    }
+                                                                                                                   }
+                                                                                                      }
+                                                                                   },
+                                                                    'instance_ids' => {
+                                                                                        'ni_sep0' => {
+                                                                                                       'module' => 'ni_sep',
+                                                                                                       'module_name' => 'ni_sep',
+                                                                                                       'parameters' => {
+                                                                                                                         'ni_V' => {
+                                                                                                                                     'redefine_param' => 1,
+                                                                                                                                     'content' => '',
+                                                                                                                                     'default' => ' 4',
+                                                                                                                                     'global_param' => 'Parameter',
+                                                                                                                                     'type' => 'Fixed',
+                                                                                                                                     'info' => ''
+                                                                                                                                   },
+                                                                                                                         'ni_TOPOLOGY' => {
+                                                                                                                                            'info' => undef,
+                                                                                                                                            'type' => 'Fixed',
+                                                                                                                                            'global_param' => 'Parameter',
+                                                                                                                                            'default' => '"MESH"',
+                                                                                                                                            'content' => '',
+                                                                                                                                            'redefine_param' => 1
+                                                                                                                                          },
+                                                                                                                         'ni_ROUTE_NAME' => {
+                                                                                                                                              'info' => undef,
+                                                                                                                                              'type' => 'Fixed',
+                                                                                                                                              'global_param' => 'Parameter',
+                                                                                                                                              'default' => '"XY"',
+                                                                                                                                              'content' => '',
+                                                                                                                                              'redefine_param' => 1
+                                                                                                                                            },
+                                                                                                                         'ni_B' => {
+                                                                                                                                     'content' => '',
+                                                                                                                                     'default' => ' 4',
+                                                                                                                                     'redefine_param' => 1,
+                                                                                                                                     'type' => 'Fixed',
+                                                                                                                                     'info' => '',
+                                                                                                                                     'global_param' => 'Parameter'
+                                                                                                                                   },
+                                                                                                                         'ni_NY' => {
+                                                                                                                                      'global_param' => 'Parameter',
+                                                                                                                                      'info' => undef,
+                                                                                                                                      'type' => 'Fixed',
+                                                                                                                                      'redefine_param' => 1,
+                                                                                                                                      'default' => ' 2',
+                                                                                                                                      'content' => ''
+                                                                                                                                    },
+                                                                                                                         'ni_DEBUG_EN' => {
+                                                                                                                                            'content' => '',
+                                                                                                                                            'default' => '0',
+                                                                                                                                            'redefine_param' => 1,
+                                                                                                                                            'type' => 'Fixed',
+                                                                                                                                            'info' => undef,
+                                                                                                                                            'global_param' => 'Parameter'
+                                                                                                                                          },
+                                                                                                                         'ni_Fpay' => {
+                                                                                                                                        'info' => undef,
+                                                                                                                                        'type' => 'Fixed',
+                                                                                                                                        'global_param' => 'Parameter',
+                                                                                                                                        'default' => ' 32',
+                                                                                                                                        'content' => '',
+                                                                                                                                        'redefine_param' => 1
+                                                                                                                                      },
+                                                                                                                         'ni_NX' => {
+                                                                                                                                      'info' => undef,
+                                                                                                                                      'type' => 'Fixed',
+                                                                                                                                      'global_param' => 'Parameter',
+                                                                                                                                      'default' => ' 2',
+                                                                                                                                      'content' => '',
+                                                                                                                                      'redefine_param' => 1
+                                                                                                                                    }
+                                                                                                                       },
+                                                                                                       'ports' => {
+                                                                                                                    'ni_flit_in' => {
+                                                                                                                                      'type' => 'input',
+                                                                                                                                      'range' => 'ni_Fw-1   :   0',
+                                                                                                                                      'intfc_name' => 'socket:ni[0]',
+                                                                                                                                      'intfc_port' => 'flit_in'
+                                                                                                                                    },
+                                                                                                                    'ni_flit_out' => {
+                                                                                                                                       'type' => 'output',
+                                                                                                                                       'range' => 'ni_Fw-1   :   0',
+                                                                                                                                       'intfc_name' => 'socket:ni[0]',
+                                                                                                                                       'intfc_port' => 'flit_out'
+                                                                                                                                     },
+                                                                                                                    'ni_current_x' => {
+                                                                                                                                        'type' => 'input',
+                                                                                                                                        'range' => 'ni_Xw-1   :   0',
+                                                                                                                                        'intfc_port' => 'current_x',
+                                                                                                                                        'intfc_name' => 'socket:ni[0]'
+                                                                                                                                      },
+                                                                                                                    'ni_flit_out_wr' => {
+                                                                                                                                          'intfc_name' => 'socket:ni[0]',
+                                                                                                                                          'intfc_port' => 'flit_out_wr',
+                                                                                                                                          'range' => '',
+                                                                                                                                          'type' => 'output'
+                                                                                                                                        },
+                                                                                                                    'ni_flit_in_wr' => {
+                                                                                                                                         'type' => 'input',
+                                                                                                                                         'range' => '',
+                                                                                                                                         'intfc_port' => 'flit_in_wr',
+                                                                                                                                         'intfc_name' => 'socket:ni[0]'
+                                                                                                                                       },
+                                                                                                                    'ni_current_y' => {
+                                                                                                                                        'range' => 'ni_Yw-1   :   0',
+                                                                                                                                        'type' => 'input',
+                                                                                                                                        'intfc_port' => 'current_y',
+                                                                                                                                        'intfc_name' => 'socket:ni[0]'
+                                                                                                                                      },
+                                                                                                                    'ni_credit_out' => {
+                                                                                                                                         'intfc_name' => 'socket:ni[0]',
+                                                                                                                                         'intfc_port' => 'credit_out',
+                                                                                                                                         'type' => 'output',
+                                                                                                                                         'range' => 'ni_V-1    :   0'
+                                                                                                                                       },
+                                                                                                                    'ni_irq' => {
+                                                                                                                                  'range' => '',
+                                                                                                                                  'type' => 'output',
+                                                                                                                                  'intfc_name' => 'plug:interrupt_peripheral[0]',
+                                                                                                                                  'intfc_port' => 'int_o'
+                                                                                                                                },
+                                                                                                                    'ni_credit_in' => {
+                                                                                                                                        'type' => 'input',
+                                                                                                                                        'range' => 'ni_V-1    :   0',
+                                                                                                                                        'intfc_port' => 'credit_in',
+                                                                                                                                        'intfc_name' => 'socket:ni[0]'
+                                                                                                                                      }
+                                                                                                                  },
+                                                                                                       'instance' => 'ni',
+                                                                                                       'category' => 'NoC'
+                                                                                                     },
+                                                                                        'aeMB0' => {
+                                                                                                     'module_name' => 'aeMB_top',
+                                                                                                     'module' => 'aeMB',
+                                                                                                     'category' => 'Processor',
+                                                                                                     'instance' => 'aeMB',
+                                                                                                     'ports' => {
+                                                                                                                  'aeMB_sys_ena_i' => {
+                                                                                                                                        'type' => 'input',
+                                                                                                                                        'range' => '',
+                                                                                                                                        'intfc_port' => 'enable_i',
+                                                                                                                                        'intfc_name' => 'plug:enable[0]'
+                                                                                                                                      }
+                                                                                                                }
+                                                                                                   },
+                                                                                        'clk_source0' => {
+                                                                                                           'instance' => 'ss',
+                                                                                                           'ports' => {
+                                                                                                                        'ss_clk_in' => {
+                                                                                                                                         'intfc_port' => 'clk_i',
+                                                                                                                                         'intfc_name' => 'plug:clk[0]',
+                                                                                                                                         'type' => 'input',
+                                                                                                                                         'range' => ''
+                                                                                                                                       },
+                                                                                                                        'ss_reset_in' => {
+                                                                                                                                           'intfc_name' => 'plug:reset[0]',
+                                                                                                                                           'intfc_port' => 'reset_i',
+                                                                                                                                           'range' => '',
+                                                                                                                                           'type' => 'input'
+                                                                                                                                         }
+                                                                                                                      },
+                                                                                                           'category' => 'Source',
+                                                                                                           'module' => 'clk_source',
+                                                                                                           'module_name' => 'clk_source'
+                                                                                                         },
+                                                                                        'wishbone_bus0' => {
+                                                                                                             'module_name' => 'wishbone_bus',
+                                                                                                             'module' => 'wishbone_bus',
+                                                                                                             'category' => 'Bus',
+                                                                                                             'instance' => 'bus'
+                                                                                                           },
+                                                                                        'single_port_ram0' => {
+                                                                                                                'category' => 'RAM',
+                                                                                                                'instance' => 'ram',
+                                                                                                                'parameters' => {
+                                                                                                                                  'ram_Aw' => {
+                                                                                                                                                'global_param' => 'Parameter',
+                                                                                                                                                'info' => 'Memory address width',
+                                                                                                                                                'type' => 'Spin-button',
+                                                                                                                                                'redefine_param' => 1,
+                                                                                                                                                'default' => '12',
+                                                                                                                                                'content' => '4,31,1'
+                                                                                                                                              },
+                                                                                                                                  'ram_Dw' => {
+                                                                                                                                                'info' => 'Memory data width in Bits.',
+                                                                                                                                                'type' => 'Spin-button',
+                                                                                                                                                'global_param' => 'Parameter',
+                                                                                                                                                'default' => '32',
+                                                                                                                                                'content' => '8,1024,1',
+                                                                                                                                                'redefine_param' => 1
+                                                                                                                                              }
+                                                                                                                                },
+                                                                                                                'module_name' => 'wb_single_port_ram',
+                                                                                                                'module' => 'single_port_ram'
+                                                                                                              }
+                                                                                      },
+                                                                    'ports' => {
+                                                                                 'ni_flit_in' => {
+                                                                                                   'range' => 'ni_Fw-1   :   0',
+                                                                                                   'type' => 'input',
+                                                                                                   'intfc_name' => 'socket:ni[0]',
+                                                                                                   'intfc_port' => 'flit_in',
+                                                                                                   'instance_name' => 'ni_sep0'
+                                                                                                 },
+                                                                                 'ni_current_x' => {
+                                                                                                     'intfc_port' => 'current_x',
+                                                                                                     'instance_name' => 'ni_sep0',
+                                                                                                     'intfc_name' => 'socket:ni[0]',
+                                                                                                     'type' => 'input',
+                                                                                                     'range' => 'ni_Xw-1   :   0'
+                                                                                                   },
+                                                                                 'ni_flit_out' => {
+                                                                                                    'type' => 'output',
+                                                                                                    'range' => 'ni_Fw-1   :   0',
+                                                                                                    'intfc_name' => 'socket:ni[0]',
+                                                                                                    'instance_name' => 'ni_sep0',
+                                                                                                    'intfc_port' => 'flit_out'
+                                                                                                  },
+                                                                                 'ni_flit_out_wr' => {
+                                                                                                       'type' => 'output',
+                                                                                                       'range' => '',
+                                                                                                       'intfc_name' => 'socket:ni[0]',
+                                                                                                       'intfc_port' => 'flit_out_wr',
+                                                                                                       'instance_name' => 'ni_sep0'
+                                                                                                     },
+                                                                                 'ni_flit_in_wr' => {
+                                                                                                      'intfc_name' => 'socket:ni[0]',
+                                                                                                      'instance_name' => 'ni_sep0',
+                                                                                                      'intfc_port' => 'flit_in_wr',
+                                                                                                      'type' => 'input',
+                                                                                                      'range' => ''
+                                                                                                    },
+                                                                                 'ss_reset_in' => {
+                                                                                                    'type' => 'input',
+                                                                                                    'range' => '',
+                                                                                                    'intfc_name' => 'plug:reset[0]',
+                                                                                                    'instance_name' => 'clk_source0',
+                                                                                                    'intfc_port' => 'reset_i'
+                                                                                                  },
+                                                                                 'ni_current_y' => {
+                                                                                                     'range' => 'ni_Yw-1   :   0',
+                                                                                                     'type' => 'input',
+                                                                                                     'intfc_name' => 'socket:ni[0]',
+                                                                                                     'intfc_port' => 'current_y',
+                                                                                                     'instance_name' => 'ni_sep0'
+                                                                                                   },
+                                                                                 'ni_credit_out' => {
+                                                                                                      'range' => 'ni_V-1    :   0',
+                                                                                                      'type' => 'output',
+                                                                                                      'intfc_name' => 'socket:ni[0]',
+                                                                                                      'intfc_port' => 'credit_out',
+                                                                                                      'instance_name' => 'ni_sep0'
+                                                                                                    },
+                                                                                 'ss_clk_in' => {
+                                                                                                  'instance_name' => 'clk_source0',
+                                                                                                  'intfc_port' => 'clk_i',
+                                                                                                  'intfc_name' => 'plug:clk[0]',
+                                                                                                  'range' => '',
+                                                                                                  'type' => 'input'
+                                                                                                },
+                                                                                 'ni_credit_in' => {
+                                                                                                     'intfc_name' => 'socket:ni[0]',
+                                                                                                     'instance_name' => 'ni_sep0',
+                                                                                                     'intfc_port' => 'credit_in',
+                                                                                                     'type' => 'input',
+                                                                                                     'range' => 'ni_V-1    :   0'
+                                                                                                   },
+                                                                                 'aeMB_sys_ena_i' => {
+                                                                                                       'intfc_port' => 'enable_i',
+                                                                                                       'instance_name' => 'aeMB0',
+                                                                                                       'intfc_name' => 'plug:enable[0]',
+                                                                                                       'range' => '',
+                                                                                                       'type' => 'input'
+                                                                                                     },
+                                                                                 'ni_irq' => {
+                                                                                               'intfc_port' => 'int_o',
+                                                                                               'instance_name' => 'ni_sep0',
+                                                                                               'intfc_name' => 'plug:interrupt_peripheral[0]',
+                                                                                               'range' => '',
+                                                                                               'type' => 'output'
+                                                                                             }
+                                                                               }
+                                                                  }, 'ip_gen' ),
+                                                  'tile_nums' => [
+                                                                   2,
+                                                                   6,
+                                                                   7,
+                                                                   9,
+                                                                   11
+                                                                 ]
+                                                },
+                               'sep' => {
+                                          'tile_nums' => [
+                                                           8,
+                                                           10,
+                                                           12,
+                                                           13,
+                                                           14,
+                                                           15
+                                                         ],
+                                          'top' => bless( {
+                                                            'interface' => {
+                                                                             'plug:reset[0]' => {
+                                                                                                  'ports' => {
+                                                                                                               'ss_reset_in' => {
+                                                                                                                                  'range' => '',
+                                                                                                                                  'type' => 'input',
+                                                                                                                                  'intfc_port' => 'reset_i',
+                                                                                                                                  'instance_name' => 'clk_source0'
+                                                                                                                                }
+                                                                                                             }
+                                                                                                },
+                                                                             'socket:ni[0]' => {
+                                                                                                 'ports' => {
+                                                                                                              'nis_current_y' => {
+                                                                                                                                   'type' => 'input',
+                                                                                                                                   'range' => 'nis_Yw-1   :   0',
+                                                                                                                                   'instance_name' => 'ni_sep0',
+                                                                                                                                   'intfc_port' => 'current_y'
+                                                                                                                                 },
+                                                                                                              'nis_flit_in_wr' => {
+                                                                                                                                    'instance_name' => 'ni_sep0',
+                                                                                                                                    'intfc_port' => 'flit_in_wr',
+                                                                                                                                    'type' => 'input',
+                                                                                                                                    'range' => ''
+                                                                                                                                  },
+                                                                                                              'nis_credit_in' => {
+                                                                                                                                   'instance_name' => 'ni_sep0',
+                                                                                                                                   'intfc_port' => 'credit_in',
+                                                                                                                                   'range' => 'nis_V-1    :   0',
+                                                                                                                                   'type' => 'input'
+                                                                                                                                 },
+                                                                                                              'nis_flit_in' => {
+                                                                                                                                 'type' => 'input',
+                                                                                                                                 'range' => 'nis_Fw-1   :   0',
+                                                                                                                                 'instance_name' => 'ni_sep0',
+                                                                                                                                 'intfc_port' => 'flit_in'
+                                                                                                                               },
+                                                                                                              'nis_current_x' => {
+                                                                                                                                   'type' => 'input',
+                                                                                                                                   'range' => 'nis_Xw-1   :   0',
+                                                                                                                                   'instance_name' => 'ni_sep0',
+                                                                                                                                   'intfc_port' => 'current_x'
+                                                                                                                                 },
+                                                                                                              'nis_flit_out' => {
+                                                                                                                                  'instance_name' => 'ni_sep0',
+                                                                                                                                  'intfc_port' => 'flit_out',
+                                                                                                                                  'type' => 'output',
+                                                                                                                                  'range' => 'nis_Fw-1   :   0'
+                                                                                                                                },
+                                                                                                              'nis_flit_out_wr' => {
+                                                                                                                                     'range' => '',
+                                                                                                                                     'type' => 'output',
+                                                                                                                                     'instance_name' => 'ni_sep0',
+                                                                                                                                     'intfc_port' => 'flit_out_wr'
+                                                                                                                                   },
+                                                                                                              'nis_credit_out' => {
+                                                                                                                                    'intfc_port' => 'credit_out',
+                                                                                                                                    'instance_name' => 'ni_sep0',
+                                                                                                                                    'type' => 'output',
+                                                                                                                                    'range' => 'nis_V-1    :   0'
+                                                                                                                                  }
+                                                                                                            }
+                                                                                               },
+                                                                             'plug:clk[0]' => {
+                                                                                                'ports' => {
+                                                                                                             'ss_clk_in' => {
+                                                                                                                              'instance_name' => 'clk_source0',
+                                                                                                                              'intfc_port' => 'clk_i',
+                                                                                                                              'range' => '',
+                                                                                                                              'type' => 'input'
+                                                                                                                            }
+                                                                                                           }
+                                                                                              }
+                                                                           },
+                                                            'instance_ids' => {
+                                                                                'ni_sep0' => {
+                                                                                               'module_name' => 'ni_sep',
+                                                                                               'parameters' => {
+                                                                                                                 'nis_V' => {
+                                                                                                                              'global_param' => 'Parameter',
+                                                                                                                              'info' => '',
+                                                                                                                              'type' => 'Fixed',
+                                                                                                                              'redefine_param' => 1,
+                                                                                                                              'default' => ' 4',
+                                                                                                                              'content' => ''
+                                                                                                                            },
+                                                                                                                 'nis_DEBUG_EN' => {
+                                                                                                                                     'global_param' => 'Parameter',
+                                                                                                                                     'info' => undef,
+                                                                                                                                     'type' => 'Fixed',
+                                                                                                                                     'redefine_param' => 1,
+                                                                                                                                     'default' => '0',
+                                                                                                                                     'content' => ''
+                                                                                                                                   },
+                                                                                                                 'nis_B' => {
+                                                                                                                              'info' => '',
+                                                                                                                              'type' => 'Fixed',
+                                                                                                                              'global_param' => 'Parameter',
+                                                                                                                              'default' => ' 4',
+                                                                                                                              'content' => '',
+                                                                                                                              'redefine_param' => 1
+                                                                                                                            },
+                                                                                                                 'nis_TOPOLOGY' => {
+                                                                                                                                     'redefine_param' => 1,
+                                                                                                                                     'default' => '"MESH"',
+                                                                                                                                     'content' => '',
+                                                                                                                                     'global_param' => 'Parameter',
+                                                                                                                                     'info' => undef,
+                                                                                                                                     'type' => 'Fixed'
+                                                                                                                                   },
+                                                                                                                 'nis_NY' => {
+                                                                                                                               'info' => undef,
+                                                                                                                               'type' => 'Fixed',
+                                                                                                                               'global_param' => 'Parameter',
+                                                                                                                               'default' => ' 2',
+                                                                                                                               'content' => '',
+                                                                                                                               'redefine_param' => 1
+                                                                                                                             },
+                                                                                                                 'nis_Fpay' => {
+                                                                                                                                 'redefine_param' => 1,
+                                                                                                                                 'default' => ' 32',
+                                                                                                                                 'content' => '',
+                                                                                                                                 'global_param' => 'Parameter',
+                                                                                                                                 'info' => undef,
+                                                                                                                                 'type' => 'Fixed'
+                                                                                                                               },
+                                                                                                                 'nis_ROUTE_NAME' => {
+                                                                                                                                       'redefine_param' => 1,
+                                                                                                                                       'default' => '"XY"',
+                                                                                                                                       'content' => '',
+                                                                                                                                       'global_param' => 'Parameter',
+                                                                                                                                       'info' => undef,
+                                                                                                                                       'type' => 'Fixed'
+                                                                                                                                     },
+                                                                                                                 'nis_NX' => {
+                                                                                                                               'global_param' => 'Parameter',
+                                                                                                                               'info' => undef,
+                                                                                                                               'type' => 'Fixed',
+                                                                                                                               'redefine_param' => 1,
+                                                                                                                               'default' => ' 2',
+                                                                                                                               'content' => ''
+                                                                                                                             }
+                                                                                                               },
+                                                                                               'module' => 'ni_sep',
+                                                                                               'category' => 'NoC',
+                                                                                               'instance' => 'nis',
+                                                                                               'ports' => {
+                                                                                                            'nis_current_x' => {
+                                                                                                                                 'type' => 'input',
+                                                                                                                                 'range' => 'nis_Xw-1   :   0',
+                                                                                                                                 'intfc_port' => 'current_x',
+                                                                                                                                 'intfc_name' => 'socket:ni[0]'
+                                                                                                                               },
+                                                                                                            'nis_flit_out_wr' => {
+                                                                                                                                   'intfc_name' => 'socket:ni[0]',
+                                                                                                                                   'intfc_port' => 'flit_out_wr',
+                                                                                                                                   'range' => '',
+                                                                                                                                   'type' => 'output'
+                                                                                                                                 },
+                                                                                                            'nis_flit_out' => {
+                                                                                                                                'type' => 'output',
+                                                                                                                                'range' => 'nis_Fw-1   :   0',
+                                                                                                                                'intfc_name' => 'socket:ni[0]',
+                                                                                                                                'intfc_port' => 'flit_out'
+                                                                                                                              },
+                                                                                                            'nis_credit_out' => {
+                                                                                                                                  'intfc_port' => 'credit_out',
+                                                                                                                                  'intfc_name' => 'socket:ni[0]',
+                                                                                                                                  'type' => 'output',
+                                                                                                                                  'range' => 'nis_V-1    :   0'
+                                                                                                                                },
+                                                                                                            'nis_current_y' => {
+                                                                                                                                 'intfc_name' => 'socket:ni[0]',
+                                                                                                                                 'intfc_port' => 'current_y',
+                                                                                                                                 'range' => 'nis_Yw-1   :   0',
+                                                                                                                                 'type' => 'input'
+                                                                                                                               },
+                                                                                                            'nis_flit_in_wr' => {
+                                                                                                                                  'intfc_name' => 'socket:ni[0]',
+                                                                                                                                  'intfc_port' => 'flit_in_wr',
+                                                                                                                                  'type' => 'input',
+                                                                                                                                  'range' => ''
+                                                                                                                                },
+                                                                                                            'nis_credit_in' => {
+                                                                                                                                 'range' => 'nis_V-1    :   0',
+                                                                                                                                 'type' => 'input',
+                                                                                                                                 'intfc_port' => 'credit_in',
+                                                                                                                                 'intfc_name' => 'socket:ni[0]'
+                                                                                                                               },
+                                                                                                            'nis_flit_in' => {
+                                                                                                                               'intfc_port' => 'flit_in',
+                                                                                                                               'intfc_name' => 'socket:ni[0]',
+                                                                                                                               'type' => 'input',
+                                                                                                                               'range' => 'nis_Fw-1   :   0'
+                                                                                                                             }
+                                                                                                          }
+                                                                                             },
+                                                                                'wishbone_bus0' => {
+                                                                                                     'module' => 'wishbone_bus',
+                                                                                                     'module_name' => 'wishbone_bus',
+                                                                                                     'instance' => 'bus',
+                                                                                                     'category' => 'Bus'
+                                                                                                   },
+                                                                                'clk_source0' => {
+                                                                                                   'instance' => 'ss',
+                                                                                                   'ports' => {
+                                                                                                                'ss_clk_in' => {
+                                                                                                                                 'type' => 'input',
+                                                                                                                                 'range' => '',
+                                                                                                                                 'intfc_name' => 'plug:clk[0]',
+                                                                                                                                 'intfc_port' => 'clk_i'
+                                                                                                                               },
+                                                                                                                'ss_reset_in' => {
+                                                                                                                                   'range' => '',
+                                                                                                                                   'type' => 'input',
+                                                                                                                                   'intfc_name' => 'plug:reset[0]',
+                                                                                                                                   'intfc_port' => 'reset_i'
+                                                                                                                                 }
+                                                                                                              },
+                                                                                                   'category' => 'Source',
+                                                                                                   'module' => 'clk_source',
+                                                                                                   'module_name' => 'clk_source'
+                                                                                                 }
+                                                                              },
+                                                            'ports' => {
+                                                                         'ss_reset_in' => {
+                                                                                            'type' => 'input',
+                                                                                            'range' => '',
+                                                                                            'intfc_name' => 'plug:reset[0]',
+                                                                                            'instance_name' => 'clk_source0',
+                                                                                            'intfc_port' => 'reset_i'
+                                                                                          },
+                                                                         'ss_clk_in' => {
+                                                                                          'intfc_name' => 'plug:clk[0]',
+                                                                                          'instance_name' => 'clk_source0',
+                                                                                          'intfc_port' => 'clk_i',
+                                                                                          'range' => '',
+                                                                                          'type' => 'input'
+                                                                                        },
+                                                                         'nis_credit_in' => {
+                                                                                              'range' => 'nis_V-1    :   0',
+                                                                                              'type' => 'input',
+                                                                                              'intfc_name' => 'socket:ni[0]',
+                                                                                              'intfc_port' => 'credit_in',
+                                                                                              'instance_name' => 'ni_sep0'
+                                                                                            },
+                                                                         'nis_flit_in' => {
+                                                                                            'range' => 'nis_Fw-1   :   0',
+                                                                                            'type' => 'input',
+                                                                                            'intfc_name' => 'socket:ni[0]',
+                                                                                            'instance_name' => 'ni_sep0',
+                                                                                            'intfc_port' => 'flit_in'
+                                                                                          },
+                                                                         'nis_flit_in_wr' => {
+                                                                                               'intfc_port' => 'flit_in_wr',
+                                                                                               'instance_name' => 'ni_sep0',
+                                                                                               'intfc_name' => 'socket:ni[0]',
+                                                                                               'range' => '',
+                                                                                               'type' => 'input'
+                                                                                             },
+                                                                         'nis_current_y' => {
+                                                                                              'intfc_port' => 'current_y',
+                                                                                              'instance_name' => 'ni_sep0',
+                                                                                              'intfc_name' => 'socket:ni[0]',
+                                                                                              'type' => 'input',
+                                                                                              'range' => 'nis_Yw-1   :   0'
+                                                                                            },
+                                                                         'nis_flit_out_wr' => {
+                                                                                                'intfc_name' => 'socket:ni[0]',
+                                                                                                'instance_name' => 'ni_sep0',
+                                                                                                'intfc_port' => 'flit_out_wr',
+                                                                                                'range' => '',
+                                                                                                'type' => 'output'
+                                                                                              },
+                                                                         'nis_flit_out' => {
+                                                                                             'type' => 'output',
+                                                                                             'range' => 'nis_Fw-1   :   0',
+                                                                                             'intfc_name' => 'socket:ni[0]',
+                                                                                             'intfc_port' => 'flit_out',
+                                                                                             'instance_name' => 'ni_sep0'
+                                                                                           },
+                                                                         'nis_credit_out' => {
+                                                                                               'range' => 'nis_V-1    :   0',
+                                                                                               'type' => 'output',
+                                                                                               'intfc_name' => 'socket:ni[0]',
+                                                                                               'instance_name' => 'ni_sep0',
+                                                                                               'intfc_port' => 'credit_out'
+                                                                                             },
+                                                                         'nis_current_x' => {
+                                                                                              'range' => 'nis_Xw-1   :   0',
+                                                                                              'type' => 'input',
+                                                                                              'intfc_name' => 'socket:ni[0]',
+                                                                                              'instance_name' => 'ni_sep0',
+                                                                                              'intfc_port' => 'current_x'
+                                                                                            }
+                                                                       }
+                                                          }, 'ip_gen' )
+                                        },
+                               'lm32_tile' => {
+                                              'top' => bless( {
+                                                                'instance_ids' => {
+                                                                                    'ni0' => {
+                                                                                               'instance' => 'ni',
+                                                                                               'ports' => {
+                                                                                                            'ni_flit_out' => {
+                                                                                                                               'intfc_port' => 'flit_out',
+                                                                                                                               'intfc_name' => 'socket:ni[0]',
+                                                                                                                               'type' => 'output',
+                                                                                                                               'range' => 'ni_Fw-1   :   0'
+                                                                                                                             },
+                                                                                                            'ni_current_x' => {
+                                                                                                                                'type' => 'input',
+                                                                                                                                'range' => 'ni_Xw-1   :   0',
+                                                                                                                                'intfc_name' => 'socket:ni[0]',
+                                                                                                                                'intfc_port' => 'current_x'
+                                                                                                                              },
+                                                                                                            'ni_flit_in' => {
+                                                                                                                              'range' => 'ni_Fw-1   :   0',
+                                                                                                                              'type' => 'input',
+                                                                                                                              'intfc_name' => 'socket:ni[0]',
+                                                                                                                              'intfc_port' => 'flit_in'
+                                                                                                                            },
+                                                                                                            'ni_credit_in' => {
+                                                                                                                                'intfc_port' => 'credit_in',
+                                                                                                                                'intfc_name' => 'socket:ni[0]',
+                                                                                                                                'range' => 'ni_V-1    :   0',
+                                                                                                                                'type' => 'input'
+                                                                                                                              },
+                                                                                                            'ni_flit_out_wr' => {
+                                                                                                                                  'type' => 'output',
+                                                                                                                                  'range' => '',
+                                                                                                                                  'intfc_port' => 'flit_out_wr',
+                                                                                                                                  'intfc_name' => 'socket:ni[0]'
+                                                                                                                                },
+                                                                                                            'ni_flit_in_wr' => {
+                                                                                                                                 'range' => '',
+                                                                                                                                 'type' => 'input',
+                                                                                                                                 'intfc_port' => 'flit_in_wr',
+                                                                                                                                 'intfc_name' => 'socket:ni[0]'
+                                                                                                                               },
+                                                                                                            'ni_credit_out' => {
+                                                                                                                                 'type' => 'output',
+                                                                                                                                 'range' => 'ni_V-1:   0',
+                                                                                                                                 'intfc_port' => 'credit_out',
+                                                                                                                                 'intfc_name' => 'socket:ni[0]'
+                                                                                                                               },
+                                                                                                            'ni_current_y' => {
+                                                                                                                                'intfc_name' => 'socket:ni[0]',
+                                                                                                                                'intfc_port' => 'current_y',
+                                                                                                                                'range' => 'ni_Yw-1   :   0',
+                                                                                                                                'type' => 'input'
+                                                                                                                              }
+                                                                                                          },
+                                                                                               'category' => 'NoC',
+                                                                                               'module' => 'ni',
+                                                                                               'module_name' => 'ni',
+                                                                                               'parameters' => {
+                                                                                                                 'ni_TOPOLOGY' => {
+                                                                                                                                    'content' => '',
+                                                                                                                                    'default' => '"MESH"',
+                                                                                                                                    'redefine_param' => 1,
+                                                                                                                                    'type' => 'Fixed',
+                                                                                                                                    'info' => undef,
+                                                                                                                                    'global_param' => 'Parameter'
+                                                                                                                                  },
+                                                                                                                 'ni_V' => {
+                                                                                                                             'default' => 2,
+                                                                                                                             'content' => '',
+                                                                                                                             'redefine_param' => 1,
+                                                                                                                             'info' => '',
+                                                                                                                             'type' => 'Fixed',
+                                                                                                                             'global_param' => 'Parameter'
+                                                                                                                           },
+                                                                                                                 'ni_NY' => {
+                                                                                                                              'global_param' => 'Parameter',
+                                                                                                                              'type' => 'Fixed',
+                                                                                                                              'info' => undef,
+                                                                                                                              'redefine_param' => 1,
+                                                                                                                              'content' => '',
+                                                                                                                              'default' => ' 2'
+                                                                                                                            },
+                                                                                                                 'ni_B' => {
+                                                                                                                             'info' => '',
+                                                                                                                             'type' => 'Fixed',
+                                                                                                                             'global_param' => 'Parameter',
+                                                                                                                             'default' => '4',
+                                                                                                                             'content' => '',
+                                                                                                                             'redefine_param' => 1
+                                                                                                                           },
+                                                                                                                 'ni_ROUTE_NAME' => {
+                                                                                                                                      'default' => '"XY"',
+                                                                                                                                      'content' => '',
+                                                                                                                                      'redefine_param' => 1,
+                                                                                                                                      'info' => undef,
+                                                                                                                                      'type' => 'Fixed',
+                                                                                                                                      'global_param' => 'Parameter'
+                                                                                                                                    },
+                                                                                                                 'ni_Fpay' => {
+                                                                                                                                'redefine_param' => 1,
+                                                                                                                                'default' => '32',
+                                                                                                                                'content' => '',
+                                                                                                                                'global_param' => 'Parameter',
+                                                                                                                                'info' => undef,
+                                                                                                                                'type' => 'Fixed'
+                                                                                                                              },
+                                                                                                                 'ni_DEBUG_EN' => {
+                                                                                                                                    'type' => 'Fixed',
+                                                                                                                                    'info' => undef,
+                                                                                                                                    'global_param' => 'Parameter',
+                                                                                                                                    'content' => '',
+                                                                                                                                    'default' => '0',
+                                                                                                                                    'redefine_param' => 1
+                                                                                                                                  },
+                                                                                                                 'ni_NX' => {
+                                                                                                                              'redefine_param' => 1,
+                                                                                                                              'content' => '',
+                                                                                                                              'default' => ' 2',
+                                                                                                                              'global_param' => 'Parameter',
+                                                                                                                              'type' => 'Fixed',
+                                                                                                                              'info' => undef
+                                                                                                                            }
+                                                                                                               }
+                                                                                             },
+                                                                                    'gpo0' => {
+                                                                                                'module' => 'gpo',
+                                                                                                'module_name' => 'gpo',
+                                                                                                'parameters' => {
+                                                                                                                  'gpo_PORT_WIDTH' => {
+                                                                                                                                        'content' => '1,32,1',
+                                                                                                                                        'default' => '   1',
+                                                                                                                                        'redefine_param' => 1,
+                                                                                                                                        'type' => 'Spin-button',
+                                                                                                                                        'info' => 'output port width',
+                                                                                                                                        'global_param' => 'Parameter'
+                                                                                                                                      }
+                                                                                                                },
+                                                                                                'instance' => 'gpo',
+                                                                                                'ports' => {
+                                                                                                             'gpo_port_o' => {
+                                                                                                                               'range' => 'gpo_PORT_WIDTH-1     :   0',
+                                                                                                                               'type' => 'output',
+                                                                                                                               'intfc_port' => 'IO',
+                                                                                                                               'intfc_name' => 'IO'
+                                                                                                                             }
+                                                                                                           },
+                                                                                                'category' => 'GPIO'
+                                                                                              },
+                                                                                    'wishbone_bus0' => {
+                                                                                                         'category' => 'Bus',
+                                                                                                         'instance' => 'bus',
+                                                                                                         'module_name' => 'wishbone_bus',
+                                                                                                         'module' => 'wishbone_bus'
+                                                                                                       },
+                                                                                    'clk_source0' => {
+                                                                                                       'module' => 'clk_source',
+                                                                                                       'module_name' => 'clk_source',
+                                                                                                       'instance' => 'ss',
+                                                                                                       'ports' => {
+                                                                                                                    'ss_clk_in' => {
+                                                                                                                                     'type' => 'input',
+                                                                                                                                     'range' => '',
+                                                                                                                                     'intfc_name' => 'plug:clk[0]',
+                                                                                                                                     'intfc_port' => 'clk_i'
+                                                                                                                                   },
+                                                                                                                    'ss_reset_in' => {
+                                                                                                                                       'intfc_name' => 'plug:reset[0]',
+                                                                                                                                       'intfc_port' => 'reset_i',
+                                                                                                                                       'type' => 'input',
+                                                                                                                                       'range' => ''
+                                                                                                                                     }
+                                                                                                                  },
+                                                                                                       'category' => 'Source'
+                                                                                                     },
+                                                                                    'lm320' => {
+                                                                                                 'module_name' => 'lm32',
+                                                                                                 'module' => 'lm32',
+                                                                                                 'category' => 'Processor',
+                                                                                                 'ports' => {
+                                                                                                              'cpu_en_i' => {
+                                                                                                                              'type' => 'input',
+                                                                                                                              'range' => '',
+                                                                                                                              'intfc_name' => 'plug:enable[0]',
+                                                                                                                              'intfc_port' => 'enable_i'
+                                                                                                                            }
+                                                                                                            },
+                                                                                                 'instance' => 'cpu'
+                                                                                               },
+                                                                                    'single_port_ram0' => {
+                                                                                                            'instance' => 'ram',
+                                                                                                            'category' => 'RAM',
+                                                                                                            'module' => 'single_port_ram',
+                                                                                                            'parameters' => {
+                                                                                                                              'ram_Dw' => {
+                                                                                                                                            'redefine_param' => 1,
+                                                                                                                                            'content' => '8,1024,1',
+                                                                                                                                            'default' => '32',
+                                                                                                                                            'global_param' => 'Parameter',
+                                                                                                                                            'type' => 'Spin-button',
+                                                                                                                                            'info' => 'Memory data width in Bits.'
+                                                                                                                                          },
+                                                                                                                              'ram_Aw' => {
+                                                                                                                                            'default' => '12',
+                                                                                                                                            'content' => '4,31,1',
+                                                                                                                                            'redefine_param' => 1,
+                                                                                                                                            'info' => 'Memory address width',
+                                                                                                                                            'type' => 'Spin-button',
+                                                                                                                                            'global_param' => 'Parameter'
+                                                                                                                                          }
+                                                                                                                            },
+                                                                                                            'module_name' => 'wb_single_port_ram'
+                                                                                                          },
+                                                                                    'jtag_wb0' => {
+                                                                                                    'instance' => 'jtag_wb0',
+                                                                                                    'category' => 'JTAG',
+                                                                                                    'module' => 'jtag_wb',
+                                                                                                    'module_name' => 'vjtag_wb',
+                                                                                                    'parameters' => {
+                                                                                                                      'jtag_wb0_VJTAG_INDEX' => {
+                                                                                                                                                  'global_param' => 'Parameter',
+                                                                                                                                                  'info' => 'JTAG control host identifies each instance of this IP core by a unique index number. The default value is the tile ID number. You assign an index value between 0 to 255.',
+                                                                                                                                                  'type' => 'Entry',
+                                                                                                                                                  'redefine_param' => 1,
+                                                                                                                                                  'default' => 'CORE_ID',
+                                                                                                                                                  'content' => ''
+                                                                                                                                                }
+                                                                                                                    }
+                                                                                                  }
+                                                                                  },
+                                                                'ports' => {
+                                                                             'ni_flit_out_wr' => {
+                                                                                                   'type' => 'output',
+                                                                                                   'range' => '',
+                                                                                                   'intfc_name' => 'socket:ni[0]',
+                                                                                                   'instance_name' => 'ni0',
+                                                                                                   'intfc_port' => 'flit_out_wr'
+                                                                                                 },
+                                                                             'ni_flit_in_wr' => {
+                                                                                                  'intfc_port' => 'flit_in_wr',
+                                                                                                  'instance_name' => 'ni0',
+                                                                                                  'intfc_name' => 'socket:ni[0]',
+                                                                                                  'range' => '',
+                                                                                                  'type' => 'input'
+                                                                                                },
+                                                                             'ss_reset_in' => {
+                                                                                                'range' => '',
+                                                                                                'type' => 'input',
+                                                                                                'intfc_port' => 'reset_i',
+                                                                                                'instance_name' => 'clk_source0',
+                                                                                                'intfc_name' => 'plug:reset[0]'
+                                                                                              },
+                                                                             'ss_clk_in' => {
+                                                                                              'intfc_name' => 'plug:clk[0]',
+                                                                                              'instance_name' => 'clk_source0',
+                                                                                              'intfc_port' => 'clk_i',
+                                                                                              'range' => '',
+                                                                                              'type' => 'input'
+                                                                                            },
+                                                                             'ni_current_y' => {
+                                                                                                 'intfc_port' => 'current_y',
+                                                                                                 'instance_name' => 'ni0',
+                                                                                                 'intfc_name' => 'socket:ni[0]',
+                                                                                                 'type' => 'input',
+                                                                                                 'range' => 'ni_Yw-1   :   0'
+                                                                                               },
+                                                                             'ni_credit_out' => {
+                                                                                                  'intfc_port' => 'credit_out',
+                                                                                                  'instance_name' => 'ni0',
+                                                                                                  'intfc_name' => 'socket:ni[0]',
+                                                                                                  'range' => 'ni_V-1:   0',
+                                                                                                  'type' => 'output'
+                                                                                                },
+                                                                             'cpu_en_i' => {
+                                                                                             'range' => '',
+                                                                                             'type' => 'input',
+                                                                                             'intfc_port' => 'enable_i',
+                                                                                             'instance_name' => 'lm320',
+                                                                                             'intfc_name' => 'plug:enable[0]'
+                                                                                           },
+                                                                             'gpo_port_o' => {
+                                                                                               'type' => 'output',
+                                                                                               'range' => 'gpo_PORT_WIDTH-1     :   0',
+                                                                                               'intfc_port' => 'IO',
+                                                                                               'instance_name' => 'gpo0',
+                                                                                               'intfc_name' => 'IO'
+                                                                                             },
+                                                                             'ni_credit_in' => {
+                                                                                                 'intfc_name' => 'socket:ni[0]',
+                                                                                                 'instance_name' => 'ni0',
+                                                                                                 'intfc_port' => 'credit_in',
+                                                                                                 'range' => 'ni_V-1    :   0',
+                                                                                                 'type' => 'input'
+                                                                                               },
+                                                                             'ni_flit_out' => {
+                                                                                                'instance_name' => 'ni0',
+                                                                                                'intfc_port' => 'flit_out',
+                                                                                                'intfc_name' => 'socket:ni[0]',
+                                                                                                'range' => 'ni_Fw-1   :   0',
+                                                                                                'type' => 'output'
+                                                                                              },
+                                                                             'ni_current_x' => {
+                                                                                                 'range' => 'ni_Xw-1   :   0',
+                                                                                                 'type' => 'input',
+                                                                                                 'intfc_name' => 'socket:ni[0]',
+                                                                                                 'intfc_port' => 'current_x',
+                                                                                                 'instance_name' => 'ni0'
+                                                                                               },
+                                                                             'ni_flit_in' => {
+                                                                                               'type' => 'input',
+                                                                                               'range' => 'ni_Fw-1   :   0',
+                                                                                               'intfc_name' => 'socket:ni[0]',
+                                                                                               'intfc_port' => 'flit_in',
+                                                                                               'instance_name' => 'ni0'
+                                                                                             }
+                                                                           },
+                                                                'tiles' => {
+                                                                             '5' => {}
+                                                                           },
+                                                                'parameters' => {
+                                                                                  'jtag_wb0_VJTAG_INDEX' => 'CORE_ID',
+                                                                                  'ram_Aw' => '12',
+                                                                                  'ram_Dw' => '32',
+                                                                                  'gpo_PORT_WIDTH' => '   1'
+                                                                                },
+                                                                'interface' => {
+                                                                                 'plug:enable[0]' => {
+                                                                                                       'ports' => {
+                                                                                                                    'cpu_en_i' => {
+                                                                                                                                    'range' => '',
+                                                                                                                                    'type' => 'input',
+                                                                                                                                    'instance_name' => 'lm320',
+                                                                                                                                    'intfc_port' => 'enable_i'
+                                                                                                                                  }
+                                                                                                                  }
+                                                                                                     },
+                                                                                 'IO' => {
+                                                                                           'ports' => {
+                                                                                                        'gpo_port_o' => {
+                                                                                                                          'instance_name' => 'gpo0',
+                                                                                                                          'intfc_port' => 'IO',
+                                                                                                                          'range' => 'gpo_PORT_WIDTH-1     :   0',
+                                                                                                                          'type' => 'output'
+                                                                                                                        }
+                                                                                                      }
+                                                                                         },
+                                                                                 'plug:clk[0]' => {
+                                                                                                    'ports' => {
+                                                                                                                 'ss_clk_in' => {
+                                                                                                                                  'range' => '',
+                                                                                                                                  'type' => 'input',
+                                                                                                                                  'intfc_port' => 'clk_i',
+                                                                                                                                  'instance_name' => 'clk_source0'
+                                                                                                                                }
+                                                                                                               }
+                                                                                                  },
+                                                                                 'socket:ni[0]' => {
+                                                                                                     'ports' => {
+                                                                                                                  'ni_flit_out' => {
+                                                                                                                                     'intfc_port' => 'flit_out',
+                                                                                                                                     'instance_name' => 'ni0',
+                                                                                                                                     'range' => 'ni_Fw-1   :   0',
+                                                                                                                                     'type' => 'output'
+                                                                                                                                   },
+                                                                                                                  'ni_current_x' => {
+                                                                                                                                      'range' => 'ni_Xw-1   :   0',
+                                                                                                                                      'type' => 'input',
+                                                                                                                                      'intfc_port' => 'current_x',
+                                                                                                                                      'instance_name' => 'ni0'
+                                                                                                                                    },
+                                                                                                                  'ni_flit_in' => {
+                                                                                                                                    'type' => 'input',
+                                                                                                                                    'range' => 'ni_Fw-1   :   0',
+                                                                                                                                    'instance_name' => 'ni0',
+                                                                                                                                    'intfc_port' => 'flit_in'
+                                                                                                                                  },
+                                                                                                                  'ni_credit_in' => {
+                                                                                                                                      'range' => 'ni_V-1    :   0',
+                                                                                                                                      'type' => 'input',
+                                                                                                                                      'intfc_port' => 'credit_in',
+                                                                                                                                      'instance_name' => 'ni0'
+                                                                                                                                    },
+                                                                                                                  'ni_credit_out' => {
+                                                                                                                                       'type' => 'output',
+                                                                                                                                       'range' => 'ni_V-1:   0',
+                                                                                                                                       'intfc_port' => 'credit_out',
+                                                                                                                                       'instance_name' => 'ni0'
+                                                                                                                                     },
+                                                                                                                  'ni_current_y' => {
+                                                                                                                                      'instance_name' => 'ni0',
+                                                                                                                                      'intfc_port' => 'current_y',
+                                                                                                                                      'type' => 'input',
+                                                                                                                                      'range' => 'ni_Yw-1   :   0'
+                                                                                                                                    },
+                                                                                                                  'ni_flit_in_wr' => {
+                                                                                                                                       'range' => '',
+                                                                                                                                       'type' => 'input',
+                                                                                                                                       'instance_name' => 'ni0',
+                                                                                                                                       'intfc_port' => 'flit_in_wr'
+                                                                                                                                     },
+                                                                                                                  'ni_flit_out_wr' => {
+                                                                                                                                        'type' => 'output',
+                                                                                                                                        'range' => '',
+                                                                                                                                        'instance_name' => 'ni0',
+                                                                                                                                        'intfc_port' => 'flit_out_wr'
+                                                                                                                                      }
+                                                                                                                }
+                                                                                                   },
+                                                                                 'plug:reset[0]' => {
+                                                                                                      'ports' => {
+                                                                                                                   'ss_reset_in' => {
+                                                                                                                                      'range' => '',
+                                                                                                                                      'type' => 'input',
+                                                                                                                                      'instance_name' => 'clk_source0',
+                                                                                                                                      'intfc_port' => 'reset_i'
+                                                                                                                                    }
+                                                                                                                 }
+                                                                                                    }
+                                                                               }
+                                                              }, 'ip_gen' ),
+                                              'tile_nums' => [
+                                                               0,
+                                                               1,
+                                                               3,
+                                                               4,
+                                                               5
+                                                             ]
+                                            }
+                             },
+                   'setting' => {
+                                  'soc_path' => 'lib/soc',
+                                  'show_adv_setting' => 0,
+                                  'show_noc_setting' => 1,
+                                  'show_tile_setting' => 1
+                                },
+                   'file_name' => undef,
+                   'noc_param' => {
+                                    'FIRST_ARBITER_EXT_P_EN' => 0,
+                                    'ESCAP_VC_MASK' => '2\'b01',
+                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                    'ROUTE_SUBFUNC' => '"XY"',
+                                    'C' => 0,
+                                    'SSA_EN' => '"NO"',
+                                    'B' => '4',
+                                    'ROUTE_NAME' => '"XY"',
+                                    'CONGESTION_INDEX' => 3,
+                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                    'DEBUG_EN' => '0',
+                                    'NY' => 4,
+                                    'TOPOLOGY' => '"MESH"',
+                                    'V' => '2',
+                                    'MUX_TYPE' => '"BINARY"',
+                                    'AVC_ATOMIC_EN' => 0,
+                                    'Fpay' => '32',
+                                    'NX' => 4
+                                  },
+                   'noc_indept_param' => {},
+                   'noc_type' => {
+                                   'ROUTER_TYPE' => '"VC_BASED"'
+                                 }
+                 }, 'mpsoc' );

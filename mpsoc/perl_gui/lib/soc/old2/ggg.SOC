@@ -1,0 +1,28 @@
+#######################################################################
+##	File: ggg.SOC
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.6.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$soc = bless( {
+                'gui_status' => {
+                                  'timeout' => 0,
+                                  'status' => 'ideal'
+                                },
+                'instance_order' => undef,
+                'hdl_files' => undef,
+                'global_param' => {
+                                    'CORE_ID' => 0
+                                  },
+                'soc_name' => 'ggg',
+                'modules' => {},
+                'instances' => {},
+                'top_ip' => bless( {
+                                     'instance_ids' => {}
+                                   }, 'ip_gen' )
+              }, 'soc' );

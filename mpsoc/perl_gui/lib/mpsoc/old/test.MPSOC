@@ -1,0 +1,307 @@
+#######################################################################
+##	File: test.MPSOC
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.7.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$test = bless( {
+                 'class_param' => {
+                                    'Cn_1' => '4\'b1100',
+                                    'Cn_0' => '4\'b0011'
+                                  },
+                 'noc_param' => {
+                                  'AVC_ATOMIC_EN' => 0,
+                                  'WEIGHTw' => '4',
+                                  'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                  'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                  'B' => '4',
+                                  'WRRA_CONFIG_INDEX' => '0',
+                                  'NY' => ' 2',
+                                  'ROUTE_SUBFUNC' => '"XY"',
+                                  'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                  'V' => 4,
+                                  'MUX_TYPE' => '"BINARY"',
+                                  'ESCAP_VC_MASK' => '4\'b0001',
+                                  'NX' => ' 2',
+                                  'CONGESTION_INDEX' => 3,
+                                  'Fpay' => '32',
+                                  'SWA_ARBITER_TYPE' => '"WRRA"',
+                                  'DEBUG_EN' => '0',
+                                  'C' => 2,
+                                  'SSA_EN' => '"NO"',
+                                  'ROUTE_NAME' => '"XY"',
+                                  'FIRST_ARBITER_EXT_P_EN' => 1,
+                                  'TOPOLOGY' => '"MESH"'
+                                },
+                 'noc_type' => {
+                                 'ROUTER_TYPE' => '"VC_BASED"'
+                               },
+                 'top_ip' => bless( {
+                                      'ports' => {
+                                                   'processors_en' => {
+                                                                        'type' => 'input',
+                                                                        'instance_name' => 'IO',
+                                                                        'range' => '',
+                                                                        'intfc_port' => 'enable_i',
+                                                                        'intfc_name' => 'plug:enable[0]'
+                                                                      },
+                                                   'reset' => {
+                                                                'type' => 'input',
+                                                                'instance_name' => 'IO',
+                                                                'range' => '',
+                                                                'intfc_port' => 'reset_i',
+                                                                'intfc_name' => 'plug:reset[0]'
+                                                              },
+                                                   'lm32_tile_0_gpo_port_o' => {
+                                                                               'instance_name' => 'lm32_tile_0',
+                                                                               'type' => 'output',
+                                                                               'intfc_name' => 'IO',
+                                                                               'range' => 'lm32_tile_0_gpo_PORT_WIDTH-1     :   0',
+                                                                               'intfc_port' => 'IO'
+                                                                             },
+                                                   'aeMB_tile_1_led_port_o' => {
+                                                                                 'instance_name' => 'aeMB_tile_3',
+                                                                                 'type' => 'output',
+                                                                                 'intfc_name' => 'IO',
+                                                                                 'intfc_port' => 'IO',
+                                                                                 'range' => 'aeMB_tile_1_led_PORT_WIDTH-1     :   0'
+                                                                               },
+                                                   'lm32_tile$_0_gpo_port_o' => {
+                                                                                'intfc_port' => 'IO',
+                                                                                'range' => 'lm32_tile$_0_gpo_PORT_WIDTH-1     :   0',
+                                                                                'intfc_name' => 'IO',
+                                                                                'type' => 'output',
+                                                                                'instance_name' => 'lm32_tile$_1'
+                                                                              },
+                                                   'clk' => {
+                                                              'intfc_name' => 'plug:clk[0]',
+                                                              'intfc_port' => 'clk_i',
+                                                              'range' => '',
+                                                              'instance_name' => 'IO',
+                                                              'type' => 'input'
+                                                            },
+                                                   'aeMB_tile_0_led_port_o' => {
+                                                                                 'intfc_name' => 'IO',
+                                                                                 'range' => 'aeMB_tile_0_led_PORT_WIDTH-1     :   0',
+                                                                                 'intfc_port' => 'IO',
+                                                                                 'instance_name' => 'aeMB_tile_2',
+                                                                                 'type' => 'output'
+                                                                               }
+                                                 },
+                                      'interface' => {
+                                                       'IO' => {
+                                                                 'ports' => {
+                                                                              'aeMB_tile_0_led_port_o' => {
+                                                                                                            'type' => 'output',
+                                                                                                            'instance_name' => 'aeMB_tile_2',
+                                                                                                            'intfc_port' => 'IO',
+                                                                                                            'range' => 'aeMB_tile_0_led_PORT_WIDTH-1     :   0'
+                                                                                                          },
+                                                                              'lm32_tile$_0_gpo_port_o' => {
+                                                                                                           'instance_name' => 'lm32_tile$_1',
+                                                                                                           'type' => 'output',
+                                                                                                           'range' => 'lm32_tile$_0_gpo_PORT_WIDTH-1     :   0',
+                                                                                                           'intfc_port' => 'IO'
+                                                                                                         },
+                                                                              'lm32_tile_0_gpo_port_o' => {
+                                                                                                          'range' => 'lm32_tile_0_gpo_PORT_WIDTH-1     :   0',
+                                                                                                          'intfc_port' => 'IO',
+                                                                                                          'instance_name' => 'lm32_tile_0',
+                                                                                                          'type' => 'output'
+                                                                                                        },
+                                                                              'aeMB_tile_1_led_port_o' => {
+                                                                                                            'range' => 'aeMB_tile_1_led_PORT_WIDTH-1     :   0',
+                                                                                                            'intfc_port' => 'IO',
+                                                                                                            'type' => 'output',
+                                                                                                            'instance_name' => 'aeMB_tile_3'
+                                                                                                          }
+                                                                            }
+                                                               },
+                                                       'plug:enable[0]' => {
+                                                                             'ports' => {
+                                                                                          'processors_en' => {
+                                                                                                               'type' => 'input',
+                                                                                                               'instance_name' => 'IO',
+                                                                                                               'intfc_port' => 'enable_i',
+                                                                                                               'range' => ''
+                                                                                                             }
+                                                                                        }
+                                                                           },
+                                                       'plug:clk[0]' => {
+                                                                          'ports' => {
+                                                                                       'clk' => {
+                                                                                                  'type' => 'input',
+                                                                                                  'instance_name' => 'IO',
+                                                                                                  'range' => '',
+                                                                                                  'intfc_port' => 'clk_i'
+                                                                                                }
+                                                                                     }
+                                                                        },
+                                                       'plug:reset[0]' => {
+                                                                            'ports' => {
+                                                                                         'reset' => {
+                                                                                                      'range' => '',
+                                                                                                      'intfc_port' => 'reset_i',
+                                                                                                      'type' => 'input',
+                                                                                                      'instance_name' => 'IO'
+                                                                                                    }
+                                                                                       }
+                                                                          }
+                                                     },
+                                      'instance_ids' => {
+                                                          'aeMB_tile_3' => {
+                                                                             'ports' => {
+                                                                                          'aeMB_tile_1_led_port_o' => {
+                                                                                                                        'intfc_name' => 'IO',
+                                                                                                                        'range' => 'aeMB_tile_1_led_PORT_WIDTH-1     :   0',
+                                                                                                                        'intfc_port' => 'IO',
+                                                                                                                        'type' => 'output'
+                                                                                                                      }
+                                                                                        }
+                                                                           },
+                                                          'lm32_tile_0' => {
+                                                                           'ports' => {
+                                                                                        'lm32_tile_0_gpo_port_o' => {
+                                                                                                                    'type' => 'output',
+                                                                                                                    'intfc_name' => 'IO',
+                                                                                                                    'intfc_port' => 'IO',
+                                                                                                                    'range' => 'lm32_tile_0_gpo_PORT_WIDTH-1     :   0'
+                                                                                                                  }
+                                                                                      }
+                                                                         },
+                                                          'aeMB_tile_2' => {
+                                                                             'ports' => {
+                                                                                          'aeMB_tile_0_led_port_o' => {
+                                                                                                                        'range' => 'aeMB_tile_0_led_PORT_WIDTH-1     :   0',
+                                                                                                                        'intfc_port' => 'IO',
+                                                                                                                        'intfc_name' => 'IO',
+                                                                                                                        'type' => 'output'
+                                                                                                                      }
+                                                                                        }
+                                                                           },
+                                                          'IO' => {
+                                                                    'ports' => {
+                                                                                 'processors_en' => {
+                                                                                                      'intfc_name' => 'plug:enable[0]',
+                                                                                                      'range' => '',
+                                                                                                      'intfc_port' => 'enable_i',
+                                                                                                      'type' => 'input'
+                                                                                                    },
+                                                                                 'reset' => {
+                                                                                              'type' => 'input',
+                                                                                              'range' => '',
+                                                                                              'intfc_port' => 'reset_i',
+                                                                                              'intfc_name' => 'plug:reset[0]'
+                                                                                            },
+                                                                                 'clk' => {
+                                                                                            'range' => '',
+                                                                                            'intfc_port' => 'clk_i',
+                                                                                            'intfc_name' => 'plug:clk[0]',
+                                                                                            'type' => 'input'
+                                                                                          }
+                                                                               }
+                                                                  },
+                                                          'lm32_tile$_1' => {
+                                                                            'ports' => {
+                                                                                         'lm32_tile$_0_gpo_port_o' => {
+                                                                                                                      'intfc_name' => 'IO',
+                                                                                                                      'range' => 'lm32_tile$_0_gpo_PORT_WIDTH-1     :   0',
+                                                                                                                      'intfc_port' => 'IO',
+                                                                                                                      'type' => 'output'
+                                                                                                                    }
+                                                                                       }
+                                                                          }
+                                                        }
+                                    }, 'ip_gen' ),
+                 'noc_indept_param' => {},
+                 'parameters_order' => {
+                                         'noc_param' => [
+                                                          'TOPOLOGY',
+                                                          'NX',
+                                                          'NY',
+                                                          'V',
+                                                          'B',
+                                                          'Fpay',
+                                                          'ROUTE_NAME',
+                                                          'SSA_EN',
+                                                          'CONGESTION_INDEX',
+                                                          'ESCAP_VC_MASK',
+                                                          'VC_REALLOCATION_TYPE',
+                                                          'COMBINATION_TYPE',
+                                                          'MUX_TYPE',
+                                                          'C',
+                                                          'DEBUG_EN',
+                                                          'ADD_PIPREG_AFTER_CROSSBAR',
+                                                          'FIRST_ARBITER_EXT_P_EN',
+                                                          'SWA_ARBITER_TYPE',
+                                                          'WEIGHTw',
+                                                          'WRRA_CONFIG_INDEX',
+                                                          'AVC_ATOMIC_EN',
+                                                          'ROUTE_SUBFUNC'
+                                                        ],
+                                         'class_param' => [
+                                                            'Cn_0',
+                                                            'Cn_1'
+                                                          ],
+                                         'noc_type' => [
+                                                         'ROUTER_TYPE'
+                                                       ]
+                                       },
+                 'setting' => {
+                                'show_tile_setting' => 1,
+                                'soc_path' => 'lib/soc',
+                                'show_adv_setting' => 1,
+                                'show_noc_setting' => 1
+                              },
+                 'file_name' => undef,
+                 'tile' => {
+                             '0' => {
+                                      'param_setting' => 'Default'
+                                    },
+                             '2' => {},
+                             '3' => {},
+                             '1' => {
+                                      'param_setting' => 'Default'
+                                    }
+                           },
+                 'gui_status' => {
+                                   'status' => 'ideal',
+                                   'timeout' => 0
+                                 },
+                 'mpsoc_name' => 'test',
+                 'socs' => {
+                             'ni_sep_test' => {
+                                                'tile_nums' => []
+                                              },
+                             'new_ni_test' => {
+                                                'tile_nums' => []
+                                              },
+                             'aeMB_tile' => {
+                                              'tile_nums' => [
+                                                               2,
+                                                               3
+                                                             ]
+                                            },
+                             'lm32_tile$' => {
+                                             'tile_nums' => [
+                                                              1
+                                                            ]
+                                           },
+                             'lm32_tile' => {
+                                            'tile_nums' => [
+                                                             0
+                                                           ]
+                                          },
+                             'sim_uart_test' => {
+                                                  'tile_nums' => []
+                                                },
+                             'sep' => {
+                                        'tile_nums' => []
+                                      }
+                           }
+               }, 'mpsoc' );

@@ -1,0 +1,175 @@
+#######################################################################
+##	File: test.TRC
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.8.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$Trace = bless( {
+                  'select_multiple' => {
+                                         'action' => 'Select'
+                                       },
+                  'trace_pad' => {
+                                   'va' => '0',
+                                   'ha' => '0'
+                                 },
+                  'traces' => {
+                                '4' => 1,
+                                '1' => 1,
+                                '0' => 1,
+                                '5' => 1,
+                                '3' => 1,
+                                '2' => 1
+                              },
+                  'Auto' => {
+                              'Auto_inject' => '1\'b0'
+                            },
+                  'map_param' => {
+                                   'Map_Algrm' => 'Direct'
+                                 },
+                  'trace_5' => {
+                                 'min_pck_size' => 5,
+                                 'file_name' => '/home/alireza/mywork/mpsoc/perl_gui/lib/simulate/embedded_app_graphs/test.app',
+                                 'max_pck_size' => 5,
+                                 'injct_rate' => '100',
+                                 'file' => 'a',
+                                 'init_weight' => 1,
+                                 'destination' => 'a6',
+                                 'Mbytes' => '10',
+                                 'injct_rate_var' => 20,
+                                 'source' => 'a5',
+                                 'selected' => 0,
+                                 'burst_size' => 1
+                               },
+                  'trace_0' => {
+                                 'file' => 'a',
+                                 'init_weight' => 1,
+                                 'Mbytes' => '10',
+                                 'destination' => 'a4',
+                                 'min_pck_size' => 5,
+                                 'file_name' => '/home/alireza/mywork/mpsoc/perl_gui/lib/simulate/embedded_app_graphs/test.app',
+                                 'max_pck_size' => 5,
+                                 'injct_rate' => '100',
+                                 'selected' => 0,
+                                 'burst_size' => 1,
+                                 'injct_rate_var' => 20,
+                                 'source' => 'a0'
+                               },
+                  'out_name' => 'test',
+                  'MAP_TILE' => {
+                                  'a3' => 'tile(3_0)',
+                                  'a2' => 'tile(2_0)',
+                                  'a4' => 'tile(4_0)',
+                                  'a6' => 'tile(6_0)',
+                                  'a5' => 'tile(5_0)',
+                                  'a0' => 'tile(0_0)',
+                                  'a1' => 'tile(1_0)'
+                                },
+                  'MAP_TASK' => {
+                                  'tile(5_0)' => 'a5',
+                                  'tile(1_0)' => 'a1',
+                                  'tile(2_0)' => 'a2',
+                                  'tile(3_0)' => 'a3',
+                                  'tile(0_0)' => 'a0',
+                                  'tile(4_0)' => 'a4',
+                                  'tile(6_0)' => 'a6'
+                                },
+                  'MAP_LOCK' => {
+                                  'a2' => 0,
+                                  'a3' => 0,
+                                  'a0' => 0,
+                                  'a5' => 0,
+                                  'a1' => 0,
+                                  'a4' => 0,
+                                  'a6' => 0
+                                },
+                  'trace_3' => {
+                                 'selected' => 0,
+                                 'burst_size' => 1,
+                                 'injct_rate_var' => 20,
+                                 'source' => 'a3',
+                                 'init_weight' => 1,
+                                 'file' => 'a',
+                                 'Mbytes' => '10',
+                                 'destination' => 'a6',
+                                 'file_name' => '/home/alireza/mywork/mpsoc/perl_gui/lib/simulate/embedded_app_graphs/test.app',
+                                 'min_pck_size' => 5,
+                                 'injct_rate' => '100',
+                                 'max_pck_size' => 5
+                               },
+                  'noc_param' => {
+                                   'NY' => 7,
+                                   'NX' => 7
+                                 },
+                  'gui_status' => {
+                                    'timeout' => 0,
+                                    'status' => 'ideal'
+                                  },
+                  'map_info' => {
+                                  'va' => '0',
+                                  'ha' => '0'
+                                },
+                  'file_id' => 'b',
+                  'trace_4' => {
+                                 'burst_size' => 1,
+                                 'selected' => 0,
+                                 'source' => 'a4',
+                                 'injct_rate_var' => 20,
+                                 'destination' => 'a6',
+                                 'Mbytes' => '10',
+                                 'init_weight' => 1,
+                                 'file' => 'a',
+                                 'max_pck_size' => 5,
+                                 'injct_rate' => '100',
+                                 'min_pck_size' => 5,
+                                 'file_name' => '/home/alireza/mywork/mpsoc/perl_gui/lib/simulate/embedded_app_graphs/test.app'
+                               },
+                  'save_as' => 'test',
+                  'trace_1' => {
+                                 'destination' => 'a4',
+                                 'Mbytes' => '10',
+                                 'init_weight' => 1,
+                                 'file' => 'a',
+                                 'injct_rate' => '100',
+                                 'max_pck_size' => 5,
+                                 'file_name' => '/home/alireza/mywork/mpsoc/perl_gui/lib/simulate/embedded_app_graphs/test.app',
+                                 'min_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'selected' => 0,
+                                 'source' => 'a1',
+                                 'injct_rate_var' => 20
+                               },
+                  'trace_2' => {
+                                 'selected' => 0,
+                                 'burst_size' => 1,
+                                 'injct_rate_var' => 20,
+                                 'source' => 'a2',
+                                 'init_weight' => 1,
+                                 'file' => 'a',
+                                 'Mbytes' => '10',
+                                 'destination' => 'a4',
+                                 'file_name' => '/home/alireza/mywork/mpsoc/perl_gui/lib/simulate/embedded_app_graphs/test.app',
+                                 'min_pck_size' => 5,
+                                 'injct_rate' => '100',
+                                 'max_pck_size' => 5
+                               },
+                  'trace_map' => {
+                                   'ha' => '0',
+                                   'va' => '0'
+                                 },
+                  'trace_id' => 6,
+                  'map_diagram' => {},
+                  'parameters_order' => {
+                                          'noc_param' => [
+                                                           'NX',
+                                                           'NY'
+                                                         ],
+                                          'map_param' => [
+                                                           'Map_Algrm'
+                                                         ]
+                                        }
+                }, 'ProNOC' );

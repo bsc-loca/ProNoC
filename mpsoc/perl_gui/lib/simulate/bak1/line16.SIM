@@ -1,0 +1,208 @@
+#######################################################################
+##	File: line16.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.7.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$line16 = bless( {
+                   'parameters_order' => {
+                                           'sample1' => [
+                                                          'line_name',
+                                                          'traffic',
+                                                          'PCK_SIZE',
+                                                          'PCK_NUM_LIMIT',
+                                                          'SIM_CLOCK_LIMIT'
+                                                        ],
+                                           'sample3' => [
+                                                          'line_name',
+                                                          'traffic',
+                                                          'PCK_SIZE',
+                                                          'PCK_NUM_LIMIT',
+                                                          'SIM_CLOCK_LIMIT'
+                                                        ],
+                                           'sim_param' => [
+                                                            'SAVE_NAME',
+                                                            'BIN_DIR'
+                                                          ],
+                                           'noc_param' => [
+                                                            'TOPOLOGY',
+                                                            'NX',
+                                                            'NY',
+                                                            'V',
+                                                            'B',
+                                                            'Fpay',
+                                                            'ROUTE_NAME',
+                                                            'SSA_EN',
+                                                            'SWA_ARBITER_TYPE',
+                                                            'CONGESTION_INDEX',
+                                                            'ESCAP_VC_MASK',
+                                                            'VC_REALLOCATION_TYPE',
+                                                            'COMBINATION_TYPE',
+                                                            'MUX_TYPE',
+                                                            'C',
+                                                            'DEBUG_EN',
+                                                            'ADD_PIPREG_AFTER_CROSSBAR',
+                                                            'FIRST_ARBITER_EXT_P_EN',
+                                                            'AVC_ATOMIC_EN',
+                                                            'ROUTE_SUBFUNC'
+                                                          ],
+                                           'noc_type' => [
+                                                           'ROUTER_TYPE'
+                                                         ],
+                                           'sample2' => [
+                                                          'line_name',
+                                                          'traffic',
+                                                          'PCK_SIZE',
+                                                          'PCK_NUM_LIMIT',
+                                                          'SIM_CLOCK_LIMIT'
+                                                        ]
+                                         },
+                   'sample1' => {
+                                  'SIM_CLOCK_LIMIT' => 100000,
+                                  'ratios' => '50',
+                                  'line_name' => 'rra',
+                                  'sof_file' => '/mpsoc_work/simulate/line_rra',
+                                  'PCK_SIZE' => 4,
+                                  'traffic' => 'transposed 1',
+                                  'color' => 2,
+                                  'PCK_NUM_LIMIT' => 200000,
+                                  'result' => {
+                                                '50' => ' -nan'
+                                              },
+                                  'status' => 'done',
+                                  'noc_info' => {
+                                                  'Fpay' => 32,
+                                                  'NX' => 16,
+                                                  'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                  'CONGESTION_INDEX' => 3,
+                                                  'V' => '2',
+                                                  'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                  'TOPOLOGY' => '"LINE"',
+                                                  'SWA_ARBITER_TYPE' => '"RRA"',
+                                                  'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                  'C' => 0,
+                                                  'AVC_ATOMIC_EN' => 0,
+                                                  'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                  'MUX_TYPE' => '"BINARY"',
+                                                  'B' => '4',
+                                                  'DEBUG_EN' => '0',
+                                                  'NY' => 1,
+                                                  'SSA_EN' => '"NO"',
+                                                  'ROUTE_SUBFUNC' => '"XY"',
+                                                  'ESCAP_VC_MASK' => '2\'b01',
+                                                  'ROUTE_NAME' => '"XY"'
+                                                }
+                                },
+                   'sim_param' => {
+                                    'SAVE_NAME' => 'ring_rra',
+                                    'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate'
+                                  },
+                   'graph_save' => {},
+                   'emulate_num' => 3,
+                   'simulate_name' => 'line16',
+                   'file_name' => undef,
+                   'noc_type' => {
+                                   'ROUTER_TYPE' => '"VC_BASED"'
+                                 },
+                   'graph_param' => {
+                                      'x_axis_font' => 'MediumBold',
+                                      'Y_MIN' => 0,
+                                      'LINEw' => 3,
+                                      'X_MIN' => 0,
+                                      'X_Title' => 'Load per router (flits/clock (%))',
+                                      'legend_font' => 'MediumBold',
+                                      'Y_Title' => 'Latency (clock)',
+                                      'X_MAX' => 100,
+                                      'label_font' => 'MediumBold',
+                                      'legend_placement' => 'BL'
+                                    },
+                   'setting' => {
+                                  'show_tile_setting' => 0,
+                                  'show_adv_setting' => 0,
+                                  'show_noc_setting' => 1,
+                                  'soc_path' => 'lib/soc'
+                                },
+                   'process_notebook' => {
+                                           'currentpage' => 0
+                                         },
+                   'status' => 'ideal',
+                   'active_setting' => undef,
+                   'sample2' => {
+                                  'result' => {
+                                                '50' => ' -nan'
+                                              },
+                                  'status' => 'done',
+                                  'noc_info' => {
+                                                  'NY' => 1,
+                                                  'ESCAP_VC_MASK' => '2\'b01',
+                                                  'ROUTE_SUBFUNC' => '"XY"',
+                                                  'ROUTE_NAME' => '"XY"',
+                                                  'SSA_EN' => '"NO"',
+                                                  'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                  'B' => '4',
+                                                  'MUX_TYPE' => '"BINARY"',
+                                                  'DEBUG_EN' => '0',
+                                                  'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                  'C' => 0,
+                                                  'AVC_ATOMIC_EN' => 0,
+                                                  'NX' => 16,
+                                                  'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                  'CONGESTION_INDEX' => 3,
+                                                  'Fpay' => 32,
+                                                  'SWA_ARBITER_TYPE' => '"WRRA"',
+                                                  'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                  'TOPOLOGY' => '"LINE"',
+                                                  'V' => '2'
+                                                },
+                                  'PCK_SIZE' => 4,
+                                  'sof_file' => '/mpsoc_work/simulate/line_wrra',
+                                  'traffic' => 'transposed 1',
+                                  'color' => 3,
+                                  'PCK_NUM_LIMIT' => 200000,
+                                  'SIM_CLOCK_LIMIT' => 100000,
+                                  'ratios' => '50',
+                                  'line_name' => 'wrra'
+                                },
+                   'sample3' => {
+                                  'ratios' => '50',
+                                  'line_name' => 'ring_rra',
+                                  'SIM_CLOCK_LIMIT' => 100000,
+                                  'PCK_NUM_LIMIT' => 200000,
+                                  'color' => 4,
+                                  'traffic' => 'transposed 1',
+                                  'PCK_SIZE' => 4,
+                                  'sof_file' => '/mpsoc_work/simulate/ring_rra'
+                                },
+                   'graph_scale' => 5,
+                   'noc_param' => {
+                                    'NY' => 1,
+                                    'SSA_EN' => '"NO"',
+                                    'ROUTE_NAME' => '"TRANC_XY"',
+                                    'ROUTE_SUBFUNC' => '"XY"',
+                                    'ESCAP_VC_MASK' => '2\'b01',
+                                    'B' => '4',
+                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                    'MUX_TYPE' => '"BINARY"',
+                                    'DEBUG_EN' => '0',
+                                    'C' => 0,
+                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                    'AVC_ATOMIC_EN' => 0,
+                                    'Fpay' => 32,
+                                    'CONGESTION_INDEX' => 3,
+                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                    'NX' => 16,
+                                    'V' => '2',
+                                    'SWA_ARBITER_TYPE' => '"RRA"',
+                                    'TOPOLOGY' => '"RING"',
+                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0'
+                                  },
+                   'gui_status' => {
+                                     'timeout' => 0,
+                                     'status' => 'ideal'
+                                   }
+                 }, 'emulator' );

@@ -1,0 +1,3776 @@
+
+image:     file format elf32-or1k
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .vectors      00000e1c  00000000  00000000  00000074  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .text         00001758  00001000  00001000  00000e90  2**2
+                  CONTENTS, ALLOC, LOAD, CODE
+  2 .text.startup 00000160  00002758  00002758  000025e8  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  3 .rodata       0000032d  000028b8  000028b8  00002748  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  4 .data         000000ec  00002be8  00002be8  00002a78  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  5 .bss          0000011c  00002cd4  00002cd4  00002b64  2**2
+                  ALLOC
+  6 .stack        00002000  00002df0  00002df0  00002b64  2**0
+                  ALLOC
+  7 .debug_info   00001565  00000000  00000000  00002b64  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_abbrev 0000079e  00000000  00000000  000040c9  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_loc    000012d6  00000000  00000000  00004867  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_aranges 00000088  00000000  00000000  00005b3d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 000001f8  00000000  00000000  00005bc5  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_line   0000064d  00000000  00000000  00005dbd  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_str    0000052f  00000000  00000000  0000640a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 14 .comment      00000011  00000000  00000000  00006939  2**0
+                  CONTENTS, READONLY
+ 15 .debug_frame  0000049c  00000000  00000000  0000694c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .vectors:
+
+00000000 <.vectors>:
+	...
+ 100:	18 00 00 00 	l.movhi r0,0x0
+ 104:	18 20 00 00 	l.movhi r1,0x0
+ 108:	18 40 00 00 	l.movhi r2,0x0
+ 10c:	18 60 00 00 	l.movhi r3,0x0
+ 110:	18 80 00 00 	l.movhi r4,0x0
+ 114:	18 a0 00 00 	l.movhi r5,0x0
+ 118:	18 c0 00 00 	l.movhi r6,0x0
+ 11c:	18 e0 00 00 	l.movhi r7,0x0
+ 120:	19 00 00 00 	l.movhi r8,0x0
+ 124:	19 20 00 00 	l.movhi r9,0x0
+ 128:	19 40 00 00 	l.movhi r10,0x0
+ 12c:	19 60 00 00 	l.movhi r11,0x0
+ 130:	19 80 00 00 	l.movhi r12,0x0
+ 134:	19 a0 00 00 	l.movhi r13,0x0
+ 138:	19 c0 00 00 	l.movhi r14,0x0
+ 13c:	19 e0 00 00 	l.movhi r15,0x0
+ 140:	1a 00 00 00 	l.movhi r16,0x0
+ 144:	1a 20 00 00 	l.movhi r17,0x0
+ 148:	1a 40 00 00 	l.movhi r18,0x0
+ 14c:	1a 60 00 00 	l.movhi r19,0x0
+ 150:	1a 80 00 00 	l.movhi r20,0x0
+ 154:	1a a0 00 00 	l.movhi r21,0x0
+ 158:	1a c0 00 00 	l.movhi r22,0x0
+ 15c:	1a e0 00 00 	l.movhi r23,0x0
+ 160:	1b 00 00 00 	l.movhi r24,0x0
+ 164:	1b 20 00 00 	l.movhi r25,0x0
+ 168:	1b 40 00 00 	l.movhi r26,0x0
+ 16c:	1b 60 00 00 	l.movhi r27,0x0
+ 170:	1b 80 00 00 	l.movhi r28,0x0
+ 174:	1b a0 00 00 	l.movhi r29,0x0
+ 178:	1b c0 00 00 	l.movhi r30,0x0
+ 17c:	1b e0 00 00 	l.movhi r31,0x0
+ 180:	a8 20 00 01 	l.ori r1,r0,0x1
+ 184:	c0 00 08 11 	l.mtspr r0,r1,0x11
+ 188:	c1 40 00 00 	l.mtspr r0,r0,0x5000
+ 18c:	18 20 00 00 	l.movhi r1,0x0
+ 190:	a8 21 4d f0 	l.ori r1,r1,0x4df0
+ 194:	9c 40 ff fd 	l.addi r2,r0,-3
+ 198:	e0 21 10 03 	l.and r1,r1,r2
+ 19c:	18 80 00 00 	l.movhi r4,0x0
+ 1a0:	a8 84 10 00 	l.ori r4,r4,0x1000
+ 1a4:	44 00 20 00 	l.jr r4
+ 1a8:	15 00 00 00 	l.nop 0x0
+	...
+ 200:	9c 21 fe f8 	l.addi r1,r1,-264
+ 204:	d4 01 18 04 	l.sw 4(r1),r3
+ 208:	d4 01 20 08 	l.sw 8(r1),r4
+ 20c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ 210:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ 214:	00 00 03 97 	l.j 1070 <default_exception_handler>
+ 218:	15 00 00 00 	l.nop 0x0
+	...
+ 300:	9c 21 fe f8 	l.addi r1,r1,-264
+ 304:	d4 01 18 04 	l.sw 4(r1),r3
+ 308:	d4 01 20 08 	l.sw 8(r1),r4
+ 30c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ 310:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ 314:	00 00 03 57 	l.j 1070 <default_exception_handler>
+ 318:	15 00 00 00 	l.nop 0x0
+	...
+ 400:	9c 21 fe f8 	l.addi r1,r1,-264
+ 404:	d4 01 18 04 	l.sw 4(r1),r3
+ 408:	d4 01 20 08 	l.sw 8(r1),r4
+ 40c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ 410:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ 414:	00 00 03 17 	l.j 1070 <default_exception_handler>
+ 418:	15 00 00 00 	l.nop 0x0
+	...
+ 500:	9c 21 fe f8 	l.addi r1,r1,-264
+ 504:	d4 01 18 04 	l.sw 4(r1),r3
+ 508:	d4 01 20 08 	l.sw 8(r1),r4
+ 50c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ 510:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ 514:	00 00 02 d7 	l.j 1070 <default_exception_handler>
+ 518:	15 00 00 00 	l.nop 0x0
+	...
+ 600:	9c 21 fe f8 	l.addi r1,r1,-264
+ 604:	d4 01 18 04 	l.sw 4(r1),r3
+ 608:	d4 01 20 08 	l.sw 8(r1),r4
+ 60c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ 610:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ 614:	00 00 02 97 	l.j 1070 <default_exception_handler>
+ 618:	15 00 00 00 	l.nop 0x0
+	...
+ 700:	9c 21 fe f8 	l.addi r1,r1,-264
+ 704:	d4 01 18 04 	l.sw 4(r1),r3
+ 708:	d4 01 20 08 	l.sw 8(r1),r4
+ 70c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ 710:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ 714:	00 00 02 57 	l.j 1070 <default_exception_handler>
+ 718:	15 00 00 00 	l.nop 0x0
+	...
+ 800:	9c 21 fe f8 	l.addi r1,r1,-264
+ 804:	d4 01 18 04 	l.sw 4(r1),r3
+ 808:	d4 01 20 08 	l.sw 8(r1),r4
+ 80c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ 810:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ 814:	00 00 02 17 	l.j 1070 <default_exception_handler>
+ 818:	15 00 00 00 	l.nop 0x0
+	...
+ 900:	9c 21 fe f8 	l.addi r1,r1,-264
+ 904:	d4 01 18 04 	l.sw 4(r1),r3
+ 908:	d4 01 20 08 	l.sw 8(r1),r4
+ 90c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ 910:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ 914:	00 00 01 d7 	l.j 1070 <default_exception_handler>
+ 918:	15 00 00 00 	l.nop 0x0
+	...
+ a00:	9c 21 fe f8 	l.addi r1,r1,-264
+ a04:	d4 01 18 04 	l.sw 4(r1),r3
+ a08:	d4 01 20 08 	l.sw 8(r1),r4
+ a0c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ a10:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ a14:	00 00 01 97 	l.j 1070 <default_exception_handler>
+ a18:	15 00 00 00 	l.nop 0x0
+	...
+ b00:	9c 21 fe f8 	l.addi r1,r1,-264
+ b04:	d4 01 18 04 	l.sw 4(r1),r3
+ b08:	d4 01 20 08 	l.sw 8(r1),r4
+ b0c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ b10:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ b14:	00 00 01 57 	l.j 1070 <default_exception_handler>
+ b18:	15 00 00 00 	l.nop 0x0
+	...
+ c00:	9c 21 fe f8 	l.addi r1,r1,-264
+ c04:	d4 01 18 04 	l.sw 4(r1),r3
+ c08:	d4 01 20 08 	l.sw 8(r1),r4
+ c0c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ c10:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ c14:	00 00 01 17 	l.j 1070 <default_exception_handler>
+ c18:	15 00 00 00 	l.nop 0x0
+	...
+ d00:	9c 21 fe f8 	l.addi r1,r1,-264
+ d04:	d4 01 18 04 	l.sw 4(r1),r3
+ d08:	d4 01 20 08 	l.sw 8(r1),r4
+ d0c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ d10:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ d14:	00 00 00 d7 	l.j 1070 <default_exception_handler>
+ d18:	15 00 00 00 	l.nop 0x0
+	...
+ e00:	9c 21 fe f8 	l.addi r1,r1,-264
+ e04:	d4 01 18 04 	l.sw 4(r1),r3
+ e08:	d4 01 20 08 	l.sw 8(r1),r4
+ e0c:	b4 60 00 10 	l.mfspr r3,r0,0x10
+ e10:	b4 80 00 20 	l.mfspr r4,r0,0x20
+ e14:	00 00 00 97 	l.j 1070 <default_exception_handler>
+ e18:	15 00 00 00 	l.nop 0x0
+
+Disassembly of section .text:
+
+00001000 <_start>:
+    1000:	04 00 04 12 	l.jal 2048 <_cache_init>
+    1004:	15 00 00 00 	l.nop 0x0
+    1008:	18 a0 00 00 	l.movhi r5,0x0
+    100c:	a8 a5 2c d4 	l.ori r5,r5,0x2cd4
+    1010:	18 c0 00 00 	l.movhi r6,0x0
+    1014:	a8 c6 2d f0 	l.ori r6,r6,0x2df0
+    1018:	d4 05 00 00 	l.sw 0(r5),r0
+    101c:	e4 85 30 00 	l.sfltu r5,r6
+    1020:	13 ff ff fe 	l.bf 1018 <_start+0x18>
+    1024:	9c a5 00 04 	l.addi r5,r5,4
+    1028:	e0 60 00 04 	l.or r3,r0,r0
+    102c:	e0 80 00 04 	l.or r4,r0,r0
+    1030:	15 00 00 05 	l.nop 0x5
+    1034:	04 00 05 c9 	l.jal 2758 <__DTOR_END__>
+    1038:	15 00 00 00 	l.nop 0x0
+    103c:	e0 8b 58 04 	l.or r4,r11,r11
+    1040:	15 00 00 00 	l.nop 0x0
+    1044:	15 00 00 00 	l.nop 0x0
+    1048:	15 00 00 06 	l.nop 0x6
+    104c:	15 00 00 00 	l.nop 0x0
+    1050:	15 00 00 00 	l.nop 0x0
+    1054:	e0 6c 60 04 	l.or r3,r12,r12
+    1058:	15 00 00 02 	l.nop 0x2
+    105c:	e0 6b 58 04 	l.or r3,r11,r11
+    1060:	15 00 00 02 	l.nop 0x2
+    1064:	9c 64 00 00 	l.addi r3,r4,0
+    1068:	04 00 05 21 	l.jal 24ec <exit>
+    106c:	15 00 00 00 	l.nop 0x0
+
+00001070 <default_exception_handler>:
+    1070:	d4 01 10 00 	l.sw 0(r1),r2
+    1074:	d4 01 28 0c 	l.sw 12(r1),r5
+    1078:	d4 01 30 10 	l.sw 16(r1),r6
+    107c:	d4 01 38 14 	l.sw 20(r1),r7
+    1080:	d4 01 40 18 	l.sw 24(r1),r8
+    1084:	d4 01 48 1c 	l.sw 28(r1),r9
+    1088:	d4 01 50 20 	l.sw 32(r1),r10
+    108c:	d4 01 58 24 	l.sw 36(r1),r11
+    1090:	d4 01 60 28 	l.sw 40(r1),r12
+    1094:	d4 01 68 2c 	l.sw 44(r1),r13
+    1098:	d4 01 70 30 	l.sw 48(r1),r14
+    109c:	d4 01 78 34 	l.sw 52(r1),r15
+    10a0:	d4 01 80 38 	l.sw 56(r1),r16
+    10a4:	d4 01 88 3c 	l.sw 60(r1),r17
+    10a8:	d4 01 90 40 	l.sw 64(r1),r18
+    10ac:	d4 01 98 44 	l.sw 68(r1),r19
+    10b0:	d4 01 a0 48 	l.sw 72(r1),r20
+    10b4:	d4 01 a8 4c 	l.sw 76(r1),r21
+    10b8:	d4 01 b0 50 	l.sw 80(r1),r22
+    10bc:	d4 01 b8 54 	l.sw 84(r1),r23
+    10c0:	d4 01 c0 58 	l.sw 88(r1),r24
+    10c4:	d4 01 c8 5c 	l.sw 92(r1),r25
+    10c8:	d4 01 d0 60 	l.sw 96(r1),r26
+    10cc:	d4 01 d8 64 	l.sw 100(r1),r27
+    10d0:	d4 01 e0 68 	l.sw 104(r1),r28
+    10d4:	d4 01 e8 6c 	l.sw 108(r1),r29
+    10d8:	d4 01 f0 70 	l.sw 112(r1),r30
+    10dc:	d4 01 f8 74 	l.sw 116(r1),r31
+    10e0:	d4 01 20 78 	l.sw 120(r1),r4
+    10e4:	b4 a0 00 40 	l.mfspr r5,r0,0x40
+    10e8:	d4 01 28 7c 	l.sw 124(r1),r5
+    10ec:	a8 c1 00 00 	l.ori r6,r1,0x0
+    10f0:	04 00 04 2d 	l.jal 21a4 <default_exception_handler_c>
+    10f4:	15 00 00 00 	l.nop 0x0
+    10f8:	84 41 00 78 	l.lwz r2,120(r1)
+    10fc:	c0 00 10 20 	l.mtspr r0,r2,0x20
+    1100:	84 41 00 7c 	l.lwz r2,124(r1)
+    1104:	c0 00 10 40 	l.mtspr r0,r2,0x40
+    1108:	84 41 00 00 	l.lwz r2,0(r1)
+    110c:	84 61 00 04 	l.lwz r3,4(r1)
+    1110:	84 81 00 08 	l.lwz r4,8(r1)
+    1114:	84 a1 00 0c 	l.lwz r5,12(r1)
+    1118:	84 c1 00 10 	l.lwz r6,16(r1)
+    111c:	84 e1 00 14 	l.lwz r7,20(r1)
+    1120:	85 01 00 18 	l.lwz r8,24(r1)
+    1124:	85 21 00 1c 	l.lwz r9,28(r1)
+    1128:	85 41 00 20 	l.lwz r10,32(r1)
+    112c:	85 61 00 24 	l.lwz r11,36(r1)
+    1130:	85 81 00 28 	l.lwz r12,40(r1)
+    1134:	85 a1 00 2c 	l.lwz r13,44(r1)
+    1138:	85 c1 00 30 	l.lwz r14,48(r1)
+    113c:	85 e1 00 34 	l.lwz r15,52(r1)
+    1140:	86 01 00 38 	l.lwz r16,56(r1)
+    1144:	86 21 00 3c 	l.lwz r17,60(r1)
+    1148:	86 41 00 40 	l.lwz r18,64(r1)
+    114c:	86 61 00 44 	l.lwz r19,68(r1)
+    1150:	86 81 00 48 	l.lwz r20,72(r1)
+    1154:	86 a1 00 4c 	l.lwz r21,76(r1)
+    1158:	86 c1 00 50 	l.lwz r22,80(r1)
+    115c:	86 e1 00 54 	l.lwz r23,84(r1)
+    1160:	87 01 00 58 	l.lwz r24,88(r1)
+    1164:	87 21 00 5c 	l.lwz r25,92(r1)
+    1168:	87 41 00 60 	l.lwz r26,96(r1)
+    116c:	87 61 00 64 	l.lwz r27,100(r1)
+    1170:	87 81 00 68 	l.lwz r28,104(r1)
+    1174:	87 a1 00 6c 	l.lwz r29,108(r1)
+    1178:	87 c1 00 70 	l.lwz r30,112(r1)
+    117c:	87 e1 00 74 	l.lwz r31,116(r1)
+    1180:	9c 21 01 08 	l.addi r1,r1,264
+    1184:	24 00 00 00 	l.rfe
+    1188:	15 00 00 00 	l.nop 0x0
+
+0000118c <simple_outputchar.part.0>:
+char jtag_getchar(void);
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+    118c:	18 a0 90 00 	l.movhi r5,0x9000
+
+#ifdef TEST
+#include <stdio.h>
+#endif /* TEST */
+
+static void simple_outputchar(char **str, char c)
+    1190:	d7 e1 0f f8 	l.sw -8(r1),r1
+    1194:	d7 e1 17 fc 	l.sw -4(r1),r2
+    1198:	a8 a5 00 04 	l.ori r5,r5,0x4
+    119c:	9c 21 ff f8 	l.addi r1,r1,-8
+    11a0:	84 85 00 00 	l.lwz r4,0(r5)
+    11a4:	18 40 ff ff 	l.movhi r2,0xffff
+    11a8:	e0 84 10 03 	l.and r4,r4,r2
+    11ac:	bc 04 00 00 	l.sfeqi r4,0
+    11b0:	13 ff ff fc 	l.bf 11a0 <simple_outputchar.part.0+0x14>
+    11b4:	18 80 90 00 	l.movhi r4,0x9000
+	uart_DATA_REG=ch;
+    11b8:	d4 04 18 00 	l.sw 0(r4),r3
+		**str = c;
+		++(*str);
+	} else {
+		outbyte(c);
+	}
+}
+    11bc:	9c 21 00 08 	l.addi r1,r1,8
+    11c0:	84 21 ff f8 	l.lwz r1,-8(r1)
+    11c4:	44 00 48 00 	l.jr r9
+    11c8:	84 41 ff fc 	l.lwz r2,-4(r1)
+
+000011cc <prints>:
+	PAD_ZERO	= 1,
+	PAD_RIGHT	= 2,
+};
+
+static int prints(char **out, const char *string, int width, int flags)
+{
+    11cc:	d7 e1 17 e4 	l.sw -28(r1),r2
+    11d0:	d7 e1 97 ec 	l.sw -20(r1),r18
+    11d4:	d7 e1 a7 f0 	l.sw -16(r1),r20
+    11d8:	d7 e1 4f fc 	l.sw -4(r1),r9
+    11dc:	d7 e1 0f e0 	l.sw -32(r1),r1
+    11e0:	d7 e1 77 e8 	l.sw -24(r1),r14
+    11e4:	d7 e1 b7 f4 	l.sw -12(r1),r22
+    11e8:	d7 e1 c7 f8 	l.sw -8(r1),r24
+	int pc = 0, padchar = ' ';
+
+	if (width > 0) {
+    11ec:	bd a5 00 00 	l.sflesi r5,0
+	PAD_ZERO	= 1,
+	PAD_RIGHT	= 2,
+};
+
+static int prints(char **out, const char *string, int width, int flags)
+{
+    11f0:	9c 21 ff e0 	l.addi r1,r1,-32
+    11f4:	aa 85 00 00 	l.ori r20,r5,0x0
+    11f8:	a8 43 00 00 	l.ori r2,r3,0x0
+	int pc = 0, padchar = ' ';
+
+	if (width > 0) {
+    11fc:	10 00 00 73 	l.bf 13c8 <prints+0x1fc>
+    1200:	aa 44 00 00 	l.ori r18,r4,0x0
+		int len = 0;
+		const char *ptr;
+		for (ptr = string; *ptr; ++ptr) ++len;
+    1204:	90 a4 00 00 	l.lbs r5,0(r4)
+    1208:	bc 05 00 00 	l.sfeqi r5,0
+    120c:	10 00 00 55 	l.bf 1360 <prints+0x194>
+    1210:	a8 64 00 00 	l.ori r3,r4,0x0
+    1214:	9c 80 00 00 	l.addi r4,r0,0
+    1218:	9c 63 00 01 	l.addi r3,r3,1
+    121c:	91 c3 00 00 	l.lbs r14,0(r3)
+    1220:	bc 2e 00 00 	l.sfnei r14,0
+    1224:	13 ff ff fd 	l.bf 1218 <prints+0x4c>
+    1228:	9c 84 00 01 	l.addi r4,r4,1
+		if (len >= width) width = 0;
+    122c:	e5 b4 20 00 	l.sfles r20,r4
+    1230:	0c 00 00 4d 	l.bnf 1364 <prints+0x198>
+    1234:	a4 66 00 01 	l.andi r3,r6,0x1
+		else width -= len;
+		if (flags & PAD_ZERO)
+    1238:	bc 23 00 00 	l.sfnei r3,0
+    123c:	0c 00 00 43 	l.bnf 1348 <prints+0x17c>
+    1240:	9f 00 00 30 	l.addi r24,r0,48
+			padchar = '0';
+	}
+	if (!(flags & PAD_RIGHT)) {
+    1244:	a4 c6 00 02 	l.andi r6,r6,0x2
+    1248:	bc 26 00 00 	l.sfnei r6,0
+    124c:	10 00 00 4d 	l.bf 1380 <prints+0x1b4>
+    1250:	bc 05 00 00 	l.sfeqi r5,0
+		for ( ; width > 0; --width) {
+    1254:	bd ae 00 00 	l.sflesi r14,0
+    1258:	10 00 00 6c 	l.bf 1408 <prints+0x23c>
+    125c:	aa 8e 00 00 	l.ori r20,r14,0x0
+    1260:	aa d8 00 00 	l.ori r22,r24,0x0
+#include <stdio.h>
+#endif /* TEST */
+
+static void simple_outputchar(char **str, char c)
+{
+	if (str) {
+    1264:	bc 02 00 00 	l.sfeqi r2,0
+    1268:	10 00 00 54 	l.bf 13b8 <prints+0x1ec>
+    126c:	15 00 00 00 	l.nop 0x0
+		**str = c;
+    1270:	84 62 00 00 	l.lwz r3,0(r2)
+    1274:	d8 03 b0 00 	l.sb 0(r3),r22
+		++(*str);
+    1278:	84 62 00 00 	l.lwz r3,0(r2)
+    127c:	9c 63 00 01 	l.addi r3,r3,1
+    1280:	d4 02 18 00 	l.sw 0(r2),r3
+		else width -= len;
+		if (flags & PAD_ZERO)
+			padchar = '0';
+	}
+	if (!(flags & PAD_RIGHT)) {
+		for ( ; width > 0; --width) {
+    1284:	9e 94 ff ff 	l.addi r20,r20,-1
+    1288:	bc 34 00 00 	l.sfnei r20,0
+    128c:	13 ff ff f7 	l.bf 1268 <prints+0x9c>
+    1290:	bc 02 00 00 	l.sfeqi r2,0
+    1294:	90 b2 00 00 	l.lbs r5,0(r18)
+			simple_outputchar(out, padchar);
+			++pc;
+		}
+	}
+	for ( ; *string ; ++string) {
+    1298:	bc 25 00 00 	l.sfnei r5,0
+    129c:	0c 00 00 20 	l.bnf 131c <prints+0x150>
+    12a0:	a8 65 00 00 	l.ori r3,r5,0x0
+#include <stdio.h>
+#endif /* TEST */
+
+static void simple_outputchar(char **str, char c)
+{
+	if (str) {
+    12a4:	bc 02 00 00 	l.sfeqi r2,0
+    12a8:	10 00 00 3c 	l.bf 1398 <prints+0x1cc>
+    12ac:	15 00 00 00 	l.nop 0x0
+		**str = c;
+    12b0:	84 82 00 00 	l.lwz r4,0(r2)
+    12b4:	d8 04 18 00 	l.sb 0(r4),r3
+		++(*str);
+    12b8:	84 62 00 00 	l.lwz r3,0(r2)
+    12bc:	9c 63 00 01 	l.addi r3,r3,1
+    12c0:	d4 02 18 00 	l.sw 0(r2),r3
+		for ( ; width > 0; --width) {
+			simple_outputchar(out, padchar);
+			++pc;
+		}
+	}
+	for ( ; *string ; ++string) {
+    12c4:	9e 52 00 01 	l.addi r18,r18,1
+    12c8:	90 72 00 00 	l.lbs r3,0(r18)
+    12cc:	bc 23 00 00 	l.sfnei r3,0
+    12d0:	13 ff ff f5 	l.bf 12a4 <prints+0xd8>
+    12d4:	9d ce 00 01 	l.addi r14,r14,1
+		simple_outputchar(out, *string);
+		++pc;
+	}
+	for ( ; width > 0; --width) {
+    12d8:	bd b4 00 00 	l.sflesi r20,0
+    12dc:	10 00 00 10 	l.bf 131c <prints+0x150>
+    12e0:	aa d8 00 00 	l.ori r22,r24,0x0
+    12e4:	aa 54 00 00 	l.ori r18,r20,0x0
+#include <stdio.h>
+#endif /* TEST */
+
+static void simple_outputchar(char **str, char c)
+{
+	if (str) {
+    12e8:	bc 02 00 00 	l.sfeqi r2,0
+    12ec:	10 00 00 2f 	l.bf 13a8 <prints+0x1dc>
+    12f0:	15 00 00 00 	l.nop 0x0
+		**str = c;
+    12f4:	84 62 00 00 	l.lwz r3,0(r2)
+    12f8:	d8 03 b0 00 	l.sb 0(r3),r22
+		++(*str);
+    12fc:	84 62 00 00 	l.lwz r3,0(r2)
+    1300:	9c 63 00 01 	l.addi r3,r3,1
+    1304:	d4 02 18 00 	l.sw 0(r2),r3
+	}
+	for ( ; *string ; ++string) {
+		simple_outputchar(out, *string);
+		++pc;
+	}
+	for ( ; width > 0; --width) {
+    1308:	9e 52 ff ff 	l.addi r18,r18,-1
+    130c:	bc 32 00 00 	l.sfnei r18,0
+    1310:	13 ff ff f7 	l.bf 12ec <prints+0x120>
+    1314:	bc 02 00 00 	l.sfeqi r2,0
+    1318:	e1 ce a0 00 	l.add r14,r14,r20
+		simple_outputchar(out, padchar);
+		++pc;
+	}
+
+	return pc;
+}
+    131c:	9c 21 00 20 	l.addi r1,r1,32
+    1320:	a9 6e 00 00 	l.ori r11,r14,0x0
+    1324:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1328:	84 21 ff e0 	l.lwz r1,-32(r1)
+    132c:	84 41 ff e4 	l.lwz r2,-28(r1)
+    1330:	85 c1 ff e8 	l.lwz r14,-24(r1)
+    1334:	86 41 ff ec 	l.lwz r18,-20(r1)
+    1338:	86 81 ff f0 	l.lwz r20,-16(r1)
+    133c:	86 c1 ff f4 	l.lwz r22,-12(r1)
+    1340:	44 00 48 00 	l.jr r9
+    1344:	87 01 ff f8 	l.lwz r24,-8(r1)
+		if (len >= width) width = 0;
+		else width -= len;
+		if (flags & PAD_ZERO)
+			padchar = '0';
+	}
+	if (!(flags & PAD_RIGHT)) {
+    1348:	a4 c6 00 02 	l.andi r6,r6,0x2
+    134c:	bc 26 00 00 	l.sfnei r6,0
+    1350:	0f ff ff c1 	l.bnf 1254 <prints+0x88>
+    1354:	9f 00 00 20 	l.addi r24,r0,32
+		for ( ; width > 0; --width) {
+			simple_outputchar(out, padchar);
+			++pc;
+		}
+	}
+	for ( ; *string ; ++string) {
+    1358:	00 00 00 0a 	l.j 1380 <prints+0x1b4>
+    135c:	bc 05 00 00 	l.sfeqi r5,0
+	int pc = 0, padchar = ' ';
+
+	if (width > 0) {
+		int len = 0;
+		const char *ptr;
+		for (ptr = string; *ptr; ++ptr) ++len;
+    1360:	a8 85 00 00 	l.ori r4,r5,0x0
+		if (len >= width) width = 0;
+		else width -= len;
+		if (flags & PAD_ZERO)
+    1364:	a4 66 00 01 	l.andi r3,r6,0x1
+	if (width > 0) {
+		int len = 0;
+		const char *ptr;
+		for (ptr = string; *ptr; ++ptr) ++len;
+		if (len >= width) width = 0;
+		else width -= len;
+    1368:	e1 d4 20 02 	l.sub r14,r20,r4
+		if (flags & PAD_ZERO)
+    136c:	bc 23 00 00 	l.sfnei r3,0
+    1370:	13 ff ff b5 	l.bf 1244 <prints+0x78>
+    1374:	9f 00 00 30 	l.addi r24,r0,48
+			padchar = '0';
+	}
+	if (!(flags & PAD_RIGHT)) {
+    1378:	03 ff ff f5 	l.j 134c <prints+0x180>
+    137c:	a4 c6 00 02 	l.andi r6,r6,0x2
+		for ( ; width > 0; --width) {
+			simple_outputchar(out, padchar);
+			++pc;
+		}
+	}
+	for ( ; *string ; ++string) {
+    1380:	a8 65 00 00 	l.ori r3,r5,0x0
+    1384:	10 00 00 1f 	l.bf 1400 <prints+0x234>
+    1388:	aa 8e 00 00 	l.ori r20,r14,0x0
+#include <stdio.h>
+#endif /* TEST */
+
+static void simple_outputchar(char **str, char c)
+{
+	if (str) {
+    138c:	bc 02 00 00 	l.sfeqi r2,0
+    1390:	0f ff ff c8 	l.bnf 12b0 <prints+0xe4>
+    1394:	9d c0 00 00 	l.addi r14,r0,0
+    1398:	07 ff ff 7d 	l.jal 118c <simple_outputchar.part.0>
+    139c:	9e 52 00 01 	l.addi r18,r18,1
+		for ( ; width > 0; --width) {
+			simple_outputchar(out, padchar);
+			++pc;
+		}
+	}
+	for ( ; *string ; ++string) {
+    13a0:	03 ff ff cb 	l.j 12cc <prints+0x100>
+    13a4:	90 72 00 00 	l.lbs r3,0(r18)
+    13a8:	07 ff ff 79 	l.jal 118c <simple_outputchar.part.0>
+    13ac:	a8 78 00 00 	l.ori r3,r24,0x0
+		simple_outputchar(out, *string);
+		++pc;
+	}
+	for ( ; width > 0; --width) {
+    13b0:	03 ff ff d7 	l.j 130c <prints+0x140>
+    13b4:	9e 52 ff ff 	l.addi r18,r18,-1
+    13b8:	07 ff ff 75 	l.jal 118c <simple_outputchar.part.0>
+    13bc:	a8 78 00 00 	l.ori r3,r24,0x0
+		else width -= len;
+		if (flags & PAD_ZERO)
+			padchar = '0';
+	}
+	if (!(flags & PAD_RIGHT)) {
+		for ( ; width > 0; --width) {
+    13c0:	03 ff ff b2 	l.j 1288 <prints+0xbc>
+    13c4:	9e 94 ff ff 	l.addi r20,r20,-1
+		if (len >= width) width = 0;
+		else width -= len;
+		if (flags & PAD_ZERO)
+			padchar = '0';
+	}
+	if (!(flags & PAD_RIGHT)) {
+    13c8:	a5 c6 00 02 	l.andi r14,r6,0x2
+    13cc:	bc 0e 00 00 	l.sfeqi r14,0
+    13d0:	10 00 00 09 	l.bf 13f4 <prints+0x228>
+    13d4:	15 00 00 00 	l.nop 0x0
+		for ( ; width > 0; --width) {
+			simple_outputchar(out, padchar);
+			++pc;
+		}
+	}
+	for ( ; *string ; ++string) {
+    13d8:	90 64 00 00 	l.lbs r3,0(r4)
+    13dc:	bc 23 00 00 	l.sfnei r3,0
+	PAD_RIGHT	= 2,
+};
+
+static int prints(char **out, const char *string, int width, int flags)
+{
+	int pc = 0, padchar = ' ';
+    13e0:	9f 00 00 20 	l.addi r24,r0,32
+		for ( ; width > 0; --width) {
+			simple_outputchar(out, padchar);
+			++pc;
+		}
+	}
+	for ( ; *string ; ++string) {
+    13e4:	13 ff ff b0 	l.bf 12a4 <prints+0xd8>
+    13e8:	9d c0 00 00 	l.addi r14,r0,0
+		simple_outputchar(out, padchar);
+		++pc;
+	}
+
+	return pc;
+}
+    13ec:	03 ff ff cd 	l.j 1320 <prints+0x154>
+    13f0:	9c 21 00 20 	l.addi r1,r1,32
+    13f4:	90 b2 00 00 	l.lbs r5,0(r18)
+	PAD_RIGHT	= 2,
+};
+
+static int prints(char **out, const char *string, int width, int flags)
+{
+	int pc = 0, padchar = ' ';
+    13f8:	03 ff ff a8 	l.j 1298 <prints+0xcc>
+    13fc:	9f 00 00 20 	l.addi r24,r0,32
+    1400:	03 ff ff b6 	l.j 12d8 <prints+0x10c>
+    1404:	a9 c5 00 00 	l.ori r14,r5,0x0
+		else width -= len;
+		if (flags & PAD_ZERO)
+			padchar = '0';
+	}
+	if (!(flags & PAD_RIGHT)) {
+		for ( ; width > 0; --width) {
+    1408:	03 ff ff a4 	l.j 1298 <prints+0xcc>
+    140c:	a9 c6 00 00 	l.ori r14,r6,0x0
+
+00001410 <simple_outputi>:
+}
+
+#define PRINT_BUF_LEN 64
+
+static int simple_outputi(char **out, int i, int base, int sign, int width, int flags, int letbase)
+{
+    1410:	d7 e1 77 e0 	l.sw -32(r1),r14
+    1414:	d7 e1 a7 e8 	l.sw -24(r1),r20
+    1418:	d7 e1 b7 ec 	l.sw -20(r1),r22
+    141c:	d7 e1 c7 f0 	l.sw -16(r1),r24
+    1420:	d7 e1 e7 f8 	l.sw -8(r1),r28
+    1424:	d7 e1 4f fc 	l.sw -4(r1),r9
+    1428:	d7 e1 0f d8 	l.sw -40(r1),r1
+    142c:	d7 e1 17 dc 	l.sw -36(r1),r2
+    1430:	d7 e1 97 e4 	l.sw -28(r1),r18
+    1434:	d7 e1 d7 f4 	l.sw -12(r1),r26
+	char print_buf[PRINT_BUF_LEN];
+	char *s;
+	int t, neg = 0, pc = 0;
+	unsigned int u = i;
+
+	if (i == 0) {
+    1438:	bc 24 00 00 	l.sfnei r4,0
+}
+
+#define PRINT_BUF_LEN 64
+
+static int simple_outputi(char **out, int i, int base, int sign, int width, int flags, int letbase)
+{
+    143c:	9c 21 ff 98 	l.addi r1,r1,-104
+    1440:	ab 84 00 00 	l.ori r28,r4,0x0
+    1444:	ab 03 00 00 	l.ori r24,r3,0x0
+    1448:	a9 c5 00 00 	l.ori r14,r5,0x0
+    144c:	aa 87 00 00 	l.ori r20,r7,0x0
+	char print_buf[PRINT_BUF_LEN];
+	char *s;
+	int t, neg = 0, pc = 0;
+	unsigned int u = i;
+
+	if (i == 0) {
+    1450:	0c 00 00 54 	l.bnf 15a0 <simple_outputi+0x190>
+    1454:	aa c8 00 00 	l.ori r22,r8,0x0
+		print_buf[0] = '0';
+		print_buf[1] = '\0';
+		return prints(out, print_buf, width, flags);
+	}
+
+	if (sign && base == 10 && i < 0) {
+    1458:	ac 45 00 0a 	l.xori r2,r5,10
+    145c:	e0 80 30 02 	l.sub r4,r0,r6
+    1460:	e0 60 10 02 	l.sub r3,r0,r2
+    1464:	e0 c4 30 04 	l.or r6,r4,r6
+    1468:	e0 43 10 04 	l.or r2,r3,r2
+    146c:	ac 42 ff ff 	l.xori r2,r2,-1
+    1470:	e0 42 30 03 	l.and r2,r2,r6
+    1474:	bd 62 00 00 	l.sfgesi r2,0
+    1478:	10 00 00 04 	l.bf 1488 <simple_outputi+0x78>
+    147c:	bd 7c 00 00 	l.sfgesi r28,0
+    1480:	0c 00 00 2c 	l.bnf 1530 <simple_outputi+0x120>
+    1484:	15 00 00 00 	l.nop 0x0
+		neg = 1;
+		u = -i;
+	}
+
+	s = print_buf + PRINT_BUF_LEN-1;
+	*s = '\0';
+    1488:	9c 80 00 00 	l.addi r4,r0,0
+
+static int simple_outputi(char **out, int i, int base, int sign, int width, int flags, int letbase)
+{
+	char print_buf[PRINT_BUF_LEN];
+	char *s;
+	int t, neg = 0, pc = 0;
+    148c:	9f 40 00 00 	l.addi r26,r0,0
+		neg = 1;
+		u = -i;
+	}
+
+	s = print_buf + PRINT_BUF_LEN-1;
+	*s = '\0';
+    1490:	d8 01 20 3f 	l.sb 63(r1),r4
+
+	while (u) {
+		t = u % base;
+		if( t >= 10 )
+			t += letbase - '0' - 10;
+    1494:	86 41 00 68 	l.lwz r18,104(r1)
+
+static int simple_outputi(char **out, int i, int base, int sign, int width, int flags, int letbase)
+{
+	char print_buf[PRINT_BUF_LEN];
+	char *s;
+	int t, neg = 0, pc = 0;
+    1498:	9c 41 00 3f 	l.addi r2,r1,63
+	*s = '\0';
+
+	while (u) {
+		t = u % base;
+		if( t >= 10 )
+			t += letbase - '0' - 10;
+    149c:	9e 52 ff c6 	l.addi r18,r18,-58
+
+	s = print_buf + PRINT_BUF_LEN-1;
+	*s = '\0';
+
+	while (u) {
+		t = u % base;
+    14a0:	a8 7c 00 00 	l.ori r3,r28,0x0
+    14a4:	a8 8e 00 00 	l.ori r4,r14,0x0
+    14a8:	04 00 04 a0 	l.jal 2728 <__umodsi3>
+    14ac:	9c 42 ff ff 	l.addi r2,r2,-1
+		if( t >= 10 )
+    14b0:	bd ab 00 09 	l.sflesi r11,9
+			t += letbase - '0' - 10;
+		*--s = t + '0';
+		u /= base;
+    14b4:	a8 8e 00 00 	l.ori r4,r14,0x0
+	s = print_buf + PRINT_BUF_LEN-1;
+	*s = '\0';
+
+	while (u) {
+		t = u % base;
+		if( t >= 10 )
+    14b8:	10 00 00 03 	l.bf 14c4 <simple_outputi+0xb4>
+    14bc:	a8 7c 00 00 	l.ori r3,r28,0x0
+			t += letbase - '0' - 10;
+    14c0:	e1 6b 90 00 	l.add r11,r11,r18
+		*--s = t + '0';
+    14c4:	9d 6b 00 30 	l.addi r11,r11,48
+		u /= base;
+    14c8:	04 00 04 59 	l.jal 262c <__udivsi3>
+    14cc:	d8 02 58 00 	l.sb 0(r2),r11
+	}
+
+	s = print_buf + PRINT_BUF_LEN-1;
+	*s = '\0';
+
+	while (u) {
+    14d0:	bc 2b 00 00 	l.sfnei r11,0
+    14d4:	13 ff ff f3 	l.bf 14a0 <simple_outputi+0x90>
+    14d8:	ab 8b 00 00 	l.ori r28,r11,0x0
+			t += letbase - '0' - 10;
+		*--s = t + '0';
+		u /= base;
+	}
+
+	if (neg) {
+    14dc:	bc 1a 00 00 	l.sfeqi r26,0
+    14e0:	0c 00 00 1b 	l.bnf 154c <simple_outputi+0x13c>
+    14e4:	bc 14 00 00 	l.sfeqi r20,0
+		else {
+			*--s = '-';
+		}
+	}
+
+	return pc + prints (out, s, width, flags);
+    14e8:	a8 d6 00 00 	l.ori r6,r22,0x0
+    14ec:	a8 b4 00 00 	l.ori r5,r20,0x0
+    14f0:	a8 82 00 00 	l.ori r4,r2,0x0
+    14f4:	07 ff ff 36 	l.jal 11cc <prints>
+    14f8:	a8 78 00 00 	l.ori r3,r24,0x0
+    14fc:	e1 7c 58 00 	l.add r11,r28,r11
+}
+    1500:	9c 21 00 68 	l.addi r1,r1,104
+    1504:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1508:	84 21 ff d8 	l.lwz r1,-40(r1)
+    150c:	84 41 ff dc 	l.lwz r2,-36(r1)
+    1510:	85 c1 ff e0 	l.lwz r14,-32(r1)
+    1514:	86 41 ff e4 	l.lwz r18,-28(r1)
+    1518:	86 81 ff e8 	l.lwz r20,-24(r1)
+    151c:	86 c1 ff ec 	l.lwz r22,-20(r1)
+    1520:	87 01 ff f0 	l.lwz r24,-16(r1)
+    1524:	87 41 ff f4 	l.lwz r26,-12(r1)
+    1528:	44 00 48 00 	l.jr r9
+    152c:	87 81 ff f8 	l.lwz r28,-8(r1)
+		return prints(out, print_buf, width, flags);
+	}
+
+	if (sign && base == 10 && i < 0) {
+		neg = 1;
+		u = -i;
+    1530:	e3 80 e0 02 	l.sub r28,r0,r28
+	}
+
+	s = print_buf + PRINT_BUF_LEN-1;
+	*s = '\0';
+    1534:	9c 60 00 00 	l.addi r3,r0,0
+
+	while (u) {
+    1538:	bc 1c 00 00 	l.sfeqi r28,0
+    153c:	0c 00 00 22 	l.bnf 15c4 <simple_outputi+0x1b4>
+    1540:	d8 01 18 3f 	l.sb 63(r1),r3
+	if (sign && base == 10 && i < 0) {
+		neg = 1;
+		u = -i;
+	}
+
+	s = print_buf + PRINT_BUF_LEN-1;
+    1544:	9c 41 00 3f 	l.addi r2,r1,63
+		*--s = t + '0';
+		u /= base;
+	}
+
+	if (neg) {
+		if( width && (flags & PAD_ZERO) ) {
+    1548:	bc 14 00 00 	l.sfeqi r20,0
+    154c:	10 00 00 11 	l.bf 1590 <simple_outputi+0x180>
+    1550:	9c 60 00 2d 	l.addi r3,r0,45
+    1554:	a4 76 00 01 	l.andi r3,r22,0x1
+    1558:	bc 03 00 00 	l.sfeqi r3,0
+    155c:	10 00 00 0c 	l.bf 158c <simple_outputi+0x17c>
+    1560:	bc 18 00 00 	l.sfeqi r24,0
+#include <stdio.h>
+#endif /* TEST */
+
+static void simple_outputchar(char **str, char c)
+{
+	if (str) {
+    1564:	10 00 00 1a 	l.bf 15cc <simple_outputi+0x1bc>
+    1568:	9c 80 00 2d 	l.addi r4,r0,45
+		**str = c;
+    156c:	84 78 00 00 	l.lwz r3,0(r24)
+    1570:	d8 03 20 00 	l.sb 0(r3),r4
+		++(*str);
+    1574:	84 78 00 00 	l.lwz r3,0(r24)
+    1578:	9c 63 00 01 	l.addi r3,r3,1
+    157c:	d4 18 18 00 	l.sw 0(r24),r3
+
+	if (neg) {
+		if( width && (flags & PAD_ZERO) ) {
+			simple_outputchar (out, '-');
+			++pc;
+			--width;
+    1580:	9e 94 ff ff 	l.addi r20,r20,-1
+    1584:	03 ff ff d9 	l.j 14e8 <simple_outputi+0xd8>
+    1588:	9f 80 00 01 	l.addi r28,r0,1
+		}
+		else {
+			*--s = '-';
+    158c:	9c 60 00 2d 	l.addi r3,r0,45
+
+static int simple_outputi(char **out, int i, int base, int sign, int width, int flags, int letbase)
+{
+	char print_buf[PRINT_BUF_LEN];
+	char *s;
+	int t, neg = 0, pc = 0;
+    1590:	9f 80 00 00 	l.addi r28,r0,0
+			simple_outputchar (out, '-');
+			++pc;
+			--width;
+		}
+		else {
+			*--s = '-';
+    1594:	db e2 1f ff 	l.sb -1(r2),r3
+    1598:	03 ff ff d4 	l.j 14e8 <simple_outputi+0xd8>
+    159c:	9c 42 ff ff 	l.addi r2,r2,-1
+	char *s;
+	int t, neg = 0, pc = 0;
+	unsigned int u = i;
+
+	if (i == 0) {
+		print_buf[0] = '0';
+    15a0:	9c 40 00 30 	l.addi r2,r0,48
+		print_buf[1] = '\0';
+		return prints(out, print_buf, width, flags);
+    15a4:	a8 c8 00 00 	l.ori r6,r8,0x0
+    15a8:	a8 a7 00 00 	l.ori r5,r7,0x0
+    15ac:	a8 81 00 00 	l.ori r4,r1,0x0
+	char *s;
+	int t, neg = 0, pc = 0;
+	unsigned int u = i;
+
+	if (i == 0) {
+		print_buf[0] = '0';
+    15b0:	d8 01 10 00 	l.sb 0(r1),r2
+		print_buf[1] = '\0';
+		return prints(out, print_buf, width, flags);
+    15b4:	07 ff ff 06 	l.jal 11cc <prints>
+    15b8:	d8 01 e0 01 	l.sb 1(r1),r28
+    15bc:	03 ff ff d2 	l.j 1504 <simple_outputi+0xf4>
+    15c0:	9c 21 00 68 	l.addi r1,r1,104
+	}
+
+	if (sign && base == 10 && i < 0) {
+		neg = 1;
+    15c4:	03 ff ff b4 	l.j 1494 <simple_outputi+0x84>
+    15c8:	9f 40 00 01 	l.addi r26,r0,1
+    15cc:	07 ff fe f0 	l.jal 118c <simple_outputchar.part.0>
+    15d0:	9c 60 00 2d 	l.addi r3,r0,45
+
+	if (neg) {
+		if( width && (flags & PAD_ZERO) ) {
+			simple_outputchar (out, '-');
+			++pc;
+			--width;
+    15d4:	03 ff ff ec 	l.j 1584 <simple_outputi+0x174>
+    15d8:	9e 94 ff ff 	l.addi r20,r20,-1
+
+000015dc <simple_vsprintf>:
+	return pc + prints (out, s, width, flags);
+}
+
+
+static int simple_vsprintf(char **out, char *format, va_list ap)
+{
+    15dc:	d7 e1 a7 f0 	l.sw -16(r1),r20
+    15e0:	d7 e1 c7 f8 	l.sw -8(r1),r24
+    15e4:	d7 e1 4f fc 	l.sw -4(r1),r9
+    15e8:	d7 e1 0f e0 	l.sw -32(r1),r1
+    15ec:	d7 e1 17 e4 	l.sw -28(r1),r2
+    15f0:	d7 e1 77 e8 	l.sw -24(r1),r14
+    15f4:	d7 e1 97 ec 	l.sw -20(r1),r18
+    15f8:	d7 e1 b7 f4 	l.sw -12(r1),r22
+    15fc:	aa 83 00 00 	l.ori r20,r3,0x0
+		int i;
+		unsigned int u;
+		void *p;
+	} u;
+
+	for (; *format != 0; ++format) {
+    1600:	90 64 00 00 	l.lbs r3,0(r4)
+    1604:	bc 03 00 00 	l.sfeqi r3,0
+	return pc + prints (out, s, width, flags);
+}
+
+
+static int simple_vsprintf(char **out, char *format, va_list ap)
+{
+    1608:	9c 21 ff d8 	l.addi r1,r1,-40
+		int i;
+		unsigned int u;
+		void *p;
+	} u;
+
+	for (; *format != 0; ++format) {
+    160c:	10 00 00 98 	l.bf 186c <simple_vsprintf+0x290>
+    1610:	ab 05 00 00 	l.ori r24,r5,0x0
+    1614:	9e c0 00 00 	l.addi r22,r0,0
+					pc += simple_outputi(out, u.u, 16, 0, width, flags, 'a');
+					break;
+
+				case('X'):
+					u.u = va_arg(ap, unsigned int);
+					pc += simple_outputi(out, u.u, 16, 0, width, flags, 'A');
+    1618:	9e 40 00 41 	l.addi r18,r0,65
+					pc += simple_outputi(out, u.u, 10, 0, width, flags, 'a');
+					break;
+
+				case('x'):
+					u.u = va_arg(ap, unsigned int);
+					pc += simple_outputi(out, u.u, 16, 0, width, flags, 'a');
+    161c:	9d c0 00 61 	l.addi r14,r0,97
+		unsigned int u;
+		void *p;
+	} u;
+
+	for (; *format != 0; ++format) {
+		if (*format == '%') {
+    1620:	bc 23 00 25 	l.sfnei r3,37
+    1624:	0c 00 00 21 	l.bnf 16a8 <simple_vsprintf+0xcc>
+    1628:	15 00 00 00 	l.nop 0x0
+    162c:	90 64 00 00 	l.lbs r3,0(r4)
+    1630:	a8 44 00 00 	l.ori r2,r4,0x0
+#include <stdio.h>
+#endif /* TEST */
+
+static void simple_outputchar(char **str, char c)
+{
+	if (str) {
+    1634:	bc 14 00 00 	l.sfeqi r20,0
+    1638:	10 00 00 55 	l.bf 178c <simple_vsprintf+0x1b0>
+    163c:	15 00 00 00 	l.nop 0x0
+		**str = c;
+    1640:	84 94 00 00 	l.lwz r4,0(r20)
+    1644:	d8 04 18 00 	l.sb 0(r4),r3
+		++(*str);
+    1648:	84 74 00 00 	l.lwz r3,0(r20)
+    164c:	9c 63 00 01 	l.addi r3,r3,1
+    1650:	d4 14 18 00 	l.sw 0(r20),r3
+			}
+		}
+		else {
+out:
+			simple_outputchar (out, *format);
+			++pc;
+    1654:	9e d6 00 01 	l.addi r22,r22,1
+		int i;
+		unsigned int u;
+		void *p;
+	} u;
+
+	for (; *format != 0; ++format) {
+    1658:	90 62 00 01 	l.lbs r3,1(r2)
+    165c:	bc 23 00 00 	l.sfnei r3,0
+    1660:	13 ff ff f0 	l.bf 1620 <simple_vsprintf+0x44>
+    1664:	9c 82 00 01 	l.addi r4,r2,1
+out:
+			simple_outputchar (out, *format);
+			++pc;
+		}
+	}
+	if (out) **out = '\0';
+    1668:	bc 14 00 00 	l.sfeqi r20,0
+    166c:	10 00 00 04 	l.bf 167c <simple_vsprintf+0xa0>
+    1670:	9c 60 00 00 	l.addi r3,r0,0
+    1674:	84 54 00 00 	l.lwz r2,0(r20)
+    1678:	d8 02 18 00 	l.sb 0(r2),r3
+	return pc;
+}
+    167c:	9c 21 00 28 	l.addi r1,r1,40
+    1680:	a9 76 00 00 	l.ori r11,r22,0x0
+    1684:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1688:	84 21 ff e0 	l.lwz r1,-32(r1)
+    168c:	84 41 ff e4 	l.lwz r2,-28(r1)
+    1690:	85 c1 ff e8 	l.lwz r14,-24(r1)
+    1694:	86 41 ff ec 	l.lwz r18,-20(r1)
+    1698:	86 81 ff f0 	l.lwz r20,-16(r1)
+    169c:	86 c1 ff f4 	l.lwz r22,-12(r1)
+    16a0:	44 00 48 00 	l.jr r9
+    16a4:	87 01 ff f8 	l.lwz r24,-8(r1)
+
+	for (; *format != 0; ++format) {
+		if (*format == '%') {
+			++format;
+			width = flags = 0;
+			if (*format == '\0')
+    16a8:	90 64 00 01 	l.lbs r3,1(r4)
+    16ac:	bc 03 00 00 	l.sfeqi r3,0
+    16b0:	13 ff ff ee 	l.bf 1668 <simple_vsprintf+0x8c>
+    16b4:	9c 44 00 01 	l.addi r2,r4,1
+				break;
+			if (*format == '%')
+    16b8:	bc 03 00 25 	l.sfeqi r3,37
+    16bc:	13 ff ff de 	l.bf 1634 <simple_vsprintf+0x58>
+    16c0:	bc 23 00 2d 	l.sfnei r3,45
+				goto out;
+			if (*format == '-') {
+    16c4:	0c 00 00 2e 	l.bnf 177c <simple_vsprintf+0x1a0>
+    16c8:	9d 00 00 00 	l.addi r8,r0,0
+				++format;
+				flags = PAD_RIGHT;
+			}
+			while (*format == '0') {
+    16cc:	bc 23 00 30 	l.sfnei r3,48
+    16d0:	10 00 00 08 	l.bf 16f0 <simple_vsprintf+0x114>
+    16d4:	bc 03 00 2a 	l.sfeqi r3,42
+				++format;
+    16d8:	9c 42 00 01 	l.addi r2,r2,1
+				goto out;
+			if (*format == '-') {
+				++format;
+				flags = PAD_RIGHT;
+			}
+			while (*format == '0') {
+    16dc:	90 62 00 00 	l.lbs r3,0(r2)
+    16e0:	bc 03 00 30 	l.sfeqi r3,48
+    16e4:	13 ff ff fd 	l.bf 16d8 <simple_vsprintf+0xfc>
+    16e8:	a9 08 00 01 	l.ori r8,r8,0x1
+				++format;
+				flags |= PAD_ZERO;
+			}
+			if (*format == '*') {
+    16ec:	bc 03 00 2a 	l.sfeqi r3,42
+    16f0:	10 00 00 1e 	l.bf 1768 <simple_vsprintf+0x18c>
+    16f4:	15 00 00 00 	l.nop 0x0
+				width = va_arg(ap, int);
+				format++;
+			} else {
+				for ( ; *format >= '0' && *format <= '9'; ++format) {
+    16f8:	90 82 00 00 	l.lbs r4,0(r2)
+    16fc:	9d 64 ff d0 	l.addi r11,r4,-48
+    1700:	a4 6b 00 ff 	l.andi r3,r11,0xff
+    1704:	bc a3 00 09 	l.sfleui r3,9
+    1708:	0c 00 00 0d 	l.bnf 173c <simple_vsprintf+0x160>
+    170c:	9c e0 00 00 	l.addi r7,r0,0
+					width *= 10;
+    1710:	e0 e7 38 00 	l.add r7,r7,r7
+			}
+			if (*format == '*') {
+				width = va_arg(ap, int);
+				format++;
+			} else {
+				for ( ; *format >= '0' && *format <= '9'; ++format) {
+    1714:	9c 42 00 01 	l.addi r2,r2,1
+					width *= 10;
+    1718:	b8 67 00 02 	l.slli r3,r7,0x2
+			}
+			if (*format == '*') {
+				width = va_arg(ap, int);
+				format++;
+			} else {
+				for ( ; *format >= '0' && *format <= '9'; ++format) {
+    171c:	90 82 00 00 	l.lbs r4,0(r2)
+					width *= 10;
+    1720:	e0 e7 18 00 	l.add r7,r7,r3
+					width += *format - '0';
+    1724:	e0 eb 38 00 	l.add r7,r11,r7
+			}
+			if (*format == '*') {
+				width = va_arg(ap, int);
+				format++;
+			} else {
+				for ( ; *format >= '0' && *format <= '9'; ++format) {
+    1728:	9d 64 ff d0 	l.addi r11,r4,-48
+    172c:	a4 6b 00 ff 	l.andi r3,r11,0xff
+    1730:	bc a3 00 09 	l.sfleui r3,9
+    1734:	13 ff ff f7 	l.bf 1710 <simple_vsprintf+0x134>
+    1738:	15 00 00 00 	l.nop 0x0
+					width *= 10;
+					width += *format - '0';
+				}
+			}
+			switch (*format) {
+    173c:	9c 84 ff a8 	l.addi r4,r4,-88
+    1740:	a4 84 00 ff 	l.andi r4,r4,0xff
+    1744:	bc 44 00 20 	l.sfgtui r4,32
+    1748:	13 ff ff c4 	l.bf 1658 <simple_vsprintf+0x7c>
+    174c:	18 60 00 00 	l.movhi r3,0x0
+    1750:	b8 84 00 02 	l.slli r4,r4,0x2
+    1754:	a8 63 28 b8 	l.ori r3,r3,0x28b8
+    1758:	e0 84 18 00 	l.add r4,r4,r3
+    175c:	84 64 00 00 	l.lwz r3,0(r4)
+    1760:	44 00 18 00 	l.jr r3
+    1764:	15 00 00 00 	l.nop 0x0
+			while (*format == '0') {
+				++format;
+				flags |= PAD_ZERO;
+			}
+			if (*format == '*') {
+				width = va_arg(ap, int);
+    1768:	84 f8 00 00 	l.lwz r7,0(r24)
+    176c:	90 82 00 01 	l.lbs r4,1(r2)
+    1770:	9f 18 00 04 	l.addi r24,r24,4
+    1774:	03 ff ff f2 	l.j 173c <simple_vsprintf+0x160>
+    1778:	9c 42 00 01 	l.addi r2,r2,1
+    177c:	90 64 00 02 	l.lbs r3,2(r4)
+			if (*format == '\0')
+				break;
+			if (*format == '%')
+				goto out;
+			if (*format == '-') {
+				++format;
+    1780:	9c 44 00 02 	l.addi r2,r4,2
+				flags = PAD_RIGHT;
+    1784:	03 ff ff d2 	l.j 16cc <simple_vsprintf+0xf0>
+    1788:	9d 00 00 02 	l.addi r8,r0,2
+    178c:	07 ff fe 80 	l.jal 118c <simple_outputchar.part.0>
+    1790:	9e d6 00 01 	l.addi r22,r22,1
+		int i;
+		unsigned int u;
+		void *p;
+	} u;
+
+	for (; *format != 0; ++format) {
+    1794:	03 ff ff b2 	l.j 165c <simple_vsprintf+0x80>
+    1798:	90 62 00 01 	l.lbs r3,1(r2)
+					pc += simple_outputi(out, u.u, 10, 0, width, flags, 'a');
+					break;
+
+				case('x'):
+					u.u = va_arg(ap, unsigned int);
+					pc += simple_outputi(out, u.u, 16, 0, width, flags, 'a');
+    179c:	d4 01 70 00 	l.sw 0(r1),r14
+					break;
+
+				case('X'):
+					u.u = va_arg(ap, unsigned int);
+    17a0:	9d 78 00 04 	l.addi r11,r24,4
+					pc += simple_outputi(out, u.u, 16, 0, width, flags, 'A');
+    17a4:	84 98 00 00 	l.lwz r4,0(r24)
+    17a8:	9c c0 00 00 	l.addi r6,r0,0
+    17ac:	9c a0 00 10 	l.addi r5,r0,16
+    17b0:	a8 74 00 00 	l.ori r3,r20,0x0
+    17b4:	07 ff ff 17 	l.jal 1410 <simple_outputi>
+    17b8:	ab 0b 00 00 	l.ori r24,r11,0x0
+					break;
+    17bc:	03 ff ff a7 	l.j 1658 <simple_vsprintf+0x7c>
+    17c0:	e2 d6 58 00 	l.add r22,r22,r11
+					pc += simple_outputi(out, u.i, 10, 1, width, flags, 'a');
+					break;
+
+				case('u'):
+					u.u = va_arg(ap, unsigned int);
+					pc += simple_outputi(out, u.u, 10, 0, width, flags, 'a');
+    17c4:	d4 01 70 00 	l.sw 0(r1),r14
+					u.i = va_arg(ap, int);
+					pc += simple_outputi(out, u.i, 10, 1, width, flags, 'a');
+					break;
+
+				case('u'):
+					u.u = va_arg(ap, unsigned int);
+    17c8:	9d 78 00 04 	l.addi r11,r24,4
+					pc += simple_outputi(out, u.u, 10, 0, width, flags, 'a');
+    17cc:	84 98 00 00 	l.lwz r4,0(r24)
+    17d0:	9c c0 00 00 	l.addi r6,r0,0
+    17d4:	9c a0 00 0a 	l.addi r5,r0,10
+    17d8:	a8 74 00 00 	l.ori r3,r20,0x0
+    17dc:	07 ff ff 0d 	l.jal 1410 <simple_outputi>
+    17e0:	ab 0b 00 00 	l.ori r24,r11,0x0
+					break;
+    17e4:	03 ff ff 9d 	l.j 1658 <simple_vsprintf+0x7c>
+    17e8:	e2 d6 58 00 	l.add r22,r22,r11
+					scr[1] = '\0';
+					pc += prints(out, scr, width, flags);
+					break;
+
+				case('s'):
+					u.s = va_arg(ap, char *);
+    17ec:	84 98 00 00 	l.lwz r4,0(r24)
+					pc += prints(out, u.s ? u.s : "(null)", width, flags);
+    17f0:	bc 24 00 00 	l.sfnei r4,0
+    17f4:	0c 00 00 1b 	l.bnf 1860 <simple_vsprintf+0x284>
+    17f8:	9f 18 00 04 	l.addi r24,r24,4
+    17fc:	a8 c8 00 00 	l.ori r6,r8,0x0
+    1800:	a8 a7 00 00 	l.ori r5,r7,0x0
+    1804:	07 ff fe 72 	l.jal 11cc <prints>
+    1808:	a8 74 00 00 	l.ori r3,r20,0x0
+					break;
+    180c:	03 ff ff 93 	l.j 1658 <simple_vsprintf+0x7c>
+    1810:	e2 d6 58 00 	l.add r22,r22,r11
+				}
+			}
+			switch (*format) {
+				case('d'):
+					u.i = va_arg(ap, int);
+					pc += simple_outputi(out, u.i, 10, 1, width, flags, 'a');
+    1814:	d4 01 70 00 	l.sw 0(r1),r14
+					width += *format - '0';
+				}
+			}
+			switch (*format) {
+				case('d'):
+					u.i = va_arg(ap, int);
+    1818:	9d 78 00 04 	l.addi r11,r24,4
+					pc += simple_outputi(out, u.i, 10, 1, width, flags, 'a');
+    181c:	84 98 00 00 	l.lwz r4,0(r24)
+    1820:	03 ff ff ed 	l.j 17d4 <simple_vsprintf+0x1f8>
+    1824:	9c c0 00 01 	l.addi r6,r0,1
+					pc += simple_outputi(out, u.u, 16, 0, width, flags, 'A');
+					break;
+
+				case('c'):
+					u.c = va_arg(ap, int);
+					scr[0] = u.c;
+    1828:	85 78 00 00 	l.lwz r11,0(r24)
+					scr[1] = '\0';
+					pc += prints(out, scr, width, flags);
+    182c:	a8 a7 00 00 	l.ori r5,r7,0x0
+    1830:	a8 c8 00 00 	l.ori r6,r8,0x0
+					break;
+
+				case('c'):
+					u.c = va_arg(ap, int);
+					scr[0] = u.c;
+					scr[1] = '\0';
+    1834:	9c e0 00 00 	l.addi r7,r0,0
+					pc += prints(out, scr, width, flags);
+    1838:	9c 81 00 06 	l.addi r4,r1,6
+    183c:	a8 74 00 00 	l.ori r3,r20,0x0
+					pc += simple_outputi(out, u.u, 16, 0, width, flags, 'A');
+					break;
+
+				case('c'):
+					u.c = va_arg(ap, int);
+					scr[0] = u.c;
+    1840:	d8 01 58 06 	l.sb 6(r1),r11
+					scr[1] = '\0';
+    1844:	d8 01 38 07 	l.sb 7(r1),r7
+					pc += prints(out, scr, width, flags);
+    1848:	07 ff fe 61 	l.jal 11cc <prints>
+    184c:	9f 18 00 04 	l.addi r24,r24,4
+					break;
+    1850:	03 ff ff 82 	l.j 1658 <simple_vsprintf+0x7c>
+    1854:	e2 d6 58 00 	l.add r22,r22,r11
+					pc += simple_outputi(out, u.u, 16, 0, width, flags, 'a');
+					break;
+
+				case('X'):
+					u.u = va_arg(ap, unsigned int);
+					pc += simple_outputi(out, u.u, 16, 0, width, flags, 'A');
+    1858:	03 ff ff d2 	l.j 17a0 <simple_vsprintf+0x1c4>
+    185c:	d4 01 90 00 	l.sw 0(r1),r18
+					pc += prints(out, scr, width, flags);
+					break;
+
+				case('s'):
+					u.s = va_arg(ap, char *);
+					pc += prints(out, u.s ? u.s : "(null)", width, flags);
+    1860:	18 80 00 00 	l.movhi r4,0x0
+    1864:	03 ff ff e6 	l.j 17fc <simple_vsprintf+0x220>
+    1868:	a8 84 29 3c 	l.ori r4,r4,0x293c
+
+
+static int simple_vsprintf(char **out, char *format, va_list ap)
+{
+	int width, flags;
+	int pc = 0;
+    186c:	03 ff ff 7f 	l.j 1668 <simple_vsprintf+0x8c>
+    1870:	aa c3 00 00 	l.ori r22,r3,0x0
+
+00001874 <simple_printf>:
+	if (out) **out = '\0';
+	return pc;
+}
+
+int simple_printf(char *fmt, ...)
+{
+    1874:	d7 e1 4f fc 	l.sw -4(r1),r9
+    1878:	d7 e1 0f f8 	l.sw -8(r1),r1
+    187c:	9c 21 ff f8 	l.addi r1,r1,-8
+	va_list ap;
+	int r;
+
+	va_start(ap, fmt);
+	r = simple_vsprintf(NULL, fmt, ap);
+    1880:	a8 83 00 00 	l.ori r4,r3,0x0
+    1884:	9c a1 00 08 	l.addi r5,r1,8
+    1888:	07 ff ff 55 	l.jal 15dc <simple_vsprintf>
+    188c:	9c 60 00 00 	l.addi r3,r0,0
+	va_end(ap);
+
+	return r;
+}
+    1890:	9c 21 00 08 	l.addi r1,r1,8
+    1894:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1898:	44 00 48 00 	l.jr r9
+    189c:	84 21 ff f8 	l.lwz r1,-8(r1)
+
+000018a0 <simple_sprintf>:
+
+int simple_sprintf(char *buf, char *fmt, ...)
+{
+    18a0:	d7 e1 4f fc 	l.sw -4(r1),r9
+    18a4:	d7 e1 0f f8 	l.sw -8(r1),r1
+    18a8:	9c 21 ff f4 	l.addi r1,r1,-12
+    18ac:	d4 01 18 00 	l.sw 0(r1),r3
+	va_list ap;
+	int r;
+
+	va_start(ap, fmt);
+	r = simple_vsprintf(&buf, fmt, ap);
+    18b0:	9c a1 00 0c 	l.addi r5,r1,12
+    18b4:	07 ff ff 4a 	l.jal 15dc <simple_vsprintf>
+    18b8:	a8 61 00 00 	l.ori r3,r1,0x0
+	va_end(ap);
+
+	return r;
+}
+    18bc:	9c 21 00 0c 	l.addi r1,r1,12
+    18c0:	85 21 ff fc 	l.lwz r9,-4(r1)
+    18c4:	44 00 48 00 	l.jr r9
+    18c8:	84 21 ff f8 	l.lwz r1,-8(r1)
+
+000018cc <inbyte>:
+}
+
+char jtag_getchar(void){ //get one char from jtag_uart
+	unsigned int data;
+	data=uart_DATA_REG;
+    18cc:	18 80 90 00 	l.movhi r4,0x9000
+
+//////////////////////////////*basic function for jtag_uart*////////////////////////////////////////
+void jtag_putchar(char ch);
+char jtag_getchar(void);
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+    18d0:	d7 e1 0f fc 	l.sw -4(r1),r1
+	uart_DATA_REG=ch;
+}
+
+char jtag_getchar(void){ //get one char from jtag_uart
+	unsigned int data;
+	data=uart_DATA_REG;
+    18d4:	85 64 00 00 	l.lwz r11,0(r4)
+	while(!(data & uart_DATA_RVALID_MSK)) //wait for terminal input
+    18d8:	a4 6b 80 00 	l.andi r3,r11,0x8000
+    18dc:	bc 23 00 00 	l.sfnei r3,0
+    18e0:	10 00 00 07 	l.bf 18fc <inbyte+0x30>
+    18e4:	9c 21 ff fc 	l.addi r1,r1,-4
+		data=uart_DATA_REG;
+    18e8:	85 64 00 00 	l.lwz r11,0(r4)
+}
+
+char jtag_getchar(void){ //get one char from jtag_uart
+	unsigned int data;
+	data=uart_DATA_REG;
+	while(!(data & uart_DATA_RVALID_MSK)) //wait for terminal input
+    18ec:	a4 6b 80 00 	l.andi r3,r11,0x8000
+    18f0:	bc 03 00 00 	l.sfeqi r3,0
+    18f4:	13 ff ff fd 	l.bf 18e8 <inbyte+0x1c>
+    18f8:	15 00 00 00 	l.nop 0x0
+
+//////////////////////////////*basic function for jtag_uart*////////////////////////////////////////
+void jtag_putchar(char ch);
+char jtag_getchar(void);
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+    18fc:	b9 6b 00 18 	l.slli r11,r11,0x18
+    1900:	9c 21 00 04 	l.addi r1,r1,4
+    1904:	b9 6b 00 98 	l.srai r11,r11,0x18
+    1908:	44 00 48 00 	l.jr r9
+    190c:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+00001910 <jtag_putchar>:
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+    1910:	b8 63 00 18 	l.slli r3,r3,0x18
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+    1914:	18 a0 90 00 	l.movhi r5,0x9000
+void jtag_putchar(char ch);
+char jtag_getchar(void);
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+    1918:	d7 e1 0f f8 	l.sw -8(r1),r1
+    191c:	b8 63 00 98 	l.srai r3,r3,0x18
+    1920:	d7 e1 17 fc 	l.sw -4(r1),r2
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+    1924:	a8 a5 00 04 	l.ori r5,r5,0x4
+void jtag_putchar(char ch);
+char jtag_getchar(void);
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+    1928:	9c 21 ff f8 	l.addi r1,r1,-8
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+    192c:	84 85 00 00 	l.lwz r4,0(r5)
+    1930:	18 40 ff ff 	l.movhi r2,0xffff
+    1934:	e0 84 10 03 	l.and r4,r4,r2
+    1938:	bc 04 00 00 	l.sfeqi r4,0
+    193c:	13 ff ff fc 	l.bf 192c <jtag_putchar+0x1c>
+    1940:	18 80 90 00 	l.movhi r4,0x9000
+	uart_DATA_REG=ch;
+    1944:	d4 04 18 00 	l.sw 0(r4),r3
+}
+    1948:	9c 21 00 08 	l.addi r1,r1,8
+    194c:	84 21 ff f8 	l.lwz r1,-8(r1)
+    1950:	44 00 48 00 	l.jr r9
+    1954:	84 41 ff fc 	l.lwz r2,-4(r1)
+
+00001958 <outbyte>:
+    1958:	b8 63 00 18 	l.slli r3,r3,0x18
+    195c:	d7 e1 4f fc 	l.sw -4(r1),r9
+    1960:	d7 e1 0f f8 	l.sw -8(r1),r1
+    1964:	b8 63 00 98 	l.srai r3,r3,0x18
+    1968:	07 ff ff ea 	l.jal 1910 <jtag_putchar>
+    196c:	9c 21 ff f8 	l.addi r1,r1,-8
+    1970:	9c 21 00 08 	l.addi r1,r1,8
+    1974:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1978:	44 00 48 00 	l.jr r9
+    197c:	84 21 ff f8 	l.lwz r1,-8(r1)
+
+00001980 <jtag_getchar>:
+
+char jtag_getchar(void){ //get one char from jtag_uart
+	unsigned int data;
+	data=uart_DATA_REG;
+    1980:	18 80 90 00 	l.movhi r4,0x9000
+void jtag_putchar(char ch){ //print one char from jtag_uart
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+	uart_DATA_REG=ch;
+}
+
+char jtag_getchar(void){ //get one char from jtag_uart
+    1984:	d7 e1 0f fc 	l.sw -4(r1),r1
+	unsigned int data;
+	data=uart_DATA_REG;
+    1988:	85 64 00 00 	l.lwz r11,0(r4)
+	while(!(data & uart_DATA_RVALID_MSK)) //wait for terminal input
+    198c:	a4 6b 80 00 	l.andi r3,r11,0x8000
+    1990:	bc 23 00 00 	l.sfnei r3,0
+    1994:	10 00 00 07 	l.bf 19b0 <jtag_getchar+0x30>
+    1998:	9c 21 ff fc 	l.addi r1,r1,-4
+		data=uart_DATA_REG;
+    199c:	85 64 00 00 	l.lwz r11,0(r4)
+}
+
+char jtag_getchar(void){ //get one char from jtag_uart
+	unsigned int data;
+	data=uart_DATA_REG;
+	while(!(data & uart_DATA_RVALID_MSK)) //wait for terminal input
+    19a0:	a4 6b 80 00 	l.andi r3,r11,0x8000
+    19a4:	bc 03 00 00 	l.sfeqi r3,0
+    19a8:	13 ff ff fd 	l.bf 199c <jtag_getchar+0x1c>
+    19ac:	15 00 00 00 	l.nop 0x0
+		data=uart_DATA_REG;
+	return (data & uart_DATA_DATA_MSK);
+    19b0:	b9 6b 00 18 	l.slli r11,r11,0x18
+}	
+    19b4:	9c 21 00 04 	l.addi r1,r1,4
+    19b8:	b9 6b 00 98 	l.srai r11,r11,0x18
+    19bc:	44 00 48 00 	l.jr r9
+    19c0:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+000019c4 <jtag_scanstr>:
+
+int jtag_scanstr(char* buf){ //scan string until <ENTER> to buf, return str length 
+    19c4:	d7 e1 17 ec 	l.sw -20(r1),r2
+	uart_DATA_REG=ch;
+}
+
+char jtag_getchar(void){ //get one char from jtag_uart
+	unsigned int data;
+	data=uart_DATA_REG;
+    19c8:	18 40 90 00 	l.movhi r2,0x9000
+	while(!(data & uart_DATA_RVALID_MSK)) //wait for terminal input
+		data=uart_DATA_REG;
+	return (data & uart_DATA_DATA_MSK);
+}	
+
+int jtag_scanstr(char* buf){ //scan string until <ENTER> to buf, return str length 
+    19cc:	d7 e1 77 f0 	l.sw -16(r1),r14
+    19d0:	d7 e1 97 f4 	l.sw -12(r1),r18
+    19d4:	d7 e1 a7 f8 	l.sw -8(r1),r20
+    19d8:	d7 e1 4f fc 	l.sw -4(r1),r9
+    19dc:	d7 e1 0f e8 	l.sw -24(r1),r1
+    19e0:	aa 83 00 00 	l.ori r20,r3,0x0
+    19e4:	9c 21 ff e8 	l.addi r1,r1,-24
+	char ch; unsigned int i=0;
+    19e8:	9e 40 00 00 	l.addi r18,r0,0
+char jtag_getchar(void);
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+    19ec:	a9 c2 00 04 	l.ori r14,r2,0x4
+	uart_DATA_REG=ch;
+}
+
+char jtag_getchar(void){ //get one char from jtag_uart
+	unsigned int data;
+	data=uart_DATA_REG;
+    19f0:	84 62 00 00 	l.lwz r3,0(r2)
+	while(!(data & uart_DATA_RVALID_MSK)) //wait for terminal input
+    19f4:	a4 83 80 00 	l.andi r4,r3,0x8000
+    19f8:	bc 24 00 00 	l.sfnei r4,0
+    19fc:	10 00 00 07 	l.bf 1a18 <jtag_scanstr+0x54>
+    1a00:	b8 63 00 18 	l.slli r3,r3,0x18
+		data=uart_DATA_REG;
+    1a04:	84 62 00 00 	l.lwz r3,0(r2)
+}
+
+char jtag_getchar(void){ //get one char from jtag_uart
+	unsigned int data;
+	data=uart_DATA_REG;
+	while(!(data & uart_DATA_RVALID_MSK)) //wait for terminal input
+    1a08:	a4 83 80 00 	l.andi r4,r3,0x8000
+    1a0c:	bc 04 00 00 	l.sfeqi r4,0
+    1a10:	13 ff ff fd 	l.bf 1a04 <jtag_scanstr+0x40>
+    1a14:	b8 63 00 18 	l.slli r3,r3,0x18
+		data=uart_DATA_REG;
+	return (data & uart_DATA_DATA_MSK);
+    1a18:	b8 83 00 98 	l.srai r4,r3,0x18
+
+int jtag_scanstr(char* buf){ //scan string until <ENTER> to buf, return str length 
+	char ch; unsigned int i=0;
+	while(1){
+		ch=jtag_getchar();
+		if(ch=='\n') { buf[i]=0; jtag_putchar(ch); i++; break; } //ENTER
+    1a1c:	bc 24 00 0a 	l.sfnei r4,10
+    1a20:	0c 00 00 16 	l.bnf 1a78 <jtag_scanstr+0xb4>
+    1a24:	bc 24 00 7f 	l.sfnei r4,127
+		else if(ch==127) { printf("\b \b"); if(i>0) i--; } //backspace
+    1a28:	0c 00 00 0d 	l.bnf 1a5c <jtag_scanstr+0x98>
+    1a2c:	18 60 00 00 	l.movhi r3,0x0
+char jtag_getchar(void);
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+    1a30:	84 6e 00 00 	l.lwz r3,0(r14)
+    1a34:	18 a0 ff ff 	l.movhi r5,0xffff
+    1a38:	e0 63 28 03 	l.and r3,r3,r5
+    1a3c:	bc 03 00 00 	l.sfeqi r3,0
+    1a40:	13 ff ff fc 	l.bf 1a30 <jtag_scanstr+0x6c>
+    1a44:	18 a0 90 00 	l.movhi r5,0x9000
+	char ch; unsigned int i=0;
+	while(1){
+		ch=jtag_getchar();
+		if(ch=='\n') { buf[i]=0; jtag_putchar(ch); i++; break; } //ENTER
+		else if(ch==127) { printf("\b \b"); if(i>0) i--; } //backspace
+		else { jtag_putchar(ch); buf[i]=ch; i++; } //valid
+    1a48:	e0 74 90 00 	l.add r3,r20,r18
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+	uart_DATA_REG=ch;
+    1a4c:	d4 05 20 00 	l.sw 0(r5),r4
+	char ch; unsigned int i=0;
+	while(1){
+		ch=jtag_getchar();
+		if(ch=='\n') { buf[i]=0; jtag_putchar(ch); i++; break; } //ENTER
+		else if(ch==127) { printf("\b \b"); if(i>0) i--; } //backspace
+		else { jtag_putchar(ch); buf[i]=ch; i++; } //valid
+    1a50:	d8 03 20 00 	l.sb 0(r3),r4
+    1a54:	03 ff ff e7 	l.j 19f0 <jtag_scanstr+0x2c>
+    1a58:	9e 52 00 01 	l.addi r18,r18,1
+int jtag_scanstr(char* buf){ //scan string until <ENTER> to buf, return str length 
+	char ch; unsigned int i=0;
+	while(1){
+		ch=jtag_getchar();
+		if(ch=='\n') { buf[i]=0; jtag_putchar(ch); i++; break; } //ENTER
+		else if(ch==127) { printf("\b \b"); if(i>0) i--; } //backspace
+    1a5c:	07 ff ff 86 	l.jal 1874 <simple_printf>
+    1a60:	a8 63 29 43 	l.ori r3,r3,0x2943
+    1a64:	bc 12 00 00 	l.sfeqi r18,0
+    1a68:	13 ff ff e2 	l.bf 19f0 <jtag_scanstr+0x2c>
+    1a6c:	15 00 00 00 	l.nop 0x0
+    1a70:	03 ff ff e0 	l.j 19f0 <jtag_scanstr+0x2c>
+    1a74:	9e 52 ff ff 	l.addi r18,r18,-1
+
+int jtag_scanstr(char* buf){ //scan string until <ENTER> to buf, return str length 
+	char ch; unsigned int i=0;
+	while(1){
+		ch=jtag_getchar();
+		if(ch=='\n') { buf[i]=0; jtag_putchar(ch); i++; break; } //ENTER
+    1a78:	e2 94 90 00 	l.add r20,r20,r18
+    1a7c:	9c 40 00 00 	l.addi r2,r0,0
+char jtag_getchar(void);
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+    1a80:	18 60 90 00 	l.movhi r3,0x9000
+
+int jtag_scanstr(char* buf){ //scan string until <ENTER> to buf, return str length 
+	char ch; unsigned int i=0;
+	while(1){
+		ch=jtag_getchar();
+		if(ch=='\n') { buf[i]=0; jtag_putchar(ch); i++; break; } //ENTER
+    1a84:	d8 14 10 00 	l.sb 0(r20),r2
+char jtag_getchar(void);
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+    1a88:	a8 63 00 04 	l.ori r3,r3,0x4
+    1a8c:	84 43 00 00 	l.lwz r2,0(r3)
+    1a90:	18 80 ff ff 	l.movhi r4,0xffff
+    1a94:	e0 42 20 03 	l.and r2,r2,r4
+    1a98:	bc 02 00 00 	l.sfeqi r2,0
+    1a9c:	13 ff ff fc 	l.bf 1a8c <jtag_scanstr+0xc8>
+    1aa0:	18 40 90 00 	l.movhi r2,0x9000
+	uart_DATA_REG=ch;
+    1aa4:	9c 60 00 0a 	l.addi r3,r0,10
+		ch=jtag_getchar();
+		if(ch=='\n') { buf[i]=0; jtag_putchar(ch); i++; break; } //ENTER
+		else if(ch==127) { printf("\b \b"); if(i>0) i--; } //backspace
+		else { jtag_putchar(ch); buf[i]=ch; i++; } //valid
+	}
+	return i;
+    1aa8:	9d 72 00 01 	l.addi r11,r18,1
+void outbyte(char c){jtag_putchar(c);} //called in printf();
+char inbyte(){return jtag_getchar();}
+
+void jtag_putchar(char ch){ //print one char from jtag_uart
+	while((uart_CONTROL_REG&uart_CONTROL_WSPACE_MSK)==0);
+	uart_DATA_REG=ch;
+    1aac:	d4 02 18 00 	l.sw 0(r2),r3
+		if(ch=='\n') { buf[i]=0; jtag_putchar(ch); i++; break; } //ENTER
+		else if(ch==127) { printf("\b \b"); if(i>0) i--; } //backspace
+		else { jtag_putchar(ch); buf[i]=ch; i++; } //valid
+	}
+	return i;
+}
+    1ab0:	9c 21 00 18 	l.addi r1,r1,24
+    1ab4:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1ab8:	84 21 ff e8 	l.lwz r1,-24(r1)
+    1abc:	84 41 ff ec 	l.lwz r2,-20(r1)
+    1ac0:	85 c1 ff f0 	l.lwz r14,-16(r1)
+    1ac4:	86 41 ff f4 	l.lwz r18,-12(r1)
+    1ac8:	44 00 48 00 	l.jr r9
+    1acc:	86 81 ff f8 	l.lwz r20,-8(r1)
+
+00001ad0 <jtag_scanint>:
+
+int jtag_scanint(int *num){ //return the scanned integer
+    1ad0:	d7 e1 17 f8 	l.sw -8(r1),r2
+    1ad4:	d7 e1 4f fc 	l.sw -4(r1),r9
+    1ad8:	d7 e1 0f f4 	l.sw -12(r1),r1
+    1adc:	9c 21 ff e8 	l.addi r1,r1,-24
+    1ae0:	a8 43 00 00 	l.ori r2,r3,0x0
+	unsigned int curr_num,strlen,i=0;
+	char str[11];
+	strlen=jtag_scanstr(str); //scan str
+    1ae4:	07 ff ff b8 	l.jal 19c4 <jtag_scanstr>
+    1ae8:	a8 61 00 00 	l.ori r3,r1,0x0
+	if(strlen>11) { printf("overflows 32-bit integer value\n");return 1; } //check overflow
+    1aec:	bc ab 00 0b 	l.sfleui r11,11
+    1af0:	0c 00 00 1b 	l.bnf 1b5c <jtag_scanint+0x8c>
+    1af4:	a8 81 00 00 	l.ori r4,r1,0x0
+	*num=0;
+    1af8:	9c 60 00 00 	l.addi r3,r0,0
+	for(i=0;i<strlen;i++){ //str2int
+    1afc:	e4 2b 18 00 	l.sfne r11,r3
+int jtag_scanint(int *num){ //return the scanned integer
+	unsigned int curr_num,strlen,i=0;
+	char str[11];
+	strlen=jtag_scanstr(str); //scan str
+	if(strlen>11) { printf("overflows 32-bit integer value\n");return 1; } //check overflow
+	*num=0;
+    1b00:	d4 02 18 00 	l.sw 0(r2),r3
+	for(i=0;i<strlen;i++){ //str2int
+    1b04:	0c 00 00 10 	l.bnf 1b44 <jtag_scanint+0x74>
+    1b08:	e1 61 58 00 	l.add r11,r1,r11
+		curr_num=(unsigned int)str[i]-'0';
+    1b0c:	90 64 00 00 	l.lbs r3,0(r4)
+    1b10:	9c 63 ff d0 	l.addi r3,r3,-48
+		if(curr_num>9); //not integer: do nothing
+    1b14:	bc 43 00 09 	l.sfgtui r3,9
+    1b18:	10 00 00 08 	l.bf 1b38 <jtag_scanint+0x68>
+    1b1c:	9c 84 00 01 	l.addi r4,r4,1
+		else *num=*num*10+curr_num;  //is integer
+    1b20:	84 a2 00 00 	l.lwz r5,0(r2)
+    1b24:	e0 a5 28 00 	l.add r5,r5,r5
+    1b28:	b8 c5 00 02 	l.slli r6,r5,0x2
+    1b2c:	e0 a5 30 00 	l.add r5,r5,r6
+    1b30:	e0 65 18 00 	l.add r3,r5,r3
+    1b34:	d4 02 18 00 	l.sw 0(r2),r3
+	unsigned int curr_num,strlen,i=0;
+	char str[11];
+	strlen=jtag_scanstr(str); //scan str
+	if(strlen>11) { printf("overflows 32-bit integer value\n");return 1; } //check overflow
+	*num=0;
+	for(i=0;i<strlen;i++){ //str2int
+    1b38:	e4 24 58 00 	l.sfne r4,r11
+    1b3c:	13 ff ff f4 	l.bf 1b0c <jtag_scanint+0x3c>
+    1b40:	15 00 00 00 	l.nop 0x0
+		curr_num=(unsigned int)str[i]-'0';
+		if(curr_num>9); //not integer: do nothing
+		else *num=*num*10+curr_num;  //is integer
+	}
+	return 0;
+}
+    1b44:	9c 21 00 18 	l.addi r1,r1,24
+	for(i=0;i<strlen;i++){ //str2int
+		curr_num=(unsigned int)str[i]-'0';
+		if(curr_num>9); //not integer: do nothing
+		else *num=*num*10+curr_num;  //is integer
+	}
+	return 0;
+    1b48:	9d 60 00 00 	l.addi r11,r0,0
+}
+    1b4c:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1b50:	84 21 ff f4 	l.lwz r1,-12(r1)
+    1b54:	44 00 48 00 	l.jr r9
+    1b58:	84 41 ff f8 	l.lwz r2,-8(r1)
+
+int jtag_scanint(int *num){ //return the scanned integer
+	unsigned int curr_num,strlen,i=0;
+	char str[11];
+	strlen=jtag_scanstr(str); //scan str
+	if(strlen>11) { printf("overflows 32-bit integer value\n");return 1; } //check overflow
+    1b5c:	18 60 00 00 	l.movhi r3,0x0
+    1b60:	07 ff ff 45 	l.jal 1874 <simple_printf>
+    1b64:	a8 63 29 47 	l.ori r3,r3,0x2947
+		curr_num=(unsigned int)str[i]-'0';
+		if(curr_num>9); //not integer: do nothing
+		else *num=*num*10+curr_num;  //is integer
+	}
+	return 0;
+}
+    1b68:	9c 21 00 18 	l.addi r1,r1,24
+
+int jtag_scanint(int *num){ //return the scanned integer
+	unsigned int curr_num,strlen,i=0;
+	char str[11];
+	strlen=jtag_scanstr(str); //scan str
+	if(strlen>11) { printf("overflows 32-bit integer value\n");return 1; } //check overflow
+    1b6c:	9d 60 00 01 	l.addi r11,r0,1
+		curr_num=(unsigned int)str[i]-'0';
+		if(curr_num>9); //not integer: do nothing
+		else *num=*num*10+curr_num;  //is integer
+	}
+	return 0;
+}
+    1b70:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1b74:	84 21 ff f4 	l.lwz r1,-12(r1)
+    1b78:	44 00 48 00 	l.jr r9
+    1b7c:	84 41 ff f8 	l.lwz r2,-8(r1)
+
+00001b80 <ni_initial>:
+	save_int_en : 1: enable the intrrupt when a recived packet is saved on internal buffer  0 : This intrrupt is disabled
+	got_pck_int_en : 1: enable the intrrupt when a packet is recived in NI. 0 : This intrrupt is disabled
+
+*/
+void ni_initial (unsigned int burst_size, unsigned char errors_int_en, unsigned char send_int_en, unsigned char save_int_en, unsigned char got_pck_int_en) {
+	ni_BURST_SIZE_REG  =  burst_size;
+    1b80:	19 00 b8 00 	l.movhi r8,0xb800
+	send_int_en :1: enable the intrrupt when a packet is sent 0 : This intrrupt is disabled
+	save_int_en : 1: enable the intrrupt when a recived packet is saved on internal buffer  0 : This intrrupt is disabled
+	got_pck_int_en : 1: enable the intrrupt when a packet is recived in NI. 0 : This intrrupt is disabled
+
+*/
+void ni_initial (unsigned int burst_size, unsigned char errors_int_en, unsigned char send_int_en, unsigned char save_int_en, unsigned char got_pck_int_en) {
+    1b84:	a4 84 00 ff 	l.andi r4,r4,0xff
+	ni_BURST_SIZE_REG  =  burst_size;
+    1b88:	a9 68 00 08 	l.ori r11,r8,0x8
+	send_int_en :1: enable the intrrupt when a packet is sent 0 : This intrrupt is disabled
+	save_int_en : 1: enable the intrrupt when a recived packet is saved on internal buffer  0 : This intrrupt is disabled
+	got_pck_int_en : 1: enable the intrrupt when a packet is recived in NI. 0 : This intrrupt is disabled
+
+*/
+void ni_initial (unsigned int burst_size, unsigned char errors_int_en, unsigned char send_int_en, unsigned char save_int_en, unsigned char got_pck_int_en) {
+    1b8c:	d7 e1 0f fc 	l.sw -4(r1),r1
+	ni_BURST_SIZE_REG  =  burst_size;
+	if(errors_int_en) ni_STATUS2_REG |= ERRORS_INT_EN;
+    1b90:	bc 04 00 00 	l.sfeqi r4,0
+	save_int_en : 1: enable the intrrupt when a recived packet is saved on internal buffer  0 : This intrrupt is disabled
+	got_pck_int_en : 1: enable the intrrupt when a packet is recived in NI. 0 : This intrrupt is disabled
+
+*/
+void ni_initial (unsigned int burst_size, unsigned char errors_int_en, unsigned char send_int_en, unsigned char save_int_en, unsigned char got_pck_int_en) {
+	ni_BURST_SIZE_REG  =  burst_size;
+    1b94:	d4 0b 18 00 	l.sw 0(r11),r3
+	send_int_en :1: enable the intrrupt when a packet is sent 0 : This intrrupt is disabled
+	save_int_en : 1: enable the intrrupt when a recived packet is saved on internal buffer  0 : This intrrupt is disabled
+	got_pck_int_en : 1: enable the intrrupt when a packet is recived in NI. 0 : This intrrupt is disabled
+
+*/
+void ni_initial (unsigned int burst_size, unsigned char errors_int_en, unsigned char send_int_en, unsigned char save_int_en, unsigned char got_pck_int_en) {
+    1b98:	9c 21 ff fc 	l.addi r1,r1,-4
+    1b9c:	a4 a5 00 ff 	l.andi r5,r5,0xff
+    1ba0:	a4 c6 00 ff 	l.andi r6,r6,0xff
+	ni_BURST_SIZE_REG  =  burst_size;
+	if(errors_int_en) ni_STATUS2_REG |= ERRORS_INT_EN;
+    1ba4:	10 00 00 06 	l.bf 1bbc <ni_initial+0x3c>
+    1ba8:	a4 e7 00 ff 	l.andi r7,r7,0xff
+    1bac:	a9 08 00 04 	l.ori r8,r8,0x4
+    1bb0:	84 68 00 00 	l.lwz r3,0(r8)
+    1bb4:	a8 63 00 08 	l.ori r3,r3,0x8
+    1bb8:	d4 08 18 00 	l.sw 0(r8),r3
+	if(send_int_en) ni_STATUS2_REG |= SEND_DONE_INT_EN;
+    1bbc:	bc 05 00 00 	l.sfeqi r5,0
+    1bc0:	10 00 00 08 	l.bf 1be0 <ni_initial+0x60>
+    1bc4:	bc 06 00 00 	l.sfeqi r6,0
+    1bc8:	18 60 b8 00 	l.movhi r3,0xb800
+    1bcc:	a8 63 00 04 	l.ori r3,r3,0x4
+    1bd0:	84 83 00 00 	l.lwz r4,0(r3)
+    1bd4:	a8 84 00 01 	l.ori r4,r4,0x1
+    1bd8:	d4 03 20 00 	l.sw 0(r3),r4
+	if(save_int_en) ni_STATUS2_REG |= SAVE_DONE_INT_EN;
+    1bdc:	bc 06 00 00 	l.sfeqi r6,0
+    1be0:	10 00 00 08 	l.bf 1c00 <ni_initial+0x80>
+    1be4:	bc 07 00 00 	l.sfeqi r7,0
+    1be8:	18 60 b8 00 	l.movhi r3,0xb800
+    1bec:	a8 63 00 04 	l.ori r3,r3,0x4
+    1bf0:	84 83 00 00 	l.lwz r4,0(r3)
+    1bf4:	a8 84 00 02 	l.ori r4,r4,0x2
+    1bf8:	d4 03 20 00 	l.sw 0(r3),r4
+	if(got_pck_int_en) ni_STATUS2_REG |= GOT_PCK_INT_EN;
+    1bfc:	bc 07 00 00 	l.sfeqi r7,0
+    1c00:	10 00 00 06 	l.bf 1c18 <ni_initial+0x98>
+    1c04:	18 60 b8 00 	l.movhi r3,0xb800
+    1c08:	a8 63 00 04 	l.ori r3,r3,0x4
+    1c0c:	84 83 00 00 	l.lwz r4,0(r3)
+    1c10:	a8 84 00 04 	l.ori r4,r4,0x4
+    1c14:	d4 03 20 00 	l.sw 0(r3),r4
+}
+    1c18:	9c 21 00 04 	l.addi r1,r1,4
+    1c1c:	44 00 48 00 	l.jr r9
+    1c20:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+00001c24 <ni_transfer>:
+	data_size: the message data size in words
+	dest_phy_addr: the destination endpoint physical address. check phy_adr.h file for knowing each endpoint physical address
+
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+    1c24:	9d 84 00 06 	l.addi r12,r4,6
+    1c28:	9d 60 00 01 	l.addi r11,r0,1
+    1c2c:	d7 e1 0f f8 	l.sw -8(r1),r1
+    1c30:	e1 8b 60 08 	l.sll r12,r11,r12
+    1c34:	d7 e1 17 fc 	l.sw -4(r1),r2
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+    1c38:	19 a0 b8 00 	l.movhi r13,0xb800
+	data_size: the message data size in words
+	dest_phy_addr: the destination endpoint physical address. check phy_adr.h file for knowing each endpoint physical address
+
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+    1c3c:	9c 21 ff f8 	l.addi r1,r1,-8
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+    1c40:	85 6d 00 00 	l.lwz r11,0(r13)
+    1c44:	e1 6b 60 03 	l.and r11,r11,r12
+    1c48:	bc 2b 00 00 	l.sfnei r11,0
+    1c4c:	13 ff ff fd 	l.bf 1c40 <ni_transfer+0x1c>
+    1c50:	18 40 b8 00 	l.movhi r2,0xb800
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+    1c54:	b8 84 00 06 	l.slli r4,r4,0x6
+    1c58:	a8 42 00 0c 	l.ori r2,r2,0xc
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    1c5c:	b8 63 00 18 	l.slli r3,r3,0x18
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+    1c60:	e1 64 10 00 	l.add r11,r4,r2
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    1c64:	18 40 b8 00 	l.movhi r2,0xb800
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    1c68:	e1 03 40 04 	l.or r8,r3,r8
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    1c6c:	a8 42 00 10 	l.ori r2,r2,0x10
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    1c70:	b8 a5 00 10 	l.slli r5,r5,0x10
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    1c74:	e0 64 10 00 	l.add r3,r4,r2
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    1c78:	18 40 b8 00 	l.movhi r2,0xb800
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+    1c7c:	d4 0b 38 00 	l.sw 0(r11),r7
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    1c80:	a8 42 00 14 	l.ori r2,r2,0x14
+    1c84:	e0 a8 28 04 	l.or r5,r8,r5
+    1c88:	e0 84 10 00 	l.add r4,r4,r2
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    1c8c:	d4 03 30 00 	l.sw 0(r3),r6
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    1c90:	d4 04 28 00 	l.sw 0(r4),r5
+	 
+}
+    1c94:	9c 21 00 08 	l.addi r1,r1,8
+    1c98:	84 21 ff f8 	l.lwz r1,-8(r1)
+    1c9c:	44 00 48 00 	l.jr r9
+    1ca0:	84 41 ff fc 	l.lwz r2,-4(r1)
+
+00001ca4 <ni_receive>:
+	v: virtual channel number of the received packet
+	data_start_addr : The address pointer to the start location of the memory where the newly arrived packet must be stored by NI in.
+	max_buffer_size : The allocated receive-memory buffer size in words.
+*/
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+    1ca4:	9c e3 00 04 	l.addi r7,r3,4
+    1ca8:	9c c0 00 01 	l.addi r6,r0,1
+    1cac:	d7 e1 0f f8 	l.sw -8(r1),r1
+    1cb0:	e0 e6 38 08 	l.sll r7,r6,r7
+    1cb4:	d7 e1 17 fc 	l.sw -4(r1),r2
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+    1cb8:	19 00 b8 00 	l.movhi r8,0xb800
+	v: virtual channel number of the received packet
+	data_start_addr : The address pointer to the start location of the memory where the newly arrived packet must be stored by NI in.
+	max_buffer_size : The allocated receive-memory buffer size in words.
+*/
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+    1cbc:	9c 21 ff f8 	l.addi r1,r1,-8
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+    1cc0:	84 c8 00 00 	l.lwz r6,0(r8)
+    1cc4:	e0 c6 38 03 	l.and r6,r6,r7
+    1cc8:	bc 26 00 00 	l.sfnei r6,0
+    1ccc:	13 ff ff fd 	l.bf 1cc0 <ni_receive+0x1c>
+    1cd0:	18 40 b8 00 	l.movhi r2,0xb800
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+    1cd4:	b8 63 00 06 	l.slli r3,r3,0x6
+    1cd8:	a8 42 00 20 	l.ori r2,r2,0x20
+    1cdc:	e0 e3 10 00 	l.add r7,r3,r2
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    1ce0:	18 40 b8 00 	l.movhi r2,0xb800
+*/
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+    1ce4:	d4 07 20 00 	l.sw 0(r7),r4
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    1ce8:	a8 42 00 2c 	l.ori r2,r2,0x2c
+	ni_RECEIVE_CTRL_REG(v)   = 1;
+    1cec:	9c 80 00 01 	l.addi r4,r0,1
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    1cf0:	e0 c3 10 00 	l.add r6,r3,r2
+	ni_RECEIVE_CTRL_REG(v)   = 1;
+    1cf4:	18 40 b8 00 	l.movhi r2,0xb800
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    1cf8:	d4 06 28 00 	l.sw 0(r6),r5
+	ni_RECEIVE_CTRL_REG(v)   = 1;
+    1cfc:	a8 42 00 28 	l.ori r2,r2,0x28
+    1d00:	e0 63 10 00 	l.add r3,r3,r2
+    1d04:	d4 03 20 00 	l.sw 0(r3),r4
+
+	 
+}
+    1d08:	9c 21 00 08 	l.addi r1,r1,8
+    1d0c:	84 21 ff f8 	l.lwz r1,-8(r1)
+    1d10:	44 00 48 00 	l.jr r9
+    1d14:	84 41 ff fc 	l.lwz r2,-4(r1)
+
+00001d18 <timer_int_init>:
+	#define timer_EN				(1 << 0)
+	#define timer_INT_EN				(1 << 1)
+	#define timer_RST_ON_CMP			(1 << 2)
+//Initialize the timer. Enable the timer, reset on compare value, and interrupt
+	void timer_int_init ( unsigned int compare ){
+		timer_TCMR	=	compare;
+    1d18:	18 80 96 00 	l.movhi r4,0x9600
+	#define timer_TCMR	   			(*((volatile unsigned int *) (0X96000000+8	)))
+	#define timer_EN				(1 << 0)
+	#define timer_INT_EN				(1 << 1)
+	#define timer_RST_ON_CMP			(1 << 2)
+//Initialize the timer. Enable the timer, reset on compare value, and interrupt
+	void timer_int_init ( unsigned int compare ){
+    1d1c:	d7 e1 0f fc 	l.sw -4(r1),r1
+		timer_TCMR	=	compare;
+    1d20:	a8 a4 00 08 	l.ori r5,r4,0x8
+	#define timer_TCMR	   			(*((volatile unsigned int *) (0X96000000+8	)))
+	#define timer_EN				(1 << 0)
+	#define timer_INT_EN				(1 << 1)
+	#define timer_RST_ON_CMP			(1 << 2)
+//Initialize the timer. Enable the timer, reset on compare value, and interrupt
+	void timer_int_init ( unsigned int compare ){
+    1d24:	9c 21 ff fc 	l.addi r1,r1,-4
+		timer_TCMR	=	compare;
+    1d28:	d4 05 18 00 	l.sw 0(r5),r3
+		timer_TCSR   =	( timer_EN | timer_INT_EN | timer_RST_ON_CMP);
+    1d2c:	9c 60 00 07 	l.addi r3,r0,7
+    1d30:	d4 04 18 00 	l.sw 0(r4),r3
+	}
+    1d34:	9c 21 00 04 	l.addi r1,r1,4
+    1d38:	44 00 48 00 	l.jr r9
+    1d3c:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+00001d40 <delay>:
+unsigned char pck2[11]={"second data"}; 
+unsigned char pck3[6]={"123456"}; 
+unsigned char recive_buffer[15];
+
+// a simple delay function
+void delay ( unsigned int num ){	
+    1d40:	d7 e1 0f fc 	l.sw -4(r1),r1
+	while (num>0){ 
+    1d44:	bc 03 00 00 	l.sfeqi r3,0
+    1d48:	10 00 00 08 	l.bf 1d68 <delay+0x28>
+    1d4c:	9c 21 ff fc 	l.addi r1,r1,-4
+		num--;
+    1d50:	9c 63 ff ff 	l.addi r3,r3,-1
+ 
+ /*  cpu   */ 
+  #include "mor1kx/system.h" 
+
+ inline void nop (){
+	__asm__("l.nop 1");
+    1d54:	15 00 00 01 	l.nop 0x1
+unsigned char pck3[6]={"123456"}; 
+unsigned char recive_buffer[15];
+
+// a simple delay function
+void delay ( unsigned int num ){	
+	while (num>0){ 
+    1d58:	bc 23 00 00 	l.sfnei r3,0
+    1d5c:	13 ff ff fe 	l.bf 1d54 <delay+0x14>
+    1d60:	9c 63 ff ff 	l.addi r3,r3,-1
+    1d64:	9c 63 00 01 	l.addi r3,r3,1
+		num--;
+		nop(); // asm volatile ("nop");
+	}
+	return;
+}
+    1d68:	9c 21 00 04 	l.addi r1,r1,4
+    1d6c:	44 00 48 00 	l.jr r9
+    1d70:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+00001d74 <error_handelling_function>:
+
+void error_handelling_function(){
+    1d74:	d7 e1 77 f4 	l.sw -12(r1),r14
+    1d78:	d7 e1 97 f8 	l.sw -8(r1),r18
+    1d7c:	d7 e1 4f fc 	l.sw -4(r1),r9
+    1d80:	d7 e1 0f ec 	l.sw -20(r1),r1
+    1d84:	d7 e1 17 f0 	l.sw -16(r1),r2
+	unsigned int i;
+	for (i=0;i<ni_NUM_VCs;i++){
+    1d88:	9d c0 00 00 	l.addi r14,r0,0
+		nop(); // asm volatile ("nop");
+	}
+	return;
+}
+
+void error_handelling_function(){
+    1d8c:	9c 21 ff e8 	l.addi r1,r1,-24
+				printf ("Error in vc %u\n",i);
+				if(ni_ERROR_FLAGS_REG(i) & BUFF_OVER_FLOW_ERR) printf ("The receiver allocated buffer size is smaller than the received packet size in core%u\n",COREID);
+				if(ni_ERROR_FLAGS_REG(i) & SEND_DATA_SIZE_ERR)  printf ("the send data size is not set in core%u\n",COREID);
+				if(ni_ERROR_FLAGS_REG(i) & BURST_SIZE_ERR)	 printf (" the burst size is not set in core%u\n",COREID);
+				if(ni_ERROR_FLAGS_REG(i) & ILLEGAL_SEND_REQ)  printf( "A new send request is received while the DMA is still busy sending previous packet in core%u\n",COREID);
+				if(ni_ERROR_FLAGS_REG(i) & CRC_MISS_MATCH)	    printf( "CRC missmatch in core%u\n",COREID);
+    1d90:	9e 40 00 02 	l.addi r18,r0,2
+}
+
+void error_handelling_function(){
+	unsigned int i;
+	for (i=0;i<ni_NUM_VCs;i++){
+			if(ni_ERROR_FLAGS_REG(i)){
+    1d94:	18 60 b8 00 	l.movhi r3,0xb800
+    1d98:	b8 4e 00 06 	l.slli r2,r14,0x6
+    1d9c:	a8 63 00 30 	l.ori r3,r3,0x30
+    1da0:	e0 42 18 00 	l.add r2,r2,r3
+    1da4:	84 62 00 00 	l.lwz r3,0(r2)
+    1da8:	bc 23 00 00 	l.sfnei r3,0
+    1dac:	10 00 00 0d 	l.bf 1de0 <error_handelling_function+0x6c>
+    1db0:	18 60 00 00 	l.movhi r3,0x0
+	return;
+}
+
+void error_handelling_function(){
+	unsigned int i;
+	for (i=0;i<ni_NUM_VCs;i++){
+    1db4:	9d ce 00 01 	l.addi r14,r14,1
+    1db8:	bc 2e 00 02 	l.sfnei r14,2
+    1dbc:	13 ff ff f7 	l.bf 1d98 <error_handelling_function+0x24>
+    1dc0:	18 60 b8 00 	l.movhi r3,0xb800
+				if(ni_ERROR_FLAGS_REG(i) & ILLEGAL_SEND_REQ)  printf( "A new send request is received while the DMA is still busy sending previous packet in core%u\n",COREID);
+				if(ni_ERROR_FLAGS_REG(i) & CRC_MISS_MATCH)	    printf( "CRC missmatch in core%u\n",COREID);
+
+		 } 
+	}
+}
+    1dc4:	9c 21 00 18 	l.addi r1,r1,24
+    1dc8:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1dcc:	84 21 ff ec 	l.lwz r1,-20(r1)
+    1dd0:	84 41 ff f0 	l.lwz r2,-16(r1)
+    1dd4:	85 c1 ff f4 	l.lwz r14,-12(r1)
+    1dd8:	44 00 48 00 	l.jr r9
+    1ddc:	86 41 ff f8 	l.lwz r18,-8(r1)
+
+void error_handelling_function(){
+	unsigned int i;
+	for (i=0;i<ni_NUM_VCs;i++){
+			if(ni_ERROR_FLAGS_REG(i)){
+				printf ("Error in vc %u\n",i);
+    1de0:	d4 01 70 00 	l.sw 0(r1),r14
+    1de4:	07 ff fe a4 	l.jal 1874 <simple_printf>
+    1de8:	a8 63 29 67 	l.ori r3,r3,0x2967
+				if(ni_ERROR_FLAGS_REG(i) & BUFF_OVER_FLOW_ERR) printf ("The receiver allocated buffer size is smaller than the received packet size in core%u\n",COREID);
+    1dec:	84 62 00 00 	l.lwz r3,0(r2)
+    1df0:	a4 63 00 01 	l.andi r3,r3,0x1
+    1df4:	bc 03 00 00 	l.sfeqi r3,0
+    1df8:	0c 00 00 1b 	l.bnf 1e64 <error_handelling_function+0xf0>
+    1dfc:	18 60 00 00 	l.movhi r3,0x0
+				if(ni_ERROR_FLAGS_REG(i) & SEND_DATA_SIZE_ERR)  printf ("the send data size is not set in core%u\n",COREID);
+    1e00:	84 62 00 00 	l.lwz r3,0(r2)
+    1e04:	a4 63 00 02 	l.andi r3,r3,0x2
+    1e08:	bc 03 00 00 	l.sfeqi r3,0
+    1e0c:	0c 00 00 1e 	l.bnf 1e84 <error_handelling_function+0x110>
+    1e10:	18 60 00 00 	l.movhi r3,0x0
+				if(ni_ERROR_FLAGS_REG(i) & BURST_SIZE_ERR)	 printf (" the burst size is not set in core%u\n",COREID);
+    1e14:	84 62 00 00 	l.lwz r3,0(r2)
+    1e18:	a4 63 00 04 	l.andi r3,r3,0x4
+    1e1c:	bc 03 00 00 	l.sfeqi r3,0
+    1e20:	0c 00 00 21 	l.bnf 1ea4 <error_handelling_function+0x130>
+    1e24:	18 60 00 00 	l.movhi r3,0x0
+				if(ni_ERROR_FLAGS_REG(i) & ILLEGAL_SEND_REQ)  printf( "A new send request is received while the DMA is still busy sending previous packet in core%u\n",COREID);
+    1e28:	84 62 00 00 	l.lwz r3,0(r2)
+    1e2c:	a4 63 00 08 	l.andi r3,r3,0x8
+    1e30:	bc 03 00 00 	l.sfeqi r3,0
+    1e34:	0c 00 00 24 	l.bnf 1ec4 <error_handelling_function+0x150>
+    1e38:	18 60 00 00 	l.movhi r3,0x0
+				if(ni_ERROR_FLAGS_REG(i) & CRC_MISS_MATCH)	    printf( "CRC missmatch in core%u\n",COREID);
+    1e3c:	84 42 00 00 	l.lwz r2,0(r2)
+    1e40:	a4 42 00 10 	l.andi r2,r2,0x10
+    1e44:	bc 02 00 00 	l.sfeqi r2,0
+    1e48:	13 ff ff db 	l.bf 1db4 <error_handelling_function+0x40>
+    1e4c:	18 60 00 00 	l.movhi r3,0x0
+    1e50:	d4 01 90 00 	l.sw 0(r1),r18
+    1e54:	07 ff fe 88 	l.jal 1874 <simple_printf>
+    1e58:	a8 63 2a 7b 	l.ori r3,r3,0x2a7b
+	return;
+}
+
+void error_handelling_function(){
+	unsigned int i;
+	for (i=0;i<ni_NUM_VCs;i++){
+    1e5c:	03 ff ff d7 	l.j 1db8 <error_handelling_function+0x44>
+    1e60:	9d ce 00 01 	l.addi r14,r14,1
+			if(ni_ERROR_FLAGS_REG(i)){
+				printf ("Error in vc %u\n",i);
+				if(ni_ERROR_FLAGS_REG(i) & BUFF_OVER_FLOW_ERR) printf ("The receiver allocated buffer size is smaller than the received packet size in core%u\n",COREID);
+    1e64:	d4 01 90 00 	l.sw 0(r1),r18
+    1e68:	07 ff fe 83 	l.jal 1874 <simple_printf>
+    1e6c:	a8 63 29 77 	l.ori r3,r3,0x2977
+				if(ni_ERROR_FLAGS_REG(i) & SEND_DATA_SIZE_ERR)  printf ("the send data size is not set in core%u\n",COREID);
+    1e70:	84 62 00 00 	l.lwz r3,0(r2)
+    1e74:	a4 63 00 02 	l.andi r3,r3,0x2
+    1e78:	bc 03 00 00 	l.sfeqi r3,0
+    1e7c:	13 ff ff e6 	l.bf 1e14 <error_handelling_function+0xa0>
+    1e80:	18 60 00 00 	l.movhi r3,0x0
+    1e84:	d4 01 90 00 	l.sw 0(r1),r18
+    1e88:	07 ff fe 7b 	l.jal 1874 <simple_printf>
+    1e8c:	a8 63 29 ce 	l.ori r3,r3,0x29ce
+				if(ni_ERROR_FLAGS_REG(i) & BURST_SIZE_ERR)	 printf (" the burst size is not set in core%u\n",COREID);
+    1e90:	84 62 00 00 	l.lwz r3,0(r2)
+    1e94:	a4 63 00 04 	l.andi r3,r3,0x4
+    1e98:	bc 03 00 00 	l.sfeqi r3,0
+    1e9c:	13 ff ff e3 	l.bf 1e28 <error_handelling_function+0xb4>
+    1ea0:	18 60 00 00 	l.movhi r3,0x0
+    1ea4:	d4 01 90 00 	l.sw 0(r1),r18
+    1ea8:	07 ff fe 73 	l.jal 1874 <simple_printf>
+    1eac:	a8 63 29 f7 	l.ori r3,r3,0x29f7
+				if(ni_ERROR_FLAGS_REG(i) & ILLEGAL_SEND_REQ)  printf( "A new send request is received while the DMA is still busy sending previous packet in core%u\n",COREID);
+    1eb0:	84 62 00 00 	l.lwz r3,0(r2)
+    1eb4:	a4 63 00 08 	l.andi r3,r3,0x8
+    1eb8:	bc 03 00 00 	l.sfeqi r3,0
+    1ebc:	13 ff ff e0 	l.bf 1e3c <error_handelling_function+0xc8>
+    1ec0:	18 60 00 00 	l.movhi r3,0x0
+    1ec4:	d4 01 90 00 	l.sw 0(r1),r18
+    1ec8:	07 ff fe 6b 	l.jal 1874 <simple_printf>
+    1ecc:	a8 63 2a 1d 	l.ori r3,r3,0x2a1d
+				if(ni_ERROR_FLAGS_REG(i) & CRC_MISS_MATCH)	    printf( "CRC missmatch in core%u\n",COREID);
+    1ed0:	84 42 00 00 	l.lwz r2,0(r2)
+    1ed4:	a4 42 00 10 	l.andi r2,r2,0x10
+    1ed8:	bc 02 00 00 	l.sfeqi r2,0
+    1edc:	13 ff ff b6 	l.bf 1db4 <error_handelling_function+0x40>
+    1ee0:	18 60 00 00 	l.movhi r3,0x0
+    1ee4:	03 ff ff dc 	l.j 1e54 <error_handelling_function+0xe0>
+    1ee8:	d4 01 90 00 	l.sw 0(r1),r18
+
+00001eec <ni_isr>:
+		}
+	}
+}
+
+// NI interrupt function
+void ni_isr(void){
+    1eec:	d7 e1 17 f8 	l.sw -8(r1),r2
+	//place your interrupt code here 
+	if( ni_STATUS2_REG & ERRORS_ISR ){
+    1ef0:	18 40 b8 00 	l.movhi r2,0xb800
+		}
+	}
+}
+
+// NI interrupt function
+void ni_isr(void){
+    1ef4:	d7 e1 4f fc 	l.sw -4(r1),r9
+	//place your interrupt code here 
+	if( ni_STATUS2_REG & ERRORS_ISR ){
+    1ef8:	a8 42 00 04 	l.ori r2,r2,0x4
+		}
+	}
+}
+
+// NI interrupt function
+void ni_isr(void){
+    1efc:	d7 e1 0f f4 	l.sw -12(r1),r1
+	//place your interrupt code here 
+	if( ni_STATUS2_REG & ERRORS_ISR ){
+    1f00:	84 62 00 00 	l.lwz r3,0(r2)
+    1f04:	a4 63 00 80 	l.andi r3,r3,0x80
+    1f08:	bc 03 00 00 	l.sfeqi r3,0
+    1f0c:	10 00 00 07 	l.bf 1f28 <ni_isr+0x3c>
+    1f10:	9c 21 ff f4 	l.addi r1,r1,-12
+	// An error ocures 
+		error_handelling_function();
+    1f14:	07 ff ff 98 	l.jal 1d74 <error_handelling_function>
+    1f18:	15 00 00 00 	l.nop 0x0
+		ni_ack_errors_isr();
+    1f1c:	84 62 00 00 	l.lwz r3,0(r2)
+    1f20:	a4 63 00 8f 	l.andi r3,r3,0x8f
+    1f24:	d4 02 18 00 	l.sw 0(r2),r3
+	}
+	
+	return;
+}
+    1f28:	9c 21 00 0c 	l.addi r1,r1,12
+    1f2c:	85 21 ff fc 	l.lwz r9,-4(r1)
+    1f30:	84 21 ff f4 	l.lwz r1,-12(r1)
+    1f34:	44 00 48 00 	l.jr r9
+    1f38:	84 41 ff f8 	l.lwz r2,-8(r1)
+
+00001f3c <got_packet_funtion>:
+
+unsigned int reseived_counter=0;
+void got_packet_funtion(){
+	unsigned int i;
+	for (i=0;i<ni_NUM_VCs;i++){
+		if(ni_got_packet(i)) {
+    1f3c:	18 80 b8 00 	l.movhi r4,0xb800
+		 } 
+	}
+}
+
+unsigned int reseived_counter=0;
+void got_packet_funtion(){
+    1f40:	d7 e1 0f fc 	l.sw -4(r1),r1
+	unsigned int i;
+	for (i=0;i<ni_NUM_VCs;i++){
+		if(ni_got_packet(i)) {
+    1f44:	84 64 00 00 	l.lwz r3,0(r4)
+    1f48:	a4 63 00 01 	l.andi r3,r3,0x1
+    1f4c:	bc 03 00 00 	l.sfeqi r3,0
+    1f50:	0c 00 00 0c 	l.bnf 1f80 <got_packet_funtion+0x44>
+    1f54:	9c 21 ff fc 	l.addi r1,r1,-4
+    1f58:	18 80 b8 00 	l.movhi r4,0xb800
+    1f5c:	84 64 00 00 	l.lwz r3,0(r4)
+    1f60:	b8 63 00 41 	l.srli r3,r3,0x1
+    1f64:	a4 63 00 01 	l.andi r3,r3,0x1
+    1f68:	bc 03 00 00 	l.sfeqi r3,0
+    1f6c:	0c 00 00 20 	l.bnf 1fec <got_packet_funtion+0xb0>
+    1f70:	15 00 00 00 	l.nop 0x0
+			ni_receive (i, (unsigned int)recive_buffer, 4);
+			reseived_counter++;
+		}
+	}
+}
+    1f74:	9c 21 00 04 	l.addi r1,r1,4
+    1f78:	44 00 48 00 	l.jr r9
+    1f7c:	84 21 ff fc 	l.lwz r1,-4(r1)
+	data_start_addr : The address pointer to the start location of the memory where the newly arrived packet must be stored by NI in.
+	max_buffer_size : The allocated receive-memory buffer size in words.
+*/
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+    1f80:	84 64 00 00 	l.lwz r3,0(r4)
+    1f84:	a4 63 00 10 	l.andi r3,r3,0x10
+    1f88:	bc 23 00 00 	l.sfnei r3,0
+    1f8c:	13 ff ff fd 	l.bf 1f80 <got_packet_funtion+0x44>
+    1f90:	18 a0 b8 00 	l.movhi r5,0xb800
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+    1f94:	18 c0 00 00 	l.movhi r6,0x0
+    1f98:	a8 85 00 20 	l.ori r4,r5,0x20
+    1f9c:	a8 c6 2c d8 	l.ori r6,r6,0x2cd8
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    1fa0:	a8 65 00 2c 	l.ori r3,r5,0x2c
+*/
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+    1fa4:	d4 04 30 00 	l.sw 0(r4),r6
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    1fa8:	9c 80 00 04 	l.addi r4,r0,4
+	ni_RECEIVE_CTRL_REG(v)   = 1;
+    1fac:	a8 a5 00 28 	l.ori r5,r5,0x28
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    1fb0:	d4 03 20 00 	l.sw 0(r3),r4
+	ni_RECEIVE_CTRL_REG(v)   = 1;
+    1fb4:	9c 60 00 01 	l.addi r3,r0,1
+void got_packet_funtion(){
+	unsigned int i;
+	for (i=0;i<ni_NUM_VCs;i++){
+		if(ni_got_packet(i)) {
+			ni_receive (i, (unsigned int)recive_buffer, 4);
+			reseived_counter++;
+    1fb8:	18 80 00 00 	l.movhi r4,0x0
+    1fbc:	d4 05 18 00 	l.sw 0(r5),r3
+    1fc0:	a8 84 2c d4 	l.ori r4,r4,0x2cd4
+    1fc4:	84 64 00 00 	l.lwz r3,0(r4)
+    1fc8:	9c 63 00 01 	l.addi r3,r3,1
+    1fcc:	d4 04 18 00 	l.sw 0(r4),r3
+
+unsigned int reseived_counter=0;
+void got_packet_funtion(){
+	unsigned int i;
+	for (i=0;i<ni_NUM_VCs;i++){
+		if(ni_got_packet(i)) {
+    1fd0:	18 80 b8 00 	l.movhi r4,0xb800
+    1fd4:	84 64 00 00 	l.lwz r3,0(r4)
+    1fd8:	b8 63 00 41 	l.srli r3,r3,0x1
+    1fdc:	a4 63 00 01 	l.andi r3,r3,0x1
+    1fe0:	bc 03 00 00 	l.sfeqi r3,0
+    1fe4:	13 ff ff e4 	l.bf 1f74 <got_packet_funtion+0x38>
+    1fe8:	15 00 00 00 	l.nop 0x0
+	data_start_addr : The address pointer to the start location of the memory where the newly arrived packet must be stored by NI in.
+	max_buffer_size : The allocated receive-memory buffer size in words.
+*/
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+    1fec:	84 64 00 00 	l.lwz r3,0(r4)
+    1ff0:	a4 63 00 20 	l.andi r3,r3,0x20
+    1ff4:	bc 23 00 00 	l.sfnei r3,0
+    1ff8:	13 ff ff fd 	l.bf 1fec <got_packet_funtion+0xb0>
+    1ffc:	18 a0 b8 00 	l.movhi r5,0xb800
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+    2000:	18 c0 00 00 	l.movhi r6,0x0
+    2004:	a8 85 00 60 	l.ori r4,r5,0x60
+    2008:	a8 c6 2c d8 	l.ori r6,r6,0x2cd8
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    200c:	a8 65 00 6c 	l.ori r3,r5,0x6c
+*/
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+    2010:	d4 04 30 00 	l.sw 0(r4),r6
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    2014:	9c 80 00 04 	l.addi r4,r0,4
+	ni_RECEIVE_CTRL_REG(v)   = 1;
+    2018:	a8 a5 00 68 	l.ori r5,r5,0x68
+
+void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size){
+	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
+
+	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
+	ni_RECEIVE_MAX_BUFF_SIZ_REG(v) = max_buffer_size;
+    201c:	d4 03 20 00 	l.sw 0(r3),r4
+	ni_RECEIVE_CTRL_REG(v)   = 1;
+    2020:	9c 60 00 01 	l.addi r3,r0,1
+			ni_receive (i, (unsigned int)recive_buffer, 4);
+			reseived_counter++;
+    2024:	18 80 00 00 	l.movhi r4,0x0
+    2028:	d4 05 18 00 	l.sw 0(r5),r3
+    202c:	a8 84 2c d4 	l.ori r4,r4,0x2cd4
+    2030:	84 64 00 00 	l.lwz r3,0(r4)
+    2034:	9c 63 00 01 	l.addi r3,r3,1
+    2038:	d4 04 18 00 	l.sw 0(r4),r3
+		}
+	}
+}
+    203c:	9c 21 00 04 	l.addi r1,r1,4
+    2040:	44 00 48 00 	l.jr r9
+    2044:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+00002048 <_cache_init>:
+    2048:	b4 60 00 01 	l.mfspr r3,r0,0x1
+    204c:	a4 83 00 04 	l.andi r4,r3,0x4
+    2050:	e4 04 00 00 	l.sfeq r4,r0
+    2054:	10 00 00 21 	l.bf 20d8 <_cache_init+0x90>
+    2058:	15 00 00 00 	l.nop 0x0
+    205c:	b4 c0 00 11 	l.mfspr r6,r0,0x11
+    2060:	9c a0 ff ff 	l.addi r5,r0,-1
+    2064:	ac a5 00 10 	l.xori r5,r5,16
+    2068:	e0 a6 28 03 	l.and r5,r6,r5
+    206c:	c0 00 28 11 	l.mtspr r0,r5,0x11
+    2070:	b4 60 00 06 	l.mfspr r3,r0,0x6
+    2074:	a4 83 00 80 	l.andi r4,r3,0x80
+    2078:	b8 a4 00 47 	l.srli r5,r4,0x7
+    207c:	a8 c0 00 10 	l.ori r6,r0,0x10
+    2080:	e1 c6 28 08 	l.sll r14,r6,r5
+    2084:	a4 83 00 78 	l.andi r4,r3,0x78
+    2088:	b8 a4 00 43 	l.srli r5,r4,0x3
+    208c:	a8 c0 00 01 	l.ori r6,r0,0x1
+    2090:	e0 e6 28 08 	l.sll r7,r6,r5
+    2094:	9c c0 00 00 	l.addi r6,r0,0
+    2098:	e0 ae 28 08 	l.sll r5,r14,r5
+    209c:	c0 80 30 02 	l.mtspr r0,r6,0x2002
+    20a0:	e4 26 28 00 	l.sfne r6,r5
+    20a4:	13 ff ff fe 	l.bf 209c <_cache_init+0x54>
+    20a8:	e0 c6 70 00 	l.add r6,r6,r14
+    20ac:	b4 c0 00 11 	l.mfspr r6,r0,0x11
+    20b0:	a8 c6 00 10 	l.ori r6,r6,0x10
+    20b4:	c0 00 30 11 	l.mtspr r0,r6,0x11
+    20b8:	15 00 00 00 	l.nop 0x0
+    20bc:	15 00 00 00 	l.nop 0x0
+    20c0:	15 00 00 00 	l.nop 0x0
+    20c4:	15 00 00 00 	l.nop 0x0
+    20c8:	15 00 00 00 	l.nop 0x0
+    20cc:	15 00 00 00 	l.nop 0x0
+    20d0:	15 00 00 00 	l.nop 0x0
+    20d4:	15 00 00 00 	l.nop 0x0
+    20d8:	b4 60 00 01 	l.mfspr r3,r0,0x1
+    20dc:	a4 83 00 02 	l.andi r4,r3,0x2
+    20e0:	e4 04 00 00 	l.sfeq r4,r0
+    20e4:	10 00 00 19 	l.bf 2148 <_cache_init+0x100>
+    20e8:	15 00 00 00 	l.nop 0x0
+    20ec:	b4 c0 00 11 	l.mfspr r6,r0,0x11
+    20f0:	9c a0 ff ff 	l.addi r5,r0,-1
+    20f4:	ac a5 00 08 	l.xori r5,r5,8
+    20f8:	e0 a6 28 03 	l.and r5,r6,r5
+    20fc:	c0 00 28 11 	l.mtspr r0,r5,0x11
+    2100:	b4 60 00 05 	l.mfspr r3,r0,0x5
+    2104:	a4 83 00 80 	l.andi r4,r3,0x80
+    2108:	b8 a4 00 47 	l.srli r5,r4,0x7
+    210c:	a8 c0 00 10 	l.ori r6,r0,0x10
+    2110:	e1 c6 28 08 	l.sll r14,r6,r5
+    2114:	a4 83 00 78 	l.andi r4,r3,0x78
+    2118:	b8 a4 00 43 	l.srli r5,r4,0x3
+    211c:	a8 c0 00 01 	l.ori r6,r0,0x1
+    2120:	e0 e6 28 08 	l.sll r7,r6,r5
+    2124:	9c c0 00 00 	l.addi r6,r0,0
+    2128:	e0 ae 28 08 	l.sll r5,r14,r5
+    212c:	c0 60 30 03 	l.mtspr r0,r6,0x1803
+    2130:	e4 26 28 00 	l.sfne r6,r5
+    2134:	13 ff ff fe 	l.bf 212c <_cache_init+0xe4>
+    2138:	e0 c6 70 00 	l.add r6,r6,r14
+    213c:	b4 c0 00 11 	l.mfspr r6,r0,0x11
+    2140:	a8 c6 00 08 	l.ori r6,r6,0x8
+    2144:	c0 00 30 11 	l.mtspr r0,r6,0x11
+    2148:	44 00 48 00 	l.jr r9
+    214c:	15 00 00 00 	l.nop 0x0
+
+00002150 <sim_putchar>:
+
+
+/*  sim_uart0   */
+ #define sim_DATA_REG					(*((volatile unsigned int *) (0Xa5000000)))
+
+void sim_putchar(char ch){ //print one char from jtag_uart
+    2150:	b8 63 00 18 	l.slli r3,r3,0x18
+	sim_DATA_REG=ch;
+    2154:	18 80 a5 00 	l.movhi r4,0xa500
+
+
+/*  sim_uart0   */
+ #define sim_DATA_REG					(*((volatile unsigned int *) (0Xa5000000)))
+
+void sim_putchar(char ch){ //print one char from jtag_uart
+    2158:	d7 e1 0f fc 	l.sw -4(r1),r1
+    215c:	b8 63 00 98 	l.srai r3,r3,0x18
+    2160:	9c 21 ff fc 	l.addi r1,r1,-4
+	sim_DATA_REG=ch;
+    2164:	d4 04 18 00 	l.sw 0(r4),r3
+}
+    2168:	9c 21 00 04 	l.addi r1,r1,4
+    216c:	44 00 48 00 	l.jr r9
+    2170:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+00002174 <add_handler>:
+				    0};    // 13
+  
+
+void
+add_handler(unsigned long vector, void (*handler) (void))
+{
+    2174:	d7 e1 17 fc 	l.sw -4(r1),r2
+  except_handlers[vector] = handler;
+    2178:	18 40 00 00 	l.movhi r2,0x0
+    217c:	b8 63 00 02 	l.slli r3,r3,0x2
+    2180:	a8 42 2c 08 	l.ori r2,r2,0x2c08
+				    0};    // 13
+  
+
+void
+add_handler(unsigned long vector, void (*handler) (void))
+{
+    2184:	d7 e1 0f f8 	l.sw -8(r1),r1
+  except_handlers[vector] = handler;
+    2188:	e0 63 10 00 	l.add r3,r3,r2
+				    0};    // 13
+  
+
+void
+add_handler(unsigned long vector, void (*handler) (void))
+{
+    218c:	9c 21 ff f8 	l.addi r1,r1,-8
+  except_handlers[vector] = handler;
+    2190:	d4 03 20 00 	l.sw 0(r3),r4
+}
+    2194:	9c 21 00 08 	l.addi r1,r1,8
+    2198:	84 21 ff f8 	l.lwz r1,-8(r1)
+    219c:	44 00 48 00 	l.jr r9
+    21a0:	84 41 ff fc 	l.lwz r2,-4(r1)
+
+000021a4 <default_exception_handler_c>:
+void 
+default_exception_handler_c(unsigned exception_address, unsigned epc, unsigned esr,
+			    struct exception_state * exception_state)
+{
+  int exception_no = (exception_address >> 8) & 0x1f;
+  if (except_handlers[exception_no])
+    21a4:	b8 a3 00 46 	l.srli r5,r3,0x6
+struct exception_state * current_exception_state_struct;
+
+void 
+default_exception_handler_c(unsigned exception_address, unsigned epc, unsigned esr,
+			    struct exception_state * exception_state)
+{
+    21a8:	d7 e1 17 f8 	l.sw -8(r1),r2
+  int exception_no = (exception_address >> 8) & 0x1f;
+  if (except_handlers[exception_no])
+    21ac:	18 40 00 00 	l.movhi r2,0x0
+    21b0:	a4 a5 00 7c 	l.andi r5,r5,0x7c
+    21b4:	a8 42 2c 08 	l.ori r2,r2,0x2c08
+struct exception_state * current_exception_state_struct;
+
+void 
+default_exception_handler_c(unsigned exception_address, unsigned epc, unsigned esr,
+			    struct exception_state * exception_state)
+{
+    21b8:	d7 e1 4f fc 	l.sw -4(r1),r9
+  int exception_no = (exception_address >> 8) & 0x1f;
+  if (except_handlers[exception_no])
+    21bc:	e0 a5 10 00 	l.add r5,r5,r2
+struct exception_state * current_exception_state_struct;
+
+void 
+default_exception_handler_c(unsigned exception_address, unsigned epc, unsigned esr,
+			    struct exception_state * exception_state)
+{
+    21c0:	d7 e1 0f f4 	l.sw -12(r1),r1
+  int exception_no = (exception_address >> 8) & 0x1f;
+  if (except_handlers[exception_no])
+    21c4:	84 a5 00 00 	l.lwz r5,0(r5)
+    21c8:	bc 05 00 00 	l.sfeqi r5,0
+    21cc:	10 00 00 0b 	l.bf 21f8 <default_exception_handler_c+0x54>
+    21d0:	9c 21 ff f0 	l.addi r1,r1,-16
+    {	    
+            current_exception_state_struct = exception_state;
+    21d4:	18 60 00 00 	l.movhi r3,0x0
+    21d8:	a8 63 2c e8 	l.ori r3,r3,0x2ce8
+	    (*except_handlers[exception_no])();
+    21dc:	48 00 28 00 	l.jalr r5
+    21e0:	d4 03 30 00 	l.sw 0(r3),r6
+  
+  report(exception_address);
+  report(epc);
+  __asm__("l.nop 1");
+  for(;;);
+}
+    21e4:	9c 21 00 10 	l.addi r1,r1,16
+    21e8:	85 21 ff fc 	l.lwz r9,-4(r1)
+    21ec:	84 21 ff f4 	l.lwz r1,-12(r1)
+    21f0:	44 00 48 00 	l.jr r9
+    21f4:	84 41 ff f8 	l.lwz r2,-8(r1)
+  //printf("%s%s", exception_strings[exception_no],  STR_EXCEPTION_OCCURED);
+//sim_putchar(exception_no+'0');	  
+  // Icing on the cake using fancy functions
+  //printf("EPC = 0x%.8x\n", epc);
+  
+  report(exception_address);
+    21f8:	04 00 00 b6 	l.jal 24d0 <report>
+    21fc:	d4 01 20 00 	l.sw 0(r1),r4
+  report(epc);
+    2200:	84 81 00 00 	l.lwz r4,0(r1)
+    2204:	04 00 00 b3 	l.jal 24d0 <report>
+    2208:	a8 64 00 00 	l.ori r3,r4,0x0
+  __asm__("l.nop 1");
+    220c:	15 00 00 01 	l.nop 0x1
+    2210:	00 00 00 00 	l.j 2210 <default_exception_handler_c+0x6c>
+    2214:	15 00 00 00 	l.nop 0x0
+
+00002218 <int_init>:
+/* Interrupt handlers table */
+struct ihnd int_handlers[MAX_INT_HANDLERS];
+
+/* Initialize routine */
+int int_init()
+{
+    2218:	18 60 00 00 	l.movhi r3,0x0
+    221c:	d7 e1 0f f8 	l.sw -8(r1),r1
+    2220:	a8 63 2c ec 	l.ori r3,r3,0x2cec
+    2224:	d7 e1 17 fc 	l.sw -4(r1),r2
+    2228:	9c 83 00 04 	l.addi r4,r3,4
+    222c:	9c 21 ff f8 	l.addi r1,r1,-8
+  int i;
+
+  for(i = 0; i < MAX_INT_HANDLERS; i++) {
+    int_handlers[i].handler = 0;
+    2230:	9c 40 00 00 	l.addi r2,r0,0
+    2234:	9c 63 00 08 	l.addi r3,r3,8
+    2238:	d7 e3 17 f8 	l.sw -8(r3),r2
+    int_handlers[i].arg = 0;
+    223c:	d4 04 10 00 	l.sw 0(r4),r2
+/* Initialize routine */
+int int_init()
+{
+  int i;
+
+  for(i = 0; i < MAX_INT_HANDLERS; i++) {
+    2240:	18 40 00 00 	l.movhi r2,0x0
+    2244:	a8 42 2d ec 	l.ori r2,r2,0x2dec
+    2248:	e4 23 10 00 	l.sfne r3,r2
+    224c:	13 ff ff f9 	l.bf 2230 <int_init+0x18>
+    2250:	9c 84 00 08 	l.addi r4,r4,8
+    int_handlers[i].handler = 0;
+    int_handlers[i].arg = 0;
+  }
+
+  return 0;
+}
+    2254:	9c 21 00 08 	l.addi r1,r1,8
+    2258:	9d 60 00 00 	l.addi r11,r0,0
+    225c:	84 21 ff f8 	l.lwz r1,-8(r1)
+    2260:	44 00 48 00 	l.jr r9
+    2264:	84 41 ff fc 	l.lwz r2,-4(r1)
+
+00002268 <int_add>:
+
+/* Add interrupt handler */ 
+int int_add(unsigned long irq, void (* handler)(void *), void *arg)
+{
+    2268:	d7 e1 17 f8 	l.sw -8(r1),r2
+    226c:	d7 e1 4f fc 	l.sw -4(r1),r9
+    2270:	d7 e1 0f f4 	l.sw -12(r1),r1
+  if(irq >= MAX_INT_HANDLERS)
+    2274:	bc 43 00 1f 	l.sfgtui r3,31
+  return 0;
+}
+
+/* Add interrupt handler */ 
+int int_add(unsigned long irq, void (* handler)(void *), void *arg)
+{
+    2278:	9c 21 ff f4 	l.addi r1,r1,-12
+  if(irq >= MAX_INT_HANDLERS)
+    227c:	10 00 00 15 	l.bf 22d0 <int_add+0x68>
+    2280:	a8 43 00 00 	l.ori r2,r3,0x0
+    return -1;
+
+  int_handlers[irq].handler = handler;
+    2284:	18 e0 00 00 	l.movhi r7,0x0
+    2288:	b8 c3 00 03 	l.slli r6,r3,0x3
+    228c:	a8 e7 2c ec 	l.ori r7,r7,0x2cec
+  int_handlers[irq].arg = arg;
+
+  mtspr(SPR_PICMR, mfspr(SPR_PICMR) | (0x00000001L << irq));
+    2290:	9c 60 48 00 	l.addi r3,r0,18432
+int int_add(unsigned long irq, void (* handler)(void *), void *arg)
+{
+  if(irq >= MAX_INT_HANDLERS)
+    return -1;
+
+  int_handlers[irq].handler = handler;
+    2294:	e0 c6 38 00 	l.add r6,r6,r7
+    2298:	d4 06 20 00 	l.sw 0(r6),r4
+  int_handlers[irq].arg = arg;
+
+  mtspr(SPR_PICMR, mfspr(SPR_PICMR) | (0x00000001L << irq));
+    229c:	04 00 00 7f 	l.jal 2498 <mfspr>
+    22a0:	d4 06 28 04 	l.sw 4(r6),r5
+    22a4:	9c 80 00 01 	l.addi r4,r0,1
+    22a8:	9c 60 48 00 	l.addi r3,r0,18432
+    22ac:	e0 84 10 08 	l.sll r4,r4,r2
+    22b0:	04 00 00 74 	l.jal 2480 <mtspr>
+    22b4:	e0 84 58 04 	l.or r4,r4,r11
+    
+  return 0;
+    22b8:	9d 60 00 00 	l.addi r11,r0,0
+}
+    22bc:	9c 21 00 0c 	l.addi r1,r1,12
+    22c0:	85 21 ff fc 	l.lwz r9,-4(r1)
+    22c4:	84 21 ff f4 	l.lwz r1,-12(r1)
+    22c8:	44 00 48 00 	l.jr r9
+    22cc:	84 41 ff f8 	l.lwz r2,-8(r1)
+
+/* Add interrupt handler */ 
+int int_add(unsigned long irq, void (* handler)(void *), void *arg)
+{
+  if(irq >= MAX_INT_HANDLERS)
+    return -1;
+    22d0:	03 ff ff fb 	l.j 22bc <int_add+0x54>
+    22d4:	9d 60 ff ff 	l.addi r11,r0,-1
+
+000022d8 <int_disable>:
+  return 0;
+}
+
+/* Disable interrupt */ 
+int int_disable(unsigned long irq)
+{
+    22d8:	d7 e1 17 f8 	l.sw -8(r1),r2
+    22dc:	d7 e1 4f fc 	l.sw -4(r1),r9
+    22e0:	d7 e1 0f f4 	l.sw -12(r1),r1
+  if(irq >= MAX_INT_HANDLERS)
+    22e4:	bc 43 00 1f 	l.sfgtui r3,31
+  return 0;
+}
+
+/* Disable interrupt */ 
+int int_disable(unsigned long irq)
+{
+    22e8:	9c 21 ff f4 	l.addi r1,r1,-12
+  if(irq >= MAX_INT_HANDLERS)
+    22ec:	10 00 00 10 	l.bf 232c <int_disable+0x54>
+    22f0:	a8 43 00 00 	l.ori r2,r3,0x0
+    return -1;
+  
+  mtspr(SPR_PICMR, mfspr(SPR_PICMR) & ~(0x00000001L << irq));
+    22f4:	04 00 00 69 	l.jal 2498 <mfspr>
+    22f8:	9c 60 48 00 	l.addi r3,r0,18432
+    22fc:	9c 80 00 01 	l.addi r4,r0,1
+    2300:	9c 60 48 00 	l.addi r3,r0,18432
+    2304:	e0 84 10 08 	l.sll r4,r4,r2
+    2308:	ac 84 ff ff 	l.xori r4,r4,-1
+    230c:	04 00 00 5d 	l.jal 2480 <mtspr>
+    2310:	e0 84 58 03 	l.and r4,r4,r11
+  
+  return 0;
+    2314:	9d 60 00 00 	l.addi r11,r0,0
+}
+    2318:	9c 21 00 0c 	l.addi r1,r1,12
+    231c:	85 21 ff fc 	l.lwz r9,-4(r1)
+    2320:	84 21 ff f4 	l.lwz r1,-12(r1)
+    2324:	44 00 48 00 	l.jr r9
+    2328:	84 41 ff f8 	l.lwz r2,-8(r1)
+
+/* Disable interrupt */ 
+int int_disable(unsigned long irq)
+{
+  if(irq >= MAX_INT_HANDLERS)
+    return -1;
+    232c:	03 ff ff fb 	l.j 2318 <int_disable+0x40>
+    2330:	9d 60 ff ff 	l.addi r11,r0,-1
+
+00002334 <int_enable>:
+  return 0;
+}
+
+/* Enable interrupt */ 
+int int_enable(unsigned long irq)
+{
+    2334:	d7 e1 17 f8 	l.sw -8(r1),r2
+    2338:	d7 e1 4f fc 	l.sw -4(r1),r9
+    233c:	d7 e1 0f f4 	l.sw -12(r1),r1
+  if(irq >= MAX_INT_HANDLERS)
+    2340:	bc 43 00 1f 	l.sfgtui r3,31
+  return 0;
+}
+
+/* Enable interrupt */ 
+int int_enable(unsigned long irq)
+{
+    2344:	9c 21 ff f4 	l.addi r1,r1,-12
+  if(irq >= MAX_INT_HANDLERS)
+    2348:	10 00 00 0f 	l.bf 2384 <int_enable+0x50>
+    234c:	a8 43 00 00 	l.ori r2,r3,0x0
+    return -1;
+
+  mtspr(SPR_PICMR, mfspr(SPR_PICMR) | (0x00000001L << irq));
+    2350:	04 00 00 52 	l.jal 2498 <mfspr>
+    2354:	9c 60 48 00 	l.addi r3,r0,18432
+    2358:	9c 80 00 01 	l.addi r4,r0,1
+    235c:	9c 60 48 00 	l.addi r3,r0,18432
+    2360:	e0 84 10 08 	l.sll r4,r4,r2
+    2364:	04 00 00 47 	l.jal 2480 <mtspr>
+    2368:	e0 84 58 04 	l.or r4,r4,r11
+  
+  return 0;
+    236c:	9d 60 00 00 	l.addi r11,r0,0
+}
+    2370:	9c 21 00 0c 	l.addi r1,r1,12
+    2374:	85 21 ff fc 	l.lwz r9,-4(r1)
+    2378:	84 21 ff f4 	l.lwz r1,-12(r1)
+    237c:	44 00 48 00 	l.jr r9
+    2380:	84 41 ff f8 	l.lwz r2,-8(r1)
+
+/* Enable interrupt */ 
+int int_enable(unsigned long irq)
+{
+  if(irq >= MAX_INT_HANDLERS)
+    return -1;
+    2384:	03 ff ff fb 	l.j 2370 <int_enable+0x3c>
+    2388:	9d 60 ff ff 	l.addi r11,r0,-1
+
+0000238c <int_main>:
+  return 0;
+}
+
+/* Main interrupt handler */
+void int_main()
+{
+    238c:	d7 e1 17 e4 	l.sw -28(r1),r2
+    2390:	d7 e1 97 ec 	l.sw -20(r1),r18
+    2394:	d7 e1 a7 f0 	l.sw -16(r1),r20
+    2398:	d7 e1 b7 f4 	l.sw -12(r1),r22
+    239c:	d7 e1 c7 f8 	l.sw -8(r1),r24
+    23a0:	d7 e1 4f fc 	l.sw -4(r1),r9
+    23a4:	d7 e1 0f e0 	l.sw -32(r1),r1
+    23a8:	d7 e1 77 e8 	l.sw -24(r1),r14
+  unsigned long picsr = mfspr(SPR_PICSR);
+    23ac:	9c 60 48 02 	l.addi r3,r0,18434
+  return 0;
+}
+
+/* Main interrupt handler */
+void int_main()
+{
+    23b0:	9c 21 ff e0 	l.addi r1,r1,-32
+  unsigned long picsr = mfspr(SPR_PICSR);
+    23b4:	04 00 00 39 	l.jal 2498 <mfspr>
+    23b8:	1a 40 00 00 	l.movhi r18,0x0
+    23bc:	aa 52 2c ec 	l.ori r18,r18,0x2cec
+  unsigned long i = 0;
+
+  mtspr(SPR_PICSR, 0);
+    23c0:	9c 80 00 00 	l.addi r4,r0,0
+    23c4:	9c 60 48 02 	l.addi r3,r0,18434
+}
+
+/* Main interrupt handler */
+void int_main()
+{
+  unsigned long picsr = mfspr(SPR_PICSR);
+    23c8:	ab 0b 00 00 	l.ori r24,r11,0x0
+    23cc:	9e 92 00 04 	l.addi r20,r18,4
+  unsigned long i = 0;
+    23d0:	a8 44 00 00 	l.ori r2,r4,0x0
+
+  mtspr(SPR_PICSR, 0);
+    23d4:	04 00 00 2b 	l.jal 2480 <mtspr>
+    23d8:	9e c0 00 01 	l.addi r22,r0,1
+
+  while(i < 32) {
+    if((picsr & (0x01L << i)) && (int_handlers[i].handler != 0)) {
+    23dc:	e1 d6 10 08 	l.sll r14,r22,r2
+    23e0:	e0 6e c0 03 	l.and r3,r14,r24
+    23e4:	bc 03 00 00 	l.sfeqi r3,0
+    23e8:	10 00 00 0e 	l.bf 2420 <int_main+0x94>
+    23ec:	9c 42 00 01 	l.addi r2,r2,1
+    23f0:	84 92 00 00 	l.lwz r4,0(r18)
+    23f4:	bc 04 00 00 	l.sfeqi r4,0
+    23f8:	10 00 00 0b 	l.bf 2424 <int_main+0x98>
+    23fc:	bc 22 00 20 	l.sfnei r2,32
+      (*int_handlers[i].handler)(int_handlers[i].arg); 
+    2400:	48 00 20 00 	l.jalr r4
+    2404:	84 74 00 00 	l.lwz r3,0(r20)
+#ifdef OR1200_INT_CHECK_BIT_CLEARED
+      // Ensure PICSR bit is cleared, incase it takes some time for the
+      // IRQ line going low to propagate back to PIC
+      while (mfspr(SPR_PICSR) & (0x00000001L << i))
+#endif
+	      mtspr(SPR_PICSR, mfspr(SPR_PICSR) & ~(0x00000001L << i));
+    2408:	04 00 00 24 	l.jal 2498 <mfspr>
+    240c:	9c 60 48 02 	l.addi r3,r0,18434
+    2410:	ac 8e ff ff 	l.xori r4,r14,-1
+    2414:	9c 60 48 02 	l.addi r3,r0,18434
+    2418:	04 00 00 1a 	l.jal 2480 <mtspr>
+    241c:	e0 84 58 03 	l.and r4,r4,r11
+  unsigned long picsr = mfspr(SPR_PICSR);
+  unsigned long i = 0;
+
+  mtspr(SPR_PICSR, 0);
+
+  while(i < 32) {
+    2420:	bc 22 00 20 	l.sfnei r2,32
+    2424:	9e 52 00 08 	l.addi r18,r18,8
+    2428:	13 ff ff ed 	l.bf 23dc <int_main+0x50>
+    242c:	9e 94 00 08 	l.addi r20,r20,8
+#endif
+	      mtspr(SPR_PICSR, mfspr(SPR_PICSR) & ~(0x00000001L << i));
+    }
+    i++;
+  }
+}
+    2430:	9c 21 00 20 	l.addi r1,r1,32
+    2434:	85 21 ff fc 	l.lwz r9,-4(r1)
+    2438:	84 21 ff e0 	l.lwz r1,-32(r1)
+    243c:	84 41 ff e4 	l.lwz r2,-28(r1)
+    2440:	85 c1 ff e8 	l.lwz r14,-24(r1)
+    2444:	86 41 ff ec 	l.lwz r18,-20(r1)
+    2448:	86 81 ff f0 	l.lwz r20,-16(r1)
+    244c:	86 c1 ff f4 	l.lwz r22,-12(r1)
+    2450:	44 00 48 00 	l.jr r9
+    2454:	87 01 ff f8 	l.lwz r24,-8(r1)
+
+00002458 <int_clear_all_pending>:
+  
+
+void int_clear_all_pending(void)
+{
+    2458:	d7 e1 4f fc 	l.sw -4(r1),r9
+    245c:	d7 e1 0f f8 	l.sw -8(r1),r1
+  // Clear all pending interrupts in the PICSR
+  mtspr(SPR_PICSR, 0);
+    2460:	9c 80 00 00 	l.addi r4,r0,0
+  }
+}
+  
+
+void int_clear_all_pending(void)
+{
+    2464:	9c 21 ff f8 	l.addi r1,r1,-8
+  // Clear all pending interrupts in the PICSR
+  mtspr(SPR_PICSR, 0);
+    2468:	04 00 00 06 	l.jal 2480 <mtspr>
+    246c:	9c 60 48 02 	l.addi r3,r0,18434
+}
+    2470:	9c 21 00 08 	l.addi r1,r1,8
+    2474:	85 21 ff fc 	l.lwz r9,-4(r1)
+    2478:	44 00 48 00 	l.jr r9
+    247c:	84 21 ff f8 	l.lwz r1,-8(r1)
+
+00002480 <mtspr>:
+#include "board.h" // For timer rate (IN_CLK, TICKS_PER_SEC)
+#include <or1k-support-defs.h>
+/* For writing into SPR. */
+void 
+mtspr(unsigned long spr, unsigned long value)
+{	
+    2480:	d7 e1 0f fc 	l.sw -4(r1),r1
+    2484:	9c 21 ff fc 	l.addi r1,r1,-4
+  asm("l.mtspr\t\t%0,%1,0": : "r" (spr), "r" (value));
+    2488:	c0 03 20 00 	l.mtspr r3,r4,0x0
+}
+    248c:	9c 21 00 04 	l.addi r1,r1,4
+    2490:	44 00 48 00 	l.jr r9
+    2494:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+00002498 <mfspr>:
+
+/* For reading SPR. */
+unsigned long 
+mfspr(unsigned long spr)
+{	
+    2498:	d7 e1 0f fc 	l.sw -4(r1),r1
+    249c:	9c 21 ff fc 	l.addi r1,r1,-4
+  unsigned long value;
+  asm("l.mfspr\t\t%0,%1,0" : "=r" (value) : "r" (spr));
+    24a0:	b5 63 00 00 	l.mfspr r11,r3,0x0
+  return value;
+}
+    24a4:	9c 21 00 04 	l.addi r1,r1,4
+    24a8:	44 00 48 00 	l.jr r9
+    24ac:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+000024b0 <sim_putc>:
+
+/* Print out a character via simulator */
+void 
+sim_putc(unsigned char c)
+{
+    24b0:	d7 e1 0f fc 	l.sw -4(r1),r1
+    24b4:	a4 63 00 ff 	l.andi r3,r3,0xff
+    24b8:	9c 21 ff fc 	l.addi r1,r1,-4
+  asm("l.addi\tr3,%0,0": :"r" (c));
+    24bc:	9c 63 00 00 	l.addi r3,r3,0
+  asm("l.nop %0": :"K" (NOP_PUTC));
+    24c0:	15 00 00 04 	l.nop 0x4
+}
+    24c4:	9c 21 00 04 	l.addi r1,r1,4
+    24c8:	44 00 48 00 	l.jr r9
+    24cc:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+000024d0 <report>:
+
+/* print long */
+void 
+report(unsigned long value)
+{
+    24d0:	d7 e1 0f fc 	l.sw -4(r1),r1
+    24d4:	9c 21 ff fc 	l.addi r1,r1,-4
+  asm("l.addi\tr3,%0,0": :"r" (value));
+    24d8:	9c 63 00 00 	l.addi r3,r3,0
+  asm("l.nop %0": :"K" (NOP_REPORT));
+    24dc:	15 00 00 02 	l.nop 0x2
+}
+    24e0:	9c 21 00 04 	l.addi r1,r1,4
+    24e4:	44 00 48 00 	l.jr r9
+    24e8:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+000024ec <exit>:
+
+/* Loops/exits simulation */
+void 
+exit (int i)
+{
+    24ec:	d7 e1 0f fc 	l.sw -4(r1),r1
+    24f0:	9c 21 ff fc 	l.addi r1,r1,-4
+  asm("l.add r3,r0,%0": : "r" (i));
+    24f4:	e0 60 18 00 	l.add r3,r0,r3
+  asm("l.nop %0": :"K" (NOP_EXIT));
+    24f8:	15 00 00 01 	l.nop 0x1
+    24fc:	00 00 00 00 	l.j 24fc <exit+0x10>
+    2500:	15 00 00 00 	l.nop 0x0
+
+00002504 <cpu_enable_user_interrupts>:
+}
+
+/* Enable user interrupts */
+void
+cpu_enable_user_interrupts(void)
+{
+    2504:	d7 e1 0f fc 	l.sw -4(r1),r1
+/* For reading SPR. */
+unsigned long 
+mfspr(unsigned long spr)
+{	
+  unsigned long value;
+  asm("l.mfspr\t\t%0,%1,0" : "=r" (value) : "r" (spr));
+    2508:	9c 80 00 11 	l.addi r4,r0,17
+}
+
+/* Enable user interrupts */
+void
+cpu_enable_user_interrupts(void)
+{
+    250c:	9c 21 ff fc 	l.addi r1,r1,-4
+/* For reading SPR. */
+unsigned long 
+mfspr(unsigned long spr)
+{	
+  unsigned long value;
+  asm("l.mfspr\t\t%0,%1,0" : "=r" (value) : "r" (spr));
+    2510:	b4 64 00 00 	l.mfspr r3,r4,0x0
+#include <or1k-support-defs.h>
+/* For writing into SPR. */
+void 
+mtspr(unsigned long spr, unsigned long value)
+{	
+  asm("l.mtspr\t\t%0,%1,0": : "r" (spr), "r" (value));
+    2514:	a8 63 00 04 	l.ori r3,r3,0x4
+    2518:	c0 04 18 00 	l.mtspr r4,r3,0x0
+void
+cpu_enable_user_interrupts(void)
+{
+  /* Enable interrupts in supervisor register */
+  mtspr (SPR_SR, mfspr (SPR_SR) | SPR_SR_IEE);
+}
+    251c:	9c 21 00 04 	l.addi r1,r1,4
+    2520:	44 00 48 00 	l.jr r9
+    2524:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+00002528 <cpu_enable_timer>:
+#include <or1k-support-defs.h>
+/* For writing into SPR. */
+void 
+mtspr(unsigned long spr, unsigned long value)
+{	
+  asm("l.mtspr\t\t%0,%1,0": : "r" (spr), "r" (value));
+    2528:	18 60 60 07 	l.movhi r3,0x6007
+
+/* Tick timer functions */
+/* Enable tick timer and interrupt generation */
+void 
+cpu_enable_timer(void)
+{
+    252c:	d7 e1 0f fc 	l.sw -4(r1),r1
+#include <or1k-support-defs.h>
+/* For writing into SPR. */
+void 
+mtspr(unsigned long spr, unsigned long value)
+{	
+  asm("l.mtspr\t\t%0,%1,0": : "r" (spr), "r" (value));
+    2530:	a8 63 a1 20 	l.ori r3,r3,0xa120
+
+/* Tick timer functions */
+/* Enable tick timer and interrupt generation */
+void 
+cpu_enable_timer(void)
+{
+    2534:	9c 21 ff fc 	l.addi r1,r1,-4
+#include <or1k-support-defs.h>
+/* For writing into SPR. */
+void 
+mtspr(unsigned long spr, unsigned long value)
+{	
+  asm("l.mtspr\t\t%0,%1,0": : "r" (spr), "r" (value));
+    2538:	9c 80 50 00 	l.addi r4,r0,20480
+    253c:	c0 04 18 00 	l.mtspr r4,r3,0x0
+/* For reading SPR. */
+unsigned long 
+mfspr(unsigned long spr)
+{	
+  unsigned long value;
+  asm("l.mfspr\t\t%0,%1,0" : "=r" (value) : "r" (spr));
+    2540:	9c 80 00 11 	l.addi r4,r0,17
+    2544:	b4 64 00 00 	l.mfspr r3,r4,0x0
+#include <or1k-support-defs.h>
+/* For writing into SPR. */
+void 
+mtspr(unsigned long spr, unsigned long value)
+{	
+  asm("l.mtspr\t\t%0,%1,0": : "r" (spr), "r" (value));
+    2548:	a8 63 00 02 	l.ori r3,r3,0x2
+    254c:	c0 04 18 00 	l.mtspr r4,r3,0x0
+{
+  mtspr(SPR_TTMR, SPR_TTMR_IE | SPR_TTMR_RT | ((IN_CLK/TICKS_PER_SEC) & 
+					       SPR_TTMR_PERIOD));
+  mtspr(SPR_SR, SPR_SR_TEE | mfspr(SPR_SR));
+
+}
+    2550:	9c 21 00 04 	l.addi r1,r1,4
+    2554:	44 00 48 00 	l.jr r9
+    2558:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+0000255c <cpu_disable_timer>:
+
+/* Disable tick timer and interrupt generation */
+void 
+cpu_disable_timer(void)
+{
+    255c:	d7 e1 17 fc 	l.sw -4(r1),r2
+#include <or1k-support-defs.h>
+/* For writing into SPR. */
+void 
+mtspr(unsigned long spr, unsigned long value)
+{	
+  asm("l.mtspr\t\t%0,%1,0": : "r" (spr), "r" (value));
+    2560:	9c 40 ff fd 	l.addi r2,r0,-3
+}
+
+/* Disable tick timer and interrupt generation */
+void 
+cpu_disable_timer(void)
+{
+    2564:	d7 e1 0f f8 	l.sw -8(r1),r1
+/* For reading SPR. */
+unsigned long 
+mfspr(unsigned long spr)
+{	
+  unsigned long value;
+  asm("l.mfspr\t\t%0,%1,0" : "=r" (value) : "r" (spr));
+    2568:	9c 80 00 11 	l.addi r4,r0,17
+}
+
+/* Disable tick timer and interrupt generation */
+void 
+cpu_disable_timer(void)
+{
+    256c:	9c 21 ff f8 	l.addi r1,r1,-8
+/* For reading SPR. */
+unsigned long 
+mfspr(unsigned long spr)
+{	
+  unsigned long value;
+  asm("l.mfspr\t\t%0,%1,0" : "=r" (value) : "r" (spr));
+    2570:	b4 64 00 00 	l.mfspr r3,r4,0x0
+#include <or1k-support-defs.h>
+/* For writing into SPR. */
+void 
+mtspr(unsigned long spr, unsigned long value)
+{	
+  asm("l.mtspr\t\t%0,%1,0": : "r" (spr), "r" (value));
+    2574:	e0 63 10 03 	l.and r3,r3,r2
+    2578:	c0 04 18 00 	l.mtspr r4,r3,0x0
+    257c:	9c 80 00 00 	l.addi r4,r0,0
+    2580:	9c 60 50 00 	l.addi r3,r0,20480
+    2584:	c0 03 20 00 	l.mtspr r3,r4,0x0
+{
+  // Disable timer: clear it all!
+  mtspr (SPR_SR, mfspr (SPR_SR) & ~SPR_SR_TEE);
+  mtspr(SPR_TTMR, 0);
+
+}
+    2588:	9c 21 00 08 	l.addi r1,r1,8
+    258c:	84 21 ff f8 	l.lwz r1,-8(r1)
+    2590:	44 00 48 00 	l.jr r9
+    2594:	84 41 ff fc 	l.lwz r2,-4(r1)
+
+00002598 <cpu_timer_tick>:
+
+/* Timer increment - called by interrupt routine */
+void 
+cpu_timer_tick(void)
+{
+  timer_ticks++;
+    2598:	18 80 00 00 	l.movhi r4,0x0
+}
+
+/* Timer increment - called by interrupt routine */
+void 
+cpu_timer_tick(void)
+{
+    259c:	d7 e1 0f fc 	l.sw -4(r1),r1
+  timer_ticks++;
+    25a0:	a8 84 2d ec 	l.ori r4,r4,0x2dec
+}
+
+/* Timer increment - called by interrupt routine */
+void 
+cpu_timer_tick(void)
+{
+    25a4:	9c 21 ff fc 	l.addi r1,r1,-4
+  timer_ticks++;
+    25a8:	84 64 00 00 	l.lwz r3,0(r4)
+    25ac:	9c 63 00 01 	l.addi r3,r3,1
+    25b0:	d4 04 18 00 	l.sw 0(r4),r3
+#include <or1k-support-defs.h>
+/* For writing into SPR. */
+void 
+mtspr(unsigned long spr, unsigned long value)
+{	
+  asm("l.mtspr\t\t%0,%1,0": : "r" (spr), "r" (value));
+    25b4:	18 60 60 07 	l.movhi r3,0x6007
+    25b8:	9c 80 50 00 	l.addi r4,r0,20480
+    25bc:	a8 63 a1 20 	l.ori r3,r3,0xa120
+    25c0:	c0 04 18 00 	l.mtspr r4,r3,0x0
+{
+  timer_ticks++;
+  // Reset timer mode register to interrupt with same interval
+  mtspr(SPR_TTMR, SPR_TTMR_IE | SPR_TTMR_RT | 
+	((IN_CLK/TICKS_PER_SEC) & SPR_TTMR_PERIOD));
+}
+    25c4:	9c 21 00 04 	l.addi r1,r1,4
+    25c8:	44 00 48 00 	l.jr r9
+    25cc:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+000025d0 <cpu_reset_timer_ticks>:
+
+/* Reset tick counter */
+void 
+cpu_reset_timer_ticks(void)
+{
+  timer_ticks=0;
+    25d0:	18 60 00 00 	l.movhi r3,0x0
+}
+
+/* Reset tick counter */
+void 
+cpu_reset_timer_ticks(void)
+{
+    25d4:	d7 e1 17 fc 	l.sw -4(r1),r2
+  timer_ticks=0;
+    25d8:	a8 63 2d ec 	l.ori r3,r3,0x2dec
+    25dc:	9c 40 00 00 	l.addi r2,r0,0
+}
+
+/* Reset tick counter */
+void 
+cpu_reset_timer_ticks(void)
+{
+    25e0:	d7 e1 0f f8 	l.sw -8(r1),r1
+    25e4:	9c 21 ff f8 	l.addi r1,r1,-8
+  timer_ticks=0;
+    25e8:	d4 03 10 00 	l.sw 0(r3),r2
+}
+    25ec:	9c 21 00 08 	l.addi r1,r1,8
+    25f0:	84 21 ff f8 	l.lwz r1,-8(r1)
+    25f4:	44 00 48 00 	l.jr r9
+    25f8:	84 41 ff fc 	l.lwz r2,-4(r1)
+
+000025fc <cpu_get_timer_ticks>:
+
+/* Get tick counter */
+unsigned long 
+cpu_get_timer_ticks(void)
+{
+  return timer_ticks;
+    25fc:	18 60 00 00 	l.movhi r3,0x0
+}
+
+/* Get tick counter */
+unsigned long 
+cpu_get_timer_ticks(void)
+{
+    2600:	d7 e1 0f fc 	l.sw -4(r1),r1
+  return timer_ticks;
+    2604:	a8 63 2d ec 	l.ori r3,r3,0x2dec
+}
+
+/* Get tick counter */
+unsigned long 
+cpu_get_timer_ticks(void)
+{
+    2608:	9c 21 ff fc 	l.addi r1,r1,-4
+  return timer_ticks;
+}
+    260c:	85 63 00 00 	l.lwz r11,0(r3)
+    2610:	9c 21 00 04 	l.addi r1,r1,4
+    2614:	44 00 48 00 	l.jr r9
+    2618:	84 21 ff fc 	l.lwz r1,-4(r1)
+
+0000261c <cpu_sleep_10ms>:
+
+/* Wait for 10ms, assumes CLK_HZ is 100, which it usually is.
+   Will be slightly inaccurate!*/
+void 
+cpu_sleep_10ms(void)
+{
+    261c:	d7 e1 0f fc 	l.sw -4(r1),r1
+    2620:	9c 21 ff fc 	l.addi r1,r1,-4
+    2624:	00 00 00 00 	l.j 2624 <cpu_sleep_10ms+0x8>
+    2628:	15 00 00 00 	l.nop 0x0
+
+0000262c <__udivsi3>:
+    262c:	9c 21 ff fc 	l.addi r1,r1,-4
+    2630:	d4 01 48 00 	l.sw 0(r1),r9
+    2634:	9d 60 00 00 	l.addi r11,r0,0
+    2638:	9d 04 00 00 	l.addi r8,r4,0
+    263c:	9c a3 00 00 	l.addi r5,r3,0
+    2640:	e4 28 58 00 	l.sfne r8,r11
+    2644:	0c 00 00 36 	l.bnf 271c <__udivsi3+0xf0>
+    2648:	9c e0 00 00 	l.addi r7,r0,0
+    264c:	e4 48 28 00 	l.sfgtu r8,r5
+    2650:	10 00 00 32 	l.bf 2718 <__udivsi3+0xec>
+    2654:	e4 08 28 00 	l.sfeq r8,r5
+    2658:	10 00 00 2e 	l.bf 2710 <__udivsi3+0xe4>
+    265c:	e4 8b 40 00 	l.sfltu r11,r8
+    2660:	0c 00 00 0d 	l.bnf 2694 <__udivsi3+0x68>
+    2664:	9d a0 00 20 	l.addi r13,r0,32
+    2668:	19 20 80 00 	l.movhi r9,0x8000
+    266c:	9c c0 ff ff 	l.addi r6,r0,-1
+    2670:	e0 65 48 03 	l.and r3,r5,r9
+    2674:	b8 87 00 01 	l.slli r4,r7,0x1
+    2678:	9d e5 00 00 	l.addi r15,r5,0
+    267c:	b8 63 00 5f 	l.srli r3,r3,0x1f
+    2680:	e1 ad 30 00 	l.add r13,r13,r6
+    2684:	e0 e4 18 04 	l.or r7,r4,r3
+    2688:	e4 87 40 00 	l.sfltu r7,r8
+    268c:	13 ff ff f9 	l.bf 2670 <__udivsi3+0x44>
+    2690:	b8 a5 00 01 	l.slli r5,r5,0x1
+    2694:	b8 e7 00 41 	l.srli r7,r7,0x1
+    2698:	9d ad 00 01 	l.addi r13,r13,1
+    269c:	9d 20 00 00 	l.addi r9,r0,0
+    26a0:	e4 89 68 00 	l.sfltu r9,r13
+    26a4:	0c 00 00 1e 	l.bnf 271c <__udivsi3+0xf0>
+    26a8:	9c af 00 00 	l.addi r5,r15,0
+    26ac:	19 e0 80 00 	l.movhi r15,0x8000
+    26b0:	9e 20 00 00 	l.addi r17,r0,0
+    26b4:	e0 65 78 03 	l.and r3,r5,r15
+    26b8:	b8 87 00 01 	l.slli r4,r7,0x1
+    26bc:	b8 63 00 5f 	l.srli r3,r3,0x1f
+    26c0:	e0 e4 18 04 	l.or r7,r4,r3
+    26c4:	e0 c7 40 02 	l.sub r6,r7,r8
+    26c8:	e0 66 78 03 	l.and r3,r6,r15
+    26cc:	b8 63 00 5f 	l.srli r3,r3,0x1f
+    26d0:	9c 80 00 00 	l.addi r4,r0,0
+    26d4:	e4 23 20 00 	l.sfne r3,r4
+    26d8:	10 00 00 03 	l.bf 26e4 <__udivsi3+0xb8>
+    26dc:	b8 6b 00 01 	l.slli r3,r11,0x1
+    26e0:	9c 80 00 01 	l.addi r4,r0,1
+    26e4:	b8 a5 00 01 	l.slli r5,r5,0x1
+    26e8:	e4 24 88 00 	l.sfne r4,r17
+    26ec:	0c 00 00 03 	l.bnf 26f8 <__udivsi3+0xcc>
+    26f0:	e1 63 20 04 	l.or r11,r3,r4
+    26f4:	9c e6 00 00 	l.addi r7,r6,0
+    26f8:	9d 29 00 01 	l.addi r9,r9,1
+    26fc:	e4 89 68 00 	l.sfltu r9,r13
+    2700:	13 ff ff ed 	l.bf 26b4 <__udivsi3+0x88>
+    2704:	15 00 00 00 	l.nop 0x0
+    2708:	00 00 00 05 	l.j 271c <__udivsi3+0xf0>
+    270c:	15 00 00 00 	l.nop 0x0
+    2710:	00 00 00 03 	l.j 271c <__udivsi3+0xf0>
+    2714:	9d 60 00 01 	l.addi r11,r0,1
+    2718:	9c e5 00 00 	l.addi r7,r5,0
+    271c:	85 21 00 00 	l.lwz r9,0(r1)
+    2720:	44 00 48 00 	l.jr r9
+    2724:	9c 21 00 04 	l.addi r1,r1,4
+
+00002728 <__umodsi3>:
+    2728:	9c 21 ff fc 	l.addi r1,r1,-4
+    272c:	d4 01 48 00 	l.sw 0(r1),r9
+    2730:	07 ff ff bf 	l.jal 262c <__udivsi3>
+    2734:	15 00 00 00 	l.nop 0x0
+    2738:	9d 67 00 00 	l.addi r11,r7,0
+    273c:	85 21 00 00 	l.lwz r9,0(r1)
+    2740:	44 00 48 00 	l.jr r9
+    2744:	9c 21 00 04 	l.addi r1,r1,4
+
+00002748 <__CTOR_LIST__>:
+	...
+
+00002750 <__CTOR_END__>:
+	...
+
+Disassembly of section .text.startup:
+
+00002758 <main>:
+	}
+	
+	return;
+}
+
+int main(){
+    2758:	d7 e1 4f fc 	l.sw -4(r1),r9
+	int i;
+	//void ni_initial (unsigned int burst_size,unsigned char send_int_en,unsigned char save_int_en,unsigned char got_pck_int_en)
+	printf("Hi from core %u\n",COREID);
+    275c:	9c 80 00 02 	l.addi r4,r0,2
+	}
+	
+	return;
+}
+
+int main(){
+    2760:	d7 e1 0f f8 	l.sw -8(r1),r1
+	int i;
+	//void ni_initial (unsigned int burst_size,unsigned char send_int_en,unsigned char save_int_en,unsigned char got_pck_int_en)
+	printf("Hi from core %u\n",COREID);
+    2764:	18 60 00 00 	l.movhi r3,0x0
+	}
+	
+	return;
+}
+
+int main(){
+    2768:	9c 21 ff f0 	l.addi r1,r1,-16
+	int i;
+	//void ni_initial (unsigned int burst_size,unsigned char send_int_en,unsigned char save_int_en,unsigned char got_pck_int_en)
+	printf("Hi from core %u\n",COREID);
+    276c:	a8 63 2a 94 	l.ori r3,r3,0x2a94
+    2770:	07 ff fc 41 	l.jal 1874 <simple_printf>
+    2774:	d4 01 20 00 	l.sw 0(r1),r4
+	int_init();
+    2778:	07 ff fe a8 	l.jal 2218 <int_init>
+    277c:	15 00 00 00 	l.nop 0x0
+	int_add(0, ni_isr, 0);
+    2780:	9c a0 00 00 	l.addi r5,r0,0
+    2784:	18 80 00 00 	l.movhi r4,0x0
+    2788:	a8 65 00 00 	l.ori r3,r5,0x0
+    278c:	07 ff fe b7 	l.jal 2268 <int_add>
+    2790:	a8 84 1e ec 	l.ori r4,r4,0x1eec
+	// Enable ni interrupt (its connected to inttruupt pin 0)
+	int_enable(0);
+    2794:	07 ff fe e8 	l.jal 2334 <int_enable>
+    2798:	9c 60 00 00 	l.addi r3,r0,0
+	cpu_enable_user_interrupts();
+    279c:	07 ff ff 5a 	l.jal 2504 <cpu_enable_user_interrupts>
+    27a0:	15 00 00 00 	l.nop 0x0
+	save_int_en : 1: enable the intrrupt when a recived packet is saved on internal buffer  0 : This intrrupt is disabled
+	got_pck_int_en : 1: enable the intrrupt when a packet is recived in NI. 0 : This intrrupt is disabled
+
+*/
+void ni_initial (unsigned int burst_size, unsigned char errors_int_en, unsigned char send_int_en, unsigned char save_int_en, unsigned char got_pck_int_en) {
+	ni_BURST_SIZE_REG  =  burst_size;
+    27a4:	18 60 b8 00 	l.movhi r3,0xb800
+    27a8:	9c c0 00 10 	l.addi r6,r0,16
+    27ac:	a8 83 00 08 	l.ori r4,r3,0x8
+	if(errors_int_en) ni_STATUS2_REG |= ERRORS_INT_EN;
+    27b0:	a8 a3 00 04 	l.ori r5,r3,0x4
+	save_int_en : 1: enable the intrrupt when a recived packet is saved on internal buffer  0 : This intrrupt is disabled
+	got_pck_int_en : 1: enable the intrrupt when a packet is recived in NI. 0 : This intrrupt is disabled
+
+*/
+void ni_initial (unsigned int burst_size, unsigned char errors_int_en, unsigned char send_int_en, unsigned char save_int_en, unsigned char got_pck_int_en) {
+	ni_BURST_SIZE_REG  =  burst_size;
+    27b4:	d4 04 30 00 	l.sw 0(r4),r6
+	dest_phy_addr: the destination endpoint physical address. check phy_adr.h file for knowing each endpoint physical address
+
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+    27b8:	a8 83 00 00 	l.ori r4,r3,0x0
+	got_pck_int_en : 1: enable the intrrupt when a packet is recived in NI. 0 : This intrrupt is disabled
+
+*/
+void ni_initial (unsigned int burst_size, unsigned char errors_int_en, unsigned char send_int_en, unsigned char save_int_en, unsigned char got_pck_int_en) {
+	ni_BURST_SIZE_REG  =  burst_size;
+	if(errors_int_en) ni_STATUS2_REG |= ERRORS_INT_EN;
+    27bc:	84 c5 00 00 	l.lwz r6,0(r5)
+    27c0:	a8 66 00 08 	l.ori r3,r6,0x8
+    27c4:	d4 05 18 00 	l.sw 0(r5),r3
+	if(send_int_en) ni_STATUS2_REG |= SEND_DONE_INT_EN;
+	if(save_int_en) ni_STATUS2_REG |= SAVE_DONE_INT_EN;
+	if(got_pck_int_en) ni_STATUS2_REG |= GOT_PCK_INT_EN;
+    27c8:	84 65 00 00 	l.lwz r3,0(r5)
+    27cc:	a8 63 00 04 	l.ori r3,r3,0x4
+    27d0:	d4 05 18 00 	l.sw 0(r5),r3
+	dest_phy_addr: the destination endpoint physical address. check phy_adr.h file for knowing each endpoint physical address
+
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+    27d4:	84 a4 00 00 	l.lwz r5,0(r4)
+    27d8:	a4 a5 00 40 	l.andi r5,r5,0x40
+    27dc:	bc 25 00 00 	l.sfnei r5,0
+    27e0:	13 ff ff fd 	l.bf 27d4 <main+0x7c>
+    27e4:	18 60 b8 00 	l.movhi r3,0xb800
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+    27e8:	a8 a3 00 0c 	l.ori r5,r3,0xc
+    27ec:	9c c0 00 03 	l.addi r6,r0,3
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    27f0:	a8 83 00 10 	l.ori r4,r3,0x10
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+    27f4:	d4 05 30 00 	l.sw 0(r5),r6
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    27f8:	18 c0 00 00 	l.movhi r6,0x0
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    27fc:	a8 a3 00 14 	l.ori r5,r3,0x14
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    2800:	a8 c6 2b fc 	l.ori r6,r6,0x2bfc
+    2804:	d4 04 30 00 	l.sw 0(r4),r6
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    2808:	18 80 01 00 	l.movhi r4,0x100
+    280c:	a8 84 00 03 	l.ori r4,r4,0x3
+    2810:	d4 05 20 00 	l.sw 0(r5),r4
+	dest_phy_addr: the destination endpoint physical address. check phy_adr.h file for knowing each endpoint physical address
+
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+    2814:	a8 83 00 00 	l.ori r4,r3,0x0
+    2818:	84 a4 00 00 	l.lwz r5,0(r4)
+    281c:	a4 a5 00 80 	l.andi r5,r5,0x80
+    2820:	bc 25 00 00 	l.sfnei r5,0
+    2824:	13 ff ff fd 	l.bf 2818 <main+0xc0>
+    2828:	18 60 b8 00 	l.movhi r3,0xb800
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+    282c:	a8 a3 00 4c 	l.ori r5,r3,0x4c
+    2830:	9c c0 00 03 	l.addi r6,r0,3
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    2834:	a8 83 00 50 	l.ori r4,r3,0x50
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+    2838:	d4 05 30 00 	l.sw 0(r5),r6
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    283c:	18 c0 00 00 	l.movhi r6,0x0
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    2840:	a8 a3 00 54 	l.ori r5,r3,0x54
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    2844:	a8 c6 2b f0 	l.ori r6,r6,0x2bf0
+    2848:	d4 04 30 00 	l.sw 0(r4),r6
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    284c:	18 80 01 01 	l.movhi r4,0x101
+    2850:	a8 84 00 03 	l.ori r4,r4,0x3
+    2854:	d4 05 20 00 	l.sw 0(r5),r4
+	dest_phy_addr: the destination endpoint physical address. check phy_adr.h file for knowing each endpoint physical address
+
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+    2858:	84 a3 00 00 	l.lwz r5,0(r3)
+    285c:	a4 a5 00 40 	l.andi r5,r5,0x40
+    2860:	bc 25 00 00 	l.sfnei r5,0
+    2864:	13 ff ff fd 	l.bf 2858 <main+0x100>
+    2868:	18 80 b8 00 	l.movhi r4,0xb800
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+    286c:	a8 c4 00 0c 	l.ori r6,r4,0xc
+    2870:	9c a0 00 02 	l.addi r5,r0,2
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    2874:	a8 64 00 10 	l.ori r3,r4,0x10
+*/
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+    2878:	d4 06 28 00 	l.sw 0(r6),r5
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    287c:	18 c0 00 00 	l.movhi r6,0x0
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    2880:	a8 84 00 14 	l.ori r4,r4,0x14
+
+void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_num, unsigned int data_start_addr,  unsigned int data_size, unsigned int dest_phy_addr){
+	 while (ni_send_is_busy(v)); // wait until VC is busy sending previous packet
+
+	ni_SEND_DATA_SIZE_REG(v)  = data_size;
+	ni_SEND_START_ADDR_REG(v)  = data_start_addr;
+    2884:	a8 c6 2b e8 	l.ori r6,r6,0x2be8
+    2888:	d4 03 30 00 	l.sw 0(r3),r6
+	ni_SEND_DEST_REG(v)   = dest_phy_addr | (class_num<<16) | (init_weight<<24);
+    288c:	18 60 01 00 	l.movhi r3,0x100
+    2890:	a8 63 00 03 	l.ori r3,r3,0x3
+    2894:	d4 04 18 00 	l.sw 0(r4),r3
+	//ni_transfer (w, v,  class_num,  data_start_addr,   data_size,  dest_x, dest_y){
+	ni_transfer (1,0, 0, (unsigned int)&pck1[0],  3, PHY_ADDR_ENDP_3);
+	ni_transfer (1,1, 1, (unsigned int)&pck2[0],  3, PHY_ADDR_ENDP_3);
+	ni_transfer (1,0, 0, (unsigned int)&pck3[0],  2, PHY_ADDR_ENDP_3);
+	//printf("core %u sent packet to (%u,%u)",CORID,rnd_dest_x[i],rnd_dest_y[i]);
+	printf("total sent packets by core%u is %u\n",COREID,3);
+    2898:	9c 60 00 03 	l.addi r3,r0,3
+    289c:	d4 01 28 00 	l.sw 0(r1),r5
+    28a0:	d4 01 18 04 	l.sw 4(r1),r3
+    28a4:	18 60 00 00 	l.movhi r3,0x0
+    28a8:	07 ff fb f3 	l.jal 1874 <simple_printf>
+    28ac:	a8 63 2a a5 	l.ori r3,r3,0x2aa5
+    28b0:	00 00 00 00 	l.j 28b0 <main+0x158>
+    28b4:	15 00 00 00 	l.nop 0x0

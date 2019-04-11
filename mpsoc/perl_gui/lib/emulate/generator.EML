@@ -1,0 +1,108 @@
+#######################################################################
+##	File: generator.EML
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.5.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$generator = bless( {
+                      'status' => 'ideal',
+                      'graph_param' => {},
+                      'fpga_param' => {
+                                        'SAVE_NAME' => 'noc_no_vc',
+                                        'FPGA_BOARD' => 'DE4_230',
+                                        'SOF_DIR' => '/home/alireza/Mywork/mpsoc_work/emulate/DE4'
+                                      },
+                      '1' => {
+                               'ESCAP_VC_MASK' => '2\'b01'
+                             },
+                      'parameters_order' => {
+                                              'fpga_param' => [
+                                                                'FPGA_BOARD',
+                                                                'SAVE_NAME',
+                                                                'SOF_DIR'
+                                                              ],
+                                              '1' => [
+                                                       'ESCAP_VC_MASK'
+                                                     ],
+                                              'noc_param' => [
+                                                               'NX',
+                                                               'NY',
+                                                               'V',
+                                                               'B',
+                                                               'Fpay',
+                                                               'TOPOLOGY',
+                                                               'ROUTE_NAME',
+                                                               'SSA_EN',
+                                                               'VC_REALLOCATION_TYPE',
+                                                               'COMBINATION_TYPE',
+                                                               'MUX_TYPE',
+                                                               'C',
+                                                               'DEBUG_EN',
+                                                               'ADD_PIPREG_AFTER_CROSSBAR',
+                                                               'FIRST_ARBITER_EXT_P_EN',
+                                                               'AVC_ATOMIC_EN',
+                                                               'ROUTE_SUBFUNC',
+                                                               'MAX_PCK_NUM',
+                                                               'MAX_PCK_SIZ',
+                                                               'MAX_SIM_CLKs',
+                                                               'TIMSTMP_FIFO_NUM',
+                                                               'CONGESTION_INDEX'
+                                                             ],
+                                              'noc_type' => [
+                                                              'ROUTER_TYPE'
+                                                            ]
+                                            },
+                      'file_name' => undef,
+                      'noc_param' => {
+                                       'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                       'DEBUG_EN' => '0',
+                                       'NY' => 8,
+                                       'MAX_PCK_SIZ' => 10,
+                                       'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                       'NX' => 8,
+                                       'V' => 1,
+                                       'CONGESTION_INDEX' => 3,
+                                       'TIMSTMP_FIFO_NUM' => 16,
+                                       'ROUTE_SUBFUNC' => '"XY"',
+                                       'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                       'C' => 0,
+                                       'MAX_PCK_NUM' => 2560000,
+                                       'ROUTE_NAME' => '"XY"',
+                                       'Fpay' => '32',
+                                       'MUX_TYPE' => '"BINARY"',
+                                       'MAX_SIM_CLKs' => 1000000,
+                                       'B' => '4',
+                                       'TOPOLOGY' => '"MESH"',
+                                       'AVC_ATOMIC_EN' => 0,
+                                       'SSA_EN' => '"NO"',
+                                       'FIRST_ARBITER_EXT_P_EN' => 0
+                                     },
+                      'sample1' => {
+                                     'color' => 2
+                                   },
+                      'emulate_num' => 1,
+                      'graph_save' => {},
+                      'graph_scale' => 5,
+                      'setting' => {
+                                     'show_adv_setting' => 1,
+                                     'soc_path' => 'lib/soc',
+                                     'show_noc_setting' => 1,
+                                     'show_tile_setting' => 0
+                                   },
+                      'gui_status' => {
+                                        'timeout' => 0,
+                                        'status' => 'ideal'
+                                      },
+                      'process_notebook' => {
+                                              'currentpage' => 1
+                                            },
+                      'emulate_name' => 'generator',
+                      'noc_type' => {
+                                      'ROUTER_TYPE' => '"INPUT_QUEUED"'
+                                    }
+                    }, 'emulator' );

@@ -1,0 +1,195 @@
+#######################################################################
+##	File: example2.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.5.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$example2 = bless( {
+                     'process_notebook' => {
+                                             'currentpage' => 0
+                                           },
+                     'parameters_order' => {
+                                             'sample1' => [
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sim_param' => [
+                                                              'SAVE_NAME',
+                                                              'BIN_DIR'
+                                                            ],
+                                             'noc_type' => [
+                                                             'ROUTER_TYPE'
+                                                           ],
+                                             'sample2' => [
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'noc_param' => [
+                                                              'NX',
+                                                              'NY',
+                                                              'V',
+                                                              'B',
+                                                              'Fpay',
+                                                              'TOPOLOGY',
+                                                              'ROUTE_NAME',
+                                                              'SSA_EN',
+                                                              'CONGESTION_INDEX',
+                                                              'ESCAP_VC_MASK',
+                                                              'VC_REALLOCATION_TYPE',
+                                                              'COMBINATION_TYPE',
+                                                              'MUX_TYPE',
+                                                              'C',
+                                                              'DEBUG_EN',
+                                                              'ADD_PIPREG_AFTER_CROSSBAR',
+                                                              'FIRST_ARBITER_EXT_P_EN',
+                                                              'AVC_ATOMIC_EN',
+                                                              'ROUTE_SUBFUNC'
+                                                            ]
+                                           },
+                     'noc_type' => {
+                                     'ROUTER_TYPE' => '"VC_BASED"'
+                                   },
+                     'file_name' => undef,
+                     'graph_scale' => 5,
+                     'setting' => {
+                                    'show_adv_setting' => 0,
+                                    'soc_path' => 'lib/soc',
+                                    'show_tile_setting' => 0,
+                                    'show_noc_setting' => 1
+                                  },
+                     'emulate_num' => 2,
+                     'graph_save' => {},
+                     'active_setting' => undef,
+                     'simulate_name' => 'example2',
+                     'sample2' => {
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'status' => 'run',
+                                    'noc_info' => {
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'Fpay' => '32',
+                                                    'NX' => 8,
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'TOPOLOGY' => '"MESH"',
+                                                    'C' => 0,
+                                                    'NY' => 8,
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'ROUTE_NAME' => '"DUATO"',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'B' => '4',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 0,
+                                                    'SSA_EN' => '"NO"',
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'DEBUG_EN' => '0',
+                                                    'V' => '2'
+                                                  },
+                                    'ratios' => '2:26:2',
+                                    'line_name' => 'full',
+                                    'result' => {
+                                                  '8' => ' 21.067223',
+                                                  '16' => ' 22.327683',
+                                                  '4' => ' 19.490490',
+                                                  '10' => ' 20.444416',
+                                                  '2' => ' 19.481100',
+                                                  '18' => ' 23.458541',
+                                                  '20' => ' 27.025779',
+                                                  '22' => ' 54.241596',
+                                                  '12' => ' 20.676769',
+                                                  '6' => ' 19.712610',
+                                                  '24' => ' 108.607381',
+                                                  '14' => ' 22.158923'
+                                                },
+                                    'color' => 23,
+                                    'PCK_SIZE' => 4,
+                                    'sof_file' => '/home/alireza/mywork/mpsoc_work/simulate/mesh_8x8_full',
+                                    'traffic' => 'transposed 2'
+                                  },
+                     'gui_status' => {
+                                       'status' => 'ideal',
+                                       'timeout' => 0
+                                     },
+                     'sample1' => {
+                                    'line_name' => 'xy',
+                                    'ratios' => '14:18:2',
+                                    'color' => 11,
+                                    'result' => {
+                                                  '8' => ' 21.298512',
+                                                  '16' => ' 56.009655',
+                                                  '4' => ' 19.428024',
+                                                  '10' => ' 19.695515',
+                                                  '2' => ' 19.427565',
+                                                  '18' => ' 98.052215',
+                                                  '12' => ' 20.088549',
+                                                  '6' => ' 19.702457',
+                                                  '14' => ' 22.569334'
+                                                },
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'noc_info' => {
+                                                    'C' => 0,
+                                                    'NY' => 8,
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'B' => '4',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 0,
+                                                    'SSA_EN' => '"NO"',
+                                                    'DEBUG_EN' => '0',
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'V' => '2',
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'Fpay' => '32',
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'NX' => 8,
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'TOPOLOGY' => '"MESH"'
+                                                  },
+                                    'status' => 'done',
+                                    'traffic' => 'transposed 2',
+                                    'PCK_SIZE' => 4,
+                                    'sof_file' => '/home/alireza/mywork/mpsoc_work/simulate/mesh_8x8_xy'
+                                  },
+                     'status' => 'ideal',
+                     'sim_param' => {
+                                      'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate',
+                                      'SAVE_NAME' => 'mesh_8x8_full'
+                                    },
+                     'noc_param' => {
+                                      'ROUTE_SUBFUNC' => '"XY"',
+                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                      'Fpay' => '32',
+                                      'ESCAP_VC_MASK' => '2\'b01',
+                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                      'CONGESTION_INDEX' => 3,
+                                      'NX' => 8,
+                                      'TOPOLOGY' => '"MESH"',
+                                      'AVC_ATOMIC_EN' => 0,
+                                      'C' => 0,
+                                      'NY' => 8,
+                                      'FIRST_ARBITER_EXT_P_EN' => 0,
+                                      'SSA_EN' => '"NO"',
+                                      'V' => '2',
+                                      'MUX_TYPE' => '"BINARY"',
+                                      'DEBUG_EN' => '0',
+                                      'ROUTE_NAME' => '"DUATO"',
+                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                      'B' => '4'
+                                    },
+                     'graph_param' => {}
+                   }, 'emulator' );

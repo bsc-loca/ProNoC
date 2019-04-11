@@ -1,0 +1,484 @@
+#######################################################################
+##	File: lllllllllllllllllllllllllllllllll.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.7.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$lllllllllllllllllllllllllllllllll = bless( {
+                                              'P0' => {
+                                                        'active' => 'Throughput'
+                                                      },
+                                              'active_setting' => undef,
+                                              'sample1' => {
+                                                             'worst_delay_sent_result' => {
+                                                                                            '0' => {
+                                                                                                     '4' => '8339',
+                                                                                                     '5' => '4027',
+                                                                                                     '6' => '3049',
+                                                                                                     '10' => '2437',
+                                                                                                     '0' => '31472',
+                                                                                                     '12' => '591',
+                                                                                                     '7' => '0',
+                                                                                                     '14' => '136',
+                                                                                                     '3' => '14469',
+                                                                                                     '15' => '0',
+                                                                                                     '1' => '30107',
+                                                                                                     '11' => '1203',
+                                                                                                     '9' => '3744',
+                                                                                                     '2' => '22102',
+                                                                                                     '8' => '7421',
+                                                                                                     '13' => '291'
+                                                                                                   }
+                                                                                          },
+                                                             'TRAFFIC_TYPE' => 'Custom-file(s)',
+                                                             'TRAFFIC_FILE_NUM' => 1,
+                                                             'packet_sent_result' => {
+                                                                                       '0' => {
+                                                                                                '15' => '0',
+                                                                                                '1' => '2000',
+                                                                                                '14' => '2000',
+                                                                                                '7' => '0',
+                                                                                                '3' => '2000',
+                                                                                                '2' => '2000',
+                                                                                                '13' => '2000',
+                                                                                                '8' => '2000',
+                                                                                                '9' => '2000',
+                                                                                                '11' => '2000',
+                                                                                                '5' => '2000',
+                                                                                                '10' => '2000',
+                                                                                                '6' => '2000',
+                                                                                                '4' => '2000',
+                                                                                                '0' => '2000',
+                                                                                                '12' => '2000'
+                                                                                              }
+                                                                                     },
+                                                             'packet_rsvd_result' => {
+                                                                                       '0' => {
+                                                                                                '11' => '0',
+                                                                                                '9' => '0',
+                                                                                                '2' => '0',
+                                                                                                '8' => '0',
+                                                                                                '13' => '0',
+                                                                                                '7' => '12000',
+                                                                                                '14' => '0',
+                                                                                                '3' => '0',
+                                                                                                '15' => '14000',
+                                                                                                '1' => '0',
+                                                                                                '0' => '0',
+                                                                                                '12' => '0',
+                                                                                                '4' => '0',
+                                                                                                '5' => '0',
+                                                                                                '6' => '0',
+                                                                                                '10' => '2000'
+                                                                                              }
+                                                                                     },
+                                                             'noc_info' => {
+                                                                             'CONGESTION_INDEX' => 3,
+                                                                             'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                                             'NX' => 16,
+                                                                             'Fpay' => '32',
+                                                                             'SSA_EN' => '"NO"',
+                                                                             'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                                             'C' => 0,
+                                                                             'ESCAP_VC_MASK' => '2\'b01',
+                                                                             'SWA_ARBITER_TYPE' => '"RRA"',
+                                                                             'DEBUG_EN' => '0',
+                                                                             'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                                             'WEIGHTw' => '4',
+                                                                             'AVC_ATOMIC_EN' => 0,
+                                                                             'WRRA_CONFIG_INDEX' => '0',
+                                                                             'V' => 2,
+                                                                             'NY' => 1,
+                                                                             'TOPOLOGY' => '"LINE"',
+                                                                             'ROUTE_SUBFUNC' => '"XY"',
+                                                                             'ROUTE_NAME' => '"XY"',
+                                                                             'MUX_TYPE' => '"BINARY"',
+                                                                             'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                                             'B' => '4'
+                                                                           },
+                                                             'sof_file' => '/mpsoc_work/simulate/line_rra',
+                                                             'SIM_CLOCK_LIMIT' => 100000,
+                                                             'color' => 10,
+                                                             'exe_time_result' => {
+                                                                                    '0' => '88626'
+                                                                                  },
+                                                             'line_name' => 'rra',
+                                                             'worst_delay_rsvd_result' => {
+                                                                                            '0' => {
+                                                                                                     '15' => '7421',
+                                                                                                     '1' => '0',
+                                                                                                     '14' => '0',
+                                                                                                     '7' => '31472',
+                                                                                                     '3' => '0',
+                                                                                                     '2' => '0',
+                                                                                                     '8' => '0',
+                                                                                                     '13' => '0',
+                                                                                                     '9' => '0',
+                                                                                                     '11' => '0',
+                                                                                                     '5' => '0',
+                                                                                                     '10' => '8339',
+                                                                                                     '6' => '0',
+                                                                                                     '4' => '0',
+                                                                                                     '0' => '0',
+                                                                                                     '12' => '0'
+                                                                                                   }
+                                                                                          },
+                                                             'traffic' => 'random',
+                                                             'PCK_NUM_LIMIT' => 200000,
+                                                             'throughput_ratio_result' => {
+                                                                                            '0' => ' 9.026696 '
+                                                                                          },
+                                                             'status' => 'done',
+                                                             'latency_ratio_result' => {
+                                                                                         '0' => ' 514.063107'
+                                                                                       },
+                                                             'PCK_SIZE' => 4,
+                                                             'traffic_file0' => '/mpsoc/perl_gui/lib/simulate/custom-traffic/custom2'
+                                                           },
+                                              'id' => 2,
+                                              'P2Received' => {
+                                                                'dimention' => '3D',
+                                                                'ratio' => '0',
+                                                                'type' => '3D_bar'
+                                                              },
+                                              'sample0' => {
+                                                             'sof_file' => '/mpsoc_work/simulate/line_w1',
+                                                             'packet_rsvd_result' => {
+                                                                                       '0' => {
+                                                                                                '1' => '0',
+                                                                                                '15' => '14000',
+                                                                                                '3' => '0',
+                                                                                                '14' => '0',
+                                                                                                '7' => '12000',
+                                                                                                '8' => '0',
+                                                                                                '13' => '0',
+                                                                                                '2' => '0',
+                                                                                                '9' => '0',
+                                                                                                '11' => '0',
+                                                                                                '10' => '2000',
+                                                                                                '6' => '0',
+                                                                                                '5' => '0',
+                                                                                                '4' => '0',
+                                                                                                '12' => '0',
+                                                                                                '0' => '0'
+                                                                                              }
+                                                                                     },
+                                                             'noc_info' => {
+                                                                             'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                                             'CONGESTION_INDEX' => 3,
+                                                                             'Fpay' => '32',
+                                                                             'SSA_EN' => '"NO"',
+                                                                             'NX' => 16,
+                                                                             'C' => 0,
+                                                                             'ESCAP_VC_MASK' => '2\'b01',
+                                                                             'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                                             'DEBUG_EN' => '0',
+                                                                             'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                                             'SWA_ARBITER_TYPE' => '"WRRA"',
+                                                                             'WEIGHTw' => 4,
+                                                                             'NY' => 1,
+                                                                             'AVC_ATOMIC_EN' => 0,
+                                                                             'WRRA_CONFIG_INDEX' => 1,
+                                                                             'V' => '2',
+                                                                             'ROUTE_SUBFUNC' => '"XY"',
+                                                                             'ROUTE_NAME' => '"XY"',
+                                                                             'TOPOLOGY' => '"LINE"',
+                                                                             'MUX_TYPE' => '"BINARY"',
+                                                                             'B' => '4',
+                                                                             'COMBINATION_TYPE' => '"COMB_NONSPEC"'
+                                                                           },
+                                                             'line_name' => 'wrra',
+                                                             'color' => 2,
+                                                             'exe_time_result' => {
+                                                                                    '0' => '57741'
+                                                                                  },
+                                                             'SIM_CLOCK_LIMIT' => 100000,
+                                                             'TRAFFIC_TYPE' => 'Custom-file(s)',
+                                                             'worst_delay_sent_result' => {
+                                                                                            '0' => {
+                                                                                                     '0' => '496',
+                                                                                                     '12' => '1043',
+                                                                                                     '5' => '599',
+                                                                                                     '6' => '592',
+                                                                                                     '10' => '526',
+                                                                                                     '4' => '635',
+                                                                                                     '2' => '653',
+                                                                                                     '8' => '255',
+                                                                                                     '13' => '1042',
+                                                                                                     '11' => '1048',
+                                                                                                     '9' => '762',
+                                                                                                     '15' => '0',
+                                                                                                     '1' => '736',
+                                                                                                     '7' => '0',
+                                                                                                     '14' => '1040',
+                                                                                                     '3' => '643'
+                                                                                                   }
+                                                                                          },
+                                                             'packet_sent_result' => {
+                                                                                       '0' => {
+                                                                                                '6' => '2000',
+                                                                                                '10' => '2000',
+                                                                                                '5' => '2000',
+                                                                                                '4' => '2000',
+                                                                                                '12' => '2000',
+                                                                                                '0' => '2000',
+                                                                                                '1' => '2000',
+                                                                                                '15' => '0',
+                                                                                                '3' => '2000',
+                                                                                                '7' => '0',
+                                                                                                '14' => '2000',
+                                                                                                '8' => '2000',
+                                                                                                '13' => '2000',
+                                                                                                '2' => '2000',
+                                                                                                '11' => '2000',
+                                                                                                '9' => '2000'
+                                                                                              }
+                                                                                     },
+                                                             'TRAFFIC_FILE_NUM' => 1,
+                                                             'traffic_file0' => '/mpsoc/perl_gui/lib/simulate/custom-traffic/custom2',
+                                                             'throughput_ratio_result' => {
+                                                                                            '0' => ' 13.854973 '
+                                                                                          },
+                                                             'status' => 'done',
+                                                             'PCK_NUM_LIMIT' => 200000,
+                                                             'traffic' => 'random',
+                                                             'worst_delay_rsvd_result' => {
+                                                                                            '0' => {
+                                                                                                     '7' => '736',
+                                                                                                     '14' => '0',
+                                                                                                     '3' => '0',
+                                                                                                     '15' => '1048',
+                                                                                                     '1' => '0',
+                                                                                                     '11' => '0',
+                                                                                                     '9' => '0',
+                                                                                                     '2' => '0',
+                                                                                                     '8' => '0',
+                                                                                                     '13' => '0',
+                                                                                                     '4' => '0',
+                                                                                                     '5' => '0',
+                                                                                                     '6' => '0',
+                                                                                                     '10' => '635',
+                                                                                                     '0' => '0',
+                                                                                                     '12' => '0'
+                                                                                                   }
+                                                                                          },
+                                                             'PCK_SIZE' => 4,
+                                                             'latency_ratio_result' => {
+                                                                                         '0' => ' 441.281036'
+                                                                                       }
+                                                           },
+                                              'process_notebook' => {
+                                                                      'currentpage' => 0
+                                                                    },
+                                              'P3-_param' => {
+                                                               'Y_MIN' => 0,
+                                                               'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                                               'legend_font' => 'MediumBold',
+                                                               'LINEw' => 3,
+                                                               'Y_Title' => 'Total Simulation Time (clk)',
+                                                               'x_axis_font' => 'MediumBold',
+                                                               'X_MAX' => 100,
+                                                               'X_MIN' => 0,
+                                                               'label_font' => 'MediumBold',
+                                                               'legend_placement' => 'BL'
+                                                             },
+                                              'P1' => {
+                                                        'active' => 'Sent'
+                                                      },
+                                              'samples' => undef,
+                                              'P1Sent_param' => {
+                                                                  'legend_placement' => 'BL',
+                                                                  'label_font' => 'MediumBold',
+                                                                  'X_MIN' => 0,
+                                                                  'legend_font' => 'MediumBold',
+                                                                  'X_Title' => 'Core ID',
+                                                                  'Y_MIN' => 0,
+                                                                  'x_axis_font' => 'MediumBold',
+                                                                  'Y_Title' => 'Sent Packets Per Router',
+                                                                  'X_MAX' => 100,
+                                                                  'LINEw' => 3
+                                                                },
+                                              'P0Latency_param' => {
+                                                                     'label_font' => 'MediumBold',
+                                                                     'X_MIN' => 0,
+                                                                     'legend_placement' => 'BL',
+                                                                     'LINEw' => 3,
+                                                                     'x_axis_font' => 'MediumBold',
+                                                                     'Y_Title' => 'Latency (clock)',
+                                                                     'X_MAX' => 100,
+                                                                     'Y_MIN' => 0,
+                                                                     'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                                                     'legend_font' => 'MediumBold'
+                                                                   },
+                                              'P2Received_param' => {
+                                                                      'legend_font' => 'MediumBold',
+                                                                      'Y_MIN' => 0,
+                                                                      'X_Title' => 'Core ID',
+                                                                      'x_axis_font' => 'MediumBold',
+                                                                      'Y_Title' => 'Worst-Case Delay (clk)',
+                                                                      'X_MAX' => 100,
+                                                                      'LINEw' => 3,
+                                                                      'legend_placement' => 'BL',
+                                                                      'label_font' => 'MediumBold',
+                                                                      'X_MIN' => 0
+                                                                    },
+                                              'status' => 'ideal',
+                                              'sim_param' => {
+                                                               'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate',
+                                                               'SAVE_NAME' => 'line_rra'
+                                                             },
+                                              'P0Latency' => {
+                                                               'type' => '2D_line'
+                                                             },
+                                              'P1Received_param' => {
+                                                                      'X_MAX' => 100,
+                                                                      'Y_Title' => 'Received Packets Per Router',
+                                                                      'x_axis_font' => 'MediumBold',
+                                                                      'LINEw' => 3,
+                                                                      'legend_font' => 'MediumBold',
+                                                                      'X_Title' => 'Core ID',
+                                                                      'Y_MIN' => 0,
+                                                                      'legend_placement' => 'BL',
+                                                                      'label_font' => 'MediumBold',
+                                                                      'X_MIN' => 0
+                                                                    },
+                                              'P3-' => {
+                                                         'type' => '2D_line'
+                                                       },
+                                              'gui_status' => {
+                                                                'status' => 'ideal',
+                                                                'timeout' => 0
+                                                              },
+                                              'P1Received' => {
+                                                                'dimention' => '3D',
+                                                                'ratio' => '0',
+                                                                'type' => '3D_bar'
+                                                              },
+                                              'noc_param' => {
+                                                               'MUX_TYPE' => '"BINARY"',
+                                                               'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                               'B' => '4',
+                                                               'TOPOLOGY' => '"LINE"',
+                                                               'ROUTE_SUBFUNC' => '"XY"',
+                                                               'ROUTE_NAME' => '"XY"',
+                                                               'AVC_ATOMIC_EN' => 0,
+                                                               'WRRA_CONFIG_INDEX' => '0',
+                                                               'V' => 2,
+                                                               'NY' => 1,
+                                                               'WEIGHTw' => '4',
+                                                               'SWA_ARBITER_TYPE' => '"RRA"',
+                                                               'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                               'DEBUG_EN' => '0',
+                                                               'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                               'C' => 0,
+                                                               'ESCAP_VC_MASK' => '2\'b01',
+                                                               'NX' => 16,
+                                                               'Fpay' => '32',
+                                                               'SSA_EN' => '"NO"',
+                                                               'CONGESTION_INDEX' => 3,
+                                                               'FIRST_ARBITER_EXT_P_EN' => 1
+                                                             },
+                                              'P0Throughput' => {
+                                                                  'type' => '2D_line'
+                                                                },
+                                              'noc_type' => {
+                                                              'ROUTER_TYPE' => '"VC_BASED"'
+                                                            },
+                                              'P2' => {
+                                                        'active' => 'Received'
+                                                      },
+                                              'P3' => {
+                                                        'active' => '-'
+                                                      },
+                                              'graph_save' => {},
+                                              'setting' => {
+                                                             'show_noc_setting' => 1,
+                                                             'soc_path' => 'lib/soc',
+                                                             'show_tile_setting' => 0,
+                                                             'show_adv_setting' => 1
+                                                           },
+                                              'P1Sent' => {
+                                                            'dimention' => '3D',
+                                                            'type' => '3D_bar',
+                                                            'ratio' => '0'
+                                                          },
+                                              'chart_notebook' => {
+                                                                    'currentpage' => 0
+                                                                  },
+                                              'graph_scale' => 5,
+                                              'file_name' => undef,
+                                              'parameters_order' => {
+                                                                      'sample1' => [
+                                                                                     'TRAFFIC_TYPE',
+                                                                                     'line_name',
+                                                                                     'traffic',
+                                                                                     'PCK_SIZE',
+                                                                                     'PCK_NUM_LIMIT',
+                                                                                     'SIM_CLOCK_LIMIT',
+                                                                                     'TRAFFIC_FILE_NUM'
+                                                                                   ],
+                                                                      'samples' => [
+                                                                                     'sample0',
+                                                                                     'sample1'
+                                                                                   ],
+                                                                      'sample0' => [
+                                                                                     'TRAFFIC_TYPE',
+                                                                                     'line_name',
+                                                                                     'traffic',
+                                                                                     'PCK_SIZE',
+                                                                                     'PCK_NUM_LIMIT',
+                                                                                     'SIM_CLOCK_LIMIT',
+                                                                                     'TRAFFIC_FILE_NUM'
+                                                                                   ],
+                                                                      'noc_param' => [
+                                                                                       'TOPOLOGY',
+                                                                                       'NX',
+                                                                                       'NY',
+                                                                                       'V',
+                                                                                       'B',
+                                                                                       'Fpay',
+                                                                                       'ROUTE_NAME',
+                                                                                       'SSA_EN',
+                                                                                       'CONGESTION_INDEX',
+                                                                                       'ESCAP_VC_MASK',
+                                                                                       'VC_REALLOCATION_TYPE',
+                                                                                       'COMBINATION_TYPE',
+                                                                                       'MUX_TYPE',
+                                                                                       'C',
+                                                                                       'DEBUG_EN',
+                                                                                       'ADD_PIPREG_AFTER_CROSSBAR',
+                                                                                       'FIRST_ARBITER_EXT_P_EN',
+                                                                                       'SWA_ARBITER_TYPE',
+                                                                                       'WEIGHTw',
+                                                                                       'WRRA_CONFIG_INDEX',
+                                                                                       'AVC_ATOMIC_EN',
+                                                                                       'ROUTE_SUBFUNC'
+                                                                                     ],
+                                                                      'noc_type' => [
+                                                                                      'ROUTER_TYPE'
+                                                                                    ],
+                                                                      'sim_param' => [
+                                                                                       'SAVE_NAME',
+                                                                                       'BIN_DIR'
+                                                                                     ]
+                                                                    },
+                                              'no_name' => {},
+                                              'simulate_name' => 'lllllllllllllllllllllllllllllllll',
+                                              'P0Throughput_param' => {
+                                                                        'legend_placement' => 'BL',
+                                                                        'X_MIN' => 0,
+                                                                        'label_font' => 'MediumBold',
+                                                                        'X_MAX' => 100,
+                                                                        'Y_Title' => 'Avg. Throughput (flits/clock (%))',
+                                                                        'x_axis_font' => 'MediumBold',
+                                                                        'LINEw' => 3,
+                                                                        'legend_font' => 'MediumBold',
+                                                                        'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                                                        'Y_MIN' => 0
+                                                                      }
+                                            }, 'emulator' );

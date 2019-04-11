@@ -1,0 +1,95 @@
+#######################################################################
+##	File: save.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.6.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$save = bless( {
+                 'gui_status' => {
+                                   'timeout' => 0,
+                                   'status' => 'ideal'
+                                 },
+                 'sample1' => {
+                                'color' => 2,
+                                'status' => 'done'
+                              },
+                 'graph_scale' => 5,
+                 'simulate_name' => 'save',
+                 'noc_type' => {
+                                 'ROUTER_TYPE' => '"VC_BASED"'
+                               },
+                 'file_name' => undef,
+                 'graph_param' => {},
+                 'parameters_order' => {
+                                         'sim_param' => [
+                                                          'SAVE_NAME',
+                                                          'BIN_DIR'
+                                                        ],
+                                         'noc_param' => [
+                                                          'NX',
+                                                          'NY',
+                                                          'V',
+                                                          'B',
+                                                          'Fpay',
+                                                          'TOPOLOGY',
+                                                          'ROUTE_NAME',
+                                                          'SSA_EN',
+                                                          'CONGESTION_INDEX',
+                                                          'ESCAP_VC_MASK',
+                                                          'VC_REALLOCATION_TYPE',
+                                                          'COMBINATION_TYPE',
+                                                          'MUX_TYPE',
+                                                          'C',
+                                                          'DEBUG_EN',
+                                                          'ADD_PIPREG_AFTER_CROSSBAR',
+                                                          'FIRST_ARBITER_EXT_P_EN',
+                                                          'AVC_ATOMIC_EN',
+                                                          'ROUTE_SUBFUNC'
+                                                        ],
+                                         'noc_type' => [
+                                                         'ROUTER_TYPE'
+                                                       ]
+                                       },
+                 'noc_param' => {
+                                  'DEBUG_EN' => '0',
+                                  'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                  'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                  'ROUTE_NAME' => '"DUATO"',
+                                  'ROUTE_SUBFUNC' => '"XY"',
+                                  'NX' => 8,
+                                  'B' => '4',
+                                  'C' => 0,
+                                  'AVC_ATOMIC_EN' => 0,
+                                  'MUX_TYPE' => '"BINARY"',
+                                  'TOPOLOGY' => '"MESH"',
+                                  'NY' => 8,
+                                  'CONGESTION_INDEX' => 3,
+                                  'V' => '2',
+                                  'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                  'ESCAP_VC_MASK' => '2\'b01',
+                                  'SSA_EN' => '"YES"',
+                                  'FIRST_ARBITER_EXT_P_EN' => 0,
+                                  'Fpay' => '32'
+                                },
+                 'sim_param' => {
+                                  'SAVE_NAME' => 'full_ssa',
+                                  'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate'
+                                },
+                 'process_notebook' => {
+                                         'currentpage' => 1
+                                       },
+                 'graph_save' => {},
+                 'setting' => {
+                                'show_adv_setting' => 0,
+                                'soc_path' => 'lib/soc',
+                                'show_tile_setting' => 0,
+                                'show_noc_setting' => 1
+                              },
+                 'status' => 'ideal',
+                 'emulate_num' => 1
+               }, 'emulator' );

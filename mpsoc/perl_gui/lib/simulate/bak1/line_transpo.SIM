@@ -1,0 +1,1689 @@
+#######################################################################
+##	File: line_transpo.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.8.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$simulate = bless( {
+                     'setting' => {
+                                    'show_noc_setting' => 1,
+                                    'soc_path' => 'lib/soc',
+                                    'show_tile_setting' => 0,
+                                    'show_adv_setting' => 1
+                                  },
+                     'file_name' => undef,
+                     'P0' => {
+                               'active' => 'Latency'
+                             },
+                     'sample7' => {
+                                    'PCK_SIZE' => 4,
+                                    'noc_info' => {
+                                                    'NX' => 16,
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'V' => '2',
+                                                    'TOPOLOGY' => '"LINE"',
+                                                    'SWA_ARBITER_TYPE' => '"WRRA"',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'DEBUG_EN' => '0',
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'C' => 0,
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'NY' => 1,
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'WEIGHTw' => 4,
+                                                    'B' => '4',
+                                                    'WRRA_CONFIG_INDEX' => 7,
+                                                    'SSA_EN' => '"NO"',
+                                                    'Fpay' => '32',
+                                                    'CONGESTION_INDEX' => 3
+                                                  },
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'packet_rsvd_result' => {
+                                                              '60' => {
+                                                                        '9' => '6083',
+                                                                        '5' => '3882',
+                                                                        '3' => '1494',
+                                                                        '1' => '670',
+                                                                        '11' => '2466',
+                                                                        '13' => '963',
+                                                                        '8' => '8689',
+                                                                        '6' => '6085',
+                                                                        '10' => '3832',
+                                                                        '14' => '689',
+                                                                        '0' => '666',
+                                                                        '7' => '8705',
+                                                                        '12' => '1498',
+                                                                        '4' => '2475',
+                                                                        '2' => '950',
+                                                                        '15' => '708'
+                                                                      }
+                                                            },
+                                    'throughput_ratio_result' => {
+                                                                   '60' => ' 12.472062 '
+                                                                 },
+                                    'color' => 9,
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'packet_sent_result' => {
+                                                              '60' => {
+                                                                        '11' => '2477',
+                                                                        '13' => '953',
+                                                                        '6' => '6084',
+                                                                        '8' => '8706',
+                                                                        '9' => '6087',
+                                                                        '5' => '3834',
+                                                                        '1' => '692',
+                                                                        '3' => '1501',
+                                                                        '4' => '2469',
+                                                                        '2' => '965',
+                                                                        '15' => '671',
+                                                                        '10' => '3884',
+                                                                        '14' => '673',
+                                                                        '7' => '8691',
+                                                                        '0' => '712',
+                                                                        '12' => '1496'
+                                                                      }
+                                                            },
+                                    'worst_delay_sent_result' => {
+                                                                   '60' => {
+                                                                             '8' => '258',
+                                                                             '6' => '379',
+                                                                             '13' => '2157',
+                                                                             '11' => '864',
+                                                                             '3' => '1488',
+                                                                             '1' => '3478',
+                                                                             '5' => '660',
+                                                                             '9' => '374',
+                                                                             '15' => '3711',
+                                                                             '2' => '2238',
+                                                                             '4' => '920',
+                                                                             '12' => '1444',
+                                                                             '0' => '3711',
+                                                                             '7' => '250',
+                                                                             '14' => '3478',
+                                                                             '10' => '571'
+                                                                           }
+                                                                 },
+                                    'sof_file' => '/mpsoc_work/simulate/line_w7',
+                                    'latency_ratio_result' => {
+                                                                '60' => ' 583.219176'
+                                                              },
+                                    'ratios' => '60',
+                                    'line_name' => 'w7',
+                                    'worst_delay_rsvd_result' => {
+                                                                   '60' => {
+                                                                             '15' => '3711',
+                                                                             '2' => '2157',
+                                                                             '4' => '864',
+                                                                             '12' => '1488',
+                                                                             '0' => '3711',
+                                                                             '7' => '258',
+                                                                             '14' => '3478',
+                                                                             '10' => '660',
+                                                                             '8' => '250',
+                                                                             '6' => '374',
+                                                                             '13' => '2238',
+                                                                             '11' => '920',
+                                                                             '3' => '1444',
+                                                                             '1' => '3478',
+                                                                             '5' => '571',
+                                                                             '9' => '379'
+                                                                           }
+                                                                 },
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'traffic' => 'transposed 1',
+                                    'status' => 'done'
+                                  },
+                     'P3-_param' => {
+                                      'X_MIN' => 0,
+                                      'Y_MIN' => 0,
+                                      'X_MAX' => 100,
+                                      'legend_font' => 'MediumBold',
+                                      'Y_Title' => 'Total Simulation Time (clk)',
+                                      'legend_placement' => 'BL',
+                                      'label_font' => 'MediumBold',
+                                      'LINEw' => 3,
+                                      'x_axis_font' => 'MediumBold',
+                                      'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))'
+                                    },
+                     'graph_save' => {
+                                       'save' => 0,
+                                       'graph_name' => 'P1Received',
+                                       'extension' => 'png',
+                                       'name' => '/home/alireza/mywork/mpsoc_doc/postdoc/presentation/report-1/fig/line-tran-packet.png'
+                                     },
+                     'P0Latency_param' => {
+                                            'label_font' => 'MediumBold',
+                                            'LINEw' => 3,
+                                            'x_axis_font' => 'MediumBold',
+                                            'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                            'Y_MIN' => 0,
+                                            'X_MIN' => 0,
+                                            'X_MAX' => 100,
+                                            'Y_Title' => 'Latency (clock)',
+                                            'legend_font' => 'MediumBold',
+                                            'legend_placement' => 'BL'
+                                          },
+                     'gui_status' => {
+                                       'timeout' => 0,
+                                       'status' => 'ideal'
+                                     },
+                     'sample5' => {
+                                    'PCK_SIZE' => 4,
+                                    'noc_info' => {
+                                                    'TOPOLOGY' => '"LINE"',
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'C' => 0,
+                                                    'DEBUG_EN' => '0',
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'SWA_ARBITER_TYPE' => '"WRRA"',
+                                                    'WRRA_CONFIG_INDEX' => 5,
+                                                    'B' => '4',
+                                                    'WEIGHTw' => 4,
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'NY' => 1,
+                                                    'Fpay' => '32',
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'SSA_EN' => '"NO"',
+                                                    'NX' => 16,
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'V' => '2',
+                                                    'MUX_TYPE' => '"BINARY"'
+                                                  },
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'packet_rsvd_result' => {
+                                                              '60' => {
+                                                                        '15' => '897',
+                                                                        '4' => '3037',
+                                                                        '2' => '1175',
+                                                                        '0' => '887',
+                                                                        '7' => '7618',
+                                                                        '12' => '1885',
+                                                                        '10' => '3834',
+                                                                        '14' => '831',
+                                                                        '8' => '7608',
+                                                                        '6' => '5560',
+                                                                        '11' => '3041',
+                                                                        '13' => '1183',
+                                                                        '1' => '835',
+                                                                        '3' => '1891',
+                                                                        '9' => '5566',
+                                                                        '5' => '3838'
+                                                                      }
+                                                            },
+                                    'throughput_ratio_result' => {
+                                                                   '60' => ' 12.429750 '
+                                                                 },
+                                    'color' => 7,
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'packet_sent_result' => {
+                                                              '60' => {
+                                                                        '8' => '7619',
+                                                                        '6' => '5568',
+                                                                        '13' => '1177',
+                                                                        '11' => '3039',
+                                                                        '3' => '1887',
+                                                                        '1' => '834',
+                                                                        '5' => '3836',
+                                                                        '9' => '5562',
+                                                                        '15' => '893',
+                                                                        '2' => '1185',
+                                                                        '4' => '3044',
+                                                                        '12' => '1893',
+                                                                        '7' => '7610',
+                                                                        '0' => '902',
+                                                                        '14' => '838',
+                                                                        '10' => '3840'
+                                                                      }
+                                                            },
+                                    'worst_delay_sent_result' => {
+                                                                   '60' => {
+                                                                             '0' => '2612',
+                                                                             '7' => '278',
+                                                                             '12' => '1109',
+                                                                             '10' => '546',
+                                                                             '14' => '2663',
+                                                                             '15' => '2559',
+                                                                             '4' => '766',
+                                                                             '2' => '1854',
+                                                                             '3' => '1113',
+                                                                             '1' => '2758',
+                                                                             '9' => '369',
+                                                                             '5' => '547',
+                                                                             '6' => '369',
+                                                                             '8' => '278',
+                                                                             '11' => '703',
+                                                                             '13' => '1854'
+                                                                           }
+                                                                 },
+                                    'latency_ratio_result' => {
+                                                                '60' => ' 585.557702'
+                                                              },
+                                    'sof_file' => '/mpsoc_work/simulate/line_w5',
+                                    'ratios' => '60',
+                                    'line_name' => 'w5',
+                                    'worst_delay_rsvd_result' => {
+                                                                   '60' => {
+                                                                             '14' => '2758',
+                                                                             '10' => '547',
+                                                                             '12' => '1113',
+                                                                             '7' => '278',
+                                                                             '0' => '2559',
+                                                                             '2' => '1854',
+                                                                             '4' => '703',
+                                                                             '15' => '2612',
+                                                                             '5' => '546',
+                                                                             '9' => '369',
+                                                                             '1' => '2663',
+                                                                             '3' => '1109',
+                                                                             '13' => '1854',
+                                                                             '11' => '766',
+                                                                             '8' => '278',
+                                                                             '6' => '369'
+                                                                           }
+                                                                 },
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'status' => 'done',
+                                    'traffic' => 'transposed 1'
+                                  },
+                     'P3-' => {
+                                'type' => '2D_line'
+                              },
+                     'active_setting' => undef,
+                     'latency_ratio' => {
+                                          'type' => '2D_line'
+                                        },
+                     '{P0Latency}_param' => {
+                                              'legend_font' => 'MediumBold'
+                                            },
+                     'chart_notebook' => {
+                                           'currentpage' => 0
+                                         },
+                     'noc_setting_gui' => {
+                                            'va' => '565',
+                                            'ha' => '0'
+                                          },
+                     'sample6' => {
+                                    'noc_info' => {
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'V' => '2',
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'NX' => 16,
+                                                    'WRRA_CONFIG_INDEX' => 6,
+                                                    'WEIGHTw' => 4,
+                                                    'B' => '4',
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'NY' => 1,
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'Fpay' => '32',
+                                                    'SSA_EN' => '"NO"',
+                                                    'TOPOLOGY' => '"LINE"',
+                                                    'DEBUG_EN' => '0',
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'C' => 0,
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'SWA_ARBITER_TYPE' => '"WRRA"'
+                                                  },
+                                    'PCK_SIZE' => 4,
+                                    'packet_sent_result' => {
+                                                              '60' => {
+                                                                        '11' => '3126',
+                                                                        '13' => '3117',
+                                                                        '6' => '3135',
+                                                                        '8' => '3139',
+                                                                        '9' => '3131',
+                                                                        '5' => '3125',
+                                                                        '1' => '3119',
+                                                                        '3' => '3123',
+                                                                        '4' => '3127',
+                                                                        '2' => '3125',
+                                                                        '15' => '3118',
+                                                                        '10' => '3133',
+                                                                        '14' => '3114',
+                                                                        '0' => '3127',
+                                                                        '7' => '3129',
+                                                                        '12' => '3126'
+                                                                      }
+                                                            },
+                                    'throughput_ratio_result' => {
+                                                                   '60' => ' 12.501812 '
+                                                                 },
+                                    'color' => 8,
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'packet_rsvd_result' => {
+                                                              '60' => {
+                                                                        '4' => '3124',
+                                                                        '2' => '3115',
+                                                                        '15' => '3122',
+                                                                        '10' => '3123',
+                                                                        '14' => '3116',
+                                                                        '0' => '3113',
+                                                                        '7' => '3138',
+                                                                        '12' => '3121',
+                                                                        '11' => '3125',
+                                                                        '13' => '3123',
+                                                                        '6' => '3130',
+                                                                        '8' => '3127',
+                                                                        '9' => '3134',
+                                                                        '5' => '3131',
+                                                                        '1' => '3110',
+                                                                        '3' => '3125'
+                                                                      }
+                                                            },
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'line_name' => 'w6',
+                                    'ratios' => '60',
+                                    'sof_file' => '/mpsoc_work/simulate/line_w6',
+                                    'worst_delay_sent_result' => {
+                                                                   '60' => {
+                                                                             '3' => '609',
+                                                                             '1' => '720',
+                                                                             '9' => '558',
+                                                                             '5' => '567',
+                                                                             '8' => '544',
+                                                                             '6' => '552',
+                                                                             '11' => '566',
+                                                                             '13' => '725',
+                                                                             '7' => '543',
+                                                                             '0' => '727',
+                                                                             '12' => '605',
+                                                                             '10' => '568',
+                                                                             '14' => '931',
+                                                                             '15' => '807',
+                                                                             '4' => '592',
+                                                                             '2' => '656'
+                                                                           }
+                                                                 },
+                                    'latency_ratio_result' => {
+                                                                '60' => ' 580.197291'
+                                                              },
+                                    'status' => 'done',
+                                    'traffic' => 'transposed 1',
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'worst_delay_rsvd_result' => {
+                                                                   '60' => {
+                                                                             '6' => '558',
+                                                                             '8' => '543',
+                                                                             '11' => '592',
+                                                                             '13' => '656',
+                                                                             '3' => '605',
+                                                                             '1' => '931',
+                                                                             '9' => '552',
+                                                                             '5' => '568',
+                                                                             '15' => '727',
+                                                                             '4' => '566',
+                                                                             '2' => '725',
+                                                                             '7' => '544',
+                                                                             '0' => '807',
+                                                                             '12' => '609',
+                                                                             '10' => '567',
+                                                                             '14' => '720'
+                                                                           }
+                                                                 }
+                                  },
+                     'sim_param' => {
+                                      'SAVE_NAME' => 'line_wrra',
+                                      'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate'
+                                    },
+                     'emulation_column' => {
+                                             'va' => '0',
+                                             'ha' => '0'
+                                           },
+                     'packet_param' => {
+                                         'legend_placement' => 'BL',
+                                         'legend_font' => 'MediumBold',
+                                         'Y_Title' => 'Received Packet Per Router',
+                                         'X_MAX' => 100,
+                                         'Y_MIN' => 0,
+                                         'X_MIN' => 0,
+                                         'X_Title' => 'Core ID',
+                                         'LINEw' => 3,
+                                         'x_axis_font' => 'MediumBold',
+                                         'label_font' => 'MediumBold'
+                                       },
+                     'sample8' => {
+                                    'HOTSPOT_CORE_1' => 0,
+                                    'noc_info' => {
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'V' => '2',
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'NX' => 16,
+                                                    'WEIGHTw' => '4',
+                                                    'B' => '4',
+                                                    'WRRA_CONFIG_INDEX' => 2,
+                                                    'NY' => 1,
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'SSA_EN' => '"NO"',
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'Fpay' => '32',
+                                                    'TOPOLOGY' => '"LINE"',
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'C' => 0,
+                                                    'DEBUG_EN' => '0',
+                                                    'SWA_ARBITER_TYPE' => '"WRRA"',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'ROUTE_SUBFUNC' => '"XY"'
+                                                  },
+                                    'HOTSPOT_PERCENTAGE' => 100,
+                                    'HOTSPOT_SEND' => '0',
+                                    'PCK_SIZE' => 4,
+                                    'latency_result' => {
+                                                          '60' => ' 579.328291'
+                                                        },
+                                    'HOTSPOT_NUM' => 1,
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'color' => 8,
+                                    'packet_sent_result' => {
+                                                              '60' => {
+                                                                        '0' => '3122',
+                                                                        '7' => '3129',
+                                                                        '12' => '3127',
+                                                                        '10' => '3134',
+                                                                        '14' => '3114',
+                                                                        '15' => '3114',
+                                                                        '4' => '3130',
+                                                                        '2' => '3124',
+                                                                        '1' => '3117',
+                                                                        '3' => '3125',
+                                                                        '9' => '3133',
+                                                                        '5' => '3126',
+                                                                        '6' => '3137',
+                                                                        '8' => '3143',
+                                                                        '11' => '3127',
+                                                                        '13' => '3114'
+                                                                      }
+                                                            },
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'packet_rsvd_result' => {
+                                                              '60' => {
+                                                                        '4' => '3125',
+                                                                        '2' => '3111',
+                                                                        '15' => '3117',
+                                                                        '10' => '3125',
+                                                                        '14' => '3114',
+                                                                        '7' => '3142',
+                                                                        '0' => '3109',
+                                                                        '12' => '3123',
+                                                                        '11' => '3128',
+                                                                        '13' => '3121',
+                                                                        '8' => '3128',
+                                                                        '6' => '3131',
+                                                                        '9' => '3135',
+                                                                        '5' => '3133',
+                                                                        '3' => '3125',
+                                                                        '1' => '3110'
+                                                                      }
+                                                            },
+                                    'line_name' => 'prposed 2',
+                                    'ratios' => '60',
+                                    'throughput_result' => {
+                                                             '60' => ' 12.501875 '
+                                                           },
+                                    'worst_delay_sent_result' => {
+                                                                   '60' => {
+                                                                             '2' => '680',
+                                                                             '4' => '565',
+                                                                             '15' => '926',
+                                                                             '14' => '876',
+                                                                             '10' => '577',
+                                                                             '12' => '587',
+                                                                             '0' => '875',
+                                                                             '7' => '542',
+                                                                             '13' => '775',
+                                                                             '11' => '567',
+                                                                             '8' => '544',
+                                                                             '6' => '549',
+                                                                             '5' => '559',
+                                                                             '9' => '557',
+                                                                             '1' => '748',
+                                                                             '3' => '574'
+                                                                           }
+                                                                 },
+                                    'sof_file' => '/mpsoc_work/simulate/line_w2',
+                                    'status' => 'done',
+                                    'traffic' => 'hot spot',
+                                    'exe_time_result' => {
+                                                           '60' => '100000'
+                                                         },
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'worst_delay_rsvd_result' => {
+                                                                   '60' => {
+                                                                             '15' => '875',
+                                                                             '4' => '567',
+                                                                             '2' => '775',
+                                                                             '0' => '926',
+                                                                             '7' => '544',
+                                                                             '12' => '574',
+                                                                             '10' => '559',
+                                                                             '14' => '748',
+                                                                             '6' => '557',
+                                                                             '8' => '542',
+                                                                             '11' => '565',
+                                                                             '13' => '680',
+                                                                             '1' => '876',
+                                                                             '3' => '587',
+                                                                             '9' => '549',
+                                                                             '5' => '577'
+                                                                           }
+                                                                 }
+                                  },
+                     'simulate_name' => 'line_transpo',
+                     'graph_scale' => 5,
+                     'latency_ratio_param' => {
+                                                'X_MAX' => 100,
+                                                'X_MIN' => 0,
+                                                'Y_MIN' => 0,
+                                                'legend_placement' => 'BL',
+                                                'legend_font' => 'MediumBold',
+                                                'Y_Title' => 'Latency (clock)',
+                                                'LINEw' => 3,
+                                                'x_axis_font' => 'MediumBold',
+                                                'label_font' => 'MediumBold',
+                                                'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))'
+                                              },
+                     'status' => 'ideal',
+                     'sample2' => {
+                                    'traffic' => 'transposed 1',
+                                    'status' => 'done',
+                                    'MAX_PCK_SIZE' => 5,
+                                    'exe_time_result' => {
+                                                           '50' => '100000',
+                                                           '100' => '100000',
+                                                           '60' => '100000'
+                                                         },
+                                    'sof_path' => '/home/alireza/mywork/mpsoc_work/simulate',
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'worst_delay_rsvd_result' => {
+                                                                   '50' => {
+                                                                           '1' => '883',
+                                                                           '3' => '823',
+                                                                           '9' => '769',
+                                                                           '5' => '782',
+                                                                           '6' => '767',
+                                                                           '8' => '389',
+                                                                           '11' => '790',
+                                                                           '13' => '844',
+                                                                           '7' => '389',
+                                                                           '0' => '953',
+                                                                           '12' => '821',
+                                                                           '10' => '776',
+                                                                           '14' => '893',
+                                                                           '15' => '981',
+                                                                           '4' => '795',
+                                                                           '2' => '823'
+                                                                         },
+                                                                   '60' => {
+                                                                             '11' => '765',
+                                                                             '13' => '803',
+                                                                             '8' => '500',
+                                                                             '6' => '767',
+                                                                             '9' => '735',
+                                                                             '5' => '779',
+                                                                             '3' => '819',
+                                                                             '1' => '934',
+                                                                             '4' => '809',
+                                                                             '2' => '853',
+                                                                             '15' => '923',
+                                                                             '10' => '737',
+                                                                             '14' => '847',
+                                                                             '7' => '391',
+                                                                             '0' => '978',
+                                                                             '12' => '763'
+                                                                           },
+                                                                   '100' => {
+                                                                            '0' => '1074',
+                                                                            '7' => '394',
+                                                                            '12' => '773',
+                                                                            '10' => '740',
+                                                                            '14' => '851',
+                                                                            '15' => '926',
+                                                                            '4' => '814',
+                                                                            '2' => '848',
+                                                                            '3' => '824',
+                                                                            '1' => '1001',
+                                                                            '9' => '738',
+                                                                            '5' => '797',
+                                                                            '8' => '506',
+                                                                            '6' => '782',
+                                                                            '11' => '768',
+                                                                            '13' => '806'
+                                                                          }
+                                                                 },
+                                    'line_name' => 'proposed',
+                                    'MIN_PCK_SIZE' => 5,
+                                    'throughput_result' => {
+                                                             '60' => ' 12.505688 ',
+                                                             '100' => ' 12.506063 ',
+                                                             '50' => ' 12.505812 '
+                                                           },
+                                    'ratios' => '100',
+                                    'HOTSPOT_PERCENT_0' => '0.1',
+                                    'latency_ratio_result' => {
+                                                                '60' => ' 579.328291'
+                                                              },
+                                    'sof_file' => 'line_wrra',
+                                    'worst_delay_sent_result' => {
+                                                                   '50' => {
+                                                                           '5' => '776',
+                                                                           '9' => '767',
+                                                                           '1' => '893',
+                                                                           '3' => '821',
+                                                                           '13' => '823',
+                                                                           '11' => '795',
+                                                                           '6' => '769',
+                                                                           '8' => '389',
+                                                                           '14' => '883',
+                                                                           '10' => '782',
+                                                                           '12' => '823',
+                                                                           '7' => '389',
+                                                                           '0' => '981',
+                                                                           '2' => '844',
+                                                                           '4' => '790',
+                                                                           '15' => '953'
+                                                                         },
+                                                                   '100' => {
+                                                                            '2' => '806',
+                                                                            '4' => '768',
+                                                                            '15' => '1074',
+                                                                            '14' => '1001',
+                                                                            '10' => '797',
+                                                                            '12' => '824',
+                                                                            '0' => '926',
+                                                                            '7' => '506',
+                                                                            '13' => '848',
+                                                                            '11' => '814',
+                                                                            '8' => '394',
+                                                                            '6' => '738',
+                                                                            '5' => '740',
+                                                                            '9' => '782',
+                                                                            '3' => '773',
+                                                                            '1' => '851'
+                                                                          },
+                                                                   '60' => {
+                                                                             '4' => '765',
+                                                                             '2' => '803',
+                                                                             '15' => '978',
+                                                                             '10' => '779',
+                                                                             '14' => '934',
+                                                                             '0' => '923',
+                                                                             '7' => '500',
+                                                                             '12' => '819',
+                                                                             '11' => '809',
+                                                                             '13' => '853',
+                                                                             '8' => '391',
+                                                                             '6' => '735',
+                                                                             '9' => '767',
+                                                                             '5' => '737',
+                                                                             '3' => '763',
+                                                                             '1' => '847'
+                                                                           }
+                                                                 },
+                                    'color' => 4,
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'throughput_ratio_result' => {
+                                                                   '60' => ' 12.501875 '
+                                                                 },
+                                    'packet_sent_result' => {
+                                                              '60' => {
+                                                                        '2' => '2356',
+                                                                        '4' => '2357',
+                                                                        '15' => '2221',
+                                                                        '14' => '2224',
+                                                                        '10' => '2228',
+                                                                        '12' => '2228',
+                                                                        '7' => '3527',
+                                                                        '0' => '2359',
+                                                                        '13' => '2219',
+                                                                        '11' => '2222',
+                                                                        '8' => '4445',
+                                                                        '6' => '2357',
+                                                                        '5' => '2353',
+                                                                        '9' => '2223',
+                                                                        '3' => '2353',
+                                                                        '1' => '2352'
+                                                                      },
+                                                              '100' => {
+                                                                       '14' => '2223',
+                                                                       '10' => '2229',
+                                                                       '12' => '2227',
+                                                                       '0' => '2359',
+                                                                       '7' => '3527',
+                                                                       '2' => '2356',
+                                                                       '4' => '2357',
+                                                                       '15' => '2220',
+                                                                       '5' => '2353',
+                                                                       '9' => '2224',
+                                                                       '1' => '2352',
+                                                                       '3' => '2353',
+                                                                       '13' => '2220',
+                                                                       '11' => '2222',
+                                                                       '6' => '2357',
+                                                                       '8' => '4447'
+                                                                     },
+                                                              '50' => {
+                                                                      '7' => '4441',
+                                                                      '0' => '2227',
+                                                                      '12' => '2227',
+                                                                      '10' => '2227',
+                                                                      '14' => '2224',
+                                                                      '15' => '2221',
+                                                                      '4' => '2226',
+                                                                      '2' => '2227',
+                                                                      '1' => '2222',
+                                                                      '3' => '2222',
+                                                                      '9' => '2223',
+                                                                      '5' => '2223',
+                                                                      '8' => '4446',
+                                                                      '6' => '2226',
+                                                                      '11' => '2222',
+                                                                      '13' => '2221'
+                                                                    }
+                                                            },
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'packet_rsvd_result' => {
+                                                              '60' => {
+                                                                        '4' => '2220',
+                                                                        '2' => '2217',
+                                                                        '15' => '2354',
+                                                                        '10' => '2351',
+                                                                        '14' => '2347',
+                                                                        '7' => '4444',
+                                                                        '0' => '2215',
+                                                                        '12' => '2351',
+                                                                        '11' => '2355',
+                                                                        '13' => '2353',
+                                                                        '6' => '2222',
+                                                                        '8' => '3525',
+                                                                        '9' => '2356',
+                                                                        '5' => '2227',
+                                                                        '3' => '2226',
+                                                                        '1' => '2220'
+                                                                      },
+                                                              '100' => {
+                                                                       '15' => '2354',
+                                                                       '2' => '2218',
+                                                                       '4' => '2220',
+                                                                       '12' => '2351',
+                                                                       '7' => '4445',
+                                                                       '0' => '2214',
+                                                                       '14' => '2347',
+                                                                       '10' => '2351',
+                                                                       '8' => '3525',
+                                                                       '6' => '2222',
+                                                                       '13' => '2353',
+                                                                       '11' => '2355',
+                                                                       '3' => '2224',
+                                                                       '1' => '2219',
+                                                                       '5' => '2228',
+                                                                       '9' => '2356'
+                                                                     },
+                                                              '50' => {
+                                                                      '3' => '2225',
+                                                                      '1' => '2220',
+                                                                      '5' => '2225',
+                                                                      '9' => '2224',
+                                                                      '6' => '2222',
+                                                                      '8' => '4439',
+                                                                      '13' => '2224',
+                                                                      '11' => '2224',
+                                                                      '12' => '2220',
+                                                                      '7' => '4444',
+                                                                      '0' => '2215',
+                                                                      '14' => '2218',
+                                                                      '10' => '2222',
+                                                                      '15' => '2222',
+                                                                      '2' => '2218',
+                                                                      '4' => '2220'
+                                                                    }
+                                                            },
+                                    'HOTSPOT_CORE_1' => 0,
+                                    'HOTSPOT_PERCENTAGE' => 100,
+                                    'noc_info' => {
+                                                    'Fpay' => '32',
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'SSA_EN' => '"NO"',
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'NY' => 1,
+                                                    'WRRA_CONFIG_INDEX' => 7,
+                                                    'WEIGHTw' => 4,
+                                                    'B' => '4',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'SWA_ARBITER_TYPE' => '"WRRA"',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'C' => 0,
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'DEBUG_EN' => '0',
+                                                    'TOPOLOGY' => '"LINE"',
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'V' => '2',
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'NX' => 16
+                                                  },
+                                    'HOTSPOT_SEND' => '0',
+                                    'HOTSPOT_CORE_0' => 0,
+                                    'PCK_SIZE' => '5',
+                                    'latency_result' => {
+                                                          '100' => ' 734.787229',
+                                                          '60' => ' 731.407873',
+                                                          '50' => ' 729.706468'
+                                                        },
+                                    'HOTSPOT_SEND_EN_0' => 0,
+                                    'HOTSPOT_NUM' => 1
+                                  },
+                     'P1Sent_param' => {
+                                         'label_font' => 'MediumBold',
+                                         'x_axis_font' => 'MediumBold',
+                                         'LINEw' => 3,
+                                         'X_Title' => 'Core ID',
+                                         'X_MIN' => 0,
+                                         'Y_MIN' => 0,
+                                         'X_MAX' => 100,
+                                         'Y_Title' => 'Sent Packets Per Router',
+                                         'legend_font' => 'MediumBold',
+                                         'legend_placement' => 'BL'
+                                       },
+                     'fpga_param' => {
+                                       'TIMSTMP_FIFO_NUM' => 16
+                                     },
+                     'worst_delay_param' => {
+                                              'X_Title' => 'Core ID',
+                                              'label_font' => 'MediumBold',
+                                              'x_axis_font' => 'MediumBold',
+                                              'LINEw' => 3,
+                                              'legend_font' => 'MediumBold',
+                                              'Y_Title' => 'Worst-Case Delay (clk)',
+                                              'legend_placement' => 'BL',
+                                              'Y_MIN' => 0,
+                                              'X_MIN' => 0,
+                                              'X_MAX' => 100
+                                            },
+                     'noc_param' => {
+                                      'SWA_ARBITER_TYPE' => '"WRRA"',
+                                      'ROUTE_SUBFUNC' => '"XY"',
+                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                      'C' => 0,
+                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                      'FIRST_ARBITER_EXT_P_EN' => 1,
+                                      'ESCAP_VC_MASK' => '2\'b01',
+                                      'DEBUG_EN' => '0',
+                                      'TOPOLOGY' => '"LINE"',
+                                      'SSA_EN' => '"NO"',
+                                      'Fpay' => '32',
+                                      'CONGESTION_INDEX' => 3,
+                                      'NY' => 1,
+                                      'ROUTE_NAME' => '"XY"',
+                                      'B' => '4',
+                                      'WEIGHTw' => 4,
+                                      'WRRA_CONFIG_INDEX' => 7,
+                                      'NX' => 16,
+                                      'MUX_TYPE' => '"BINARY"',
+                                      'V' => '2',
+                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                      'AVC_ATOMIC_EN' => 0
+                                    },
+                     'P1Received_param' => {
+                                             'label_font' => 'MediumBold',
+                                             'LINEw' => 3,
+                                             'x_axis_font' => 'MediumBold',
+                                             'X_Title' => 'Core ID',
+                                             'Y_MIN' => 0,
+                                             'X_MIN' => 0,
+                                             'X_MAX' => 100,
+                                             'Y_Title' => 'Received Packets Per Router',
+                                             'legend_font' => 'MediumBold',
+                                             'legend_placement' => 'BL'
+                                           },
+                     'P0Throughput_param' => {
+                                               'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                               'label_font' => 'MediumBold',
+                                               'x_axis_font' => 'MediumBold',
+                                               'LINEw' => 3,
+                                               'Y_Title' => 'Avg. Throughput (flits/clock (%))',
+                                               'legend_font' => 'MediumBold',
+                                               'legend_placement' => 'BL',
+                                               'Y_MIN' => 0,
+                                               'X_MIN' => 0,
+                                               'X_MAX' => 100
+                                             },
+                     'sample3' => {
+                                    'PCK_SIZE' => 4,
+                                    'noc_info' => {
+                                                    'WEIGHTw' => '4',
+                                                    'B' => '4',
+                                                    'WRRA_CONFIG_INDEX' => 3,
+                                                    'NY' => 1,
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'SSA_EN' => '"NO"',
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'Fpay' => '32',
+                                                    'TOPOLOGY' => '"LINE"',
+                                                    'DEBUG_EN' => '0',
+                                                    'C' => 0,
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'SWA_ARBITER_TYPE' => '"WRRA"',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'V' => '2',
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'NX' => 16
+                                                  },
+                                    'packet_sent_result' => {
+                                                              '60' => {
+                                                                        '4' => '3129',
+                                                                        '2' => '3123',
+                                                                        '15' => '3105',
+                                                                        '10' => '3137',
+                                                                        '14' => '3108',
+                                                                        '0' => '3124',
+                                                                        '7' => '3132',
+                                                                        '12' => '3131',
+                                                                        '11' => '3125',
+                                                                        '13' => '3108',
+                                                                        '6' => '3141',
+                                                                        '8' => '3152',
+                                                                        '9' => '3139',
+                                                                        '5' => '3128',
+                                                                        '3' => '3119',
+                                                                        '1' => '3114'
+                                                                      }
+                                                            },
+                                    'color' => 5,
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'throughput_ratio_result' => {
+                                                                   '60' => ' 12.501812 '
+                                                                 },
+                                    'packet_rsvd_result' => {
+                                                              '60' => {
+                                                                        '9' => '3139',
+                                                                        '5' => '3136',
+                                                                        '1' => '3104',
+                                                                        '3' => '3129',
+                                                                        '11' => '3128',
+                                                                        '13' => '3121',
+                                                                        '6' => '3137',
+                                                                        '8' => '3131',
+                                                                        '10' => '3126',
+                                                                        '14' => '3110',
+                                                                        '0' => '3100',
+                                                                        '7' => '3151',
+                                                                        '12' => '3116',
+                                                                        '4' => '3123',
+                                                                        '2' => '3105',
+                                                                        '15' => '3119'
+                                                                      }
+                                                            },
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'ratios' => '60',
+                                    'line_name' => 'w3',
+                                    'worst_delay_sent_result' => {
+                                                                   '60' => {
+                                                                             '9' => '549',
+                                                                             '5' => '557',
+                                                                             '3' => '668',
+                                                                             '1' => '856',
+                                                                             '11' => '590',
+                                                                             '13' => '799',
+                                                                             '6' => '549',
+                                                                             '8' => '544',
+                                                                             '10' => '585',
+                                                                             '14' => '962',
+                                                                             '7' => '544',
+                                                                             '0' => '839',
+                                                                             '12' => '595',
+                                                                             '4' => '568',
+                                                                             '2' => '693',
+                                                                             '15' => '1008'
+                                                                           }
+                                                                 },
+                                    'sof_file' => '/mpsoc_work/simulate/line_w3',
+                                    'latency_ratio_result' => {
+                                                                '60' => ' 580.877319'
+                                                              },
+                                    'status' => 'done',
+                                    'traffic' => 'transposed 1',
+                                    'worst_delay_rsvd_result' => {
+                                                                   '60' => {
+                                                                             '13' => '693',
+                                                                             '11' => '568',
+                                                                             '6' => '549',
+                                                                             '8' => '544',
+                                                                             '5' => '585',
+                                                                             '9' => '549',
+                                                                             '3' => '595',
+                                                                             '1' => '962',
+                                                                             '2' => '799',
+                                                                             '4' => '590',
+                                                                             '15' => '839',
+                                                                             '14' => '856',
+                                                                             '10' => '557',
+                                                                             '12' => '668',
+                                                                             '0' => '1008',
+                                                                             '7' => '544'
+                                                                           }
+                                                                 },
+                                    'TRAFFIC_TYPE' => 'Synthetic'
+                                  },
+                     'sample1' => {
+                                    'PCK_SIZE' => 4,
+                                    'noc_info' => {
+                                                    'SWA_ARBITER_TYPE' => '"WRRA"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'C' => 0,
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'DEBUG_EN' => '0',
+                                                    'TOPOLOGY' => '"LINE"',
+                                                    'SSA_EN' => '"NO"',
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'Fpay' => '32',
+                                                    'NY' => 1,
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'B' => '4',
+                                                    'WEIGHTw' => '4',
+                                                    'WRRA_CONFIG_INDEX' => 1,
+                                                    'NX' => 16,
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'V' => '2',
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'AVC_ATOMIC_EN' => 0
+                                                  },
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'packet_rsvd_result' => {
+                                                              '60' => {
+                                                                        '15' => '3121',
+                                                                        '2' => '3022',
+                                                                        '4' => '3029',
+                                                                        '12' => '3122',
+                                                                        '0' => '3020',
+                                                                        '7' => '3039',
+                                                                        '14' => '3112',
+                                                                        '10' => '3124',
+                                                                        '6' => '3031',
+                                                                        '8' => '3126',
+                                                                        '13' => '3124',
+                                                                        '11' => '3130',
+                                                                        '3' => '3032',
+                                                                        '1' => '3025',
+                                                                        '5' => '3034',
+                                                                        '9' => '3131'
+                                                                      }
+                                                            },
+                                    'throughput_ratio_result' => {
+                                                                   '60' => ' 12.313000 '
+                                                                 },
+                                    'color' => 0,
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'packet_sent_result' => {
+                                                              '60' => {
+                                                                        '9' => '3032',
+                                                                        '5' => '3125',
+                                                                        '1' => '3115',
+                                                                        '3' => '3124',
+                                                                        '11' => '3031',
+                                                                        '13' => '3025',
+                                                                        '8' => '3040',
+                                                                        '6' => '3132',
+                                                                        '10' => '3035',
+                                                                        '14' => '3028',
+                                                                        '7' => '3127',
+                                                                        '0' => '3127',
+                                                                        '12' => '3034',
+                                                                        '4' => '3132',
+                                                                        '2' => '3127',
+                                                                        '15' => '3026'
+                                                                      }
+                                                            },
+                                    'latency_ratio_result' => {
+                                                                '60' => ' 589.758238'
+                                                              },
+                                    'worst_delay_sent_result' => {
+                                                                   '60' => {
+                                                                             '12' => '600',
+                                                                             '7' => '544',
+                                                                             '0' => '773',
+                                                                             '14' => '698',
+                                                                             '10' => '575',
+                                                                             '15' => '747',
+                                                                             '2' => '618',
+                                                                             '4' => '562',
+                                                                             '3' => '597',
+                                                                             '1' => '807',
+                                                                             '5' => '555',
+                                                                             '9' => '567',
+                                                                             '8' => '563',
+                                                                             '6' => '548',
+                                                                             '13' => '644',
+                                                                             '11' => '586'
+                                                                           }
+                                                                 },
+                                    'sof_file' => '/mpsoc_work/simulate/line_w1',
+                                    'ratios' => '60',
+                                    'line_name' => 'w1',
+                                    'worst_delay_rsvd_result' => {
+                                                                   '60' => {
+                                                                             '13' => '618',
+                                                                             '11' => '562',
+                                                                             '6' => '567',
+                                                                             '8' => '544',
+                                                                             '5' => '575',
+                                                                             '9' => '548',
+                                                                             '1' => '698',
+                                                                             '3' => '600',
+                                                                             '2' => '644',
+                                                                             '4' => '586',
+                                                                             '15' => '773',
+                                                                             '14' => '807',
+                                                                             '10' => '555',
+                                                                             '12' => '597',
+                                                                             '0' => '747',
+                                                                             '7' => '563'
+                                                                           }
+                                                                 },
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'status' => 'done',
+                                    'traffic' => 'transposed 1'
+                                  },
+                     'P2Received' => {
+                                       'ratio' => '100',
+                                       'type' => '3D_bar',
+                                       'dimention' => '3D'
+                                     },
+                     'worst_delay' => {
+                                        'ratio' => '60',
+                                        'type' => '3D_bar',
+                                        'direction' => 'Received',
+                                        'dimention' => '3D'
+                                      },
+                     'id' => 9,
+                     'parameters_order' => {
+                                             'noc_type' => [
+                                                             'ROUTER_TYPE'
+                                                           ],
+                                             'samples' => [
+                                                            'sample0',
+                                                            'sample2'
+                                                          ],
+                                             'sample6' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sim_param' => [
+                                                              'SAVE_NAME',
+                                                              'BIN_DIR'
+                                                            ],
+                                             'noc_param' => [
+                                                              'TOPOLOGY',
+                                                              'NX',
+                                                              'NY',
+                                                              'V',
+                                                              'B',
+                                                              'Fpay',
+                                                              'ROUTE_NAME',
+                                                              'SSA_EN',
+                                                              'CONGESTION_INDEX',
+                                                              'ESCAP_VC_MASK',
+                                                              'VC_REALLOCATION_TYPE',
+                                                              'COMBINATION_TYPE',
+                                                              'MUX_TYPE',
+                                                              'C',
+                                                              'DEBUG_EN',
+                                                              'ADD_PIPREG_AFTER_CROSSBAR',
+                                                              'FIRST_ARBITER_EXT_P_EN',
+                                                              'SWA_ARBITER_TYPE',
+                                                              'WEIGHTw',
+                                                              'WRRA_CONFIG_INDEX',
+                                                              'AVC_ATOMIC_EN',
+                                                              'ROUTE_SUBFUNC'
+                                                            ],
+                                             'sample7' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sample8' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT',
+                                                            'HOTSPOT_NUM',
+                                                            'HOTSPOT_PERCENTAGE',
+                                                            'HOTSPOT_SEND',
+                                                            'HOTSPOT_CORE_1'
+                                                          ],
+                                             'sample4' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sample1' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sample3' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sample5' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sample2' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT',
+                                                            'HOTSPOT_NUM',
+                                                            'HOTSPOT_PERCENTAGE',
+                                                            'HOTSPOT_SEND',
+                                                            'HOTSPOT_CORE_1',
+                                                            'MIN_PCK_SIZE',
+                                                            'MAX_PCK_SIZE'
+                                                          ],
+                                             'sample0' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT',
+                                                            'HOTSPOT_NUM',
+                                                            'HOTSPOT_PERCENTAGE',
+                                                            'HOTSPOT_SEND',
+                                                            'HOTSPOT_CORE_1',
+                                                            'MIN_PCK_SIZE',
+                                                            'MAX_PCK_SIZE'
+                                                          ],
+                                             '{P0Latency}_param' => [
+                                                                      'legend_font'
+                                                                    ],
+                                             'fpga_param' => [
+                                                               'TIMSTMP_FIFO_NUM'
+                                                             ]
+                                           },
+                     'noc_type' => {
+                                     'ROUTER_TYPE' => '"VC_BASED"'
+                                   },
+                     'samples' => undef,
+                     'packet' => {
+                                   'dimention' => '3D',
+                                   'type' => '3D_bar',
+                                   'direction' => 'Received',
+                                   'ratio' => '60'
+                                 },
+                     'sample4' => {
+                                    'packet_sent_result' => {
+                                                              '60' => {
+                                                                        '0' => '3130',
+                                                                        '7' => '3124',
+                                                                        '12' => '3128',
+                                                                        '10' => '3129',
+                                                                        '14' => '3127',
+                                                                        '15' => '3122',
+                                                                        '4' => '3129',
+                                                                        '2' => '3128',
+                                                                        '3' => '3124',
+                                                                        '1' => '3122',
+                                                                        '9' => '3125',
+                                                                        '5' => '3125',
+                                                                        '6' => '3129',
+                                                                        '8' => '3131',
+                                                                        '11' => '3123',
+                                                                        '13' => '3122'
+                                                                      }
+                                                            },
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'throughput_ratio_result' => {
+                                                                   '60' => ' 12.502500 '
+                                                                 },
+                                    'color' => 6,
+                                    'packet_rsvd_result' => {
+                                                              '60' => {
+                                                                        '11' => '3127',
+                                                                        '13' => '3125',
+                                                                        '6' => '3124',
+                                                                        '8' => '3123',
+                                                                        '9' => '3128',
+                                                                        '5' => '3127',
+                                                                        '3' => '3126',
+                                                                        '1' => '3123',
+                                                                        '4' => '3121',
+                                                                        '2' => '3119',
+                                                                        '15' => '3125',
+                                                                        '10' => '3123',
+                                                                        '14' => '3118',
+                                                                        '7' => '3130',
+                                                                        '0' => '3117',
+                                                                        '12' => '3122'
+                                                                      }
+                                                            },
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'PCK_SIZE' => 4,
+                                    'noc_info' => {
+                                                    'NX' => 16,
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'V' => '2',
+                                                    'TOPOLOGY' => '"LINE"',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'SWA_ARBITER_TYPE' => '"WRRA"',
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'DEBUG_EN' => '0',
+                                                    'C' => 0,
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'NY' => 1,
+                                                    'WRRA_CONFIG_INDEX' => 4,
+                                                    'WEIGHTw' => '4',
+                                                    'B' => '4',
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'Fpay' => '32',
+                                                    'SSA_EN' => '"NO"'
+                                                  },
+                                    'traffic' => 'transposed 1',
+                                    'status' => 'done',
+                                    'worst_delay_rsvd_result' => {
+                                                                   '60' => {
+                                                                             '4' => '566',
+                                                                             '2' => '591',
+                                                                             '15' => '688',
+                                                                             '10' => '555',
+                                                                             '14' => '626',
+                                                                             '7' => '542',
+                                                                             '0' => '675',
+                                                                             '12' => '590',
+                                                                             '11' => '569',
+                                                                             '13' => '613',
+                                                                             '6' => '548',
+                                                                             '8' => '543',
+                                                                             '9' => '552',
+                                                                             '5' => '550',
+                                                                             '3' => '587',
+                                                                             '1' => '643'
+                                                                           }
+                                                                 },
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'ratios' => '60',
+                                    'line_name' => 'w4',
+                                    'worst_delay_sent_result' => {
+                                                                   '60' => {
+                                                                             '14' => '643',
+                                                                             '10' => '550',
+                                                                             '12' => '587',
+                                                                             '0' => '688',
+                                                                             '7' => '543',
+                                                                             '2' => '613',
+                                                                             '4' => '569',
+                                                                             '15' => '675',
+                                                                             '5' => '555',
+                                                                             '9' => '548',
+                                                                             '3' => '590',
+                                                                             '1' => '626',
+                                                                             '13' => '591',
+                                                                             '11' => '566',
+                                                                             '8' => '542',
+                                                                             '6' => '552'
+                                                                           }
+                                                                 },
+                                    'latency_ratio_result' => {
+                                                                '60' => ' 579.012205'
+                                                              },
+                                    'sof_file' => '/mpsoc_work/simulate/line_w4'
+                                  },
+                     'P2' => {
+                               'active' => 'Received'
+                             },
+                     'P0Latency' => {
+                                      'type' => '2D_line'
+                                    },
+                     'P0Throughput' => {
+                                         'type' => '2D_line'
+                                       },
+                     'P1' => {
+                               'active' => 'Received'
+                             },
+                     'P1Received' => {
+                                       'ratio' => '100',
+                                       'type' => '3D_bar',
+                                       'dimention' => '3D'
+                                     },
+                     'P2Received_param' => {
+                                             'X_Title' => 'Core ID',
+                                             'label_font' => 'MediumBold',
+                                             'x_axis_font' => 'MediumBold',
+                                             'LINEw' => 3,
+                                             'Y_Title' => 'Worst-Case Delay (clk)',
+                                             'legend_font' => 'MediumBold',
+                                             'legend_placement' => 'BL',
+                                             'Y_MIN' => 0,
+                                             'X_MIN' => 0,
+                                             'X_MAX' => 100
+                                           },
+                     'no_name' => {},
+                     'P1Sent' => {
+                                   'type' => '3D_bar',
+                                   'ratio' => '60',
+                                   'dimention' => '3D'
+                                 },
+                     'sample0' => {
+                                    'line_name' => 'rra',
+                                    'throughput_result' => {
+                                                             '60' => ' 12.507000 '
+                                                           },
+                                    'ratios' => '60',
+                                    'MIN_PCK_SIZE' => 5,
+                                    'worst_delay_sent_result' => {
+                                                                   '60' => {
+                                                                             '13' => '6149',
+                                                                             '11' => '1545',
+                                                                             '6' => '362',
+                                                                             '8' => '171',
+                                                                             '5' => '747',
+                                                                             '9' => '362',
+                                                                             '3' => '3026',
+                                                                             '1' => '12507',
+                                                                             '2' => '6149',
+                                                                             '4' => '1545',
+                                                                             '15' => '13570',
+                                                                             '14' => '12239',
+                                                                             '10' => '747',
+                                                                             '12' => '3026',
+                                                                             '0' => '13705',
+                                                                             '7' => '171'
+                                                                           }
+                                                                 },
+                                    'latency_ratio_result' => {
+                                                                '60' => ' 580.387090'
+                                                              },
+                                    'sof_file' => 'line_rra',
+                                    'HOTSPOT_PERCENT_0' => '0.1',
+                                    'status' => 'done',
+                                    'traffic' => 'transposed 1',
+                                    'MAX_PCK_SIZE' => 5,
+                                    'sof_path' => '/home/alireza/mywork/mpsoc_work/simulate',
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'exe_time_result' => {
+                                                           '60' => '100000'
+                                                         },
+                                    'worst_delay_rsvd_result' => {
+                                                                   '100' => {},
+                                                                   '60' => {
+                                                                             '12' => '3026',
+                                                                             '0' => '13570',
+                                                                             '7' => '171',
+                                                                             '14' => '12507',
+                                                                             '10' => '747',
+                                                                             '15' => '13705',
+                                                                             '2' => '6149',
+                                                                             '4' => '1545',
+                                                                             '1' => '12239',
+                                                                             '3' => '3026',
+                                                                             '5' => '747',
+                                                                             '9' => '362',
+                                                                             '8' => '171',
+                                                                             '6' => '362',
+                                                                             '13' => '6149',
+                                                                             '11' => '1545'
+                                                                           }
+                                                                 },
+                                    'HOTSPOT_CORE_1' => 0,
+                                    'HOTSPOT_SEND' => '0',
+                                    'noc_info' => {
+                                                    'TOPOLOGY' => '"LINE"',
+                                                    'SWA_ARBITER_TYPE' => '"RRA"',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'C' => 0,
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'DEBUG_EN' => '0',
+                                                    'NY' => 1,
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'B' => '4',
+                                                    'WEIGHTw' => 4,
+                                                    'WRRA_CONFIG_INDEX' => 7,
+                                                    'SSA_EN' => '"NO"',
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'Fpay' => '32',
+                                                    'NX' => 16,
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'V' => '2'
+                                                  },
+                                    'HOTSPOT_PERCENTAGE' => 100,
+                                    'HOTSPOT_NUM' => 1,
+                                    'HOTSPOT_SEND_EN_0' => 0,
+                                    'latency_result' => {
+                                                          '60' => ' 723.500088'
+                                                        },
+                                    'PCK_SIZE' => '5',
+                                    'HOTSPOT_CORE_0' => 0,
+                                    'packet_sent_result' => {
+                                                              '60' => {
+                                                                        '14' => '164',
+                                                                        '10' => '2502',
+                                                                        '12' => '630',
+                                                                        '0' => '166',
+                                                                        '7' => '9991',
+                                                                        '2' => '318',
+                                                                        '4' => '1255',
+                                                                        '15' => '159',
+                                                                        '5' => '2499',
+                                                                        '9' => '4996',
+                                                                        '1' => '158',
+                                                                        '3' => '626',
+                                                                        '13' => '313',
+                                                                        '11' => '1251',
+                                                                        '8' => '9998',
+                                                                        '6' => '5003'
+                                                                      }
+                                                            },
+                                    'throughput_ratio_result' => {
+                                                                   '60' => ' 12.503250 '
+                                                                 },
+                                    'color' => 2,
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'packet_rsvd_result' => {
+                                                              '60' => {
+                                                                        '11' => '1252',
+                                                                        '13' => '315',
+                                                                        '8' => '9990',
+                                                                        '6' => '4994',
+                                                                        '9' => '5001',
+                                                                        '5' => '2500',
+                                                                        '1' => '161',
+                                                                        '3' => '627',
+                                                                        '4' => '1248',
+                                                                        '2' => '310',
+                                                                        '15' => '161',
+                                                                        '10' => '2496',
+                                                                        '14' => '155',
+                                                                        '7' => '9996',
+                                                                        '0' => '155',
+                                                                        '12' => '624'
+                                                                      },
+                                                              '100' => {},
+                                                              '50' => {}
+                                                            },
+                                    'PCK_NUM_LIMIT' => 200000
+                                  },
+                     'P3' => {
+                               'active' => '-'
+                             },
+                     'throughput_ratio' => {
+                                             'type' => '2D_line'
+                                           },
+                     'process_notebook' => {
+                                             'currentpage' => 0
+                                           },
+                     'throughput_ratio_param' => {
+                                                   'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                                   'label_font' => 'MediumBold',
+                                                   'LINEw' => 3,
+                                                   'x_axis_font' => 'MediumBold',
+                                                   'Y_Title' => 'Avg. Throughput (flits/clock (%))',
+                                                   'legend_font' => 'MediumBold',
+                                                   'legend_placement' => 'BL',
+                                                   'Y_MIN' => 0,
+                                                   'X_MIN' => 0,
+                                                   'X_MAX' => 100
+                                                 }
+                   }, 'emulator' );

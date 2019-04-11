@@ -1,0 +1,175 @@
+$a23_core = bless( {
+                     'hdl_files' => [
+                                      '/mpsoc/src_processor/amber23/a23_alu.v',
+                                      '/mpsoc/src_processor/amber23/a23_barrel_shift.v',
+                                      '/mpsoc/src_processor/amber23/a23_barrel_shift_fpga.v',
+                                      '/mpsoc/src_processor/amber23/a23_cache.v',
+                                      '/mpsoc/src_processor/amber23/a23_config_defines.vh',
+                                      '/mpsoc/src_processor/amber23/a23_coprocessor.v',
+                                      '/mpsoc/src_processor/amber23/a23_core.v',
+                                      '/mpsoc/src_processor/amber23/a23_decode.v',
+                                      '/mpsoc/src_processor/amber23/a23_decompile.v',
+                                      '/mpsoc/src_processor/amber23/a23_execute.v',
+                                      '/mpsoc/src_processor/amber23/a23_fetch.v',
+                                      '/mpsoc/src_processor/amber23/a23_functions.vh',
+                                      '/mpsoc/src_processor/amber23/a23_localparams.vh',
+                                      '/mpsoc/src_processor/amber23/a23_multiply.v',
+                                      '/mpsoc/src_processor/amber23/a23_ram_register_bank.v',
+                                      '/mpsoc/src_processor/amber23/a23_register_bank.v',
+                                      '/mpsoc/src_processor/amber23/a23_wishbone.v'
+                                    ],
+                     'ip_name' => 'amber23',
+                     'plugs' => {
+                                  'wb_master' => {
+                                                   'wb_master' => {},
+                                                   '0' => {
+                                                            'name' => 'wb_master'
+                                                          },
+                                                   'value' => 1,
+                                                   'type' => 'num'
+                                                 },
+                                  'interrupt_cpu' => {
+                                                       'interrupt_cpu' => {},
+                                                       '0' => {
+                                                                'name' => 'interrupt_cpu'
+                                                              },
+                                                       'value' => 1,
+                                                       'type' => 'num'
+                                                     },
+                                  'enable' => {
+                                                'enable' => {},
+                                                '0' => {
+                                                         'name' => 'enable'
+                                                       },
+                                                'value' => 1,
+                                                'type' => 'num'
+                                              },
+                                  'reset' => {
+                                               'reset' => {},
+                                               '0' => {
+                                                        'name' => 'reset'
+                                                      },
+                                               'value' => 1,
+                                               'type' => 'num'
+                                             },
+                                  'clk' => {
+                                             'clk' => {},
+                                             '0' => {
+                                                      'name' => 'clk'
+                                                    },
+                                             'value' => 1,
+                                             'type' => 'num'
+                                           }
+                                },
+                     'modules' => {
+                                    'a23_core' => {}
+                                  },
+                     'parameters' => {},
+                     'parameters_order' => [],
+                     'ports_order' => [
+                                        'i_clk',
+                                        'i_irq',
+                                        'i_firq',
+                                        'i_system_rdy',
+                                        'o_wb_adr',
+                                        'o_wb_sel',
+                                        'o_wb_we',
+                                        'i_wb_dat',
+                                        'o_wb_dat',
+                                        'o_wb_cyc',
+                                        'o_wb_stb',
+                                        'i_wb_ack',
+                                        'i_wb_err'
+                                      ],
+                     'ports' => {
+                                  'i_firq' => {
+                                                'intfc_port' => 'int_i',
+                                                'intfc_name' => 'plug:interrupt_cpu[0]',
+                                                'range' => '',
+                                                'type' => 'input'
+                                              },
+                                  'i_clk' => {
+                                               'intfc_port' => 'clk_i',
+                                               'intfc_name' => 'plug:clk[0]',
+                                               'range' => '',
+                                               'type' => 'input'
+                                             },
+                                  'o_wb_dat' => {
+                                                  'intfc_port' => 'dat_o',
+                                                  'intfc_name' => 'plug:wb_master[0]',
+                                                  'range' => '31:0',
+                                                  'type' => 'output'
+                                                },
+                                  'i_wb_err' => {
+                                                  'intfc_port' => 'err_i',
+                                                  'intfc_name' => 'plug:wb_master[0]',
+                                                  'range' => '',
+                                                  'type' => 'input'
+                                                },
+                                  'i_wb_ack' => {
+                                                  'intfc_port' => 'ack_i',
+                                                  'intfc_name' => 'plug:wb_master[0]',
+                                                  'range' => '',
+                                                  'type' => 'input'
+                                                },
+                                  'o_wb_adr' => {
+                                                  'intfc_port' => 'adr_o',
+                                                  'intfc_name' => 'plug:wb_master[0]',
+                                                  'range' => '31:0',
+                                                  'type' => 'output'
+                                                },
+                                  'i_wb_dat' => {
+                                                  'intfc_port' => 'dat_i',
+                                                  'intfc_name' => 'plug:wb_master[0]',
+                                                  'range' => '31:0',
+                                                  'type' => 'input'
+                                                },
+                                  'o_wb_sel' => {
+                                                  'intfc_port' => 'sel_o',
+                                                  'intfc_name' => 'plug:wb_master[0]',
+                                                  'range' => '3:0',
+                                                  'type' => 'output'
+                                                },
+                                  'i_irq' => {
+                                               'intfc_port' => 'reset_i',
+                                               'intfc_name' => 'plug:reset[0]',
+                                               'range' => '',
+                                               'type' => 'input'
+                                             },
+                                  'o_wb_we' => {
+                                                 'intfc_port' => 'we_o',
+                                                 'intfc_name' => 'plug:wb_master[0]',
+                                                 'range' => '',
+                                                 'type' => 'output'
+                                               },
+                                  'o_wb_stb' => {
+                                                  'intfc_port' => 'stb_o',
+                                                  'intfc_name' => 'plug:wb_master[0]',
+                                                  'range' => '',
+                                                  'type' => 'output'
+                                                },
+                                  'i_system_rdy' => {
+                                                      'intfc_port' => 'enable_i',
+                                                      'intfc_name' => 'plug:enable[0]',
+                                                      'range' => '',
+                                                      'type' => 'input'
+                                                    },
+                                  'o_wb_cyc' => {
+                                                  'intfc_port' => 'cyc_o',
+                                                  'intfc_name' => 'plug:wb_master[0]',
+                                                  'range' => '',
+                                                  'type' => 'output'
+                                                }
+                                },
+                     'file_name' => '/home/alireza/Mywork/mpsoc/src_processor/amber23/a23_core.v',
+                     'module_name' => 'a23_core',
+                     'unused' => {
+                                   'plug:wb_master[0]' => [
+                                                            'tag_o',
+                                                            'bte_o',
+                                                            'cti_o',
+                                                            'rty_i'
+                                                          ]
+                                 },
+                     'category' => 'Processor'
+                   }, 'ip_gen' );

@@ -1,0 +1,311 @@
+#######################################################################
+##	File: aaaaaa.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.7.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$aaaaaa = bless( {
+                   'no_name' => {},
+                   'latency_ratio_param' => {
+                                              'legend_placement' => 'BL',
+                                              'X_Title' => 'Load per router (flits/clock (%))',
+                                              'Y_Title' => 'Latency (clock)',
+                                              'x_axis_font' => 'MediumBold',
+                                              'legend_font' => 'MediumBold',
+                                              'label_font' => 'MediumBold',
+                                              'Y_MIN' => 0,
+                                              'X_MIN' => 0,
+                                              'LINEw' => 3,
+                                              'X_MAX' => 100
+                                            },
+                   'setting' => {
+                                  'show_noc_setting' => 1,
+                                  'show_adv_setting' => 0,
+                                  'soc_path' => 'lib/soc',
+                                  'show_tile_setting' => 0
+                                },
+                   'file_name' => undef,
+                   'latency_ratio' => {
+                                        'type' => '2D'
+                                      },
+                   'simulate_name' => 'aaaaaa',
+                   'graph_scale' => 5,
+                   'sample0' => {
+                                  'traffic' => 'random',
+                                  'line_name' => 'sample0',
+                                  'PCK_SIZE' => 4,
+                                  'throughput_ratio_result' => {
+                                                                 '5' => ' 4.990000 ',
+                                                                 '10' => ' 9.950000 '
+                                                               },
+                                  'packet_result' => {
+                                                       ' 2' => {
+                                                                 '5' => ' 128',
+                                                                 '10' => ' 248'
+                                                               },
+                                                       ' 3' => {
+                                                                 '5' => ' 134',
+                                                                 '10' => ' 223'
+                                                               },
+                                                       ' 15' => {
+                                                                  '5' => ' 116',
+                                                                  '10' => ' 234'
+                                                                },
+                                                       ' 5' => {
+                                                                 '10' => ' 253',
+                                                                 '5' => ' 118'
+                                                               },
+                                                       ' 6' => {
+                                                                 '5' => ' 122',
+                                                                 '10' => ' 232'
+                                                               },
+                                                       ' 4' => {
+                                                                 '5' => ' 133',
+                                                                 '10' => ' 267'
+                                                               },
+                                                       ' 14' => {
+                                                                  '10' => ' 230',
+                                                                  '5' => ' 132'
+                                                                },
+                                                       ' 1' => {
+                                                                 '10' => ' 259',
+                                                                 '5' => ' 137'
+                                                               },
+                                                       ' 7' => {
+                                                                 '5' => ' 106',
+                                                                 '10' => ' 249'
+                                                               },
+                                                       ' 11' => {
+                                                                  '10' => ' 269',
+                                                                  '5' => ' 118'
+                                                                },
+                                                       ' 9' => {
+                                                                 '10' => ' 231',
+                                                                 '5' => ' 112'
+                                                               },
+                                                       ' 10' => {
+                                                                  '5' => ' 141',
+                                                                  '10' => ' 271'
+                                                                },
+                                                       ' 12' => {
+                                                                  '10' => ' 251',
+                                                                  '5' => ' 123'
+                                                                },
+                                                       ' 13' => {
+                                                                  '5' => ' 122',
+                                                                  '10' => ' 261'
+                                                                },
+                                                       ' 0' => {
+                                                                 '10' => ' 247',
+                                                                 '5' => ' 124'
+                                                               },
+                                                       ' 8' => {
+                                                                 '10' => ' 255',
+                                                                 '5' => ' 130'
+                                                               }
+                                                     },
+                                  'SIM_CLOCK_LIMIT' => 10000,
+                                  'status' => 'done',
+                                  'noc_info' => {
+                                                  'ROUTE_NAME' => '"XY"',
+                                                  'NX' => 16,
+                                                  'DEBUG_EN' => '0',
+                                                  'ESCAP_VC_MASK' => '2\'b01',
+                                                  'B' => '4',
+                                                  'MUX_TYPE' => '"BINARY"',
+                                                  'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                  'Fpay' => '32',
+                                                  'TOPOLOGY' => '"LINE"',
+                                                  'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                  'CONGESTION_INDEX' => 3,
+                                                  'V' => '2',
+                                                  'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                  'ROUTE_SUBFUNC' => '"XY"',
+                                                  'AVC_ATOMIC_EN' => 0,
+                                                  'SWA_ARBITER_TYPE' => '"RRA"',
+                                                  'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                  'NY' => 1,
+                                                  'SSA_EN' => '"NO"',
+                                                  'C' => 0
+                                                },
+                                  'ratios' => '5,10',
+                                  'color' => 2,
+                                  'worst_delay_result' => {
+                                                            ' 10' => {
+                                                                       '10' => ' 31',
+                                                                       '5' => ' 30'
+                                                                     },
+                                                            ' 12' => {
+                                                                       '5' => ' 37',
+                                                                       '10' => ' 39'
+                                                                     },
+                                                            ' 13' => {
+                                                                       '10' => ' 40',
+                                                                       '5' => ' 37'
+                                                                     },
+                                                            ' 0' => {
+                                                                      '5' => ' 38',
+                                                                      '10' => ' 40'
+                                                                    },
+                                                            ' 8' => {
+                                                                      '5' => ' 28',
+                                                                      '10' => ' 26'
+                                                                    },
+                                                            ' 11' => {
+                                                                       '5' => ' 32',
+                                                                       '10' => ' 33'
+                                                                     },
+                                                            ' 9' => {
+                                                                      '5' => ' 28',
+                                                                      '10' => ' 28'
+                                                                    },
+                                                            ' 5' => {
+                                                                      '5' => ' 28',
+                                                                      '10' => ' 28'
+                                                                    },
+                                                            ' 6' => {
+                                                                      '5' => ' 26',
+                                                                      '10' => ' 28'
+                                                                    },
+                                                            ' 4' => {
+                                                                      '10' => ' 32',
+                                                                      '5' => ' 30'
+                                                                    },
+                                                            ' 14' => {
+                                                                       '5' => ' 39',
+                                                                       '10' => ' 43'
+                                                                     },
+                                                            ' 1' => {
+                                                                      '10' => ' 38',
+                                                                      '5' => ' 36'
+                                                                    },
+                                                            ' 7' => {
+                                                                      '10' => ' 26',
+                                                                      '5' => ' 24'
+                                                                    },
+                                                            ' 2' => {
+                                                                      '5' => ' 36',
+                                                                      '10' => ' 36'
+                                                                    },
+                                                            ' 3' => {
+                                                                      '5' => ' 32',
+                                                                      '10' => ' 32'
+                                                                    },
+                                                            ' 15' => {
+                                                                       '5' => ' 40',
+                                                                       '10' => ' 42'
+                                                                     }
+                                                          },
+                                  'PCK_NUM_LIMIT' => 200000,
+                                  'sof_file' => '/mpsoc_work/simulate/line_rra',
+                                  'latency_ratio_result' => {
+                                                              '5' => ' 18.944389',
+                                                              '10' => ' 19.604271'
+                                                            }
+                                },
+                   'parameters_order' => {
+                                           'sim_param' => [
+                                                            'SAVE_NAME',
+                                                            'BIN_DIR'
+                                                          ],
+                                           'samples' => [
+                                                          'sample0'
+                                                        ],
+                                           'sample0' => [
+                                                          'line_name',
+                                                          'traffic',
+                                                          'PCK_SIZE',
+                                                          'PCK_NUM_LIMIT',
+                                                          'SIM_CLOCK_LIMIT'
+                                                        ],
+                                           'noc_type' => [
+                                                           'ROUTER_TYPE'
+                                                         ],
+                                           'noc_param' => [
+                                                            'TOPOLOGY',
+                                                            'NX',
+                                                            'NY',
+                                                            'V',
+                                                            'B',
+                                                            'Fpay',
+                                                            'ROUTE_NAME',
+                                                            'SSA_EN',
+                                                            'CONGESTION_INDEX',
+                                                            'ESCAP_VC_MASK',
+                                                            'VC_REALLOCATION_TYPE',
+                                                            'COMBINATION_TYPE',
+                                                            'MUX_TYPE',
+                                                            'C',
+                                                            'DEBUG_EN',
+                                                            'ADD_PIPREG_AFTER_CROSSBAR',
+                                                            'SWA_ARBITER_TYPE',
+                                                            'FIRST_ARBITER_EXT_P_EN',
+                                                            'AVC_ATOMIC_EN',
+                                                            'ROUTE_SUBFUNC'
+                                                          ]
+                                         },
+                   'noc_type' => {
+                                   'ROUTER_TYPE' => '"VC_BASED"'
+                                 },
+                   'samples' => undef,
+                   'chart_notebook' => {
+                                         'currentpage' => 0
+                                       },
+                   'id' => 1,
+                   'noc_param' => {
+                                    'NY' => ' 2',
+                                    'SSA_EN' => '"NO"',
+                                    'C' => 0,
+                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                    'AVC_ATOMIC_EN' => 0,
+                                    'SWA_ARBITER_TYPE' => '"RRA"',
+                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                    'ROUTE_SUBFUNC' => '"XY"',
+                                    'TOPOLOGY' => '"MESH"',
+                                    'Fpay' => '32',
+                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                    'CONGESTION_INDEX' => 3,
+                                    'V' => '2',
+                                    'MUX_TYPE' => '"BINARY"',
+                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                    'ESCAP_VC_MASK' => '2\'b01',
+                                    'B' => '4',
+                                    'ROUTE_NAME' => '"XY"',
+                                    'NX' => ' 2',
+                                    'DEBUG_EN' => '0'
+                                  },
+                   'active_setting' => undef,
+                   'status' => 'ideal',
+                   'sim_param' => {
+                                    'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate',
+                                    'SAVE_NAME' => 'simulate1'
+                                  },
+                   'throughput_ratio_param' => {
+                                                 'x_axis_font' => 'MediumBold',
+                                                 'X_Title' => 'Load per router (flits/clock (%))',
+                                                 'legend_placement' => 'BL',
+                                                 'Y_Title' => 'Latency (clock)',
+                                                 'X_MIN' => 0,
+                                                 'LINEw' => 3,
+                                                 'X_MAX' => 100,
+                                                 'legend_font' => 'MediumBold',
+                                                 'label_font' => 'MediumBold',
+                                                 'Y_MIN' => 0
+                                               },
+                   'graph_save' => {},
+                   'process_notebook' => {
+                                           'currentpage' => 0
+                                         },
+                   'gui_status' => {
+                                     'timeout' => 0,
+                                     'status' => 'ideal'
+                                   },
+                   'throughput_ratio' => {
+                                           'type' => '2D'
+                                         }
+                 }, 'emulator' );

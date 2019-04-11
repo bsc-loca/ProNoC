@@ -1,0 +1,924 @@
+#######################################################################
+##	File: tutorial1.SOC
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.8.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$soc = bless( {
+                'gpo0' => {
+                            'version' => 2
+                          },
+                'instance_order' => [
+                                      'clk_source0',
+                                      'wishbone_bus0',
+                                      'gpo0',
+                                      'mor1kx0',
+                                      'timer0',
+                                      'jtag_uart0',
+                                      'single_port_ram0'
+                                    ],
+                'single_port_ram0' => {
+                                        'version' => 22
+                                      },
+                'top_ip' => bless( {
+                                     'interface' => {
+                                                      'plug:clk[0]' => {
+                                                                         'ports' => {
+                                                                                      'source_clk_in' => {
+                                                                                                           'range' => '',
+                                                                                                           'instance_name' => 'clk_source0',
+                                                                                                           'intfc_port' => 'clk_i',
+                                                                                                           'type' => 'input'
+                                                                                                         }
+                                                                                    }
+                                                                       },
+                                                      'plug:reset[0]' => {
+                                                                           'ports' => {
+                                                                                        'source_reset_in' => {
+                                                                                                               'type' => 'input',
+                                                                                                               'intfc_port' => 'reset_i',
+                                                                                                               'instance_name' => 'clk_source0',
+                                                                                                               'range' => ''
+                                                                                                             }
+                                                                                      }
+                                                                         },
+                                                      'IO' => {
+                                                                'ports' => {
+                                                                             'led_port_o' => {
+                                                                                               'range' => 'led_PORT_WIDTH-1     :   0',
+                                                                                               'instance_name' => 'gpo0',
+                                                                                               'intfc_port' => 'IO',
+                                                                                               'type' => 'output'
+                                                                                             }
+                                                                           }
+                                                              },
+                                                      'plug:enable[0]' => {
+                                                                            'ports' => {
+                                                                                         'cpu_cpu_en' => {
+                                                                                                           'intfc_port' => 'enable_i',
+                                                                                                           'type' => 'input',
+                                                                                                           'range' => '',
+                                                                                                           'instance_name' => 'mor1kx0'
+                                                                                                         }
+                                                                                       }
+                                                                          }
+                                                    },
+                                     'instance_ids' => {
+                                                         'mor1kx0' => {
+                                                                        'instance' => 'cpu',
+                                                                        'module_name' => 'mor1k',
+                                                                        'parameters' => {
+                                                                                          'cpu_OPTION_OPERAND_WIDTH' => {
+                                                                                                                          'type' => 'Fixed',
+                                                                                                                          'info' => 'Parameter',
+                                                                                                                          'content' => '',
+                                                                                                                          'redefine_param' => 1,
+                                                                                                                          'global_param' => 'Parameter',
+                                                                                                                          'default' => '32'
+                                                                                                                        },
+                                                                                          'cpu_IRQ_NUM' => {
+                                                                                                             'default' => '32',
+                                                                                                             'global_param' => 'Parameter',
+                                                                                                             'redefine_param' => 1,
+                                                                                                             'content' => '',
+                                                                                                             'info' => undef,
+                                                                                                             'type' => 'Fixed'
+                                                                                                           }
+                                                                                        },
+                                                                        'module' => 'mor1kx',
+                                                                        'category' => 'Processor',
+                                                                        'ports' => {
+                                                                                     'cpu_cpu_en' => {
+                                                                                                       'range' => '',
+                                                                                                       'intfc_name' => 'plug:enable[0]',
+                                                                                                       'intfc_port' => 'enable_i',
+                                                                                                       'type' => 'input'
+                                                                                                     }
+                                                                                   }
+                                                                      },
+                                                         'wishbone_bus0' => {
+                                                                              'instance' => 'bus',
+                                                                              'module' => 'wishbone_bus',
+                                                                              'module_name' => 'wishbone_bus',
+                                                                              'category' => 'Bus'
+                                                                            },
+                                                         'clk_source0' => {
+                                                                            'category' => 'Source',
+                                                                            'ports' => {
+                                                                                         'source_clk_in' => {
+                                                                                                              'intfc_name' => 'plug:clk[0]',
+                                                                                                              'range' => '',
+                                                                                                              'intfc_port' => 'clk_i',
+                                                                                                              'type' => 'input'
+                                                                                                            },
+                                                                                         'source_reset_in' => {
+                                                                                                                'intfc_port' => 'reset_i',
+                                                                                                                'type' => 'input',
+                                                                                                                'range' => '',
+                                                                                                                'intfc_name' => 'plug:reset[0]'
+                                                                                                              }
+                                                                                       },
+                                                                            'instance' => 'source',
+                                                                            'module_name' => 'clk_source',
+                                                                            'module' => 'clk_source'
+                                                                          },
+                                                         'jtag_uart0' => {
+                                                                           'module' => 'jtag_uart',
+                                                                           'module_name' => 'jtag_uart_wb',
+                                                                           'parameters' => {
+                                                                                             'uart_FPGA_VENDOR' => {
+                                                                                                                     'info' => 'Parameter',
+                                                                                                                     'content' => '"ALTERA"',
+                                                                                                                     'type' => 'Combo-box',
+                                                                                                                     'default' => ' "ALTERA"',
+                                                                                                                     'global_param' => 'Parameter',
+                                                                                                                     'redefine_param' => 1
+                                                                                                                   },
+                                                                                             'uart_SIM_WAIT_COUNT' => {
+                                                                                                                        'global_param' => 'Parameter',
+                                                                                                                        'default' => '1000',
+                                                                                                                        'redefine_param' => 1,
+                                                                                                                        'info' => 'This parameter is valid only in simulation. 
+If internal buffer has a data, the internal timer incremented by one in each clock cycle. If the timer reaches the WAIT_COUNT value, it writes the buffer value on the simulator terminal.',
+                                                                                                                        'content' => '2,100000,1',
+                                                                                                                        'type' => 'Spin-button'
+                                                                                                                      },
+                                                                                             'uart_SIM_BUFFER_SIZE' => {
+                                                                                                                         'global_param' => 'Parameter',
+                                                                                                                         'default' => '100',
+                                                                                                                         'redefine_param' => 1,
+                                                                                                                         'content' => '2,1000,1',
+                                                                                                                         'info' => 'This parameter is valid only in simulation. 
+Internal buffer size. 
+If internal buffer overflows, the buffer content are displayed on simulator terminal.
+
+',
+                                                                                                                         'type' => 'Spin-button'
+                                                                                                                       }
+                                                                                           },
+                                                                           'instance' => 'uart',
+                                                                           'category' => 'Communication'
+                                                                         },
+                                                         'single_port_ram0' => {
+                                                                                 'module_name' => 'wb_single_port_ram',
+                                                                                 'parameters' => {
+                                                                                                   'ram_Dw' => {
+                                                                                                                 'type' => 'Spin-button',
+                                                                                                                 'info' => 'Memory data width in Bits.',
+                                                                                                                 'content' => '8,1024,1',
+                                                                                                                 'redefine_param' => 1,
+                                                                                                                 'default' => '32',
+                                                                                                                 'global_param' => 'Parameter'
+                                                                                                               },
+                                                                                                   'ram_Aw' => {
+                                                                                                                 'content' => '4,31,1',
+                                                                                                                 'info' => 'Memory address width',
+                                                                                                                 'type' => 'Spin-button',
+                                                                                                                 'default' => 14,
+                                                                                                                 'global_param' => 'Parameter',
+                                                                                                                 'redefine_param' => 1
+                                                                                                               }
+                                                                                                 },
+                                                                                 'module' => 'single_port_ram',
+                                                                                 'instance' => 'ram',
+                                                                                 'category' => 'RAM'
+                                                                               },
+                                                         'gpo0' => {
+                                                                     'instance' => 'led',
+                                                                     'module_name' => 'gpo',
+                                                                     'module' => 'gpo',
+                                                                     'parameters' => {
+                                                                                       'led_PORT_WIDTH' => {
+                                                                                                             'info' => 'output port width',
+                                                                                                             'content' => '1,32,1',
+                                                                                                             'type' => 'Spin-button',
+                                                                                                             'global_param' => 'Parameter',
+                                                                                                             'default' => 4,
+                                                                                                             'redefine_param' => 1
+                                                                                                           }
+                                                                                     },
+                                                                     'category' => 'GPIO',
+                                                                     'ports' => {
+                                                                                  'led_port_o' => {
+                                                                                                    'intfc_port' => 'IO',
+                                                                                                    'type' => 'output',
+                                                                                                    'range' => 'led_PORT_WIDTH-1     :   0',
+                                                                                                    'intfc_name' => 'IO'
+                                                                                                  }
+                                                                                }
+                                                                   },
+                                                         'timer0' => {
+                                                                       'module' => 'timer',
+                                                                       'module_name' => 'timer',
+                                                                       'parameters' => {
+                                                                                         'timer_PRESCALER_WIDTH' => {
+                                                                                                                      'redefine_param' => 1,
+                                                                                                                      'default' => '8',
+                                                                                                                      'global_param' => 'Parameter',
+                                                                                                                      'type' => 'Spin-button',
+                                                                                                                      'info' => ' The prescaler  timer width. The prescaler takes the basic timer clock frequency and divides it by some value before feeding it to the timer, according to how the prescaler register(s) are configured. 
+
+
+',
+                                                                                                                      'content' => '1,32,1'
+                                                                                                                    }
+                                                                                       },
+                                                                       'instance' => 'timer',
+                                                                       'category' => 'Timer'
+                                                                     }
+                                                       },
+                                     'ports' => {
+                                                  'source_clk_in' => {
+                                                                       'intfc_port' => 'clk_i',
+                                                                       'type' => 'input',
+                                                                       'range' => '',
+                                                                       'intfc_name' => 'plug:clk[0]',
+                                                                       'instance_name' => 'clk_source0'
+                                                                     },
+                                                  'source_reset_in' => {
+                                                                         'type' => 'input',
+                                                                         'intfc_port' => 'reset_i',
+                                                                         'instance_name' => 'clk_source0',
+                                                                         'range' => '',
+                                                                         'intfc_name' => 'plug:reset[0]'
+                                                                       },
+                                                  'cpu_cpu_en' => {
+                                                                    'intfc_port' => 'enable_i',
+                                                                    'type' => 'input',
+                                                                    'intfc_name' => 'plug:enable[0]',
+                                                                    'range' => '',
+                                                                    'instance_name' => 'mor1kx0'
+                                                                  },
+                                                  'led_port_o' => {
+                                                                    'type' => 'output',
+                                                                    'intfc_port' => 'IO',
+                                                                    'instance_name' => 'gpo0',
+                                                                    'intfc_name' => 'IO',
+                                                                    'range' => 'led_PORT_WIDTH-1     :   0'
+                                                                  }
+                                                }
+                                   }, 'ip_gen' ),
+                'gui_status' => {
+                                  'timeout' => 0,
+                                  'status' => 'ideal'
+                                },
+                'modules' => {},
+                'compile' => {
+                               'compilers' => 'QuartusII,Verilator,Modelsim'
+                             },
+                'clk_source0' => {
+                                   'version' => 0
+                                 },
+                'hdl_files' => undef,
+                'timer0' => {
+                              'version' => 9
+                            },
+                'tile_diagram' => {
+                                    'show_reset' => 1,
+                                    'show_clk' => 1,
+                                    'show_unused' => 1
+                                  },
+                'soc_name' => 'tutorial1',
+                'wishbone_bus0' => {
+                                     'version' => 0
+                                   },
+                'mor1kx0' => {
+                               'version' => 13
+                             },
+                'jtag_uart0' => {
+                                  'version' => 10
+                                },
+                'global_param' => {
+                                    'CORE_ID' => 0
+                                  },
+                'instances' => {
+                                 'gpo0' => {
+                                             'sockets' => {},
+                                             'description_pdf' => undef,
+                                             'parameters' => {
+                                                               'PORT_WIDTH' => {
+                                                                                 'value' => 4
+                                                                               },
+                                                               'SELw' => {
+                                                                           'value' => '    4'
+                                                                         },
+                                                               'TAGw' => {
+                                                                           'value' => '    3'
+                                                                         },
+                                                               'Aw' => {
+                                                                         'value' => '    2'
+                                                                       },
+                                                               'Dw' => {
+                                                                         'value' => 'PORT_WIDTH'
+                                                                       }
+                                                             },
+                                             'instance_name' => 'led',
+                                             'module_name' => 'gpo',
+                                             'plugs' => {
+                                                          'reset' => {
+                                                                       'connection_num' => undef,
+                                                                       'type' => 'num',
+                                                                       'nums' => {
+                                                                                   '0' => {
+                                                                                            'name' => 'reset',
+                                                                                            'connect_socket' => 'reset',
+                                                                                            'connect_socket_num' => '0',
+                                                                                            'connect_id' => 'clk_source0'
+                                                                                          }
+                                                                                 },
+                                                                       'value' => 1
+                                                                     },
+                                                          'clk' => {
+                                                                     'nums' => {
+                                                                                 '0' => {
+                                                                                          'connect_socket_num' => '0',
+                                                                                          'connect_id' => 'clk_source0',
+                                                                                          'connect_socket' => 'clk',
+                                                                                          'name' => 'clk'
+                                                                                        }
+                                                                               },
+                                                                     'type' => 'num',
+                                                                     'connection_num' => undef,
+                                                                     'value' => 1
+                                                                   },
+                                                          'wb_slave' => {
+                                                                          'value' => 1,
+                                                                          'type' => 'num',
+                                                                          'connection_num' => undef,
+                                                                          'nums' => {
+                                                                                      '0' => {
+                                                                                               'name' => 'wb',
+                                                                                               'connect_socket_num' => '0',
+                                                                                               'addr' => '0x9100_0000	0x91ff_ffff		General-Purpose I/O',
+                                                                                               'connect_socket' => 'wb_slave',
+                                                                                               'connect_id' => 'wishbone_bus0',
+                                                                                               'end' => 2432696351,
+                                                                                               'width' => 5,
+                                                                                               'base' => 2432696320
+                                                                                             }
+                                                                                    }
+                                                                        }
+                                                        },
+                                             'parameters_order' => [
+                                                                     'PORT_WIDTH',
+                                                                     'Aw',
+                                                                     'TAGw',
+                                                                     'SELw',
+                                                                     'Dw'
+                                                                   ],
+                                             'module' => 'gpo',
+                                             'category' => 'GPIO'
+                                           },
+                                 'timer0' => {
+                                               'parameters_order' => [
+                                                                       'CNTw',
+                                                                       'Dw',
+                                                                       'Aw',
+                                                                       'TAGw',
+                                                                       'SELw',
+                                                                       'PRESCALER_WIDTH'
+                                                                     ],
+                                               'module_name' => 'timer',
+                                               'plugs' => {
+                                                            'clk' => {
+                                                                       'nums' => {
+                                                                                   '0' => {
+                                                                                            'connect_id' => 'clk_source0',
+                                                                                            'connect_socket_num' => '0',
+                                                                                            'connect_socket' => 'clk',
+                                                                                            'name' => 'clk'
+                                                                                          }
+                                                                                 },
+                                                                       'type' => 'num',
+                                                                       'connection_num' => undef,
+                                                                       'value' => 1
+                                                                     },
+                                                            'wb_slave' => {
+                                                                            'value' => 1,
+                                                                            'type' => 'num',
+                                                                            'connection_num' => undef,
+                                                                            'nums' => {
+                                                                                        '0' => {
+                                                                                                 'width' => 5,
+                                                                                                 'end' => 2516582431,
+                                                                                                 'connect_id' => 'wishbone_bus0',
+                                                                                                 'base' => 2516582400,
+                                                                                                 'connect_socket' => 'wb_slave',
+                                                                                                 'connect_socket_num' => '1',
+                                                                                                 'addr' => '0x9600_0000	0x96ff_ffff		PWM/Timer/Counter Ctrl',
+                                                                                                 'name' => 'wb'
+                                                                                               }
+                                                                                      }
+                                                                          },
+                                                            'interrupt_peripheral' => {
+                                                                                        'value' => 1,
+                                                                                        'type' => 'num',
+                                                                                        'connection_num' => undef,
+                                                                                        'nums' => {
+                                                                                                    '0' => {
+                                                                                                             'connect_socket_num' => '0',
+                                                                                                             'connect_id' => 'mor1kx0',
+                                                                                                             'connect_socket' => 'interrupt_peripheral',
+                                                                                                             'name' => 'intrp'
+                                                                                                           }
+                                                                                                  }
+                                                                                      },
+                                                            'reset' => {
+                                                                         'value' => 1,
+                                                                         'connection_num' => undef,
+                                                                         'type' => 'num',
+                                                                         'nums' => {
+                                                                                     '0' => {
+                                                                                              'connect_socket_num' => '0',
+                                                                                              'connect_id' => 'clk_source0',
+                                                                                              'name' => 'reset',
+                                                                                              'connect_socket' => 'reset'
+                                                                                            }
+                                                                                   }
+                                                                       }
+                                                          },
+                                               'module' => 'timer',
+                                               'category' => 'Timer',
+                                               'sockets' => {},
+                                               'description_pdf' => '/mpsoc/src_peripheral/timer/timer.pdf',
+                                               'parameters' => {
+                                                                 'TAGw' => {
+                                                                             'value' => '3'
+                                                                           },
+                                                                 'CNTw' => {
+                                                                             'value' => '32     '
+                                                                           },
+                                                                 'Dw' => {
+                                                                           'value' => '32'
+                                                                         },
+                                                                 'Aw' => {
+                                                                           'value' => '3'
+                                                                         },
+                                                                 'SELw' => {
+                                                                             'value' => '4'
+                                                                           },
+                                                                 'PRESCALER_WIDTH' => {
+                                                                                        'value' => '8'
+                                                                                      }
+                                                               },
+                                               'instance_name' => 'timer'
+                                             },
+                                 'clk_source0' => {
+                                                    'description_pdf' => undef,
+                                                    'parameters' => {},
+                                                    'instance_name' => 'source',
+                                                    'sockets' => {
+                                                                   'clk' => {
+                                                                              'value' => 1,
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'name' => 'clk'
+                                                                                                 }
+                                                                                        },
+                                                                              'connection_num' => 'multi connection',
+                                                                              'type' => 'num'
+                                                                            },
+                                                                   'reset' => {
+                                                                                'connection_num' => 'multi connection',
+                                                                                'type' => 'num',
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'name' => 'reset'
+                                                                                                   }
+                                                                                          },
+                                                                                'value' => 1
+                                                                              }
+                                                                 },
+                                                    'module' => 'clk_source',
+                                                    'parameters_order' => [],
+                                                    'module_name' => 'clk_source',
+                                                    'plugs' => {
+                                                                 'clk' => {
+                                                                            'nums' => {
+                                                                                        '0' => {
+                                                                                                 'connect_socket' => undef,
+                                                                                                 'name' => 'clk',
+                                                                                                 'connect_socket_num' => undef,
+                                                                                                 'connect_id' => 'IO'
+                                                                                               }
+                                                                                      },
+                                                                            'type' => 'num',
+                                                                            'connection_num' => undef,
+                                                                            'value' => 1
+                                                                          },
+                                                                 'reset' => {
+                                                                              'value' => 1,
+                                                                              'type' => 'num',
+                                                                              'connection_num' => undef,
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'connect_socket_num' => undef,
+                                                                                                   'connect_id' => 'IO',
+                                                                                                   'name' => 'reset',
+                                                                                                   'connect_socket' => undef
+                                                                                                 }
+                                                                                        }
+                                                                            }
+                                                               },
+                                                    'category' => 'Source'
+                                                  },
+                                 'wishbone_bus0' => {
+                                                      'sockets' => {
+                                                                     'wb_addr_map' => {
+                                                                                        'type' => 'num',
+                                                                                        'connection_num' => 'single connection',
+                                                                                        'nums' => {
+                                                                                                    '0' => {
+                                                                                                             'name' => 'wb_addr_map'
+                                                                                                           }
+                                                                                                  },
+                                                                                        'value' => 1
+                                                                                      },
+                                                                     'wb_master' => {
+                                                                                      'value' => 'M',
+                                                                                      'type' => 'param',
+                                                                                      'connection_num' => 'single connection',
+                                                                                      'nums' => {
+                                                                                                  '0' => {
+                                                                                                           'name' => 'wb_master'
+                                                                                                         }
+                                                                                                }
+                                                                                    },
+                                                                     'wb_slave' => {
+                                                                                     'nums' => {
+                                                                                                 '0' => {
+                                                                                                          'name' => 'wb_slave'
+                                                                                                        }
+                                                                                               },
+                                                                                     'connection_num' => 'single connection',
+                                                                                     'type' => 'param',
+                                                                                     'value' => 'S'
+                                                                                   }
+                                                                   },
+                                                      'instance_name' => 'bus',
+                                                      'description_pdf' => undef,
+                                                      'parameters' => {
+                                                                        'SELw' => {
+                                                                                    'value' => 'Dw/8'
+                                                                                  },
+                                                                        'TAGw' => {
+                                                                                    'value' => '3'
+                                                                                  },
+                                                                        'S' => {
+                                                                                 'value' => '4'
+                                                                               },
+                                                                        'Dw' => {
+                                                                                  'value' => '32'
+                                                                                },
+                                                                        'Aw' => {
+                                                                                  'value' => '32'
+                                                                                },
+                                                                        'BTEw' => {
+                                                                                    'value' => '2 '
+                                                                                  },
+                                                                        'CTIw' => {
+                                                                                    'value' => '3'
+                                                                                  },
+                                                                        'M' => {
+                                                                                 'value' => 2
+                                                                               }
+                                                                      },
+                                                      'module_name' => 'wishbone_bus',
+                                                      'module' => 'wishbone_bus',
+                                                      'parameters_order' => [
+                                                                              'M',
+                                                                              'S',
+                                                                              'Dw',
+                                                                              'Aw',
+                                                                              'SELw',
+                                                                              'TAGw',
+                                                                              'CTIw',
+                                                                              'BTEw'
+                                                                            ],
+                                                      'plugs' => {
+                                                                   'clk' => {
+                                                                              'value' => 1,
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'connect_socket' => 'clk',
+                                                                                                   'name' => 'clk',
+                                                                                                   'connect_id' => 'clk_source0',
+                                                                                                   'connect_socket_num' => '0'
+                                                                                                 }
+                                                                                        },
+                                                                              'connection_num' => undef,
+                                                                              'type' => 'num'
+                                                                            },
+                                                                   'reset' => {
+                                                                                'value' => 1,
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'name' => 'reset',
+                                                                                                     'connect_socket' => 'reset',
+                                                                                                     'connect_id' => 'clk_source0',
+                                                                                                     'connect_socket_num' => '0'
+                                                                                                   }
+                                                                                          },
+                                                                                'connection_num' => undef,
+                                                                                'type' => 'num'
+                                                                              }
+                                                                 },
+                                                      'category' => 'Bus'
+                                                    },
+                                 'mor1kx0' => {
+                                                'description_pdf' => undef,
+                                                'parameters' => {
+                                                                  'IRQ_NUM' => {
+                                                                                 'value' => '32'
+                                                                               },
+                                                                  'OPTION_OPERAND_WIDTH' => {
+                                                                                              'value' => '32'
+                                                                                            }
+                                                                },
+                                                'instance_name' => 'cpu',
+                                                'sockets' => {
+                                                               'interrupt_peripheral' => {
+                                                                                           'value' => 'IRQ_NUM',
+                                                                                           'nums' => {
+                                                                                                       '0' => {
+                                                                                                                'name' => 'interrupt_peripheral'
+                                                                                                              }
+                                                                                                     },
+                                                                                           'connection_num' => 'single connection',
+                                                                                           'type' => 'param'
+                                                                                         }
+                                                             },
+                                                'category' => 'Processor',
+                                                'module' => 'mor1kx',
+                                                'parameters_order' => [
+                                                                        'OPTION_OPERAND_WIDTH',
+                                                                        'IRQ_NUM'
+                                                                      ],
+                                                'module_name' => 'mor1k',
+                                                'plugs' => {
+                                                             'wb_master' => {
+                                                                              'value' => 2,
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'connect_id' => 'wishbone_bus0',
+                                                                                                   'connect_socket_num' => '0',
+                                                                                                   'name' => 'iwb',
+                                                                                                   'connect_socket' => 'wb_master'
+                                                                                                 },
+                                                                                          '1' => {
+                                                                                                   'connect_socket_num' => '1',
+                                                                                                   'connect_id' => 'wishbone_bus0',
+                                                                                                   'name' => 'dwb',
+                                                                                                   'connect_socket' => 'wb_master'
+                                                                                                 }
+                                                                                        },
+                                                                              'type' => 'num',
+                                                                              'connection_num' => undef
+                                                                            },
+                                                             'clk' => {
+                                                                        'nums' => {
+                                                                                    '0' => {
+                                                                                             'name' => 'clk',
+                                                                                             'connect_socket' => 'clk',
+                                                                                             'connect_socket_num' => '0',
+                                                                                             'connect_id' => 'clk_source0'
+                                                                                           }
+                                                                                  },
+                                                                        'connection_num' => undef,
+                                                                        'type' => 'num',
+                                                                        'value' => 1
+                                                                      },
+                                                             'enable' => {
+                                                                           'nums' => {
+                                                                                       '0' => {
+                                                                                                'connect_socket' => undef,
+                                                                                                'name' => 'enable',
+                                                                                                'connect_socket_num' => undef,
+                                                                                                'connect_id' => 'IO'
+                                                                                              }
+                                                                                     },
+                                                                           'connection_num' => undef,
+                                                                           'type' => 'num',
+                                                                           'value' => 1
+                                                                         },
+                                                             'reset' => {
+                                                                          'nums' => {
+                                                                                      '0' => {
+                                                                                               'connect_id' => 'clk_source0',
+                                                                                               'connect_socket_num' => '0',
+                                                                                               'connect_socket' => 'reset',
+                                                                                               'name' => 'reset'
+                                                                                             }
+                                                                                    },
+                                                                          'connection_num' => undef,
+                                                                          'type' => 'num',
+                                                                          'value' => 1
+                                                                        }
+                                                           }
+                                              },
+                                 'jtag_uart0' => {
+                                                   'parameters_order' => [
+                                                                           'FPGA_VENDOR',
+                                                                           'SIM_BUFFER_SIZE',
+                                                                           'SIM_WAIT_COUNT'
+                                                                         ],
+                                                   'module_name' => 'jtag_uart_wb',
+                                                   'plugs' => {
+                                                                'reset' => {
+                                                                             'value' => 1,
+                                                                             'connection_num' => undef,
+                                                                             'type' => 'num',
+                                                                             'nums' => {
+                                                                                         '0' => {
+                                                                                                  'connect_id' => 'clk_source0',
+                                                                                                  'connect_socket_num' => '0',
+                                                                                                  'name' => 'reset',
+                                                                                                  'connect_socket' => 'reset'
+                                                                                                }
+                                                                                       }
+                                                                           },
+                                                                'interrupt_peripheral' => {
+                                                                                            'nums' => {
+                                                                                                        '0' => {
+                                                                                                                 'connect_socket' => undef,
+                                                                                                                 'name' => 'interrupt_peripheral',
+                                                                                                                 'connect_id' => 'NC',
+                                                                                                                 'connect_socket_num' => undef
+                                                                                                               }
+                                                                                                      },
+                                                                                            'connection_num' => undef,
+                                                                                            'type' => 'num',
+                                                                                            'value' => 1
+                                                                                          },
+                                                                'wb_slave' => {
+                                                                                'value' => 1,
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'end' => 2415919135,
+                                                                                                     'connect_id' => 'wishbone_bus0',
+                                                                                                     'width' => 5,
+                                                                                                     'base' => 2415919104,
+                                                                                                     'connect_socket' => 'wb_slave',
+                                                                                                     'connect_socket_num' => '2',
+                                                                                                     'addr' => '0x9000_0000	0x90ff_ffff		UART16550 Controller',
+                                                                                                     'name' => 'wb_slave'
+                                                                                                   }
+                                                                                          },
+                                                                                'type' => 'num',
+                                                                                'connection_num' => undef
+                                                                              },
+                                                                'clk' => {
+                                                                           'type' => 'num',
+                                                                           'connection_num' => undef,
+                                                                           'nums' => {
+                                                                                       '0' => {
+                                                                                                'connect_socket' => 'clk',
+                                                                                                'name' => 'clk',
+                                                                                                'connect_socket_num' => '0',
+                                                                                                'connect_id' => 'clk_source0'
+                                                                                              }
+                                                                                     },
+                                                                           'value' => 1
+                                                                         }
+                                                              },
+                                                   'module' => 'jtag_uart',
+                                                   'category' => 'Communication',
+                                                   'instance_name' => 'uart',
+                                                   'description_pdf' => undef,
+                                                   'parameters' => {
+                                                                     'SIM_BUFFER_SIZE' => {
+                                                                                            'value' => '100'
+                                                                                          },
+                                                                     'SIM_WAIT_COUNT' => {
+                                                                                           'value' => '1000'
+                                                                                         },
+                                                                     'FPGA_VENDOR' => {
+                                                                                        'value' => ' "ALTERA"'
+                                                                                      }
+                                                                   },
+                                                   'sockets' => {}
+                                                 },
+                                 'single_port_ram0' => {
+                                                         'sockets' => {},
+                                                         'description_pdf' => '/mpsoc/src_peripheral/ram/RAM.pdf',
+                                                         'parameters' => {
+                                                                           'BYTE_WR_EN' => {
+                                                                                             'value' => '"YES"'
+                                                                                           },
+                                                                           'BTEw' => {
+                                                                                       'value' => '2'
+                                                                                     },
+                                                                           'CTIw' => {
+                                                                                       'value' => '3'
+                                                                                     },
+                                                                           'FPGA_VENDOR' => {
+                                                                                              'value' => '"GENERIC"'
+                                                                                            },
+                                                                           'WB_Aw' => {
+                                                                                        'value' => 'Aw+2'
+                                                                                      },
+                                                                           'INIT_FILE_PATH' => {
+                                                                                                 'value' => 'SW_LOC'
+                                                                                               },
+                                                                           'BURST_MODE' => {
+                                                                                             'value' => '"ENABLED"'
+                                                                                           },
+                                                                           'JTAG_CONNECT' => {
+                                                                                               'value' => ' "JTAG_WB" '
+                                                                                             },
+                                                                           'JTAG_INDEX' => {
+                                                                                             'value' => 'CORE_ID'
+                                                                                           },
+                                                                           'MEM_CONTENT_FILE_NAME' => {
+                                                                                                        'value' => '"ram0"'
+                                                                                                      },
+                                                                           'SELw' => {
+                                                                                       'value' => 'Dw/8'
+                                                                                     },
+                                                                           'TAGw' => {
+                                                                                       'value' => '3'
+                                                                                     },
+                                                                           'INITIAL_EN' => {
+                                                                                             'value' => '"YES"'
+                                                                                           },
+                                                                           'Dw' => {
+                                                                                     'value' => '32'
+                                                                                   },
+                                                                           'Aw' => {
+                                                                                     'value' => 14
+                                                                                   }
+                                                                         },
+                                                         'instance_name' => 'ram',
+                                                         'parameters_order' => [
+                                                                                 'Dw',
+                                                                                 'Aw',
+                                                                                 'BYTE_WR_EN',
+                                                                                 'FPGA_VENDOR',
+                                                                                 'JTAG_CONNECT',
+                                                                                 'JTAG_INDEX',
+                                                                                 'TAGw',
+                                                                                 'SELw',
+                                                                                 'CTIw',
+                                                                                 'BTEw',
+                                                                                 'WB_Aw',
+                                                                                 'BURST_MODE',
+                                                                                 'MEM_CONTENT_FILE_NAME',
+                                                                                 'INITIAL_EN',
+                                                                                 'INIT_FILE_PATH'
+                                                                               ],
+                                                         'module' => 'single_port_ram',
+                                                         'plugs' => {
+                                                                      'clk' => {
+                                                                                 'nums' => {
+                                                                                             '0' => {
+                                                                                                      'connect_socket' => 'clk',
+                                                                                                      'name' => 'clk',
+                                                                                                      'connect_socket_num' => '0',
+                                                                                                      'connect_id' => 'clk_source0'
+                                                                                                    }
+                                                                                           },
+                                                                                 'type' => 'num',
+                                                                                 'connection_num' => undef,
+                                                                                 'value' => 1
+                                                                               },
+                                                                      'wb_slave' => {
+                                                                                      'value' => 1,
+                                                                                      'nums' => {
+                                                                                                  '0' => {
+                                                                                                           'name' => 'wb',
+                                                                                                           'connect_socket_num' => '3',
+                                                                                                           'addr' => '0x0000_0000	0x3fff_ffff		RAM',
+                                                                                                           'connect_socket' => 'wb_slave',
+                                                                                                           'base' => 0,
+                                                                                                           'width' => 'WB_Aw',
+                                                                                                           'connect_id' => 'wishbone_bus0',
+                                                                                                           'end' => 65535
+                                                                                                         }
+                                                                                                },
+                                                                                      'connection_num' => undef,
+                                                                                      'type' => 'num'
+                                                                                    },
+                                                                      'reset' => {
+                                                                                   'type' => 'num',
+                                                                                   'connection_num' => undef,
+                                                                                   'nums' => {
+                                                                                               '0' => {
+                                                                                                        'connect_socket_num' => '0',
+                                                                                                        'connect_id' => 'clk_source0',
+                                                                                                        'connect_socket' => 'reset',
+                                                                                                        'name' => 'reset'
+                                                                                                      }
+                                                                                             },
+                                                                                   'value' => 1
+                                                                                 }
+                                                                    },
+                                                         'module_name' => 'wb_single_port_ram',
+                                                         'category' => 'RAM'
+                                                       }
+                               }
+              }, 'soc' );

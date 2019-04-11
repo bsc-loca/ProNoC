@@ -1,0 +1,73 @@
+Package STD_1149_6_2003 is  -- Attribute definitions for AIO
+    use STD_1149_1_2001.all;  -- Refer to BSDL definitions
+
+    attribute AIO_Component_Conformance : BSDL_Extension;
+    attribute AIO_EXTEST_Pulse_Execution : BSDL_Extension;
+    attribute AIO_EXTEST_Train_Execution : BSDL_Extension;
+    attribute AIO_Pin_Behavior : BSDL_Extension;
+
+    constant AC_SelX : Cell_Info;   -- AC/DC selection X
+    constant AC_SelU : Cell_Info;   -- AC/DC selection U
+    constant AC_1    : Cell_Info;   -- Output cell derived from BC_1
+    constant AC_2    : Cell_Info;   -- Output cell derived from BC_2
+    constant AC_7    : Cell_Info;   -- Output cell derived from BC_7
+    constant AC_8    : Cell_Info;   -- Output cell derived from BC_8
+    constant AC_9    : Cell_Info;   -- Output cell derived from BC_9
+    constant AC_10   : Cell_Info;   -- Output cell derived from BC_10
+end STD_1149_6_2003;
+
+Package Body STD_1149_6_2003 is
+    use STD_1149_1_2001.all;  -- Refer to BSDL definitions
+
+    constant AC_SelX : Cell_Info:=   -- Captures ‘X’, unknown data
+    ((INTERNAL, SAMPLE, X),
+    (INTERNAL, INTEST, X),
+    (INTERNAL, EXTEST, X));    -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+
+    constant AC_SelU : Cell_Info:=   -- Captures ‘UPD’, the Update FF
+    ((INTERNAL, SAMPLE, UPD),
+    (INTERNAL, INTEST, UPD),
+    (INTERNAL, EXTEST, UPD));  -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+
+    constant AC_1 : Cell_Info:= -- Output cell derived from BC_1
+    ((OUTPUT2, SAMPLE, PI),
+    (OUTPUT2, EXTEST, PI),     -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+    (OUTPUT2, INTEST, PI),
+    (OUTPUT3, SAMPLE, PI),
+    (OUTPUT3, EXTEST, PI),     -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+    (OUTPUT3, INTEST, PI));
+
+    constant AC_2 : Cell_Info:= -- Output cell derived from BC_2
+    ((OUTPUT2, SAMPLE, PI),     -- No support for INTEST
+    (OUTPUT2, EXTEST, PI),     -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+    (OUTPUT3, SAMPLE, PI),
+    (OUTPUT3, EXTEST, PI));    -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+
+    constant AC_7 : Cell_Info := -- BIDIR cell derived from BC_7
+    ((BIDIR_IN,  SAMPLE, PI),
+    (BIDIR_IN,  EXTEST, PI),   -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+    (BIDIR_IN,  INTEST, UPD),
+    (BIDIR_OUT, SAMPLE, PI),
+    (BIDIR_OUT, EXTEST, PO),   -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+    (BIDIR_OUT, INTEST, PI));
+
+    constant AC_8 : Cell_Info := -- BIDIR cell derived from BC_8
+    ((BIDIR_IN,  SAMPLE, PI),   -- No support for INTEST
+    (BIDIR_IN,  EXTEST, PI),   -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+    (BIDIR_OUT, SAMPLE, PO),
+    (BIDIR_OUT, EXTEST, PO));  -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+
+    constant AC_9 : Cell_Info := -- Self-monitoring Output cell derived from BC_9
+    ((OUTPUT2, SAMPLE, PI),
+    (OUTPUT2, EXTEST, PO),     -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+    (OUTPUT2, INTEST, PI),
+    (OUTPUT3, SAMPLE, PI),
+    (OUTPUT3, EXTEST, PO),     -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+    (OUTPUT3, INTEST, PI));
+
+    constant AC_10 : Cell_Info := -- Self-monitoring Output cell derived from BC_10
+    ((OUTPUT2, SAMPLE, PO),     -- No support for INTEST
+    (OUTPUT2, EXTEST, PO),     -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+    (OUTPUT3, SAMPLE, PO),
+    (OUTPUT3, EXTEST, PO));    -- EXTEST, EXTEST_PULSE, EXTEST_TRAIN
+end STD_1149_6_2003;

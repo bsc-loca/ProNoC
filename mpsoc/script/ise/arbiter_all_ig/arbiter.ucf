@@ -1,0 +1,3 @@
+NET "clk" TNM_NET = clk;
+TIMESPEC TS_clk = PERIOD "clk" 20 ns HIGH 50%;
+OFFSET = IN 20 ns VALID 20 ns BEFORE "clk" RISING;

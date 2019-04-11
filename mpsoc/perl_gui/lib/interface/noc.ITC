@@ -1,0 +1,43 @@
+$HashRef = bless( {
+                    'connection_num' => 'single connection',
+                    'name' => 'noc',
+                    'modules' => {
+                                   'ni' => {}
+                                 },
+                    'ports' => {
+                                 'credit_in' => {
+                                                  'outport_type' => 'concatenate',
+                                                  'connect_name' => 'credit_out',
+                                                  'name' => 'credit_in',
+                                                  'range' => 'V-1    :   0',
+                                                  'connect_type' => 'output',
+                                                  'connect_range' => 'V-1    :   0',
+                                                  'default_out' => '{V{1\'b0}}',
+                                                  'type' => 'input'
+                                                },
+                                 'flit_in' => {
+                                                'outport_type' => 'concatenate',
+                                                'connect_name' => 'flit_out',
+                                                'name' => 'flit_in',
+                                                'range' => 'Fw-1   :   0',
+                                                'connect_type' => 'output',
+                                                'connect_range' => 'Fw-1   :   0',
+                                                'default_out' => '{Fw{1\'b0}}',
+                                                'type' => 'input'
+                                              },
+                                 'flit_in_wr' => {
+                                                   'outport_type' => 'concatenate',
+                                                   'connect_name' => 'flit_out_wr',
+                                                   'name' => 'flit_in_wr',
+                                                   'range' => '',
+                                                   'connect_type' => 'output',
+                                                   'connect_range' => '',
+                                                   'default_out' => '1\'b0',
+                                                   'type' => 'input'
+                                                 }
+                               },
+                    'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/ni/ni.v',
+                    'module_name' => 'ni',
+                    'type' => 'plug',
+                    'category' => 'NoC'
+                  }, 'intfc_gen' );

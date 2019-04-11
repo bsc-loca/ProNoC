@@ -1,0 +1,13 @@
+g++  -I. -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_TRACE=0 -DVM_COVERAGE=0      -O3  -DVL_DEBUG=1  -c -o testbench.o testbench.cpp
+testbench.cpp: In function ‘void usage()’:
+testbench.cpp:137:172: warning: unknown conversion type character ‘]’ in format [-Wformat=]
+  printf(" ./simulator -t [Traffic Pattern]  -s  [PACKET_SIZE]  -n  [MAX_PCK_NUM]  c [MAX_SIM_CLKs]   -i [INJECTION_RATIO] -p [class traffic ratios %]  -h[HOTSPOT info] \n");
+                                                                                                                                                                            ^
+testbench.cpp:143:173: warning: unknown conversion type character ‘:’ in format [-Wformat=]
+  printf("      class traffic ratios %: The percentage of traffic injected for each class. represented in string whit each clas ratio is seprated by coma. \"n0,n1,n2..\" \n");
+                                                                                                                                                                             ^
+testbench.cpp: In function ‘void update_noc_statistic(unsigned int, unsigned int, unsigned int, unsigned int, int)’:
+testbench.cpp:487:21: error: ‘i’ was not declared in this scope
+  core_total_pck_num[i]=total_pck_num[i]+1;
+                     ^
+make: *** [testbench.o] Error 1

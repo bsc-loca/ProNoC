@@ -1,0 +1,474 @@
+#######################################################################
+##	File: test.EML
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.7.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$emulate = bless( {
+                    'setting' => {
+                                   'show_tile_setting' => 0,
+                                   'show_noc_setting' => 1,
+                                   'soc_path' => 'lib/soc',
+                                   'show_adv_setting' => 0
+                                 },
+                    'active_setting' => undef,
+                    'noc_param' => {
+                                     'ESCAP_VC_MASK' => '1\'b1',
+                                     'NX' => 4,
+                                     'SWA_ARBITER_TYPE' => '"RRA"',
+                                     'NY' => 4,
+                                     'CONGESTION_INDEX' => 3,
+                                     'B' => '4',
+                                     'MUX_TYPE' => '"BINARY"',
+                                     'DEBUG_EN' => '0',
+                                     'ROUTE_SUBFUNC' => '"XY"',
+                                     'FIRST_ARBITER_EXT_P_EN' => 1,
+                                     'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                     'V' => 1,
+                                     'SSA_EN' => '"NO"',
+                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                     'ROUTE_NAME' => '"XY"',
+                                     'AVC_ATOMIC_EN' => 0,
+                                     'Fpay' => '32',
+                                     'C' => 0,
+                                     'TOPOLOGY' => '"MESH"',
+                                     'WEIGHTw' => '4',
+                                     'COMBINATION_TYPE' => '"COMB_NONSPEC"'
+                                   },
+                    'status' => 'ideal',
+                    'graph_scale' => '1.5',
+                    'fpga_param' => {
+                                      'SAVE_NAME' => 'emulate2',
+                                      'SOF_DIR' => '/home/alireza/mywork/mpsoc_work/emulate'
+                                    },
+                    'no_name' => {},
+                    'compile_pin_pos' => {
+                                           'done_led' => [
+                                                           4,
+                                                           0
+                                                         ],
+                                           'reset' => [
+                                                        7,
+                                                        0
+                                                      ],
+                                           'noc_reset_led' => [
+                                                                4,
+                                                                0
+                                                              ],
+                                           'jtag_reset_led' => [
+                                                                 4,
+                                                                 0
+                                                               ],
+                                           'clk' => [
+                                                      4,
+                                                      0
+                                                    ]
+                                         },
+                    'compile_pin_range_hsb' => {},
+                    'P0Latency_param' => {
+                                           'LINEw' => 3,
+                                           'label_font' => 'MediumBold',
+                                           'legend_font' => 'MediumBold',
+                                           'X_MIN' => 0,
+                                           'Y_MIN' => 0,
+                                           'x_axis_font' => 'MediumBold',
+                                           'Y_Title' => 'Latency (clock)',
+                                           'X_MAX' => 100,
+                                           'legend_placement' => 'BL',
+                                           'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))'
+                                         },
+                    'P0' => {
+                              'active' => 'Latency'
+                            },
+                    'P1Received_param' => {
+                                            'LINEw' => 3,
+                                            'label_font' => 'MediumBold',
+                                            'legend_font' => 'MediumBold',
+                                            'X_MIN' => 0,
+                                            'Y_MIN' => 0,
+                                            'x_axis_font' => 'MediumBold',
+                                            'Y_Title' => 'Received Packets Per Router',
+                                            'X_MAX' => 100,
+                                            'legend_placement' => 'BL',
+                                            'X_Title' => 'Core ID'
+                                          },
+                    'P1Received' => {
+                                      'type' => '3D_bar',
+                                      'dimention' => '3D',
+                                      'ratio' => '80'
+                                    },
+                    'P1' => {
+                              'active' => 'Received'
+                            },
+                    'P2Received' => {
+                                      'ratio' => '80',
+                                      'dimention' => '3D',
+                                      'type' => '3D_bar'
+                                    },
+                    'P3' => {
+                              'active' => '-'
+                            },
+                    'graph_save' => {},
+                    'id' => 1,
+                    'P2Received_param' => {
+                                            'X_Title' => 'Core ID',
+                                            'X_MAX' => 100,
+                                            'legend_placement' => 'BL',
+                                            'Y_Title' => 'Worst-Case Delay (clk)',
+                                            'x_axis_font' => 'MediumBold',
+                                            'Y_MIN' => 0,
+                                            'legend_font' => 'MediumBold',
+                                            'X_MIN' => 0,
+                                            'label_font' => 'MediumBold',
+                                            'LINEw' => 3
+                                          },
+                    'P3-' => {
+                               'type' => '2D_line'
+                             },
+                    'file_name' => undef,
+                    'process_notebook' => {
+                                            'currentpage' => 0
+                                          },
+                    'emulate_name' => 'test',
+                    'P3-_param' => {
+                                     'LINEw' => 3,
+                                     'label_font' => 'MediumBold',
+                                     'legend_font' => 'MediumBold',
+                                     'X_MIN' => 0,
+                                     'Y_MIN' => 0,
+                                     'x_axis_font' => 'MediumBold',
+                                     'Y_Title' => 'Total Emulation Time (clk)',
+                                     'X_MAX' => 100,
+                                     'legend_placement' => 'BL',
+                                     'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))'
+                                   },
+                    'compile' => {
+                                   'board' => 'DE10_nano_VB2',
+                                   'quartus_bin' => '/home/alireza/intelFPGA_lite/17.1/quartus/bin',
+                                   'type' => 'QuartusII',
+                                   'compilers' => 'QuartusII'
+                                 },
+                    'compile_assign_type' => {
+                                               'reset' => 'Negate(~)',
+                                               'clk' => 'Direct'
+                                             },
+                    'P0Throughput_param' => {
+                                              'LINEw' => 3,
+                                              'label_font' => 'MediumBold',
+                                              'X_MIN' => 0,
+                                              'legend_font' => 'MediumBold',
+                                              'Y_MIN' => 0,
+                                              'x_axis_font' => 'MediumBold',
+                                              'Y_Title' => 'Avg. Throughput (flits/clock (%))',
+                                              'legend_placement' => 'BL',
+                                              'X_MAX' => 100,
+                                              'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))'
+                                            },
+                    'gui_status' => {
+                                      'status' => 'ideal',
+                                      'timeout' => 0
+                                    },
+                    'chart_notebook' => {
+                                          'currentpage' => 0
+                                        },
+                    'noc_type' => {
+                                    'ROUTER_TYPE' => '"INPUT_QUEUED"'
+                                  },
+                    'compile_pin' => {
+                                       'done_led' => 'LED',
+                                       'reset' => 'KEY',
+                                       'noc_reset_led' => 'LED',
+                                       'jtag_reset_led' => 'LED',
+                                       'clk' => 'FPGA_CLK1_50'
+                                     },
+                    'samples' => undef,
+                    'P2' => {
+                              'active' => 'Received'
+                            },
+                    'compile_pin_range_lsb' => {
+                                                 'done_led' => '0',
+                                                 'reset' => '0',
+                                                 'jtag_reset_led' => '1',
+                                                 'noc_reset_led' => '2'
+                                               },
+                    'sample0' => {
+                                   'latency_result' => {
+                                                         '80' => '168.6',
+                                                         '20' => '12.5',
+                                                         '50' => '153.5'
+                                                       },
+                                   'sof_path' => '/home/alireza/mywork/mpsoc_work/emulate/sof',
+                                   'packet_rsvd_result' => {
+                                                             '80' => {
+                                                                     '12' => 978178,
+                                                                     '15' => 959979,
+                                                                     '11' => 924168,
+                                                                     '3' => 989739,
+                                                                     '9' => 951393,
+                                                                     '4' => 937864,
+                                                                     '0' => 997298,
+                                                                     '1' => 995338,
+                                                                     '10' => 972716,
+                                                                     '6' => 947087,
+                                                                     '2' => 1000050,
+                                                                     '7' => 926922,
+                                                                     '8' => 926919,
+                                                                     '13' => 991836,
+                                                                     '14' => 989715,
+                                                                     '5' => 962964
+                                                                   },
+                                                             '50' => {
+                                                                     '5' => 983880,
+                                                                     '8' => 924399,
+                                                                     '14' => 996370,
+                                                                     '13' => 1001894,
+                                                                     '7' => 919935,
+                                                                     '2' => 997062,
+                                                                     '6' => 954969,
+                                                                     '10' => 992877,
+                                                                     '0' => 994518,
+                                                                     '1' => 994337,
+                                                                     '9' => 919043,
+                                                                     '4' => 892634,
+                                                                     '11' => 897143,
+                                                                     '3' => 965169,
+                                                                     '12' => 986502,
+                                                                     '15' => 995872
+                                                                   },
+                                                             '20' => {
+                                                                     '1' => 1000048,
+                                                                     '0' => 1000049,
+                                                                     '10' => 1000048,
+                                                                     '15' => 1000048,
+                                                                     '12' => 1000046,
+                                                                     '3' => 1000044,
+                                                                     '11' => 1000048,
+                                                                     '4' => 1000050,
+                                                                     '9' => 1000048,
+                                                                     '5' => 1000048,
+                                                                     '6' => 1000049,
+                                                                     '2' => 1000040,
+                                                                     '7' => 1000048,
+                                                                     '14' => 1000049,
+                                                                     '8' => 1000048,
+                                                                     '13' => 1000050
+                                                                   }
+                                                           },
+                                   'packet_sent_result' => {
+                                                             '80' => {
+                                                                     '12' => 1000050,
+                                                                     '15' => 1000050,
+                                                                     '9' => 1000050,
+                                                                     '4' => 1000050,
+                                                                     '11' => 1000050,
+                                                                     '3' => 1000048,
+                                                                     '0' => 1000050,
+                                                                     '1' => 1000050,
+                                                                     '10' => 1000048,
+                                                                     '2' => 1000048,
+                                                                     '6' => 1000048,
+                                                                     '13' => 1000050,
+                                                                     '8' => 1000050,
+                                                                     '14' => 1000048,
+                                                                     '7' => 1000050,
+                                                                     '5' => 1000048
+                                                                   },
+                                                             '50' => {
+                                                                     '7' => 1000050,
+                                                                     '8' => 1000050,
+                                                                     '13' => 1000050,
+                                                                     '14' => 1000048,
+                                                                     '6' => 1000048,
+                                                                     '2' => 1000048,
+                                                                     '5' => 1000048,
+                                                                     '11' => 1000050,
+                                                                     '3' => 1000048,
+                                                                     '4' => 1000050,
+                                                                     '9' => 1000050,
+                                                                     '15' => 1000050,
+                                                                     '12' => 1000050,
+                                                                     '10' => 1000048,
+                                                                     '1' => 1000050,
+                                                                     '0' => 1000050
+                                                                   },
+                                                             '20' => {
+                                                                     '7' => 1000050,
+                                                                     '8' => 1000050,
+                                                                     '13' => 1000050,
+                                                                     '14' => 1000048,
+                                                                     '6' => 1000048,
+                                                                     '2' => 1000048,
+                                                                     '5' => 1000048,
+                                                                     '11' => 1000050,
+                                                                     '3' => 1000048,
+                                                                     '9' => 1000050,
+                                                                     '4' => 1000050,
+                                                                     '12' => 1000050,
+                                                                     '15' => 1000050,
+                                                                     '10' => 1000048,
+                                                                     '0' => 1000050,
+                                                                     '1' => 1000050
+                                                                   }
+                                                           },
+                                   'throughput_result' => {
+                                                            '80' => '37.9077418101316',
+                                                            '50' => '37.1714377144339',
+                                                            '20' => '19.9998892558805'
+                                                          },
+                                   'FPGA_board' => 'DE10_nano_VB2',
+                                   'SIM_CLOCK_LIMIT' => 1000000000,
+                                   'noc_info' => {
+                                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                   'WEIGHTw' => '4',
+                                                   'TOPOLOGY' => '"MESH"',
+                                                   'C' => 0,
+                                                   'AVC_ATOMIC_EN' => 0,
+                                                   'Fpay' => '32',
+                                                   'SSA_EN' => '"NO"',
+                                                   'ROUTE_NAME' => '"XY"',
+                                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                   'V' => 1,
+                                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                   'ROUTE_SUBFUNC' => '"XY"',
+                                                   'DEBUG_EN' => '0',
+                                                   'CONGESTION_INDEX' => 3,
+                                                   'NY' => 4,
+                                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                                   'NX' => 4,
+                                                   'ESCAP_VC_MASK' => '1\'b1',
+                                                   'MUX_TYPE' => '"BINARY"',
+                                                   'B' => '4'
+                                                 },
+                                   'PCK_SIZE' => 4,
+                                   'traffic' => 'random',
+                                   'line_name' => 'sample0',
+                                   'worst_delay_rsvd_result' => {
+                                                                  '80' => {
+                                                                          '13' => 422,
+                                                                          '8' => 408,
+                                                                          '14' => 449,
+                                                                          '7' => 415,
+                                                                          '2' => 404,
+                                                                          '6' => 436,
+                                                                          '5' => 428,
+                                                                          '4' => 415,
+                                                                          '9' => 400,
+                                                                          '11' => 434,
+                                                                          '3' => 423,
+                                                                          '15' => 433,
+                                                                          '12' => 426,
+                                                                          '10' => 396,
+                                                                          '1' => 392,
+                                                                          '0' => 431
+                                                                        },
+                                                                  '20' => {
+                                                                          '0' => 21,
+                                                                          '1' => 20,
+                                                                          '10' => 21,
+                                                                          '12' => 20,
+                                                                          '15' => 26,
+                                                                          '9' => 19,
+                                                                          '4' => 19,
+                                                                          '11' => 35,
+                                                                          '3' => 27,
+                                                                          '5' => 21,
+                                                                          '6' => 19,
+                                                                          '2' => 17,
+                                                                          '13' => 20,
+                                                                          '8' => 18,
+                                                                          '14' => 18,
+                                                                          '7' => 23
+                                                                        },
+                                                                  '50' => {
+                                                                          '12' => 383,
+                                                                          '15' => 415,
+                                                                          '9' => 426,
+                                                                          '4' => 448,
+                                                                          '11' => 430,
+                                                                          '3' => 449,
+                                                                          '0' => 453,
+                                                                          '1' => 509,
+                                                                          '10' => 475,
+                                                                          '2' => 444,
+                                                                          '6' => 464,
+                                                                          '13' => 431,
+                                                                          '8' => 436,
+                                                                          '14' => 440,
+                                                                          '7' => 405,
+                                                                          '5' => 449
+                                                                        }
+                                                                },
+                                   'color' => 2,
+                                   'exe_time_result' => {
+                                                          '50' => 10368582,
+                                                          '20' => 20001062,
+                                                          '80' => 10190640
+                                                        },
+                                   'status' => 'done',
+                                   'PCK_NUM_LIMIT' => 1000000,
+                                   'ratios' => '20',
+                                   'sof_file' => 'emulate2'
+                                 },
+                    'noc_setting_gui' => {
+                                           'ha' => '0',
+                                           'va' => '185'
+                                         },
+                    'parameters_order' => {
+                                            'noc_param' => [
+                                                             'TOPOLOGY',
+                                                             'NX',
+                                                             'NY',
+                                                             'V',
+                                                             'B',
+                                                             'Fpay',
+                                                             'ROUTE_NAME',
+                                                             'SSA_EN',
+                                                             'CONGESTION_INDEX',
+                                                             'ESCAP_VC_MASK',
+                                                             'VC_REALLOCATION_TYPE',
+                                                             'COMBINATION_TYPE',
+                                                             'MUX_TYPE',
+                                                             'C',
+                                                             'DEBUG_EN',
+                                                             'ADD_PIPREG_AFTER_CROSSBAR',
+                                                             'FIRST_ARBITER_EXT_P_EN',
+                                                             'SWA_ARBITER_TYPE',
+                                                             'WEIGHTw',
+                                                             'AVC_ATOMIC_EN',
+                                                             'ROUTE_SUBFUNC'
+                                                           ],
+                                            'sample0' => [
+                                                           'line_name',
+                                                           'traffic',
+                                                           'PCK_SIZE',
+                                                           'PCK_NUM_LIMIT',
+                                                           'SIM_CLOCK_LIMIT'
+                                                         ],
+                                            'noc_type' => [
+                                                            'ROUTER_TYPE'
+                                                          ],
+                                            'samples' => [
+                                                           'sample0'
+                                                         ],
+                                            'fpga_param' => [
+                                                              'SAVE_NAME',
+                                                              'SOF_DIR'
+                                                            ]
+                                          },
+                    'P0Throughput' => {
+                                        'type' => '2D_line'
+                                      },
+                    'P0Latency' => {
+                                     'type' => '2D_line'
+                                   },
+                    'emulation_column' => {
+                                            'ha' => '0',
+                                            'va' => '0'
+                                          }
+                  }, 'emulator' );

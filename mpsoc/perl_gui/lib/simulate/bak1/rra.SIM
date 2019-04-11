@@ -1,0 +1,149 @@
+#######################################################################
+##	File: rra.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.7.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$rra = bless( {
+                'noc_type' => {
+                                'ROUTER_TYPE' => '"VC_BASED"'
+                              },
+                'file_name' => undef,
+                'active_setting' => undef,
+                'parameters_order' => {
+                                        'sample1' => [
+                                                       'line_name',
+                                                       'traffic',
+                                                       'PCK_SIZE',
+                                                       'PCK_NUM_LIMIT',
+                                                       'SIM_CLOCK_LIMIT'
+                                                     ],
+                                        'noc_type' => [
+                                                        'ROUTER_TYPE'
+                                                      ],
+                                        'noc_param' => [
+                                                         'NX',
+                                                         'NY',
+                                                         'V',
+                                                         'B',
+                                                         'Fpay',
+                                                         'TOPOLOGY',
+                                                         'ROUTE_NAME',
+                                                         'SSA_EN',
+                                                         'SWA_ARBITER_TYPE',
+                                                         'CONGESTION_INDEX',
+                                                         'ESCAP_VC_MASK',
+                                                         'VC_REALLOCATION_TYPE',
+                                                         'COMBINATION_TYPE',
+                                                         'MUX_TYPE',
+                                                         'C',
+                                                         'DEBUG_EN',
+                                                         'ADD_PIPREG_AFTER_CROSSBAR',
+                                                         'FIRST_ARBITER_EXT_P_EN',
+                                                         'AVC_ATOMIC_EN',
+                                                         'ROUTE_SUBFUNC'
+                                                       ],
+                                        'sim_param' => [
+                                                         'SAVE_NAME',
+                                                         'BIN_DIR'
+                                                       ]
+                                      },
+                'status' => 'ideal',
+                'gui_status' => {
+                                  'timeout' => 0,
+                                  'status' => 'ideal'
+                                },
+                'emulate_num' => 1,
+                'setting' => {
+                               'show_adv_setting' => 0,
+                               'soc_path' => 'lib/soc',
+                               'show_tile_setting' => 0,
+                               'show_noc_setting' => 1
+                             },
+                'sim_param' => {
+                                 'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate',
+                                 'SAVE_NAME' => 'wrra'
+                               },
+                'graph_save' => {},
+                'process_notebook' => {
+                                        'currentpage' => 0
+                                      },
+                'graph_param' => {
+                                   'legend_placement' => 'BL',
+                                   'X_Title' => 'Load per router (flits/clock (%))',
+                                   'LINEw' => 3,
+                                   'Y_Title' => 'Latency (clock)',
+                                   'Y_MIN' => 0,
+                                   'legend_font' => 'MediumBold',
+                                   'X_MAX' => 100,
+                                   'label_font' => 'MediumBold',
+                                   'X_MIN' => 0,
+                                   'x_axis_font' => 'MediumBold'
+                                 },
+                'sample1' => {
+                               'SIM_CLOCK_LIMIT' => 100000,
+                               'PCK_SIZE' => 4,
+                               'ratios' => '35,40',
+                               'color' => 2,
+                               'sof_file' => '/mpsoc_work/simulate/wrra',
+                               'noc_info' => {
+                                               'ROUTE_NAME' => '"XY"',
+                                               'NY' => 4,
+                                               'Fpay' => '32',
+                                               'CONGESTION_INDEX' => 3,
+                                               'ESCAP_VC_MASK' => '4\'b0001',
+                                               'NX' => 4,
+                                               'FIRST_ARBITER_EXT_P_EN' => 1,
+                                               'DEBUG_EN' => '0',
+                                               'AVC_ATOMIC_EN' => 0,
+                                               'B' => '4',
+                                               'MUX_TYPE' => '"BINARY"',
+                                               'C' => 0,
+                                               'SWA_ARBITER_TYPE' => '"WRRA"',
+                                               'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                               'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                               'V' => 4,
+                                               'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                               'ROUTE_SUBFUNC' => '"XY"',
+                                               'SSA_EN' => '"NO"',
+                                               'TOPOLOGY' => '"MESH"'
+                                             },
+                               'result' => {
+                                             '40' => ' 49.680783',
+                                             '35' => ' 46.920800'
+                                           },
+                               'status' => 'done',
+                               'PCK_NUM_LIMIT' => 200000,
+                               'traffic' => 'transposed 1',
+                               'line_name' => 'wrra'
+                             },
+                'noc_param' => {
+                                 'CONGESTION_INDEX' => 3,
+                                 'ROUTE_NAME' => '"XY"',
+                                 'Fpay' => '32',
+                                 'NY' => 4,
+                                 'ROUTE_SUBFUNC' => '"XY"',
+                                 'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                 'SSA_EN' => '"NO"',
+                                 'TOPOLOGY' => '"MESH"',
+                                 'SWA_ARBITER_TYPE' => '"WRRA"',
+                                 'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                 'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                 'V' => 4,
+                                 'MUX_TYPE' => '"BINARY"',
+                                 'C' => 0,
+                                 'NX' => 4,
+                                 'ESCAP_VC_MASK' => '4\'b0001',
+                                 'AVC_ATOMIC_EN' => 0,
+                                 'FIRST_ARBITER_EXT_P_EN' => 1,
+                                 'DEBUG_EN' => '0',
+                                 'B' => '4'
+                               },
+                'simulate_name' => 'rra',
+                'graph_scale' => 5
+              }, 'emulator' );

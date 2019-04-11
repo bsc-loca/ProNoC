@@ -1,0 +1,405 @@
+#######################################################################
+##	File: 00.EML
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.5.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$00 = bless( {
+               'fpga_param' => {
+                                 'SOF_DIR' => '/home/alireza/mywork/mpsoc_work/emulate',
+                                 'SAVE_NAME' => 'emulate1',
+                                 'FPGA_BOARD' => undef
+                               },
+               'sample2' => {
+                              'ratios' => '2:18:2',
+                              'result' => {
+                                            '2' => '18.9',
+                                            '16' => '30.5',
+                                            '8' => '20.1',
+                                            '6' => '19.2',
+                                            '4' => '18.9',
+                                            '12' => '19.8',
+                                            '14' => '21.6',
+                                            '10' => '19.1',
+                                            '18' => '82.1'
+                                          },
+                              'line_name' => 'xy_no_ssa',
+                              'status' => 'done',
+                              'SIM_CLOCK_LIMIT' => 100000000,
+                              'color' => 14,
+                              'PCK_SIZE' => 4,
+                              'sof_file' => '/home/alireza/mywork/mpsoc_work/emulate/sof/DE4_230/xy_no_ssa.sof',
+                              'noc_info' => {
+                                              'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                              'ROUTE_SUBFUNC' => '"XY"',
+                                              'V' => 2,
+                                              'B' => 4,
+                                              'NX' => 8,
+                                              'TOPOLOGY' => '"MESH"',
+                                              'NY' => 8,
+                                              'C' => 0,
+                                              'ROUTE_NAME' => '"XY"',
+                                              'SSA_EN' => '"NO"',
+                                              'Fpay' => '32',
+                                              'DEBUG_EN' => '0',
+                                              'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                              'AVC_ATOMIC_EN' => 0,
+                                              'MUX_TYPE' => '"BINARY"',
+                                              'FIRST_ARBITER_EXT_P_EN' => 0,
+                                              'VC_REALLOCATION_TYPE' => '"NONATOMIC"'
+                                            },
+                              'traffic' => 'transposed 1',
+                              'PCK_NUM_LIMIT' => 500000
+                            },
+               'noc_type' => {
+                               'ROUTER_TYPE' => '"VC_BASED"'
+                             },
+               'sample4' => {
+                              'result' => {
+                                            '2' => '19.5',
+                                            '8' => '22.1',
+                                            '6' => '20.2',
+                                            '12' => '171.8',
+                                            '4' => '19.5',
+                                            '10' => '34.5'
+                                          },
+                              'ratios' => '2:33:2',
+                              'SIM_CLOCK_LIMIT' => 100000000,
+                              'color' => 31,
+                              'status' => 'done',
+                              'line_name' => 'no_vc',
+                              'PCK_SIZE' => 4,
+                              'noc_info' => {
+                                              'ROUTE_NAME' => '"XY"',
+                                              'Fpay' => '32',
+                                              'SSA_EN' => '"NO"',
+                                              'DEBUG_EN' => '0',
+                                              'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                              'FIRST_ARBITER_EXT_P_EN' => 0,
+                                              'MUX_TYPE' => '"BINARY"',
+                                              'AVC_ATOMIC_EN' => 0,
+                                              'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                              'ROUTE_SUBFUNC' => '"XY"',
+                                              'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                              'B' => 4,
+                                              'V' => 1,
+                                              'NX' => 8,
+                                              'C' => 0,
+                                              'TOPOLOGY' => '"MESH"',
+                                              'NY' => 8
+                                            },
+                              'sof_file' => '/home/alireza/mywork/mpsoc_work/emulate/sof/DE4_230/no_vc.sof',
+                              'traffic' => 'transposed 1',
+                              'PCK_NUM_LIMIT' => 500000
+                            },
+               'status' => 'ideal',
+               'noc_param' => {
+                                'NX' => ' 2',
+                                'C' => 0,
+                                'NY' => ' 2',
+                                'TOPOLOGY' => '"MESH"',
+                                'ROUTE_SUBFUNC' => '"XY"',
+                                'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                'V' => '2',
+                                'B' => '4',
+                                'DEBUG_EN' => '0',
+                                'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                'MUX_TYPE' => '"BINARY"',
+                                'FIRST_ARBITER_EXT_P_EN' => 0,
+                                'AVC_ATOMIC_EN' => 0,
+                                'ROUTE_NAME' => '"XY"',
+                                'Fpay' => '32',
+                                'SSA_EN' => '"NO"'
+                              },
+               'sample3' => {
+                              'sof_file' => '/home/alireza/mywork/mpsoc_work/emulate/sof/DE4_230/full_ssa.sof',
+                              'noc_info' => {
+                                              'C' => 0,
+                                              'NY' => 8,
+                                              'ESCAP_VC_MASK' => '2\'b01',
+                                              'TOPOLOGY' => '"MESH"',
+                                              'NX' => 8,
+                                              'V' => 2,
+                                              'B' => 4,
+                                              'ROUTE_SUBFUNC' => '"XY"',
+                                              'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                              'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                              'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                              'AVC_ATOMIC_EN' => 0,
+                                              'MUX_TYPE' => '"BINARY"',
+                                              'FIRST_ARBITER_EXT_P_EN' => 0,
+                                              'DEBUG_EN' => '0',
+                                              'CONGESTION_INDEX' => 3,
+                                              'SSA_EN' => '"YES"',
+                                              'Fpay' => '32',
+                                              'ROUTE_NAME' => '"DUATO"'
+                                            },
+                              'traffic' => 'transposed 1',
+                              'PCK_NUM_LIMIT' => 500000,
+                              'ratios' => '2:25:2',
+                              'result' => {
+                                            '24' => '69.2',
+                                            '20' => '23.7',
+                                            '2' => '15.9',
+                                            '8' => '17.9',
+                                            '16' => '19.7',
+                                            '10' => '16.5',
+                                            '14' => '19.5',
+                                            '18' => '21.1',
+                                            '6' => '16.9',
+                                            '12' => '17.6',
+                                            '4' => '15.9',
+                                            '22' => '29.3'
+                                          },
+                              'PCK_SIZE' => 4,
+                              'status' => 'done',
+                              'line_name' => 'full_ssa',
+                              'SIM_CLOCK_LIMIT' => 100000000,
+                              'color' => 4
+                            },
+               'parameters_order' => {
+                                       'sample2' => [
+                                                      'line_name',
+                                                      'traffic',
+                                                      'PCK_SIZE',
+                                                      'PCK_NUM_LIMIT',
+                                                      'SIM_CLOCK_LIMIT'
+                                                    ],
+                                       'noc_type' => [
+                                                       'ROUTER_TYPE'
+                                                     ],
+                                       'graph_param' => [
+                                                          'G_Title',
+                                                          'Y_Title',
+                                                          'X_Title',
+                                                          'legend_placement',
+                                                          'Y_MIN',
+                                                          'X_MIN',
+                                                          'LINEw'
+                                                        ],
+                                       'sample4' => [
+                                                      'line_name',
+                                                      'traffic',
+                                                      'PCK_SIZE',
+                                                      'PCK_NUM_LIMIT',
+                                                      'SIM_CLOCK_LIMIT'
+                                                    ],
+                                       'fpga_param' => [
+                                                         'FPGA_BOARD',
+                                                         'SAVE_NAME',
+                                                         'SOF_DIR',
+                                                         'FPGA_BOARD'
+                                                         
+                                                       ],
+                                       'sample3' => [
+                                                      'line_name',
+                                                      'traffic',
+                                                      'PCK_SIZE',
+                                                      'PCK_NUM_LIMIT',
+                                                      'SIM_CLOCK_LIMIT'
+                                                    ],
+                                       'noc_param' => [
+                                                        'NX',
+                                                        'NY',
+                                                        'V',
+                                                        'B',
+                                                        'Fpay',
+                                                        'TOPOLOGY',
+                                                        'ROUTE_NAME',
+                                                        'SSA_EN',
+                                                        'VC_REALLOCATION_TYPE',
+                                                        'COMBINATION_TYPE',
+                                                        'MUX_TYPE',
+                                                        'C',
+                                                        'DEBUG_EN',
+                                                        'ADD_PIPREG_AFTER_CROSSBAR',
+                                                        'FIRST_ARBITER_EXT_P_EN',
+                                                        'AVC_ATOMIC_EN',
+                                                        'ROUTE_SUBFUNC'
+                                                      ],
+                                       'sample5' => [
+                                                      'line_name',
+                                                      'traffic',
+                                                      'PCK_SIZE',
+                                                      'PCK_NUM_LIMIT',
+                                                      'SIM_CLOCK_LIMIT'
+                                                    ],
+					 'sample6' => [
+                                                      'line_name',
+                                                      'traffic',
+                                                      'PCK_SIZE',
+                                                      'PCK_NUM_LIMIT',
+                                                      'SIM_CLOCK_LIMIT'
+                                                    ],
+                                       'sample1' => [
+                                                      'line_name',
+                                                      'traffic',
+                                                      'PCK_SIZE',
+                                                      'PCK_NUM_LIMIT',
+                                                      'SIM_CLOCK_LIMIT'
+                                                    ]
+                                     },
+		 'sample6' => {
+                              'PCK_NUM_LIMIT' => 500000,
+                              'traffic' => 'transposed 1',
+                              'noc_info' => {
+                                              'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                              'ROUTE_SUBFUNC' => '"XY"',
+                                              'V' => 2,
+                                              'B' => 4,
+                                              'NX' => 8,
+                                              'NY' => 8,
+                                              'TOPOLOGY' => '"MESH"',
+                                              'C' => 0,
+                                              'ROUTE_NAME' => '"XY"',
+                                              'SSA_EN' => '"YES"',
+                                              'Fpay' => '32',
+                                              'DEBUG_EN' => '0',
+                                              'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                              'AVC_ATOMIC_EN' => 0,
+                                              'MUX_TYPE' => '"BINARY"',
+                                              'FIRST_ARBITER_EXT_P_EN' => 0,
+                                              'VC_REALLOCATION_TYPE' => '"NONATOMIC"'
+                                            },
+                              'sof_file' => '/home/alireza/mywork/mpsoc_work/emulate/sof/DE4_230/xy_ssa.sof',
+                              'color' => 25,
+                              'SIM_CLOCK_LIMIT' => 100000000,
+                              'line_name' => 'xy_ssa',
+                              'status' => 'done',
+                              'PCK_SIZE' => 4,
+                              'result' => {
+                                            '18' => '80.5',
+                                            '14' => '18.7',
+                                            '10' => '15.8',
+                                            '6' => '16.0',
+                                            '4' => '15.3',
+                                            '12' => '16.8',
+                                            '20' => '77.0',
+                                            '16' => '28.1',
+                                            '8' => '17.2',
+                                            '2' => '15.3'
+                                          },
+                              'ratios' => '2:20:2'
+                            },
+               'sample1' => {
+                              'PCK_NUM_LIMIT' => 500000,
+                              'traffic' => 'transposed 1',
+                              'noc_info' => {
+                                              'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                              'ROUTE_SUBFUNC' => '"XY"',
+                                              'V' => 2,
+                                              'B' => 4,
+                                              'NX' => 8,
+                                              'NY' => 8,
+                                              'TOPOLOGY' => '"MESH"',
+                                              'C' => 0,
+                                              'ROUTE_NAME' => '"XY"',
+                                              'SSA_EN' => '"YES"',
+                                              'Fpay' => '32',
+                                              'DEBUG_EN' => '0',
+                                              'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                              'AVC_ATOMIC_EN' => 0,
+                                              'MUX_TYPE' => '"BINARY"',
+                                              'FIRST_ARBITER_EXT_P_EN' => 0,
+                                              'VC_REALLOCATION_TYPE' => '"NONATOMIC"'
+                                            },
+                              'sof_file' => '/home/alireza/mywork/mpsoc_work/emulate/sof/DE4_230/xy_ssa.sof',
+                              'color' => 15,
+                              'SIM_CLOCK_LIMIT' => 100000000,
+                              'line_name' => 'xy_ssa',
+                              'status' => 'done',
+                              'PCK_SIZE' => 4,
+                              'result' => {
+                                            '18' => '80.5',
+                                            '14' => '18.7',
+                                            '10' => '15.8',
+                                            '6' => '16.0',
+                                            '4' => '15.3',
+                                            '12' => '16.8',
+                                            '20' => '77.0',
+                                            '16' => '28.1',
+                                            '8' => '17.2',
+                                            '2' => '15.3'
+                                          },
+                              'ratios' => '2:20:2'
+                            },
+               'graph_scale' => '4.5',
+               'emulate_num' => 6,
+               'sample5' => {
+                              'sof_file' => '/home/alireza/mywork/mpsoc_work/emulate/sof/DE4_230/full_no_ssa.sof',
+                              'noc_info' => {
+                                              'DEBUG_EN' => '0',
+                                              'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                              'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                              'MUX_TYPE' => '"BINARY"',
+                                              'FIRST_ARBITER_EXT_P_EN' => 0,
+                                              'AVC_ATOMIC_EN' => 0,
+                                              'ROUTE_NAME' => '"DUATO"',
+                                              'CONGESTION_INDEX' => 3,
+                                              'Fpay' => '32',
+                                              'SSA_EN' => '"NO"',
+                                              'NX' => 8,
+                                              'C' => 0,
+                                              'TOPOLOGY' => '"MESH"',
+                                              'NY' => 8,
+                                              'ESCAP_VC_MASK' => '2\'b01',
+                                              'ROUTE_SUBFUNC' => '"XY"',
+                                              'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                              'V' => 2,
+                                              'B' => 4
+                                            },
+                              'PCK_NUM_LIMIT' => 500000,
+                              'traffic' => 'transposed 1',
+                              'ratios' => '2:25:2',
+                              'result' => {
+                                            '16' => '21.9',
+                                            '2' => '19.0',
+                                            '8' => '19.9',
+                                            '24' => '84.2',
+                                            '20' => '24.9',
+                                            '22' => '32.0',
+                                            '12' => '20.5',
+                                            '6' => '19.3',
+                                            '4' => '18.9',
+                                            '10' => '19.4',
+                                            '14' => '21.9',
+                                            '18' => '22.5'
+                                          },
+                              'line_name' => 'full_no_ssa',
+                              'status' => 'done',
+                              'SIM_CLOCK_LIMIT' => 100000000,
+                              'color' => 25,
+                              'PCK_SIZE' => 4
+                            },
+               'emulate_name' => '00',
+               'graph_param' => {
+                                  'Y_Title' => 'Latency (clock)',
+                                  'X_Title' => 'Load per router (flits/clock (%))',
+                                  'Y_MIN' => 0,
+                                  'G_Title' => undef,
+                                  'X_MIN' => 0,
+                                  'LINEw' => 3,
+                                  'legend_placement' => 'BL'
+                                },
+               'graph_save' => {},
+               'gui_status' => {
+                                 'status' => 'ideal',
+                                 'timeout' => 0
+                               },
+               'file_name' => undef,
+               'setting' => {
+                              'show_tile_setting' => 0,
+                              'soc_path' => 'lib/soc',
+                              'show_noc_setting' => 1,
+                              'show_adv_setting' => 0
+                            },
+               'process_notebook' => {
+                                       'currentpage' => 0
+                                     }
+             }, 'emulator' );

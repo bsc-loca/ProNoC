@@ -1,0 +1,447 @@
+#######################################################################
+##	File: test2.MPSOC
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.8.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$mpsoc = bless( {
+                  'compile' => {
+                                 'type' => 'Verilator',
+                                 'compilers' => 'QuartusII,Verilator,Modelsim',
+                                 'board' => 'DE2_115',
+                                 'quartus_bin' => '/home/alireza/intelFPGA_lite/17.1/quartus/bin'
+                               },
+                  'parameters_order' => {
+                                          'noc_param' => [
+                                                           'TOPOLOGY',
+                                                           'NX',
+                                                           'NY',
+                                                           'V',
+                                                           'B',
+                                                           'Fpay',
+                                                           'ROUTE_NAME',
+                                                           'SSA_EN',
+                                                           'CONGESTION_INDEX',
+                                                           'ESCAP_VC_MASK',
+                                                           'VC_REALLOCATION_TYPE',
+                                                           'COMBINATION_TYPE',
+                                                           'MUX_TYPE',
+                                                           'C',
+                                                           'DEBUG_EN',
+                                                           'ADD_PIPREG_AFTER_CROSSBAR',
+                                                           'MAX_SBP_NUM ',
+                                                           'FIRST_ARBITER_EXT_P_EN',
+                                                           'SWA_ARBITER_TYPE',
+                                                           'WEIGHTw',
+                                                           'AVC_ATOMIC_EN',
+                                                           'ROUTE_SUBFUNC'
+                                                         ],
+                                          'noc_type' => [
+                                                          'ROUTER_TYPE'
+                                                        ]
+                                        },
+                  'gui_status' => {
+                                    'timeout' => 0,
+                                    'status' => 'ideal'
+                                  },
+                  'mpsoc_name' => 'test2',
+                  'noc_type' => {
+                                  'ROUTER_TYPE' => '"VC_BASED"'
+                                },
+                  'verilator' => {
+                                   'libs' => {
+                                               'Vtile1' => 'tile_1.v',
+                                               'Vnoc' => 'noc_connection.sv',
+                                               'Vrouter' => 'router_verilator.v',
+                                               'Vtile2' => 'tile_2.v',
+                                               'Vtile0' => 'tile_0.v'
+                                             }
+                                 },
+                  'setting' => {
+                                 'soc_path' => 'lib/soc',
+                                 'show_adv_setting' => 0,
+                                 'show_tile_setting' => 1,
+                                 'show_noc_setting' => 1
+                               },
+                  'file_name' => undef,
+                  'top_ip' => bless( {
+                                       'ports' => {
+                                                    'mor1k_tile_0_uart_RxD_din_sim' => {
+                                                                                       'intfc_port' => 'RxD_din_sim',
+                                                                                       'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                       'instance_name' => 'mor1k_tile_0',
+                                                                                       'range' => '7:0 ',
+                                                                                       'type' => 'input'
+                                                                                     },
+                                                    'mor1k_tile_1_uart_RxD_ready_sim' => {
+                                                                                         'range' => '',
+                                                                                         'instance_name' => 'mor1k_tile_1',
+                                                                                         'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                         'intfc_port' => 'RxD_ready_sim',
+                                                                                         'type' => 'output'
+                                                                                       },
+                                                    'reset' => {
+                                                                 'type' => 'input',
+                                                                 'range' => '',
+                                                                 'instance_name' => 'IO',
+                                                                 'intfc_name' => 'plug:reset[0]',
+                                                                 'intfc_port' => 'reset_i'
+                                                               },
+                                                    'mor1k_tile_3_uart_RxD_din_sim' => {
+                                                                                       'range' => '7:0 ',
+                                                                                       'intfc_port' => 'RxD_din_sim',
+                                                                                       'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                       'instance_name' => 'mor1k_tile_3',
+                                                                                       'type' => 'input'
+                                                                                     },
+                                                    'mor1k_tile_0_uart_RxD_wr_sim' => {
+                                                                                      'instance_name' => 'mor1k_tile_0',
+                                                                                      'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                      'intfc_port' => 'RxD_wr_sim',
+                                                                                      'range' => '',
+                                                                                      'type' => 'input'
+                                                                                    },
+                                                    'processors_en' => {
+                                                                         'type' => 'input',
+                                                                         'intfc_name' => 'plug:enable[0]',
+                                                                         'intfc_port' => 'enable_i',
+                                                                         'instance_name' => 'IO',
+                                                                         'range' => ''
+                                                                       },
+                                                    'mor1k_tile_2_uart_RxD_wr_sim' => {
+                                                                                      'type' => 'input',
+                                                                                      'instance_name' => 'mor1k_tile_2',
+                                                                                      'intfc_port' => 'RxD_wr_sim',
+                                                                                      'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                      'range' => ''
+                                                                                    },
+                                                    'mor1k_tile_2_uart_RxD_ready_sim' => {
+                                                                                         'type' => 'output',
+                                                                                         'range' => '',
+                                                                                         'intfc_port' => 'RxD_ready_sim',
+                                                                                         'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                         'instance_name' => 'mor1k_tile_2'
+                                                                                       },
+                                                    'clk' => {
+                                                               'type' => 'input',
+                                                               'intfc_name' => 'plug:clk[0]',
+                                                               'intfc_port' => 'clk_i',
+                                                               'instance_name' => 'IO',
+                                                               'range' => ''
+                                                             },
+                                                    'mor1k_tile_3_uart_RxD_wr_sim' => {
+                                                                                      'instance_name' => 'mor1k_tile_3',
+                                                                                      'intfc_port' => 'RxD_wr_sim',
+                                                                                      'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                      'range' => '',
+                                                                                      'type' => 'input'
+                                                                                    },
+                                                    'mor1k_tile_1_uart_RxD_wr_sim' => {
+                                                                                      'instance_name' => 'mor1k_tile_1',
+                                                                                      'intfc_port' => 'RxD_wr_sim',
+                                                                                      'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                      'range' => '',
+                                                                                      'type' => 'input'
+                                                                                    },
+                                                    'mor1k_tile_3_uart_RxD_ready_sim' => {
+                                                                                         'type' => 'output',
+                                                                                         'instance_name' => 'mor1k_tile_3',
+                                                                                         'intfc_port' => 'RxD_ready_sim',
+                                                                                         'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                         'range' => ''
+                                                                                       },
+                                                    'mor1k_tile_1_uart_RxD_din_sim' => {
+                                                                                       'type' => 'input',
+                                                                                       'range' => '7:0 ',
+                                                                                       'intfc_port' => 'RxD_din_sim',
+                                                                                       'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                       'instance_name' => 'mor1k_tile_1'
+                                                                                     },
+                                                    'mor1k_tile_2_uart_RxD_din_sim' => {
+                                                                                       'type' => 'input',
+                                                                                       'instance_name' => 'mor1k_tile_2',
+                                                                                       'intfc_port' => 'RxD_din_sim',
+                                                                                       'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                       'range' => '7:0 '
+                                                                                     },
+                                                    'mor1k_tile_0_uart_RxD_ready_sim' => {
+                                                                                         'type' => 'output',
+                                                                                         'instance_name' => 'mor1k_tile_0',
+                                                                                         'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                         'intfc_port' => 'RxD_ready_sim',
+                                                                                         'range' => ''
+                                                                                       }
+                                                  },
+                                       'interface' => {
+                                                        'plug:enable[0]' => {
+                                                                              'ports' => {
+                                                                                           'processors_en' => {
+                                                                                                                'type' => 'input',
+                                                                                                                'range' => '',
+                                                                                                                'instance_name' => 'IO',
+                                                                                                                'intfc_port' => 'enable_i'
+                                                                                                              }
+                                                                                         }
+                                                                            },
+                                                        'socket:RxD_sim[0]' => {
+                                                                                 'ports' => {
+                                                                                              'mor1k_tile_3_uart_RxD_wr_sim' => {
+                                                                                                                                'intfc_port' => 'RxD_wr_sim',
+                                                                                                                                'instance_name' => 'mor1k_tile_3',
+                                                                                                                                'range' => '',
+                                                                                                                                'type' => 'input'
+                                                                                                                              },
+                                                                                              'mor1k_tile_3_uart_RxD_ready_sim' => {
+                                                                                                                                   'range' => '',
+                                                                                                                                   'instance_name' => 'mor1k_tile_3',
+                                                                                                                                   'intfc_port' => 'RxD_ready_sim',
+                                                                                                                                   'type' => 'output'
+                                                                                                                                 },
+                                                                                              'mor1k_tile_1_uart_RxD_wr_sim' => {
+                                                                                                                                'type' => 'input',
+                                                                                                                                'range' => '',
+                                                                                                                                'instance_name' => 'mor1k_tile_1',
+                                                                                                                                'intfc_port' => 'RxD_wr_sim'
+                                                                                                                              },
+                                                                                              'mor1k_tile_1_uart_RxD_din_sim' => {
+                                                                                                                                 'range' => '7:0 ',
+                                                                                                                                 'instance_name' => 'mor1k_tile_1',
+                                                                                                                                 'intfc_port' => 'RxD_din_sim',
+                                                                                                                                 'type' => 'input'
+                                                                                                                               },
+                                                                                              'mor1k_tile_0_uart_RxD_ready_sim' => {
+                                                                                                                                   'intfc_port' => 'RxD_ready_sim',
+                                                                                                                                   'instance_name' => 'mor1k_tile_0',
+                                                                                                                                   'range' => '',
+                                                                                                                                   'type' => 'output'
+                                                                                                                                 },
+                                                                                              'mor1k_tile_2_uart_RxD_din_sim' => {
+                                                                                                                                 'type' => 'input',
+                                                                                                                                 'intfc_port' => 'RxD_din_sim',
+                                                                                                                                 'instance_name' => 'mor1k_tile_2',
+                                                                                                                                 'range' => '7:0 '
+                                                                                                                               },
+                                                                                              'mor1k_tile_3_uart_RxD_din_sim' => {
+                                                                                                                                 'range' => '7:0 ',
+                                                                                                                                 'instance_name' => 'mor1k_tile_3',
+                                                                                                                                 'intfc_port' => 'RxD_din_sim',
+                                                                                                                                 'type' => 'input'
+                                                                                                                               },
+                                                                                              'mor1k_tile_0_uart_RxD_din_sim' => {
+                                                                                                                                 'type' => 'input',
+                                                                                                                                 'intfc_port' => 'RxD_din_sim',
+                                                                                                                                 'instance_name' => 'mor1k_tile_0',
+                                                                                                                                 'range' => '7:0 '
+                                                                                                                               },
+                                                                                              'mor1k_tile_1_uart_RxD_ready_sim' => {
+                                                                                                                                   'range' => '',
+                                                                                                                                   'instance_name' => 'mor1k_tile_1',
+                                                                                                                                   'intfc_port' => 'RxD_ready_sim',
+                                                                                                                                   'type' => 'output'
+                                                                                                                                 },
+                                                                                              'mor1k_tile_2_uart_RxD_wr_sim' => {
+                                                                                                                                'type' => 'input',
+                                                                                                                                'intfc_port' => 'RxD_wr_sim',
+                                                                                                                                'instance_name' => 'mor1k_tile_2',
+                                                                                                                                'range' => ''
+                                                                                                                              },
+                                                                                              'mor1k_tile_0_uart_RxD_wr_sim' => {
+                                                                                                                                'type' => 'input',
+                                                                                                                                'range' => '',
+                                                                                                                                'intfc_port' => 'RxD_wr_sim',
+                                                                                                                                'instance_name' => 'mor1k_tile_0'
+                                                                                                                              },
+                                                                                              'mor1k_tile_2_uart_RxD_ready_sim' => {
+                                                                                                                                   'type' => 'output',
+                                                                                                                                   'range' => '',
+                                                                                                                                   'instance_name' => 'mor1k_tile_2',
+                                                                                                                                   'intfc_port' => 'RxD_ready_sim'
+                                                                                                                                 }
+                                                                                            }
+                                                                               },
+                                                        'plug:clk[0]' => {
+                                                                           'ports' => {
+                                                                                        'clk' => {
+                                                                                                   'type' => 'input',
+                                                                                                   'range' => '',
+                                                                                                   'intfc_port' => 'clk_i',
+                                                                                                   'instance_name' => 'IO'
+                                                                                                 }
+                                                                                      }
+                                                                         },
+                                                        'plug:reset[0]' => {
+                                                                             'ports' => {
+                                                                                          'reset' => {
+                                                                                                       'type' => 'input',
+                                                                                                       'instance_name' => 'IO',
+                                                                                                       'intfc_port' => 'reset_i',
+                                                                                                       'range' => ''
+                                                                                                     }
+                                                                                        }
+                                                                           }
+                                                      },
+                                       'instance_ids' => {
+                                                           'mor1k_tile_0' => {
+                                                                             'ports' => {
+                                                                                          'mor1k_tile_0_uart_RxD_wr_sim' => {
+                                                                                                                            'intfc_port' => 'RxD_wr_sim',
+                                                                                                                            'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                            'range' => '',
+                                                                                                                            'type' => 'input'
+                                                                                                                          },
+                                                                                          'mor1k_tile_0_uart_RxD_ready_sim' => {
+                                                                                                                               'range' => '',
+                                                                                                                               'intfc_port' => 'RxD_ready_sim',
+                                                                                                                               'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                               'type' => 'output'
+                                                                                                                             },
+                                                                                          'mor1k_tile_0_uart_RxD_din_sim' => {
+                                                                                                                             'type' => 'input',
+                                                                                                                             'intfc_port' => 'RxD_din_sim',
+                                                                                                                             'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                             'range' => '7:0 '
+                                                                                                                           }
+                                                                                        }
+                                                                           },
+                                                           'mor1k_tile_2' => {
+                                                                             'ports' => {
+                                                                                          'mor1k_tile_2_uart_RxD_wr_sim' => {
+                                                                                                                            'type' => 'input',
+                                                                                                                            'range' => '',
+                                                                                                                            'intfc_port' => 'RxD_wr_sim',
+                                                                                                                            'intfc_name' => 'socket:RxD_sim[0]'
+                                                                                                                          },
+                                                                                          'mor1k_tile_2_uart_RxD_ready_sim' => {
+                                                                                                                               'intfc_port' => 'RxD_ready_sim',
+                                                                                                                               'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                               'range' => '',
+                                                                                                                               'type' => 'output'
+                                                                                                                             },
+                                                                                          'mor1k_tile_2_uart_RxD_din_sim' => {
+                                                                                                                             'type' => 'input',
+                                                                                                                             'range' => '7:0 ',
+                                                                                                                             'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                             'intfc_port' => 'RxD_din_sim'
+                                                                                                                           }
+                                                                                        }
+                                                                           },
+                                                           'mor1k_tile_1' => {
+                                                                             'ports' => {
+                                                                                          'mor1k_tile_1_uart_RxD_wr_sim' => {
+                                                                                                                            'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                            'intfc_port' => 'RxD_wr_sim',
+                                                                                                                            'range' => '',
+                                                                                                                            'type' => 'input'
+                                                                                                                          },
+                                                                                          'mor1k_tile_1_uart_RxD_din_sim' => {
+                                                                                                                             'type' => 'input',
+                                                                                                                             'range' => '7:0 ',
+                                                                                                                             'intfc_port' => 'RxD_din_sim',
+                                                                                                                             'intfc_name' => 'socket:RxD_sim[0]'
+                                                                                                                           },
+                                                                                          'mor1k_tile_1_uart_RxD_ready_sim' => {
+                                                                                                                               'intfc_port' => 'RxD_ready_sim',
+                                                                                                                               'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                               'range' => '',
+                                                                                                                               'type' => 'output'
+                                                                                                                             }
+                                                                                        }
+                                                                           },
+                                                           'mor1k_tile_3' => {
+                                                                             'ports' => {
+                                                                                          'mor1k_tile_3_uart_RxD_din_sim' => {
+                                                                                                                             'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                             'intfc_port' => 'RxD_din_sim',
+                                                                                                                             'range' => '7:0 ',
+                                                                                                                             'type' => 'input'
+                                                                                                                           },
+                                                                                          'mor1k_tile_3_uart_RxD_wr_sim' => {
+                                                                                                                            'type' => 'input',
+                                                                                                                            'range' => '',
+                                                                                                                            'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                            'intfc_port' => 'RxD_wr_sim'
+                                                                                                                          },
+                                                                                          'mor1k_tile_3_uart_RxD_ready_sim' => {
+                                                                                                                               'intfc_port' => 'RxD_ready_sim',
+                                                                                                                               'intfc_name' => 'socket:RxD_sim[0]',
+                                                                                                                               'range' => '',
+                                                                                                                               'type' => 'output'
+                                                                                                                             }
+                                                                                        }
+                                                                           },
+                                                           'IO' => {
+                                                                     'ports' => {
+                                                                                  'reset' => {
+                                                                                               'intfc_name' => 'plug:reset[0]',
+                                                                                               'intfc_port' => 'reset_i',
+                                                                                               'range' => '',
+                                                                                               'type' => 'input'
+                                                                                             },
+                                                                                  'clk' => {
+                                                                                             'type' => 'input',
+                                                                                             'intfc_port' => 'clk_i',
+                                                                                             'intfc_name' => 'plug:clk[0]',
+                                                                                             'range' => ''
+                                                                                           },
+                                                                                  'processors_en' => {
+                                                                                                       'range' => '',
+                                                                                                       'intfc_port' => 'enable_i',
+                                                                                                       'intfc_name' => 'plug:enable[0]',
+                                                                                                       'type' => 'input'
+                                                                                                     }
+                                                                                }
+                                                                   }
+                                                         }
+                                     }, 'ip_gen' ),
+                  'socs' => {
+                              'aemb_tile' => {
+                                               'tile_nums' => []
+                                             },
+                              'mor1k_tile' => {
+                                              'tile_nums' => [
+                                                               0,
+                                                               1,
+                                                               2,
+                                                               3
+                                                             ]
+                                            }
+                            },
+                  'noc_indept_param' => {},
+                  'noc_param' => {
+                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                   'SSA_EN' => '"NO"',
+                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                   'ROUTE_SUBFUNC' => '"XY"',
+                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                   'B' => '4',
+                                   'NY' => ' 2',
+                                   'NX' => ' 2',
+                                   'TOPOLOGY' => '"MESH"',
+                                   'ROUTE_NAME' => '"XY"',
+                                   'C' => 0,
+                                   'DEBUG_EN' => '0',
+                                   'MAX_SBP_NUM ' => 0,
+                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                   'CONGESTION_INDEX' => 3,
+                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                   'WEIGHTw' => '4',
+                                   'V' => '2',
+                                   'AVC_ATOMIC_EN' => 0,
+                                   'Fpay' => '32',
+                                   'MUX_TYPE' => '"BINARY"',
+                                   'ESCAP_VC_MASK' => '2\'b01'
+                                 },
+                  'tile' => {
+                              '0' => {
+                                       'param_setting' => 'Default'
+                                     },
+                              '3' => {},
+                              '1' => {},
+                              '2' => {}
+                            }
+                }, 'mpsoc' );

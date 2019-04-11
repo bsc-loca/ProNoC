@@ -1,0 +1,212 @@
+#######################################################################
+##	File: custom.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.7.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$custom = bless( {
+                   'throughput_ratio' => {
+                                           'type' => '2D_line'
+                                         },
+                   'noc_type' => {
+                                   'ROUTER_TYPE' => '"VC_BASED"'
+                                 },
+                   'throughput_ratio_param' => {
+                                                 'label_font' => 'MediumBold',
+                                                 'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                                 'legend_placement' => 'BL',
+                                                 'legend_font' => 'MediumBold',
+                                                 'x_axis_font' => 'MediumBold',
+                                                 'Y_MIN' => 0,
+                                                 'X_MAX' => 100,
+                                                 'X_MIN' => 0,
+                                                 'Y_Title' => 'Avg. Throughput (flits/clock (%))',
+                                                 'LINEw' => 3
+                                               },
+                   'graph_scale' => 5,
+                   'file_name' => undef,
+                   'packet_param' => {
+                                       'X_Title' => 'Core ID',
+                                       'legend_placement' => 'BL',
+                                       'label_font' => 'MediumBold',
+                                       'legend_font' => 'MediumBold',
+                                       'x_axis_font' => 'MediumBold',
+                                       'Y_MIN' => 0,
+                                       'X_MIN' => 0,
+                                       'X_MAX' => 100,
+                                       'Y_Title' => 'Received Packet Per Router',
+                                       'LINEw' => 3
+                                     },
+                   'packet' => {
+                                 'direction' => 'Sent',
+                                 'type' => '3D_bar',
+                                 'dimention' => '3D'
+                               },
+                   'status' => 'ideal',
+                   'sim_param' => {
+                                    'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate',
+                                    'SAVE_NAME' => 'simulate1'
+                                  },
+                   'latency_ratio_param' => {
+                                              'label_font' => 'MediumBold',
+                                              'legend_placement' => 'BL',
+                                              'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                              'legend_font' => 'MediumBold',
+                                              'x_axis_font' => 'MediumBold',
+                                              'Y_MIN' => 0,
+                                              'X_MAX' => 100,
+                                              'X_MIN' => 0,
+                                              'Y_Title' => 'Latency (clock)',
+                                              'LINEw' => 3
+                                            },
+                   'chart_notebook' => {
+                                         'currentpage' => 0
+                                       },
+                   'simulate_name' => 'custom',
+                   'active_setting' => undef,
+                   'process_notebook' => {
+                                           'currentpage' => 0
+                                         },
+                   'graph_save' => {},
+                   'samples' => undef,
+                   'setting' => {
+                                  'show_adv_setting' => 0,
+                                  'soc_path' => 'lib/soc',
+                                  'show_noc_setting' => 1,
+                                  'show_tile_setting' => 0
+                                },
+                   'no_name' => {},
+                   'gui_status' => {
+                                     'status' => 'ideal',
+                                     'timeout' => 0
+                                   },
+                   'id' => 1,
+                   'latency_ratio' => {
+                                        'type' => '2D_line'
+                                      },
+                   'worst_delay_param' => {
+                                            'legend_font' => 'MediumBold',
+                                            'X_Title' => 'Core ID',
+                                            'legend_placement' => 'BL',
+                                            'label_font' => 'MediumBold',
+                                            'X_MIN' => 0,
+                                            'X_MAX' => 100,
+                                            'x_axis_font' => 'MediumBold',
+                                            'Y_MIN' => 0,
+                                            'Y_Title' => 'Worst-Case Delay (clk)',
+                                            'LINEw' => 3
+                                          },
+                   'parameters_order' => {
+                                           'sample0' => [
+                                                          'TRAFFIC_TYPE',
+                                                          'line_name',
+                                                          'traffic',
+                                                          'PCK_SIZE',
+                                                          'PCK_NUM_LIMIT',
+                                                          'SIM_CLOCK_LIMIT',
+                                                          'TRAFFIC_FILE_NUM'
+                                                        ],
+                                           'noc_type' => [
+                                                           'ROUTER_TYPE'
+                                                         ],
+                                           'sim_param' => [
+                                                            'SAVE_NAME',
+                                                            'BIN_DIR'
+                                                          ],
+                                           'samples' => [
+                                                          'sample0'
+                                                        ],
+                                           'noc_param' => [
+                                                            'TOPOLOGY',
+                                                            'NX',
+                                                            'NY',
+                                                            'V',
+                                                            'B',
+                                                            'Fpay',
+                                                            'ROUTE_NAME',
+                                                            'SSA_EN',
+                                                            'CONGESTION_INDEX',
+                                                            'ESCAP_VC_MASK',
+                                                            'VC_REALLOCATION_TYPE',
+                                                            'COMBINATION_TYPE',
+                                                            'MUX_TYPE',
+                                                            'C',
+                                                            'DEBUG_EN',
+                                                            'ADD_PIPREG_AFTER_CROSSBAR',
+                                                            'SWA_ARBITER_TYPE',
+                                                            'FIRST_ARBITER_EXT_P_EN',
+                                                            'WEIGHTw',
+                                                            'AVC_ATOMIC_EN',
+                                                            'ROUTE_SUBFUNC'
+                                                          ]
+                                         },
+                   'worst_delay' => {
+                                      'dimention' => '3D',
+                                      'direction' => 'Sent',
+                                      'type' => '3D_bar'
+                                    },
+                   'noc_param' => {
+                                    'ESCAP_VC_MASK' => '2\'b01',
+                                    'SWA_ARBITER_TYPE' => '"RRA"',
+                                    'ROUTE_NAME' => '"XY"',
+                                    'TOPOLOGY' => '"LINE"',
+                                    'NX' => 16,
+                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                    'V' => '2',
+                                    'C' => 0,
+                                    'B' => '4',
+                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                    'WEIGHTw' => '4',
+                                    'DEBUG_EN' => '0',
+                                    'SSA_EN' => '"NO"',
+                                    'ROUTE_SUBFUNC' => '"XY"',
+                                    'CONGESTION_INDEX' => 3,
+                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                    'AVC_ATOMIC_EN' => 0,
+                                    'Fpay' => '32',
+                                    'MUX_TYPE' => '"BINARY"',
+                                    'NY' => 1
+                                  },
+                   'sample0' => {
+                                  'sof_file' => '/mpsoc_work/simulate/simulate1',
+                                  'traffic' => 'random',
+                                  'TRAFFIC_FILE_NUM' => 1,
+                                  'line_name' => 'sample0',
+                                  'TRAFFIC_TYPE' => 'Custom-file(s)',
+                                  'color' => 2,
+                                  'status' => 'failed',
+                                  'traffic_file0' => '/mpsoc/perl_gui/lib/simulate/custom-traffic/custom1',
+                                  'PCK_SIZE' => 4,
+                                  'PCK_NUM_LIMIT' => 200000,
+                                  'SIM_CLOCK_LIMIT' => 100000,
+                                  'noc_info' => {
+                                                  'B' => '4',
+                                                  'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                  'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                  'WEIGHTw' => '4',
+                                                  'DEBUG_EN' => '0',
+                                                  'SSA_EN' => '"NO"',
+                                                  'ROUTE_SUBFUNC' => '"XY"',
+                                                  'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                  'CONGESTION_INDEX' => 3,
+                                                  'AVC_ATOMIC_EN' => 0,
+                                                  'Fpay' => '32',
+                                                  'NY' => 1,
+                                                  'MUX_TYPE' => '"BINARY"',
+                                                  'ESCAP_VC_MASK' => '2\'b01',
+                                                  'SWA_ARBITER_TYPE' => '"RRA"',
+                                                  'ROUTE_NAME' => '"XY"',
+                                                  'TOPOLOGY' => '"LINE"',
+                                                  'NX' => 16,
+                                                  'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                  'V' => '2',
+                                                  'C' => 0
+                                                }
+                                }
+                 }, 'emulator' );

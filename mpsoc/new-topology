@@ -1,0 +1,9 @@
+ 1- topology.pl:  modify get_topology_info for new topology
+ 2- mpsoc_gen.pl: add topology name : $content='"MESH","TORUS","RING","LINE","FATTREE","NWENAME"';
+ 3- mpsoc_gen.pl: define topology T1,T2,T3 parameters 
+ 4- diagram.pl:  make your generate_newtoplogy_dot_file function to draw new topology dot file
+ 5- diagram.pl:  add generate_newtoplogy_dot_file to get_topology_dot_file function
+ 6- newtopology.v : write newtopology_noc module. connects routers to make the new topology. define how the router addresses are defined. 
+ 7- topology_localparam.v: Decide how the attached header file destination output port should be coded. Define DSPTw, RAw, EAw, MAX_P for the new topology.  
+ 8- write newtopology_routing_algorithms and look-ahead routing algorithm.
+ 9- new_topology_connection.sv: in src_verilator make this file. Copy-paset newtopology_noc connections. remove input output signals except reset and clk. change all "in" to "out" and vs in internal wires. call wires contain in as input and vs.  

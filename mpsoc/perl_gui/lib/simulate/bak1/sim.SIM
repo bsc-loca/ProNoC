@@ -1,0 +1,109 @@
+#######################################################################
+##	File: sim.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.5.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$sim = bless( {
+                'noc_type' => {
+                                'ROUTER_TYPE' => '"VC_BASED"'
+                              },
+                'graph_scale' => 5,
+                'graph_param' => {},
+                'noc_param' => {
+                                 'NX' => ' 2',
+                                 'ROUTE_SUBFUNC' => '"XY"',
+                                 'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                 'C' => 0,
+                                 'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                 'B' => '4',
+                                 'ROUTE_NAME' => '"XY"',
+                                 'TOPOLOGY' => '"MESH"',
+                                 'DEBUG_EN' => '0',
+                                 'SSA_EN' => '"NO"',
+                                 'CONGESTION_INDEX' => 3,
+                                 'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                 'MUX_TYPE' => '"BINARY"',
+                                 'V' => '2',
+                                 'ESCAP_VC_MASK' => '2\'b01',
+                                 'AVC_ATOMIC_EN' => 0,
+                                 'FIRST_ARBITER_EXT_P_EN' => 0,
+                                 'Fpay' => '32',
+                                 'NY' => ' 2'
+                               },
+                'simulate_name' => 'sim',
+                'setting' => {
+                               'show_tile_setting' => 0,
+                               'show_adv_setting' => 0,
+                               'show_noc_setting' => 1,
+                               'soc_path' => 'lib/soc'
+                             },
+                'graph_save' => {},
+                'active_setting' => undef,
+                'process_notebook' => {
+                                        'currentpage' => 0
+                                      },
+                'sample1' => {
+                               'color' => 2,
+                               'traffic' => 'random',
+                               'PCK_SIZE' => 4,
+                               'sof_file' => '/home/alireza/mywork/mpsoc_work/simulate/simulate1',
+                               'SIM_CLOCK_LIMIT' => 100000000,
+                               'ratios' => '10',
+                               'PCK_NUM_LIMIT' => 10000,
+                               'line_name' => 'NoC1'
+                             },
+                'gui_status' => {
+                                  'status' => 'ideal',
+                                  'timeout' => 0
+                                },
+                'emulate_num' => 1,
+                'status' => 'ideal',
+                'file_name' => undef,
+                'sim_param' => {
+                                 'SAVE_NAME' => 'simulate1',
+                                 'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate'
+                               },
+                'parameters_order' => {
+                                        'sim_param' => [
+                                                         'SAVE_NAME',
+                                                         'BIN_DIR'
+                                                       ],
+                                        'sample1' => [
+                                                       'line_name',
+                                                       'traffic',
+                                                       'PCK_SIZE',
+                                                       'PCK_NUM_LIMIT',
+                                                       'SIM_CLOCK_LIMIT'
+                                                     ],
+                                        'noc_type' => [
+                                                        'ROUTER_TYPE'
+                                                      ],
+                                        'noc_param' => [
+                                                         'NX',
+                                                         'NY',
+                                                         'V',
+                                                         'B',
+                                                         'Fpay',
+                                                         'TOPOLOGY',
+                                                         'ROUTE_NAME',
+                                                         'SSA_EN',
+                                                         'CONGESTION_INDEX',
+                                                         'ESCAP_VC_MASK',
+                                                         'VC_REALLOCATION_TYPE',
+                                                         'COMBINATION_TYPE',
+                                                         'MUX_TYPE',
+                                                         'C',
+                                                         'DEBUG_EN',
+                                                         'ADD_PIPREG_AFTER_CROSSBAR',
+                                                         'FIRST_ARBITER_EXT_P_EN',
+                                                         'AVC_ATOMIC_EN',
+                                                         'ROUTE_SUBFUNC'
+                                                       ]
+                                      }
+              }, 'emulator' );

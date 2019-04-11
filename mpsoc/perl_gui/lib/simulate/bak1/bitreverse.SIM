@@ -1,0 +1,387 @@
+#######################################################################
+##	File: bitreverse.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.6.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$bitreverse = bless( {
+                       'gui_status' => {
+                                         'status' => 'ideal',
+                                         'timeout' => 0
+                                       },
+                       'noc_type' => {
+                                       'ROUTER_TYPE' => '"INPUT_QUEUED"'
+                                     },
+                       'sample3' => {
+                                      'noc_info' => {
+                                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                      'NX' => 8,
+                                                      'TOPOLOGY' => '"MESH"',
+                                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                      'CONGESTION_INDEX' => 3,
+                                                      'C' => 0,
+                                                      'DEBUG_EN' => '0',
+                                                      'Fpay' => '32',
+                                                      'AVC_ATOMIC_EN' => 0,
+                                                      'MUX_TYPE' => '"BINARY"',
+                                                      'B' => '4',
+                                                      'ROUTE_NAME' => '"DUATO"',
+                                                      'ESCAP_VC_MASK' => '2\'b01',
+                                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                      'NY' => 8,
+                                                      'FIRST_ARBITER_EXT_P_EN' => 0,
+                                                      'V' => '2',
+                                                      'SSA_EN' => '"YES"',
+                                                      'ROUTE_SUBFUNC' => '"XY"'
+                                                    },
+                                      'sof_file' => '/home/mahdieh/mpsoc_work/simulate/full_ssa',
+                                      'PCK_NUM_LIMIT' => 200000,
+                                      'result' => {
+                                                    '12' => ' 17.952818',
+                                                    '26' => ' 154.413636',
+                                                    '18' => ' 21.716456',
+                                                    '24' => ' 111.256207',
+                                                    '2' => ' 15.874271',
+                                                    '22' => ' 62.114494',
+                                                    '4' => ' 15.931313',
+                                                    '16' => ' 19.779977',
+                                                    '6' => ' 17.000334',
+                                                    '14' => ' 19.984614',
+                                                    '8' => ' 18.186985',
+                                                    '10' => ' 16.848857',
+                                                    '20' => ' 26.132524'
+                                                  },
+                                      'PCK_SIZE' => 4,
+                                      'SIM_CLOCK_LIMIT' => 100000,
+                                      'traffic' => 'bit reverse',
+                                      'color' => 23,
+                                      'ratios' => '2:26:2',
+                                      'status' => 'done',
+                                      'line_name' => 'full_ssa'
+                                    },
+                       'file_name' => undef,
+                       'sample5' => {
+                                      'PCK_NUM_LIMIT' => 200000,
+                                      'noc_info' => {
+                                                      'SSA_EN' => '"NO"',
+                                                      'ROUTE_SUBFUNC' => '"XY"',
+                                                      'V' => 1,
+                                                      'FIRST_ARBITER_EXT_P_EN' => 0,
+                                                      'NY' => 8,
+                                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                      'ROUTE_NAME' => '"XY"',
+                                                      'B' => '4',
+                                                      'ESCAP_VC_MASK' => '1\'b1',
+                                                      'Fpay' => '32',
+                                                      'DEBUG_EN' => '0',
+                                                      'AVC_ATOMIC_EN' => 0,
+                                                      'MUX_TYPE' => '"BINARY"',
+                                                      'CONGESTION_INDEX' => 3,
+                                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                      'TOPOLOGY' => '"MESH"',
+                                                      'C' => 0,
+                                                      'NX' => 8,
+                                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"'
+                                                    },
+                                      'sof_file' => '/home/mahdieh/mpsoc_work/simulate/no_vc',
+                                      'ratios' => '2:24:2',
+                                      'status' => 'done',
+                                      'line_name' => 'no_vc',
+                                      'PCK_SIZE' => 4,
+                                      'result' => {
+                                                    '12' => ' 273.148941',
+                                                    '18' => ' 430.154919',
+                                                    '2' => ' 20.427744',
+                                                    '24' => ' 516.069256',
+                                                    '22' => ' 515.104357',
+                                                    '4' => ' 20.428571',
+                                                    '6' => ' 22.462600',
+                                                    '16' => ' 376.323611',
+                                                    '14' => ' 351.783439',
+                                                    '8' => ' 25.276718',
+                                                    '10' => ' 98.333323',
+                                                    '20' => ' 435.003568'
+                                                  },
+                                      'SIM_CLOCK_LIMIT' => 100000,
+                                      'traffic' => 'bit reverse',
+                                      'color' => 24
+                                    },
+                       'sample1' => {
+                                      'sof_file' => '/home/mahdieh/mpsoc_work/simulate/xy_ssa',
+                                      'noc_info' => {
+                                                      'V' => '2',
+                                                      'FIRST_ARBITER_EXT_P_EN' => 0,
+                                                      'ROUTE_SUBFUNC' => '"XY"',
+                                                      'SSA_EN' => '"YES"',
+                                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                      'NY' => 8,
+                                                      'AVC_ATOMIC_EN' => 0,
+                                                      'MUX_TYPE' => '"BINARY"',
+                                                      'Fpay' => '32',
+                                                      'DEBUG_EN' => '0',
+                                                      'ESCAP_VC_MASK' => '2\'b01',
+                                                      'ROUTE_NAME' => '"XY"',
+                                                      'B' => '4',
+                                                      'NX' => 8,
+                                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                      'C' => 0,
+                                                      'CONGESTION_INDEX' => 3,
+                                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                      'TOPOLOGY' => '"MESH"'
+                                                    },
+                                      'PCK_NUM_LIMIT' => 200000,
+                                      'color' => 15,
+                                      'traffic' => 'bit reverse',
+                                      'SIM_CLOCK_LIMIT' => 100000,
+                                      'PCK_SIZE' => 4,
+                                      'result' => {
+                                                    '24' => ' 241.682770',
+                                                    '2' => ' 15.232139',
+                                                    '22' => ' 248.646277',
+                                                    '26' => ' 304.828198',
+                                                    '18' => ' 180.167042',
+                                                    '12' => ' 17.205559',
+                                                    '20' => ' 182.302804',
+                                                    '10' => ' 16.236863',
+                                                    '8' => ' 17.387437',
+                                                    '14' => ' 20.290949',
+                                                    '16' => ' 55.325427',
+                                                    '6' => ' 16.317147',
+                                                    '4' => ' 15.232327'
+                                                  },
+                                      'line_name' => 'xy_ssa',
+                                      'status' => 'done',
+                                      'ratios' => '2:26:2'
+                                    },
+                       'graph_param' => {
+                                          'x_axis_font' => 'Giant',
+                                          'legend_placement' => 'BC',
+                                          'label_font' => 'Giant',
+                                          'legend_font' => 'Giant',
+                                          'X_MIN' => 0,
+                                          'Y_MIN' => 8,
+                                          'X_MAX' => 28,
+                                          'LINEw' => 4,
+                                          'Y_Title' => 'Average Latency per Packet (clk)       ',
+                                          'X_Title' => 'Load per router (flits/clock (%))',
+                                          'G_Title' => undef
+                                        },
+                       'process_notebook' => {
+                                               'currentpage' => 0
+                                             },
+                       'setting' => {
+                                      'show_tile_setting' => 0,
+                                      'show_adv_setting' => 0,
+                                      'show_noc_setting' => 1,
+                                      'soc_path' => 'lib/soc'
+                                    },
+                       'graph_scale' => '2.5',
+                       'emulate_num' => 5,
+                       'noc_param' => {
+                                        'NY' => 8,
+                                        'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                        'SSA_EN' => '"NO"',
+                                        'ROUTE_SUBFUNC' => '"XY"',
+                                        'FIRST_ARBITER_EXT_P_EN' => 0,
+                                        'V' => 1,
+                                        'TOPOLOGY' => '"MESH"',
+                                        'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                        'CONGESTION_INDEX' => 3,
+                                        'C' => 0,
+                                        'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                        'NX' => 8,
+                                        'B' => '4',
+                                        'ROUTE_NAME' => '"XY"',
+                                        'ESCAP_VC_MASK' => '1\'b1',
+                                        'DEBUG_EN' => '0',
+                                        'Fpay' => '32',
+                                        'AVC_ATOMIC_EN' => 0,
+                                        'MUX_TYPE' => '"BINARY"'
+                                      },
+                       'sim_param' => {
+                                        'BIN_DIR' => '/home/alireza/mywork/mpsoc_work/simulate',
+                                        'SAVE_NAME' => 'no_vc'
+                                      },
+                       'graph_save' => {
+                                         'name' => '/home/alireza/mywork/mpsoc_doc/ProNoC/springer/fig/sim_bitreverse.png',
+                                         'save' => 0,
+                                         'extension' => 'png'
+                                       },
+                       'sample4' => {
+                                      'PCK_SIZE' => 4,
+                                      'result' => {
+                                                    '18' => ' 23.634537',
+                                                    '26' => ' 173.212398',
+                                                    '2' => ' 19.517040',
+                                                    '22' => ' 70.753444',
+                                                    '24' => ' 119.737103',
+                                                    '12' => ' 20.653966',
+                                                    '8' => ' 20.915163',
+                                                    '10' => ' 19.989689',
+                                                    '14' => ' 22.062230',
+                                                    '20' => ' 29.053549',
+                                                    '4' => ' 19.571311',
+                                                    '6' => ' 19.876402',
+                                                    '16' => ' 21.843815'
+                                                  },
+                                      'SIM_CLOCK_LIMIT' => 100000,
+                                      'color' => 27,
+                                      'traffic' => 'bit reverse',
+                                      'ratios' => '2:26:2',
+                                      'status' => 'done',
+                                      'line_name' => 'full_2clk',
+                                      'noc_info' => {
+                                                      'AVC_ATOMIC_EN' => 0,
+                                                      'MUX_TYPE' => '"BINARY"',
+                                                      'Fpay' => '32',
+                                                      'DEBUG_EN' => '0',
+                                                      'ESCAP_VC_MASK' => '2\'b01',
+                                                      'ROUTE_NAME' => '"DUATO"',
+                                                      'B' => '4',
+                                                      'NX' => 8,
+                                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                      'C' => 0,
+                                                      'CONGESTION_INDEX' => 3,
+                                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                      'TOPOLOGY' => '"MESH"',
+                                                      'V' => '2',
+                                                      'FIRST_ARBITER_EXT_P_EN' => 0,
+                                                      'ROUTE_SUBFUNC' => '"XY"',
+                                                      'SSA_EN' => '"NO"',
+                                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                      'NY' => 8
+                                                    },
+                                      'sof_file' => '/home/mahdieh/mpsoc_work/simulate/full_no_ssa',
+                                      'PCK_NUM_LIMIT' => 200000
+                                    },
+                       'status' => 'ideal',
+                       'sample2' => {
+                                      'PCK_NUM_LIMIT' => 200000,
+                                      'noc_info' => {
+                                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                      'NY' => 8,
+                                                      'V' => '2',
+                                                      'FIRST_ARBITER_EXT_P_EN' => 0,
+                                                      'ROUTE_SUBFUNC' => '"XY"',
+                                                      'SSA_EN' => '"NO"',
+                                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                      'NX' => 8,
+                                                      'C' => 0,
+                                                      'TOPOLOGY' => '"MESH"',
+                                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                      'CONGESTION_INDEX' => 3,
+                                                      'MUX_TYPE' => '"BINARY"',
+                                                      'AVC_ATOMIC_EN' => 0,
+                                                      'DEBUG_EN' => '0',
+                                                      'Fpay' => '32',
+                                                      'ESCAP_VC_MASK' => '2\'b01',
+                                                      'B' => '4',
+                                                      'ROUTE_NAME' => '"XY"'
+                                                    },
+                                      'sof_file' => '/home/mahdieh/mpsoc_work/simulate/xy_no_ssa',
+                                      'ratios' => '2:26:2',
+                                      'status' => 'done',
+                                      'line_name' => 'xy_2clk',
+                                      'PCK_SIZE' => 4,
+                                      'result' => {
+                                                    '22' => ' 254.662935',
+                                                    '24' => ' 236.253645',
+                                                    '2' => ' 19.427887',
+                                                    '26' => ' 305.032999',
+                                                    '18' => ' 181.578715',
+                                                    '12' => ' 20.481242',
+                                                    '20' => ' 201.740313',
+                                                    '8' => ' 21.459671',
+                                                    '10' => ' 19.820817',
+                                                    '14' => ' 23.293653',
+                                                    '6' => ' 19.827435',
+                                                    '16' => ' 57.337223',
+                                                    '4' => ' 19.428556'
+                                                  },
+                                      'SIM_CLOCK_LIMIT' => 100000,
+                                      'traffic' => 'bit reverse',
+                                      'color' => 10
+                                    },
+                       'active_setting' => undef,
+                       'parameters_order' => {
+                                               'sample5' => [
+                                                              'line_name',
+                                                              'traffic',
+                                                              'PCK_SIZE',
+                                                              'PCK_NUM_LIMIT',
+                                                              'SIM_CLOCK_LIMIT'
+                                                            ],
+                                               'sample1' => [
+                                                              'line_name',
+                                                              'traffic',
+                                                              'PCK_SIZE',
+                                                              'PCK_NUM_LIMIT',
+                                                              'SIM_CLOCK_LIMIT'
+                                                            ],
+                                               'sim_param' => [
+                                                                'SAVE_NAME',
+                                                                'BIN_DIR'
+                                                              ],
+                                               'graph_param' => [
+                                                                  'G_Title',
+                                                                  'Y_Title',
+                                                                  'X_Title',
+                                                                  'legend_placement',
+                                                                  'Y_MIN',
+                                                                  'X_MIN',
+                                                                  'X_MAX',
+                                                                  'LINEw'
+                                                                ],
+                                               'sample2' => [
+                                                              'line_name',
+                                                              'traffic',
+                                                              'PCK_SIZE',
+                                                              'PCK_NUM_LIMIT',
+                                                              'SIM_CLOCK_LIMIT'
+                                                            ],
+                                               'sample4' => [
+                                                              'line_name',
+                                                              'traffic',
+                                                              'PCK_SIZE',
+                                                              'PCK_NUM_LIMIT',
+                                                              'SIM_CLOCK_LIMIT'
+                                                            ],
+                                               'noc_param' => [
+                                                                'NX',
+                                                                'NY',
+                                                                'V',
+                                                                'B',
+                                                                'Fpay',
+                                                                'TOPOLOGY',
+                                                                'ROUTE_NAME',
+                                                                'SSA_EN',
+                                                                'CONGESTION_INDEX',
+                                                                'ESCAP_VC_MASK',
+                                                                'VC_REALLOCATION_TYPE',
+                                                                'COMBINATION_TYPE',
+                                                                'MUX_TYPE',
+                                                                'C',
+                                                                'DEBUG_EN',
+                                                                'ADD_PIPREG_AFTER_CROSSBAR',
+                                                                'FIRST_ARBITER_EXT_P_EN',
+                                                                'AVC_ATOMIC_EN',
+                                                                'ROUTE_SUBFUNC'
+                                                              ],
+                                               'sample3' => [
+                                                              'line_name',
+                                                              'traffic',
+                                                              'PCK_SIZE',
+                                                              'PCK_NUM_LIMIT',
+                                                              'SIM_CLOCK_LIMIT'
+                                                            ],
+                                               'noc_type' => [
+                                                               'ROUTER_TYPE'
+                                                             ]
+                                             },
+                       'simulate_name' => 'bitreverse'
+                     }, 'emulator' );

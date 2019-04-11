@@ -1,0 +1,95 @@
+#######################################################################
+##	File: gg.MPSOC
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.6.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$gg = bless( {
+               'noc_indept_param' => {},
+               'noc_param' => {
+                                'FIRST_ARBITER_EXT_P_EN' => 0,
+                                'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                'ESCAP_VC_MASK' => '2\'b01',
+                                'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                'DEBUG_EN' => '0',
+                                'TOPOLOGY' => '"MESH"',
+                                'B' => '4',
+                                'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                'ROUTE_NAME' => '"XY"',
+                                'C' => 0,
+                                'NX' => ' 2',
+                                'V' => '2',
+                                'AVC_ATOMIC_EN' => 0,
+                                'SSA_EN' => '"NO"',
+                                'MUX_TYPE' => '"BINARY"',
+                                'ROUTE_SUBFUNC' => '"XY"',
+                                'CONGESTION_INDEX' => 3,
+                                'NY' => ' 2',
+                                'Fpay' => '32'
+                              },
+               'tile' => {
+                           '2' => {},
+                           '0' => {},
+                           '1' => {},
+                           '3' => {}
+                         },
+               'parameters_order' => {
+                                       'noc_param' => [
+                                                        'NX',
+                                                        'NY',
+                                                        'V',
+                                                        'B',
+                                                        'Fpay',
+                                                        'TOPOLOGY',
+                                                        'ROUTE_NAME',
+                                                        'SSA_EN',
+                                                        'VC_REALLOCATION_TYPE',
+                                                        'COMBINATION_TYPE',
+                                                        'MUX_TYPE',
+                                                        'C',
+                                                        'DEBUG_EN',
+                                                        'ADD_PIPREG_AFTER_CROSSBAR',
+                                                        'FIRST_ARBITER_EXT_P_EN',
+                                                        'AVC_ATOMIC_EN',
+                                                        'ROUTE_SUBFUNC',
+                                                        'CONGESTION_INDEX',
+                                                        'ESCAP_VC_MASK'
+                                                      ],
+                                       'noc_type' => [
+                                                       'ROUTER_TYPE'
+                                                     ]
+                                     },
+               'socs' => {
+                           'new_ni_test' => {},
+                           'ni_sep_test' => {},
+                           'sep' => {},
+                           'lm32_tile' => {
+                                            'tile_nums' => [
+                                                             0,
+                                                             1,
+                                                             2,
+                                                             3
+                                                           ]
+                                          }
+                         },
+               'setting' => {
+                              'show_noc_setting' => 1,
+                              'show_tile_setting' => 1,
+                              'soc_path' => 'lib/soc',
+                              'show_adv_setting' => 0
+                            },
+               'gui_status' => {
+                                 'status' => 'ideal',
+                                 'timeout' => 0
+                               },
+               'file_name' => undef,
+               'mpsoc_name' => 'gg',
+               'noc_type' => {
+                               'ROUTER_TYPE' => '"VC_BASED"'
+                             }
+             }, 'mpsoc' );

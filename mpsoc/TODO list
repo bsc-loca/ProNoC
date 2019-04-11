@@ -1,0 +1,6 @@
+1- fix bashrc in user manual
+2- add linux terminal for mpsoc test in user manual
+3- Fix emulator traffic patterns
+4- Fix dest_x for one-D topology in emulator
+5- check quartus_stp error with colored output
+ 
