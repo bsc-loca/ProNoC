@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use List::Util 'shuffle';
 require "widget.pl"; 	
+require "traffic_pattern.pl";
 
 
 use constant SIM_RAM_GEN	=> 0;			
@@ -71,9 +72,6 @@ sub help {
 
 
 
-
-
-
 sub random_dest_gen {
 	my $n=shift;
 	my @c=(0..$n-1);
@@ -101,105 +99,12 @@ sub run_cmd_update_info {
 }
 
 
-sub getBit{
-	my ($num, $b, $W)=@_;
-	while($b<0) {$b=$b+$W; }
-	$b=$b % $W;
-	return ($num >> $b) & 1;
-}
 
-# number; b:bit location;  W: number width log2(num); v: 1 assert the bit, 0 deassert the bit; 
-sub setBit{
-	my ($num ,$b,$W,$v)=@_;
-	while($b<0) {$b=$b+$W;}
-	$b=$b % $W;
-		
-    my $mask = 1 << $b;
-    if ($v == 0) {$$num  = $$num & ~$mask;} # assert bit
-    else {$$num = $$num | $mask;} #deassert bit      
-}
+
 
 sub synthetic_destination{
-	my($traffic,$x,$y,$xn,$yn,$line_num,$rnd)=@_;
-	my $dest_x;
-	my $dest_y;
-	my $xw          =   log2($xn); 
-	my $yw          =   log2($yn); 
-	my $cw			=	log2($xn*$yn);
-
-	if( $traffic eq "transposed 1"){
-		 $dest_x= $xn-$y-1;
-		 $dest_y= $yn-$x-1;
-		
-	} elsif( $traffic eq "transposed 2"){
-		 
-		$dest_x  = $y;
-		$dest_y  = $x;
-	} elsif( $traffic eq "bit reverse"){
-		#di = sb−i−1
-		my $dest=0;
-		my $num=($y * $xn) +	$x;
-		for(my $i=0; $i< $cw; $i++){
-			 setBit(\$dest , $i, $cw, getBit($num, $cw-$i-1, $cw));
-		}
-		$dest_x   = $dest % $xn;
-		$dest_y   = int($dest / $xn);
-	 } elsif( $traffic  eq "bit complement") {
-
-		 $dest_x   = (~$x) &(0xFF>> (8-$xw));
-		 $dest_y   = (~$y) &(0xFF>> (8-$yw));
-
-
-	}elsif( $traffic eq "tornado") {
-		 
-		#[(x+(k/2-1)) mod k, (y+(k/2-1)) mod k],
-		 $dest_x   = (($x + (($xn/2)-1))%$xn);
-		 $dest_y   = (($y + (($yn/2)-1))%$yn);
-	}elsif( $traffic eq "random") {
-		 #my $num=($y * $xn) +	$x;
-		
-		my $xc=$xn * $yn;
-		my @randoms=@{$rnd};
-		my $num=($y * $xn) +	$x; 
-		my $dest = @{$randoms[$num]}[$line_num-1];
-		#print "$num:$dest, "; # \@{ \$randoms\[$num\]\}\[$line_num\]"; 
-		$dest_x   = $dest % $xn;
-		$dest_y   = int($dest  / $xn);
-		
-	}elsif($traffic eq "shuffle"){
-		#di = si−1 mod b
-		my $tmp=0;
-		my $num=($y * $xn) +	$x;
-		for(my $i=0; $i< $cw; $i++){
-			  setBit(\$tmp , $i, $cw, getBit($num, $i-1, $cw));
-		}
-		$dest_x   = $tmp % $xn;
-		$dest_y   = int($tmp / $xn);
-     }
-     elsif($traffic eq "bit rotation"){
-		#di = si+1 mod b
-		my $tmp=0;
-		my $num=($y * $xn) +	$x;
-		for(my $i=0; $i< $cw; $i++){
-			 setBit(\$tmp , $i, $cw, getBit($num, $i+1, $cw));
-		}
-		$dest_x   = $tmp % $xn;
-		$dest_y   = int($tmp / $xn);
-     }
-     elsif($traffic eq "neighbor"){
-		#dx = sx + 1 mod k
-		$dest_x     = ($x + 1) % $xn;
-		$dest_y     = ($y + 1) % $yn;
-     } 	
-	else{#off
-		 print "***********************************$traffic is not defined*******************************************\n";
-		 $dest_x= $x;
-		 $dest_y= $y;
-		
-	}
-
-	return ($dest_x,$dest_y);
-
+	my($self,$traffic,$endp,$line_num,$rnd)=@_;
+	return  pck_dst_gen ($self,$traffic,$endp,$line_num,$rnd);
 }
 
 
@@ -208,16 +113,12 @@ sub synthetic_destination{
 
 
 sub gen_synthetic_traffic_ram_line{
-	my ($emulate,  $x, $y,  $sample,$ratio ,$line_num,$rnd)=@_;
-
-	
+	my ($emulate,  $endp,  $sample,$ratio ,$line_num,$rnd)=@_;	
 	
 	my $ref=$emulate->object_get_attribute("$sample","noc_info"); 
 	my %noc_info= %$ref;
-	my $xn=$noc_info{T1};
-	my $yn=$noc_info{T2};	
+	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($emulate);
 	my $traffic=$emulate->object_get_attribute($sample,"traffic"); 
-
 	
 	my $pck_num_to_send=$emulate->object_get_attribute($sample,"PCK_NUM_LIMIT");
 	my $pck_size=$emulate->object_get_attribute($sample,"PCK_SIZE");
@@ -226,47 +127,43 @@ sub gen_synthetic_traffic_ram_line{
 	
 	if($line_num==0){ #first ram line shows how many times the ram content must be read 
 		 #In random traffic each node sends 2 packets to other NC-1  nodes for (pck_num_to_send/2) times 
-			my $ram_cnt=  ($traffic eq 'random')? ($pck_num_to_send/(2*(($xn * $yn)-1)))+1:0 ;
+			my $ram_cnt=  ($traffic eq 'random')? ($pck_num_to_send/(2*($NE-1)))+1:0 ;
 			return (0,$ram_cnt);
 	
 	}
 	return (0,0) if($line_num>1  && $traffic ne 'random');	
-	return (0,0) if( $line_num>= $xn * $yn);  
-
-	
+	return (0,0) if( $line_num>= $NE);  	
 
 	#assign {pck_num_to_send_in,ratio_in, pck_size_in,dest_x_in, dest_y_in,pck_class_in, last_adr_in}= q_a;
 	my $last_adr  = ( $traffic ne 'random') ? 1 : 
-			 ($line_num ==($xn * $yn)-1)? 1 :0;
+			 ($line_num ==$NE-1)? 1 :0;
 
-	my ($dest_x, $dest_y)=synthetic_destination($traffic,$x,$y,$xn,$yn,$line_num,$rnd);
+	my $dest_e_addr=synthetic_destination($emulate,$traffic,$endp,$line_num,$rnd);
 
 	my $vs= ( $traffic eq 'random')? 2 : $pck_num_to_send;
 	$vs=($vs << 2 )+ ($ratio >>5) ;
 
 	my $vl= ($ratio %32);
 	$vl=($vl << PCK_SIZw )+$pck_size;
-	$vl=($vl << MAXXw )+$dest_x;
-	$vl=($vl << MAXYw )+$dest_y;
+	$vl=($vl << MAX_EAw )+$dest_e_addr;
 	$vl=($vl << MAXCw )+$pck_class_in;
-	$vl=($vl << 1 )+$last_adr;
-	
+	$vl=($vl << 1 )+$last_adr;	
 	return ($vs,$vl);
 }
 
 
 sub generate_synthetic_traffic_ram{
-	my ($emulate,$x,$y,$sample,$ratio , $file,$rnd,$num)=@_;
+	my ($emulate,$endp,$sample,$ratio , $file,$rnd)=@_;
 		
 	my $line_num;
 	my $line_value;
 	my $ram;
 	if(SIM_RAM_GEN){
-		my $ext= sprintf("%02u.txt",$num);
+		my $ext= sprintf("%02u.txt",$endp);
 		open( $ram, '>', "$ENV{'PRONOC_WORK'}/emulate/ram".$ext) || die "Can not create: \"$ENV{'PRONOC_WORK'}/emulate/ram.$ext\" $!";
 	}
 	for ($line_num= 0; $line_num<RAM_SIZE; $line_num++ ) {
-		my ($value_s,$value_l)=gen_synthetic_traffic_ram_line ($emulate,  $x, $y,  $sample, $ratio ,$line_num,$rnd);
+		my ($value_s,$value_l)=gen_synthetic_traffic_ram_line ($emulate,  $endp,  $sample, $ratio ,$line_num,$rnd);
 		
 		
 		#printf ("\n%08x\t",$value_s);
@@ -307,29 +204,28 @@ sub generate_emulator_ram {
 	my $ref=$emulate->object_get_attribute($sample,"noc_info"); 
 	my %noc_info= %$ref;
 	my $C=$noc_info{C};
-	my $xn=$noc_info{T1};
-	my $yn=$noc_info{T2};
-	my $xc=$xn*$yn;
-	my $rnd=random_dest_gen($xc); # generate a matrix of sudo random number
+	
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($emulate);
+	
+	
+	
+	
+	my $rnd=random_dest_gen($NE); # generate a matrix of sudo random number
 	my $traffic=$emulate->object_get_attribute($sample,"traffic"); 
 	my @traffics=("tornado", "transposed 1", "transposed 2", "bit reverse", "bit complement","random", "hot spot" );
 	
-	if ( !defined $xn || $xn!~ /\s*\d+\b/ ){ add_info($info,"programe_pck_gens:invalid X value\n"); help(); return 0;}
-	if ( !defined $yn || $yn!~ /\s*\d+\b/ ){ add_info($info,"programe_pck_gens:invalid Y value\n"); help(); return 0;}
+	#if ( !defined $xn || $xn!~ /\s*\d+\b/ ){ add_info($info,"programe_pck_gens:invalid X value\n"); help(); return 0;}
+	#if ( !defined $yn || $yn!~ /\s*\d+\b/ ){ add_info($info,"programe_pck_gens:invalid Y value\n"); help(); return 0;}
 	if ( !grep( /^$traffic$/, @traffics ) ){add_info($info,"programe_pck_gens:$traffic is an invalid Traffic name\n"); help(); return 0;}
-	if ( $xn <2 || $xn >16 ){ add_info($info,"programe_pck_gens:invalid X value: ($xn). should be between 2 and 16 \n"); help(); return 0;}
-	if ( $yn <2 || $yn >16 ){ add_info($info,"programe_pck_gens:invalid Y value:($yn). should be between 2 and 16 \n"); help(); return 0;}
+	if ( $EAw >8 ){ add_info($info,"programe_pck_gens:invalid EAw value: ($EAw). should be between 1 and 8 \n"); help(); return 0;}
+	#if ( $yn <2 || $yn >16 ){ add_info($info,"programe_pck_gens:invalid Y value:($yn). should be between 2 and 16 \n"); help(); return 0;}
 	#open file pointer
 	#open(my $file, '>', RAM_BIN_FILE) || die "Can not create: \">lib/emulate/emulate_ram.bin\" $!";
 	open(my $file, '>', "$ENV{'PRONOC_WORK'}/emulate/emulate_ram.bin") || die "Can not create: \"$ENV{'PRONOC_WORK'}/emulate/emulate_ram.bin\" $!";
 	
 	#generate each node ram data
-	for (my $y=0; $y<$yn; $y=$y+1){
-		for (my $x=0; $x<$xn; $x=$x+1){
-			my $num=($y * $xn) +	$x;
-			generate_synthetic_traffic_ram($emulate,$x,$y,$sample,$ratio_in, $file,$rnd,$num);
-
-		}
+	for (my $endp=0; $endp<$NE; $endp++){
+		generate_synthetic_traffic_ram($emulate,$endp,$sample,$ratio_in, $file,$rnd);
 	}
 	close($file);
 	return 1;

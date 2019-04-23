@@ -42,20 +42,16 @@ module  noc #(
     parameter T2= 8,
     parameter T3= 8,
     parameter T4= 8,  
-    parameter ROUTE_NAME = "DUATO", 
-       
+    parameter ROUTE_NAME = "DUATO",        
     parameter C = 2,    //    number of flit class 
     parameter Fpay = 32,
     parameter MUX_TYPE= "ONE_HOT",    //"ONE_HOT" or "BINARY"
     parameter VC_REALLOCATION_TYPE = "NONATOMIC",// "ATOMIC" , "NONATOMIC"
     parameter COMBINATION_TYPE= "COMB_SPEC1",// "BASELINE", "COMB_SPEC1", "COMB_SPEC2", "COMB_NONSPEC"
-    parameter FIRST_ARBITER_EXT_P_EN = 0,
-   
-    
+    parameter FIRST_ARBITER_EXT_P_EN = 0,    
     parameter CONGESTION_INDEX = 7,
     parameter DEBUG_EN=0,
-    parameter AVC_ATOMIC_EN= 0,
-   
+    parameter AVC_ATOMIC_EN= 0,   
     parameter ADD_PIPREG_AFTER_CROSSBAR=0,
     parameter CVw=(C==0)? V : C * V,
     parameter [CVw-1:  0] CLASS_SETTING = {CVw{1'b1}}, // shows how each class can use VCs   
@@ -74,39 +70,15 @@ module  noc #(
     reset,
     clk
  );
+ 
+    `define INCLUDE_TOPOLOGY_LOCALPARAM
+    `include "topology_localparam.v"
 
 
- function integer powi;
-        input integer x,y;
-        integer i;begin //compute x to the y
-        powi=1;
-        for (i = 0; i <y; i=i+1 ) begin 
-            powi=powi * x;
-        end
-        end   
-    endfunction 
-
-
-localparam 
-//mesh_torus
-    NX = T1,
-    NY = T2,
-//fattree    
-    K =  T1,
-    L =  T2;
-
- /* verilator lint_off WIDTH */
-localparam NE_TORI = (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? NX : NX*NY;    //number of cores
-localparam NE_FATTREE = powi(K,L);  //total number of endpoints
-localparam NE = (TOPOLOGY=="FATTREE") ? NE_FATTREE : NE_TORI; // end point number
- /* verilator lint_on WIDTH */
-
-
-
-localparam 
-    Fw = 2+V+Fpay, //flit width;    
-    NEFw = NE * Fw,
-    NEV = NE * V;
+    localparam 
+        Fw = 2+V+Fpay, //flit width;    
+        NEFw = NE * Fw,
+        NEV = NE * V;
 
     input reset,clk;    
     
@@ -124,8 +96,9 @@ if (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS" || TOPOLOGY == "RING" || TOPOL
     mesh_torus_noc #(
     	.V(V),
     	.B(B),
-    	.NX(T1),
-    	.NY(T2),
+    	.T1(T1),
+    	.T2(T2),
+    	.T3(T3),
     	.C(C),
     	.Fpay(Fpay),
     	.MUX_TYPE(MUX_TYPE),
@@ -160,50 +133,84 @@ if (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS" || TOPOLOGY == "RING" || TOPOL
     
     end else if (TOPOLOGY == "FATTREE") begin : fat
     
-    fattree_noc #(
-    	.V(V),
-    	.B(B),
-    	.K(T1),
-    	.L(T2),
-    	.C(C),
-    	.Fpay(Fpay),
-    	.MUX_TYPE(MUX_TYPE),
-    	.VC_REALLOCATION_TYPE(VC_REALLOCATION_TYPE),
-    	.COMBINATION_TYPE(COMBINATION_TYPE),
-    	.FIRST_ARBITER_EXT_P_EN(FIRST_ARBITER_EXT_P_EN),
-    	.TOPOLOGY(TOPOLOGY),
-    	.ROUTE_NAME(ROUTE_NAME),
-    	.CONGESTION_INDEX(CONGESTION_INDEX),
-    	.DEBUG_EN(DEBUG_EN),
-    	.AVC_ATOMIC_EN(AVC_ATOMIC_EN),
-    	.ADD_PIPREG_AFTER_CROSSBAR(ADD_PIPREG_AFTER_CROSSBAR),
-    	.CVw(CVw),
-    	.CLASS_SETTING(CLASS_SETTING),
-    	.ESCAP_VC_MASK(ESCAP_VC_MASK),
-    	.SSA_EN(SSA_EN),
-    	.SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-    	.WEIGHTw(WEIGHTw),
-    	.MIN_PCK_SIZE(MIN_PCK_SIZE)
-    )
-    fattree
-    (
-    	.reset(reset),
-    	.clk(clk),
-    	.flit_out_all(flit_out_all),
-    	.flit_out_wr_all(flit_out_wr_all),
-    	.credit_in_all(credit_in_all),
-    	.flit_in_all(flit_in_all),
-    	.flit_in_wr_all(flit_in_wr_all),
-    	.credit_out_all(credit_out_all)
-    );
+        fattree_noc #(
+        	.V(V),
+        	.B(B),
+        	.T1(T1),
+        	.T2(T2),
+        	.T3(T3),
+        	.C(C),
+        	.Fpay(Fpay),
+        	.MUX_TYPE(MUX_TYPE),
+        	.VC_REALLOCATION_TYPE(VC_REALLOCATION_TYPE),
+        	.COMBINATION_TYPE(COMBINATION_TYPE),
+        	.FIRST_ARBITER_EXT_P_EN(FIRST_ARBITER_EXT_P_EN),
+        	.TOPOLOGY(TOPOLOGY),
+        	.ROUTE_NAME(ROUTE_NAME),
+        	.CONGESTION_INDEX(CONGESTION_INDEX),
+        	.DEBUG_EN(DEBUG_EN),
+        	.AVC_ATOMIC_EN(AVC_ATOMIC_EN),
+        	.ADD_PIPREG_AFTER_CROSSBAR(ADD_PIPREG_AFTER_CROSSBAR),
+        	.CVw(CVw),
+        	.CLASS_SETTING(CLASS_SETTING),
+        	.ESCAP_VC_MASK(ESCAP_VC_MASK),
+        	.SSA_EN(SSA_EN),
+        	.SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
+        	.WEIGHTw(WEIGHTw),
+        	.MIN_PCK_SIZE(MIN_PCK_SIZE)
+        )
+        fattree
+        (
+        	.reset(reset),
+        	.clk(clk),
+        	.flit_out_all(flit_out_all),
+        	.flit_out_wr_all(flit_out_wr_all),
+        	.credit_in_all(credit_in_all),
+        	.flit_in_all(flit_in_all),
+        	.flit_in_wr_all(flit_in_wr_all),
+        	.credit_out_all(credit_out_all)
+        );
 
-    end
-    endgenerate
+    end else if (TOPOLOGY == "TREE") begin : tree
+        tree_noc #(
+            .V(V),
+            .B(B),
+            .T1(T1),
+            .T2(T2),
+            .T3(T3),
+            .C(C),
+            .Fpay(Fpay),
+            .MUX_TYPE(MUX_TYPE),
+            .VC_REALLOCATION_TYPE(VC_REALLOCATION_TYPE),
+            .COMBINATION_TYPE(COMBINATION_TYPE),
+            .FIRST_ARBITER_EXT_P_EN(FIRST_ARBITER_EXT_P_EN),
+            .TOPOLOGY(TOPOLOGY),
+            .ROUTE_NAME(ROUTE_NAME),
+            .CONGESTION_INDEX(CONGESTION_INDEX),
+            .DEBUG_EN(DEBUG_EN),
+            .AVC_ATOMIC_EN(AVC_ATOMIC_EN),
+            .ADD_PIPREG_AFTER_CROSSBAR(ADD_PIPREG_AFTER_CROSSBAR),
+            .CVw(CVw),
+            .CLASS_SETTING(CLASS_SETTING),
+            .ESCAP_VC_MASK(ESCAP_VC_MASK),
+            .SSA_EN(SSA_EN),
+            .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
+            .WEIGHTw(WEIGHTw),
+            .MIN_PCK_SIZE(MIN_PCK_SIZE)
+            )
+            tree
+            (
+            	.reset(reset),
+            	.clk(clk),
+            	.flit_out_all(flit_out_all),
+            	.flit_out_wr_all(flit_out_wr_all),
+            	.credit_in_all(credit_in_all),
+            	.flit_in_all(flit_in_all),
+            	.flit_in_wr_all(flit_in_wr_all),
+            	.credit_out_all(credit_out_all)
+            );    
     
-
-
-
-
-
+    end     
+    endgenerate
 endmodule
 

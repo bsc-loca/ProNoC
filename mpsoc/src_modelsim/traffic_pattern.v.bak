@@ -441,10 +441,15 @@ module two_dimention_pck_dst_gen  #(
 	    dest_x_reg = current_x;
      	    dest_y_reg= current_y;
 	    dest_l_reg=current_l;
-            if((current_x==0) &&  (current_y== 0) && (current_l==0)) begin 
-                dest_x_reg=  NX-1; dest_y_reg=  NY-1; valid_dst_reg=1'b1;
-                dest_l_reg= NL-1;
+         //   if((current_x==0) &&  (current_y== 0) && (current_l==0)) begin 
+            //    dest_x_reg=  NX-1; dest_y_reg=  NY-1; valid_dst_reg=1'b1;
+            //    dest_l_reg= NL-1;
+          //  end
+          
+           if((current_x==0) &&  (current_y== 0) && (current_l==0)) begin 
+                dest_x_reg=  0; dest_y_reg=  0;   dest_l_reg= 1;  valid_dst_reg=1'b1;
             end
+          
 /*
             if((current_x==1) &&  (current_y== 0) && (current_l==0) ) begin 
                 dest_x_reg=  NX-1; dest_y_reg=  NY-2; valid_dst_reg=1'b1;
@@ -623,8 +628,8 @@ module one_dimention_pck_dst_gen #(
         
         always @(*) begin 
             valid_dst_reg=1'b0;   
-	    dest_x_reg = current_x;
-     	    dest_l_reg=current_l;    
+	    dest_x_reg = core_num;
+     	     
           //  if( current_x>=0 && current_x<=6  ) begin 
            //     dest_x_reg=  8;   valid_dst_reg=1'b1;
           //  end

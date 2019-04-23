@@ -11,9 +11,9 @@ SIM_TES_IN=(
 "model_mesh_8x8_vc2_full_sa_rra.SIM" 	"yes"  	 	"no"		"nop "   			"nop "
 "model_mesh_8x8_vc2_full_nosa_rra.SIM" 	"yes"  	 	"no"		"nop "   			"nop "
 "model_mesh_8x8_vc1_xy_nosa.SIM" 	"yes"  	 	"no"		"nop "   			"nop "
-"pronoc_mesh_8x8_random.SIM" 		"no"  	 	"yes"		"pronoc_random "   	"nop"
-"pronoc_mesh_8x8_bitreverse.SIM" 	"no"  		"yes"		"pronoc_bitreverse "   "nop"
-"pronoc_mesh_8x8_tran1.SIM"			"no"  	 	"yes"		"pronoc_tran1 "   	"nop"
+"pronoc_mesh_8x8_random.SIM" 		"no"  	 	"yes"		"pronoc_random"   	"nop"
+"pronoc_mesh_8x8_bitreverse.SIM" 	"no"  		"yes"		"pronoc_bitreverse"   "nop"
+"pronoc_mesh_8x8_tran1.SIM"		"no"  	 	"yes"		"pronoc_tran1"   	"nop"
 )
 
 

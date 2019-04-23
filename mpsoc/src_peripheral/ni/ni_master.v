@@ -33,7 +33,6 @@
 `timescale 1ns / 1ps
 // synthesis translate_on
 
-
 module  ni_master #(    
     parameter MAX_TRANSACTION_WIDTH=10, // Maximum transaction size will be 2 power of MAX_DMA_TRANSACTION_WIDTH words 
     parameter MAX_BURST_SIZE =256, // in words
@@ -43,34 +42,28 @@ module  ni_master #(
     parameter ROUTE_NAME    =   "XY",
     parameter T1 = 4,   // number of node in x axis
     parameter T2 = 4,   // number of node in y axis
+    parameter T3 = 1,
     parameter C = 4,    //  number of flit class 
     parameter V=4,
     parameter B = 4,
     parameter Fpay = 32,
     parameter CRC_EN= "NO",// "YES","NO" if CRC is enable then the CRC32 of all packet data is calculated and sent via tail flit. 
     parameter SWA_ARBITER_TYPE = "RRA", // RRA WRRA
-    parameter WEIGHTw          = 4, // weight width of WRRA
-  
-   
+    parameter WEIGHTw          = 4, // weight width of WRRA   
     //wishbone port parameters
     parameter Dw            =   32,
     parameter S_Aw          =   7,
     parameter M_Aw          =   32,
     parameter TAGw          =   3,
     parameter SELw          =   4
-
-
 )
 (
-     // 
+    //general 
     reset,
     clk,    
-
     //noc interface  
-    current_rx,
-    current_ry, 
-    current_ex,
-    current_ey,   
+    current_r_addr,
+    current_e_addr,
     flit_out,     
     flit_out_wr,   
     credit_in,
@@ -115,59 +108,19 @@ module  ni_master #(
 
 );
 
-
-localparam 
-    //mesh_torus
-    NX = T1,
-    NY = T2,
-    //fattree    
-    K=T1,
-    L=T2,
-    Lw=log2(L),
-    Kw=log2(K),
-    LKw=L*Kw,
-      
-    /* verilator lint_off WIDTH */ 
-    RXw = (TOPOLOGY == "FATTREE")? LKw : log2(NX),
-    RYw = (TOPOLOGY == "FATTREE")? Lw  : log2(NY),
-    EXw = (TOPOLOGY == "FATTREE")? LKw : log2(NX),
-    EYw = (TOPOLOGY == "FATTREE")? Lw  : log2(NY);
-    /* verilator lint_on WIDTH */         
-                
-
-    /* verilator lint_off WIDTH */ 
-    localparam P=  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 3 : 
-                   (TOPOLOGY=="FATTREE")? 2 * K:  5;    
-    localparam 
-        DSTPw= (TOPOLOGY == "FATTREE")? K+1 : P-1;// destination port width in header flit         
-                    
-    localparam ROUTE_TYPE = (ROUTE_NAME == "XY" || ROUTE_NAME == "TRANC_XY" )?    "DETERMINISTIC" : 
-                           (ROUTE_NAME == "DUATO" || ROUTE_NAME == "TRANC_DUATO" )?   "FULL_ADAPTIVE": "PAR_ADAPTIVE";
-    /* verilator lint_on WIDTH */ 
-
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end       
-      end   
-    endfunction // log2 
+    `define INCLUDE_TOPOLOGY_LOCALPARAM
+    `include "topology_localparam.v" 
 
     localparam 
-        P_1 = P-1,
         Fw = 2+V+Fpay, //flit width
         Cw = log2(C);
-
  
-    input reset,clk;
-   
+    input reset,clk;   
 
      // NOC interfaces
-    input   [RXw-1   :   0]  current_rx;
-    input   [RYw-1   :   0]  current_ry;
-    input   [EXw-1   :   0]  current_ex;
-    input   [EYw-1   :   0]  current_ey;
+    input   [RAw-1   :   0]  current_r_addr;
+    input   [EAw-1   :   0]  current_e_addr;
+
     output  [Fw-1   :   0]  flit_out;     
     output                  flit_out_wr;   
     input   [V-1    :   0]  credit_in;
@@ -186,9 +139,7 @@ localparam
     input                           s_we_i;
     
     output  reg    [Dw-1       :   0]  s_dat_o;
-    output  reg                     s_ack_o;
-  
-    
+    output  reg                     s_ack_o;   
     
     //wishbone read master interface signals
     output  [SELw-1          :   0] m_send_sel_o;
@@ -211,12 +162,9 @@ localparam
     input                           m_receive_ack_i;   
     
       //Interrupt  interface
-    output                          irq;
+    output                          irq;  
   
-  
-    wire                            s_ack_o_next;
-    
-     
+    wire                            s_ack_o_next;    
     
     localparam 
         CHw=log2(V),
@@ -262,8 +210,7 @@ localparam
     localparam
         STATUS1w= 4 * V,
         STATUS2w= 2 * CHw + V + 8,
-        ERRw= 5;  
-    
+        ERRw= 5;     
     
     localparam 
         SEND_DONE_INT_EN_LOC=0,
@@ -273,66 +220,48 @@ localparam
         SEND_DONE_ISR_LOC=4,
         SAVE_DONE_ISR_LOC=5,
         GOT_PCK_ISR_LOC=6,
-        ERRORS_ISR_LOC=7;            
-        
-       
+        ERRORS_ISR_LOC=7;        
  
-    reg [BURST_SIZE_w-1  :   0] burst_size, burst_size_next,burst_counter,burst_counter_next;
-  
-    
+    reg [BURST_SIZE_w-1  :   0] burst_size, burst_size_next,burst_counter,burst_counter_next;      
     wire [V-1 :   0] receive_vc_is_busy, send_vc_is_busy;
     wire [V-1 :   0] receive_vc_enable,send_vc_enable,vc_state_reg_enable;
     wire [V-1 :   0] vc_burst_counter_ld, vc_burst_counter_dec;
     wire [V-1 :   0] vc_fifo_wr, vc_fifo_rd;
     wire [V-1 :   0] vc_fifo_full, vc_fifo_nearly_full, vc_fifo_empty;
     wire [V-1 :   0] send_vc_is_active,receive_vc_is_active;
-    wire [CHw-1:  0] send_enable_binary,receive_enable_binary;
-     
-     
-     
+    wire [CHw-1:  0] send_enable_binary,receive_enable_binary;          
     wire  [SELw-1    :   0] vc_m_send_sel_o  [V-1 :   0];
     wire  [M_Aw-1    :   0] vc_m_send_addr_o [V-1 :   0];
     wire  [TAGw-1    :   0] vc_m_send_cti_o  [V-1 :   0];
     wire  [V-1 :   0] vc_m_send_stb_o; 
     wire  [V-1 :   0] vc_m_send_cyc_o; 
     wire  [V-1 :   0] vc_m_send_we_o; 
-    wire  [V-1 :   0] save_hdr_info;    
-            
+    wire  [V-1 :   0] save_hdr_info;              
     wire  [SELw-1    :   0] vc_m_receive_sel_o  [V-1 :   0];
     wire  [M_Aw-1    :   0] vc_m_receive_addr_o [V-1 :   0];
     wire  [TAGw-1    :   0] vc_m_receive_cti_o  [V-1 :   0];
     wire  [V-1 :   0] vc_m_receive_stb_o; 
     wire  [V-1 :   0] vc_m_receive_cyc_o; 
     wire  [V-1 :   0] vc_m_receive_we_o; 
-
     wire  [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter [V-1 :   0];            
- 
     wire  [V-1    :   0] send_vc_fsm_is_ideal,receive_vc_fsm_is_ideal;
     wire  [Dw-1   :   0] send_vc_start_addr [V-1   :  0]; 
     wire  [Dw-1   :   0] receive_vc_start_addr [V-1   :  0];
-    wire  [V-1    :   0] receive_vc_got_packet;
-    
+    wire  [V-1    :   0] receive_vc_got_packet;    
     wire [MAX_TRANSACTION_WIDTH-1    :   0] send_vc_data_size [V-1   :  0];
     wire [MAX_TRANSACTION_WIDTH-1    :   0] receive_vc_max_buff_siz [V-1   :  0];
     wire [V-1   :  0]   send_vc_start, receive_vc_start; 
-    wire  received_flit_is_tail,received_flit_is_hdr;
-  
-    
-    wire [EXw-1   :   0]  vc_dest_x [V-1   :  0];
-    wire [EYw-1   :   0]  vc_dest_y [V-1   :  0];
+    wire  received_flit_is_tail,received_flit_is_hdr;    
+    wire [EAw-1  :   0]  vc_dest_e_addr [V-1   :  0];
     wire [Cw-1   :   0]  vc_pck_class [V-1   :  0]; 
     wire [WEIGHTw-1 : 0] vc_weight [V-1:0];    
     wire [V-1    :   0]  send_vc_send_hdr,send_vc_send_tail;
     wire [V-1    :   0]  send_vc_done,receive_vc_done;    
     wire [V-1	 :   0]  receive_vc_packet_is_saved;
-
-    wire [EXw-1   :   0]  dest_x;
-    wire [EYw-1   :   0]  dest_y;
+    wire [EAw-1   :   0]  dest_e_addr;
     wire [Cw-1   :   0]  pck_class;  
     wire send_hdr, send_tail;
-    wire [Fw-1   :   0] hdr_flit_out; 
-     
-    
+    wire [Fw-1   :   0] hdr_flit_out;         
     wire burst_counter_ld = | vc_burst_counter_ld; 
     wire burst_counter_dec= | vc_burst_counter_dec;
     wire fifo_wr = | vc_fifo_wr; 
@@ -341,18 +270,13 @@ localparam
     wire any_vc_send_done = | send_vc_done;     
     wire any_vc_save_done = | receive_vc_done;        
     wire last_burst = (burst_counter == 1);
-    wire burst_is_set =  (burst_size>0);
-    
+    wire burst_is_set =  (burst_size>0);    
     wire [Cw-1   :   0] class_in_next;
-    wire [EXw-1   :   0] x_src_in_next;
-    wire [EYw-1   :   0] y_src_in_next;
-    wire [Fpay-1    :   0] tail_flit_out;
-   
+    wire [EAw-1   :   0] src_e_addr_next;
+    wire [Fpay-1    :   0] tail_flit_out;   
     reg [Cw-1   :   0] class_in [V-1    :   0];
-    reg [EXw-1   :   0] x_src_in [V-1    :   0];
-    reg [EYw-1   :   0] y_src_in [V-1    :   0];
-    reg [V-1    :   0] crc_miss_match;
-    
+    reg [EAw-1   :   0] src_e_addr [V-1    :   0];
+    reg [V-1    :   0] crc_miss_match;    
     reg reset_errors, reset_errors_next;
     wire [V-1    :   0] burst_size_error,send_data_size_error,rcive_buff_ovrflw_err, illegal_send_req;           
     wire [V-1    :   0] vc_got_error;
@@ -365,15 +289,11 @@ localparam
     reg any_error_int_en, got_pck_int_en, save_done_int_en,send_done_int_en;
     reg any_error_int_en_next, got_pck_int_en_next, save_done_int_en_next,send_done_int_en_next;
     
-    
-  
-    
-    
+            
     wire  [STATUS1w-1  :0] status1;
     wire  [STATUS2w-1  :0] status2; 
-    wire  [ERRw-1     : 0] errors [V-1 : 0];
-    
-    wire [P_1-1 : 0] destport;
+    wire  [ERRw-1     : 0] errors [V-1 : 0];    
+    wire [DSTPw-1 : 0] destport;
     wire [WEIGHTw-1 : 0] weight;  
   
     assign status1= {send_vc_is_busy,receive_vc_is_busy,receive_vc_packet_is_saved,receive_vc_got_packet};
@@ -381,8 +301,7 @@ localparam
       
     
     assign  irq =(any_error_isr & any_error_int_en) | (got_pck_isr & got_pck_int_en) | (save_done_isr & save_done_int_en) | (send_done_isr & send_done_int_en);
-    
-                   
+                     
                    
     //read wb registers                
     always @(*)begin 
@@ -398,7 +317,7 @@ localparam
             s_dat_o   [MAX_TRANSACTION_WIDTH-1    :   0] = receive_counter[vc_addr];
         end  
         RECEIVE_SRC_WB_ADDR: begin            
-            s_dat_o[EXw+EYw-1: 0] = {y_src_in[vc_addr],x_src_in[vc_addr]};   // first&second byte
+            s_dat_o[EAw-1: 0] = src_e_addr[vc_addr];   // first&second byte
           //  s_dat_o[EYw+7: 8] = y_src_in[vc_addr];   // second byte                                          
             s_dat_o[Cw+15: 16]  =   class_in[vc_addr];  //third byte           
         end 
@@ -533,20 +452,17 @@ localparam
         ni_vc_wb_slave_regs #(
             .MAX_TRANSACTION_WIDTH(MAX_TRANSACTION_WIDTH),
             .DEBUG_EN(DEBUG_EN),
-            .EXw(EXw),
-            .EYw(EYw),
+            .EAw(EAw),
             .C(C),
             .Dw(Dw),
             .S_Aw(CHANNEL_REGw),
-            .WEIGHTw(WEIGHTw)
-           
+            .WEIGHTw(WEIGHTw)           
         )
         wb_slave_registers
         (
 //synthesis translate_off
 //synopsys  translate_off    
-            .current_ex(current_ex),
-            .current_ey(current_ey),
+            .current_e_addr(current_e_addr),
 //synthesis translate_on
 //synopsys  translate_on   
             .clk(clk),
@@ -557,31 +473,22 @@ localparam
             .send_start_addr(send_vc_start_addr[i]),
             .receive_start_addr(receive_vc_start_addr[i]),
             .receive_done(receive_vc_done[i]),
-            .receive_packet_is_saved(receive_vc_packet_is_saved[i]),
-    
+            .receive_packet_is_saved(receive_vc_packet_is_saved[i]),    
             .send_data_size(send_vc_data_size[i]),
             .max_receive_buff_siz(receive_vc_max_buff_siz[i]),
-            .dest_x(vc_dest_x[i]),
-            .dest_y(vc_dest_y[i]),
+            .dest_e_addr(vc_dest_e_addr[i]),
             .pck_class(vc_pck_class[i]),
             .weight(vc_weight[i]), 
             .send_start(send_vc_start[i]),
             .receive_start(receive_vc_start[i]),
             .receive_vc_got_packet(receive_vc_got_packet[i]),
             .all_save_done_reg_rst(all_save_done_reg_rst),	    
-	    //.all_got_pck_reg_rst(all_got_pck_reg_rst),
-           // .all_send_done_reg_rst(all_send_done_reg_rst),
-            
-            .s_dat_i(s_dat_i),
+	        .s_dat_i(s_dat_i),
             .s_addr_i(s_addr_i[CHANNEL_REGw-1:0]),
             .s_stb_i(s_stb_i),
             .s_cyc_i(s_cyc_i),
             .s_we_i(s_we_i)
-        );
-   
-    
-    
-    
+        );   
     
         ni_vc_dma #(
             .CRC_EN(CRC_EN),
@@ -595,8 +502,7 @@ localparam
         (
             .reset(reset),
             .clk(clk),
-            .status(),
-            
+            .status(),            
             //active-enable signals
             .send_enable(send_vc_enable[i]),
             .receive_enable(receive_vc_enable[i]),
@@ -613,8 +519,7 @@ localparam
             .receive_counter(receive_counter[i]),
             .save_hdr_info(save_hdr_info[i]),
             .send_done(send_vc_done[i]),
-            .receive_done(receive_vc_done[i]),    
-                      
+            .receive_done(receive_vc_done[i]),                       
             .send_fsm_is_ideal(send_vc_fsm_is_ideal[i]),
             .receive_fsm_is_ideal(receive_vc_fsm_is_ideal[i]),
             .send_start_addr(send_vc_start_addr[i]),
@@ -624,22 +529,19 @@ localparam
             .send_start(send_vc_start[i]),
             .receive_start(receive_vc_start[i]),
             .received_flit_is_tail(received_flit_is_tail),
-            
             //fifo
             .send_fifo_wr(vc_fifo_wr[i]), 
             .send_fifo_full(vc_fifo_full[i]),
             .send_fifo_nearly_full(vc_fifo_nearly_full[i]),
             .send_fifo_rd(credit_in[i]),
             .receive_fifo_empty(vc_fifo_empty[i]),
-            .receive_fifo_rd(vc_fifo_rd[i]), 
-         
+            .receive_fifo_rd(vc_fifo_rd[i]),          
             //errors
             .reset_errors(reset_errors),
             .burst_size_error(burst_size_error[i]),
             .send_data_size_error(send_data_size_error[i]),
             .rcive_buff_ovrflw_err(rcive_buff_ovrflw_err[i]),
-            .illegal_send_req(illegal_send_req[i]),           
-                        
+            .illegal_send_req(illegal_send_req[i]),                         
             //
             .m_send_sel_o(vc_m_send_sel_o[i]),
             .m_send_addr_o(vc_m_send_addr_o[i]),
@@ -648,8 +550,7 @@ localparam
             .m_send_cyc_o(vc_m_send_cyc_o[i]),
             .m_send_we_o(vc_m_send_we_o[i]),
         //  .m_send_dat_i(m_send_dat_i),
-            .m_send_ack_i(m_send_ack_i),
-            
+            .m_send_ack_i(m_send_ack_i),           
             
             .m_receive_sel_o(vc_m_receive_sel_o[i]),
         //  .m_receive_dat_o(vc_m_receive_dat_o[i]),
@@ -665,12 +566,10 @@ localparam
         always @ (posedge clk or posedge reset)begin 
             if(reset) begin 
                 class_in[i]<= {Cw{1'b0}};
-                x_src_in[i]<= {EXw{1'b0}};
-                y_src_in[i]<= {EYw{1'b0}};
+                src_e_addr[i]<= {EAw{1'b0}};
             end else if(save_hdr_info[i])begin 
                 class_in[i]<= class_in_next;
-                x_src_in[i]<= x_src_in_next;
-                y_src_in[i]<= y_src_in_next;
+                src_e_addr[i]<= src_e_addr_next;
             end
         end//always
    
@@ -702,9 +601,7 @@ localparam
             .channel_in(send_enable_binary),
             .data_in(m_send_dat_i [Fpay-1 : 0]),
             .crc_out(send_crc_out)
-        );
-        
-        
+        );        
         
         crc_32_multi_channel #(
         	.CHANNEL(V)
@@ -796,65 +693,53 @@ localparam
         assign receive_enable_binary = 1'b0;
     end
     endgenerate  
-    
+      
   
-  ni_conventional_routing #(
-  	.TOPOLOGY(TOPOLOGY),
-  	.ROUTE_NAME(ROUTE_NAME),
-  	.ROUTE_TYPE(ROUTE_TYPE),
-  	.P(P),
-  	.T1(T1),
-  	.T2(T2),
-  	.RXw(RXw),
-  	.RYw(RYw),
-  	.EXw(EXw),
-  	.EYw(EYw),
-  	.DSTPw(DSTPw)
-  )
-  conventional_routing
-  (
-  	.reset(reset),
-  	.clk(clk),
-  	.current_rx(current_rx),
-  	.current_ry(current_ry),
-  	.dest_ex(dest_x),
-  	.dest_ey(dest_y),
-  	.destport(destport)
-  );
+    ni_conventional_routing #(
+        .TOPOLOGY(TOPOLOGY),
+        .ROUTE_NAME(ROUTE_NAME),
+        .ROUTE_TYPE(ROUTE_TYPE),  
+        .T1(T1),
+        .T2(T2),
+        .T3(T3),
+        .RAw(RAw),
+        .EAw(EAw),
+        .DSTPw(DSTPw)
+    )
+    route_compute
+    (
+        .reset(reset),
+        .clk(clk),
+        .current_r_addr(current_r_addr),
+        .dest_e_addr(dest_e_addr),
+        .destport(destport)
+    );
   
-                
-    
+        
     header_flit_generator #(
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .Fpay(Fpay),
-        .TOPOLOGY(TOPOLOGY),
         .V(V),
-        .EXw(EXw),
-        .EYw(EYw),
+        .EAw(EAw),
         .DSTPw(DSTPw),
         .C(C),
         .WEIGHTw(WEIGHTw),
         .DATA_w(0)
     )
-    the_header_flit_generator
+    hdr_flit_gen
     (
         .flit_out(hdr_flit_out),
         .class_in(pck_class),
-        .x_dst_in(dest_x),
-        .y_dst_in(dest_y),
-        .x_src_in(current_ex),
-        .y_src_in(current_ey),
+        .dest_e_addr_in(dest_e_addr),
+        .src_e_addr_in(current_e_addr),
         .destport_in(destport),
         .vc_num_in(send_vc_enable),
         .weight_in(weight),
         .data_in( )
     );
     
-  
-   
   wire [V-1    :   0] wr_vc_send =  (fifo_wr) ? send_vc_enable : {V{1'b0}};  
- 
-    
+     
   ovc_status #(
     .V(V),
     .B(B)
@@ -868,12 +753,10 @@ localparam
     .empty_vc( ),
     .clk(clk),
     .reset(reset)
-  );
-    
+  );   
     
     // header info mux    
-    assign dest_x = vc_dest_x[send_enable_binary];
-    assign dest_y = vc_dest_y[send_enable_binary];
+    assign dest_e_addr = vc_dest_e_addr[send_enable_binary];
     assign pck_class  = vc_pck_class[send_enable_binary];
     assign weight =   vc_weight[send_enable_binary];  
     assign send_hdr = send_vc_send_hdr[send_enable_binary]; 
@@ -885,17 +768,14 @@ localparam
     assign m_send_cti_o  = vc_m_send_cti_o[send_enable_binary];
     assign m_send_stb_o  = vc_m_send_stb_o[send_enable_binary];
     assign m_send_cyc_o  = vc_m_send_cyc_o[send_enable_binary];
-    assign m_send_we_o   = vc_m_send_we_o[send_enable_binary];
-       
+    assign m_send_we_o   = vc_m_send_we_o[send_enable_binary];       
                         
     assign m_receive_sel_o = vc_m_receive_sel_o[receive_enable_binary];
     assign m_receive_addr_o= vc_m_receive_addr_o[receive_enable_binary];
     assign m_receive_cti_o = vc_m_receive_cti_o[receive_enable_binary];
     assign m_receive_stb_o = vc_m_receive_stb_o[receive_enable_binary];
     assign m_receive_cyc_o = vc_m_receive_cyc_o[receive_enable_binary];
-    assign m_receive_we_o  = vc_m_receive_we_o[receive_enable_binary];
-    
-    
+    assign m_receive_we_o  = vc_m_receive_we_o[receive_enable_binary];    
           
     wire [V-1    :   0]  flit_in_vc_num = flit_in [Fpay+V-1    :   Fpay]; 
     wire [V-1    :   0]  ififo_vc_not_empty; 
@@ -924,16 +804,12 @@ localparam
         .clk(clk),
         .ssa_rd({V{1'b0}})   
     ); 
-
-    
     
    extract_header_flit_info #(
-        .TOPOLOGY(TOPOLOGY),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
         .V(V),
-        .EXw(EXw),
-        .EYw(EYw),
+        .EAw(EAw),
         .DSTPw(DSTPw),
         .C(C),
         .Fpay(Fpay),
@@ -945,10 +821,8 @@ localparam
         .flit_in_we(),
         .class_o(class_in_next),
         .destport_o(),
-        .x_dst_o(),
-        .y_dst_o(),
-        .x_src_o(x_src_in_next),
-        .y_src_o(y_src_in_next),
+        .dest_e_addr_o(),
+        .src_e_addr_o(src_e_addr_next),
         .vc_num_o(),
         .hdr_flit_wr_o( ),
         .hdr_flg_o( ),
@@ -960,9 +834,7 @@ localparam
  
   assign m_receive_dat_o = fifo_dout[Dw-1   :   0];
   assign received_flit_is_tail = fifo_dout[Fw-2];
-  assign received_flit_is_hdr  = fifo_dout[Fw-1];
- 
-  
+  assign received_flit_is_hdr  = fifo_dout[Fw-1];  
   assign any_vc_got_pck = |receive_vc_got_packet;
   
     localparam [1:0] 
@@ -971,19 +843,13 @@ localparam
         TAIL_FLAG          =   2'b01;
  
   assign credit_out = vc_fifo_rd;
-  assign flit_out_wr= fifo_wr; 
-  
-  assign flit_out [Fpay+V-1 : Fpay] = send_vc_enable;
-    
+  assign flit_out_wr= fifo_wr;  
+  assign flit_out [Fpay+V-1 : Fpay] = send_vc_enable;    
   assign flit_out [Fpay-1   : 0   ] = (send_hdr)?  hdr_flit_out [Fpay-1 : 0] :
                                       (send_tail)? tail_flit_out :  m_send_dat_i [Fpay-1 : 0];
-
   assign flit_out [Fw-1 : Fw-2] =   (send_hdr)?  HDR_FLAG : 
                                     (send_tail)?  TAIL_FLAG    : BDY_FLAG;                                       
-    
-    
- endmodule
- 
+endmodule
  
  
   

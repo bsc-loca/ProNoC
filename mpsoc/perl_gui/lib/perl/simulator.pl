@@ -102,10 +102,11 @@ sub generate_sim_bin_file {
 		return;
 	}
 	
-	@files=(			
-		"$src_verilator_dir/traffic_task_graph.h",
-	);
-
+	#copy simulation c header files
+	@files = File::Find::Rule->file()
+                            ->name( '*.h')
+                            ->in( "$src_verilator_dir" );
+	
 	copy_file_and_folders (\@files,$project_dir,$obj_dir);
 	copy($testbench_file,"$obj_dir/testbench.cpp"); 
 		

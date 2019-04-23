@@ -101,12 +101,13 @@ sub copy_file_and_folders{
 	my ($file_ref,$project_dir,$target_dir)=@_;
 
 	foreach my $f(@{$file_ref}){
-		my $name= basename($f);				
+		my $name= basename($f);	
+				
 		my $n="$project_dir$f";
 		if (-f "$n") { #copy file
-			copy ("$n","$target_dir"); 		
+			copy ("$n","$target_dir/$name"); 		
 		}elsif(-f "$f" ){
-			copy ("$f","$target_dir");     			 	
+			copy ("$f","$target_dir/$name");     			 	
 		}elsif (-d "$n") {#copy folder
 			dircopy ("$n","$target_dir/$name"); 		
 		}elsif(-d "$f" ){

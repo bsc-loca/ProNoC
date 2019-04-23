@@ -1,5 +1,5 @@
 `timescale    1ns/1ps
-`define MONITORE_PATH
+//`define MONITORE_PATH
 
 /**********************************************************************
 **	File: input_ports.v
@@ -56,6 +56,7 @@ module input_ports
     parameter SWA_ARBITER_TYPE ="RRA",// "RRA","WRRA",
     parameter WEIGHTw=4,
     parameter WRRA_CONFIG_INDEX=0,
+    parameter PPSw=4,
     parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
 )(
     current_r_addr,
@@ -68,10 +69,13 @@ module input_ports
     flit_is_tail_all,
     ivc_request_all,
     dest_port_encoded_all,
+    dest_port_all,
     candidate_ovcs_all,
     flit_out_all,
     assigned_ovc_num_all,
     sel,
+    port_pre_sel,
+    swap_port_presel,
     nonspec_first_arbiter_granted_ivc_all,
     ssa_ivc_num_getting_sw_grant_all,
     destport_clear_all,
@@ -84,6 +88,8 @@ module input_ports
     reset,
     clk
 );
+    
+         
      
     localparam
         PV = V * P,
@@ -100,7 +106,7 @@ module input_ports
         WPP = WP * P,
         PVDSTPw= PV * DSTPw,
         PRAw= P * RAw;
-
+       
         
     input   reset,clk;
     input   [RAw-1 : 0] current_r_addr;
@@ -113,10 +119,13 @@ module input_ports
     output  [PV-1 : 0] flit_is_tail_all;
     output  [PV-1 : 0] ivc_request_all;
     output  [PVDSTPw-1 : 0] dest_port_encoded_all;
+    output  [PVP_1-1 : 0] dest_port_all;
     output  [PVV-1 : 0] candidate_ovcs_all;
     output  [PFw-1 : 0] flit_out_all;
     input   [PVV-1 : 0] assigned_ovc_num_all;
     input   [PV-1 : 0] sel;
+    input   [PPSw-1 : 0] port_pre_sel;
+    input   [PV-1  : 0]  swap_port_presel;
     input   [PV-1 : 0] nonspec_first_arbiter_granted_ivc_all;
     input   [PV-1 : 0] ssa_ivc_num_getting_sw_grant_all;
     input   [PVDSTPw-1 : 0] destport_clear_all;
@@ -125,7 +134,9 @@ module input_ports
     output  [P-1 : 0] iport_weight_is_consumed_all;
     input   [PP_1-1 : 0] granted_dest_port_all;
     output  [WPP-1 : 0] oports_weight_all;
+   
     input refresh_w_counter;
+    
 
 genvar i;
 generate 
@@ -160,8 +171,8 @@ generate
         .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE), 
         .WEIGHTw(WEIGHTw),
         .WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE) 
-    
+        .PPSw(PPSw),
+        .MIN_PCK_SIZE(MIN_PCK_SIZE)    
     )
     the_input_queue_per_port
     (
@@ -175,10 +186,13 @@ generate
         .flit_is_tail(flit_is_tail_all  [(i+1)*V-1 : i*V]),
         .ivc_request(ivc_request_all [(i+1)*V-1 : i*V]),    
         .dest_port_encoded(dest_port_encoded_all   [(i+1)*DSTPw*V-1 : i*DSTPw*V]),
+        .dest_port(dest_port_all [(i+1)*P_1*V-1 : i*P_1*V]),
         .candidate_ovcs(candidate_ovcs_all [(i+1) * VV -1 : i*VV]),
         .flit_out(flit_out_all [(i+1)*Fw-1 : i*Fw]),
         .assigned_ovc_num(assigned_ovc_num_all [(i+1)*VV-1 : i*VV]),
         .sel(sel [(i+1)*V-1 : i*V]),
+        .port_pre_sel(port_pre_sel),
+        .swap_port_presel(swap_port_presel[(i+1)*V-1 : i*V]),
         .nonspec_first_arbiter_granted_ivc(nonspec_first_arbiter_granted_ivc_all[(i+1)*V-1 : i*V]),
         .reset(reset),
         .clk(clk),
@@ -189,7 +203,7 @@ generate
         .vc_weight_is_consumed(vc_weight_is_consumed_all [(i+1)*V-1 : i*V]),
         .iport_weight_is_consumed(iport_weight_is_consumed_all[i]),
         .refresh_w_counter(refresh_w_counter),
-        .granted_dest_port(granted_dest_port_all[(i+1)*P_1-1 : i*P_1])
+        .granted_dest_port(granted_dest_port_all[(i+1)*P_1-1 : i*P_1])        
     );
     
     end//for      
@@ -232,6 +246,7 @@ module input_queue_per_port  #(
     parameter SWA_ARBITER_TYPE ="RRA",// "RRA","WRRA"
     parameter WEIGHTw=4,
     parameter WRRA_CONFIG_INDEX=0,
+    parameter PPSw=4,
     parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
 
 )(
@@ -245,10 +260,13 @@ module input_queue_per_port  #(
     flit_is_tail,
     ivc_request,
     dest_port_encoded,
+    dest_port,
     candidate_ovcs,
     flit_out,
     assigned_ovc_num,
     sel,
+    port_pre_sel,
+    swap_port_presel,
     reset,
     clk,
     nonspec_first_arbiter_granted_ivc,
@@ -280,7 +298,8 @@ module input_queue_per_port  #(
         Fw = 2+V+Fpay,   //flit width;    
         W = WEIGHTw,
         WP = W * P,
-        P_1=P-1;    
+        P_1=P-1,
+        VP_1 = V * P_1;    
 
     localparam
          /* verilator lint_off WIDTH */
@@ -290,6 +309,8 @@ module input_queue_per_port  #(
         /* verilator lint_on WIDTH */            
 
      localparam 
+        ELw = log2(T3),
+        VELw= V * ELw,
         PRAw= P * RAw;
    
  
@@ -304,6 +325,7 @@ module input_queue_per_port  #(
     output  [V-1 : 0] flit_is_tail;
     output  [V-1 : 0] ivc_request;
     output  [VDSTPw-1 : 0] dest_port_encoded;
+    output  [VP_1-1 : 0] dest_port;
     output  [VV-1 : 0] candidate_ovcs;
     output  [Fw-1 : 0] flit_out;
     input   [VV-1 : 0] assigned_ovc_num;
@@ -317,6 +339,10 @@ module input_queue_per_port  #(
     input   refresh_w_counter;
     input   [P_1-1 : 0] granted_dest_port; 
     output  [WP-1 : 0] oports_weight;  
+    input   [PPSw-1 : 0] port_pre_sel;
+    input   [V-1  : 0]  swap_port_presel;
+  
+            
     
     wire [Cw-1 : 0] class_in;
     wire [DSTPw-1 : 0] destport_in,destport_in_encoded;
@@ -334,7 +360,9 @@ module input_queue_per_port  #(
     wire hdr_flg_in,tail_flg_in;  
     wire [V-1 : 0] ivc_not_empty;
     wire [Cw-1 : 0] class_out [V-1 : 0];
-
+    wire  [VELw-1 : 0] endp_localp_num;
+    wire [ELw-1 : 0] endp_l_in;
+           
 
 //extract header flit info
     extract_header_flit_info #(
@@ -363,9 +391,11 @@ module input_queue_per_port  #(
          .data_o( )
      );
      
-      // synopsys  translate_off
-    // synthesis translate_off
-                                      
+            
+     
+     
+    // synopsys  translate_off
+    // synthesis translate_off                                      
      `ifdef MONITORE_PATH
      
     genvar j;
@@ -385,11 +415,8 @@ module input_queue_per_port  #(
     end
     endgenerate
     `endif
-    
     // synthesis translate_on
-    // synopsys  translate_on  
-     
-     
+    // synopsys  translate_on       
      
      
 always @ (posedge clk or posedge reset) begin 
@@ -414,6 +441,25 @@ end
 
 genvar i;
 generate
+    /* verilator lint_off WIDTH */  
+    if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1)) begin : multi_local
+    /* verilator lint_on WIDTH */  
+        mesh_tori_endp_addr_decode #(
+            .TOPOLOGY("MESH"),
+            .T1(T1),
+            .T2(T2),
+            .T3(T3),
+            .EAw(EAw)
+        )
+        endp_addr_decode
+        (
+            .e_addr(dest_e_addr_in),
+            .ex( ),
+            .ey( ),
+            .el(endp_l_in),
+            .valid( )
+        );
+   end
 
     /* verilator lint_off WIDTH */  
     if(TOPOLOGY=="FATTREE" && ROUTE_NAME == "NCA_STRAIGHT_UP") begin : fat
@@ -434,7 +480,7 @@ generate
     end
 
 
-
+      wire odd_column = current_r_addr[0]; 
 
     for (i=0;i<V; i=i+1) begin: V_loop
         
@@ -558,8 +604,60 @@ generate
             );                  
     
                 
-        end 
-       
+        end        	
+        
+                     
+                     
+        destp_generator #(
+            .TOPOLOGY(TOPOLOGY),
+            .ROUTE_NAME(ROUTE_NAME),
+            .ROUTE_TYPE(ROUTE_TYPE),
+            .T1(T1),
+            .NL(T3),
+            .P(P),
+            .DSTPw(DSTPw),
+            .ELw(ELw),
+            .PPSw(PPSw),
+            .SW_LOC(SW_LOC)
+        )
+        decoder
+        (
+            .dest_port_encoded(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),             
+            .dest_port_out(dest_port[(i+1)*P_1-1 : i*P_1]),   
+            .endp_localp_num(endp_localp_num[(i+1)*ELw-1 : i*ELw]),
+            .swap_port_presel(swap_port_presel[i]),
+            .port_pre_sel(port_pre_sel),
+            .odd_column(odd_column)
+        );
+         
+         
+         /* verilator lint_off WIDTH */  
+        if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1)) begin : multi_local
+          /* verilator lint_on WIDTH */  
+            // the router has multiple local ports. Save the destination local port 
+                  
+            
+            fwft_fifo #(
+                 .DATA_WIDTH(ELw),
+                 .MAX_DEPTH (MAX_PCK)
+            )
+            local_dest_fifo
+            (
+                 .din(endp_l_in),
+                 .wr_en(hdr_flit_wr[i]),   // Write enable
+                 .rd_en(dst_rd_fifo[i]),   // Read the next word
+                 .dout(endp_localp_num[(i+1)*ELw-1 : i*ELw]),    // Data out
+                 .full( ),
+                 .nearly_full( ),
+                 .recieve_more_than_0(),
+                 .recieve_more_than_1(),
+                 .reset(reset),
+                 .clk(clk) 
+            );       
+  
+        end else begin : slp 
+            assign endp_localp_num[(i+1)*ELw-1 : i*ELw] = {ELw{1'bx}}; 
+        end
         
         /* verilator lint_off WIDTH */    
         if(SWA_ARBITER_TYPE != "RRA")begin  : wrra
@@ -679,11 +777,11 @@ generate
 endgenerate    
 
     look_ahead_routing #(
-    	.P(P),
     	.T1(T1),
         .T2(T2),
         .T3(T3),
-        .T4(T4),        
+        .T4(T4), 
+        .P(P),       
         .RAw(RAw),  
         .EAw(EAw), 
     	.DSTPw(DSTPw),
@@ -740,7 +838,7 @@ endgenerate
       
     
     assign    dst_rd_fifo = reset_ivc;
-    assign    class_rd_fifo = reset_ivc;
+    assign    class_rd_fifo = (C>1)? reset_ivc : {V{1'bx}};
     assign    ivc_request = ivc_not_empty;    
 
 //synthesis translate_off
@@ -765,35 +863,39 @@ if(DEBUG_EN) begin :dbg
     	.inactive_IVC_body_flit_received_err( )
     );
 
-    debug_mesh_tori_route_ckeck #(
-        .T1(T1),
-        .T2(T2),
-        .T3(T3),
-        .ROUTE_TYPE(ROUTE_TYPE),
-        .V(V),
-        .AVC_ATOMIC_EN(AVC_ATOMIC_EN),
-        .SW_LOC(SW_LOC),
-        .ESCAP_VC_MASK(ESCAP_VC_MASK),
-        .TOPOLOGY(TOPOLOGY),
-        .DSTPw(DSTPw),
-        .RAw(RAw),
-        .EAw(EAw)
-    )
-    route_ckeck
-    (
-        .reset(reset),
-        .clk(clk),
-        .hdr_flg_in(hdr_flg_in),
-        .flit_in_we(flit_in_we),
-        .vc_num_in(vc_num_in),
-        .flit_is_tail(flit_is_tail),
-        .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant),
-        .current_r_addr(current_r_addr),
-        .dest_e_addr_in(dest_e_addr_in),
-        .src_e_addr_in(src_e_addr_in),
-        .destport_in(destport_in)      
-    );   
-  
+     /* verilator lint_off WIDTH */  
+     if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")) begin : mesh_based
+     /* verilator lint_on WIDTH */  
+
+        debug_mesh_tori_route_ckeck #(
+            .T1(T1),
+            .T2(T2),
+            .T3(T3),
+            .ROUTE_TYPE(ROUTE_TYPE),
+            .V(V),
+            .AVC_ATOMIC_EN(AVC_ATOMIC_EN),
+            .SW_LOC(SW_LOC),
+            .ESCAP_VC_MASK(ESCAP_VC_MASK),
+            .TOPOLOGY(TOPOLOGY),
+            .DSTPw(DSTPw),
+            .RAw(RAw),
+            .EAw(EAw)
+        )
+        route_ckeck
+        (
+            .reset(reset),
+            .clk(clk),
+            .hdr_flg_in(hdr_flg_in),
+            .flit_in_we(flit_in_we),
+            .vc_num_in(vc_num_in),
+            .flit_is_tail(flit_is_tail),
+            .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant),
+            .current_r_addr(current_r_addr),
+            .dest_e_addr_in(dest_e_addr_in),
+            .src_e_addr_in(src_e_addr_in),
+            .destport_in(destport_in)      
+        );   
+    end//mesh  
 end//DEBUG_EN 
 endgenerate 
 //synopsys  translate_on  
@@ -803,3 +905,93 @@ endgenerate
 endmodule
 
 
+
+
+
+// decode and mask the destintaion port according to routing algorithm and topology
+module destp_generator #(
+    parameter TOPOLOGY="MESH",
+    parameter ROUTE_NAME="XY",
+    parameter ROUTE_TYPE="DETERMINISTIC",
+    parameter T1=3,
+    parameter NL=1,
+    parameter P=5,
+    parameter DSTPw=4,
+    parameter ELw=1,
+    parameter PPSw=4,
+    parameter SW_LOC=0
+    
+)
+(
+    dest_port_encoded,             
+    dest_port_out,   
+    endp_localp_num,
+    swap_port_presel,
+    port_pre_sel,
+    odd_column
+);
+
+    localparam P_1= P-1;
+    input [DSTPw-1 : 0]  dest_port_encoded;             
+    input [ELw-1 : 0] endp_localp_num;
+    output [P_1-1: 0] dest_port_out;    
+    input             swap_port_presel;
+    input  [PPSw-1 : 0] port_pre_sel;
+    input odd_column;
+    
+    generate
+    /* verilator lint_off WIDTH */
+    if(TOPOLOGY == "FATTREE" ) begin : fat
+    /* verilator lint_on WIDTH */
+      fattree_destp_generator #(
+      	.K(T1),
+      	.P(P),
+      	.SW_LOC(SW_LOC),
+      	.DSTPw(DSTPw)
+      )
+      destp_generator
+      (
+      	.dest_port_in_encoded(dest_port_encoded),
+      	.dest_port_out(dest_port_out)
+      );
+    /* verilator lint_off WIDTH */ 
+    end else  if (TOPOLOGY == "TREE") begin :tree
+    /* verilator lint_on WIDTH */
+        tree_destp_generator #(
+            .K(T1),
+            .P(P),
+            .SW_LOC(SW_LOC),
+            .DSTPw(DSTPw)
+          )
+          destp_generator
+          (
+            .dest_port_in_encoded(dest_port_encoded),
+            .dest_port_out(dest_port_out)
+          );    
+    
+   end else begin : mesh
+    
+        mesh_torus_destp_generator #(
+        	.TOPOLOGY(TOPOLOGY),
+        	.ROUTE_NAME(ROUTE_NAME),
+        	.ROUTE_TYPE(ROUTE_TYPE),
+        	.P(P),
+        	.DSTPw(DSTPw),
+        	.NL(NL),
+        	.ELw(ELw),
+        	.PPSw(PPSw),
+        	.SW_LOC(SW_LOC)
+        )
+        destp_generator
+        (
+        	.dest_port_coded(dest_port_encoded),
+        	.endp_localp_num(endp_localp_num),
+        	.dest_port_out(dest_port_out),
+        	.swap_port_presel(swap_port_presel),
+        	.port_pre_sel(port_pre_sel),
+        	.odd_column(odd_column)// only needed for od even routing
+        );
+    
+    end
+    endgenerate
+endmodule

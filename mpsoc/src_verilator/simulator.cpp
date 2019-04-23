@@ -6,33 +6,36 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <inttypes.h>
-
-
 #include <verilated.h>          // Defines common routines
 //#include "Vrouter1.h"          included in parameter.h
 #include "Vnoc.h"
 #include "Vtraffic.h"
+#include "parameter.h"
+#include "traffic_task_graph.h"
+#include "traffic_synthetic.h"
 
-int reset,clk;
+
+#define RATIO_INIT		2
+#define DISABLE -1
+#define MY_VL_SETBIT_W(data,bit) (data[VL_BITWORD_I(bit)] |= (VL_UL(1) << VL_BITBIT_I(bit)))
+#define STND_DEV_EN 1
+#define SYNTHETIC 0
+#define CUSTOM 1 
+
 
 //Vrouter *router;
 //Vrouter1		*router1[NR];                     // Included in parameter.h file
 Vnoc		 	*noc;
-#include "parameter.h"
 Vtraffic		*traffic[NE];
-
-
-#define RATIO_INIT		2
-#define SYNTHETIC 0
-#define CUSTOM 1 
-#define DISABLE -1
-
-#define MY_VL_SETBIT_W(data,bit) (data[VL_BITWORD_I(bit)] |= (VL_UL(1) << VL_BITBIT_I(bit)))
-
-#include "traffic_task_graph.h"
-
-#define STND_DEV_EN 1
-
+int reset,clk;
+int TRAFFIC_TYPE=SYNTHETIC;
+int PACKET_SIZE=5;
+int MIN_PACKET_SIZE=5;
+int MAX_PACKET_SIZE=5;
+int MAX_PCK_NUM;
+int MAX_SIM_CLKs;
+int HOTSPOT_NUM;
+int C0_p=100, C1_p=0, C2_p=0, C3_p=0;
 char * TRAFFIC;
 unsigned char FIXED_SRC_DST_PAIR;
 unsigned char  NEw=0;
@@ -42,29 +45,22 @@ unsigned int total_pck_num=0;
 unsigned int sum_clk_h2h,sum_clk_h2t;
 double 		 sum_clk_per_hop;
 const int  CC=(C==0)? 1 : C;
-
 unsigned int total_pck_num_per_class[CC]={0};
 unsigned int sum_clk_h2h_per_class[CC]={0};
 unsigned int sum_clk_h2t_per_class[CC]={0};
 double 		 sum_clk_per_hop_per_class[CC]={0};
-
 unsigned int rsvd_core_total_pck_num[NE]= {0};
 unsigned int rsvd_core_worst_delay[NE] =  {0};
 unsigned int sent_core_total_pck_num[NE]= {0};
 unsigned int sent_core_worst_delay[NE] =  {0};
 unsigned int random_var[NE] = {100};
-
 unsigned int clk_counter;
 unsigned int count_en;
 unsigned int total_router;
-
 char all_done=0;
-
 unsigned int flit_counter =0;
-
 int ratio=RATIO_INIT;
 double first_avg_latency_flit,current_avg_latency_flit;
-
 double sc_time_stamp ();
 int pow2( int );
 
@@ -83,46 +79,13 @@ int pow2( int );
 	double standard_dev( double , unsigned int, double);
 #endif
 
-void update_noc_statistic (
-	int
-);
-
-unsigned int pck_dst_gen ( unsigned int);
-
-unsigned char pck_class_in_gen(
-	 unsigned int
-
-);
-
-
-
+void update_noc_statistic (	int);
+unsigned char pck_class_in_gen(unsigned int);
+unsigned int pck_dst_gen_task_graph ( unsigned int);
 void print_statistic (char *);
 void print_parameter();
 void reset_all_register();
 unsigned int rnd_between (unsigned int, unsigned int );
-
-
-
-
-int TRAFFIC_TYPE=SYNTHETIC;
-int PACKET_SIZE=5;
-int MIN_PACKET_SIZE=5;
-int MAX_PACKET_SIZE=5;
-int MAX_PCK_NUM;
-int MAX_SIM_CLKs;
-
-int C0_p=100, C1_p=0, C2_p=0, C3_p=0;
-
-
-int  HOTSPOT_NUM;
-typedef struct HOTSPOT_NODE {
-	int  ip_num;
-	char send_enable;
-	int  percentage; // x10	
-} hotspot_st;
-
-hotspot_st * hotspots;
-
 
 
 
@@ -153,6 +116,15 @@ int parse_string ( char * str, int * array)
     }
    return i; 
 }
+
+
+unsigned int pck_dst_gen ( 	unsigned int core_num) {
+	if(TRAFFIC_TYPE==CUSTOM)	return  	pck_dst_gen_task_graph ( core_num);
+	if((strcmp (TOPOLOGY,"MESH")==0)||(strcmp (TOPOLOGY,"TORUS")==0))	return  pck_dst_gen_2D (core_num);
+	return pck_dst_gen_1D (core_num);
+}
+
+
 
 void update_hotspot(char * str){
 	 int i;
@@ -185,107 +157,10 @@ void update_hotspot(char * str){
 	 if(acuum> 1000){
 		 	printf("Warning: The hotspot traffic summation %f exceed than 100 percent.  \n", (float) acuum /10);
    	   
-	 } 
-	
+	 } 	
 	 hotspots=new_node;
 }
 	
-			 
-unsigned int fattree_addrencode( unsigned int pos, unsigned int k, unsigned int l){
-	unsigned int pow,i,tmp=0;
-	unsigned int addrencode=0;
-	unsigned int kw=0;
-	while((0x1<<kw) < k)kw++;
-	pow=1;
-	for (i = 0; i <l; i=i+1 ) {
-		tmp=(pos/pow);
-		tmp=tmp%k;
-	//	printf("tmp=%u\n",tmp);
-		tmp=tmp<<(i)*kw;
-		addrencode=addrencode | tmp;
-		pow=pow * k;
-	}
-	 return addrencode;
-}
-
-unsigned int fattree_addrdecode(unsigned int addrencode , unsigned int k, unsigned int l){
-	unsigned int kw=0;
-	unsigned int mask=0;
-	unsigned int pow,i,tmp;
-	unsigned int pos=0;
-	while((0x1<<kw) < k){
-		kw++;
-		mask<<=1;
-		mask|=0x1;
-	}
-	pow=1;
-	for (i = 0; i <l; i=i+1 ) {
-		tmp = addrencode & mask;
-		//printf("tmp1=%u\n",tmp);
-		tmp=(tmp*pow);
-		pos= pos + tmp;
-		pow=pow * k;
-		addrencode>>=kw;
-	}
-	return pos;
-}
-
-void mesh_tori_addrencod_sep(unsigned int id, unsigned int *x, unsigned int *y, unsigned int *l){
-	(*l)=id%T3; // id%NL
-	(*x)=(id/T3)%T1;// (id/NL)%NX
-	(*y)=(id/T3)/T1;// (id/NL)/NX
-}
-
-	unsigned int nxw=0;
-	unsigned int nyw=0;
-	unsigned int maskx=0;
-	unsigned int masky=0;
-
-
-
-void mesh_tori_addr_sep(unsigned int code, unsigned int *x, unsigned int *y, unsigned int *l){
-	(*x) = code &  maskx;
-	code>>=nxw;
-	(*y) = code &  masky;
-	code>>=nyw;
-	(*l) = code;
-}
-
-
-
-unsigned int mesh_tori_addr_join(unsigned int x, unsigned int y, unsigned int l){
-
-    unsigned int addrencode=0;
-    addrencode =(T3==1)?   (y<<nxw | x) : (l<<(nxw+nyw)|  (y<<nxw) | x);
-    return addrencode;
-}
-
-unsigned int mesh_tori_addrencode(unsigned int id){
-	unsigned int y, x, l;
-	mesh_tori_addrencod_sep(id,&x,&y,&l);
-    return mesh_tori_addr_join(x,y,l);
-}
-
-
-unsigned int endp_addr_encoder ( unsigned int id){
-	if((strcmp(TOPOLOGY ,"FATTREE")==0)||(strcmp(TOPOLOGY ,"TREE")==0)) {
-		return fattree_addrencode(id, T1, T2);
-	}
-	return mesh_tori_addrencode(id);
-}
-
-
-
-
-unsigned int endp_addr_decoder (unsigned int code){
-	if(strcmp(TOPOLOGY ,"FATTREE")==0 ||(strcmp(TOPOLOGY ,"TREE")==0)) {
-		return fattree_addrdecode(code, T1, T2);
-	}else{
-		unsigned int x, y, l;
-		mesh_tori_addr_sep(code,&x,&y,&l);
-		return ((y*T1)+x)*T3+l;
-	}
-}
 
 
 void processArgs (int argc, char **argv )
@@ -335,17 +210,10 @@ void processArgs (int argc, char **argv )
 		    C1_p=array[1];
 		    C2_p=array[2];
 		    C3_p=array[3];
-			break; 
-		
-		case 'h':
-		
+			break; 		
+		case 'h':		
 			update_hotspot(optarg);
-
-			 
-			 break; 
-		
-			 
-			 
+			break; 			 
 	    case '?':
 	       if (isprint (optopt))
 		  fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -393,17 +261,17 @@ int main(int argc, char** argv) {
 
 	reset=1;
 	reset_all_register();
-	noc->start_i=0;
- 
+	noc->start_i=0; 
 
     for (i=0;i<NE;i++){
     	random_var[i] = 100;
     	traffic[i]->current_e_addr		= endp_addr_encoder(i);
     	traffic[i]->start=0;
     	traffic[i]->pck_class_in=  pck_class_in_gen( i);
+    	traffic[i]->pck_size_in=rnd_between(MIN_PACKET_SIZE,MAX_PACKET_SIZE);
     	dest_e_addr=pck_dst_gen (i);
     	traffic[i]->dest_e_addr= dest_e_addr;
-    	printf("source=%u, dest=%x\n", i, endp_addr_decoder(dest_e_addr));
+    	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
     	traffic[i]->stop=0;
     	if(TRAFFIC_TYPE==SYNTHETIC){
     		traffic[i]->pck_size_in=PACKET_SIZE;
@@ -443,9 +311,10 @@ int main(int argc, char** argv) {
 					traffic[i]->pck_class_in=  pck_class_in_gen( i);
 					sent_core_total_pck_num[i]++;
 					if(!FIXED_SRC_DST_PAIR){
+						traffic[i]->pck_size_in=rnd_between(MIN_PACKET_SIZE,MAX_PACKET_SIZE);
 						dest_e_addr=pck_dst_gen (i);
 						traffic[i]->dest_e_addr= dest_e_addr;
-						printf("source=%u, dest=%x", i,endp_addr_decoder(dest_e_addr));
+						//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
 
 					}
 				}
@@ -515,7 +384,6 @@ int main(int argc, char** argv) {
 
 		noc-> clk = clk; 
 		noc-> reset = reset;
-
 		 
 		for(i=0;i<NE;i++)	{
 #if (NE<=64)
@@ -576,50 +444,29 @@ int pow2( int num){
  *********************************/
 
 void update_noc_statistic (	int	core_num){
-
 	unsigned int   	clk_num_h2h =traffic[core_num]->time_stamp_h2h;
 	unsigned int    clk_num_h2t =traffic[core_num]->time_stamp_h2t;
     unsigned int    distance=traffic[core_num]->distance;
     unsigned int  	class_num=traffic[core_num]->pck_class_out;
     unsigned int    src_e_addr=traffic[core_num]->src_e_addr;
-
-
-    unsigned int 	src = endp_addr_decoder (src_e_addr);
-						
-	total_pck_num+=1;
-	
-	if((total_pck_num & 0Xffff )==0 ) printf(" packet sent total=%d\n",total_pck_num);
-	
-	
+    unsigned int 	src = endp_addr_decoder (src_e_addr);						
+	total_pck_num+=1;	
+	if((total_pck_num & 0Xffff )==0 ) printf(" packet sent total=%d\n",total_pck_num);	
 	sum_clk_h2h+=clk_num_h2h;
 	sum_clk_h2t+=clk_num_h2t;
 #if (STND_DEV_EN)
 	sum_clk_pow2+=(double)clk_num_h2h * (double) clk_num_h2h;
 	sum_clk_pow2_per_class[class_num]+=(double)clk_num_h2h * (double) clk_num_h2h;
-#endif
-			        		
+#endif			        		
 	sum_clk_per_hop+= ((double)clk_num_h2h/(double)distance);
 	total_pck_num_per_class[class_num]+=1;
 	sum_clk_h2h_per_class[class_num]+=clk_num_h2h ;
 	sum_clk_h2t_per_class[class_num]+=clk_num_h2t ;
 	sum_clk_per_hop_per_class[class_num]+= ((double)clk_num_h2h/(double)distance);
-
 	rsvd_core_total_pck_num[core_num]=rsvd_core_total_pck_num[core_num]+1;
-
 	if (rsvd_core_worst_delay[core_num] < clk_num_h2t) rsvd_core_worst_delay[core_num] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
     if (sent_core_worst_delay[src] < clk_num_h2t) sent_core_worst_delay[src] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
-
-
 }
-
-/*************************
- *
- *		update
- *
- *
- ************************/
-
-
 
 
 
@@ -852,261 +699,7 @@ unsigned char  pck_class_in_gen(
 }
 
 
-/**********************************
 
-        pck_dst_gen
-
-*********************************/
-
-// number, b:bit location  W: number width log2(num)
-int getBit(int num, int b, int W)
-{
-	while(b<0) b+=W; 
-	b%=W;
-	return (num >> b) & 0x1;
-}
-
-// number; b:bit location;  W: number width log2(num); v: 1 assert the bit, 0 deassert the bit; 
-void setBit(int *num, int b,   int W, int v)
-{
-    while(b<0) b+=W; 
-	b%=W;
-    int mask = 1 << b;
-    //printf("b=%d\n", b);
-	if (v == 0)*num  = *num & ~mask; // assert bit
-    else *num = *num | mask; // deassert bit
-      
-}
-
-
-
-unsigned int pck_dst_gen_2D (unsigned int core_num){
-	//for mesh-tori
-	unsigned int current_l,current_x, current_y;
-	unsigned int dest_l,dest_x,dest_y;
-	mesh_tori_addrencod_sep(core_num,&current_x,&current_y,&current_l);
-
-	unsigned int rnd=0;
-	unsigned int rnd100=0;
-	unsigned int max_percent=100/HOTSPOT_NUM;
-	int i;
-
-	traffic[core_num]->pck_size_in=rnd_between(MIN_PACKET_SIZE,MAX_PACKET_SIZE);
-
-	if((strcmp (TRAFFIC,"RANDOM")==0) || (strcmp (TRAFFIC,"random")==0)){
-		do{
-			rnd=rand()%NE;
-		}while (rnd==core_num); // get a random IP core, make sure its not same as sender core
-       return endp_addr_encoder(rnd);
-	}	
-
-	if ((strcmp(TRAFFIC,"HOTSPOT")==0) || (strcmp (TRAFFIC,"hot spot")==0)){
-		unsigned int rnd1000=0;
-		do{
-			rnd=rand()%NE;
-		}while (rnd==core_num); // get a random IP core, make sure its not same as sender core
-		rnd1000=rand()%1000; // generate a random number between 0 & 1000
-		for (i=0;i<HOTSPOT_NUM; i++){
-			if ( hotspots[i].send_enable == 0 && core_num ==hotspots[i].ip_num){
-				rnd = core_num; // turn off the core
-				return endp_addr_encoder(rnd);
-			}
-		}
-		for (i=0;i<HOTSPOT_NUM; i++){
-			if (rnd1000 < hotspots[i].percentage && core_num !=hotspots[i].ip_num) {
-				rnd = hotspots[i].ip_num;
-				return endp_addr_encoder(rnd);
-			}
-		}
-		return endp_addr_encoder(rnd);
-	}
-
-	if(( strcmp(TRAFFIC ,"TRANSPOSE1")==0)|| (strcmp (TRAFFIC,"transposed 1")==0)){
-		 dest_x = T1-current_y-1;
-		 dest_y = T2-current_x-1;
-		 dest_l = T3-current_l-1;
-		 return mesh_tori_addr_join(dest_x,dest_y,dest_l);
-	}
-
-	if(( strcmp(TRAFFIC ,"TRANSPOSE2")==0)|| (strcmp (TRAFFIC,"transposed 2")==0)){
-		dest_x = current_y;
-		dest_y = current_x;
-		dest_l = current_l;
-		return mesh_tori_addr_join(dest_x,dest_y,dest_l);
-	}
-
-	if(( strcmp(TRAFFIC ,"BIT_REVERSE")==0)|| (strcmp (TRAFFIC,"bit reverse")==0)){
-		//di = sb−i−1
-		int tmp=0;
-		for(i=0; i< NEw; i++)  setBit(&tmp , i, NEw, getBit(core_num, NEw-i-1, NEw));
-		return endp_addr_encoder(tmp);
-	}
-
-	if(( strcmp(TRAFFIC ,"BIT_COMPLEMENT") ==0)|| (strcmp (TRAFFIC,"bit complement")==0)){
-		int tmp=0;
-		for(i=0; i< NEw; i++)  setBit(&tmp , i, NEw, getBit(core_num, i, NEw)==0);
-		return endp_addr_encoder(tmp);
-	}
-
-	if(( strcmp(TRAFFIC ,"TORNADO") == 0)|| (strcmp (TRAFFIC,"tornado")==0)){
-		//[(x+(k/2-1)) mod k, (y+(k/2-1)) mod k],
-			dest_x = ((current_x + ((T1/2)-1))%T1);
-			dest_y = ((current_y + ((T2/2)-1))%T2);
-			dest_l = current_l;
-			return mesh_tori_addr_join(dest_x,dest_y,dest_l);
-     }
-
-    if(( strcmp(TRAFFIC ,"SHUFFLE") == 0)|| (strcmp (TRAFFIC,"shuffle")==0)){
-		//di = si−1 mod b
-		int tmp=0;
-		for(i=0; i< NEw; i++)  setBit(&tmp , i, NEw, getBit(core_num, i-1, NEw));
-		return endp_addr_encoder(tmp);
-     }
-
-    if(( strcmp(TRAFFIC ,"BIT_ROTATION") == 0)|| (strcmp (TRAFFIC,"bit rotation")==0)){
-		//di = si+1 mod b
-		int tmp=0;
-		for(i=0; i< NEw; i++)  setBit(&tmp , i, NEw, getBit(core_num, i+1, NEw));
-		return endp_addr_encoder(tmp);
-     }
-
-    if(( strcmp(TRAFFIC ,"NEIGHBOR") == 0)|| (strcmp (TRAFFIC,"neighbor")==0)){
-		//dx = sx + 1 mod k
-		 dest_x = (current_x + 1)%T1;
-		 dest_y = (current_y + 1)%T2;
-		 dest_l = current_l;
-		 return mesh_tori_addr_join(dest_x,dest_y,dest_l);
-     }    
-     
-     if( strcmp(TRAFFIC ,"CUSTOM") == 0){
-		//[(x+(k/2-1)) mod k, (y+(k/2-1)) mod k],
-		if(current_x ==0 && current_y == 0 && current_l==0 ){
-            dest_x =  T1-1;
-            dest_y =  T2-1;
-            dest_l =  T3-1;
-            return mesh_tori_addr_join(dest_x,dest_y,dest_l);
-		}// make it invalid
-        dest_x = current_x;
-        dest_y = current_y;
-        dest_l = current_l;
-        return mesh_tori_addr_join(dest_x,dest_y,dest_l);
-
-     }  
-
-		 printf ("traffic %s is an unsupported traffic pattern\n",TRAFFIC);
-		 dest_x = current_x;
-		 dest_y = current_y;
-		 dest_l = current_l;
-		 return mesh_tori_addr_join(dest_x,dest_y,dest_l);
-}
-
-
-
-
-unsigned int pck_dst_gen_1D (unsigned int core_num){
-
-	unsigned int rnd=0;
-	unsigned int rnd100=0;
-	unsigned int max_percent=100/HOTSPOT_NUM;
-	int i;
-	
-	traffic[core_num]->pck_size_in=rnd_between(MIN_PACKET_SIZE,MAX_PACKET_SIZE);
-
-	if((strcmp (TRAFFIC,"RANDOM")==0) || (strcmp (TRAFFIC,"random")==0)){
-		do{
-			rnd=rand()%NE;
-		}while (rnd==core_num); // get a random IP core, make sure its not same as sender core
-
-		return endp_addr_encoder(rnd);
-	}
-	
-	if ((strcmp(TRAFFIC,"HOTSPOT")==0) || (strcmp (TRAFFIC,"hot spot")==0)){
-		unsigned int rnd1000=0;
-		int i;
-		do{
-			rnd=rand()%NE;
-		}while (rnd==core_num); // get a random IP core, make sure its not same as sender core
-		rnd1000=rand()%1000; // generate a random number between 0 & 1000
-		for (i=0;i<HOTSPOT_NUM; i++){
-			if ( hotspots[i].send_enable == 0 && core_num ==hotspots[i].ip_num){
-				rnd = core_num; // turn off the core
-				return endp_addr_encoder(rnd);
-			}
-		}
-		
-		for (i=0;i<HOTSPOT_NUM; i++){
-			if (rnd1000 < hotspots[i].percentage && core_num !=hotspots[i].ip_num) {
-				rnd = hotspots[i].ip_num;
-				return endp_addr_encoder(rnd % NE );
-			}
-		}
-		return endp_addr_encoder(rnd % NE );
-	} 
-	
-	
-	if(( strcmp(TRAFFIC ,"TRANSPOSE1")==0)|| (strcmp (TRAFFIC,"transposed 1")==0)){
-		  return endp_addr_encoder(NE-core_num-1);
-	} 
-	if(( strcmp(TRAFFIC ,"TRANSPOSE2")==0)|| (strcmp (TRAFFIC,"transposed 2")==0)){
-		 return endp_addr_encoder(NE-core_num-1);
-	} 
-	
-	if(( strcmp(TRAFFIC ,"BIT_REVERSE")==0)|| (strcmp (TRAFFIC,"bit reverse")==0)){
-		int tmp=0;
-		for(i=0; i< NEw; i++)  setBit(&tmp , i, NEw, getBit(core_num, NEw-i-1, NEw));
-		return endp_addr_encoder(tmp);
-	 } 
-	 
-	 if(( strcmp(TRAFFIC ,"BIT_COMPLEMENT") ==0)|| (strcmp (TRAFFIC,"bit complement")==0)){
-		 int tmp=0;
-		 for(i=0; i< NEw; i++)  setBit(&tmp , i, NEw, getBit(core_num, i, NEw)==0);
-		 return endp_addr_encoder(tmp%NE);
-	 }  
-	 
-	 if(( strcmp(TRAFFIC ,"TORNADO") == 0)|| (strcmp (TRAFFIC,"tornado")==0)){
-		//[(x+(k/2-1)) mod k, (y+(k/2-1)) mod k],
-		 return endp_addr_encoder((core_num + ((NE/2)-1))%NE);
-     }
-
-     if(( strcmp(TRAFFIC ,"SHUFFLE") == 0)|| (strcmp (TRAFFIC,"shuffle")==0)){
-		//di = si−1 mod b
-		int tmp=0;
-		for(i=0; i< NEw; i++)  setBit(&tmp , i, NEw, getBit(core_num, i-1, NEw));
-		return endp_addr_encoder(tmp%NE);
-	 }
-
-     if(( strcmp(TRAFFIC ,"BIT_ROTATION") == 0)|| (strcmp (TRAFFIC,"bit rotation")==0)){
-		//di = si+1 mod b
-		int tmp=0;
-		for(i=0; i< NEw; i++)  setBit(&tmp , i, NEw, getBit(core_num, i+1, NEw));
-		return endp_addr_encoder(tmp%NE);
-
-     }
-
-     if(( strcmp(TRAFFIC ,"NEIGHBOR") == 0)|| (strcmp (TRAFFIC,"neighbor")==0)){
-		//dx = sx + 1 mod k
-    	 return endp_addr_encoder((core_num + 1)%NE);
-	 }
-     
-     if( strcmp(TRAFFIC ,"CUSTOM") == 0){
-		//[(x+(k/2-1)) mod k, (y+(k/2-1)) mod k],
-		if(core_num ==2  )	 return  endp_addr_encoder(6);
-		return endp_addr_encoder(core_num);
-	 }
-
-	 printf ("traffic %s is an unsupported traffic pattern\n",TRAFFIC);
-	 return  endp_addr_encoder(core_num);
-}
-
-
-unsigned int rnd_between (unsigned int a, unsigned int b){
-	unsigned int rnd,diff,min;
-	if(a==b) return a;
-	diff= (a<b) ?  b-a+1 : a-b+1;
-	min= (a<b) ?  a : b;
-	rnd = (rand() % diff) +  min;
-	return rnd;
-}
 
 void update_injct_var(unsigned int src,  unsigned int injct_var){
 	//printf("before%u=%u\n",src,random_var[src]);
@@ -1183,13 +776,6 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src){
 }
 
 
-
-
-unsigned int pck_dst_gen ( 	unsigned int core_num) {
-	if(TRAFFIC_TYPE==CUSTOM)	return  	pck_dst_gen_task_graph ( core_num);
-	if((strcmp (TOPOLOGY,"MESH")==0)||(strcmp (TOPOLOGY,"TORUS")==0))	return  pck_dst_gen_2D (core_num);
-	return pck_dst_gen_1D (core_num);
-}
 
 
 

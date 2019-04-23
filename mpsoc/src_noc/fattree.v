@@ -24,8 +24,9 @@ Description:
 module  fattree_noc #(
     parameter V = 2, // Number of Virtual channel per port 
     parameter B = 4, // buffer space :flit per VC 
-    parameter K   = 2, // number of last level individual router`s endpoints.
-    parameter L   = 2, // Fattree layer number (The height of FT)
+    parameter T1   = 2, // number of last level individual router`s endpoints.
+    parameter T2   = 2, // Fattree layer number (The height of FT)
+    parameter T3   = 1, // Its not used
     parameter C = 4, // number of message class 
     parameter Fpay = 32, // packet payload width
     parameter MUX_TYPE =    "BINARY",    //"ONE_HOT" or "BINARY"
@@ -54,37 +55,19 @@ module  fattree_noc #(
     flit_in_all,  
     flit_in_wr_all,  
     credit_out_all    
-);
-
-
-  localparam CONGw= (CONGESTION_INDEX==3)?  3:
+);        
+  
+   `define INCLUDE_TOPOLOGY_LOCALPARAM
+    `include "topology_localparam.v"
+     
+    
+    localparam CONGw= (CONGESTION_INDEX==3)?  3:
                       (CONGESTION_INDEX==5)?  3:
                       (CONGESTION_INDEX==7)?  3:
                       (CONGESTION_INDEX==9)?  3:
                       (CONGESTION_INDEX==10)? 4:
                       (CONGESTION_INDEX==12)? 3:2;
-                      
-   
-                                              
-
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end        
-      end   
-    endfunction // log2 
-    
-    function integer powi;
-        input integer x,y;
-        integer i;begin //compute x to the y
-        powi=1;
-        for (i = 0; i <y; i=i+1 ) begin 
-            powi=powi * x;
-        end
-        end   
-    endfunction // log2 
+ 
         
   function integer addrencode;
         input integer pos,k,n,kw;
@@ -99,30 +82,22 @@ module  fattree_noc #(
             pow=pow * k;
         end
         end   
-    endfunction // log2 
+    endfunction 
         
-    localparam P=  2* K;   //max p in the NoC
+   
     
     localparam
-        PV = V * P,
+        PV = V * MAX_P,
         Fw = 2+V+Fpay, //flit width;    
-        PFw = P * Fw,
-        NE = powi( K,L ),  //total number of endpoints
-        NR = L * powi( L , L - 1 ),  // total number of routers  
+        PFw = MAX_P * Fw,       
         NRL= NE/K, //number of router in  each layer       
-        Lw=log2(L),
-        Kw=log2(K),
-        LKw=L*Kw,
         NEFw = NE * Fw,
         NEV = NE * V,
-        CONG_ALw = CONGw * P,
-        EAw = LKw,
-        PLKw = P * LKw,
-        PLw = P * Lw,       
-        RAw = Lw + LKw,
-        PRAw = P * RAw; // {layer , Pos} width
-       
-
+        CONG_ALw = CONGw * MAX_P,
+        PLKw = MAX_P * LKw,
+        PLw = MAX_P * Lw,       
+        PRAw = MAX_P * RAw; // {layer , Pos} width     
+  
     
     input reset,clk;    
     
@@ -132,16 +107,14 @@ module  fattree_noc #(
     input  [NEFw-1 : 0] flit_in_all;
     input  [NE-1 : 0] flit_in_wr_all;  
     output [NEV-1 : 0] credit_out_all;                
-                    
-     
-    
+                        
                 
     wire [PFw-1 : 0] router_flit_in_all [NR-1 :0];
-    wire [P-1 : 0] router_flit_in_we_all [NR-1 :0];    
+    wire [MAX_P-1 : 0] router_flit_in_we_all [NR-1 :0];    
     wire [PV-1 : 0] router_credit_out_all [NR-1 :0];
     
     wire [PFw-1 : 0] router_flit_out_all [NR-1 :0];
-    wire [P-1 : 0] router_flit_out_we_all [NR-1 :0];
+    wire [MAX_P-1 : 0] router_flit_out_we_all [NR-1 :0];
     wire [PV-1 : 0] router_credit_in_all [NR-1 :0];                    
     wire [CONG_ALw-1: 0] router_congestion_out_all[NR-1 :0];    
     wire [CONG_ALw-1: 0] router_congestion_in_all [NR-1 :0];   
@@ -158,19 +131,19 @@ module  fattree_noc #(
     wire [PLw-1  : 0]  neighbors_layer_all [NR-1 :0];   
     wire [PRAw-1 : 0]  neighbors_r_all [NR-1 :0]; 
     
+    wire [LKw-1 : 0] current_pos_addr [NR-1 :0];
+    wire [Lw-1  : 0] current_layer_addr [NR-1 :0];   
+    wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
     
 //add roots
 
 genvar pos,level,port;
 
-localparam [Lw-1 : 0] ROOT_L = L-1; 
+
 
 generate 
 for( pos=0; pos<NRL; pos=pos+1) begin : root 
-    localparam ROOTADDR =addrencode(pos,K,L,Kw);
-    localparam ROOT_ADDR = (ROOT_L << LKw) + ROOTADDR;
-   
-    router # (
+      router # (
                 .V(V),
                 .P(K),
                 .B(B), 
@@ -201,7 +174,7 @@ for( pos=0; pos<NRL; pos=pos+1) begin : root
             the_router
             (
                 
-                .current_r_addr(ROOT_ADDR[RAw-1 :0]),
+                .current_r_addr(current_r_addr[pos]),
                 .neighbors_r_addr(neighbors_r_all[pos][K*RAw-1    :   0]),                
                 
                 .flit_in_all(router_flit_in_all[pos][(K*Fw)-1 : 0]),
@@ -226,11 +199,8 @@ end
 //add leaves
 
 for( level=1; level<L; level=level+1) begin :level_lp
-    localparam [Lw-1 : 0] LEAVE_L = L-1-level;
    for( pos=0; pos<NRL; pos=pos+1) begin : pos_lp 
-    localparam ADRRENCODED=addrencode(pos,K,L,Kw);
-    localparam LEAVE_ADDR = (LEAVE_L << LKw) + ADRRENCODED;
-    
+      
             router # (
                 .V(V),
                 .P(2*K),
@@ -261,14 +231,8 @@ for( level=1; level<L; level=level+1) begin :level_lp
             )
             the_router
             (
-                /*
-                .current_x(ADRRENCODED[LKw-1 :0]),  //pos 
-                .current_y(LEAVE_L), //level
-                .neighbors_x(neighbors_pos_all[NRL*level+pos]),
-                .neighbors_y(neighbors_layer_all[NRL*level+pos]),
-                */
-                
-                .current_r_addr(LEAVE_ADDR[RAw-1 :0]),
+                              
+                .current_r_addr(current_r_addr[NRL*level+pos]),
                 .neighbors_r_addr(neighbors_r_all[NRL*level+pos]),                  
                 
                 .flit_in_all(router_flit_in_all[NRL*level+pos]),
@@ -288,22 +252,23 @@ for( level=1; level<L; level=level+1) begin :level_lp
    
     end
 end
-    
-   
-   
+      
    
 //connect all down input channels
-
 localparam NPOS = powi( K, L-1);
 localparam CHAN_PER_DIRECTION = (K * powi( L , L-1 )); //up or down
 localparam CHAN_PER_LEVEL = 2*(K * powi( K , L-1 )); //up+down
 
 for (level = 0; level<L-1; level=level+1) begin : level_c
+/* verilator lint_off WIDTH */
+    localparam [Lw-1 : 0] LEAVE_L = L-1-level;
+/* verilator lint_on WIDTH */    
     //input channel are numbered interleavely, the interleaev depends on level
     localparam ROUTERS_PER_NEIGHBORHOOD = powi(K,L-1-(level)); 
     localparam ROUTERS_PER_BRANCH = powi(K,L-1-(level+1)); 
     localparam LEVEL_OFFSET = ROUTERS_PER_NEIGHBORHOOD*K;
     for ( pos = 0; pos < NPOS; pos=pos+1 ) begin : pos_c
+        localparam ADRRENCODED=addrencode(pos,K,L,Kw);
         localparam NEIGHBORHOOD = (pos/ROUTERS_PER_NEIGHBORHOOD);
         localparam NEIGHBORHOOD_POS = pos % ROUTERS_PER_NEIGHBORHOOD;
         for ( port = 0; port < K; port=port+1 ) begin : port_c
@@ -338,16 +303,20 @@ for (level = 0; level<L-1; level=level+1) begin : level_c
             assign  router_congestion_in_all  [ID1][(port+1)*CONGw-1 : port*CONGw]  = router_congestion_out_all  [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw];
             assign  router_congestion_in_all [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw] = router_congestion_out_all [ID1][(port+1)*CONGw-1 : port*CONGw];
             
-            assign  neighbors_pos_all[ID1][(port+1)*LKw-1 : port*LKw] = POS_ADR_CODE2;
-            assign  neighbors_pos_all[ID2][(PORT2+1)*LKw-1 : PORT2*LKw] = POS_ADR_CODE1;
+            assign  neighbors_pos_all[ID1][(port+1)*LKw-1 : port*LKw] = POS_ADR_CODE2[LKw-1 :0];
+            assign  neighbors_pos_all[ID2][(PORT2+1)*LKw-1 : PORT2*LKw] = POS_ADR_CODE1[LKw-1 :0]; 
             
+            /* verilator lint_off WIDTH */
             assign  neighbors_layer_all[ID1][(port+1)*Lw-1 : port*Lw] =  L-L2-1;
-            assign  neighbors_layer_all[ID2][(PORT2+1)*Lw-1 : PORT2*Lw] =L-level-1;          
-            
+            assign  neighbors_layer_all[ID2][(PORT2+1)*Lw-1 : PORT2*Lw] = LEAVE_L;        
+            /* verilator lint_on WIDTH */
                      
             assign  neighbors_r_all[ID1][(port+1)*RAw-1 : port*RAw]   = {neighbors_layer_all[ID1][(port+1)*Lw-1 : port*Lw],neighbors_pos_all[ID1][(port+1)*LKw-1 : port*LKw]};
             assign  neighbors_r_all[ID2][(PORT2+1)*RAw-1 : PORT2*RAw] = {neighbors_layer_all[ID2][(PORT2+1)*Lw-1 : PORT2*Lw],neighbors_pos_all[ID2][(PORT2+1)*LKw-1 : PORT2*LKw]};
          
+            assign current_layer_addr [ID1] = LEAVE_L;
+            assign current_pos_addr [ID1] = ADRRENCODED[LKw-1 :0];         
+            assign current_r_addr [ID1] = {current_layer_addr [ID1],current_pos_addr[ID1]};
          
          end
     end
@@ -852,7 +821,7 @@ endmodule
 
 /************************************
 
-     fatree_look_ahead_routing
+     fattree_look_ahead_routing
 
 *************************************/
 
@@ -990,10 +959,10 @@ module  fattree_deterministic_look_ahead_routing #(
     wire  [K : 0] lkdestport_encoded;  
     wire  [2*K-1 : 0] destport_decoded;
     
-    fattree_destport_encoder #(
+    fattree_destport_decoder #(
         .K(K)
     )
-    fattree_destport_encoder(
+    fattree_destport_decoder(
         .destport_encoded_i(destport_encoded),
         .destport_decoded_o(destport_decoded)
     ); 
@@ -1031,7 +1000,7 @@ module  fattree_deterministic_look_ahead_routing #(
      
  endmodule
  
- module fattree_destport_encoder #(
+ module fattree_destport_decoder #(
      parameter K=2
  
  )(
@@ -1040,143 +1009,15 @@ module  fattree_deterministic_look_ahead_routing #(
  );
  
     input [K:0] destport_encoded_i;
-    output [2*K-1 : 0] destport_decoded_o; 
-    
+    output [2*K-1 : 0] destport_decoded_o;     
     
     assign destport_decoded_o =   (destport_encoded_i[K])? /*go up*/    {destport_encoded_i[K-1:0],{K{1'b0}}}:
-                                                           /*go down*/   {{K{1'b0}},destport_encoded_i[K-1:0]}; 
-     
+                                                           /*go down*/   {{K{1'b0}},destport_encoded_i[K-1:0]};    
    
 endmodule
  
 
-/******************
-    fattree_vc_alloc_request_gen
 
-******************/
-
-
-
-module  fattree_vc_alloc_request_gen #(
-    parameter P = 5,
-    parameter DSTPw=3,  //K+1,
-    parameter V = 4
-
-)(
-    ovc_avalable_all,
-    dest_port_in_encoded_all,
-    candidate_ovc_all,
-    ivc_request_all,
-    ovc_is_assigned_all,
-    dest_port_out_all,
-    masked_ovc_request_all
-);
-
-    localparam  P_1     =   P-1,
-                PV      =   V       *   P,
-                PVV     =   PV      *  V,
-                PVP_1   =   PV      *   P_1,
-                VP_1    =   V       *   P_1,
-                PVDSTPw= PV * DSTPw;
-
-    input   [PV-1       :   0]  ovc_avalable_all;
-    input   [PVDSTPw-1  :   0]  dest_port_in_encoded_all;
-    input   [PV-1       :   0]  ivc_request_all;
-    input   [PV-1       :   0]  ovc_is_assigned_all;
-    output  [PVP_1-1    :   0]  dest_port_out_all;
-    output  [PVV-1      :   0]  masked_ovc_request_all;
-    input   [PVV-1      :   0]  candidate_ovc_all;
-    
-    wire    [PV-1       :   0]  non_assigned_ovc_request_all; 
-    wire    [VP_1-1     :   0]  ovc_avalable_perport        [P-1    :   0];
-    wire    [VP_1-1     :   0]  ovc_avalable_ivc            [PV-1   :   0];
-    wire    [P_1-1      :   0]  dest_port_ivc               [PV-1   :   0];
-    wire    [V-1        :   0]  ovc_avb_muxed               [PV-1   :   0];  
-    wire    [V-1        :   0]  ovc_request_ivc             [PV-1   :   0];
-  
-    assign non_assigned_ovc_request_all =   ivc_request_all & ~ovc_is_assigned_all;
-  
-    
-    genvar i;
-
-    generate
-    //remove avalable ovc of reciver port 
-    for(i=0;i< P;i=i+1) begin :port_loop
-        if(i==0) begin : first assign ovc_avalable_perport[i]=ovc_avalable_all [PV-1              :   V]; end
-        else if(i==(P-1)) begin : last assign ovc_avalable_perport[i]=ovc_avalable_all [PV-V-1               :   0]; end
-        else  begin : midle  assign ovc_avalable_perport[i]={ovc_avalable_all [PV-1  :   (i+1)*V],ovc_avalable_all [(i*V)-1  :   0]}; end
-   
-       
-   
-   
-    end
-    
-    localparam K= DSTPw-1;
-    
-    wire [2*K-1 : 0] destport_decoded [PV-1 : 0];
-    wire [2*K-1 : 0] destport_masked [PV-1 : 0];
-        
-    // IVC loop
-    for(i=0;i< PV;i=i+1) begin :total_vc_loop
-        //seprate input/output
-        assign ovc_avalable_ivc[i]  =   ovc_avalable_perport[(i/V)];
-        assign dest_port_ivc   [i]  =   dest_port_out_all [(i+1)*P_1-1  :   i*P_1   ];
-        assign ovc_request_ivc [i]  = (non_assigned_ovc_request_all[i])? candidate_ovc_all  [(i+1)*V-1  :   i*V ]: {V{1'b0}};
-          
-        fattree_destport_encoder #(           
-            .K(K)
-        )
-        fattree_destport_encoder
-        (
-            .destport_encoded_i(dest_port_in_encoded_all[(i+1)*DSTPw-1  :   i*DSTPw   ]),
-            .destport_decoded_o(destport_decoded[i])
-        );
-       
-        fattree_mask_non_assignable_destport #(
-            .K(K),
-            .P(P),
-            .SW_LOC(i/V)        
-        )
-        mask
-        (
-            .destport_in(destport_decoded[i]),
-            .destport_out(destport_masked[i])        
-        );
-       
-       
-        remove_sw_loc_one_hot #(
-            .P(P),
-            .SW_LOC(i/V)
-        )
-        conv
-        (
-            .destport_in(destport_masked[i][P-1 : 0]),
-            .destport_out(dest_port_out_all[(i+1)*P_1-1  :   i*P_1   ])
-        );  
-       
-            
-       
-        //available ovc multiplexer
-        one_hot_mux #(
-            .IN_WIDTH       (VP_1),
-            .SEL_WIDTH      (P_1)
-        )
-        multiplexer
-        (
-            .mux_in     (ovc_avalable_ivc   [i]),
-            .mux_out    (ovc_avb_muxed      [i]),
-            .sel        (dest_port_ivc      [i])
-
-        );
-        
-        // mask unavailable ovc from requests
-        assign masked_ovc_request_all  [(i+1)*V-1   :   i*V ]     =   ovc_avb_muxed[i] & ovc_request_ivc [i];
-        
-    end
-   endgenerate
-
-
-endmodule
 
 /**********
  *  fattree_mask_non_assignable_destport
@@ -1551,5 +1392,55 @@ module fattree_router_addr_decode #(
 endmodule
 
   
+//decode and mask destport  
+module  fattree_destp_generator #(
+    parameter K=2,
+    parameter P=2*K,
+    parameter SW_LOC=0,
+    parameter DSTPw=4
+)(
+    dest_port_in_encoded,
+    dest_port_out
+);
 
- 
+    localparam P_1 = P-1;
+    input  [DSTPw-1:0] dest_port_in_encoded;
+    output [P_1-1 : 0] dest_port_out;
+    
+    
+    wire [2*K-1 : 0] destport_decoded;
+    wire [2*K-1 : 0] destport_masked;
+    
+
+        fattree_destport_decoder #(           
+            .K(K)
+        )
+        destport_decoder
+        (
+            .destport_encoded_i(dest_port_in_encoded),
+            .destport_decoded_o(destport_decoded)
+        );
+       
+        fattree_mask_non_assignable_destport #(
+            .K(K),
+            .P(P),
+            .SW_LOC(SW_LOC)        
+        )
+        mask
+        (
+            .destport_in(destport_decoded),
+            .destport_out(destport_masked)        
+        );
+       
+       
+        remove_sw_loc_one_hot #(
+            .P(P),
+            .SW_LOC(SW_LOC)
+        )
+        conv
+        (
+            .destport_in(destport_masked[P-1 : 0]),
+            .destport_out(dest_port_out[P_1-1  :   0 ])
+        );  
+
+ endmodule

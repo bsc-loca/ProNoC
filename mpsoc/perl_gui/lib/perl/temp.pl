@@ -1,14 +1,15 @@
 #!/usr/bin/perl -w
-
 use strict;
-
-use FindBin;
-use lib $FindBin::Bin;
-
-my $target_dir = "/home/alireza/work/mpsoc_work/MPSOC/mor1k_mpsoc/src_verilator";
-
-if (-d "$target_dir"){
-		print "TTTTTTTTTTTTTTTTTTTTTTT\n";
-	}else{
-		print "NOoooooooooooooooooooo:  $target_dir \n";
-	}
+use GraphViz;
+ 
+my $g = GraphViz->new();
+ 
+$g->add_node('London');
+$g->add_node('Paris', label => 'City of\nlurve');
+$g->add_node('New York');
+ 
+$g->add_edge('London' => 'Paris');
+$g->add_edge('London' => 'New York', label => 'Far');
+$g->add_edge('Paris' => 'London');
+ 
+print $g->as_png;

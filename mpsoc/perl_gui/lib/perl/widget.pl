@@ -322,7 +322,30 @@ sub open_image{
 	my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($image_file,$x,$y,TRUE);
  	my $image = Gtk2::Image->new_from_pixbuf($pixbuf);
 	return $image;
+}
 
+sub open_inline_image{
+	my ($image_string,$x,$y,$unit)=@_;
+	if(defined $unit){
+		my($width,$hight)=max_win_size();
+		if($unit eq 'percent'){
+			$x= ($x * $width)/100;
+			$y= ($y * $hight)/100;
+		} # else its pixels
+			
+	}
+	my $pixbuf = do {
+        my $loader = Gtk2::Gdk::PixbufLoader->new();
+        $loader->set_size(  $x,$y );
+        $loader->write(  $image_string );        
+        $loader->close();
+        $loader->get_pixbuf();
+    };
+	
+
+ 	my $image = Gtk2::Image->new_from_pixbuf($pixbuf);
+ 	 
+	return $image;
 }
 
 

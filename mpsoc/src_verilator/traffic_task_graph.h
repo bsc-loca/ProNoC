@@ -1,7 +1,6 @@
-
-
 #ifndef TRAFFIC_TASK_GRAPH_H
 #define TRAFFIC_TASK_GRAPH_H
+
 
 
 #define SET_AUTO -1

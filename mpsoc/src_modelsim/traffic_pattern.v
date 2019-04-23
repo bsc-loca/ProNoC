@@ -437,14 +437,19 @@ module two_dimention_pck_dst_gen  #(
         reg               valid_dst_reg;
         
         always @(*) begin 
-            valid_dst_reg=1'b0;  
+        valid_dst_reg=1'b0;  
 	    dest_x_reg = current_x;
-     	    dest_y_reg= current_y;
+        dest_y_reg= current_y;
 	    dest_l_reg=current_l;
-            if((current_x==0) &&  (current_y== 0) && (current_l==0)) begin 
-                dest_x_reg=  NX-1; dest_y_reg=  NY-1; valid_dst_reg=1'b1;
-                dest_l_reg= NL-1;
+         //   if((current_x==0) &&  (current_y== 0) && (current_l==0)) begin 
+            //    dest_x_reg=  NX-1; dest_y_reg=  NY-1; valid_dst_reg=1'b1;
+            //    dest_l_reg= NL-1;
+          //  end
+          
+           if((current_x==0) &&  (current_y== 0) && (current_l==0)) begin 
+                dest_x_reg=  T1-1; dest_y_reg=  T2-1;   dest_l_reg= T3-1;  valid_dst_reg=1'b1;
             end
+          
 /*
             if((current_x==1) &&  (current_y== 0) && (current_l==0) ) begin 
                 dest_x_reg=  NX-1; dest_y_reg=  NY-2; valid_dst_reg=1'b1;
@@ -762,7 +767,7 @@ module  endp_addr_encoder #(
      output [EAw-1 : 0] code;
      
      generate 
-     if(TOPOLOGY == "FATREE" || TOPOLOGY == "TREE" ) begin : tree
+     if(TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" ) begin : tree
      
        fattree_addr_encoder #(
        	.K(T1),

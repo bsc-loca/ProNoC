@@ -34,8 +34,7 @@ use List::MoreUtils qw(uniq);
 # hardware parameters taken from noc_emulator.v
 use constant PCK_CNTw =>30;  # packet counter width in bits (results in maximum of 2^30 = 1  G packets)
 use constant PCK_SIZw =>14;  # packet size width in bits (results in maximum packet size of 2^14 = 16 K flit)
-use constant MAXXw    =>4;   # maximum nodes in x dimention is 2^MAXXw equal to 16 nodes in x dimention
-use constant MAXYw    =>4;   # 16 nodes in y dimention : hence max emulator size is 16X16
+use constant MAX_EAw    =>8;   # maximum  destination address width
 use constant MAXCw    =>4;   # 16 message classes  
 use constant RATIOw   =>7;   # log2(100)
 use constant RAM_Aw   =>7;

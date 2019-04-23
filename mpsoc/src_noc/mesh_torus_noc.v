@@ -1,8 +1,6 @@
-
 // synthesis translate_off
 `timescale 1ns / 1ps
 // synthesis translate_on
-
 
 /**********************************************************************
 **    File:  mesh_torus_noc.v
@@ -31,9 +29,6 @@
 **
 **************************************************************/
 
-
-
-
 `define START_LOC(port_num,width)       (width*(port_num+1)-1)
 `define END_LOC(port_num,width)            (width*port_num)
 `define router_id(x,y)                         ((y * NX) +    x)
@@ -44,9 +39,9 @@
 module mesh_torus_noc #(
     parameter V = 2, // Number of Virtual channel per port 
     parameter B = 4, // buffer space :flit per VC 
-    parameter NX   = 2, // The number of node in x axis of mesh or torus. For ring topology is total number of nodes in ring.
-    parameter NY   = 2, // The number of node in y axis of mesh or torus. It is not used in ring topology.
-    parameter NL  = 1, // Number of local ports connected to one router
+    parameter T1   = 2, // The number of node in x axis of mesh or torus. For ring topology is total number of nodes in ring.
+    parameter T2   = 2, // The number of node in y axis of mesh or torus. It is not used in ring topology.
+    parameter T3  = 1, // Number of local ports connected to one router
     parameter C = 4, // number of message class 
     parameter Fpay = 32, // packet payload width
     parameter MUX_TYPE =    "BINARY",    //"ONE_HOT" or "BINARY"
@@ -77,14 +72,9 @@ module mesh_torus_noc #(
     credit_out_all    
 );
 
-   function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end        
-      end   
-    endfunction // log2 
+    `define INCLUDE_TOPOLOGY_LOCALPARAM
+    `include "topology_localparam.v"
+    
 
     localparam CONGw= (CONGESTION_INDEX==3)?  3:
                       (CONGESTION_INDEX==5)?  3:
@@ -93,38 +83,14 @@ module mesh_torus_noc #(
                       (CONGESTION_INDEX==10)? 4:
                       (CONGESTION_INDEX==12)? 3:2;
                       
-                      
-                
-                      
-    /* verilator lint_off WIDTH */                              
-    localparam R2R_CHANNELS=  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 2 : 4;    
-    localparam R2E_CHANNELS= NL;
-    localparam P = R2R_CHANNELS + NL;
-    /* verilator lint_on WIDTH */
-                                              
-
-   
-    
+       
     localparam
-        PV = V * P,
-        P_1 = P-1,
+        PV = V * MAX_P,
         Fw = 2+V+Fpay, //flit width;    
-        PFw = P * Fw,
-        /* verilator lint_off WIDTH */
-        NR = (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? NX : NX*NY,    //number of cores
-        /* verilator lint_on WIDTH */
-        NE = NR * NL,// number of endpoints
+        PFw = MAX_P * Fw,
         NEFw = NE * Fw,
         NEV = NE * V,
-        CONG_ALw = CONGw * P, // congestion width per router            
-        Xw = log2(NX),    // number of node in x axis
-        Yw = log2(NY),    // number of node in y axis
-        Lw = log2(NL);
-   
-     localparam
-        RAw = ( TOPOLOGY == "RING" || TOPOLOGY == "LINE")? Xw : Xw + Yw,
-        EAw = (NL==1) ? RAw : RAw + Lw;
-        
+        CONG_ALw = CONGw * MAX_P; // congestion width per router    
       
     
     input reset,clk;    
@@ -134,17 +100,16 @@ module mesh_torus_noc #(
     input  [NEV-1 : 0] credit_in_all;
     input  [NEFw-1 : 0] flit_in_all;
     input  [NE-1 : 0] flit_in_wr_all;  
-    output [NEV-1 : 0] credit_out_all;
-                
+    output [NEV-1 : 0] credit_out_all;                
                     
                     
                    
     wire [PFw-1 : 0] router_flit_in_all [NR-1 :0];
-    wire [P-1 : 0] router_flit_in_we_all [NR-1 :0];    
+    wire [MAX_P-1 : 0] router_flit_in_we_all [NR-1 :0];    
     wire [PV-1 : 0] router_credit_out_all [NR-1 :0];
     
     wire [PFw-1 : 0] router_flit_out_all [NR-1 :0];
-    wire [P-1 : 0] router_flit_out_we_all [NR-1 :0];
+    wire [MAX_P-1 : 0] router_flit_out_we_all [NR-1 :0];
     wire [PV-1 : 0] router_credit_in_all [NR-1 :0];                    
     wire [CONG_ALw-1: 0] router_congestion_out_all[NR-1 :0];    
     wire [CONG_ALw-1: 0] router_congestion_in_all [NR-1 :0];   
@@ -156,7 +121,8 @@ module mesh_torus_noc #(
     wire [Fw-1 : 0] ni_flit_in [NE-1 :0];   
     wire [NE-1 : 0] ni_flit_in_wr;  
     wire [V-1 : 0] ni_credit_out [NE-1 :0];   
-
+    
+    wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
 
      // mesh torus            
     localparam
@@ -176,13 +142,17 @@ generate
     if( TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin : ring_line 
     /* verilator lint_on WIDTH */ 
         for  (x=0;   x<NX; x=x+1) begin :ring_loop
+             
+                       
+            assign current_r_addr [x] = x[RAw-1: 0];   
+        
             router # (
                 .V(V),
-                .P(P),
+                .P(MAX_P),
                 .B(B), 
-                .T1(NX),
+                .T1(T1),
                 .T2(1),
-                .T3(NL),
+                .T3(T3),
                 .T4(1),
                 .C(C),  
                 .Fpay(Fpay),    
@@ -207,8 +177,8 @@ generate
             )
             the_router
             (
-                .current_r_addr(x[Xw-1 :0]),   
-                .neighbors_r_addr( ),
+                .current_r_addr(current_r_addr [x]),   
+                .neighbors_r_addr( ),// not needed for mesh as routers addresses are easy to be predicted
 
                 .flit_in_all(router_flit_in_all[x]),
                 .flit_in_we_all(router_flit_in_we_all[x]),
@@ -226,8 +196,7 @@ generate
         
             );
         
-            if(x    <   NX-1) begin: not_last_node
-            
+            if(x    <   NX-1) begin: not_last_node            
                 assign  router_flit_in_all [`SELECT_WIRE(x,0,FORWARD,Fw)] = router_flit_out_all [`SELECT_WIRE((x+1),0,BACKWARD,Fw)];
                 assign  router_credit_in_all [`SELECT_WIRE(x,0,FORWARD,V)] = router_credit_out_all [`SELECT_WIRE((x+1),0,BACKWARD,V)];
                 assign  router_flit_in_we_all [x][FORWARD] = router_flit_out_we_all [`router_id((x+1),0)][BACKWARD];
@@ -272,7 +241,7 @@ generate
             // connect other local ports
             for  (l=0;   l<NL; l=l+1) begin :locals
                 localparam ENDPID = `endp_id(x,0,l); 
-                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS; // first local port is connected to router port 0. The rest are connected at the end  
+                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
                 
                 assign router_flit_in_all [`SELECT_WIRE(x,0,LOCALP,Fw)] =    ni_flit_out [ENDPID];
                 assign router_credit_in_all [`SELECT_WIRE(x,0,LOCALP,V)] =    ni_credit_out [ENDPID];
@@ -300,15 +269,18 @@ generate
     end else begin :mesh_torus
         for (y=0;    y<NY;    y=y+1) begin: y_loop
             for (x=0;    x<NX; x=x+1) begin :x_loop
-            localparam R_ADDR = (y<<Xw) + x; 
+            localparam R_ADDR = (y<<NXw) + x;            
+            localparam ROUTER_NUM = (y * NX) +    x;
+            assign current_r_addr [ROUTER_NUM] = R_ADDR[RAw-1 :0];
+             
              
             router # (
                 .V(V),
-                .P(P),
+                .P(MAX_P),
                 .B(B), 
-                .T1(NX),
-                .T2(NY),
-                .T3(NL),
+                .T1(T1),
+                .T2(T2),
+                .T3(T3),
                 .T4(1),
                 .C(C),    
                 .Fpay(Fpay),    
@@ -328,12 +300,11 @@ generate
                 .SSA_EN(SSA_EN),
                 .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
                 .WEIGHTw(WEIGHTw),
-                .MIN_PCK_SIZE(MIN_PCK_SIZE)
-                
+                .MIN_PCK_SIZE(MIN_PCK_SIZE)                
             )
             the_router
             (
-                .current_r_addr(R_ADDR[RAw-1 :0]),    
+                .current_r_addr(current_r_addr [ROUTER_NUM]),    
                 .neighbors_r_addr( ),
                 .flit_in_all(router_flit_in_all[`router_id(x,y)]),
                 .flit_in_we_all(router_flit_in_we_all[`router_id(x,y)]),
@@ -456,7 +427,7 @@ generate
             // connect other local ports
             for  (l=0;   l<NL; l=l+1) begin :locals
                 localparam ENDPID = `endp_id(x,y,l); 
-                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS; // first local port is connected to router port 0. The rest are connected at the end  
+                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
                 
                 assign router_flit_in_all [`SELECT_WIRE(x,y,LOCALP,Fw)] =    ni_flit_out [ENDPID];
                 assign router_credit_in_all [`SELECT_WIRE(x,y,LOCALP,V)] =    ni_credit_out [ENDPID];

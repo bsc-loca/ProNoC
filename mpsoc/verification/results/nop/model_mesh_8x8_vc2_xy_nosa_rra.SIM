@@ -10,81 +10,132 @@
 ################################################################################
 
 $simulate = bless( {
+                     'sim_param' => {
+                                      'BIN_DIR' => '/home/alireza/work/mpsoc_work/simulate',
+                                      'SAVE_NAME' => 'model_mesh_8x8_vc2_xy_nosa_rra'
+                                    },
+                     'graph_save' => {
+                                       'save_all_result' => 0
+                                     },
                      'chart_notebook' => {
                                            'currentpage' => 0
                                          },
-                     'P0Throughput_param' => {
-                                               'label_font' => 'MediumBold',
-                                               'legend_placement' => 'BL',
-                                               'x_axis_font' => 'MediumBold',
-                                               'Y_MIN' => 0,
-                                               'legend_font' => 'MediumBold',
-                                               'Y_Title' => 'Avg. Throughput (flits/clock (%))',
-                                               'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
-                                               'X_MAX' => 100,
-                                               'LINEw' => 3,
-                                               'X_MIN' => 0
-                                             },
+                     'noc_param' => {
+                                      'V' => '2',
+                                      'T1' => 8,
+                                      'CONGESTION_INDEX' => 3,
+                                      'DEBUG_EN' => '0',
+                                      'C' => 0,
+                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                      'SSA_EN' => '"NO"',
+                                      'FIRST_ARBITER_EXT_P_EN' => 1,
+                                      'AVC_ATOMIC_EN' => 0,
+                                      'SWA_ARBITER_TYPE' => '"RRA"',
+                                      'B' => '4',
+                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                      'MUX_TYPE' => '"BINARY"',
+                                      'TOPOLOGY' => '"MESH"',
+                                      'MIN_PCK_SIZE' => '2',
+                                      'ESCAP_VC_MASK' => '2\'b01',
+                                      'T2' => 8,
+                                      'T3' => '1',
+                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                      'ROUTE_SUBFUNC' => '"XY"',
+                                      'WEIGHTw' => '4',
+                                      'ROUTE_NAME' => '"XY"',
+                                      'Fpay' => '32'
+                                    },
+                     'noc_type' => {
+                                     'ROUTER_TYPE' => '"VC_BASED"'
+                                   },
                      'P3-' => {
                                 'type' => '2D_line'
                               },
+                     'P2' => {
+                               'active' => 'Received'
+                             },
+                     'emulation_column' => {
+                                             'va' => '0',
+                                             'ha' => '0'
+                                           },
                      'setting' => {
                                     'show_adv_setting' => 1,
                                     'show_noc_setting' => 1,
                                     'show_tile_setting' => 0,
                                     'soc_path' => 'lib/soc'
                                   },
+                     'file_name' => undef,
+                     'samples' => undef,
+                     'noc_setting_gui' => {
+                                            'ha' => '0',
+                                            'va' => '0'
+                                          },
                      'P0Throughput' => {
                                          'type' => '2D_line'
                                        },
-                     'P2Received_param' => {
-                                             'X_MAX' => 100,
-                                             'X_MIN' => 0,
-                                             'LINEw' => 3,
-                                             'Y_MIN' => 0,
-                                             'legend_font' => 'MediumBold',
-                                             'label_font' => 'MediumBold',
-                                             'legend_placement' => 'BL',
-                                             'x_axis_font' => 'MediumBold',
-                                             'Y_Title' => 'Worst-Case Delay (clk)',
-                                             'X_Title' => 'Core ID'
-                                           },
-                     'P3-_param' => {
-                                      'X_MAX' => 100,
-                                      'X_MIN' => 0,
-                                      'LINEw' => 3,
-                                      'Y_MIN' => 0,
-                                      'legend_font' => 'MediumBold',
-                                      'legend_placement' => 'BL',
-                                      'label_font' => 'MediumBold',
-                                      'x_axis_font' => 'MediumBold',
-                                      'Y_Title' => 'Total Simulation Time (clk)',
-                                      'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))'
-                                    },
-                     'noc_setting_gui' => {
-                                            'va' => '0',
-                                            'ha' => '0'
-                                          },
+                     'gui_status' => {
+                                       'timeout' => 0,
+                                       'status' => 'ideal'
+                                     },
+                     'P2Received' => {
+                                       'dimention' => '3D',
+                                       'type' => '3D_bar'
+                                     },
+                     'P0' => {
+                               'active' => 'Throughput'
+                             },
+                     'P3' => {
+                               'active' => '-'
+                             },
                      'P1Received' => {
                                        'type' => '3D_bar',
                                        'dimention' => '3D'
                                      },
-                     'P2Received' => {
-                                       'type' => '3D_bar',
-                                       'dimention' => '3D'
-                                     },
-                     'graph_save' => {
-                                       'save_all_result' => 0
-                                     },
-                     'P2' => {
-                               'active' => 'Received'
-                             },
+                     'no_name' => {},
                      'fpga_param' => {
                                        'TIMSTMP_FIFO_NUM' => 16
                                      },
+                     'P0Throughput_param' => {
+                                               'X_MAX' => 100,
+                                               'X_MIN' => 0,
+                                               'Y_Title' => 'Avg. Throughput (flits/clock (%))',
+                                               'legend_placement' => 'BL',
+                                               'x_axis_font' => 'MediumBold',
+                                               'label_font' => 'MediumBold',
+                                               'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                               'LINEw' => 3,
+                                               'Y_MIN' => 0,
+                                               'legend_font' => 'MediumBold'
+                                             },
+                     'P1Received_param' => {
+                                             'LINEw' => 3,
+                                             'Y_MIN' => 0,
+                                             'legend_font' => 'MediumBold',
+                                             'X_MIN' => 0,
+                                             'X_MAX' => 100,
+                                             'legend_placement' => 'BL',
+                                             'Y_Title' => 'Received Packets Per Router',
+                                             'x_axis_font' => 'MediumBold',
+                                             'label_font' => 'MediumBold',
+                                             'X_Title' => 'Core ID'
+                                           },
+                     'P2Received_param' => {
+                                             'legend_placement' => 'BL',
+                                             'Y_Title' => 'Worst-Case Delay (clk)',
+                                             'X_MAX' => 100,
+                                             'X_MIN' => 0,
+                                             'X_Title' => 'Core ID',
+                                             'label_font' => 'MediumBold',
+                                             'x_axis_font' => 'MediumBold',
+                                             'LINEw' => 3,
+                                             'legend_font' => 'MediumBold',
+                                             'Y_MIN' => 0
+                                           },
                      'simulate_name' => 'model_mesh_8x8_vc2_xy_nosa_rra',
-                     'samples' => undef,
                      'parameters_order' => {
+                                             'noc_type' => [
+                                                             'ROUTER_TYPE'
+                                                           ],
                                              'noc_param' => [
                                                               'TOPOLOGY',
                                                               'T1',
@@ -116,76 +167,25 @@ $simulate = bless( {
                                                             ],
                                              'fpga_param' => [
                                                                'TIMSTMP_FIFO_NUM'
-                                                             ],
-                                             'noc_type' => [
-                                                             'ROUTER_TYPE'
-                                                           ]
+                                                             ]
                                            },
-                     'no_name' => {},
-                     'P1' => {
-                               'active' => 'Received'
-                             },
-                     'emulation_column' => {
-                                             'va' => '0',
-                                             'ha' => '0'
-                                           },
-                     'gui_status' => {
-                                       'status' => 'ideal',
-                                       'timeout' => 0
-                                     },
-                     'noc_param' => {
-                                      'T3' => '1',
-                                      'SWA_ARBITER_TYPE' => '"RRA"',
-                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
-                                      'V' => '2',
-                                      'MUX_TYPE' => '"BINARY"',
-                                      'WEIGHTw' => '4',
-                                      'DEBUG_EN' => '0',
-                                      'ROUTE_NAME' => '"XY"',
-                                      'C' => 0,
-                                      'CONGESTION_INDEX' => 3,
-                                      'TOPOLOGY' => '"MESH"',
-                                      'T2' => 8,
-                                      'ROUTE_SUBFUNC' => '"XY"',
-                                      'Fpay' => '32',
-                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
-                                      'B' => '4',
-                                      'T1' => 8,
-                                      'FIRST_ARBITER_EXT_P_EN' => 1,
-                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
-                                      'AVC_ATOMIC_EN' => 0,
-                                      'ESCAP_VC_MASK' => '2\'b01',
-                                      'MIN_PCK_SIZE' => '2',
-                                      'SSA_EN' => '"NO"'
-                                    },
-                     'sim_param' => {
-                                      'SAVE_NAME' => 'model_mesh_8x8_vc2_xy_nosa_rra',
-                                      'BIN_DIR' => '/home/alireza/work/mpsoc_work/simulate'
-                                    },
-                     'noc_type' => {
-                                     'ROUTER_TYPE' => '"VC_BASED"'
-                                   },
                      'status' => 'ideal',
-                     'P3' => {
-                               'active' => '-'
-                             },
-                     'P1Received_param' => {
-                                             'X_MAX' => 100,
-                                             'X_MIN' => 0,
-                                             'LINEw' => 3,
-                                             'legend_font' => 'MediumBold',
-                                             'Y_MIN' => 0,
-                                             'x_axis_font' => 'MediumBold',
-                                             'label_font' => 'MediumBold',
-                                             'legend_placement' => 'BL',
-                                             'Y_Title' => 'Received Packets Per Router',
-                                             'X_Title' => 'Core ID'
-                                           },
-                     'file_name' => undef,
                      'process_notebook' => {
                                              'currentpage' => 1
                                            },
-                     'P0' => {
-                               'active' => 'Throughput'
-                             }
+                     'P1' => {
+                               'active' => 'Received'
+                             },
+                     'P3-_param' => {
+                                      'legend_font' => 'MediumBold',
+                                      'Y_MIN' => 0,
+                                      'LINEw' => 3,
+                                      'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                      'x_axis_font' => 'MediumBold',
+                                      'label_font' => 'MediumBold',
+                                      'X_MAX' => 100,
+                                      'X_MIN' => 0,
+                                      'Y_Title' => 'Total Simulation Time (clk)',
+                                      'legend_placement' => 'BL'
+                                    }
                    }, 'emulator' );

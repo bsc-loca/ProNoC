@@ -127,7 +127,7 @@ sub  gen_socs_param{
 	my $mpsoc=shift;
 	my $socs_param="
 //SOC parameters\n";
-	my ($NE, $NR, $RXw, $RYw, $EXw, $EYw, $Fw) = get_topology_info($mpsoc);
+	my ($NE, $NR, $RAw,  $EAw, $Fw) = get_topology_info($mpsoc);
 	my $processors_en=0;
     for (my $tile=0;$tile<$NE;$tile++){
 			my ($soc_name,$n,$soc_num)=$mpsoc->mpsoc_get_tile_soc_name($tile);
@@ -259,7 +259,7 @@ sub gen_noc_param_h{
 
 sub gen_noc_v{
 	my ($mpsoc,$pass_param) = @_;
-	my ($NE, $NR, $RXw, $RYw, $EXw, $EYw, $Fw) = get_topology_info($mpsoc);
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($mpsoc);
 	my $noc =  read_verilog_file("../src_noc/noc.v");
 	my @noc_param=$noc->get_modules_parameters_not_local_order('noc');
 	
@@ -270,10 +270,8 @@ sub gen_noc_v{
 	localparam
 		NE = $NE,
 		NR = $NR,
-		RXw = $RXw,
-		RYw = $RYw,
-		EXw = $EXw,
-		EYw = $EYw,
+		RAw = $RAw,
+		EAw = $EAw,
 		Fw = $Fw,
 		NEFw = NE * Fw,
 		NEV = NE * V;
@@ -371,7 +369,7 @@ sub gen_socs_v{
 	  
    
 	my $socs_v; 
-	my ($NE, $NR, $RXw, $RYw, $EXw, $EYw)= get_topology_info ($mpsoc); 
+	my ($NE, $NR, $RAw, $EAw, $EYw)= get_topology_info ($mpsoc); 
         
  
 	my $processors_en=0;
@@ -421,22 +419,19 @@ sub   gen_soc_v{
 	my ($mpsoc,$soc_name,$tile_num,$soc_num,$io_v_ref,$io_def_v,$top_io_ref,$top_ip,$sw_path)=@_;
 	my $soc_v;
 	my $processor_en=0;
-	my ($NE, $NR, $RXw, $RYw, $EXw, $EYw, $Fw)= get_topology_info ($mpsoc); 
-	my $ex=get_ex_addr($mpsoc,$tile_num);
-	my $ey=get_ey_addr($mpsoc,$tile_num);
-	my $rx=get_rx_addr($mpsoc,$tile_num);
-	my $ry=get_ry_addr($mpsoc,$tile_num);
+	my ($NE, $NR, $RAw, $EAw, $Fw)= get_topology_info ($mpsoc); 
+	my $e_addr=endp_addr_encoder($mpsoc,$tile_num);
+	my $router_num = get_connected_router_id_to_endp($mpsoc,$tile_num);
+	my $r_addr=router_addr_encoder($mpsoc,$router_num);
+	
 		
 	
-	$soc_v="\n\n // Tile:$tile_num (x=$ex,y=$ey)\n   \t$soc_name #(\n";
+	$soc_v="\n\n // Tile:$tile_num ($e_addr)\n   \t$soc_name #(\n";
 	
 	# Global parameter
 	add_text_to_string(\$soc_v,"\t\t.CORE_ID($tile_num),\n\t\t.SW_LOC(\"$sw_path/tile$tile_num\")");
 	
-	#addresswidth parameters
-	#add_text_to_string(\$soc_v,"\t\t.RXw($RXw),\n\t\t.RYw($RYw),\n\t\t.EXw($EXw),\n\t\t.EYw($EYw)");	
-	
-	
+		
 	# ni parameter
 	my $top=$mpsoc->mpsoc_get_soc($soc_name);
 	my @nis=get_NI_instance_list($top);
@@ -485,10 +480,8 @@ sub   gen_soc_v{
 		
 			foreach my $p (@ports){
 				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
-				my $q=	($intfc_port eq "current_ex")? "$EXw\'d$ex" : 
-						($intfc_port eq "current_ey")? "$EYw\'d$ey" :
-						($intfc_port eq "current_rx")? "$RXw\'d$rx" : 
-						($intfc_port eq "current_ry")? "$RYw\'d$ry" :						
+				my $q=	($intfc_port eq "current_e_addr")? "$EAw\'d$e_addr" : 
+						($intfc_port eq "current_r_addr")? "$RAw\'d$r_addr" :						
 						"ni_$intfc_port\[$tile_num\]";
 				add_text_to_string(\$soc_v,',') if ($i);	
 				add_text_to_string(\$soc_v,"\n\t\t.$p($q)");

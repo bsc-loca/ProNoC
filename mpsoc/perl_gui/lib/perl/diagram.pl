@@ -11,7 +11,7 @@ require "widget.pl";
 require "emulator.pl";
 use File::Copy;
 
-#use GraphViz;
+
 
 
 sub get_dot_file{
@@ -64,9 +64,7 @@ sub get_dot_file{
 				}
 				
 			}
-		}
-		
-		
+		}	
 		
 		
 		$dotfile=($first)? "$dotfile $instance_name"  : "$dotfile}|$instance_name";
@@ -214,6 +212,7 @@ sub show_tile_diagram {
 	$window->show_all();
 }
 
+
 sub show_topology_diagram {
 	my $self= shift;
 
@@ -274,38 +273,36 @@ sub show_topology_diagram {
 
 sub gen_diagram {
 	my ($self,$type)=@_;
-
 	
 	my $dotfile;
 	$dotfile=   get_dot_file($self) if ($type eq 'tile');
 	$dotfile=   get_topology_dot_file($self) if ($type eq 'topology');
+	$dotfile=   generate_custom_topology_dot_file($self) if ($type eq 'custom_topology');	
 	$dotfile=   generate_trace_dot_file($self) if ($type eq 'trace');	
 	$dotfile=   generate_map_dot_file($self) if ($type eq 'map');										
 	
 	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
-	mkpath("$tmp_dir/",1,01777);
-	open(FILE,  ">$tmp_dir/diagram.txt") || die "Can not open: $!";
-	print FILE $dotfile;
-	close(FILE) || die "Error closing file: $!";
+	#mkpath("$tmp_dir/",1,01777);
+	#open(FILE,  ">$tmp_dir/diagram.txt") || die "Can not open: $!";
+	#print FILE $dotfile;
+	#close(FILE) || die "Error closing file: $!";
 	
-	unlink "$tmp_dir/diagram.png";
+	#unlink "$tmp_dir/diagram.png";
 
 	my $cmd;
-	$cmd=  "dot  $tmp_dir/diagram.txt | neato -n  -Tpng -o $tmp_dir/diagram.png" if ($type eq 'tile' || $type eq 'trace'  );
-	$cmd = "dot  $tmp_dir/diagram.txt -Kfdp -n -Tpng -o $tmp_dir/diagram.png" if ( $type eq 'map' || $type eq 'topology');	
- 
+	#$cmd=  "dot  $tmp_dir/diagram.txt | neato -n  -Tpng -o $tmp_dir/diagram.png" if ($type eq 'tile' || $type eq 'trace'  );
+	#$cmd = "dot  $tmp_dir/diagram.txt -Kfdp -n -Tpng -o $tmp_dir/diagram.png" if ( $type eq 'map' || $type eq 'topology' || $type eq 'custom_topology' );	
+ 	$cmd=  " dot   | neato -n  -Tpng -o $tmp_dir/diagram.png" if ($type eq 'tile' || $type eq 'trace'  );
+	$cmd = " dot   -Kfdp -n -Tpng -o $tmp_dir/diagram.png" if ( $type eq 'map' || $type eq 'topology' || $type eq 'custom_topology' );	
+    $cmd = "echo \'$dotfile\' | $cmd";
 
 	my ($stdout,$exit,$stderr)= run_cmd_in_back_ground_get_stdout ($cmd);
 
-	 if ( length( $stderr || '' ) !=0)  {
+	if ( length( $stderr || '' ) !=0)  {
 		message_dialog("$stderr\nHave you installed graphviz? If not run \n \t \"sudo apt-get install graphviz\" \n in terminal");
 		return 0 unless (-f "$tmp_dir/diagram.png");
 	}
 		return  1;
-		
-		
-
-
 }
 
 
@@ -321,8 +318,9 @@ sub show_diagram {
 	$scale= 1 if (!defined $scale);
 	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
 	my $diagram=open_image("$tmp_dir/diagram.png",70*$scale,70*$scale,'percent');
-		$scrolled_win->add_with_viewport($diagram);
-		$scrolled_win->show_all();	
+	
+	$scrolled_win->add_with_viewport($diagram);
+	$scrolled_win->show_all();	
 		
 		
 
@@ -554,13 +552,8 @@ sub show_trace_diagram {
 }	
 
 
-sub get_topology_dot_file{
-	my $self=shift;
-	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
-	return generate_mesh_dot_file ($self) if($topology eq '"RING"' || $topology eq '"LINE"' || $topology eq '"MESH"' || $topology eq '"TORUS"' );
-	return generate_fattree_dot_file ($self) if($topology eq '"FATTREE"');
-	return generate_tree_dot_file($self);
-}
+
+
 
 
 sub node_connection{
@@ -1034,6 +1027,13 @@ sub generate_tree_dot_file{
 }
 
 
+sub get_topology_dot_file{
+	my $self=shift;
+	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
+	return generate_mesh_dot_file ($self) if($topology eq '"RING"' || $topology eq '"LINE"' || $topology eq '"MESH"' || $topology eq '"TORUS"' );
+	return generate_fattree_dot_file ($self) if($topology eq '"FATTREE"');
+	return generate_tree_dot_file($self);
+}
 
 
 

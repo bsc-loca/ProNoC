@@ -104,17 +104,7 @@ generate
     if( TOPOLOGY == "FATTREE") begin : fat
     /* verilator lint_on WIDTH */  
        
-        fattree_noc_connection #(
-            .TOPOLOGY(TOPOLOGY),
-            .K(T1),
-            .L(T2),
-            .V(V),
-            .B(B),
-            .Fpay(Fpay),
-            .CONGESTION_INDEX(CONGESTION_INDEX),   
-            .WEIGHTw(WEIGHTw)        
-        )
-        connections
+        fattree_noc_connection connections
         (    
          .clk(clk),
          .reset(reset),
@@ -128,8 +118,6 @@ generate
          .router_flit_in_we_all(router_flit_in_we_all),
          .router_congestion_in_all(router_congestion_in_all),
          .router_congestion_out_all(router_congestion_out_all),
-        // router_iport_weight_in_all,
-        // router_iport_weight_out_all, 
          .ni_flit_in(ni_flit_in),    
          .ni_flit_in_wr(ni_flit_in_wr), 
          .ni_credit_out(ni_credit_out),                 
@@ -140,22 +128,37 @@ generate
          .current_r_addr(current_r_addr),
          .neighbors_r_all(neighbors_r_addr)    
         );
+     /* verilator lint_off WIDTH */    
+    end else if( TOPOLOGY == "TREE") begin : fat
+    /* verilator lint_on WIDTH */  
        
-       
+        tree_noc_connection  connections
+        (    
+         .clk(clk),
+         .reset(reset),
+         .start_i(start_i),
+         .start_o(start_o),
+         .router_flit_out_all(router_flit_out_all), 
+         .router_flit_out_we_all(router_flit_out_we_all),    
+         .router_credit_in_all(router_credit_in_all),
+         .router_credit_out_all(router_credit_out_all),
+         .router_flit_in_all(router_flit_in_all),     
+         .router_flit_in_we_all(router_flit_in_we_all),
+         .router_congestion_in_all(router_congestion_in_all),
+         .router_congestion_out_all(router_congestion_out_all),
+         .ni_flit_in(ni_flit_in),    
+         .ni_flit_in_wr(ni_flit_in_wr), 
+         .ni_credit_out(ni_credit_out),                 
+         .ni_flit_out(ni_flit_out), 
+         .ni_flit_out_wr(ni_flit_out_wr),  
+         .ni_credit_in(ni_credit_in),
+         .er_addr(er_addr),
+         .current_r_addr(current_r_addr),
+         .neighbors_r_all(neighbors_r_addr)    
+        );       
        
     end else begin :mesh_torus
-        mesh_torus_noc_connection #(
-            .TOPOLOGY(TOPOLOGY),
-            .NX(T1),
-            .NY(T2),
-            .NL(T3),
-            .V(V),
-            .B(B),
-            .Fpay(Fpay),
-            .CONGESTION_INDEX(CONGESTION_INDEX),   
-            .WEIGHTw(WEIGHTw)       
-       )
-       connections
+        mesh_torus_noc_connection connections
        (    
          .clk(clk),
          .reset(reset),
@@ -169,8 +172,6 @@ generate
          .router_flit_in_we_all(router_flit_in_we_all),
          .router_congestion_in_all(router_congestion_in_all),
          .router_congestion_out_all(router_congestion_out_all),
-        // router_iport_weight_in_all,
-        // router_iport_weight_out_all, 
          .ni_flit_in(ni_flit_in),    
          .ni_flit_in_wr(ni_flit_in_wr), 
          .ni_credit_out(ni_credit_out),                 
@@ -183,9 +184,6 @@ generate
 );
 
     end
-
-
-
   endgenerate
 endmodule
 

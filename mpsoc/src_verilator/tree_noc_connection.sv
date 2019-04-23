@@ -1,6 +1,9 @@
-`timescale     1ns/1ps
+// synthesis translate_off
+`timescale 1ns / 1ps
+// synthesis translate_on
 
-module fattree_noc_connection (
+module tree_noc_connection (   
+   
  clk,
  reset,
  start_i,
@@ -23,15 +26,14 @@ module fattree_noc_connection (
  er_addr,
  current_r_addr,
  neighbors_r_all
-);
-    
+);    
 
+    
     `define  INCLUDE_PARAM
     `include"parameter.v"
     
      `define INCLUDE_TOPOLOGY_LOCALPARAM
     `include "topology_localparam.v"
-   
      
     
     localparam CONGw= (CONGESTION_INDEX==3)?  3:
@@ -39,9 +41,7 @@ module fattree_noc_connection (
                       (CONGESTION_INDEX==7)?  3:
                       (CONGESTION_INDEX==9)?  3:
                       (CONGESTION_INDEX==10)? 4:
-                      (CONGESTION_INDEX==12)? 3:2;
-
-  
+                      (CONGESTION_INDEX==12)? 3:2;  
         
   function integer addrencode;
         input integer pos,k,n,kw;
@@ -56,24 +56,28 @@ module fattree_noc_connection (
             pow=pow * k;
         end
         end   
-    endfunction 
+    endfunction // log2 
         
-   
+    
     
     localparam
         PV = V * MAX_P,
         Fw = 2+V+Fpay, //flit width;    
-        PFw = MAX_P * Fw,       
-        NRL= NE/K, //number of router in  each layer       
+        PFw = MAX_P * Fw,
         NEFw = NE * Fw,
         NEV = NE * V,
         CONG_ALw = CONGw * MAX_P,
         PLKw = MAX_P * LKw,
         PLw = MAX_P * Lw,       
-        PRAw = MAX_P * RAw; // {layer , Pos} width           
+        PRAw = MAX_P * RAw; // {layer , Pos} width
+                
                     
    
-    input reset,clk;     
+    input reset,clk;      
+    
+    
+                    
+     
     output [PFw-1 : 0] router_flit_out_all [NR-1 :0];
     output [MAX_P-1 : 0] router_flit_out_we_all [NR-1 :0];    
     input  [PV-1 : 0] router_credit_in_all [NR-1 :0];    
@@ -103,79 +107,69 @@ module fattree_noc_connection (
      
     input  start_i;
     output [NE-1 : 0] start_o;
+ 
     
-    
-//connect all down input channels
-
-localparam NPOS = powi( K, L-1);
-localparam CHAN_PER_DIRECTION = (K * powi( L , L-1 )); //up or down
-localparam CHAN_PER_LEVEL = 2*(K * powi( K , L-1 )); //up+down
-
-genvar pos,level,port;
-generate
-for (level = 0; level<L-1; level=level+1) begin : level_c
-/* verilator lint_off WIDTH */
-    localparam [Lw-1 : 0] LEAVE_L = L-1-level;
-/* verilator lint_on WIDTH */    
-    //input channel are numbered interleavely, the interleaev depends on level
-    localparam ROUTERS_PER_NEIGHBORHOOD = powi(K,L-1-(level)); 
-    localparam ROUTERS_PER_BRANCH = powi(K,L-1-(level+1)); 
-    localparam LEVEL_OFFSET = ROUTERS_PER_NEIGHBORHOOD*K;
+    localparam ROOT_L = L-1; 
+    localparam ROOT_ID = 0;
+ 
+    assign current_layer_addr [ROOT_ID] = ROOT_L[Lw-1 : 0];
+    assign current_pos_addr [ROOT_ID] = {LKw{1'b0}};       
+    assign current_r_addr[ROOT_ID] = {current_layer_addr [ROOT_ID],current_pos_addr[ROOT_ID]}; 
+ 
+  genvar pos,level,port;  
+ generate   
+//connect all up connections
+for (level = 1; level<L; level=level+1) begin : level_c
+    localparam NPOS = powi(K,level); // number of routers in this level
+    localparam L1 = L-1-level;
+    localparam level2= level - 1;
+    localparam L2 = L-1-level2;
     for ( pos = 0; pos < NPOS; pos=pos+1 ) begin : pos_c
-        localparam ADRRENCODED=addrencode(pos,K,L,Kw);
-        localparam NEIGHBORHOOD = (pos/ROUTERS_PER_NEIGHBORHOOD);
-        localparam NEIGHBORHOOD_POS = pos % ROUTERS_PER_NEIGHBORHOOD;
-        for ( port = 0; port < K; port=port+1 ) begin : port_c
-            localparam LINK = 
-                ((level+1)*CHAN_PER_LEVEL - CHAN_PER_DIRECTION)  //which levellevel
-                +NEIGHBORHOOD* LEVEL_OFFSET   //region in level
-                +port*ROUTERS_PER_BRANCH*K //sub region in region
-                +(NEIGHBORHOOD_POS)%ROUTERS_PER_BRANCH*K //router in subregion
-                +(NEIGHBORHOOD_POS)/ROUTERS_PER_BRANCH; //port on router
+        localparam ID1 = sum_powi ( K,level) + pos;        
+        localparam FATTREE_EQ_POS1 = pos*(K**L1);
+        localparam ADR_CODE1=addrencode(FATTREE_EQ_POS1,K,L,Kw);       
+        localparam POS2 = pos /K ;
+        localparam ID2 = sum_powi ( K,level-1) + (pos/K);
+        localparam PORT2= pos % K;  
+        localparam FATTREE_EQ_POS2 = POS2*(K**L2);
+        localparam ADR_CODE2=addrencode(FATTREE_EQ_POS2,K,L,Kw);
+        
+        // node_connection('Router[id1][k] to router[id2][pos%k];  
+                  
+            assign  router_flit_out_all   [ID1][(K+1)*Fw-1 : K*Fw] = router_flit_in_all [ID2][(PORT2+1)*Fw-1 : PORT2*Fw];
+            assign  router_flit_out_all   [ID2][(PORT2+1)*Fw-1 : PORT2*Fw] = router_flit_in_all [ID1][(K+1)*Fw-1 : K*Fw];  
+
+            assign  router_credit_out_all [ID1][(K+1)*V-1 : K*V]= router_credit_in_all  [ID2][(PORT2+1)*V-1 : PORT2*V];
+            assign  router_credit_out_all [ID2][(PORT2+1)*V-1 : PORT2*V]= router_credit_in_all [ID1][(K+1)*V-1 : K*V];
 
 
-            localparam L2= (LINK+CHAN_PER_DIRECTION)/CHAN_PER_LEVEL;
-            localparam POS2 = ((LINK+CHAN_PER_DIRECTION) % CHAN_PER_LEVEL)/K;
-            localparam PORT2= (((LINK+CHAN_PER_DIRECTION) % CHAN_PER_LEVEL)  %K)+K;
-            localparam ID1 =NRL*level+pos;
-            localparam ID2 =NRL*L2 + POS2;
-            localparam POS_ADR_CODE2= addrencode(POS2,K,L,Kw);
-            localparam POS_ADR_CODE1= addrencode(pos,K,L,Kw);           
-        // $dotfile=$dotfile.node_connection('R',$id1,undef,$port,'R',$connect_id,undef,$connect_port);    
-            
-            assign  router_flit_out_all   [ID1][(port+1)*Fw-1 : port*Fw] = router_flit_in_all [ID2][(PORT2+1)*Fw-1 : PORT2*Fw];
-            assign  router_flit_out_all   [ID2][(PORT2+1)*Fw-1 : PORT2*Fw] = router_flit_in_all [ID1][(port+1)*Fw-1 : port*Fw];  
-            assign  router_credit_out_all [ID1][(port+1)*V-1 : port*V]= router_credit_in_all  [ID2][(PORT2+1)*V-1 : PORT2*V];
-            assign  router_credit_out_all [ID2][(PORT2+1)*V-1 : PORT2*V]= router_credit_in_all [ID1][(port+1)*V-1 : port*V];
-            assign  router_flit_out_we_all[ID1][port] = router_flit_in_we_all [ID2][PORT2];
-            assign  router_flit_out_we_all[ID2][PORT2] = router_flit_in_we_all [ID1][port];
+            assign  router_flit_out_we_all[ID1][K] = router_flit_in_we_all [ID2][PORT2];
+            assign  router_flit_out_we_all[ID2][PORT2] = router_flit_in_we_all [ID1][K];
 
-            assign  router_congestion_out_all  [ID1][(port+1)*CONGw-1 : port*CONGw]  = router_congestion_in_all  [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw];
-            assign  router_congestion_out_all [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw] = router_congestion_in_all [ID1][(port+1)*CONGw-1 : port*CONGw];
+            assign  router_congestion_out_all  [ID1][(K+1)*CONGw-1 : K*CONGw]  = router_congestion_in_all  [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw];
+            assign  router_congestion_out_all [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw] = router_congestion_in_all [ID1][(K+1)*CONGw-1 : K*CONGw];
             
-            assign  neighbors_pos_all[ID1][(port+1)*LKw-1 : port*LKw] = POS_ADR_CODE2[LKw-1 :0];    
-            assign  neighbors_pos_all[ID2][(PORT2+1)*LKw-1 : PORT2*LKw] = POS_ADR_CODE1 [LKw-1 :0];    
+            assign  neighbors_pos_all[ID1][(K+1)*LKw-1 : K*LKw] = ADR_CODE2 [LKw-1 :0];
+            assign  neighbors_pos_all[ID2][(PORT2+1)*LKw-1 : PORT2*LKw] = ADR_CODE1[LKw-1 :0];
             
-            /* verilator lint_off WIDTH */
-            assign  neighbors_layer_all[ID1][(port+1)*Lw-1 : port*Lw] =  L-L2-1;
-            assign  neighbors_layer_all[ID2][(PORT2+1)*Lw-1 : PORT2*Lw] =L-level-1; 
-            /* verilator lint_on WIDTH */
-             
-            assign  neighbors_r_all[ID1][(port+1)*RAw-1 : port*RAw]   = {neighbors_layer_all[ID1][(port+1)*Lw-1 : port*Lw],neighbors_pos_all[ID1][(port+1)*LKw-1 : port*LKw]};
+            assign  neighbors_layer_all[ID1][(K+1)*Lw-1 : K*Lw] =  L2 [Lw-1 : 0];
+            assign  neighbors_layer_all[ID2][(PORT2+1)*Lw-1 : PORT2*Lw] =L1 [Lw-1 : 0];   
+            
+            assign  neighbors_r_all[ID1][(K+1)*RAw-1 : K*RAw]   = {neighbors_layer_all[ID1][(K+1)*Lw-1 : K*Lw],neighbors_pos_all[ID1][(K+1)*LKw-1 : K*LKw]};
             assign  neighbors_r_all[ID2][(PORT2+1)*RAw-1 : PORT2*RAw] = {neighbors_layer_all[ID2][(PORT2+1)*Lw-1 : PORT2*Lw],neighbors_pos_all[ID2][(PORT2+1)*LKw-1 : PORT2*LKw]};
-          
-             
-            
-            assign current_layer_addr [ID1] = LEAVE_L;
-            assign current_pos_addr [ID1] = ADRRENCODED[LKw-1 :0];         
+        
+            assign current_layer_addr [ID1] = L1[Lw-1 : 0];
+            assign current_pos_addr [ID1] = ADR_CODE1 [LKw-1 : 0];         
             assign current_r_addr [ID1] = {current_layer_addr [ID1],current_pos_addr[ID1]};
-         
-         end//port
-    end//pos
+        
+        
+        end// pos
+    
 end //level
+          
     
 for ( pos = 0; pos <  NE; pos=pos+1 ) begin : endpoints
-    localparam RID= NRL*(L-1)+(pos/K);
+    localparam RID= sum_powi(K,L-1)+(pos/K);
     localparam RPORT = pos%K;
     //connected router encoded address
     localparam  CURRENTPOS=   addrencode(pos/K,K,L,Kw);
@@ -192,8 +186,7 @@ for ( pos = 0; pos <  NE; pos=pos+1 ) begin : endpoints
             
             assign ni_flit_out [pos] = router_flit_in_all [RID][(RPORT+1)*Fw-1 : RPORT*Fw]; 
             assign ni_flit_out_wr [pos] = router_flit_in_we_all[RID][RPORT];
-            assign ni_credit_out [pos] = router_credit_in_all [RID][(RPORT+1)*V-1 : RPORT*V]; 
-            
+            assign ni_credit_out [pos] = router_credit_in_all [RID][(RPORT+1)*V-1 : RPORT*V];             
             assign er_addr [pos] = CURRENTPOS [RAw-1 : 0];
          
  

@@ -41,17 +41,8 @@
 `define SELECT_WIRE(x,y,port,width)    `router_id(x,y)] [`START_LOC(port,width) : `END_LOC(port,width )
 
 
-module mesh_torus_noc_connection #(
-    parameter V = 2, // Number of Virtual channel per port 
-    parameter B = 4, // buffer space :flit per VC 
-    parameter NX   = 2, // The number of node in x axis of mesh or torus. For ring topology is total number of nodes in ring.
-    parameter NY   = 2, // The number of node in y axis of mesh or torus. It is not used in ring topology.
-    parameter NL  = 1, // Number of local ports connected to one router
-    parameter Fpay = 32, // packet payload width
-    parameter TOPOLOGY = "MESH",//"MESH","TORUS","RING" , "LINE"
-    parameter CONGESTION_INDEX =   2,
-    parameter WEIGHTw=4
-)(
+module mesh_torus_noc_connection (
+   
     reset,
     clk, 
     router_flit_out_all,
@@ -77,14 +68,16 @@ module mesh_torus_noc_connection #(
    
 );
 
-   function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end        
-      end   
-    endfunction // log2 
+  
+
+                    
+                      
+       `define  INCLUDE_PARAM
+    `include"parameter.v"          
+                      
+     `define INCLUDE_TOPOLOGY_LOCALPARAM
+    `include "topology_localparam.v"
+    
 
     localparam CONGw= (CONGESTION_INDEX==3)?  3:
                       (CONGESTION_INDEX==5)?  3:
@@ -93,37 +86,14 @@ module mesh_torus_noc_connection #(
                       (CONGESTION_INDEX==10)? 4:
                       (CONGESTION_INDEX==12)? 3:2;
                       
-                      
-                
-                      
-    /* verilator lint_off WIDTH */                              
-    localparam R2R_CHANNELS=  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 2 : 4;    
-    localparam R2E_CHANNELS= NL;
-    localparam P = R2R_CHANNELS + NL;
-    /* verilator lint_on WIDTH */
-                                              
-
-   
-    
+       
     localparam
-        PV = V * P,
-        P_1 = P-1,
+        PV = V * MAX_P,
         Fw = 2+V+Fpay, //flit width;    
-        PFw = P * Fw,
-        /* verilator lint_off WIDTH */
-        NR = (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? NX : NX*NY,    //number of cores
-        /* verilator lint_on WIDTH */
-        NE = NR * NL,// number of endpoints
+        PFw = MAX_P * Fw,
         NEFw = NE * Fw,
         NEV = NE * V,
-        CONG_ALw = CONGw * P, // congestion width per router            
-        Xw = log2(NX),    // number of node in x axis
-        Yw = log2(NY),    // number of node in y axis
-        Lw = log2(NL);
-   
-     localparam
-        RAw = ( TOPOLOGY == "RING" || TOPOLOGY == "LINE")? Xw : Xw + Yw,
-        EAw = (NL==1) ? RAw : RAw + Lw;
+        CONG_ALw = CONGw * MAX_P; // congestion width per router         
         
       
     
@@ -134,11 +104,11 @@ module mesh_torus_noc_connection #(
                     
                    
     output [PFw-1 : 0] router_flit_out_all [NR-1 :0];
-    output [P-1 : 0] router_flit_out_we_all [NR-1 :0];    
+    output [MAX_P-1 : 0] router_flit_out_we_all [NR-1 :0];    
     input [PV-1 : 0] router_credit_in_all [NR-1 :0];
     
     input [PFw-1 : 0] router_flit_in_all [NR-1 :0];
-    input [P-1 : 0] router_flit_in_we_all [NR-1 :0];
+    input [MAX_P-1 : 0] router_flit_in_we_all [NR-1 :0];
     output [PV-1 : 0] router_credit_out_all [NR-1 :0];                    
     input [CONG_ALw-1: 0] router_congestion_in_all[NR-1 :0];    
     output [CONG_ALw-1: 0] router_congestion_out_all [NR-1 :0];   
@@ -178,10 +148,12 @@ generate
     if( TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin : ring_line 
     /* verilator lint_on WIDTH */ 
         for  (x=0;   x<NX; x=x+1) begin :ring_loop
-            	/* verilator lint_off WIDTH */ 
-    		assign current_r_addr [x] = x;
-                assign er_addr [x] = x;
- 		/* verilator lint_on WIDTH */           
+		/* verilator lint_off WIDTH */ 
+            	localparam [RAw-1: 0] R_ADDR_1D =  x; 
+		/* verilator lint_on WIDTH */ 
+            	
+    		assign current_r_addr [x] = R_ADDR_1D;                
+ 		        
         
             if(x    <   NX-1) begin: not_last_node
             
@@ -226,11 +198,13 @@ generate
                 end
             end            
             
-            // connect other local ports
+            // connect local ports
             for  (l=0;   l<NL; l=l+1) begin :locals
                 localparam ENDPID = `endp_id(x,0,l); 
-                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS; // first local port is connected to router port 0. The rest are connected at the end  
+                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
                 
+		assign er_addr [ENDPID] = R_ADDR_1D;   
+
                 assign router_flit_out_all [`SELECT_WIRE(x,0,LOCALP,Fw)] =    ni_flit_in [ENDPID];
                 assign router_credit_out_all [`SELECT_WIRE(x,0,LOCALP,V)] =    ni_credit_in [ENDPID];
                 assign router_flit_out_we_all [`router_id(x,0)][LOCALP] =    ni_flit_in_wr [ENDPID];
@@ -251,7 +225,9 @@ generate
     end else begin :mesh_torus
         for (y=0;    y<NY;    y=y+1) begin: y_loop
             for (x=0;    x<NX; x=x+1) begin :x_loop
-            localparam R_ADDR = (y<<Xw) + x; 
+	    /* verilator lint_off WIDTH */ 
+            localparam [RAw-1: 0] R_ADDR = (y<<NXw) + x; 
+            /* verilator lint_on WIDTH */ 
             localparam IP_NUM    =    (y * NX) +    x;
             
     /*
@@ -360,12 +336,13 @@ generate
         
         
             // endpoint(s) connection
-            // connect other local ports
+            // connect local ports
             for  (l=0;   l<NL; l=l+1) begin :locals
                 localparam ENDPID = `endp_id(x,y,l); 
-                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS; // first local port is connected to router port 0. The rest are connected at the end  
-		        assign er_addr [ENDPID] = R_ADDR;                
-
+                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
+		              
+                assign er_addr [ENDPID] = R_ADDR;                
+		
                 assign router_flit_out_all [`SELECT_WIRE(x,y,LOCALP,Fw)] =    ni_flit_in [ENDPID];
                 assign router_credit_out_all [`SELECT_WIRE(x,y,LOCALP,V)] =    ni_credit_in [ENDPID];
                 assign router_flit_out_we_all [`router_id(x,y)][LOCALP] =    ni_flit_in_wr [ENDPID];

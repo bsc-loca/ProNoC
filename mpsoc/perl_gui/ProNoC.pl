@@ -27,6 +27,7 @@ require "mpsoc_gen.pl";
 require "emulator.pl";
 require "simulator.pl";
 require "trace_gen.pl";
+require "network_maker.pl";
 
 use File::Basename;
 
@@ -79,14 +80,10 @@ sub main_window{
 	
 	set_path_env();
 
-
 	my($width,$hight)=max_win_size();
 	set_defualt_font_size();
-
-
-
-
-if ( !defined $ENV{PRONOC_WORK} ) {
+	
+	if ( !defined $ENV{PRONOC_WORK} ) {
 	my $message;
 	if ( !defined $ENV{PRONOC_WORK}) {
 		my $dir = Cwd::getcwd();
@@ -134,16 +131,9 @@ if ( !defined $ENV{PRONOC_WORK} ) {
   [ "/_Help/_ProNoC User Manual",  "F3",		\&user_help, 	0,	undef ],
  
 );
-
-
-
-
-
-   
 	
     my $accel_group = Gtk2::AccelGroup->new;
-    $window->add_accel_group ($accel_group);
-      
+    $window->add_accel_group ($accel_group);      
     my $item_factory = Gtk2::ItemFactory->new ("Gtk2::MenuBar", "<main>",$accel_group);
 
     # Set up item factory to go away with the window
@@ -151,11 +141,7 @@ if ( !defined $ENV{PRONOC_WORK} ) {
 
     # create menu items
     $item_factory->create_items ($window, @menu_items);
-
-        
-
 	$table->attach ($item_factory->get_widget ("<main>"),0, 1, 0,1,,'fill','fill',0,0); #,'expand','shrink',2,2);
-   
     my $tt = Gtk2::Tooltips->new();
 
 
@@ -164,62 +150,46 @@ if ( !defined $ENV{PRONOC_WORK} ) {
 	my $hb = Gtk2::HandleBox->new;
 	#create a toolbar, and do some initial settings
 	my $toolbar = Gtk2::Toolbar->new;
-	$toolbar->set_icon_size ('small-toolbar');
-	
-	$toolbar->set_show_arrow (FALSE);
-	
-		
-	
-	
-		
+	$toolbar->set_icon_size ('small-toolbar');	
+	$toolbar->set_show_arrow (FALSE);		
 	$rbtn_generator->set_label ('Generator');
 	$rbtn_generator->set_icon_widget (def_icon('icons/hardware.png'));
 	set_tip($rbtn_generator, "ProNoC System Generator");
-	$toolbar->insert($rbtn_generator,-1);
-	
-	
-	
+	$toolbar->insert($rbtn_generator,-1);	
 	#________
 	#radio btn "Simulator"
 	my $rbtn_simulator = Gtk2::RadioToolButton->new_from_widget($rbtn_generator);
 	$rbtn_simulator->set_label ('Simulator');
-	$rbtn_simulator->set_icon_widget (def_icon('icons/simulator.png')) ;
-	
+	$rbtn_simulator->set_icon_widget (def_icon('icons/simulator.png')) ;	
 	set_tip($rbtn_simulator, "ProNoC Simulator");
-	$toolbar->insert($rbtn_simulator,-1);
-	
-	
-	
-	
-	
-	$hb->add($toolbar);
+	$toolbar->insert($rbtn_simulator,-1);	
+	#________
+	#radio btn "Networkgen"
+	my $rbtn_networkgen = Gtk2::RadioToolButton->new_from_widget($rbtn_generator);
+	$rbtn_networkgen->set_label ('Network Generator');
+	$rbtn_networkgen->set_icon_widget (def_icon('icons/trace.png')) ;	
+	set_tip($rbtn_networkgen, "ProNoC Network Generator");
+	#$toolbar->insert($rbtn_networkgen,-1);			
 	#====================================
-	
+	$hb->add($toolbar);
 	$rbtn_generator->signal_connect('toggled', sub{
-		open_page($notebook,$noteref,$table,'Generator');
-		
-		
-				
+		open_page($notebook,$noteref,$table,'Generator');				
 	});
 	
 	$rbtn_simulator->signal_connect('toggled', sub{
-		open_page($notebook,$noteref,$table,'Simulator');
-		
-			
+		open_page($notebook,$noteref,$table,'Simulator');		
 	});
+	
+	$rbtn_networkgen->signal_connect('toggled', sub{
+		open_page($notebook,$noteref,$table,'Networkgen');		
+	});	
  
    $table->attach ($hb,1, 2, 0,1,'fill','fill',0,0);
    $table->attach_defaults( $notebook, 0, 2, 1,2);
 
-#$window->add($vbox);
-$window->add($table);
-
-
-
-
-		$window->set_resizable (1);
-		$window->show_all();
-		
+	$window->add($table);
+	$window->set_resizable (1);
+	$window->show_all();		
 }			
 
 
@@ -452,8 +422,18 @@ sub generate_main_notebook {
 		$notebook->append_page ($mpsocgen,$lable4);#Gtk2::Label->new_with_mnemonic ("  _NoC based MPSoC generator  "));	
 		$lable4->show_all;	
 		
+		
 	
-	} else{
+	} elsif($mode eq 'Networkgen'){
+	
+		my $networkgen = network_maker_main();
+		my $lable5=def_image_label("icons/trace.png"," Network Maker ");	
+		$notebook->append_page ($networkgen,$lable5);#Gtk2::Label->new_with_mnemonic ("  _NoC based MPSoC generator  "));	
+		$lable5->show_all;	
+	
+	
+	}else{
+		
 		
 		
 		my $trace_gen= trace_gen_main();

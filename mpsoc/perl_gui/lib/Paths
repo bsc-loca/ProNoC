@@ -1,0 +1,30 @@
+#######################################################################
+##	File: Paths
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.8.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$setting = bless( {
+                    'gui_status' => {
+                                      'timeout' => 10,
+                                      'status' => 'ref'
+                                    },
+                    'PATH' => {
+                                'PRONOC_WORK' => '/home/alireza/work/mpsoc_work',
+                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/17.1/quartus/bin',
+                                'MODELSIM_BIN' => '/home/alireza/intelFPGA_lite/17.1/modelsim_ase/bin'
+                              },
+                    'parameters_order' => {
+                                            'PATH' => [
+                                                        'PRONOC_WORK',
+                                                        'QUARTUS_BIN',
+                                                        'MODELSIM_BIN'
+                                                      ]
+                                          }
+                  }, 'ProNOC' );
+

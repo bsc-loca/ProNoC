@@ -28,102 +28,8 @@
 ***************************************/
 
 
-module  mesh_torus_vc_alloc_request_gen_determinstic #(
-    parameter TOPOLOGY="MESH",
-    parameter ROUTE_NAME="XY",
-    parameter P = 5,
-    parameter V = 4
-
-)(
-    ovc_avalable_all,
-    dest_port_in_all,
-    candidate_ovc_all,
-    ivc_request_all,
-    ovc_is_assigned_all,
-    dest_port_out_all,
-    masked_ovc_request_all
-);
-
-    localparam  P_1     =   P-1,
-                PV      =   V       *   P,
-                PVV     =   PV      *  V,
-                PVP_1   =   PV      *   P_1,
-                VP_1    =   V       *   P_1;
-
-    input   [PV-1       :   0]  ovc_avalable_all;
-    input   [PVP_1-1    :   0]  dest_port_in_all;
-    input   [PV-1       :   0]  ivc_request_all;
-    input   [PV-1       :   0]  ovc_is_assigned_all;
-    output  [PVP_1-1    :   0]  dest_port_out_all;
-    output  [PVV-1      :   0]  masked_ovc_request_all;
-    input   [PVV-1      :   0]  candidate_ovc_all;
-    
-    wire    [PV-1       :   0]  non_assigned_ovc_request_all; 
-    wire    [VP_1-1     :   0]  ovc_avalable_perport        [P-1    :   0];
-    wire    [VP_1-1     :   0]  ovc_avalable_ivc            [PV-1   :   0];
-    wire    [P_1-1      :   0]  dest_port_ivc               [PV-1   :   0];
-    wire    [V-1        :   0]  ovc_avb_muxed               [PV-1   :   0];  
-    wire    [V-1        :   0]  ovc_request_ivc             [PV-1   :   0];
-  
-  assign non_assigned_ovc_request_all =   ivc_request_all & ~ovc_is_assigned_all;
-  
-  // having determinsit routing only one destination port has been requested
-  //assign dest_port_out_all = dest_port_in_all;
-    
-  genvar i;
-
-generate
-    //remove avalable ovc of reciver port 
-    for(i=0;i< P;i=i+1) begin :port_loop
-        if(i==0) begin : first assign ovc_avalable_perport[i]=ovc_avalable_all [PV-1              :   V]; end
-        else if(i==(P-1)) begin : last assign ovc_avalable_perport[i]=ovc_avalable_all [PV-V-1               :   0]; end
-        else  begin : midle  assign ovc_avalable_perport[i]={ovc_avalable_all [PV-1  :   (i+1)*V],ovc_avalable_all [(i*V)-1  :   0]}; end
-    end
-        
-    // IVC loop
-    for(i=0;i< PV;i=i+1) begin :total_vc_loop
-        //seprate input/output
-        assign ovc_avalable_ivc[i]  =   ovc_avalable_perport[(i/V)];
-        assign dest_port_ivc   [i]  =   dest_port_in_all [(i+1)*P_1-1  :   i*P_1   ];
-        assign ovc_request_ivc [i]  = (non_assigned_ovc_request_all[i])? candidate_ovc_all  [(i+1)*V-1  :   i*V ]: {V{1'b0}};
-          
-       
-        //available ovc multiplexer
-        one_hot_mux #(
-            .IN_WIDTH       (VP_1   ),
-            .SEL_WIDTH      (P_1)
-        )
-        multiplexer
-        (
-            .mux_in     (ovc_avalable_ivc   [i]),
-            .mux_out    (ovc_avb_muxed      [i]),
-            .sel        (dest_port_ivc      [i])
-
-        );
-        
-        mesh_torus_mask_non_assignable_destport #(
-            .TOPOLOGY(TOPOLOGY),
-            .ROUTE_NAME(ROUTE_NAME),
-            .SW_LOC(i/V),
-            .P(P)
-        )
-        mask_destport
-        (
-            .dest_port_in(dest_port_in_all[((i+1)*P_1)-1 : i*P_1]),
-            .dest_port_out(dest_port_out_all[((i+1)*P_1)-1 : i*P_1]),
-            .odd_column(1'b0)// it only needed for odd-even routing which is not detemistic 
-        );
-        
-        
-        
-        // mask unavailable ovc from requests
-        assign masked_ovc_request_all  [(i+1)*V-1   :   i*V ]     =   ovc_avb_muxed[i] & ovc_request_ivc [i];
-        
-    end
-   endgenerate
 
 
-endmodule
 /*****************************************
 
 pre-sel[xy]
@@ -138,22 +44,24 @@ pre-sel[xy]
 
 
 module  mesh_torus_vc_alloc_request_gen_adaptive #(
-    parameter TOPOLOGY="MESH",
-    parameter ROUTE_NAME="DUATO",
     parameter ROUTE_TYPE =  "FULL_ADAPTIVE",    // "FULL_ADAPTIVE", "PAR_ADAPTIVE"  
     parameter V = 4,
+    parameter DSTPw=4,
+    parameter SSA_EN ="NO",
+    parameter PPSw=4,
     parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000   // mask scape vc, valid only for full adaptive       
 )(
-    odd_column,
     ovc_avalable_all,
-    dest_port_in_all,
+    dest_port_coded_all,
     candidate_ovc_all,
     ivc_request_all,
     ovc_is_assigned_all,
-    dest_port_out_all,
     masked_ovc_request_all,
     port_pre_sel,
-    //port_pre_sel_ld_all,
+    swap_port_presel,
+    destport_clear_all,
+    ivc_num_getting_ovc_grant, 
+    ssa_ivc_num_getting_ovc_grant_all,
     sel,
     reset,
     clk
@@ -164,8 +72,8 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
     localparam  P_1     =   P-1,
                 PV      =   V       *   P,
                 PVV     =   PV      *  V,
-                PVP_1   =   PV      *   P_1,
-                VP_1    =   V       *   P_1;
+                VP_1    =   V       *   P_1,
+                PVDSTPw = PV * DSTPw;
                 
      localparam LOCAL   =   3'd0,  
                 EAST    =   3'd1, 
@@ -174,28 +82,27 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
                 SOUTH   =   3'd4;  
 
     input   [PV-1       :   0]  ovc_avalable_all;
-    input   [PVP_1-1    :   0]  dest_port_in_all;
+    input   [PVDSTPw-1  :   0]  dest_port_coded_all;
     input   [PV-1       :   0]  ivc_request_all;
-    input   [PV-1       :   0]  ovc_is_assigned_all;
-    output  [PVP_1-1    :   0]  dest_port_out_all;
+    input   [PV-1       :   0]  ovc_is_assigned_all;  
     output  [PVV-1      :   0]  masked_ovc_request_all;
     input   [PVV-1      :   0]  candidate_ovc_all;
-    input   [P_1-1      :   0]  port_pre_sel;
-    input odd_column;
-   // input   [PV-1       :   0]  port_pre_sel_ld_all;
-   
+    input   [PPSw-1      :   0]  port_pre_sel;
+    output  [PV-1       :   0]  swap_port_presel;   
     output  [PV-1       :   0]  sel;
-    input                       reset,clk;
-   
-   
-    wire    [PVP_1-1    :   0]  dest_port_not_masked_all;
+    output  [PVDSTPw-1 : 0] destport_clear_all;
+    input   [PV-1 : 0] ivc_num_getting_ovc_grant; 
+    input   [PV-1 : 0] ssa_ivc_num_getting_ovc_grant_all;       
+    input                       reset,clk;  
+    
+
     wire    [PV-1       :   0]  non_assigned_ovc_request_all; 
     wire    [PV-1       :   0]  y_evc_forbiden,x_evc_forbiden;
     wire    [V-1        :   0]  ovc_avb_x_plus,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_y_minus,ovc_avb_local;
     wire    [VP_1-1     :   0]  ovc_avalable_perport            [P-1    :   0];
-    wire    [P_1-1      :   0]  port_pre_sel_perport            [P-1    :   0];
+    wire    [PPSw-1      :   0]  port_pre_sel_perport            [P-1    :   0];
     wire    [PVV-1      :   0]  candidate_ovc_x_all, candidate_ovc_y_all;
-    wire    [PV-1       :   0]  swap_port_presel;
+   
     
     assign non_assigned_ovc_request_all =   ivc_request_all & ~ovc_is_assigned_all;   
     assign {ovc_avb_y_minus,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_x_plus,ovc_avb_local} = ovc_avalable_all;
@@ -217,10 +124,7 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
    
     wire    [PV-1   :   0]  avc_unavailable; 
     genvar i;
-    generate 
-     
-    
-    
+    generate   
     
     
     for(i=0;i< PV;i=i+1) begin :all_vc_loop
@@ -235,46 +139,37 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
        	.candidate_ovc_x            (candidate_ovc_x_all    [((i+1)*V)-1 : i*V]),
        	.candidate_ovc_y            (candidate_ovc_y_all    [((i+1)*V)-1 : i*V]),
        	.non_assigned_ovc_request   (non_assigned_ovc_request_all[i]),
-       	.xydir                      (dest_port_in_all       [((i+1)*P_1)-1 : ((i+1)*P_1)-2]),
+       	.xydir                      (dest_port_coded_all     [((i+1)*DSTPw)-1 : ((i+1)*DSTPw)-2]),
        	.masked_ovc_request         (masked_ovc_request_all [((i+1)*V)-1 : i*V])
        );
-       
-  
-       
+              
         mesh_torus_port_selector #(
-	       .SW_LOC     (i/V)
+	       .SW_LOC     (i/V),
+	       .PPSw(PPSw)
         )
         the_portsel
         (
-	    //   .reset              (reset),
-	    //   .clk                (clk),
 	       .port_pre_sel       (port_pre_sel_perport[i/V]),
-	       //.port_pre_sel_ld    (port_pre_sel_ld_all[i]),
 	       .swap_port_presel   (swap_port_presel[i]),
 	       .sel                (sel[i]),
-	       .dest_port_in       (dest_port_in_all[((i+1)*P_1)-1 : i*P_1]),
-	       .dest_port_out      (dest_port_not_masked_all[((i+1)*P_1)-1 : i*P_1]),
+	       .dest_port_in       (dest_port_coded_all[((i+1)*DSTPw)-1 : i*DSTPw]),
 	       .y_evc_forbiden     (y_evc_forbiden[i]),
            .x_evc_forbiden     (x_evc_forbiden[i])
-          
-	      // .route_subfunc_violated(route_subfunc_violated[i])
 	      );
-	      
-	      
-	    mesh_torus_mask_non_assignable_destport #(
-	    	.TOPOLOGY(TOPOLOGY),
-	    	.ROUTE_NAME(ROUTE_NAME),
-	    	.SW_LOC(i/V),
-	    	.P(P)
-	    )
-	    mask_destport
-	    (
-	    	.dest_port_in(dest_port_not_masked_all[((i+1)*P_1)-1 : i*P_1]),
-	    	.dest_port_out(dest_port_out_all[((i+1)*P_1)-1 : i*P_1]),
-	    	.odd_column(odd_column)
-	    );
-	    
-	             
+
+        mesh_tori_dspt_clear_gen #(
+        	.SSA_EN(SSA_EN),
+        	.DSTPw(DSTPw),
+        	.SW_LOC(i/V)
+        )
+        dspt_clear_gen
+        (
+        	.destport_clear(destport_clear_all[((i+1)*DSTPw)-1 : i*DSTPw]),
+        	.ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant[i]),
+        	.sel(sel[i]),
+        	.ssa_ivc_num_getting_ovc_grant(ssa_ivc_num_getting_ovc_grant_all[i])
+        );             	             
+	      	             
 	      
 	    /* verilator lint_off WIDTH */   
         if(ROUTE_TYPE ==  "FULL_ADAPTIVE") begin: full_adpt
@@ -283,8 +178,7 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
             assign candidate_ovc_x_all[((i+1)*V)-1 : i*V] =  (x_evc_forbiden[i]) ? candidate_ovc_all[((i+1)*V)-1 : i*V] & (~ESCAP_VC_MASK) :  candidate_ovc_all[((i+1)*V)-1 : i*V];
             assign avc_unavailable[i] = (masked_ovc_request_all [((i+1)*V)-1 : i*V] & ~ESCAP_VC_MASK) == {V{1'b0}};
             
-            
-            
+                        
             mesh_torus_swap_port_presel_gen #(
                 .V(V),
                 .ESCAP_VC_MASK(ESCAP_VC_MASK),       
@@ -301,9 +195,7 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
             	.reset(reset),
             	.swap_port_presel(swap_port_presel[i])
             );
-            
-            
-            
+                       
             
         end else begin : partial_adpt
             assign candidate_ovc_y_all[((i+1)*V)-1 : i*V] =   candidate_ovc_all [((i+1)*V)-1 : i*V];
@@ -312,11 +204,59 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
             assign avc_unavailable[i]=1'b0;
             
         end// ROUTE_TYPE
-    end//for
-    
-    //assign candidate_ovc_x_all=  candidate_ovc_all;   
+    end//for    
+     
 endgenerate
 endmodule
+
+
+
+module mesh_tori_dspt_clear_gen #(
+    parameter SSA_EN="YES",
+    parameter DSTPw =4,
+    parameter SW_LOC=0
+
+)(
+    destport_clear,
+    ivc_num_getting_ovc_grant,
+    sel,
+    ssa_ivc_num_getting_ovc_grant
+
+);
+
+    output [DSTPw-1 : 0] destport_clear;
+    input ivc_num_getting_ovc_grant;
+    input sel;
+    input ssa_ivc_num_getting_ovc_grant;
+
+ localparam 
+    LOCAL   =   3'd0,  
+    EAST    =   3'd1, 
+    WEST    =   3'd3;
+
+generate
+    /* verilator lint_off WIDTH */    
+    if ( SSA_EN=="YES" ) begin :predict_if    
+    /* verilator lint_on WIDTH */   
+        if (SW_LOC == LOCAL ) begin :local_if
+            assign destport_clear= (ivc_num_getting_ovc_grant)?{2'b00,sel,~sel} :{DSTPw{1'b0}};                  
+        end else if (SW_LOC == EAST || SW_LOC == WEST ) begin :xdir_if
+            assign destport_clear = (ivc_num_getting_ovc_grant)? {2'b00,sel,~sel} :
+                                                                   (ssa_ivc_num_getting_ovc_grant)? 4'b0001: //clear b
+                                                                   4'b0000;                  
+        end else begin : ydir_if
+             assign destport_clear = (ivc_num_getting_ovc_grant)? {2'b00,sel,~sel} :
+                                                                    (ssa_ivc_num_getting_ovc_grant)? 4'b0010: //clear a
+                                                                    4'b0000;              
+        end
+        end else begin :nopredict_if 
+              assign destport_clear = (ivc_num_getting_ovc_grant )? {2'b00,sel,~sel} :{DSTPw{1'b0}}; 
+        end//   nopredict_if    
+endgenerate
+endmodule
+
+
+
 
 module   mesh_torus_mask_non_assignable_destport #(
     parameter TOPOLOGY="MESH",
@@ -337,24 +277,24 @@ localparam
 
 //port number in north port 
 localparam 
-    N_LOCAL   =       2'd0, 
-    N_EAST    =       2'd1, 
-    N_WEST    =       2'd2,  
-    N_SOUTH   =       2'd3; 
+    N_LOCAL   =       0, 
+    N_EAST    =       1, 
+    N_WEST    =       2,  
+    N_SOUTH   =       3; 
     
  // port number in south port   
  localparam
-    S_LOCAL   =       2'd0, 
-    S_EAST    =       2'd1, 
-    S_NORTH   =       2'd2,  
-    S_WEST    =       2'd3;
+    S_LOCAL   =       0, 
+    S_EAST    =       1, 
+    S_NORTH   =       2,  
+    S_WEST    =       3;
 
  // port number in east port   
  localparam
-    E_LOCAL   =       2'd0, 
-    E_NORTH   =       2'd1,  
-    E_WEST    =       2'd2,  
-    E_SOUTH   =       2'd3; 
+    E_LOCAL   =       0, 
+    E_NORTH   =       1,  
+    E_WEST    =       2,  
+    E_SOUTH   =       3; 
     
 
     localparam P_1 = P-1;
@@ -364,6 +304,11 @@ localparam
     
     
     generate 
+	if(P>5)begin 
+	    	assign dest_port_out[P_1-1:4] = dest_port_in[P_1-1:4]; //other local ports
+            end      
+
+
     /* verilator lint_off WIDTH */ 
     if (TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin : oneD // A port can send packets to all other ports in these topologies
     /* verilator lint_on WIDTH */ 
@@ -384,7 +329,7 @@ localparam
                 assign dest_port_out[S_NORTH]= dest_port_in[S_NORTH]; 
                 assign dest_port_out[S_WEST]= 1'b0; // mask west port                                
             end else begin : non_vertical
-                 assign  dest_port_out = dest_port_in;             
+                 assign  dest_port_out[3:0] = dest_port_in[3:0];             
             end
     /*WEST-FIRST*/
         /* verilator lint_off WIDTH */ 
@@ -401,7 +346,7 @@ localparam
                 assign dest_port_out[S_NORTH]= dest_port_in[S_NORTH]; 
                 assign dest_port_out[S_WEST]= 1'b0; // mask west port                                  
             end else begin : non_vertical
-                 assign  dest_port_out = dest_port_in;             
+                 assign  dest_port_out[3:0] = dest_port_in[3:0];             
             end        
     /*NORTH_LAST*/ 
         /* verilator lint_off WIDTH */ 
@@ -413,7 +358,7 @@ localparam
                 assign dest_port_out[N_WEST]= 1'b0; // mask west port   
                 assign dest_port_out[N_SOUTH]= dest_port_in[N_SOUTH];                       
             end else begin : other_p
-                 assign  dest_port_out = dest_port_in;             
+                 assign  dest_port_out[3:0] = dest_port_in[3:0];             
             end        
     /*NEGETIVE_FIRST*/
         /* verilator lint_off WIDTH */     
@@ -430,7 +375,7 @@ localparam
                 assign dest_port_out[E_WEST] = dest_port_in[E_WEST]; 
                 assign dest_port_out[E_SOUTH]= 1'b0; //mask south port
             end else begin : other_p
-                 assign  dest_port_out = dest_port_in;             
+                 assign  dest_port_out[3:0] = dest_port_in[3:0];             
             end  
     /*ODD_EVEN*/
         /* verilator lint_off WIDTH */ 
@@ -454,10 +399,12 @@ localparam
                 assign dest_port_out[E_WEST] = dest_port_in[E_WEST]; 
                 assign dest_port_out[E_SOUTH]= (odd_column)? dest_port_in[E_SOUTH] : 1'b0; //mask south in even columns
             end else begin: other_p
-                assign  dest_port_out = dest_port_in;       
+                assign  dest_port_out[3:0] = dest_port_in[3:0];       
             end
-        end else begin : f_adptv
-                assign  dest_port_out = dest_port_in;               
+	      
+
+	end else begin : f_adptv
+                assign  dest_port_out[3:0] = dest_port_in[3:0];               
         end
     end
     endgenerate
@@ -633,11 +580,11 @@ endmodule
 
 
 module mesh_torus_port_selector #(
-    parameter SW_LOC    = 0
+    parameter SW_LOC    = 0,
+    parameter PPSw=4
 )
 (
     port_pre_sel,
-    dest_port_out,
     dest_port_in,
     swap_port_presel,
     sel,
@@ -662,20 +609,19 @@ module mesh_torus_port_selector #(
 
 
     //input           reset,clk;
-    input   [3:0]   port_pre_sel;
+    input   [PPSw-1:0]   port_pre_sel;
    // input           port_pre_sel_ld;
     output          sel;
     input   [3:0]   dest_port_in;
-    output  [3:0]   dest_port_out;
     input           swap_port_presel;
    // output          route_subfunc_violated;
     output          y_evc_forbiden, x_evc_forbiden;
     
     wire  x,y,a,b;
-    wire [3:0] port_pre_sel_final;
+    wire [PPSw-1:0] port_pre_sel_final;
     //reg  [3:0] port_pre_sel_delayed , port_pre_sel_latched;
   //  wire o1,o2;
-    reg [4:0] portout;
+   
 
     localparam LOCAL    =       0,  
                EAST     =       1, 
@@ -684,53 +630,26 @@ module mesh_torus_port_selector #(
                SOUTH    =       4;  
 
     localparam LOCAL_SEL = (SW_LOC == NORTH || SW_LOC == SOUTH )? 1'b1 : 1'b0; 
-   
-   
-   assign port_pre_sel_final= (swap_port_presel)? ~port_pre_sel: port_pre_sel;
-   
+    assign port_pre_sel_final= (swap_port_presel)? ~port_pre_sel: port_pre_sel;   
     assign {x,y,a,b} = dest_port_in;
-    /*
-    // the destination port must not change after assigning OVC. latch the port_pre_sel result after assigning OVC.  
-     always @(posedge clk or posedge reset) begin 
-        if(reset) begin 
-            port_pre_sel_delayed <= 4'd0;
-            port_pre_sel_latched <= 4'd0;
-        end else begin 
-            if(port_pre_sel_ld) port_pre_sel_delayed <= port_pre_sel_final;
-            if(port_pre_sel_ld) port_pre_sel_latched <= port_pre_sel_final;
-            else                port_pre_sel_latched <= port_pre_sel_delayed;
-            
+     
+ 
+     wire sel_in,sel_pre, overwrite;
+     wire [1:0] xy;
+ 
+     assign xy={x,y};
+     assign sel_pre= port_pre_sel_final[xy];
+     
+     assign overwrite= a&b;
+     generate 
+        if(LOCAL_SEL)begin :local_p
+             assign sel_in= b | ~a; 
+        end else begin :nonlocal_p
+             assign sel_in= b ;    
         end
-    end
-    */
-    
-   // assign port_pre_sel_latched = (port_pre_sel_ld)? port_pre_sel : port_pre_sel_delayed; 
-/*
-    // mux1
-    assign o1 = (x&y & port_pre_sel_latched[3] ) | (~x&~y & port_pre_sel_latched[0] );
-    assign o2 = (~x&y & port_pre_sel_latched[1] ) | (x&~y & port_pre_sel_latched[2] );
-    //mux2
-    assign sel= (~a&b)|(a&b&(o1|o2))|(~a&~b& LOCAL_SEL);
- */
+     endgenerate
  
- 
- 
- wire sel_in,sel_pre, overwrite;
- wire [1:0] xy;
- 
- assign xy={x,y};
- assign sel_pre= port_pre_sel_final[xy];
- 
- assign overwrite= a&b;
- generate 
-    if(LOCAL_SEL)begin :local_p
-         assign sel_in= b | ~a; 
-    end else begin :nonlocal_p
-         assign sel_in= b ;    
-    end
- endgenerate
- 
- assign sel= (overwrite)? sel_pre : sel_in;
+    assign sel= (overwrite)? sel_pre : sel_in;
  
 // check if EVC is allowed to be used     
     
@@ -741,422 +660,7 @@ module mesh_torus_port_selector #(
         assign x_evc_forbiden = 1'b0; 
         //assign route_subfunc_violated = a&b;
     /* verilator lint_off WIDTH */     
-   
-      
-    always @(*)begin 
-        case({a,b})
-            2'b10 : portout = {1'b0,~x,1'b0,x,1'b0};
-            2'b01 : portout = {~y,1'b0,y,1'b0,1'b0};
-            2'b11 : portout = (port_pre_sel_final[{x,y}])?  {~y,1'b0,y,1'b0,1'b0} : {1'b0,~x,1'b0,x,1'b0} ;
-            2'b00 : portout =  5'b00001;
-         endcase
-   end //always
-    
-    remove_sw_loc_one_hot #(
-    	.P(5),
-    	.SW_LOC(SW_LOC)
-    )conv
-    (
-    	.destport_in(portout),
-    	.destport_out(dest_port_out)
-    ); 
-
-endmodule
-
-
-module  mesh_torus_vc_alloc_request_gen_adaptive_classic #(
-    parameter V = 4,
-    parameter ROUTE_TYPE =  "FULL_ADAPTIVE",    // "FULL_ADAPTIVE", "PAR_ADAPTIVE"  
-    parameter [V-1  :   0] ESCAP_VC_MASK = 4'b001   // mask scape vc, valid only for full adaptive  
-    
-
-)(
-    ovc_avalable_all,
-    dest_port_in_all,
-    candidate_ovc_all,
-    ivc_request_all,
-    ovc_is_assigned_all,
-    dest_port_out_all,
-    masked_ovc_request_all,
-    port_pre_sel,
-    port_pre_sel_ld_all,
-    sel,
-    reset,
-    clk
-    
-);
-    localparam  P = 5;
-    
-    localparam  P_1     =   P-1,
-                PV      =   V       *   P,
-                PVV     =   PV      *  V,
-                PVP_1   =   PV      *   P_1,
-                VP_1    =   V       *   P_1;
-                
-     localparam LOCAL   =   3'd0,  
-                EAST    =   3'd1, 
-                NORTH   =   3'd2,  
-                WEST    =   3'd3,  
-                SOUTH   =   3'd4;  
-
-    input   [PV-1       :   0]  ovc_avalable_all;
-    input   [PVP_1-1    :   0]  dest_port_in_all;
-    input   [PV-1       :   0]  ivc_request_all;
-    input   [PV-1       :   0]  ovc_is_assigned_all; 
-    output  [PVP_1-1    :   0]  dest_port_out_all;
-    output  [PVV-1      :   0]  masked_ovc_request_all;
-    input   [PVV-1      :   0]  candidate_ovc_all;
-    input   [P_1-1      :   0]  port_pre_sel;
-    input   [PV-1       :   0]  port_pre_sel_ld_all;
-    output  [PV-1       :   0]  sel;
-    input                       reset,clk;
-
-    wire    [PV-1       :   0]  non_assigned_ovc_request_all; 
-    wire    [P_1-1      :   0]  port_pre_sel_perport        [P-1    :   0];
-    wire    [VP_1-1     :   0]  ovc_avalable_perport        [P-1    :   0];  
-    wire    [VP_1-1     :   0]  ovc_avalable_ivc            [PV-1   :   0];
-    wire    [P_1-1      :   0]  dest_port_ivc               [PV-1   :   0];
-    wire    [V-1        :   0]  ovc_avb_muxed               [PV-1   :   0];  
-    wire    [V-1        :   0]  ovc_request_ivc             [PV-1   :   0];
-    wire    [PVV-1      :   0]  candidate_ovc_all_muxed;
-    
-    wire    [PVV-1      :   0]  candidate_ovc_x_all, candidate_ovc_y_all;
-    wire    [PV-1       :   0]  route_subfunc_violated;
-    
-    assign non_assigned_ovc_request_all  = ivc_request_all & ~ovc_is_assigned_all;  
-    assign port_pre_sel_perport[LOCAL]   = port_pre_sel;
-    assign port_pre_sel_perport[EAST]    = {2'b00,port_pre_sel[1:0]};
-    assign port_pre_sel_perport[NORTH]   = {1'b0,port_pre_sel[2],1'b0,port_pre_sel[0]};
-    assign port_pre_sel_perport[WEST]    = {port_pre_sel[3:2],2'b0};
-    assign port_pre_sel_perport[SOUTH]   = {port_pre_sel[3],1'b0,port_pre_sel[1],1'b0};
-   
-
-genvar i;
-generate
- //remove avalable ovc of reciver port 
-    for(i=0;i< P;i=i+1) begin :port_loop
-        if(i==0) begin: first
-		assign ovc_avalable_perport[i]=ovc_avalable_all [PV-1              :   V]; end
-        else if(i==(P-1))begin : last 
-		assign ovc_avalable_perport[i]=ovc_avalable_all [PV-V-1               :   0]; end
-        else begin : middle
-		assign ovc_avalable_perport[i]={ovc_avalable_all [PV-1  :   (i+1)*V],ovc_avalable_all [(i*V)-1  :   0]}; end
-    end //for
-        
-    // IVC loop
-    for(i=0;i< PV;i=i+1) begin :total_vc_loop
-        //seprate input/output
-        assign ovc_avalable_ivc[i]  =   ovc_avalable_perport[(i/V)];
-        assign dest_port_ivc   [i]  =   dest_port_out_all [(i+1)*P_1-1  :   i*P_1   ];
-        assign ovc_request_ivc [i]  = (non_assigned_ovc_request_all[i])? candidate_ovc_all_muxed  [(i+1)*V-1  :   i*V ]: {V{1'b0}};
-        assign candidate_ovc_all_muxed[(i+1)*V-1 : i*V] = (sel[i]) ? candidate_ovc_y_all [(i+1)*V-1 : i*V] : candidate_ovc_x_all [(i+1)*V-1 : i*V]; 
-       
-        //available ovc multiplexer
-        one_hot_mux #(
-            .IN_WIDTH       (VP_1),
-            .SEL_WIDTH      (P_1)
-        )
-        multiplexer
-        (
-            .mux_in     (ovc_avalable_ivc   [i]),
-            .mux_out    (ovc_avb_muxed      [i]),
-            .sel        (dest_port_ivc      [i])
-
-        );
-        
-        // mask unavailable ovc from requests
-        assign masked_ovc_request_all  [(i+1)*V-1   :   i*V ]     =   ovc_avb_muxed[i] & ovc_request_ivc [i];
-        
-       
-        mesh_torus_portsel_classic #(
-           .SW_LOC    (i/V)
-           
-        )
-        the_portsel
-        (
-           .reset             (reset),
-           .clk               (clk),
-           .port_pre_sel      (port_pre_sel_perport[i/V]),
-           .port_pre_sel_ld       (port_pre_sel_ld_all[i]),
-           .sel               (sel[i]),
-           .dest_port_in      (dest_port_in_all[((i+1)*P_1)-1 : i*P_1]),
-           .dest_port_out     (dest_port_out_all[((i+1)*P_1)-1 : i*P_1]),
-          // .multi_dir         (multi_dir[i])
-           .route_subfunc_violated    (route_subfunc_violated[i])
-        );
-           /* verilator lint_off WIDTH */ 
-           if(ROUTE_TYPE ==  "FULL_ADAPTIVE") begin: full_adpt
-           /* verilator lint_on WIDTH */ 
-             // in full adaptive a packet which can be set to both x and y direction is not allowed to use escape VC in the y direction 
-              assign candidate_ovc_y_all[((i+1)*V)-1 : i*V]=  (route_subfunc_violated[i]) ? candidate_ovc_all[((i+1)*V)-1 : i*V] & (~ESCAP_VC_MASK) :  candidate_ovc_all[((i+1)*V)-1 : i*V];       
-          end else begin : partial_adpt
-              assign candidate_ovc_y_all[((i+1)*V)-1 : i*V] =   candidate_ovc_all [((i+1)*V)-1 : i*V];
-          end// ROUTE_TYPE
-    end//for
-    
-    assign candidate_ovc_x_all=  candidate_ovc_all;
-        
-    
-    
-endgenerate
-
-
-
-endmodule
-
-
-
-module mesh_torus_portsel_classic #(
-    parameter SW_LOC    = 0
-   
-
-)
-(
-    port_pre_sel,
-    dest_port_out,
-    dest_port_in,
-    port_pre_sel_ld,
-    sel,
-    route_subfunc_violated,
-    reset,
-    clk
-
-
-);
-
-/************************
-                
-        destination-port_in
-            x:  1 EAST, 0 WEST  
-            y:  1 NORTH, 0 SOUTH
-            ab: 00 : LOCAL, 10: xdir, 01: ydir, 11 x&y dir 
-        sel:
-             0: xdir
-             1: ydir
-        port_pre_sel
-             0: xdir
-             1: ydir  
-
-************************/
-
-
-    input           reset,clk;
-    input   [3:0]   port_pre_sel;
-    input           port_pre_sel_ld;
-    output          sel;
-    input   [3:0]   dest_port_in;
-    output  [3:0]   dest_port_out;
-    output          route_subfunc_violated;
-    
-    wire  x,y,a,b;
-    reg  [3:0] port_pre_sel_delayed ,  port_pre_sel_latched;
-    
-    reg [4:0] portout;
-
-    localparam LOCAL    =       3'd0,  
-               EAST     =       3'd1, 
-               NORTH    =       3'd2,  
-               WEST     =       3'd3,  
-               SOUTH    =       3'd4;  
-
-    
-   
-    assign {x,y,a,b} = dest_port_in;
-    // the destination port must not change after assigning OVC. latch the port_pre_sel result after assigning OVC.  
-    always @(posedge clk or posedge reset) begin 
-        if(reset) begin 
-            port_pre_sel_delayed <= 4'd0;
-            port_pre_sel_latched <= 4'd0;
-        end else begin 
-            if(port_pre_sel_ld) port_pre_sel_delayed <= port_pre_sel;
-            if(port_pre_sel_ld) port_pre_sel_latched <= port_pre_sel;
-            else                port_pre_sel_latched <= port_pre_sel_delayed;
-            
-        end
-    end
-    
-    always @(*)begin 
-        case({a,b})
-            2'b10 : portout = {1'b0,~x,1'b0,x,1'b0};
-            2'b01 : portout = {~y,1'b0,y,1'b0,1'b0};
-            2'b11 : portout = (port_pre_sel_latched[{x,y}])?  {~y,1'b0,y,1'b0,1'b0}: {1'b0,~x,1'b0,x,1'b0} ;
-            2'b00 : portout =  5'b00001;
-         endcase
-   end //always
-    
-   assign sel =  portout[NORTH] | portout[SOUTH];
-    
-    remove_sw_loc_one_hot #(
-        .P(5),
-        .SW_LOC(SW_LOC)
-    )conv
-    (
-        .destport_in(portout),
-        .destport_out(dest_port_out)
-    );
-    
-   
-   
-        assign route_subfunc_violated = a&b;
-  
-
-endmodule
-
-
-
-/***************
-    mesh_torus_vc_alloc_request_gen
-**************/
-module mesh_torus_vc_alloc_request_gen #(  
-   parameter TOPOLOGY="MESH",
-   parameter ROUTE_NAME="DUATO",
-   parameter ROUTE_TYPE = "DETERMINISTIC",
-   parameter P = 5,
-   parameter V = 4,
-   parameter DSTPw=P-1,
-   parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000,   // mask scape vc, valid only for full adaptive       
-   parameter SSA_EN="YES"
-
-)(
-    odd_column,
-    ovc_avalable_all,
-    dest_port_coded_all,
-    ivc_request_all,
-    ovc_is_assigned_all,
-    dest_port_all,
-    masked_ovc_request_all,
-    candidate_ovc_all,
-    port_pre_sel,
-    sel,
-    reset,clk,
-    destport_clear_all,
-    ivc_num_getting_ovc_grant, 
-    ssa_ivc_num_getting_ovc_grant_all       
-);
-
-   
-
-    localparam 
-        PV = P *V,
-        PVV = PV * V,
-        P_1 = P-1,
-        PVP_1 = PV * P_1,
-        PVDSTPw= PV * DSTPw;
-        
-    localparam 
-        LOCAL = 0,  
-        EAST = 1, 
-        WEST = 3;        
-
-    input odd_column;
-    input  [PV-1 : 0] ovc_avalable_all;
-    input  [PVP_1-1 : 0] dest_port_coded_all;
-    input  [PV-1 : 0] ivc_request_all;
-    input  [PV-1 : 0] ovc_is_assigned_all;
-    output [PVP_1-1 : 0] dest_port_all;
-    output [PVV-1 : 0] masked_ovc_request_all;
-    input  [PVV-1 : 0] candidate_ovc_all;
-    input  [P_1-1 : 0] port_pre_sel;
-    output [PV-1  : 0] sel;
-    input  reset,clk;
-    output [PVDSTPw-1 : 0] destport_clear_all;
-    input [PV-1 : 0] ivc_num_getting_ovc_grant; 
-    input [PV-1 : 0] ssa_ivc_num_getting_ovc_grant_all;       
-
-
-       // masking unavailable candidate OVC
-    /* verilator lint_off WIDTH */ 
-    genvar k;
-    generate   
-    if(ROUTE_TYPE           ==   "DETERMINISTIC") begin: deterministic_req 
-    /* verilator lint_on WIDTH */
-        mesh_torus_vc_alloc_request_gen_determinstic #(
-         .TOPOLOGY(TOPOLOGY),
-         .ROUTE_NAME(ROUTE_NAME),
-         .P  (P),
-         .V  (V) 
-        )
-        req_gen
-        (
-            .ovc_avalable_all                   (ovc_avalable_all),
-            .dest_port_in_all                   (dest_port_coded_all),
-            .ivc_request_all                    (ivc_request_all),
-            .ovc_is_assigned_all                (ovc_is_assigned_all),
-            .dest_port_out_all                  (dest_port_all),
-            .masked_ovc_request_all             (masked_ovc_request_all),
-            .candidate_ovc_all                  (candidate_ovc_all)
-        ); 
-          assign sel={PV{1'bx}};
-          assign destport_clear_all={PVDSTPw{1'b0}};
-          
-    end else begin: adaptive 
-        
-                
-        mesh_torus_vc_alloc_request_gen_adaptive #(
-            .TOPOLOGY(TOPOLOGY),
-            .ROUTE_NAME(ROUTE_NAME),
-            .ROUTE_TYPE(ROUTE_TYPE),  
-            .V(V),
-            .ESCAP_VC_MASK(ESCAP_VC_MASK)
-        )
-        the_vc_alloc_request_gen_adaptive
-        (
-            .odd_column(odd_column),
-            .ovc_avalable_all(ovc_avalable_all),
-            .dest_port_in_all(dest_port_coded_all),
-            .ivc_request_all(ivc_request_all),
-            .ovc_is_assigned_all(ovc_is_assigned_all),
-            .dest_port_out_all(dest_port_all),
-            .masked_ovc_request_all(masked_ovc_request_all),
-            .candidate_ovc_all(candidate_ovc_all),
-            .port_pre_sel(port_pre_sel),
-            .sel(sel),
-            .reset(reset),
-            .clk(clk)
-        );
-        
-        // generate clear signal for destination fifo
-          /************************
-                
-        destination-port_in 
-            x:  1 EAST, 0 WEST  
-            y:  1 NORTH, 0 SOUTH
-            ab: 00 : LOCAL, 10: xdir, 01: ydir, 11 x&y dir 
-        sel:
-             0: xdir
-             1: ydir
-       
-        if sel is 0 and ivc is going to be allocated b must be clear in next clock cycle
-        if sel is 1 and ivc is going to be allocated a must be clear in next clock cycle
-        ************************/
-        
-        for(k=0; k< PV; k=k+1'b1 ) begin: PV2_loop 
-            /* verilator lint_off WIDTH */    
-            if ( SSA_EN=="YES" ) begin :predict_if    
-            /* verilator lint_on WIDTH */   
-                if (k/V == LOCAL ) begin :local_if
-                    assign destport_clear_all[((k+1)*DSTPw)-1  : k*DSTPw]= (ivc_num_getting_ovc_grant[k])?{2'b00,sel[k],~sel[k]} :{DSTPw{1'b0}};                  
-                end else if (k/V == EAST || k/V == WEST ) begin :xdir_if
-                    assign destport_clear_all[((k+1)*DSTPw)-1  : k*DSTPw]= (ivc_num_getting_ovc_grant[k])? {2'b00,sel[k],~sel[k]} :
-                                                                         (ssa_ivc_num_getting_ovc_grant_all[k])? 4'b0001: //clear b
-                                                                         4'b0000;                  
-                end else begin : ydir_if
-                    assign destport_clear_all[((k+1)*DSTPw)-1  : k*DSTPw]= (ivc_num_getting_ovc_grant[k])? {2'b00,sel[k],~sel[k]} :
-                                                                         (ssa_ivc_num_getting_ovc_grant_all[k])? 4'b0010: //clear a
-                                                                         4'b0000;              
-                end
-            end else begin :nopredict_if 
-        
-                assign destport_clear_all[((k+1)*DSTPw)-1  : k*DSTPw]= (ivc_num_getting_ovc_grant[k])? {2'b00,sel[k],~sel[k]} :{DSTPw{1'b0}}; 
-            end//   nopredict_if     
-        
-        end// for k  
-        
-    end //adaptive   
-    
-endgenerate        
-endmodule
-
+ endmodule
 
 
 
@@ -1228,6 +732,7 @@ module mesh_torus_distance_gen #(
     parameter T2= 4,    // number of node in y axis
     parameter T3= 4,
     parameter EAw=4,
+    parameter DISTw=4,
     parameter TOPOLOGY  = "MESH"
 
 )(
@@ -1250,15 +755,13 @@ module mesh_torus_distance_gen #(
         NX  = T1,
         NY  = T2,
         Xw  =   log2(NX),   // number of node in x axis
-        Yw  =   log2(NY),    // number of node in y axis 
-        /* verilator lint_off WIDTH */
-        NE = (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? NX : NX*NY,    //number of cores
-        /* verilator lint_on WIDTH */
-        DSTw = log2(NE+1);             
+        Yw  =   log2(NY);    // number of node in y axis 
+       
+              
      
    input [EAw-1 : 0] src_e_addr;
    input [EAw-1 : 0] dest_e_addr;               
-   output[DSTw-1:   0]distance;                     
+   output[DISTw-1:   0]distance;                     
 
     wire [Xw-1 :   0]src_x,dest_x;
     wire [Yw-1 :   0]src_y,dest_y;
@@ -1371,17 +874,7 @@ module mesh_torus_distance_gen #(
 endmodule
  
  
- 
- 
- 
-  
- 
- 
- 
- 
- 
- 
- module mesh_torus_ssa_check_destport #(
+module mesh_torus_ssa_check_destport #(
     parameter ROUTE_TYPE="DETERMINISTIC",
     parameter SW_LOC = 0,
     parameter P=5,
@@ -1670,7 +1163,7 @@ module mesh_tori_endp_addr_decode #(
             /* verilator lint_off CMPCONST */
             assign valid = (ex<= MAXX) & (ey <= MAXY);
             /* verilator lint_on CMPCONST */
-        end else begin
+        end else begin :multi_l
             assign {el,ey,ex} = e_addr; 
             /* verilator lint_off CMPCONST */
             assign valid = ( (ex<= MAXX) & (ey <= MAXY) & (el<=MAXL) );
@@ -1711,20 +1204,20 @@ module  mesh_tori_addr_encoder #(
   
         
     function integer addrencode;
-        input integer in,nx,nxw,nl,nlw;
+        input integer in,nx,nxw,nl,nyw;
         integer  y, x, l;begin
             addrencode=0;
             y = ((in/nl) / nx ); 
             x = ((in/nl) % nx ); 
             l = (in % nl);  
-            addrencode =(nl==1)?   (y<<nx | x) : (l<<(nxw+nlw)|  (y<<nx) | x);      
+            addrencode =(nl==1)?   (y<<nxw | x) : (l<<(nxw+nyw)|  (y<<nxw) | x);      
         end   
     endfunction // addrencode
         
       
     localparam 
         NXw= log2(NX),
-        NLw= log2(NL),
+        NYw= log2(NY),
         NEw = log2(NE);    
 
 
@@ -1736,7 +1229,7 @@ module  mesh_tori_addr_encoder #(
     generate 
     for(i=0; i< NE; i=i+1) begin : endpoints
         //Endpoint decoded address
-        localparam [EAw-1 : 0] ENDP= addrencode(i,NX,NXw,NL,NLw);
+        localparam [EAw-1 : 0] ENDP= addrencode(i,NX,NXw,NL,NYw);
         assign codes[i] = ENDP;            
     end
     endgenerate
@@ -1746,4 +1239,343 @@ endmodule
 
 
 
+module mesh_torus_destp_generator #(
+    parameter TOPOLOGY = "MESH",
+    parameter ROUTE_NAME = "XY",  
+    parameter ROUTE_TYPE = "DETERMINISTIC",
+    parameter P=5,
+    parameter DSTPw=4,
+    parameter NL=1,
+    parameter ELw=1,
+    parameter PPSw=4,
+    parameter SW_LOC=0
+)(
+    dest_port_out,
+    dest_port_coded,
+    endp_localp_num,
+    swap_port_presel,
+    port_pre_sel,
+    odd_column
+);
+    localparam P_1 = P-1;
+    input  [DSTPw-1 : 0] dest_port_coded;
+    input  [ELw-1 : 0] endp_localp_num;
+    output [P_1-1 : 0] dest_port_out;
+    input           swap_port_presel;
+    input  [PPSw-1 : 0] port_pre_sel;
+    input odd_column;
+    
+    
+    wire [P_1-1 : 0] dest_port_in;
+    
+   
+
+        mesh_torus_destp_decoder #(
+            .ROUTE_TYPE(ROUTE_TYPE),
+            .P(P),
+            .DSTPw(DSTPw),
+            .NL(NL),
+            .ELw(ELw),
+            .PPSw(PPSw),
+            .SW_LOC(SW_LOC)
+        )
+        decoder
+        (
+            .dest_port_coded(dest_port_coded),             
+            .dest_port_out(dest_port_in),
+            .endp_localp_num(endp_localp_num),
+            .swap_port_presel(swap_port_presel),
+            .port_pre_sel(port_pre_sel)
+        );
+        
+        
+        mesh_torus_mask_non_assignable_destport #(
+            .TOPOLOGY(TOPOLOGY),
+            .ROUTE_NAME(ROUTE_NAME),
+            .SW_LOC(SW_LOC),
+            .P(P)
+        )
+        mask_destport
+        (
+            .dest_port_in(dest_port_in),
+            .dest_port_out(dest_port_out),
+            .odd_column(odd_column)
+        );       
+        
+endmodule
+
+module mesh_torus_destp_decoder #(
+    parameter ROUTE_TYPE="DETERMINISTIC",
+    parameter P=6,
+    parameter DSTPw=4,
+    parameter NL=2,
+    parameter ELw=1,
+    parameter PPSw=4,
+    parameter SW_LOC=0        
+)(
+    dest_port_coded,
+    endp_localp_num,
+    dest_port_out,
+    swap_port_presel,
+    port_pre_sel
+ );
   
+    localparam P_1 = P-1;
+  
+    input  [DSTPw-1 : 0] dest_port_coded;
+    input  [ELw-1 : 0] endp_localp_num;
+    output [P_1-1 : 0] dest_port_out;
+    input           swap_port_presel;
+    input  [PPSw-1 : 0] port_pre_sel;
+    
+    wire [NL-1 : 0] endp_localp_onehot;
+   
+    generate 
+    if( ROUTE_TYPE == "DETERMINISTIC") begin :dtrmn
+        if(NL==1) begin :slp
+            assign dest_port_out = dest_port_coded;        
+        end else begin :mlp
+            localparam SL_SW_LOC = ( SW_LOC > P-NL) ? 0 : SW_LOC;   
+             
+            wire [DSTPw : 0] destport_slp_onehot;
+            wire [P-1 : 0] destport_onehot;
+          
+            add_sw_loc_one_hot #(
+                .P(DSTPw+1),
+                .SW_LOC(SL_SW_LOC)
+            )
+            add_sw_loc
+            (
+          	     .destport_in(dest_port_coded),
+          	     .destport_out(destport_slp_onehot)
+            );     
+                      
+            bin_to_one_hot #(
+            	.BIN_WIDTH(ELw),
+            	.ONE_HOT_WIDTH(NL)
+            )
+            conv
+            (
+            	.bin_code(endp_localp_num),
+            	.one_hot_code(endp_localp_onehot)
+            );
+            
+            wire local_dest;
+            assign local_dest = (SL_SW_LOC==0) ? ((| dest_port_coded)==1'b0) : destport_slp_onehot[0];            
+            assign destport_onehot = (local_dest)?  { endp_localp_onehot[NL-1 : 1] ,{(P-NL){1'b0}},endp_localp_onehot[0]}: /*select local destination*/ 
+			                                      { {(NL-1){1'b0}} ,destport_slp_onehot};
+            
+            remove_sw_loc_one_hot #(
+            	.P(P),
+            	.SW_LOC(SW_LOC)
+            )
+            remove_sw_loc
+            (
+            	.destport_in(destport_onehot),
+            	.destport_out(dest_port_out)
+            );
+        
+        end    
+    end else begin : adpv
+        reg [4:0] portout;
+        wire x,y,a,b;
+        wire [PPSw-1:0] port_pre_sel_final;
+        assign {x,y,a,b} = dest_port_coded;
+        assign port_pre_sel_final= (swap_port_presel)? ~port_pre_sel: port_pre_sel;
+        
+        always @(*)begin 
+            case({a,b})
+                2'b10 : portout = {1'b0,~x,1'b0,x,1'b0};
+                2'b01 : portout = {~y,1'b0,y,1'b0,1'b0};
+                2'b11 : portout = (port_pre_sel_final[{x,y}])?  {~y,1'b0,y,1'b0,1'b0} : {1'b0,~x,1'b0,x,1'b0};
+                2'b00 : portout =  5'b00001;
+            endcase
+        end //always
+        
+        if(NL==1) begin :slp        
+        
+            remove_sw_loc_one_hot #(
+                .P(5),
+                .SW_LOC(SW_LOC)
+            )
+            conv
+            (
+                .destport_in(portout),
+                .destport_out(dest_port_out)
+            );   
+        end else begin :mlp
+
+            wire [P-1 : 0] destport_onehot;
+	
+            bin_to_one_hot #(
+            	.BIN_WIDTH(ELw),
+            	.ONE_HOT_WIDTH(NL)
+            )
+            conv
+            (
+            	.bin_code(endp_localp_num),
+            	.one_hot_code(endp_localp_onehot)
+            );
+            
+           assign destport_onehot =(portout[0])?  { endp_localp_onehot[NL-1 : 1] ,{(P-NL){1'b0}},endp_localp_onehot[0]}: /*select local destination*/ 
+			                                      { {(NL-1){1'b0}} ,portout};
+           
+            remove_sw_loc_one_hot #(
+                .P(P),
+                .SW_LOC(SW_LOC)
+            )
+            remove_sw_loc
+            (
+                .destport_in(destport_onehot),
+                .destport_out(dest_port_out)
+            );        
+        end
+    end
+    endgenerate
+endmodule
+
+/*****************
+*   mesh_torus_dynamic_portsel_control
+*****************/
+
+
+module  mesh_torus_dynamic_portsel_control #(
+    parameter  P = 5,
+    parameter ROUTE_TYPE =  "FULL_ADAPTIVE",    // "FULL_ADAPTIVE", "PAR_ADAPTIVE"  
+    parameter V = 4,
+    parameter DSTPw=4,
+    parameter SSA_EN ="NO",
+    parameter PPSw=4,
+    parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000   // mask scape vc, valid only for full adaptive       
+)(   
+    dest_port_coded_all,
+    ivc_request_all,
+    ovc_is_assigned_all,
+    port_pre_sel,
+    swap_port_presel,
+    destport_clear_all,
+    ivc_num_getting_ovc_grant, 
+    ssa_ivc_num_getting_ovc_grant_all,
+    masked_ovc_request_all,
+    sel,
+    reset,
+    clk    
+);
+    
+    
+    localparam
+        PV = V * P,
+        PVV= PV * V,    
+        PVDSTPw = PV * DSTPw;
+                
+     localparam LOCAL   =   0,  
+                EAST    =   1, 
+                NORTH   =   2,  
+                WEST    =   3,  
+                SOUTH   =   4;  
+
+   
+    input   [PVDSTPw-1  :   0]  dest_port_coded_all;
+    input   [PV-1       :   0]  ivc_request_all;
+    input   [PV-1       :   0]  ovc_is_assigned_all;  
+    input   [PVV-1      :   0]  masked_ovc_request_all;
+ 
+ 
+    input   [PPSw-1      :   0]  port_pre_sel;
+    output  [PV-1       :   0]  swap_port_presel;   
+    output  [PV-1       :   0]  sel;
+    output  [PVDSTPw-1 : 0] destport_clear_all;
+    input   [PV-1 : 0] ivc_num_getting_ovc_grant; 
+    input   [PV-1 : 0] ssa_ivc_num_getting_ovc_grant_all;       
+    input                       reset,clk;  
+    
+
+    wire    [PV-1       :   0]  non_assigned_ovc_request_all; 
+    wire    [PV-1       :   0]  y_evc_forbiden,x_evc_forbiden;  
+    wire    [PPSw-1      :   0]  port_pre_sel_perport            [P-1    :   0];
+  
+   
+    
+    assign non_assigned_ovc_request_all =   ivc_request_all & ~ovc_is_assigned_all;  
+    
+    
+    assign port_pre_sel_perport[LOCAL]   = port_pre_sel;
+    assign port_pre_sel_perport[EAST]    = {2'b00,port_pre_sel[1:0]};
+    assign port_pre_sel_perport[NORTH]   = {1'b0,port_pre_sel[2],1'b0,port_pre_sel[0]};
+    assign port_pre_sel_perport[WEST]    = {port_pre_sel[3:2],2'b0};
+    assign port_pre_sel_perport[SOUTH]   = {port_pre_sel[3],1'b0,port_pre_sel[1],1'b0};
+    
+   
+    wire    [PV-1   :   0]  avc_unavailable; 
+    genvar i;
+    generate   
+    
+    
+    for(i=0;i< PV;i=i+1) begin :all_vc_loop
+        localparam SW_LOC = ((i/V)<5)? i/V : LOCAL;
+     
+              
+        mesh_torus_port_selector #(
+           .SW_LOC     (SW_LOC),
+           .PPSw(PPSw)
+        )
+        the_portsel
+        (
+           .port_pre_sel       (port_pre_sel_perport[SW_LOC]),
+           .swap_port_presel   (swap_port_presel[i]),
+           .sel                (sel[i]),
+           .dest_port_in       (dest_port_coded_all[((i+1)*DSTPw)-1 : i*DSTPw]),
+           .y_evc_forbiden     (y_evc_forbiden[i]),
+           .x_evc_forbiden     (x_evc_forbiden[i])
+          );
+
+        mesh_tori_dspt_clear_gen #(
+            .SSA_EN(SSA_EN),
+            .DSTPw(DSTPw),
+            .SW_LOC(SW_LOC)
+        )
+        dspt_clear_gen
+        (
+            .destport_clear(destport_clear_all[((i+1)*DSTPw)-1 : i*DSTPw]),
+            .ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant[i]),
+            .sel(sel[i]),
+            .ssa_ivc_num_getting_ovc_grant(ssa_ivc_num_getting_ovc_grant_all[i])
+        );                           
+                         
+          
+        /* verilator lint_off WIDTH */   
+        if(ROUTE_TYPE ==  "FULL_ADAPTIVE") begin: full_adpt
+        /* verilator lint_on WIDTH */ 
+        assign avc_unavailable[i] = (masked_ovc_request_all [((i+1)*V)-1 : i*V] & ~ESCAP_VC_MASK) == {V{1'b0}};
+                        
+            mesh_torus_swap_port_presel_gen #(
+                .V(V),
+                .ESCAP_VC_MASK(ESCAP_VC_MASK),       
+                .VC_NUM(i)
+            )           
+            the_swap_port_presel
+            (
+                .avc_unavailable(avc_unavailable[i]),
+                .y_evc_forbiden(y_evc_forbiden[i]),
+                .x_evc_forbiden(x_evc_forbiden[i]),
+                .non_assigned_ovc_request(non_assigned_ovc_request_all[i]),
+                .sel(sel[i]),
+                .clk(clk),
+                .reset(reset),
+                .swap_port_presel(swap_port_presel[i])
+            );
+                       
+            
+        end else begin : partial_adpt
+          
+            assign swap_port_presel[i]=1'b0;
+            assign avc_unavailable[i]=1'b0;
+            
+        end// ROUTE_TYPE
+    end//for    
+     
+endgenerate
+endmodule                         
+
+
+

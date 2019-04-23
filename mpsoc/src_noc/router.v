@@ -1,6 +1,6 @@
 `timescale     1ns/1ps
 
-`define MONITORE_PATH
+//`define MONITORE_PATH
 
 /***********************************************************************
 **	File: router.v
@@ -37,9 +37,9 @@ module router # (
     /*TOPOLOGY RELATED PARAMETER*/
     // a topology can be defined using at most four parameter 
     //    e.g: in mesh:
-    //    T1: NX, number of node in x dimention T2: NY: number of node in y dimention, T2,T3 not used 
+    //    T1: NX, number of node in x dimention T2: NY: number of node in y dimention, T3: NL number of local ports for each router, T4 is not used. 
     //     e.g: in fattree:
-    //    T1: K, umber of last level individual router`s endpoints. T2: L layer number, T2,T3 not used    
+    //    T1: K, umber of last level individual router`s endpoints. T2: L layer number, T3,T4 are not used    
     parameter T1= 8,
     parameter T2= 8,
     parameter T3= 8,
@@ -191,6 +191,7 @@ module router # (
         .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
         .WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
+        .PPSw(PPSw),
         .MIN_PCK_SIZE(MIN_PCK_SIZE)
         
     )
@@ -369,9 +370,10 @@ module router # (
     //synthesis translate_off 
     //synopsys  translate_off
     generate 
-    if(DEBUG_EN)begin :dbg
+     /* verilator lint_off WIDTH */ 
+    if(DEBUG_EN && TOPOLOGY == "MESH")begin :dbg
+     /* verilator lint_on WIDTH */ 
         debug_mesh_edges #(
-        	.TOPOLOGY(TOPOLOGY),
         	.T1(T1),
         	.T2(T2),
         	.T3(T3),

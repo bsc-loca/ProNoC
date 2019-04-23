@@ -21,8 +21,8 @@ sub get_topology_info {
 	
 	my $NE; # number of end points
 	my $NR; # number of routers
-	my ($RXw,$RYw); # routers address width
-	my ($EXw,$EYw); # Endpoints address width
+	my $RAw; # routers address width
+	my $EAw; # Endpoints address width
 	
 	
 	my $Fw = 2+$V+$Fpay; 
@@ -34,10 +34,8 @@ sub get_topology_info {
         my $Kw=log2($K);
         my $LKw=$L*$Kw;
         my $Lw=log2($L);  
-        $RXw=$LKw;  
-        $RYw=$Lw;   
-        $EXw = $LKw; 
-        $EYw = $Lw;   
+        $RAw=$LKw + $Lw;   
+        $EAw = $RAw;          
 	
 	}elsif($topology eq '"FATTREE"') {
 		my $K =  $T1;
@@ -47,40 +45,35 @@ sub get_topology_info {
         my $Kw=log2($K);
         my $LKw=$L*$Kw;
         my $Lw=log2($L);  
-        $RXw=$LKw;  
-        $RYw=$Lw;   
-        $EXw = $LKw; 
-        $EYw = $Lw;       
+        $RAw=$LKw + $Lw;   
+        $EAw = $RAw;      
 		
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'){
 		my $NX=$T1;
 		my $NY=1;
-		my $NZ=$T3;
-		$NE = $NX*$NY*$NZ;
+		my $NL=$T3;
+		$NE = $NX*$NY*$NL;
         $NR = $NX*$NY;    
         my $Xw=log2($NX);
-        my $Yw=log2($NY);        
-        $RXw =$Xw; 
-        $RYw =$Yw;   
-        $EXw =$Xw; 
-        $EYw =$Yw;
-		
+        my $Yw=log2($NY); 
+        my $Lw=log2($NL);               
+        $RAw = $Xw; 
+        $EAw = ($NL==1) ? $RAw : $RAw + $Lw;		
        
 	}else {#mesh torus
 		my $NX=$T1;
 		my $NY=$T2;
-		my $NZ=$T3;
-		$NE = $NX*$NY*$NZ;
+		my $NL=$T3;
+		$NE = $NX*$NY*$NL;
 		$NR = $NX*$NY;    
         my $Xw=log2($NX);
-        my $Yw=log2($NY);        
-        $RXw =$Xw; 
-        $RYw =$Yw;   
-        $EXw =$Xw; 
-        $EYw =$Yw;        
+        my $Yw=log2($NY); 
+        my $Lw=log2($NL);         
+        $RAw = $Xw + $Yw;
+        $EAw = ($NL==1) ? $RAw : $RAw + $Lw;
 	}	
 		
-	return ($NE, $NR, $RXw, $RYw, $EXw, $EYw, $Fw); 	
+	return ($NE, $NR, $RAw, $EAw, $Fw); 	
 }
 
 
@@ -123,58 +116,18 @@ sub fattree_addrdecode{
 	return $pos;
 }
 
-
-sub get_ex_addr{
-	my ($self,$num)=@_;
+sub get_connected_router_id_to_endp{
+	my ($self,$endp_id)=@_;
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
 	my $T1=$self->object_get_attribute('noc_param','T1');
 	my $T2=$self->object_get_attribute('noc_param','T2');
-	if($topology eq '"FATTREE"') {
-		return fattree_addrencode($num, $T1, $T2);
-
-	}else{#mesh_torus
-		return $num % $T1;
-	}
+	my $T3=$self->object_get_attribute('noc_param','T3');
+	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
+		return int($endp_id/$T1);
+	}else{
+		 return int($endp_id/$T3);
+	}	
 }
-
-sub get_ry_addr {
-	my ($self,$num)=@_;
-	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
-	my $T1=$self->object_get_attribute('noc_param','T1');
-	my $T2=$self->object_get_attribute('noc_param','T2');
-	if($topology eq '"FATTREE"') {
-			return 0;
-	}else{#mesh_torus
-		return  int($num/$T1);
-	}
-}
-
-
-sub get_rx_addr{
-	my ($self,$num)=@_;
-	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
-	my $T1=$self->object_get_attribute('noc_param','T1');
-	my $T2=$self->object_get_attribute('noc_param','T2');
-	if($topology eq '"FATTREE"') {
-		return fattree_addrencode(int($num/$T1), $T1, $T2);
-	}else{#mesh_torus
-		return $num % $T1;
-	}
-}
-
-sub get_ey_addr {
-	my ($self,$num)=@_;
-	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
-	my $T1=$self->object_get_attribute('noc_param','T1');
-	my $T2=$self->object_get_attribute('noc_param','T2');
-	if($topology eq '"FATTREE"') {
-			return 0;
-	}else{#mesh_torus
-		return  int($num/$T1);
-	}
-}
-
-
 
 
 sub get_router_num {
@@ -189,22 +142,99 @@ sub get_router_num {
 	}
 }
 
-
-
-sub get_phy_addr{
-	my ($self,$id)=@_;
-	my ($NE, $NR, $RXw, $RYw, $EXw, $EYw)=get_topology_info($self);
-	my $x=get_ex_addr($self,$id);
-	my $y=get_ey_addr($self,$id);
+sub router_addr_encoder{
+	my ($self, $id)=@_;
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
-	if($topology eq '"FATTREE"' || $topology eq '"RING"' || $topology eq '"LINE"') {
-		return $x;
+	my $T1=$self->object_get_attribute('noc_param','T1');
+	my $T2=$self->object_get_attribute('noc_param','T2');
+	my $T3=$self->object_get_attribute('noc_param','T3');
+	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
+		return fattree_addrencode($id, $T1, $T2);
+	}else{
+		return mesh_tori_addrencode($id,$T1, $T2,1);
+	}	
+}
+
+sub endp_addr_encoder{
+	my ($self, $id)=@_;
+	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
+	my $T1=$self->object_get_attribute('noc_param','T1');
+	my $T2=$self->object_get_attribute('noc_param','T2');
+	my $T3=$self->object_get_attribute('noc_param','T3');
+	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
+		return fattree_addrencode($id, $T1, $T2);
+	}else{
+	return mesh_tori_addrencode($id,$T1, $T2,$T3);
 	}
-	my $phy = ($x << $EYw) + $y;	
-	return $phy;
-}	
-	
-	
+}
+
+sub endp_addr_decoder {
+	my ($self,$code)=@_;
+	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
+	my $T1=$self->object_get_attribute('noc_param','T1');
+	my $T2=$self->object_get_attribute('noc_param','T2');
+	my $T3=$self->object_get_attribute('noc_param','T3');
+	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
+		return fattree_addrdecode($code, $T1, $T2);
+	}
+	else{
+		my ($x, $y, $l) = mesh_tori_addr_sep($code,$T1, $T2,$T3);
+		return (($y*$T1)+$x)*$T3+$l;
+	}
+}
+
+sub mask_gen{
+	my $k=shift;
+	my $kw=0;
+	my $mask=0;
+	while((0x1<<$kw) < $k){
+		$kw++;
+		$mask<<=1;
+		$mask|=0x1;
+	}
+	return $mask;
+}
+
+
+sub mesh_tori_addr_sep {
+	my ($code,$NX, $NY,$NL)=@_;
+	my ($x, $y, $l);
+	my $NXw=log2($NX);
+	my $NYw=log2($NY);
+	$x = $code &  mask_gen($NX);
+	$code>>=$NXw;
+	$y = $code &   mask_gen($NY);
+	$code>>=$NYw;
+	$l = $code;
+}
+
+sub mesh_tori_addrencode{
+	my ($id,$T1, $T2,$T3)=@_;
+	my ($x,$y,$l)=mesh_tori_addrencod_sep($id,$T1,$T2,$T3);
+    return mesh_tori_addr_join($x,$y,$l,$T1, $T2,$T3);
+}
+
+sub  mesh_tori_addrencod_sep{
+	my ($id,$T1,$T2,$T3)=@_;
+	my ($x,$y,$l);
+	$l=$id % $T3; # id%NL
+	my $R= int($id / $T3);
+	$x= $R % $T1;# (id/NL)%NX
+	$y=int($R / $T1);# (id/NL)/NX
+	return ($x,$y,$l);	
+}
+
+sub mesh_tori_addr_join {
+	my ($x, $y, $l,$T1, $T2,$T3)=@_;
+	my $NXw=log2($T1);
+	my $NYw=log2($T2);
+    my $addrencode=0;
+    $addrencode =($T3==1)?   ($y << $NXw | $x) : ($l<<($NXw+$NYw)|  ($y << $NXw) | $x);
+    return $addrencode;
+}
+
+
+
 
 
 sub get_noc_verilator_top_modules_info {
@@ -213,16 +243,17 @@ sub get_noc_verilator_top_modules_info {
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
 	my $T1=$self->object_get_attribute('noc_param','T1');
 	my $T2=$self->object_get_attribute('noc_param','T2');
+	my $T3=$self->object_get_attribute('noc_param','T3');
 	
 	my %tops;
 	my %nr_p; # number of routers have $p port num
 	my $router_p; #number of routers with different port number in topology 
 	
 	my ($ne,$nr) =get_topology_info($self);
+	
 	if($topology eq '"FATTREE"') {
 		my $K =  $T1;
-        my $L =  $T2;
-		
+        my $L =  $T2;		
         my $p2 = 2*$K;       
         $router_p=2;
         my $NRL= $ne/$K; #number of router in  each layer
@@ -237,15 +268,30 @@ sub get_noc_verilator_top_modules_info {
 	        "Vnoc" => "noc_connection.sv",
 	 		
     	);
-        
+	}elsif ($topology eq '"TREE"'){
+        my $K =  $T1;
+        my $L =  $T2;		
+        my $p2 = $K+1;       
+        $router_p=2;# number of router with different port number                        
+        $nr_p{1}=1;
+        $nr_p{2}=$nr-1;
+        $nr_p{p1}=$K;
+        $nr_p{p2}=$K+1;
+       
+        %tops = (
+			"Vrouter1" => "router_verilator_p${K}.v", 
+			"Vrouter2" => "router_verilator_p${p2}.v", 
+	        "Vnoc" => "noc_connection.sv",	 		
+    	);
 		
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'){
 		
 		$router_p=1;
 		$nr_p{1}=$nr;
-		$nr_p{p1}=3;
+		my $ports= 3+$T3-1;
+		$nr_p{p1}=$ports;
 		%tops = (
-			"Vrouter1" => "router_verilator_p3.v", 
+			"Vrouter1" => "router_verilator_p${ports}.v", 
 	        "Vnoc" => "noc_connection.sv",
 	 		
     	);
@@ -255,9 +301,10 @@ sub get_noc_verilator_top_modules_info {
 		
         $router_p=1;
         $nr_p{1}=$nr;
-        $nr_p{p1}=5;
+        my $ports= 5+$T3-1;
+		$nr_p{p1}=$ports;
         %tops = (
-			"Vrouter1" => "router_verilator_p5.v", 
+			"Vrouter1" => "router_verilator_p${ports}.v", 
 	        "Vnoc" => "noc_connection.sv",
 	 		
     	);
@@ -279,6 +326,11 @@ sub get_noc_verilator_top_modules_info {
 	#define NE  $ne
  	#define NR  $nr
  	#define ROUTER_P_NUM $router_p
+ 	
+ 	extern Vnoc		 	*noc;
+    extern int reset,clk;
+ 	
+ 	
 		
 void router${p}_connect_to_noc (unsigned int r, unsigned int n){
 	unsigned int j;
@@ -301,8 +353,7 @@ void router${p}_connect_to_noc (unsigned int r, unsigned int n){
 $includ_h=$includ_h."
 void inline connect_all_routers_to_noc ( ){
 	int i;
-if(strcmp(TOPOLOGY ,\"FATTREE\")==0){
-				
+if((strcmp(TOPOLOGY ,\"FATTREE\")==0) || (strcmp(TOPOLOGY ,\"TREE\")==0) ){				
 				for(i=0;i<NR1;i++) router1_connect_to_noc (i, i);
 #if		ROUTER_P_NUM >1
 				for(i=0;i<NR2;i++) router2_connect_to_noc (i, i+NR1);
@@ -325,7 +376,6 @@ void Vrouter_new(){
 
 void inline connect_routers_reset_clk(){
 	int i;
-
 	for(i=0;i<NR1;i++) {
 		router1[i]->reset= reset;
 		router1[i]->clk= clk ;
@@ -353,12 +403,8 @@ void inline routers_final(){
 #if		ROUTER_P_NUM >1
 		for(i=0;i<NR2;i++) router2[i]->final();
 #endif
-}	
-	
-	
-";
-	
-	
+}		
+";	
 	 return ($nr,$ne,$router_p,\%tops,$includ_h);	
 }
 
@@ -370,9 +416,9 @@ sub gen_tiles_physical_addrsses_header_file{
 	#define PHY_ADDR_H\n\n";
 	
 	#add phy addresses
-	my ($NE, $NR, $RXw, $RYw, $EXw, $EYw)=get_topology_info($self);
+	my ($NE, $NR, $RAw, $EAw)=get_topology_info($self);
 	for (my $id=0; $id<$NE; $id++){
-		my $phy= get_phy_addr($self,$id);	
+		my $phy= endp_addr_encoder($self,$id);	
 		my $hex = sprintf("0x%x", $phy);
 		$txt=$txt."\t#define PHY_ADDR_ENDP_$id  $hex\n";	
 		

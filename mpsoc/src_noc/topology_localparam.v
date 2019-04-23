@@ -54,20 +54,21 @@ localparam
     NXw = log2(NX),
     NYw= log2(NY),
     NLw= log2(NL),
+    PPSw_MESH_TORI =4, //port presel width for adaptive routing
     
     /* verilator lint_off WIDTH */     
     ROUTE_TYPE_MESH_TORI = (ROUTE_NAME == "XY" || ROUTE_NAME == "TRANC_XY" )?    "DETERMINISTIC" : 
                                (ROUTE_NAME == "DUATO" || ROUTE_NAME == "TRANC_DUATO" )?   "FULL_ADAPTIVE": "PAR_ADAPTIVE",
 
     R2R_CHANNELS_MESH_TORI=  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 2 : 4,   
-    R2E_CHANNELS_MESH_TORI= NL,
-    DSTPw_MESH_TORI =  R2R_CHANNELS_MESH_TORI,
+    R2E_CHANNELS_MESH_TORI= NL,    
     RAw_MESH_TORI = ( TOPOLOGY == "RING" || TOPOLOGY == "LINE")? NXw : NXw + NYw,
     EAw_MESH_TORI = (NL==1) ? RAw_MESH_TORI : RAw_MESH_TORI + NLw,
     NR_MESH_TORI = (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? NX : NX*NY,
     NE_MESH_TORI = NR_MESH_TORI * NL,
-    MAX_P_MESH_TORI = R2R_CHANNELS_MESH_TORI + R2E_CHANNELS_MESH_TORI;
- 
+    MAX_P_MESH_TORI = R2R_CHANNELS_MESH_TORI + R2E_CHANNELS_MESH_TORI,
+    DSTPw_MESH_TORI =   R2R_CHANNELS_MESH_TORI; // P-1
+                       
     /* verilator lint_on WIDTH */                               
     
       
@@ -109,6 +110,7 @@ localparam
  
     /* verilator lint_off WIDTH */ 
     localparam
+        PPSw = PPSw_MESH_TORI,    
          // destination port width in header flit           
         DSTPw= (TOPOLOGY == "FATTREE")? DSTPw_FATTREE:
                (TOPOLOGY == "TREE")?  DSTPw_TREE:

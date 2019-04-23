@@ -643,7 +643,7 @@ module nonspec_sw_alloc #(
             .sel(first_arbiter_grant[i])
     
         );
-        if(MIN_PCK_SIZE == 1) begin :single_flit_supported 
+        if(MIN_PCK_SIZE == 1) begin :single_flit_supported             
             //single_flit req multiplexer
             assign pck_is_single_flit[i] = pck_is_single_flit_all [(i+1)*V-1 : i*V];
             one_hot_mux #(
@@ -671,8 +671,8 @@ module nonspec_sw_alloc #(
             );
             
         end else begin : single_flit_notsupported 
-            assign single_flit_pck_local_grant[i] = 1'b0;
-            assign single_flit_granted_dst[i] = {P_1{1'b0}};
+            assign single_flit_pck_local_grant[i] = 1'bx;
+            assign single_flit_granted_dst[i] = {P_1{1'bx}};
             assign single_flit_granted_dst_all[(i+1)*P-1 : i*P]={P{1'b0}};
         end
     //second arbiter input/output generate

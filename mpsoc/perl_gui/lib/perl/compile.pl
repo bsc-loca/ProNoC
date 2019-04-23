@@ -1127,11 +1127,6 @@ sub modelsim_compilation{
 		
 	});
 	
-	
-	
-
-
-	
 	$back-> signal_connect("clicked" => sub{ 
 		
 		$window->destroy;
@@ -1423,7 +1418,7 @@ sub  gen_mpsoc_verilator_model{
 	
 	my $sw_dir 	= "$target_dir/sw";
 	my $src_noc_dir="$project_dir/src_noc";	
-	
+	mkpath("$target_verilator_dr",1,01777);
 		
 	#copy src_verilator files
 	my @files_list = File::Find::Rule->file()
@@ -1435,13 +1430,17 @@ sub  gen_mpsoc_verilator_model{
 	foreach my $p (@files_list){
 		push (@files,$p)	if(check_file_has_string($p,'module')); 
 	}
-	push (@files,$src_noc_dir);
-		
 	copy_file_and_folders (\@files,$project_dir,$target_verilator_dr);
 	
-		
-	#create each tile top module 
 	
+	
+	#copy src_noc files
+	#my @files2;
+	#push (@files2,$src_noc_dir);
+	#copy_file_and_folders (\@files2,$project_dir,$target_verilog_dr);
+	
+		
+	#create each tile top module 	
     my $processors_en=0;
     my $mpsoc=$self;    
     my $lisence= get_license_header("verilator_tiles"); 
@@ -1483,12 +1482,10 @@ sub  gen_mpsoc_verilator_model{
 		
 		#update NoC param
 		my $nocparam =$mpsoc->object_get_attribute('noc_param',undef);
-		my ($NE, $NR, $RXw, $RYw, $EXw, $EYw, $Fw) = get_topology_info($mpsoc);
+		my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($mpsoc);
 		my %y=%{$nocparam};
-		$y{'EXw'} = $EXw;
-		$y{'EYw'} = $EYw;
-		$y{'RXw'} = $RXw;
-		$y{'RYw'} = $RYw;			
+		$y{'EAw'} = $EAw;
+		$y{'RAw'} = $RAw;
 		$y{'Fw'}  = $Fw; 		
 		my @nis=get_NI_instance_list($top);
 		$soc->soc_add_instance_param($nis[0] ,\%y );
@@ -1641,8 +1638,7 @@ sub gen_verilator_mpsoc_testbench {
 	my $inst= "";
 	my $newinst="";
 	
-	my $tile_x="";
-	my $tile_y="";	
+	my $tile_addr="";
 	my $tile_flit_in="";
 	my $tile_flit_in_l="";
 	my $tile_credit="";
@@ -1663,11 +1659,10 @@ sub gen_verilator_mpsoc_testbench {
 	
 	for (my $endp=0; $endp<$ne;$endp++){	
 		
-		my $ex=get_ex_addr($mpsoc,$endp);
-		my $ey=get_ey_addr($mpsoc,$endp);
+		my $e_addr=endp_addr_encoder($mpsoc,$endp);
+		my $router_num = get_connected_router_id_to_endp($mpsoc,$endp);
+		my $r_addr=router_addr_encoder($mpsoc,$router_num);
 		
-		my $rx=get_rx_addr($mpsoc,$endp);
-		my $ry=get_ry_addr($mpsoc,$endp);	
 		
 		my ($soc_name,$num)= $mpsoc->mpsoc_get_tile_soc_name($endp);		
 		if(defined $soc_name) {#we have a conncted tile
@@ -1720,13 +1715,12 @@ sub gen_verilator_mpsoc_testbench {
 			 				
 				}#interface
 		
-				$tile_x= $tile_x."\ttile${endp}->${ni_name}_current_ex=$ex;\n";
-				$tile_x= $tile_x."\ttile${endp}->${ni_name}_current_rx=$rx;\n";
-				$tile_y= $tile_y."\ttile${endp}->${ni_name}_current_ey=$ey;\n";	
-				$tile_y= $tile_y."\ttile${endp}->${ni_name}_current_ry=$ry;\n";						
+				$tile_addr= $tile_addr."\ttile${endp}->${ni_name}_current_r_addr=$r_addr; // noc->er_addr[${endp}];\n";
+				$tile_addr= $tile_addr."\ttile${endp}->${ni_name}_current_e_addr=$e_addr;\n";
+						
 			}else{
 				#this tile is not connected to any ip. the noc input ports will be connected to ground
-				$no_connected=$no_connected."\n // Tile:$endp (x=$ex,y=$ey)   is not assigned to any ip\n";
+				$no_connected=$no_connected."\n // Tile:$endp ($e_addr)   is not assigned to any ip\n";
 				$no_connected=$no_connected."\t\tnoc->ni_credit_in[${endp}]=0; \n";		
 				
 			}
@@ -1780,8 +1774,8 @@ $newinst
 	enable=1;
 	$no_connected
 	
-$tile_x
-$tile_y	
+$tile_addr
+
 
 	main_time=0;
 	printf(\"Start Simulation\\n\");

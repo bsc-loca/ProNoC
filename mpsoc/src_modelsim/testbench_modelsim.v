@@ -80,9 +80,9 @@ endmodule
 module testbench_sub #(
     parameter V=1,
     parameter B=4,
-    parameter T1=3,
-    parameter T2=3,
-    parameter T3=1,
+    parameter T1=2,
+    parameter T2=2,
+    parameter T3=2,
     parameter C=1,
     parameter Fpay=32,
     parameter MUX_TYPE="ONE_HOT",
@@ -90,11 +90,13 @@ module testbench_sub #(
     parameter COMBINATION_TYPE="COMB_NONSPEC",
     parameter FIRST_ARBITER_EXT_P_EN=1,
    // parameter TOPOLOGY="LINE",
-   // parameter TOPOLOGY="FATTREE",
-     parameter TOPOLOGY="MESH",
-     parameter ROUTE_NAME="XY",
+  //  parameter TOPOLOGY="FATTREE",
+ parameter TOPOLOGY="TREE",
+    // parameter TOPOLOGY="MESH",
+   //  parameter ROUTE_NAME="XY",
+// parameter ROUTE_NAME="DUATO",
     // parameter  ROUTE_NAME= "NCA_RND_UP",
-    //parameter  ROUTE_NAME= "NCA_STRAIGHT_UP",
+    parameter  ROUTE_NAME= "NCA_STRAIGHT_UP",
     parameter CONGESTION_INDEX=7,
     
     parameter AVC_ATOMIC_EN= 0,
@@ -112,11 +114,10 @@ module testbench_sub #(
     parameter C1_p=0,
     parameter C2_p=0,
     parameter C3_p=0,
-   // parameter TRAFFIC="HOTSPOT",
-   
+   // parameter TRAFFIC="HOTSPOT",   
  // parameter TRAFFIC="TRANSPOSE1",
-   //parameter TRAFFIC="RANDOM", 
-    parameter TRAFFIC="CUSTOM",
+   parameter TRAFFIC="RANDOM", 
+ //  parameter TRAFFIC="CUSTOM",
     parameter HOTSPOT_PERCENTAGE=100,
     parameter HOTSPOT_NUM=1,
     parameter HOTSPOT_CORE_1=0,
@@ -149,9 +150,6 @@ module testbench_sub #(
     
     `define INCLUDE_TOPOLOGY_LOCALPARAM
    `include "../src_noc/topology_localparam.v"
-    
-    
-
   
 
    
@@ -159,7 +157,7 @@ module testbench_sub #(
                      /* verilator lint_off WIDTH */
                     
                     NEw=log2(NE),
-                    DSTw = (TOPOLOGY=="FATTREE") ? log2(2*L+1): log2(NE+1),
+                    DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY == "TREE") ? log2(2*L+1): log2(NR+1),
                     /* verilator lint_on WIDTH */
                     
                     Cw      =   (C>1)? log2(C): 1,
@@ -209,7 +207,7 @@ module testbench_sub #(
     wire    [NE-1           :0] noc_report;
     wire    [NE-1           :0] update;
     wire    [CLK_CNTw-1     :0] time_stamp      [NE-1           :0];
-    wire    [DSTw-1         :0] distance        [NE-1           :0];    
+    wire    [DISTw-1         :0] distance        [NE-1           :0];    
     wire    [Cw-1           :0] msg_class       [NE-1           :0];    
     
     reg                         count_en;
@@ -232,6 +230,7 @@ module testbench_sub #(
         .B(B), 
         .T1(T1),
         .T2(T2),
+	.T3(T3),
         .C(C),    
         .Fpay(Fpay), 
         .MUX_TYPE(MUX_TYPE),
@@ -292,7 +291,7 @@ end
             pow=pow * k;
         end
         end   
-    endfunction // log2 
+    endfunction 
     
     
     genvar i;
@@ -448,7 +447,7 @@ end
                 noc_analyze(    update      [i],
                                     noc_report  [i],
                                     time_stamp  [i],
-                                    {{(32-DSTw){1'b0}},distance        [i]},
+                                    {{(32-DISTw){1'b0}},distance        [i]},
                                     msg_class   [i],
                                     ni_flit_in_wr   [i]
                                     

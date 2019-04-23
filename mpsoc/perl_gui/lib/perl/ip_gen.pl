@@ -404,6 +404,8 @@ header file example
 	$lib_hdl->signal_connect("clicked"=> sub{
 		my $help1="The files and folder that selected here will be copied in genertated processing tile RTL  folder.";
 		my $help2="The file listed here can contain some variable with \${var_name} format. The file genertor will replace them with their values during file generation. The variable can be selected from above listed global vairables";
+		my $help3='The content here will be added to the generated tile.v file. You can define functions/ tasks etc...';
+		  
 		my %page_info;
 		$page_info{0}{page_name} = "_Add exsiting HDL file/folder";
 		$page_info{0}{filed_name}= "hdl_files";
@@ -418,6 +420,14 @@ header file example
 		$page_info{1}{rename_file}=1; 
 		$page_info{1}{folder_en}=0;
 		$page_info{1}{help}=$help2;
+		
+		$page_info{2}{page_name} = "_Add to tile.v";
+		$page_info{2}{filed_name}= "system_v";
+		$page_info{2}{filed_type}= "file_content";
+		$page_info{2}{rename_file}=undef; 
+		$page_info{2}{folder_en}=0;
+		$page_info{2}{help}=$help3;
+		
 
 		get_source_file($ipgen,$info,0,"Add HDL file(s)", "hw",\%page_info);
 

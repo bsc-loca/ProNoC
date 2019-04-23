@@ -204,9 +204,12 @@ if(ROUTE_TYPE == "DETERMINISTIC")begin :dtrmn
     	.out(sum)
     );
   
-      always@( posedge clk)begin 
-               if(flit_in_we & hdr_flg_in) 
-               if( sum != 1) $display ( "%t\t  Error: destport port %x is illegal. It should be one hot coded.  %m",$time,destport_in );
+    always@( posedge clk)begin 
+        if(flit_in_we & hdr_flg_in)begin  
+               if( sum != 1 && T3==1) $display ( "%t\t  Error: destport port %x is illegal. It should be one hot coded.  %m",$time,destport_in );
+               if( sum > 1 && T3>1) $display ( "%t\t  Error: destport port %x is illegal. It should be one hot coded.  %m",$time,destport_in );
+       
+        end
      end
 end
 /* verilator lint_off WIDTH */
@@ -266,7 +269,6 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
   
   
  module debug_mesh_edges #(
-    parameter TOPOLOGY = "MESH",
     parameter T1=2,
     parameter T2=2,
     parameter T3=3,
@@ -301,7 +303,7 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
   wire [RYw-1 : 0] current_ry;
     
     mesh_tori_router_addr_decode #(
-    	.TOPOLOGY(TOPOLOGY),
+    	.TOPOLOGY("MESH"),
     	.T1(T1),
     	.T2(T2),
     	.T3(T3),
@@ -314,26 +316,21 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
     	.ry(current_ry),
     	.valid()
     );
+       
     
-    
-    
-    localparam     EAST = 1,
-                NORTH = 2,
-                WEST = 3,
-                SOUTH = 4;
+    localparam
+        EAST = 1,
+        NORTH = 2,
+        WEST = 3,
+        SOUTH = 4;
  
-  generate
-  /* verilator lint_off WIDTH */ 
-  if(TOPOLOGY == "MESH")begin
-  /* verilator lint_on WIDTH */ 
         always @(posedge clk) begin            
                 if(current_rx == {RXw{1'b0}}         && flit_out_we_all[WEST]) $display ( "%t\t   Error: a packet is going to the WEST in a router located in first column in mesh topology %m",$time ); 
                 if(current_rx == T1-1     && flit_out_we_all[EAST]) $display ( "%t\t   Error: a packet is going to the EAST in a router located in last column in mesh topology %m",$time ); 
                 if(current_ry == {RYw{1'b0}}         && flit_out_we_all[NORTH])$display ( "%t\t  Error: a packet is going to the NORTH in a router located in first row in mesh topology %m",$time ); 
                 if(current_ry == T2-1    && flit_out_we_all[SOUTH])$display ( "%t\t  Error: a packet is going to the SOUTH in a router located in last row in mesh topology %m",$time); 
         end//always
-   end////MESH 
-   endgenerate
+   
 endmodule
 
 

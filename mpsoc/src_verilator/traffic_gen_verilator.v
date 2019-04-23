@@ -59,7 +59,9 @@ module  traffic_gen_verilator (
         CLK_CNTw    =   log2(MAX_SIM_CLKs+1),
         PCK_SIZw    =   log2(MAX_PCK_SIZ+1),
        
-        DSTw = log2(NE+1),     
+        /* verilator lint_off WIDTH */
+        DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY == "TREE") ? log2(2*L+1): log2(NR+1), 
+        /* verilator lint_on WIDTH */   
         W = WEIGHTw;
        
     
@@ -69,7 +71,7 @@ module  traffic_gen_verilator (
     input                               start,stop;
     output                              update;
     output [CLK_CNTw-1              :0] time_stamp_h2h,time_stamp_h2t;
-    output [DSTw-1                  :0] distance;
+    output [DISTw-1                  :0] distance;
     output [Cw-1                    :0] pck_class_out;
    // the connected router address
     input  [RAw-1                   :0] current_r_addr;    

@@ -16,26 +16,8 @@ $HashRef = bless( {
                                    'ni' => {}
                                  },
                     'ports' => {
-                                 'current_ey' => {
-                                                  'connect_range' => 'EYw-1:0',
-                                                  'connect_name' => 'current_ey',
-                                                  'type' => 'input',
-                                                  'outport_type' => 'concatenate',
-                                                  'range' => 'EYw-1:0',
-                                                  'default_out' => 'Active low',
-                                                  'name' => 'current_ey',
-                                                  'connect_type' => 'output'
-                                                },
-				'current_ry' => {
-                                                  'connect_range' => 'RYw-1:0',
-                                                  'connect_name' => 'current_ry',
-                                                  'type' => 'input',
-                                                  'outport_type' => 'concatenate',
-                                                  'range' => 'RYw-1:0',
-                                                  'default_out' => 'Active low',
-                                                  'name' => 'current_ry',
-                                                  'connect_type' => 'output'
-                                                },
+                                 
+				
                                  'flit_in_wr' => {
                                                    'connect_type' => 'output',
                                                    'name' => 'flit_in_wr',
@@ -56,25 +38,25 @@ $HashRef = bless( {
                                                   'connect_type' => 'output',
                                                   'default_out' => 'Active low'
                                                 },
-                                 'current_ex' => {
+                                 'current_e_addr' => {
                                                   'default_out' => 'Active low',
                                                   'connect_type' => 'output',
-                                                  'name' => 'current_ex',
+                                                  'name' => 'current_e_addr',
                                                   'type' => 'input',
-                                                  'connect_range' => 'EXw-1:0',
-                                                  'connect_name' => 'current_ex',
+                                                  'connect_range' => 'EAw-1:0',
+                                                  'connect_name' => 'current_e_addr',
                                                   'outport_type' => 'concatenate',
-                                                  'range' => 'EXw-1:0'
+                                                  'range' => 'EAw-1:0'
                                                 },
-				'current_rx' => {
+				'current_r_addr' => {
                                                   'default_out' => 'Active low',
                                                   'connect_type' => 'output',
-                                                  'name' => 'current_rx',
+                                                  'name' => 'current_r_addr',
                                                   'type' => 'input',
-                                                  'connect_range' => 'RXw-1:0',
-                                                  'connect_name' => 'current_rx',
+                                                  'connect_range' => 'RAw-1:0',
+                                                  'connect_name' => 'current_r_addr',
                                                   'outport_type' => 'concatenate',
-                                                  'range' => 'RXw-1:0'
+                                                  'range' => 'RAw-1:0'
                                                 },
 
 

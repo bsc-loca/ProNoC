@@ -1,8 +1,8 @@
 `timescale  1ns/1ps
 
-`define CHECK_PCKS_CONTENT       // if defined check flit ordering, 
+//`define CHECK_PCKS_CONTENT       // if defined check flit ordering, 
 //`define RSV_NOTIFICATION
-`define MONITORE_PATH
+//`define MONITORE_PATH
 /**********************************************************************
 **  File:  traffic_gen.v
 **  Date:2015-03-05  
@@ -112,7 +112,7 @@ module  traffic_gen #(
         CLK_CNTw = log2(MAX_SIM_CLKs+1),
         PCK_SIZw = log2(MAX_PCK_SIZ+1),
         /* verilator lint_off WIDTH */
-        DSTw = (TOPOLOGY=="FATTREE") ? log2(2*L+1): log2(NE+1), 
+        DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY=="TREE" ) ? log2(2*L+1): log2(NR+1), 
         /* verilator lint_on WIDTH */
         W = WEIGHTw;      
 
@@ -121,7 +121,7 @@ module  traffic_gen #(
     input                               start,stop;
     output                              update;
     output [CLK_CNTw-1              :0] time_stamp_h2h,time_stamp_h2t;
-    output [DSTw-1                  :0] distance;
+    output [DISTw-1                  :0] distance;
     output [Cw-1                    :0] pck_class_out;
    // the connected router address
     input  [RAw-1                   :0] current_r_addr;    
@@ -314,8 +314,6 @@ module  traffic_gen #(
         .destport(destport)
     );
 
-
-    
     
     assign wr_timestamp    =pck_timestamp; 
     
@@ -419,7 +417,7 @@ module  traffic_gen #(
         .T2(T2),
         .T3(T3),
         .EAw(EAw),
-        .DISTw(DSTw)
+        .DISTw(DISTw)
     )
     the_distance_gen
     (
@@ -603,7 +601,7 @@ always @(posedge clk or posedge reset )begin
                             // synopsys  translate_off
                             // synthesis translate_off
                             // last_pck_time<=$time;
-                             $display ("toptal of %d pcks have been recived in core (%d,%d)", rsv_counter,current_e_addr,current_ey);
+                             $display ("total of %d pcks have been recived in core (%d)", rsv_counter,current_e_addr);
                             // synthesis translate_on
                             // synopsys  translate_on
                         `endif
@@ -612,7 +610,7 @@ always @(posedge clk or posedge reset )begin
         // synopsys  translate_off
         // synthesis translate_off
             if(report) begin 
-                 $display ("%t,\t toptal of %d pcks have been recived in core (%d)",$time ,rsv_counter,current_e_addr);
+                 $display ("%t,\t total of %d pcks have been recived in core (%d)",$time ,rsv_counter,current_e_addr);
             end
         // synthesis translate_on
         // synopsys  translate_on
@@ -626,8 +624,8 @@ always @(posedge clk or posedge reset )begin
     // synopsys  translate_off
     // synthesis translate_off
     always @(posedge clk) begin     
-        if(flit_out_wr && hdr_flit && dest_e_addr_reg  == current_e_addr) $display("%t: Error: The source and destination address of injected packet is the same in endpoint (%h) ",$time, dest_e_addr );                                                             
-        if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr    != current_e_addr )) $display("%t: Error: packet with des(%h) which is sent by source (%h) has been recieved in wrong router (%h).  ",$time,rd_des_e_addr, rd_src_e_addr, current_e_addr);        
+        if(flit_out_wr && hdr_flit && dest_e_addr_reg  == current_e_addr) $display("%t: Error: The source and destination address of injected packet is the same in endpoint (%h): %m",$time, dest_e_addr );                                                             
+        if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr    != current_e_addr )) $display("%t: Error: packet with des(%h) which is sent by source (%h) has been recieved in wrong router (%h).  %m",$time,rd_des_e_addr, rd_src_e_addr, current_e_addr);        
     end
     // synthesis translate_on
     // synopsys  translate_on
@@ -899,7 +897,6 @@ endmodule
         .TOPOLOGY(TOPOLOGY),
         .ROUTE_NAME(ROUTE_NAME),
         .ROUTE_TYPE(ROUTE_TYPE),
-        .P(P),
         .T1(T1),
         .T2(T2),
         .T3(T3),
@@ -1014,6 +1011,7 @@ if (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS" || TOPOLOGY == "RING" || TOPOL
         .T2(T2),
         .T3(T3),
         .TOPOLOGY(TOPOLOGY),
+        .DISTw(DISTw),
         .EAw(EAw)
     )
     distance_gen
@@ -1023,7 +1021,7 @@ if (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS" || TOPOLOGY == "RING" || TOPOL
         .distance(distance)
     );
 /* verilator lint_off WIDTH */ 
-   end else if (TOPOLOGY == "FATTREE") begin : fat 
+   end else if (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE") begin : fat 
 /* verilator lint_on WIDTH */    
     fattree_distance_gen #(
         .K(T1),

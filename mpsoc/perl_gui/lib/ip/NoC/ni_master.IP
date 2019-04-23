@@ -10,11 +10,230 @@
 ################################################################################
 
 $ipgen = bless( {
+                  'ports' => {
+                               'm_send_dat_i' => {
+                                                   'range' => 'Dw-1           :  0',
+                                                   'type' => 'input',
+                                                   'intfc_port' => 'dat_i',
+                                                   'intfc_name' => 'plug:wb_master[0]'
+                                                 },
+                               's_addr_i' => {
+                                               'intfc_port' => 'adr_i',
+                                               'intfc_name' => 'plug:wb_slave[0]',
+                                               'range' => 'S_Aw-1     :   0',
+                                               'type' => 'input'
+                                             },
+                               'm_receive_sel_o' => {
+                                                      'type' => 'output',
+                                                      'range' => 'SELw-1          :   0',
+                                                      'intfc_name' => 'plug:wb_master[1]',
+                                                      'intfc_port' => 'sel_o'
+                                                    },
+                               'flit_in_wr' => {
+                                                 'type' => 'input',
+                                                 'range' => '',
+                                                 'intfc_name' => 'socket:ni[0]',
+                                                 'intfc_port' => 'flit_in_wr'
+                                               },
+                               'm_send_stb_o' => {
+                                                   'range' => '',
+                                                   'type' => 'output',
+                                                   'intfc_port' => 'stb_o',
+                                                   'intfc_name' => 'plug:wb_master[0]'
+                                                 },
+                               'clk' => {
+                                          'intfc_port' => 'clk_i',
+                                          'intfc_name' => 'plug:clk[0]',
+                                          'range' => '',
+                                          'type' => 'input'
+                                        },
+                               's_sel_i' => {
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'intfc_port' => 'sel_i',
+                                              'type' => 'input',
+                                              'range' => 'SELw-1     :   0'
+                                            },
+                               's_cyc_i' => {
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'intfc_port' => 'cyc_i',
+                                              'type' => 'input',
+                                              'range' => ''
+                                            },
+                               'm_receive_ack_i' => {
+                                                      'intfc_name' => 'plug:wb_master[1]',
+                                                      'intfc_port' => 'ack_i',
+                                                      'type' => 'input',
+                                                      'range' => ''
+                                                    },
+                               's_ack_o' => {
+                                              'intfc_port' => 'ack_o',
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'range' => '',
+                                              'type' => 'output'
+                                            },
+                               'reset' => {
+                                            'range' => '',
+                                            'type' => 'input',
+                                            'intfc_port' => 'reset_i',
+                                            'intfc_name' => 'plug:reset[0]'
+                                          },
+                               's_dat_i' => {
+                                              'intfc_port' => 'dat_i',
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'range' => 'Dw-1       :   0',
+                                              'type' => 'input'
+                                            },
+                               'm_send_ack_i' => {
+                                                   'intfc_port' => 'ack_i',
+                                                   'intfc_name' => 'plug:wb_master[0]',
+                                                   'range' => '',
+                                                   'type' => 'input'
+                                                 },
+                               'm_receive_cti_o' => {
+                                                      'range' => 'TAGw-1          :   0',
+                                                      'type' => 'output',
+                                                      'intfc_port' => 'cti_o',
+                                                      'intfc_name' => 'plug:wb_master[1]'
+                                                    },
+                               'irq' => {
+                                          'intfc_port' => 'int_o',
+                                          'intfc_name' => 'plug:interrupt_peripheral[0]',
+                                          'range' => '',
+                                          'type' => 'output'
+                                        },
+                               'flit_out_wr' => {
+                                                  'range' => '',
+                                                  'type' => 'output',
+                                                  'intfc_port' => 'flit_out_wr',
+                                                  'intfc_name' => 'socket:ni[0]'
+                                                },
+                               'credit_out' => {
+                                                 'intfc_name' => 'socket:ni[0]',
+                                                 'intfc_port' => 'credit_out',
+                                                 'type' => 'output',
+                                                 'range' => 'V-1    :   0'
+                                               },
+                               's_dat_o' => {
+                                              'range' => 'Dw-1       :   0',
+                                              'type' => 'output',
+                                              'intfc_port' => 'dat_o',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               'flit_in' => {
+                                              'type' => 'input',
+                                              'range' => 'Fw-1   :   0',
+                                              'intfc_name' => 'socket:ni[0]',
+                                              'intfc_port' => 'flit_in'
+                                            },
+                               's_stb_i' => {
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'intfc_port' => 'stb_i',
+                                              'type' => 'input',
+                                              'range' => ''
+                                            },
+                               'current_r_addr' => {
+                                                     'intfc_port' => 'current_r_addr',
+                                                     'intfc_name' => 'socket:ni[0]',
+                                                     'range' => 'RAw-1   :   0',
+                                                     'type' => 'input'
+                                                   },
+                               'm_send_addr_o' => {
+                                                    'type' => 'output',
+                                                    'range' => 'M_Aw-1          :   0',
+                                                    'intfc_name' => 'plug:wb_master[0]',
+                                                    'intfc_port' => 'adr_o'
+                                                  },
+                               'm_send_sel_o' => {
+                                                   'type' => 'output',
+                                                   'range' => 'SELw-1          :   0',
+                                                   'intfc_name' => 'plug:wb_master[0]',
+                                                   'intfc_port' => 'sel_o'
+                                                 },
+                               'm_receive_we_o' => {
+                                                     'type' => 'output',
+                                                     'range' => '',
+                                                     'intfc_name' => 'plug:wb_master[1]',
+                                                     'intfc_port' => 'we_o'
+                                                   },
+                               'm_receive_cyc_o' => {
+                                                      'intfc_name' => 'plug:wb_master[1]',
+                                                      'intfc_port' => 'cyc_o',
+                                                      'type' => 'output',
+                                                      'range' => ''
+                                                    },
+                               'm_receive_dat_o' => {
+                                                      'range' => 'Dw-1            :   0',
+                                                      'type' => 'output',
+                                                      'intfc_port' => 'dat_o',
+                                                      'intfc_name' => 'plug:wb_master[1]'
+                                                    },
+                               'm_send_cti_o' => {
+                                                   'type' => 'output',
+                                                   'range' => 'TAGw-1          :   0',
+                                                   'intfc_name' => 'plug:wb_master[0]',
+                                                   'intfc_port' => 'cti_o'
+                                                 },
+                               'm_send_we_o' => {
+                                                  'intfc_name' => 'plug:wb_master[0]',
+                                                  'intfc_port' => 'we_o',
+                                                  'type' => 'output',
+                                                  'range' => ''
+                                                },
+                               's_cti_i' => {
+                                              'range' => 'TAGw-1     :   0',
+                                              'type' => 'input',
+                                              'intfc_port' => 'cti_i',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               'flit_out' => {
+                                               'range' => 'Fw-1   :   0',
+                                               'type' => 'output',
+                                               'intfc_port' => 'flit_out',
+                                               'intfc_name' => 'socket:ni[0]'
+                                             },
+                               's_we_i' => {
+                                             'intfc_name' => 'plug:wb_slave[0]',
+                                             'intfc_port' => 'we_i',
+                                             'type' => 'input',
+                                             'range' => ''
+                                           },
+                               'current_e_addr' => {
+                                                     'intfc_name' => 'socket:ni[0]',
+                                                     'intfc_port' => 'current_e_addr',
+                                                     'type' => 'input',
+                                                     'range' => 'EAw-1   :   0'
+                                                   },
+                               'm_receive_stb_o' => {
+                                                      'intfc_port' => 'stb_o',
+                                                      'intfc_name' => 'plug:wb_master[1]',
+                                                      'range' => '',
+                                                      'type' => 'output'
+                                                    },
+                               'm_send_cyc_o' => {
+                                                   'type' => 'output',
+                                                   'range' => '',
+                                                   'intfc_name' => 'plug:wb_master[0]',
+                                                   'intfc_port' => 'cyc_o'
+                                                 },
+                               'credit_in' => {
+                                                'intfc_port' => 'credit_in',
+                                                'intfc_name' => 'socket:ni[0]',
+                                                'range' => 'V-1    :   0',
+                                                'type' => 'input'
+                                              },
+                               'm_receive_addr_o' => {
+                                                       'range' => 'M_Aw-1          :   0',
+                                                       'type' => 'output',
+                                                       'intfc_port' => 'adr_o',
+                                                       'intfc_name' => 'plug:wb_master[1]'
+                                                     }
+                             },
                   'parameters_order' => [
                                           'TOPOLOGY',
                                           'ROUTE_NAME',
                                           'T1',
                                           'T2',
+                                          'T3',
                                           'C',
                                           'V',
                                           'B',
@@ -29,573 +248,20 @@ $ipgen = bless( {
                                           'SELw',
                                           'Fw',
                                           'CRC_EN',
-                                          'EXw',
-                                          'EYw',
-                                          'RXw',
-                                          'RYw'
+                                          'RAw',
+                                          'EAw'
                                         ],
-                  'ports_order' => [
-                                     'reset',
-                                     'clk',
-                                     'current_ex',
-                                     'current_ey',
-                                     'current_rx',
-                                     'current_ry',
-                                     'flit_out',
-                                     'flit_out_wr',
-                                     'credit_in',
-                                     'flit_in',
-                                     'flit_in_wr',
-                                     'credit_out',
-                                     's_dat_i',
-                                     's_sel_i',
-                                     's_addr_i',
-                                     's_cti_i',
-                                     's_stb_i',
-                                     's_cyc_i',
-                                     's_we_i',
-                                     's_dat_o',
-                                     's_ack_o',
-                                     'm_send_sel_o',
-                                     'm_send_addr_o',
-                                     'm_send_cti_o',
-                                     'm_send_stb_o',
-                                     'm_send_cyc_o',
-                                     'm_send_we_o',
-                                     'm_send_dat_i',
-                                     'm_send_ack_i',
-                                     'm_receive_sel_o',
-                                     'm_receive_dat_o',
-                                     'm_receive_addr_o',
-                                     'm_receive_cti_o',
-                                     'm_receive_stb_o',
-                                     'm_receive_cyc_o',
-                                     'm_receive_we_o',
-                                     'm_receive_ack_i',
-                                     'irq'
-                                   ],
-                  'unused' => {
-                                'plug:wb_slave[0]' => [
-                                                        'tag_i',
-                                                        'bte_i',
-                                                        'err_o',
-                                                        'rty_o'
-                                                      ],
-                                'plug:wb_master[0]' => [
-                                                         'rty_i',
-                                                         'bte_o',
-                                                         'dat_o',
-                                                         'err_i',
-                                                         'tag_o'
-                                                       ],
-                                'plug:wb_master[1]' => [
-                                                         'dat_i',
-                                                         'rty_i',
-                                                         'bte_o',
-                                                         'err_i',
-                                                         'tag_o'
-                                                       ]
-                              },
-                  'category' => 'NoC',
-                  'ports' => {
-                               'm_send_sel_o' => {
-                                                   'type' => 'output',
-                                                   'intfc_name' => 'plug:wb_master[0]',
-                                                   'intfc_port' => 'sel_o',
-                                                   'range' => 'SELw-1          :   0'
-                                                 },
-                               's_cyc_i' => {
-                                              'range' => '',
-                                              'intfc_port' => 'cyc_i',
-                                              'intfc_name' => 'plug:wb_slave[0]',
-                                              'type' => 'input'
-                                            },
-                               'm_send_cti_o' => {
-                                                   'range' => 'TAGw-1          :   0',
-                                                   'intfc_name' => 'plug:wb_master[0]',
-                                                   'intfc_port' => 'cti_o',
-                                                   'type' => 'output'
-                                                 },
-                               'm_receive_we_o' => {
-                                                     'range' => '',
-                                                     'intfc_name' => 'plug:wb_master[1]',
-                                                     'intfc_port' => 'we_o',
-                                                     'type' => 'output'
-                                                   },
-                               'm_send_we_o' => {
-                                                  'intfc_port' => 'we_o',
-                                                  'intfc_name' => 'plug:wb_master[0]',
-                                                  'type' => 'output',
-                                                  'range' => ''
-                                                },
-                               'm_receive_cti_o' => {
-                                                      'type' => 'output',
-                                                      'intfc_name' => 'plug:wb_master[1]',
-                                                      'intfc_port' => 'cti_o',
-                                                      'range' => 'TAGw-1          :   0'
-                                                    },
-                               'm_receive_sel_o' => {
-                                                      'range' => 'SELw-1          :   0',
-                                                      'type' => 'output',
-                                                      'intfc_port' => 'sel_o',
-                                                      'intfc_name' => 'plug:wb_master[1]'
-                                                    },
-                               's_we_i' => {
-                                             'range' => '',
-                                             'type' => 'input',
-                                             'intfc_port' => 'we_i',
-                                             'intfc_name' => 'plug:wb_slave[0]'
-                                           },
-                               's_dat_i' => {
-                                              'range' => 'Dw-1       :   0',
-                                              'type' => 'input',
-                                              'intfc_port' => 'dat_i',
-                                              'intfc_name' => 'plug:wb_slave[0]'
-                                            },
-                               'current_ry' => {
-                                                 'range' => 'RYw-1   :   0',
-                                                 'intfc_name' => 'socket:ni[0]',
-                                                 'intfc_port' => 'current_ry',
-                                                 'type' => 'input'
-                                               },
-                               'credit_in' => {
-                                                'range' => 'V-1    :   0',
-                                                'type' => 'input',
-                                                'intfc_port' => 'credit_in',
-                                                'intfc_name' => 'socket:ni[0]'
-                                              },
-                               'm_receive_addr_o' => {
-                                                       'range' => 'M_Aw-1          :   0',
-                                                       'intfc_name' => 'plug:wb_master[1]',
-                                                       'intfc_port' => 'adr_o',
-                                                       'type' => 'output'
-                                                     },
-                               's_ack_o' => {
-                                              'type' => 'output',
-                                              'intfc_port' => 'ack_o',
-                                              'intfc_name' => 'plug:wb_slave[0]',
-                                              'range' => ''
-                                            },
-                               'irq' => {
-                                          'range' => '',
-                                          'intfc_port' => 'int_o',
-                                          'intfc_name' => 'plug:interrupt_peripheral[0]',
-                                          'type' => 'output'
-                                        },
-                               'reset' => {
-                                            'intfc_name' => 'plug:reset[0]',
-                                            'intfc_port' => 'reset_i',
-                                            'type' => 'input',
-                                            'range' => ''
-                                          },
-                               'm_receive_ack_i' => {
-                                                      'type' => 'input',
-                                                      'intfc_name' => 'plug:wb_master[1]',
-                                                      'intfc_port' => 'ack_i',
-                                                      'range' => ''
-                                                    },
-                               'm_receive_cyc_o' => {
-                                                      'range' => '',
-                                                      'type' => 'output',
-                                                      'intfc_port' => 'cyc_o',
-                                                      'intfc_name' => 'plug:wb_master[1]'
-                                                    },
-                               's_dat_o' => {
-                                              'range' => 'Dw-1       :   0',
-                                              'type' => 'output',
-                                              'intfc_port' => 'dat_o',
-                                              'intfc_name' => 'plug:wb_slave[0]'
-                                            },
-                               'm_send_cyc_o' => {
-                                                   'intfc_port' => 'cyc_o',
-                                                   'intfc_name' => 'plug:wb_master[0]',
-                                                   'type' => 'output',
-                                                   'range' => ''
-                                                 },
-                               's_sel_i' => {
-                                              'range' => 'SELw-1     :   0',
-                                              'type' => 'input',
-                                              'intfc_port' => 'sel_i',
-                                              'intfc_name' => 'plug:wb_slave[0]'
-                                            },
-                               'm_receive_dat_o' => {
-                                                      'type' => 'output',
-                                                      'intfc_port' => 'dat_o',
-                                                      'intfc_name' => 'plug:wb_master[1]',
-                                                      'range' => 'Dw-1            :   0'
-                                                    },
-                               's_stb_i' => {
-                                              'type' => 'input',
-                                              'intfc_port' => 'stb_i',
-                                              'intfc_name' => 'plug:wb_slave[0]',
-                                              'range' => ''
-                                            },
-                               'flit_out' => {
-                                               'range' => 'Fw-1   :   0',
-                                               'type' => 'output',
-                                               'intfc_port' => 'flit_out',
-                                               'intfc_name' => 'socket:ni[0]'
-                                             },
-                               'flit_in_wr' => {
-                                                 'range' => '',
-                                                 'type' => 'input',
-                                                 'intfc_port' => 'flit_in_wr',
-                                                 'intfc_name' => 'socket:ni[0]'
-                                               },
-                               'clk' => {
-                                          'range' => '',
-                                          'intfc_port' => 'clk_i',
-                                          'intfc_name' => 'plug:clk[0]',
-                                          'type' => 'input'
-                                        },
-                               'current_rx' => {
-                                                 'range' => 'RXw-1   :   0',
-                                                 'type' => 'input',
-                                                 'intfc_name' => 'socket:ni[0]',
-                                                 'intfc_port' => 'current_rx'
-                                               },
-                               'm_send_ack_i' => {
-                                                   'range' => '',
-                                                   'type' => 'input',
-                                                   'intfc_name' => 'plug:wb_master[0]',
-                                                   'intfc_port' => 'ack_i'
-                                                 },
-                               'current_ex' => {
-                                                 'range' => 'EXw-1   :   0',
-                                                 'type' => 'input',
-                                                 'intfc_port' => 'current_ex',
-                                                 'intfc_name' => 'socket:ni[0]'
-                                               },
-                               'm_send_dat_i' => {
-                                                   'range' => 'Dw-1           :  0',
-                                                   'type' => 'input',
-                                                   'intfc_port' => 'dat_i',
-                                                   'intfc_name' => 'plug:wb_master[0]'
-                                                 },
-                               'current_ey' => {
-                                                 'range' => 'EYw-1   :   0',
-                                                 'type' => 'input',
-                                                 'intfc_name' => 'socket:ni[0]',
-                                                 'intfc_port' => 'current_ey'
-                                               },
-                               'm_receive_stb_o' => {
-                                                      'type' => 'output',
-                                                      'intfc_name' => 'plug:wb_master[1]',
-                                                      'intfc_port' => 'stb_o',
-                                                      'range' => ''
-                                                    },
-                               'credit_out' => {
-                                                 'range' => 'V-1    :   0',
-                                                 'intfc_port' => 'credit_out',
-                                                 'intfc_name' => 'socket:ni[0]',
-                                                 'type' => 'output'
-                                               },
-                               'm_send_stb_o' => {
-                                                   'range' => '',
-                                                   'type' => 'output',
-                                                   'intfc_name' => 'plug:wb_master[0]',
-                                                   'intfc_port' => 'stb_o'
-                                                 },
-                               'm_send_addr_o' => {
-                                                    'type' => 'output',
-                                                    'intfc_port' => 'adr_o',
-                                                    'intfc_name' => 'plug:wb_master[0]',
-                                                    'range' => 'M_Aw-1          :   0'
-                                                  },
-                               'flit_in' => {
-                                              'type' => 'input',
-                                              'intfc_port' => 'flit_in',
-                                              'intfc_name' => 'socket:ni[0]',
-                                              'range' => 'Fw-1   :   0'
-                                            },
-                               's_addr_i' => {
-                                               'range' => 'S_Aw-1     :   0',
-                                               'intfc_name' => 'plug:wb_slave[0]',
-                                               'intfc_port' => 'adr_i',
-                                               'type' => 'input'
-                                             },
-                               'flit_out_wr' => {
-                                                  'type' => 'output',
-                                                  'intfc_port' => 'flit_out_wr',
-                                                  'intfc_name' => 'socket:ni[0]',
-                                                  'range' => ''
-                                                },
-                               's_cti_i' => {
-                                              'type' => 'input',
-                                              'intfc_name' => 'plug:wb_slave[0]',
-                                              'intfc_port' => 'cti_i',
-                                              'range' => 'TAGw-1     :   0'
-                                            }
-                             },
-                  'ip_name' => 'ni_master',
-                  'parameters' => {
-                                    'S_Aw' => {
-                                                'redefine_param' => 1,
-                                                'default' => '8',
-                                                'global_param' => 'Localparam',
-                                                'type' => 'Fixed',
-                                                'content' => '',
-                                                'info' => 'Parameter'
-                                              },
-                                    'V' => {
-                                             'type' => 'Fixed',
-                                             'default' => '4',
-                                             'global_param' => 'Parameter',
-                                             'redefine_param' => 1,
-                                             'info' => 'Parameter',
-                                             'content' => ''
-                                           },
-                                    'DEBUG_EN' => {
-                                                    'redefine_param' => 1,
-                                                    'global_param' => 'Parameter',
-                                                    'default' => ' 1',
-                                                    'type' => 'Fixed',
-                                                    'content' => '',
-                                                    'info' => 'Parameter'
-                                                  },
-                                    'CRC_EN' => {
-                                                  'content' => '"YES","NO"',
-                                                  'info' => 'The parameter can be selected as "YES" or "NO". 
-If CRC is enabled, then two CRC32 generator modules will be added to the NI. One CRC generator for calculating CRC of sending packets and another for receiving packets.   The CRC32 value of each packet is send via tail flit and at destination NI, is will be compared with received packet generated CRC32. The matching results can be used for error-detection and can be read via NI slave interface. ',
-                                                  'type' => 'Combo-box',
-                                                  'default' => '"NO"',
-                                                  'global_param' => 'Localparam',
-                                                  'redefine_param' => 1
-                                                },
-                                    'Fpay' => {
-                                                'info' => 'Parameter',
-                                                'content' => '',
-                                                'type' => 'Fixed',
-                                                'global_param' => 'Parameter',
-                                                'default' => ' 32',
-                                                'redefine_param' => 1
-                                              },
-                                    'Fw' => {
-                                              'content' => '',
-                                              'info' => undef,
-                                              'type' => 'Fixed',
-                                              'redefine_param' => 0,
-                                              'default' => '2+V+Fpay',
-                                              'global_param' => 'Localparam'
-                                            },
-                                    'ROUTE_NAME' => {
-                                                      'type' => 'Fixed',
-                                                      'global_param' => 'Parameter',
-                                                      'default' => '"XY"   ',
-                                                      'redefine_param' => 1,
-                                                      'content' => '',
-                                                      'info' => 'Parameter'
-                                                    },
-                                    'EXw' => {
-                                               'redefine_param' => 0,
-                                               'global_param' => 'Parameter',
-                                               'default' => '4',
-                                               'type' => 'Fixed',
-                                               'info' => undef,
-                                               'content' => ''
-                                             },
-                                    'T2' => {
-                                              'redefine_param' => 1,
-                                              'default' => ' 4',
-                                              'global_param' => 'Parameter',
-                                              'type' => 'Fixed',
-                                              'info' => 'Parameter',
-                                              'content' => ''
-                                            },
-                                    'EYw' => {
-                                               'type' => 'Fixed',
-                                               'redefine_param' => 0,
-                                               'default' => '4',
-                                               'global_param' => 'Parameter',
-                                               'info' => undef,
-                                               'content' => ''
-                                             },
-                                    'B' => {
-                                             'type' => 'Fixed',
-                                             'global_param' => 'Parameter',
-                                             'default' => ' 4',
-                                             'redefine_param' => 1,
-                                             'content' => '',
-                                             'info' => 'Parameter'
-                                           },
-                                    'C' => {
-                                             'content' => '',
-                                             'info' => 'Parameter',
-                                             'type' => 'Fixed',
-                                             'global_param' => 'Parameter',
-                                             'default' => ' 4',
-                                             'redefine_param' => 1
-                                           },
-                                    'MAX_BURST_SIZE' => {
-                                                          'type' => 'Combo-box',
-                                                          'redefine_param' => 1,
-                                                          'global_param' => 'Localparam',
-                                                          'default' => '16',
-                                                          'content' => '2,4,8,16,32,64,128,256,512,1024,2048',
-                                                          'info' => 'Maximum burst size in words. 
-The NI releases the wishbone bus  each time one burst is completed or when the VC\'s internal FIFO becomes full.  The bus will be released for one clock cycle. Then in case, there are other active VCs, another active VC will get access to the bus using round robin arbiter.  This process will be continued until all of the desired data is transferred. '
-                                                        },
-                                    'T1' => {
-                                              'info' => 'Parameter',
-                                              'content' => '',
-                                              'type' => 'Fixed',
-                                              'global_param' => 'Parameter',
-                                              'default' => ' 4',
-                                              'redefine_param' => 1
-                                            },
-                                    'Dw' => {
-                                              'type' => 'Spin-button',
-                                              'redefine_param' => 1,
-                                              'default' => '32',
-                                              'global_param' => 'Localparam',
-                                              'info' => 'wishbone_bus data width in bits.',
-                                              'content' => '32,256,8'
-                                            },
-                                    'MAX_TRANSACTION_WIDTH' => {
-                                                                 'info' => 'maximum packet size width  in words.
-The maximum data that can be sent via one packet will be 2 power of MAX_DMA_TRANSACTION_WIDTH in words.',
-                                                                 'content' => '4,32,1',
-                                                                 'redefine_param' => 1,
-                                                                 'default' => '13',
-                                                                 'global_param' => 'Localparam',
-                                                                 'type' => 'Spin-button'
-                                                               },
-                                    'RYw' => {
-                                               'type' => 'Fixed',
-                                               'redefine_param' => 0,
-                                               'default' => '4',
-                                               'global_param' => 'Parameter',
-                                               'content' => '',
-                                               'info' => undef
-                                             },
-                                    'RXw' => {
-                                               'content' => '',
-                                               'info' => undef,
-                                               'redefine_param' => 0,
-                                               'global_param' => 'Parameter',
-                                               'default' => '4',
-                                               'type' => 'Fixed'
-                                             },
-                                    'TAGw' => {
-                                                'info' => 'Parameter',
-                                                'content' => '',
-                                                'default' => '3',
-                                                'global_param' => 'Localparam',
-                                                'redefine_param' => 1,
-                                                'type' => 'Fixed'
-                                              },
-                                    'TOPOLOGY' => {
-                                                    'info' => 'Parameter',
-                                                    'content' => '',
-                                                    'type' => 'Fixed',
-                                                    'default' => '"MESH"',
-                                                    'global_param' => 'Parameter',
-                                                    'redefine_param' => 1
-                                                  },
-                                    'SELw' => {
-                                                'content' => '',
-                                                'info' => 'Parameter',
-                                                'type' => 'Fixed',
-                                                'redefine_param' => 1,
-                                                'default' => '4',
-                                                'global_param' => 'Localparam'
-                                              },
-                                    'M_Aw' => {
-                                                'content' => 'Dw',
-                                                'info' => 'Parameter',
-                                                'redefine_param' => 1,
-                                                'default' => '32',
-                                                'global_param' => 'Localparam',
-                                                'type' => 'Fixed'
-                                              }
-                                  },
-                  'hdl_files' => [
-                                   '/mpsoc/src_noc/arbiter.v',
-                                   '/mpsoc/src_noc/flit_buffer.v',
-                                   '/mpsoc/src_noc/input_ports.v',
-                                   '/mpsoc/src_noc/main_comp.v',
-                                   '/mpsoc/src_noc/route_mesh.v',
-                                   '/mpsoc/src_noc/route_torus.v',
-                                   '/mpsoc/src_noc/routing.v',
-                                   '/mpsoc/src_peripheral/ni/ni_vc_dma.v',
-                                   '/mpsoc/src_peripheral/ni/ni_vc_wb_slave_regs.v',
-                                   '/mpsoc/src_peripheral/ni/ni_master.v',
-                                   '/mpsoc/src_peripheral/ni/ni_crc32.v'
-                                 ],
                   'description_pdf' => '/mpsoc/src_peripheral/ni/NI.pdf',
-                  'version' => 55,
-                  'module_name' => 'ni_master',
-                  'gui_status' => {
-                                    'status' => 'ideal',
-                                    'timeout' => 0
-                                  },
-                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/ni/ni_master.v',
-                  'description' => '',
+                  'system_v' => '`define INCLUDE_TOPOLOGY_LOCALPARAM
+    `include "topology_localparam.v"',
                   'modules' => {
+                                 'header_flit_generator' => {},
+                                 'ni_master' => {},
                                  'ni_vc_dma' => {},
                                  'vc_wb_slave_registers' => {},
-                                 'ovc_status' => {},
-                                 'ni_master' => {},
-                                 'header_flit_generator' => {}
+                                 'ovc_status' => {}
                                },
-                  'sockets' => {
-                                 'ni' => {
-                                           'ni' => {},
-                                           'type' => 'num',
-                                           'value' => 1,
-                                           'connection_num' => 'single connection',
-                                           '0' => {
-                                                    'name' => 'ni'
-                                                  }
-                                         }
-                               },
-                  'plugs' => {
-                               'wb_slave' => {
-                                               'type' => 'num',
-                                               'wb_slave' => {},
-                                               'value' => 1,
-                                               '0' => {
-                                                        'addr' => '0xb800_0000	0xbfff_ffff		custom devices',
-                                                        'width' => 10,
-                                                        'name' => 'wb_slave'
-                                                      }
-                                             },
-                               'interrupt_peripheral' => {
-                                                           '0' => {
-                                                                    'name' => 'interrupt'
-                                                                  },
-                                                           'interrupt_peripheral' => {},
-                                                           'value' => 1,
-                                                           'type' => 'num'
-                                                         },
-                               'wb_master' => {
-                                                'type' => 'num',
-                                                'value' => 2,
-                                                'wb_master' => {},
-                                                '0' => {
-                                                         'name' => 'wb_send'
-                                                       },
-                                                '1' => {
-                                                         'name' => 'wb_receive'
-                                                       }
-                                              },
-                               'reset' => {
-                                            'type' => 'num',
-                                            'value' => 1,
-                                            '0' => {
-                                                     'name' => 'reset'
-                                                   },
-                                            'reset' => {}
-                                          },
-                               'clk' => {
-                                          'value' => 1,
-                                          'type' => 'num',
-                                          'clk' => {},
-                                          '0' => {
-                                                   'name' => 'clk'
-                                                 }
-                                        }
-                             },
+                  'category' => 'NoC',
                   'system_h' => '#include <stdint.h>
 #include "../phy_addr.h"
  
@@ -742,5 +408,319 @@ void ${IP}_receive (unsigned int v, unsigned int data_start_addr,  unsigned int 
 	${IP}_RECEIVE_CTRL_REG(v)   = 1;
 
 	 
-}'
+}',
+                  'parameters' => {
+                                    'ROUTE_NAME' => {
+                                                      'global_param' => 'Parameter',
+                                                      'type' => 'Fixed',
+                                                      'default' => '"XY"   ',
+                                                      'redefine_param' => 1,
+                                                      'content' => '',
+                                                      'info' => 'Parameter'
+                                                    },
+                                    'Fpay' => {
+                                                'global_param' => 'Parameter',
+                                                'type' => 'Fixed',
+                                                'default' => ' 32',
+                                                'redefine_param' => 1,
+                                                'content' => '',
+                                                'info' => 'Parameter'
+                                              },
+                                    'TAGw' => {
+                                                'default' => '3',
+                                                'global_param' => 'Localparam',
+                                                'type' => 'Fixed',
+                                                'content' => '',
+                                                'info' => 'Parameter',
+                                                'redefine_param' => 1
+                                              },
+                                    'S_Aw' => {
+                                                'content' => '',
+                                                'info' => 'Parameter',
+                                                'redefine_param' => 1,
+                                                'default' => '8',
+                                                'global_param' => 'Localparam',
+                                                'type' => 'Fixed'
+                                              },
+                                    'T3' => {
+                                              'type' => 'Fixed',
+                                              'global_param' => 'Parameter',
+                                              'default' => '1',
+                                              'redefine_param' => 1,
+                                              'info' => 'Parameter',
+                                              'content' => ''
+                                            },
+                                    'MAX_BURST_SIZE' => {
+                                                          'content' => '2,4,8,16,32,64,128,256,512,1024,2048',
+                                                          'info' => 'Maximum burst size in words. 
+The NI releases the wishbone bus  each time one burst is completed or when the VC\'s internal FIFO becomes full.  The bus will be released for one clock cycle. Then in case, there are other active VCs, another active VC will get access to the bus using round robin arbiter.  This process will be continued until all of the desired data is transferred. ',
+                                                          'redefine_param' => 1,
+                                                          'default' => '16',
+                                                          'global_param' => 'Localparam',
+                                                          'type' => 'Combo-box'
+                                                        },
+                                    'M_Aw' => {
+                                                'global_param' => 'Localparam',
+                                                'type' => 'Fixed',
+                                                'default' => '32',
+                                                'redefine_param' => 1,
+                                                'content' => 'Dw',
+                                                'info' => 'Parameter'
+                                              },
+                                    'DEBUG_EN' => {
+                                                    'info' => 'Parameter',
+                                                    'content' => '',
+                                                    'redefine_param' => 1,
+                                                    'default' => ' 1',
+                                                    'type' => 'Fixed',
+                                                    'global_param' => 'Parameter'
+                                                  },
+                                    'SELw' => {
+                                                'info' => 'Parameter',
+                                                'content' => '',
+                                                'redefine_param' => 1,
+                                                'default' => '4',
+                                                'type' => 'Fixed',
+                                                'global_param' => 'Localparam'
+                                              },
+                                    'Dw' => {
+                                              'global_param' => 'Localparam',
+                                              'type' => 'Spin-button',
+                                              'default' => '32',
+                                              'redefine_param' => 1,
+                                              'content' => '32,256,8',
+                                              'info' => 'wishbone_bus data width in bits.'
+                                            },
+                                    'Fw' => {
+                                              'redefine_param' => 0,
+                                              'content' => '',
+                                              'info' => undef,
+                                              'global_param' => 'Localparam',
+                                              'type' => 'Fixed',
+                                              'default' => '2+V+Fpay'
+                                            },
+                                    'B' => {
+                                             'global_param' => 'Parameter',
+                                             'type' => 'Fixed',
+                                             'default' => ' 4',
+                                             'redefine_param' => 1,
+                                             'content' => '',
+                                             'info' => 'Parameter'
+                                           },
+                                    'CRC_EN' => {
+                                                  'type' => 'Combo-box',
+                                                  'global_param' => 'Localparam',
+                                                  'default' => '"NO"',
+                                                  'redefine_param' => 1,
+                                                  'info' => 'The parameter can be selected as "YES" or "NO". 
+If CRC is enabled, then two CRC32 generator modules will be added to the NI. One CRC generator for calculating CRC of sending packets and another for receiving packets.   The CRC32 value of each packet is send via tail flit and at destination NI, is will be compared with received packet generated CRC32. The matching results can be used for error-detection and can be read via NI slave interface. ',
+                                                  'content' => '"YES","NO"'
+                                                },
+                                    'V' => {
+                                             'type' => 'Fixed',
+                                             'global_param' => 'Parameter',
+                                             'default' => '4',
+                                             'redefine_param' => 1,
+                                             'info' => 'Parameter',
+                                             'content' => ''
+                                           },
+                                    'RAw' => {
+                                               'type' => 'Fixed',
+                                               'global_param' => 'Parameter',
+                                               'default' => '16',
+                                               'redefine_param' => 0,
+                                               'info' => undef,
+                                               'content' => ''
+                                             },
+                                    'T2' => {
+                                              'content' => '',
+                                              'info' => 'Parameter',
+                                              'redefine_param' => 1,
+                                              'default' => ' 4',
+                                              'global_param' => 'Parameter',
+                                              'type' => 'Fixed'
+                                            },
+                                    'T1' => {
+                                              'global_param' => 'Parameter',
+                                              'type' => 'Fixed',
+                                              'default' => ' 4',
+                                              'redefine_param' => 1,
+                                              'content' => '',
+                                              'info' => 'Parameter'
+                                            },
+                                    'TOPOLOGY' => {
+                                                    'global_param' => 'Parameter',
+                                                    'type' => 'Fixed',
+                                                    'default' => '"MESH"',
+                                                    'redefine_param' => 1,
+                                                    'content' => '',
+                                                    'info' => 'Parameter'
+                                                  },
+                                    'EAw' => {
+                                               'redefine_param' => 0,
+                                               'content' => '',
+                                               'info' => undef,
+                                               'global_param' => 'Parameter',
+                                               'type' => 'Fixed',
+                                               'default' => '16'
+                                             },
+                                    'C' => {
+                                             'default' => ' 4',
+                                             'type' => 'Fixed',
+                                             'global_param' => 'Parameter',
+                                             'info' => 'Parameter',
+                                             'content' => '',
+                                             'redefine_param' => 1
+                                           },
+                                    'MAX_TRANSACTION_WIDTH' => {
+                                                                 'default' => '13',
+                                                                 'type' => 'Spin-button',
+                                                                 'global_param' => 'Localparam',
+                                                                 'info' => 'maximum packet size width  in words.
+The maximum data that can be sent via one packet will be 2 power of MAX_DMA_TRANSACTION_WIDTH in words.',
+                                                                 'content' => '4,32,1',
+                                                                 'redefine_param' => 1
+                                                               }
+                                  },
+                  'plugs' => {
+                               'wb_master' => {
+                                                'type' => 'num',
+                                                '0' => {
+                                                         'name' => 'wb_send'
+                                                       },
+                                                'value' => 2,
+                                                '1' => {
+                                                         'name' => 'wb_receive'
+                                                       },
+                                                'wb_master' => {}
+                                              },
+                               'interrupt_peripheral' => {
+                                                           'type' => 'num',
+                                                           '0' => {
+                                                                    'name' => 'interrupt'
+                                                                  },
+                                                           'value' => 1,
+                                                           'interrupt_peripheral' => {}
+                                                         },
+                               'reset' => {
+                                            '0' => {
+                                                     'name' => 'reset'
+                                                   },
+                                            'value' => 1,
+                                            'type' => 'num',
+                                            'reset' => {}
+                                          },
+                               'wb_slave' => {
+                                               'wb_slave' => {},
+                                               'value' => 1,
+                                               '0' => {
+                                                        'addr' => '0xb800_0000	0xbfff_ffff		custom devices',
+                                                        'width' => 10,
+                                                        'name' => 'wb_slave'
+                                                      },
+                                               'type' => 'num'
+                                             },
+                               'clk' => {
+                                          'type' => 'num',
+                                          '0' => {
+                                                   'name' => 'clk'
+                                                 },
+                                          'value' => 1,
+                                          'clk' => {}
+                                        }
+                             },
+                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/ni/ni_master.v',
+                  'ip_name' => 'ni_master',
+                  'sockets' => {
+                                 'ni' => {
+                                           'connection_num' => 'single connection',
+                                           'ni' => {},
+                                           'value' => 1,
+                                           '0' => {
+                                                    'name' => 'ni'
+                                                  },
+                                           'type' => 'num'
+                                         }
+                               },
+                  'ports_order' => [
+                                     'reset',
+                                     'clk',
+                                     'current_e_addr',
+                                     'current_r_addr',
+                                     'flit_out',
+                                     'flit_out_wr',
+                                     'credit_in',
+                                     'flit_in',
+                                     'flit_in_wr',
+                                     'credit_out',
+                                     's_dat_i',
+                                     's_sel_i',
+                                     's_addr_i',
+                                     's_cti_i',
+                                     's_stb_i',
+                                     's_cyc_i',
+                                     's_we_i',
+                                     's_dat_o',
+                                     's_ack_o',
+                                     'm_send_sel_o',
+                                     'm_send_addr_o',
+                                     'm_send_cti_o',
+                                     'm_send_stb_o',
+                                     'm_send_cyc_o',
+                                     'm_send_we_o',
+                                     'm_send_dat_i',
+                                     'm_send_ack_i',
+                                     'm_receive_sel_o',
+                                     'm_receive_dat_o',
+                                     'm_receive_addr_o',
+                                     'm_receive_cti_o',
+                                     'm_receive_stb_o',
+                                     'm_receive_cyc_o',
+                                     'm_receive_we_o',
+                                     'm_receive_ack_i',
+                                     'irq'
+                                   ],
+                  'description' => '',
+                  'unused' => {
+                                'plug:wb_master[1]' => [
+                                                         'tag_o',
+                                                         'dat_i',
+                                                         'bte_o',
+                                                         'err_i',
+                                                         'rty_i'
+                                                       ],
+                                'plug:wb_master[0]' => [
+                                                         'tag_o',
+                                                         'bte_o',
+                                                         'err_i',
+                                                         'dat_o',
+                                                         'rty_i'
+                                                       ],
+                                'plug:wb_slave[0]' => [
+                                                        'tag_i',
+                                                        'err_o',
+                                                        'rty_o',
+                                                        'bte_i'
+                                                      ]
+                              },
+                  'gui_status' => {
+                                    'status' => 'ideal',
+                                    'timeout' => 0
+                                  },
+                  'hdl_files' => [
+                                   '/mpsoc/src_noc/arbiter.v',
+                                   '/mpsoc/src_noc/flit_buffer.v',
+                                   '/mpsoc/src_noc/input_ports.v',
+                                   '/mpsoc/src_noc/main_comp.v',
+                                   '/mpsoc/src_noc/route_mesh.v',
+                                   '/mpsoc/src_noc/route_torus.v',
+                                   '/mpsoc/src_noc/routing.v',
+                                   '/mpsoc/src_peripheral/ni/ni_vc_dma.v',
+                                   '/mpsoc/src_peripheral/ni/ni_vc_wb_slave_regs.v',
+                                   '/mpsoc/src_peripheral/ni/ni_master.v',
+                                   '/mpsoc/src_peripheral/ni/ni_crc32.v',
+                                   '/mpsoc/src_noc/topology_localparam.v'
+                                 ],
+                  'module_name' => 'ni_master',
+                  'version' => 60
                 }, 'ip_gen' );

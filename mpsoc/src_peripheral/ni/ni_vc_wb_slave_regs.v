@@ -1,4 +1,3 @@
-
 /**********************************************************************
 **	File:  ni_vc_wb_slave_regs.v
 **	Date:2017-06-11     
@@ -30,24 +29,19 @@
 // synthesis translate_off
 `timescale 1ns / 1ps
 // synthesis translate_on
-
  
 module ni_vc_wb_slave_regs #(
-    parameter MAX_TRANSACTION_WIDTH =10,
-    
+    parameter MAX_TRANSACTION_WIDTH =10,      
     //NoC parameter
     parameter DEBUG_EN=1,
-    parameter EXw=4,
-    parameter EYw=4,
+    parameter EAw=4,
     parameter C = 4,    //  number of flit class 
-    parameter WEIGHTw=4, 
-    
+    parameter WEIGHTw=4,     
     //wishbones  bus  slave  port parameters
     parameter Dw            =   32,
     parameter S_Aw          =   4
  
- )(
- 
+ )( 
     state_reg_enable,
     send_fsm_is_ideal,
     receive_fsm_is_ideal,
@@ -57,35 +51,26 @@ module ni_vc_wb_slave_regs #(
     receive_vc_got_packet,
     receive_packet_is_saved,
     all_save_done_reg_rst,   
-
     send_start_addr, 
     receive_start_addr,
     send_data_size,
-    max_receive_buff_siz,
-    
-    dest_x,
-    dest_y,
+    max_receive_buff_siz,    
+    dest_e_addr,
     pck_class,
-    weight,   
- 
+    weight,  
     s_dat_i,
     s_addr_i,  
     s_stb_i,
     s_cyc_i,
     s_we_i,
-
 //synthesis translate_off
 //synopsys  translate_off    
-    current_ex,
-    current_ey,
+    current_e_addr,
 //synthesis translate_on
-//synopsys  translate_on   
-    
+//synopsys  translate_on      
     reset,
-    clk 
- 
- );
- 
+    clk  
+ ); 
  
     function integer log2;
       input integer number; begin   
@@ -94,16 +79,13 @@ module ni_vc_wb_slave_regs #(
             log2=log2+1;    
          end       
       end   
-    endfunction // log2 
- 
+    endfunction // log2  
   
 /*
  s_dat_i : 
-        [7:0] dest_x,
-        [15:8] dest_y,
+        [16:0] dest_e_addr,
         [23:16] class,
-        [31:24] weight,
-   
+        [31:24] weight,   
 */
     localparam
         DST_X_LSB  =0,
@@ -114,21 +96,17 @@ module ni_vc_wb_slave_regs #(
         SEND_DATA_SIZE_WB_ADDR =3,  // The transfer data size in byte  
         SEND_STRT_WB_ADDR =4,  // The source start address in byte       
         SEND_DEST_WB_ADDR =5,
-        SEND_CTRL_WB_ADDR = 6,
-        
+        SEND_CTRL_WB_ADDR = 6,        
         RECEIVE_STRT_WB_ADDR=8,   // The destination start address in byte
         RECEIVE_CTRL_WB_ADDR =10,  
         RECEIVE_MAX_BUFF_SIZ=11;   // The reciver buffer size in words. If the packet size is bigger tha the buffer size the rest of will be discarred
-       
- 
+
    localparam
         WORLD_SIZE = Dw/8,
         OFFSET_w= log2(WORLD_SIZE),        
-        Cw =  (C>1)? log2(C): 1;                       
+        Cw =  (C>1)? log2(C): 1;  
  
- 
-    input clk,reset;
-    
+    input clk,reset;    
     input state_reg_enable;
     input send_fsm_is_ideal,receive_fsm_is_ideal;
     input receive_vc_got_packet;
@@ -136,45 +114,37 @@ module ni_vc_wb_slave_regs #(
     output  reg [Dw-1   :   0] send_start_addr; 
     output  reg [Dw-1   :   0] receive_start_addr;
     output  reg receive_packet_is_saved;
-    input   all_save_done_reg_rst;
-    
+    input   all_save_done_reg_rst;    
     output  reg [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size;
     output  reg [MAX_TRANSACTION_WIDTH-1    :   0] max_receive_buff_siz;
-    output  reg [EXw-1   :   0]  dest_x;
-    output  reg [EYw-1   :   0]  dest_y;
+    output  reg [EAw-1   :   0]  dest_e_addr;
     output  reg [Cw-1   :   0]  pck_class;
     output  reg [WEIGHTw-1 :0]  weight; 
     output  reg send_start, receive_start;
 
 //synthesis translate_off
 //synopsys  translate_off    
-    input   [EXw-1   :   0]  current_ex;
-    input   [EYw-1   :   0]  current_ey;
+    input   [EAw-1   :   0]  current_e_addr;
 //synthesis translate_on
 //synopsys  translate_on   
    
- 
-        
-    reg  [EXw-1   :   0]  dest_x_next;
-    reg  [EYw-1   :   0]  dest_y_next;
-    reg  [Cw-1   :   0]  pck_class_next;
-    reg  [WEIGHTw-1 : 0] weight_next; 
-    reg  [Dw-1   :   0]  send_start_addr_next, receive_start_addr_next;
-    reg  [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size_next, max_receive_buff_siz_next;
-    reg  send_start_next;
- 
-  //wishbone slave interface signals
+ //wishbone slave interface signals
     input   [Dw-1       :   0]      s_dat_i;
     input   [S_Aw-1     :   0]      s_addr_i;  
     input                           s_stb_i;
     input                           s_cyc_i;
     input                           s_we_i;
-    
-    reg receive_en,receive_en_next;
-    reg receive_packet_is_saved_next;
+        
+    reg  [EAw-1   :   0]  dest_e_addr_next;
+    reg  [Cw-1   :   0]  pck_class_next;
+    reg  [WEIGHTw-1 : 0] weight_next; 
+    reg  [Dw-1   :   0]  send_start_addr_next, receive_start_addr_next;
+    reg  [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size_next, max_receive_buff_siz_next;
+    reg  send_start_next;
+    reg  receive_en,receive_en_next;
+    reg  receive_packet_is_saved_next;
    
-     // update control registers
-   
+     // update control registers   
     always @ (*) begin 
         //default values       
         receive_start = 1'b0;                
@@ -184,24 +154,20 @@ module ni_vc_wb_slave_regs #(
         end
     end 
      
-      
-     
     always @ (*) begin 
         //default values
         send_start_addr_next= send_start_addr;
         receive_start_addr_next=receive_start_addr;
         send_data_size_next= send_data_size;
-        dest_y_next = dest_y;   
-        dest_x_next = dest_x;                                         
+        dest_e_addr_next = dest_e_addr;                                         
         pck_class_next= pck_class;
-        weight_next = weight;
-          
+        weight_next = weight;          
         send_start_next = 1'b0;
         receive_en_next = receive_en;
         receive_packet_is_saved_next = receive_packet_is_saved;
         max_receive_buff_siz_next = max_receive_buff_siz;
-	if(all_save_done_reg_rst) receive_packet_is_saved_next=1'b0;
-
+        
+        if(all_save_done_reg_rst) receive_packet_is_saved_next=1'b0;
         if (receive_vc_got_packet & receive_en ) begin 
             receive_en_next = 1'b0;
         end
@@ -218,12 +184,12 @@ module ni_vc_wb_slave_regs #(
                     end //DATA_SIZE_WB_ADDR
                     SEND_DEST_WB_ADDR: begin 
                         if (send_fsm_is_ideal) begin 
-                            {dest_y_next,dest_x_next} = s_dat_i [EYw+EXw+ DST_X_LSB-1    :    DST_X_LSB];   
+                            dest_e_addr_next = s_dat_i [EAw+ DST_X_LSB-1    :    DST_X_LSB];   
                            
 //synthesis translate_off
 //synopsys  translate_off
 			if(DEBUG_EN)begin
-				if(s_dat_i [EYw+EXw+ DST_X_LSB-1    :    DST_X_LSB] == {current_ey,current_ex} )begin
+				if(s_dat_i [EAw+ DST_X_LSB-1    :    DST_X_LSB] == current_e_addr )begin
 					$display("%t: ERROR: source destination address are identical in: %m",$time);
 				end
 			end
@@ -254,20 +220,15 @@ module ni_vc_wb_slave_regs #(
                         end                 
                     end                 
                     
-                    
                     default :begin 
-                          
                           
                     end                         
                  endcase//wb_receive_send_addr
             end//if
         
-   end// always
-    
- 
- 
- 
-  localparam [WEIGHTw-1 : 0] INIT_WEIGHT = 1;
+    end// always
+   
+    localparam [WEIGHTw-1 : 0] INIT_WEIGHT = 1;
  
  
      //registers assigmnet    
@@ -277,8 +238,7 @@ module ni_vc_wb_slave_regs #(
             receive_start_addr   <= {Dw{1'b0}};
             send_data_size    <= {MAX_TRANSACTION_WIDTH{1'b0}};
             max_receive_buff_siz <= {MAX_TRANSACTION_WIDTH{1'b0}}; 
-            dest_y     <= {EYw{1'b0}}; 
-            dest_x     <= {EXw{1'b0}};                                        
+            dest_e_addr     <= {EAw{1'b0}};                                        
             pck_class  <= {Cw{1'b0}};
             weight <= INIT_WEIGHT;
             receive_en <= 1'b0;
@@ -289,8 +249,7 @@ module ni_vc_wb_slave_regs #(
             receive_start_addr <= receive_start_addr_next;
             send_data_size <= send_data_size_next;           
             max_receive_buff_siz <= max_receive_buff_siz_next;
-            dest_y     <= dest_y_next; 
-            dest_x     <= dest_x_next;                                        
+            dest_e_addr     <= dest_e_addr_next;                                        
             pck_class  <= pck_class_next;
             weight <= weight_next;
             receive_en <=receive_en_next;

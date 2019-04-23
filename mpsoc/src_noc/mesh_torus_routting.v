@@ -1,5 +1,4 @@
 
-
 /************************************
 
      mesh_torus_look_ahead_routing
@@ -7,7 +6,6 @@
 *************************************/
 
 module mesh_torus_look_ahead_routing #(
-    parameter P         =5,
     parameter NX        =4,
     parameter NY        =4,
     parameter SW_LOC    =0,
@@ -25,6 +23,10 @@ module mesh_torus_look_ahead_routing #(
     reset,
     clk
 );
+    
+     /* verilator lint_off WIDTH */ 
+    localparam  P = (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")?  5:3;
+     /* verilator lint_on WIDTH */ 
     
     function integer log2;
       input integer number; begin   
@@ -355,7 +357,6 @@ module  mesh_torus_adaptive_look_ahead_routing #(
         .TOPOLOGY(TOPOLOGY),
         .ROUTE_NAME(ROUTE_NAME),
         .ROUTE_TYPE(ROUTE_TYPE),
-        .P(P),
         .NX(NX),
         .NY(NY),
         .LOCATED_IN_NI(0)
@@ -373,7 +374,6 @@ module  mesh_torus_adaptive_look_ahead_routing #(
         .TOPOLOGY(TOPOLOGY),
         .ROUTE_NAME(ROUTE_NAME),
         .ROUTE_TYPE(ROUTE_TYPE),
-        .P(P),
         .NX(NX),
         .NY(NY),
         .LOCATED_IN_NI(0)
@@ -1045,7 +1045,6 @@ module mesh_torus_ni_conventional_routing #(
     parameter TOPOLOGY          =   "MESH", 
     parameter ROUTE_NAME        =   "XY",
     parameter ROUTE_TYPE        =   "DETERMINISTIC",// "DETERMINISTIC", "FULL_ADAPTIVE", "PAR_ADAPTIVE"
-    parameter P                 =   5,
     parameter NX                =   4,
     parameter NY                =   4,
     parameter LOCATED_IN_NI     =   0//use for add even only
@@ -1060,7 +1059,10 @@ module mesh_torus_ni_conventional_routing #(
 
     );
     
- 
+     /* verilator lint_off WIDTH */ 
+    localparam  P = (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")?  5:3;
+     /* verilator lint_on WIDTH */ 
+      
     function integer log2;
       input integer number; begin   
          log2=(number <=1) ? 1: 0;    
@@ -1118,8 +1120,6 @@ module mesh_torus_ni_conventional_routing #(
        
     end
     endgenerate
-
-
 endmodule
 
 
@@ -1280,8 +1280,6 @@ module xy_line_routing #(
     assign destport= destport_next;
     
 endmodule
-
-
 
 
 

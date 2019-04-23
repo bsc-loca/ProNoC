@@ -601,7 +601,7 @@ sub noc_config{
             
     my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
     
-    # topology T1 parameter
+    #topology T1 parameter
     $label= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'K' : 'Routers per row';
     $param= 'T1';
 	$default= '2';
@@ -681,21 +681,21 @@ sub noc_config{
                  ($topology eq '"TORUS"')? '"TRANC_XY","TRANC_WEST_FIRST","TRANC_NORTH_LAST","TRANC_NEGETIVE_FIRST","TRANC_DUATO"':
                  ($topology eq '"RING"')? '"TRANC_XY"' :
                  ($topology eq '"LINE"')?  '"XY"':
-                 ($topology eq '"FATTREE"')? '"NCA_RND_UP","NCA_STRAIGHT_UP","NCA_DST_UP"' : '"UNKNOWN"';
-                  
-    
+                 ($topology eq '"FATTREE"')? '"NCA_RND_UP","NCA_STRAIGHT_UP","NCA_DST_UP"':
+                 ($topology eq '"TREE"')? '"NCA"' : '"UNKNOWN"';   
     }else{
         $content=($topology eq '"MESH"')?  '"XY","WEST_FIRST","NORTH_LAST","NEGETIVE_FIRST","ODD_EVEN"' :
                  ($topology eq '"TORUS"')? '"TRANC_XY","TRANC_WEST_FIRST","TRANC_NORTH_LAST","TRANC_NEGETIVE_FIRST"':
                  ($topology eq '"RING"')? '"TRANC_XY"' : 
 				 ($topology eq '"LINE"')?  '"XY"':
-                 ($topology eq '"FATTREE"')? '"NCA_RND_UP","NCA_DST_UP"' : '"UNKNOWN"';
-    
+                 ($topology eq '"FATTREE"')? '"NCA_RND_UP","NCA_STRAIGHT_UP","NCA_DST_UP"' : 
+				 ($topology eq '"TREE"')? '"NCA"' : '"UNKNOWN"';    
         
     }
     $default=($topology eq '"MESH"' || $topology eq '"LINE"' )? '"XY"':
     		 ($topology eq '"TORUS"'|| $topology eq '"RING"')?  '"TRANC_XY"' : 
-    		 ($topology eq '"FATTREE"')? '"NCA_RND_UP"' : '"UNKNOWN"';
+    		 ($topology eq '"FATTREE"')? '"NCA_STRAIGHT_UP"' :
+    		 ($topology eq '"TREE"')? '"NCA"' : '"UNKNOWN"';
     		 
     $info="Select the routing algorithm: XY(DoR) , partially adaptive (Turn models). Fully adaptive (Duato) "; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
@@ -1057,7 +1057,7 @@ return  $table;
 
 sub gen_all_tiles{
     my ($mpsoc,$info, $hw_dir,$sw_dir)=@_;
-    my ($NE, $NR, $RXw, $RYw, $EXw, $EYw, $Fw)=get_topology_info($mpsoc);	
+    my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($mpsoc);	
     my $mpsoc_name=$mpsoc->object_get_attribute('mpsoc_name');
     my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
     
@@ -1424,7 +1424,7 @@ sub get_tile{
     
     my $button;
     my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
-    #my $cordinate =     ($topology eq '"RING"' || $topology eq '"LINE"' || $topology eq '"FATTREE"'  ) ? "" : "($x,$y)";
+    
     if( defined $soc_name){
         my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile);
         $button=($setting eq 'Custom')? def_colored_button("Tile $tile*\n$soc_name",$num) :    def_colored_button("Tile $tile\n$soc_name",$num) ;
@@ -1537,7 +1537,7 @@ sub get_tile{
 sub gen_tiles{
     my ($mpsoc)=@_;
 	
-	my ($NE, $NR, $RXw, $RYw, $EXw, $EYw, $Fw)=get_topology_info($mpsoc);
+	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($mpsoc);
     my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
     my $table;
     

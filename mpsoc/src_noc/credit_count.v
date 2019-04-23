@@ -37,6 +37,7 @@ module credit_counter #(
     parameter DEBUG_EN =   1,
     parameter AVC_ATOMIC_EN=0,
     parameter CONGw   =   2, //congestion width per port
+    parameter PPSw=4,
     parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1.  
     
 )(
@@ -99,7 +100,7 @@ module credit_counter #(
     output [PV-1       :    0]    ovc_avalable_all;
     output [PV-1       :    0]    assigned_ovc_not_full_all;
     input                           reset,clk;
-    output [P_1-1      :    0] port_pre_sel;
+    output [PPSw-1      :    0] port_pre_sel;
     input  [CONG_ALw-1 :    0] congestion_in_all; 
     //ssa
     input  [PV-1       :    0] ssa_ovc_released_all; 
@@ -315,6 +316,7 @@ module credit_counter #(
     
 
     port_pre_sel_gen #(
+        .PPSw(PPSw),
         .P(P),
         .V(V),
         .B(B),
