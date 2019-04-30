@@ -47,7 +47,7 @@ module  noc #(
     parameter Fpay = 32,
     parameter MUX_TYPE= "ONE_HOT",    //"ONE_HOT" or "BINARY"
     parameter VC_REALLOCATION_TYPE = "NONATOMIC",// "ATOMIC" , "NONATOMIC"
-    parameter COMBINATION_TYPE= "COMB_SPEC1",// "BASELINE", "COMB_SPEC1", "COMB_SPEC2", "COMB_NONSPEC"
+    parameter COMBINATION_TYPE= "COMB_NONSPEC",// "COMB_SPEC1", "COMB_SPEC2", "COMB_NONSPEC"
     parameter FIRST_ARBITER_EXT_P_EN = 0,    
     parameter CONGESTION_INDEX = 7,
     parameter DEBUG_EN=0,
