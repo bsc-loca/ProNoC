@@ -1150,8 +1150,11 @@ sub get_dir_in_object {
 	my $value=$object->object_get_attribute($attribute1,$attribute2);
 	$object->object_add_attribute($attribute1,$attribute2,  $default) if (!defined $value );
 	$value = $default if (!defined $value );
-	$object->object_add_attribute($attribute1,$attribute2,  $default) if ( !(-d $value ) && defined $default);
-	$value = $default  if ( !(-d $value ) && defined $default);
+	if (defined $default){
+		$object->object_add_attribute($attribute1,$attribute2,  $default) if  !(-d $value );
+		$value = $default  if !(-d $value );
+	};
+	
 	my $warning;
 	
 	my $entry=gen_entry($value);
@@ -1179,10 +1182,12 @@ sub get_dir_in_object {
 	$widget->pack_start( $entry, FALSE, FALSE, 0);
 	$widget->pack_start( $browse, FALSE, FALSE, 0);
 	
-	unless (-d $value ){
-	 	$warning= def_icon("icons/warning.png");	
-		$widget->pack_start( $warning, FALSE, FALSE, 0); 
-		set_tip($warning,"$value is not a valid directory");
+	 if(defined $value){
+		unless (-d $value ){
+		 	$warning= def_icon("icons/warning.png");	
+			$widget->pack_start( $warning, FALSE, FALSE, 0); 
+			set_tip($warning,"$value is not a valid directory path");
+		}
 	}
 	return $widget;
 }
