@@ -1105,6 +1105,7 @@ sub gen_all_tiles{
         if( grep (/^$soc_name$/,@generated_tiles)){ # This soc is generated before only create the software file
             generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,0);
         }else{
+            unlink  "$hw_dir/file_list";
             generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,1);
             move ("$hw_dir/$soc_name.v","$hw_dir/tiles/");
             my @tmp= ("$hw_dir/tiles/$soc_name.v");

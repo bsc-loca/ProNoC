@@ -27,12 +27,12 @@ require "mpsoc_gen.pl";
 require "emulator.pl";
 require "simulator.pl";
 require "trace_gen.pl";
-require "network_maker.pl";
+#require "network_maker.pl";
 
 use File::Basename;
 
 
-our $VERSION = '1.8.1'; 
+our $VERSION = '1.9.0'; 
 
 
 
@@ -64,6 +64,14 @@ sub set_path_env{
 	$ENV{'PRONOC_WORK'}= $pronoc_work if( defined $pronoc_work);
 	$ENV{'QUARTUS_BIN'}= $quartus if( defined $quartus);
 	$ENV{'MODELSIM_BIN'}= $modelsim if( defined $modelsim);	
+	
+	if( defined $pronoc_work){if(-d $pronoc_work ){
+			mkpath("$pronoc_work/emulate",1,01777) unless -d "$pronoc_work/emulate";
+			mkpath("$pronoc_work/simulate",1,01777) unless -d "$pronoc_work/simulate";	
+			mkpath("$pronoc_work/tmp",1,01777) unless -d "$pronoc_work/tmp";			
+	}}
+	
+	
 	
 	#add quartus_bin to PATH linux envirement if it does not exist in PATH
 	if( defined $quartus){
@@ -165,10 +173,10 @@ sub main_window{
 	$toolbar->insert($rbtn_simulator,-1);	
 	#________
 	#radio btn "Networkgen"
-	my $rbtn_networkgen = Gtk2::RadioToolButton->new_from_widget($rbtn_generator);
-	$rbtn_networkgen->set_label ('Network Generator');
-	$rbtn_networkgen->set_icon_widget (def_icon('icons/trace.png')) ;	
-	set_tip($rbtn_networkgen, "ProNoC Network Generator");
+	#my $rbtn_networkgen = Gtk2::RadioToolButton->new_from_widget($rbtn_generator);
+	#$rbtn_networkgen->set_label ('Network Generator');
+	#$rbtn_networkgen->set_icon_widget (def_icon('icons/trace.png')) ;	
+	#set_tip($rbtn_networkgen, "ProNoC Network Generator");
 	#$toolbar->insert($rbtn_networkgen,-1);			
 	#====================================
 	$hb->add($toolbar);
@@ -180,9 +188,9 @@ sub main_window{
 		open_page($notebook,$noteref,$table,'Simulator');		
 	});
 	
-	$rbtn_networkgen->signal_connect('toggled', sub{
-		open_page($notebook,$noteref,$table,'Networkgen');		
-	});	
+	#$rbtn_networkgen->signal_connect('toggled', sub{
+	#	open_page($notebook,$noteref,$table,'Networkgen');		
+	#});	
  
    $table->attach ($hb,1, 2, 0,1,'fill','fill',0,0);
    $table->attach_defaults( $notebook, 0, 2, 1,2);
@@ -328,7 +336,13 @@ simulation models using Modelsim software", param_parent=>'PATH',ref_delay=>unde
 		my $modelsim = $self->object_get_attribute("PATH","MODELSIM_BIN");
 		make_undef_as_string(\$old_pronoc_work,\$old_quartus,\$old_modelsim,\$pronoc_work,\$quartus,\$modelsim);
 			
-		append_text_to_file ("$ENV{HOME}/.bashrc", "\nexport PRONOC_WORK=$pronoc_work\n") if(($old_pronoc_work ne $pronoc_work) || !defined $ENV{PRONOC_WORK}) ;
+		if(($old_pronoc_work ne $pronoc_work) || !defined $ENV{PRONOC_WORK}){
+			append_text_to_file ("$ENV{HOME}/.bashrc", "\nexport PRONOC_WORK=$pronoc_work\n"); 
+			mkpath("$pronoc_work/emulate",1,01777) unless -d "$pronoc_work/emulate";
+			mkpath("$pronoc_work/simulate",1,01777) unless -d "$pronoc_work/simulate";	
+			mkpath("$pronoc_work/tmp",1,01777) unless -d "$pronoc_work/tmp";			
+		}
+		
 		append_text_to_file ("$ENV{HOME}/.bashrc", "export QUARTUS_BIN=$quartus\n") if($old_quartus ne $quartus) ;
 		append_text_to_file ("$ENV{HOME}/.bashrc", "export MODELSIM_BIN=$modelsim\n") if($old_modelsim ne $modelsim) ;
 		set_path_env();
