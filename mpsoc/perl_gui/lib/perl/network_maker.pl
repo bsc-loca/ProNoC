@@ -7,7 +7,7 @@ use Cwd 'abs_path';
 use base 'Class::Accessor::Fast';
 require "widget.pl"; 
 require "diagram.pl";
-use GraphViz;
+#use GraphViz;
 
 
 __PACKAGE__->mk_accessors(qw{
