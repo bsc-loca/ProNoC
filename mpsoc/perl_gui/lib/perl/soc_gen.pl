@@ -971,9 +971,9 @@ sub add_to_project_file_list{
 #################
 
 sub generate_soc{
-	my ($soc,$info,$target_dir,$hw_path,$sw_path,$gen_top,$gen_hw_lib)=@_;
+	my ($soc,$info,$target_dir,$hw_path,$sw_path,$gen_top,$gen_hw_lib,$oldfiles)=@_;
 		my $name=$soc->object_get_attribute('soc_name');
-	
+	    $oldfiles = "remove" if(!defined $oldfiles);
 		
 		my ($file_v,$top_v,$readme,$prog)=soc_generate_verilog($soc,$sw_path);
 			
@@ -1024,12 +1024,13 @@ sub generate_soc{
 			mkpath("$hw_lib/",1,01777);
 			mkpath("$sw_path/",1,01777);
 			
-			#remove old rtl files that were copied by ProNoC
-			my ($old_file_ref,$r,$err) = regen_object("$hw_path/file_list");
-			if (defined $old_file_ref){		
-				remove_file_and_folders($old_file_ref,$target_dir);
-			}				
-   		
+			if ($oldfiles eq "remove"){
+				#remove old rtl files that were copied by ProNoC
+				my ($old_file_ref,$r,$err) = regen_object("$hw_path/file_list");
+				if (defined $old_file_ref){		
+					remove_file_and_folders($old_file_ref,$target_dir);
+				}				
+			}
 			#copy hdl codes in src_verilog			
 			my ($file_ref,$warnings)= get_all_files_list($soc,"hdl_files");		
 			copy_file_and_folders($file_ref,$project_dir,$hw_lib);

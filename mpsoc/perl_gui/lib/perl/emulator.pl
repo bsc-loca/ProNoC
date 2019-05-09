@@ -360,6 +360,18 @@ sub gen_emulation_column {
 		my $r=$emulate->object_get_attribute($sample,"ratios");
 		if(defined $s  && defined $name){
 			 $l=gen_label_in_center($name); 
+			 $l=def_image_button('icons/diagram.png',$name);
+			 $l-> signal_connect("clicked" => sub{ 
+			 	my $st = ($mode eq "simulate" )?  check_sim_sample($emulate,$sample,$info)   : check_sample($emulate,$sample,$info); 
+			 	return if $st==0;
+			 	my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($emulate,$sample);		
+			 	$emulate->object_add_attribute('noc_param','T1',$T1);
+			 	$emulate->object_add_attribute('noc_param','T2',$T2);
+			 	$emulate->object_add_attribute('noc_param','T3',$T3);
+			 	$emulate->object_add_attribute('noc_param','TOPOLOGY',$topology);
+        		show_topology_diagram ($emulate);
+    		 });
+			 
 		} else {
 			$l=gen_label_in_left("Define NoC configuration");
 			$l->set_markup("<span  foreground= 'red' ><b>Define NoC configuration</b></span>");			 

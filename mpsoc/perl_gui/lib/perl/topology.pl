@@ -9,7 +9,6 @@ use warnings;
 use FindBin;
 use lib $FindBin::Bin;
 
-
 sub get_topology_info {
 	my ($self) =@_;
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
@@ -18,6 +17,15 @@ sub get_topology_info {
 	my $T3=$self->object_get_attribute('noc_param','T3');
 	my $V = $self->object_get_attribute('noc_param','V');
 	my $Fpay = $self->object_get_attribute('noc_param','Fpay');
+	
+	return get_topology_info_sub($topology, $T1, $T2, $T3,$V, $Fpay);	
+}	
+
+
+
+sub get_topology_info_sub {
+
+	my ($topology, $T1, $T2, $T3,$V, $Fpay)=@_;
 	
 	my $NE; # number of end points
 	my $NR; # number of routers

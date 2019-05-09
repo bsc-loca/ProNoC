@@ -50,7 +50,7 @@ sub set_time_limit_cmd {
 	my ($time_limit,$jtag_intfc)=@_;
 	my $hex = sprintf("0x%X", $time_limit);
 	my $cmd = "sh $jtag_intfc \" -n ".JTAG_COUNTER_INDEX."  -d I:1,D:".CLK_CNTw.":$hex,I:0 \" ";
-	print "$cmd\n";
+	#print "$cmd\n";
 	return	$cmd;
 }
 
@@ -103,8 +103,8 @@ sub run_cmd_update_info {
 
 
 sub synthetic_destination{
-	my($self,$traffic,$endp,$line_num,$rnd)=@_;
-	return  pck_dst_gen ($self,$traffic,$endp,$line_num,$rnd);
+	my($self,$sample,$traffic,$endp,$line_num,$rnd)=@_;
+	return  pck_dst_gen ($self,$sample,$traffic,$endp,$line_num,$rnd);
 }
 
 
@@ -115,9 +115,12 @@ sub synthetic_destination{
 sub gen_synthetic_traffic_ram_line{
 	my ($emulate,  $endp,  $sample,$ratio ,$line_num,$rnd)=@_;	
 	
-	my $ref=$emulate->object_get_attribute("$sample","noc_info"); 
-	my %noc_info= %$ref;
-	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($emulate);
+	my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($emulate,$sample);	
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info_sub ($topology, $T1, $T2, $T3, $V, $Fpay);
+	
+	
+	
+	
 	my $traffic=$emulate->object_get_attribute($sample,"traffic"); 
 	
 	my $pck_num_to_send=$emulate->object_get_attribute($sample,"PCK_NUM_LIMIT");
@@ -138,7 +141,8 @@ sub gen_synthetic_traffic_ram_line{
 	my $last_adr  = ( $traffic ne 'random') ? 1 : 
 			 ($line_num ==$NE-1)? 1 :0;
 
-	my $dest_e_addr=synthetic_destination($emulate,$traffic,$endp,$line_num,$rnd);
+	my $dest_e_addr=synthetic_destination($emulate,$sample,$traffic,$endp,$line_num,$rnd);
+	#print "$endp->$dest_e_addr\n";
 
 	my $vs= ( $traffic eq 'random')? 2 : $pck_num_to_send;
 	$vs=($vs << 2 )+ ($ratio >>5) ;
@@ -201,18 +205,14 @@ sub print_32_bit {
 
 sub generate_emulator_ram {
 	my ($emulate, $sample,$ratio_in,$info)=@_;
-	my $ref=$emulate->object_get_attribute($sample,"noc_info"); 
-	my %noc_info= %$ref;
-	my $C=$noc_info{C};
+	my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($emulate,$sample);
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info_sub ($topology, $T1, $T2, $T3, $V, $Fpay);
 	
-	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($emulate);
-	
-	
-	
+		
 	
 	my $rnd=random_dest_gen($NE); # generate a matrix of sudo random number
 	my $traffic=$emulate->object_get_attribute($sample,"traffic"); 
-	my @traffics=("tornado", "transposed 1", "transposed 2", "bit reverse", "bit complement","random", "hot spot" );
+	my @traffics=("tornado", "transposed 1", "transposed 2", "bit reverse", "bit complement","random", "hot spot", "shuffle", "neighbor", "bit rotation"   );
 	
 	#if ( !defined $xn || $xn!~ /\s*\d+\b/ ){ add_info($info,"programe_pck_gens:invalid X value\n"); help(); return 0;}
 	#if ( !defined $yn || $yn!~ /\s*\d+\b/ ){ add_info($info,"programe_pck_gens:invalid Y value\n"); help(); return 0;}
@@ -225,6 +225,7 @@ sub generate_emulator_ram {
 	
 	#generate each node ram data
 	for (my $endp=0; $endp<$NE; $endp++){
+		#print "generate_synthetic_traffic_ram($emulate,$endp,$sample,$ratio_in, $file,$rnd);\n";
 		generate_synthetic_traffic_ram($emulate,$endp,$sample,$ratio_in, $file,$rnd);
 	}
 	close($file);
@@ -293,14 +294,13 @@ sub read_jtag_memory{
 
 
 sub read_statistic_mem {
-	my($yn,$xn,$jtag_intfc,$info)=@_;
+	my($NE,$jtag_intfc,$info)=@_;
 	my %results;
 	my $sum_of_latency=0;
 	my $sum_of_pck=0;
 	my $total_router=0;
-	for (my $y=0; $y<$yn; $y=$y+1){
-		for (my $x=0; $x<$xn; $x=$x+1){
-			my $num=($y * $xn) +	$x; 
+	for (my $num=0; $num<$NE; $num++){
+				
 			my $read_addr=($num * STATISTIC_NUM);
 
 			my $sent_pck_addr=  sprintf ("%X",$read_addr);
@@ -318,7 +318,7 @@ sub read_statistic_mem {
 			$sum_of_pck+=$results{$num}{got_pck};
 			$total_router++ if($results{$num}{sent_pck}>0); 
 		#$i=$i+2;
-	}}
+	}
 	
 	
 	
@@ -330,13 +330,13 @@ sub read_statistic_mem {
 
 
 sub read_statistic_mem_fast {
-	my($yn,$xn,$jtag_intfc,$info)=@_;
+	my($NE,$jtag_intfc,$info)=@_;
 	my %results;
 	my $sum_of_latency=0;
 	my $sum_of_pck=0;
 	my $total_router=0;
 	#read static memory
-	my $end= STATISTIC_NUM * 8 *$yn * $xn;
+	my $end= STATISTIC_NUM * 8 *$NE;
 	$end=sprintf ("%X",$end);
 	my $cmd= "sh $jtag_intfc \"-n ".JTAG_STATIC_INDEX."  -w 8 -r -s 0 -e $end\"";
 	#print "$cmd\n";
@@ -355,9 +355,9 @@ sub read_statistic_mem_fast {
 	
 	
 	
-	for (my $y=0; $y<$yn; $y=$y+1){
-		for (my $x=0; $x<$xn; $x=$x+1){
-			my $num=($y * $xn) +	$x; 
+	for (my $endp=0; $endp<$NE; $endp=$endp+1){
+	
+			my $num=$endp; 
 			my $read_addr=($num * STATISTIC_NUM);
 
 			my $sent_pck_addr=  $read_addr;
@@ -370,12 +370,13 @@ sub read_statistic_mem_fast {
 			$results{$num}{latency}=hex($data[$latency_addr]);
 			$results{$num}{worst_latency}=hex($data[$worst_latency_addr]);
 			#add_info($info, "$num, ");
+			#print "$results{$num}{sent_pck}=hex($data[$sent_pck_addr]);\n";
 			
 			$sum_of_latency+=$results{$num}{latency};
 			$sum_of_pck+=$results{$num}{got_pck};
 			$total_router++ if($results{$num}{sent_pck}>0); 
 		#$i=$i+2;
-	}}
+	}
 	
 	
 	
@@ -389,9 +390,8 @@ sub read_statistic_mem_fast {
 sub read_pack_gen{ 
 	my ($emulate,$sample,$info,$jtag_intfc,$ratio_in)= @_;
 	my $ref=$emulate->object_get_attribute($sample,"noc_info"); 
-	my %noc_info= %$ref;
-	my $xn=$noc_info{T1};
-	my $yn=$noc_info{T2};
+	my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($emulate,$sample);
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info_sub ($topology, $T1, $T2, $T3, $V, $Fpay);
 #wait for done 
     add_info($info, "wait for done\n");
     my $done=0;
@@ -430,8 +430,8 @@ sub read_pack_gen{
 	add_info($info,"Done is asserted\nStart reading statistic data from cores:\n\t");
 	#print" Done is asserted\n";
 	#my $i=0;
-	#my ($results_ref,$sum_of_latency,$sum_of_pck,$total_router)= read_statistic_mem($yn,$xn,$jtag_intfc,$info);
-	my ($results_ref,$sum_of_latency,$sum_of_pck,$total_router)= read_statistic_mem_fast($yn,$xn,$jtag_intfc,$info);
+	#my ($results_ref,$sum_of_latency,$sum_of_pck,$total_router)= read_statistic_mem($NE,$jtag_intfc,$info);
+	my ($results_ref,$sum_of_latency,$sum_of_pck,$total_router)= read_statistic_mem_fast($NE,$jtag_intfc,$info);
 	my %results=%$results_ref;
 	
 	

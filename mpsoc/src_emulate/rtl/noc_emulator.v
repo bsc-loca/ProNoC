@@ -541,16 +541,18 @@ module  traffic_gen_ram #(
     localparam  STATISw=log2(STATISTIC_NUM);      
    
     localparam 
-        STATE_NUM=3,
+        STATE_NUM=5,
         IDEAL =1,
-        SEND_PCK=2,
+        WAIT1 = 2,
+        WAIT2 = 4,
+        SEND_PCK=8,
         /*
         SAVE_SENT_PCK_NUM=4,
         SAVE_RSVD_PCK_NUM=8,
         SAVE_TOTAL_LATENCY_NUM=16,
         SAVE_WORST_LATENCY_NUM=32,
         */
-        ASSET_DONE=4;
+        ASSET_DONE=16;
 
     localparam
         CLK_CNTw = log2(MAX_SIM_CLKs+1),
@@ -629,7 +631,7 @@ module  traffic_gen_ram #(
     reg  [CLK_CNTw-1 : 0] worst_latency,worst_latency_next;
       
     reg nvalid_dest,reset_pck_number_sent_old;
-    wire nvalid_dest_next= (current_e_addr==dest_e_addr);         
+    wire nvalid_dest_next= (current_e_addr==dest_e_addr && ps!=IDEAL && ps!=WAIT1);         
     wire reset_pck_number_sent= ((pck_number_sent==pck_num_to_send_in) | nvalid_dest) & ~reset_pck_number_sent_old;  
     reg stop;
 	assign ratio=(ps==SEND_PCK)?  ratio_in : {RATIOw{1'b0}};
@@ -659,7 +661,10 @@ module  traffic_gen_ram #(
  
  always @(posedge clk or posedge reset) begin 
     if(reset)  counter <=4'd0;
-    else if(counter<=4'b1111) counter <=counter+1'b1; 
+    else begin 
+        if(start)  counter <=4'd1;
+        else if(counter> 4'd0 &&  counter<=4'b1111) counter <=counter+1'b1; 
+    end
  end
             
  assign start_traffic = counter == 4'b1100; // delaied for 12 clock cycles
@@ -733,7 +738,9 @@ module  traffic_gen_ram #(
             default: statistic_jtag_q_b= worst_latency; 
          endcase
     end
+        
            
+          
               
      always @ (*)begin
          ns=ps;
@@ -768,10 +775,18 @@ module  traffic_gen_ram #(
               ram_counter_next = q_a[31:0];  // first ram data shows how many times the RAM is needed to ne read
               if( start) begin 
                     addr_a_next=PATTERN_START_ADDR;
-                    ns= SEND_PCK;              
+                    ns= WAIT1;              
               end
          
          end//IDEAL
+         WAIT1 : begin 
+            ns= WAIT2;            
+         
+         end 
+         WAIT2 : begin 
+            ns= SEND_PCK;            
+         
+         end        
          SEND_PCK: begin 
             if (reset_pck_number_sent) begin 
                  pck_number_sent_next={PCK_CNTw{1'b0}};
