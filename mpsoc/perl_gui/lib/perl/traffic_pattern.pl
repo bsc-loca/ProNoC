@@ -1,4 +1,25 @@
 #!/usr/bin/perl -w
+use Glib qw/TRUE FALSE/;
+use strict;
+use warnings;
+
+use FindBin;
+use lib $FindBin::Bin;
+		
+sub get_sample_emulation_param {
+	my ($emulate,$sample)=@_;
+	my $ref=$emulate->object_get_attribute($sample,"noc_info"); 
+	my %noc_info= %$ref;
+	my $topology=$noc_info{'TOPOLOGY'};
+	my $C=$noc_info{C};
+	my $T1=$noc_info{'T1'};
+	my $T2=$noc_info{'T2'};
+	my $T3=$noc_info{'T3'};
+	my $V =$noc_info{'V'};
+	my $Fpay = $noc_info{'Fpay'};	
+	return ($topology, $T1, $T2, $T3, $V, $Fpay);		
+}
+
 
 
 sub getBit{
@@ -20,15 +41,15 @@ sub setBit{
 }
 
 sub pck_dst_gen_2D {
-	my ($self,$traffic,$core_num,$line_num,$rnd)=@_;
-	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);
+	my ($self,$sample,$traffic,$core_num,$line_num,$rnd)=@_;
+	my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($self,$sample);
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info_sub ($topology, $T1, $T2, $T3, $V, $Fpay);
+	
 	my $NEw=log2($NE);      
 	#for mesh-tori
 	my  ($current_l,$current_x, $current_y);
 	my  ($dest_l,$dest_x,$dest_y);
-	my $T1=$self->object_get_attribute('noc_param','T1');
-	my $T2=$self->object_get_attribute('noc_param','T2');
-	my $T3=$self->object_get_attribute('noc_param','T3');
+	
 	($current_x,$current_y,$current_l)=mesh_tori_addrencod_sep($core_num,$T1, $T2,$T3);
 
 	if( $traffic eq "random") {				
@@ -88,6 +109,17 @@ sub pck_dst_gen_2D {
 
      if($traffic eq "neighbor"){
 		#dx = sx + 1 mod k
+		#if ($current_x==0 && $current_y==0 && $current_l ==0) {
+	    #	$dest_x = 2;
+		# 	$dest_y = 2;
+		# 	$dest_l = 0;		
+		#}else {
+		#	$dest_x = $current_x;
+		# 	$dest_y = $current_y;
+		# 	$dest_l = $current_l;			
+		#}
+		#return mesh_tori_addr_join($dest_x,$dest_y,$dest_l,$T1, $T2,$T3);
+		
 		 $dest_x = ($current_x + 1) % $T1;
 		 $dest_y = ($current_y + 1) % $T2;
 		 $dest_l = $current_l;
@@ -105,8 +137,9 @@ sub pck_dst_gen_2D {
 
 
 sub pck_dst_gen_1D {
-	my ($self,$traffic,$core_num,$line_num,$rnd)=@_;
-	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);
+	my ($self,$sample,$traffic,$core_num,$line_num,$rnd)=@_;
+	my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($self,$sample);
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info_sub ($topology, $T1, $T2, $T3, $V, $Fpay);
 	my $NEw=log2($NE);      
 	    
 	if( $traffic eq "random") {				
@@ -156,7 +189,7 @@ sub pck_dst_gen_1D {
 
      if($traffic eq "neighbor"){
 		#dx = sx + 1 mod k
-    	 return endp_addr_encoder($self,($core_num + 1) % $NE);
+		 return endp_addr_encoder($self,($core_num + 1) % $NE);
 	 }     
      
 	 printf ("$traffic is an unsupported traffic pattern\n");
@@ -164,12 +197,11 @@ sub pck_dst_gen_1D {
 }
 
 
-
 sub pck_dst_gen{ 
-	($self,$traffic,$core_num,$line_num,$rnd)=@_;
-	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
-	return  pck_dst_gen_2D ($self,$traffic,$core_num,$line_num,$rnd) if(( $topology eq "MESH") ||( $topology eq "TORUS"));
-	return  pck_dst_gen_1D ($self,$traffic,$core_num,$line_num,$rnd);
+	my ($self,$sample,$traffic,$core_num,$line_num,$rnd)=@_;
+	my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($self,$sample);
+	return  pck_dst_gen_2D ($self,$sample,$traffic,$core_num,$line_num,$rnd) if(( $topology eq '"MESH"') ||( $topology eq '"TORUS"'));
+	return  pck_dst_gen_1D ($self,$sample,$traffic,$core_num,$line_num,$rnd);
 }
 
  1;       

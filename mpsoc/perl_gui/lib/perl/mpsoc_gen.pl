@@ -697,7 +697,12 @@ sub noc_config{
     		 ($topology eq '"FATTREE"')? '"NCA_STRAIGHT_UP"' :
     		 ($topology eq '"TREE"')? '"NCA"' : '"UNKNOWN"';
     		 
-    $info="Select the routing algorithm: XY(DoR) , partially adaptive (Turn models). Fully adaptive (Duato) "; 
+    my $info_mesh="Select the routing algorithm: XY(DoR) , partially adaptive (Turn models). Fully adaptive (Duato) "; 
+    my $info_fat="Nearest common ancestor (NCA) where the up port is selected randomly (RND), based on destination endpoint address (DST) or it is the top port that is located in front of the the port which has received the packet (STRAIGHT) "; 
+    
+    $info=($topology eq '"FATTREE"')? $info_fat : 
+    	  ($topology eq '"TREE"') ? "Nearest common ancestor": $info_mesh;
+    
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
 
 
@@ -958,24 +963,6 @@ arbiters external priority enable';
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #######################
 #   get_config
 ######################
@@ -1002,17 +989,7 @@ sub get_config{
     
     }
     
-    
-    
-    
-    
     $row=defualt_tilles_setting($mpsoc,$table,$show,$row,$info);
-    
-    
-
-    
-
-
     
 
     #end tile setting
@@ -1037,19 +1014,12 @@ sub get_config{
         #$table->attach_defaults ($empty_col , 0, 1, $i,$i+1);
 
     #}
-    
-       
-
-
-
-
 return  $table;
-
 }
 
 
 #############
-#
+#  gen_all_tiles
 ###########
 
 
@@ -1059,19 +1029,8 @@ sub gen_all_tiles{
     my ($mpsoc,$info, $hw_dir,$sw_dir)=@_;
     my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($mpsoc);	
     my $mpsoc_name=$mpsoc->object_get_attribute('mpsoc_name');
-    my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
-    
-    
-    
-    #remove old rtl files that were copied by ProNoC
-    my ($old_file_ref,$r,$err) = regen_object("$hw_dir/file_list");
-    if (defined $old_file_ref){        
-        remove_file_and_folders($old_file_ref,$target_dir);
-    }    
+    my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";   
     my @generated_tiles;
-    unlink "$hw_dir/file_list";
-    
-    
     for (my $tile_num=0;$tile_num<$NE;$tile_num++){
         #print "$tile_num\n";
         my ($soc_name,$num)= $mpsoc->mpsoc_get_tile_soc_name($tile_num);
@@ -1105,7 +1064,7 @@ sub gen_all_tiles{
         if( grep (/^$soc_name$/,@generated_tiles)){ # This soc is generated before only create the software file
             generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,0);
         }else{
-            generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,1);
+            generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,1,"merge");
             move ("$hw_dir/$soc_name.v","$hw_dir/tiles/");
             my @tmp= ("$hw_dir/tiles/$soc_name.v");
             add_to_project_file_list(\@tmp,"$hw_dir/tiles",$hw_dir);       
@@ -1257,12 +1216,21 @@ sub generate_mpsoc{
     my $hw_dir     = "$target_dir/src_verilog";
     my $sw_dir     = "$target_dir/sw";
     
-    rmtree ($hw_dir);
-	mkpath("$hw_dir",1,01777);
-    
+    # rmtree ($hw_dir);
+	mkpath("$hw_dir",1,01777);    
     mkpath("$hw_dir/lib/",1,0755);
     mkpath("$hw_dir/tiles",1,0755);
     mkpath("$sw_dir",1,0755);
+    
+    
+    #remove old rtl files that were copied by ProNoC
+    my ($old_file_ref,$r,$err) = regen_object("$hw_dir/file_list");
+    if (defined $old_file_ref){        
+        remove_file_and_folders($old_file_ref,$target_dir);
+    }    
+    
+    unlink "$hw_dir/file_list";
+    
     
     
     #generate/copy all tiles HDL/SW codes
@@ -1274,6 +1242,7 @@ sub generate_mpsoc{
     #copy all NoC HDL files    
     my @files = glob( "$dir/../src_noc/*.v" );
     copy_file_and_folders(\@files,$dir,"$hw_dir/lib/");  
+    add_to_project_file_list(\@files,"$hw_dir/lib/",$hw_dir);
     my ($file_v,$top_v)=mpsoc_generate_verilog($mpsoc,$sw_dir);
     
     
@@ -1290,13 +1259,12 @@ sub generate_mpsoc{
     open(FILE,  ">lib/verilog/${name}_top.v") || die "Can not open: $!";
     print FILE "$l\n$top_v";
     close(FILE) || die "Error closing file: $!";        
-            
-        
     
-            
+               
     #gen_socs($mpsoc,$info);
     move ("$dir/lib/verilog/$name.v","$target_dir/src_verilog/");
-    move ("$dir/lib/verilog/${name}_top.v","$target_dir/src_verilog/"); 
+    move ("$dir/lib/verilog/${name}_top.v","$target_dir/src_verilog/");
+     
     
     #generate makefile
     open(FILE,  ">$sw_dir/Makefile") || die "Can not open: $!";
@@ -1308,7 +1276,8 @@ sub generate_mpsoc{
     print FILE mpsoc_mem_prog();
     close(FILE) || die "Error closing file: $!";
       
-   
+    my @ff= ("$target_dir/src_verilog/$name.v","$target_dir/src_verilog/${name}_top.v");       
+    add_to_project_file_list(\@ff,"$hw_dir/lib/",$hw_dir);    
              
     message_dialog("MPSoC \"$name\" has been created successfully at $target_dir/ " ) if($show_sucess_msg);
         
