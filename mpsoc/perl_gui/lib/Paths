@@ -1,0 +1,29 @@
+#######################################################################
+##	File: Paths
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$setting = bless( {
+                    'PATH' => {
+                                'PRONOC_WORK' => '/home/alireza/work/hca_git/mpsoc_work',
+                                'MODELSIM_BIN' => undef,
+                                'QUARTUS_BIN' => undef
+                              },
+                    'parameters_order' => {
+                                            'PATH' => [
+                                                        'PRONOC_WORK',
+                                                        'QUARTUS_BIN',
+                                                        'MODELSIM_BIN'
+                                                      ]
+                                          },
+                    'gui_status' => {
+                                      'timeout' => 10,
+                                      'status' => 'ref'
+                                    }
+                  }, 'ProNOC' );
