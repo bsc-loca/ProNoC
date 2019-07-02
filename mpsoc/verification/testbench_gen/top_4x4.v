@@ -108,8 +108,8 @@ module  top_4x4(
     wire  [REQ_FLIT_SIZE_NE-1:0]    noc_chi_rxreqflit_all;          
     wire  [NE-1 : 0] chi_noc_rxreqlcrdv_all;   
     
-    wire [EAw_NE-1 : 0]  snp_dest_e_addr_all;
-    wire [EAw-1 : 0] snp_dest_e_addr [NE-1 : 0];
+    wire [EAw_NE-1 : 0]  snp_target_id_all;
+    wire [EAw-1 : 0] snp_target_id [NE-1 : 0];
    
    
     wire  [REQ_FLIT_SIZE-1:0]    chi_noc_txreqflit [NE-1 : 0]; 
@@ -126,7 +126,7 @@ module  top_4x4(
     for(i=0;i<NE;i=i+1)begin :ne
      //connected router encoded address       
         
-        assign snp_dest_e_addr_all [(i+1)* EAw-1 : i* EAw] = snp_dest_e_addr[i];        
+        assign snp_target_id_all [(i+1)* EAw-1 : i* EAw] = snp_target_id[i];        
         assign chi_noc_txreqflit_all[(i+1)*REQ_FLIT_SIZE-1 : i*REQ_FLIT_SIZE] = chi_noc_txreqflit[i];
         assign chi_noc_txdatflit_all[(i+1)*DAT_FLIT_SIZE-1 : i*DAT_FLIT_SIZE] = chi_noc_txdatflit[i];
         assign chi_noc_txrspflit_all[(i+1)*RSP_FLIT_SIZE-1 : i*RSP_FLIT_SIZE] = chi_noc_txrspflit[i];
@@ -160,7 +160,7 @@ module  top_4x4(
     (
     	.clk(clk),
     	.reset(reset),
-    	.snp_dest_e_addr_all(snp_dest_e_addr_all),
+    	.snp_target_id_all(snp_target_id_all),
     	.chi_noc_txreqflitpend_all(chi_noc_txreqflitpend_all),
     	.chi_noc_txreqflitv_all(chi_noc_txreqflitv_all),
     	.chi_noc_txreqflit_all(chi_noc_txreqflit_all),
@@ -251,7 +251,7 @@ rnf
 	.noc_chi_rxreqflitv(noc_chi_rxreqflitv_all[0]),
 	.noc_chi_rxreqflit(noc_chi_rxreqflit[0]),
 	.chi_noc_rxreqlcrdv(chi_noc_rxreqlcrdv_all[0]),
-	.snp_dest_e_addr(snp_dest_e_addr[0])
+	.snp_target_id(snp_target_id[0])
 );
 
 
@@ -301,7 +301,7 @@ hnf
     .noc_chi_rxreqflitv(noc_chi_rxreqflitv_all[1]),
     .noc_chi_rxreqflit(noc_chi_rxreqflit[1]),
     .chi_noc_rxreqlcrdv(chi_noc_rxreqlcrdv_all[1]),
-    .snp_dest_e_addr(snp_dest_e_addr[1])
+    .snp_target_id(snp_target_id[1])
 );
 
 
@@ -350,7 +350,7 @@ snf
     .noc_chi_rxreqflitv(noc_chi_rxreqflitv_all[2]),
     .noc_chi_rxreqflit(noc_chi_rxreqflit[2]),
     .chi_noc_rxreqlcrdv(chi_noc_rxreqlcrdv_all[2]),
-    .snp_dest_e_addr(snp_dest_e_addr[2])
+    .snp_target_id(snp_target_id[2])
 );
 
 
