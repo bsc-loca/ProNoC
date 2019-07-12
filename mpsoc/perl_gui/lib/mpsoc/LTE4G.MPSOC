@@ -10,162 +10,128 @@
 ################################################################################
 
 $mpsoc = bless( {
-                  'mpsoc_name' => 'LTE4G',
-                  'tile' => {
-                              '0' => {},
-                              '2' => {},
-                              '4' => {},
-                              '1' => {},
-                              '3' => {}
-                            },
-                  'noc_type' => {
-                                  'ROUTER_TYPE' => '"VC_BASED"'
-                                },
-                  'verilator' => {
-                                   'libs' => {
-                                               'Vtile4' => 'tile_4.v',
-                                               'Vtile2' => 'tile_2.v',
-                                               'Vrouter1' => 'router_verilator_p5.v',
-                                               'Vnoc' => 'noc_connection.sv',
-                                               'Vtile0' => 'tile_0.v',
-                                               'Vtile3' => 'tile_3.v',
-                                               'Vtile1' => 'tile_1.v'
-                                             }
+                  'compile' => {
+                                 'compilers' => 'QuartusII,Verilator,Modelsim',
+                                 'board' => 'DE2_115',
+                                 'quartus_bin' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
+                                 'type' => 'Verilator'
+                               },
+                  'noc_param' => {
+                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                   'DEBUG_EN' => '0',
+                                   'Fpay' => '32',
+                                   'MUX_TYPE' => '"BINARY"',
+                                   'B' => '4',
+                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                   'WEIGHTw' => '4',
+                                   'T3' => '1',
+                                   'T1' => '2',
+                                   'AVC_ATOMIC_EN' => 0,
+                                   'TOPOLOGY' => '"MESH"',
+                                   'C' => 0,
+                                   'SSA_EN' => '"NO"',
+                                   'T2' => 3,
+                                   'CONGESTION_INDEX' => 3,
+                                   'ROUTE_NAME' => '"XY"',
+                                   'ESCAP_VC_MASK' => '4\'b0001',
+                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                   'V' => 4,
+                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                   'MIN_PCK_SIZE' => '2'
                                  },
-                  'noc_indept_param' => {},
+                  'tile_diagram' => {},
                   'top_ip' => bless( {
-                                       'interface' => {
-                                                        'plug:enable[0]' => {
-                                                                              'ports' => {
-                                                                                           'processors_en' => {
-                                                                                                                'type' => 'input',
-                                                                                                                'instance_name' => 'IO',
-                                                                                                                'range' => '',
-                                                                                                                'intfc_port' => 'enable_i'
-                                                                                                              }
-                                                                                         }
-                                                                            },
-                                                        'plug:reset[0]' => {
-                                                                             'ports' => {
-                                                                                          'reset' => {
-                                                                                                       'range' => '',
-                                                                                                       'intfc_port' => 'reset_i',
-                                                                                                       'type' => 'input',
-                                                                                                       'instance_name' => 'IO'
-                                                                                                     }
-                                                                                        }
-                                                                           },
-                                                        'plug:clk[0]' => {
-                                                                           'ports' => {
-                                                                                        'clk' => {
-                                                                                                   'intfc_port' => 'clk_i',
-                                                                                                   'range' => '',
-                                                                                                   'instance_name' => 'IO',
-                                                                                                   'type' => 'input'
-                                                                                                 }
-                                                                                      }
-                                                                         }
-                                                      },
-                                       'ports' => {
-                                                    'clk' => {
-                                                               'instance_name' => 'IO',
-                                                               'type' => 'input',
-                                                               'intfc_port' => 'clk_i',
-                                                               'range' => '',
-                                                               'intfc_name' => 'plug:clk[0]'
-                                                             },
-                                                    'reset' => {
-                                                                 'type' => 'input',
-                                                                 'instance_name' => 'IO',
-                                                                 'range' => '',
-                                                                 'intfc_name' => 'plug:reset[0]',
-                                                                 'intfc_port' => 'reset_i'
-                                                               },
-                                                    'processors_en' => {
-                                                                         'type' => 'input',
-                                                                         'instance_name' => 'IO',
-                                                                         'intfc_name' => 'plug:enable[0]',
-                                                                         'range' => '',
-                                                                         'intfc_port' => 'enable_i'
-                                                                       }
-                                                  },
                                        'instance_ids' => {
                                                            'IO' => {
                                                                      'ports' => {
                                                                                   'reset' => {
                                                                                                'intfc_name' => 'plug:reset[0]',
-                                                                                               'range' => '',
+                                                                                               'type' => 'input',
                                                                                                'intfc_port' => 'reset_i',
-                                                                                               'type' => 'input'
+                                                                                               'range' => ''
                                                                                              },
                                                                                   'processors_en' => {
-                                                                                                       'intfc_port' => 'enable_i',
+                                                                                                       'type' => 'input',
                                                                                                        'intfc_name' => 'plug:enable[0]',
-                                                                                                       'range' => '',
-                                                                                                       'type' => 'input'
+                                                                                                       'intfc_port' => 'enable_i',
+                                                                                                       'range' => ''
                                                                                                      },
                                                                                   'clk' => {
-                                                                                             'type' => 'input',
+                                                                                             'intfc_port' => 'clk_i',
                                                                                              'intfc_name' => 'plug:clk[0]',
-                                                                                             'range' => '',
-                                                                                             'intfc_port' => 'clk_i'
+                                                                                             'type' => 'input',
+                                                                                             'range' => ''
                                                                                            }
                                                                                 }
                                                                    }
-                                                         }
+                                                         },
+                                       'interface' => {
+                                                        'plug:clk[0]' => {
+                                                                           'ports' => {
+                                                                                        'clk' => {
+                                                                                                   'range' => '',
+                                                                                                   'type' => 'input',
+                                                                                                   'instance_name' => 'IO',
+                                                                                                   'intfc_port' => 'clk_i'
+                                                                                                 }
+                                                                                      }
+                                                                         },
+                                                        'plug:reset[0]' => {
+                                                                             'ports' => {
+                                                                                          'reset' => {
+                                                                                                       'range' => '',
+                                                                                                       'type' => 'input',
+                                                                                                       'instance_name' => 'IO',
+                                                                                                       'intfc_port' => 'reset_i'
+                                                                                                     }
+                                                                                        }
+                                                                           },
+                                                        'plug:enable[0]' => {
+                                                                              'ports' => {
+                                                                                           'processors_en' => {
+                                                                                                                'type' => 'input',
+                                                                                                                'instance_name' => 'IO',
+                                                                                                                'intfc_port' => 'enable_i',
+                                                                                                                'range' => ''
+                                                                                                              }
+                                                                                         }
+                                                                            }
+                                                      },
+                                       'ports' => {
+                                                    'reset' => {
+                                                                 'intfc_port' => 'reset_i',
+                                                                 'intfc_name' => 'plug:reset[0]',
+                                                                 'instance_name' => 'IO',
+                                                                 'type' => 'input',
+                                                                 'range' => ''
+                                                               },
+                                                    'processors_en' => {
+                                                                         'type' => 'input',
+                                                                         'intfc_name' => 'plug:enable[0]',
+                                                                         'instance_name' => 'IO',
+                                                                         'intfc_port' => 'enable_i',
+                                                                         'range' => ''
+                                                                       },
+                                                    'clk' => {
+                                                               'intfc_port' => 'clk_i',
+                                                               'type' => 'input',
+                                                               'intfc_name' => 'plug:clk[0]',
+                                                               'instance_name' => 'IO',
+                                                               'range' => ''
+                                                             }
+                                                  }
                                      }, 'ip_gen' ),
-                  'noc_param' => {
-                                   'MIN_PCK_SIZE' => '2',
-                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
-                                   'FIRST_ARBITER_EXT_P_EN' => 1,
-                                   'Fpay' => '32',
-                                   'C' => 0,
-                                   'V' => 4,
-                                   'ESCAP_VC_MASK' => '4\'b0001',
-                                   'SWA_ARBITER_TYPE' => '"RRA"',
-                                   'WEIGHTw' => '4',
-                                   'T1' => '2',
-                                   'DEBUG_EN' => '0',
-                                   'ROUTE_NAME' => '"XY"',
-                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
-                                   'AVC_ATOMIC_EN' => 0,
-                                   'SSA_EN' => '"NO"',
-                                   'MUX_TYPE' => '"BINARY"',
-                                   'T2' => 3,
-                                   'T3' => '1',
-                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
-                                   'CONGESTION_INDEX' => 3,
-                                   'B' => '4',
-                                   'TOPOLOGY' => '"MESH"'
-                                 },
-                  'setting' => {
-                                 'soc_path' => 'lib/soc',
-                                 'show_noc_setting' => 1,
-                                 'show_tile_setting' => 1,
-                                 'show_adv_setting' => 0
-                               },
-                  'socs' => {
-                              'mor1k_tile' => {
-                                                'tile_nums' => [
-                                                                 0,
-                                                                 1,
-                                                                 2,
-                                                                 3,
-                                                                 4
-                                                               ]
-                                              }
+                  'tile' => {
+                              '1' => {},
+                              '3' => {},
+                              '5' => {
+                                       'param_setting' => 'Default'
+                                     },
+                              '0' => {},
+                              '4' => {},
+                              '2' => {}
                             },
-                  'compile' => {
-                                 'type' => 'Verilator',
-                                 'quartus_bin' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
-                                 'board' => 'DE2_115',
-                                 'compilers' => 'QuartusII,Verilator,Modelsim'
-                               },
-                  'gui_status' => {
-                                    'status' => 'ideal',
-                                    'timeout' => 0
-                                  },
-                  'tile_diagram' => {},
                   'parameters_order' => {
                                           'noc_param' => [
                                                            'TOPOLOGY',
@@ -195,6 +161,44 @@ $mpsoc = bless( {
                                                           'ROUTER_TYPE'
                                                         ]
                                         },
-                  'topology_diagram' => {},
-                  'file_name' => undef
+                  'file_name' => undef,
+                  'setting' => {
+                                 'show_tile_setting' => 1,
+                                 'soc_path' => 'lib/soc',
+                                 'show_adv_setting' => 0,
+                                 'show_noc_setting' => 1
+                               },
+                  'gui_status' => {
+                                    'status' => 'ideal',
+                                    'timeout' => 0
+                                  },
+                  'noc_indept_param' => {},
+                  'mpsoc_name' => 'LTE4G',
+                  'socs' => {
+                              'mor1k_tile' => {
+                                                'tile_nums' => [
+                                                                 0,
+                                                                 1,
+                                                                 2,
+                                                                 3,
+                                                                 4,
+                                                                 5
+                                                               ]
+                                              }
+                            },
+                  'verilator' => {
+                                   'libs' => {
+                                               'Vtile0' => 'tile_0.v',
+                                               'Vrouter1' => 'router_verilator_p5.v',
+                                               'Vtile1' => 'tile_1.v',
+                                               'Vnoc' => 'noc_connection.sv',
+                                               'Vtile3' => 'tile_3.v',
+                                               'Vtile2' => 'tile_2.v',
+                                               'Vtile4' => 'tile_4.v'
+                                             }
+                                 },
+                  'noc_type' => {
+                                  'ROUTER_TYPE' => '"VC_BASED"'
+                                },
+                  'topology_diagram' => {}
                 }, 'mpsoc' );
