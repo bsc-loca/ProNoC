@@ -11,19 +11,21 @@
 
 $setting = bless( {
                     'PATH' => {
-                                'PRONOC_WORK' => '/home/alireza/work/hca_git/mpsoc_work',
+                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
                                 'MODELSIM_BIN' => undef,
-                                'QUARTUS_BIN' => undef
+                                'PRONOC_WORK' => '/home/alireza/work/hca_git/mpsoc_work'
                               },
                     'parameters_order' => {
                                             'PATH' => [
                                                         'PRONOC_WORK',
                                                         'QUARTUS_BIN',
+                                                        'MODELSIM_BIN',
+                                                        'QUARTUS_BIN',
                                                         'MODELSIM_BIN'
                                                       ]
                                           },
                     'gui_status' => {
-                                      'timeout' => 10,
-                                      'status' => 'ref'
+                                      'status' => 'ref',
+                                      'timeout' => 10
                                     }
                   }, 'ProNOC' );

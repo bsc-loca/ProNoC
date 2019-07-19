@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 PRODUCT_ID="0x6010" 
 HARDWARE_NAME='DE-SoC *'
