@@ -1,0 +1,23 @@
+#######################################################################
+##	File: .MPSOC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$mpsoc = bless( {
+                  'setting' => {
+                                 'show_adv_setting' => 0,
+                                 'show_tile_setting' => 1,
+                                 'show_noc_setting' => 1,
+                                 'soc_path' => 'lib/soc'
+                               },
+                  'noc_param' => {},
+                  'file_name' => undef,
+                  'noc_indept_param' => {},
+                  'socs' => {}
+                }, 'mpsoc' );

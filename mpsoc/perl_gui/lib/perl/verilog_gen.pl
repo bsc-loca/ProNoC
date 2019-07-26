@@ -822,7 +822,7 @@ source ./jtag_intfc.sh
 				
 			}elsif ($jtag_connect eq 'ALTERA_IMCE'){
 				#TODO add later
-				$prog= "$prog echo \"ALTERA_IMCE runtime programming is not supported yet for programming  $instance_id\"\n";	
+				$prog= "$prog ".'>&2 echo'." \"ALTERA_IMCE runtime programming is not supported yet for programming  $instance_id\"\n";	
 				
 			} else{
 				#disabled check if its connected to jtag_wb via the bus
@@ -839,12 +839,13 @@ source ./jtag_intfc.sh
 							#print "prog= $prog\n";
 							
 						}else{
-					$prog= "$prog echo \"JTAG runtime programming is not enabled in  $instance_id\"\n";	
+							
+					$prog= "$prog".'>&2 echo'." \"JTAG runtime programming is not enabled in  $instance_id\"\n";	
 					
 				}
 					
 				}else{
-					$prog= "$prog echo \"JTAG runtime programming is not enabled in  $instance_id\"\n";	
+					$prog= "$prog".'>&2 echo'."\"JTAG runtime programming is not enabled in  $instance_id\"\n";	
 					
 				}
 			}

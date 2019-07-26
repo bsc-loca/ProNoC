@@ -347,13 +347,17 @@ sub get_soc_parameter_setting{
         #save new values 
         if(!defined $tile ) {
             $top->top_add_default_soc_param(\%param_value);
+            $mpsoc->object_add_attribute('soc_param',"default",\%param_value);      
         }
         else {
-            $top->top_add_custom_soc_param(\%param_value,$tile);                
-            
+            $top->top_add_custom_soc_param(\%param_value,$tile);
+            $mpsoc->object_add_attribute('soc_param',"custom_${soc_name}",\%param_value);            
         }
         #set_gui_status($mpsoc,"refresh_soc",1);
         #$$refresh_soc->clicked;
+        
+        
+        
         
         });
     
@@ -510,7 +514,7 @@ sub defualt_tilles_setting {
                 
     }
     @socs=$mpsoc->mpsoc_get_soc_list();
-    
+   
     
     
     my $lab1=gen_label_in_center(' Tile name');
@@ -1177,13 +1181,15 @@ return $msg;
 
 sub generate_mpsoc_lib_file {
     my ($mpsoc,$info) = @_;
+    my $tmp = $mpsoc;
     my $name=$mpsoc->object_get_attribute('mpsoc_name');
-    $mpsoc->mpsoc_remove_all_soc_tops(); 
+    #$tmp->mpsoc_remove_all_soc_tops(); 
     open(FILE,  ">lib/mpsoc/$name.MPSOC") || die "Can not open: $!";
     print FILE perl_file_header("$name.MPSOC");
-    print FILE Data::Dumper->Dump([\%$mpsoc],['mpsoc']);
+    print FILE Data::Dumper->Dump([\%$tmp],['mpsoc']);
     close(FILE) || die "Error closing file: $!";
-    get_soc_list($mpsoc,$info); 
+     
+    #get_soc_list($mpsoc,$info); 
     
 }    
 
