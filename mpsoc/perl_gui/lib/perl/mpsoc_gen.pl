@@ -25,6 +25,7 @@ require "hdr_file_gen.pl";
 require "readme_gen.pl";
 require "soc_gen.pl";
 require "diagram.pl";
+require "orcc.pl";
 
 sub get_pos{
         my ($item,@list)=@_;
@@ -1556,15 +1557,19 @@ sub software_edit_mpsoc {
 
     
     
-
+	my $prog = def_image_button('icons/refresh.png','Regenerate main.c');
     my $make = def_image_button('icons/gen.png','Compile');
-    my $prog= def_image_button('icons/write.png','Program the memories');
+    my $orcc = def_image_button('icons/orcc.png','Autogenrate Software with ORCC');
             
-    
+    $table->attach ($orcc,0, 1, 1,2,'shrink','shrink',0,0);
     $table->attach ($make,5, 6, 1,2,'shrink','shrink',0,0);
     $table->attach ($prog,9, 10, 1,2,'shrink','shrink',0,0); 
     
-
+	$orcc -> signal_connect("clicked" => sub{
+		select_orcc_generated_srcs($self);
+	});
+	 
+	 
     $make -> signal_connect("clicked" => sub{
         my $load= show_gif("icons/load.gif");
         $table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 

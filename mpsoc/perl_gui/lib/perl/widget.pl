@@ -308,6 +308,10 @@ sub def_icon{
 
 }
 
+sub gen_pixbuf{
+	my $file=shift;
+	return Gtk2::Gdk::Pixbuf->new_from_file($file);	
+}
 
 sub open_image{
 	my ($image_file,$x,$y,$unit)=@_;
@@ -462,6 +466,15 @@ sub show_gif{
   	return $vbox;
 }
 
+sub gen_radiobutton {
+	my ($from,$lable,$icon,$tip) =@_;
+	my $rbtn = (defined $from )? Gtk2::RadioToolButton->new_from_widget($from) : Gtk2::RadioToolButton->new (undef);
+	$rbtn->set_label ($lable) if(defined $lable);
+	$rbtn->set_icon_widget (def_icon($icon)) if(defined $icon);
+	set_tip($rbtn, $tip) if(defined $tip);
+	return $rbtn;
+}
+
 ############
 #	message_dialog
 ############
@@ -592,6 +605,15 @@ sub set_defualt_font_size{
 			widget "*" style "normal"
 __
 
+}
+
+sub add_widget_to_scrolled_win{
+	my $widget =shift;
+	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
+	$scrolled_win->set_policy( "automatic", "automatic" );		
+	$scrolled_win->add_with_viewport($widget);	
+	$scrolled_win->show_all;	
+	return $scrolled_win;
 }
 
 sub gen_scr_win_with_adjst {
@@ -1380,7 +1402,70 @@ sub labele_widget_info{
 }	
 
 
+############
+#
+###########
 
+sub gen_MenuBar{
+	my ($window,@menu_items)=@_;
+ 	my $accel_group = Gtk2::AccelGroup->new;
+    my $item_factory = Gtk2::ItemFactory->new ("Gtk2::MenuBar", "<main>",$accel_group);
+	$window->add_accel_group ($accel_group);   
+    # Set up item factory to go away with the window
+    $window->{'<main>'} = $item_factory;
+    # create menu items
+    $item_factory->create_items ($window, @menu_items);
+    return $item_factory->get_widget ("<main>");
+}
+
+sub creating_detachable_toolbar{
+	my @attachments=@_;
+	
+	#The handle box helps in creating a detachable toolbar 
+	my $hb = Gtk2::HandleBox->new;
+	#create a toolbar, and do some initial settings
+	my $toolbar = Gtk2::Toolbar->new;
+	$toolbar->set_icon_size ('small-toolbar');	
+	$toolbar->set_show_arrow (FALSE);
+	foreach my $p (@attachments){
+		$toolbar->insert($p,-1);
+		
+	}
+	$hb->add($toolbar);	
+	return $hb;
+}
+
+sub gui_quite{
+	Gtk2->main_quit;
+}
+
+
+
+sub about {
+	my $version=shift;
+    my $about = Gtk2::AboutDialog->new;
+    $about->set_authors("Alireza Monemi\n Email: alirezamonemi\@opencores.org");
+    $about->set_version( $version );
+    $about->set_website('http://opencores.org/project,an-fpga-implementation-of-low-latency-noc-based-mpsoc');
+    $about->set_comments('NoC based MPSoC generator.');
+    $about->set_program_name('ProNoC');
+
+    $about->set_license(
+                 "This program is free software; you can redistribute it\n"
+                . "and/or modify it under the terms of the GNU General \n"
+		. "Public License as published by the Free Software \n"
+		. "Foundation; either version 1, or (at your option)\n"
+		. "any later version.\n\n"
+                 
+        );
+	# Add the Hide action to the 'Close' button in the AboutDialog():
+    $about->signal_connect('response' => sub { $about->hide; });
+
+
+    $about->run;
+    $about->destroy;
+    return;
+}
 
 
 1

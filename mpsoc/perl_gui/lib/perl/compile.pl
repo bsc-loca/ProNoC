@@ -1,4 +1,4 @@
-#! /usr/bin/perl -w
+#!/usr/bin/perl -w
 use Glib qw/TRUE FALSE/;
 use strict;
 use warnings;
@@ -374,9 +374,7 @@ sub add_new_fpga_board{
 	my ($self,$name,$top,$target_dir,$end_func)=@_;	
 	my $window = def_popwin_size(50,80,"Add New FPGA Board",'percent');
 	my $table = def_table(2, 2, FALSE);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win=add_widget_to_scrolled_win($table);
 
 
 	my $mtable = def_table(10, 10, FALSE);
