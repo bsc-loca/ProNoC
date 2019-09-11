@@ -17,7 +17,7 @@ use Cwd 'abs_path';
 use base 'Class::Accessor::Fast';
 require "widget.pl"; 
 require "diagram.pl";
-
+require "orcc.pl";
 
 __PACKAGE__->mk_accessors(qw{
 	window
@@ -39,9 +39,9 @@ exit trace_gen_main() unless caller;
 
 
 sub trace_gen_main {
-	
+	my $mode=shift;
 	my $app = __PACKAGE__->new();
-	my $table=$app->build_trace_gui();
+	my $table=$app->build_trace_gui($mode);
 		
 	return $table;
 }
@@ -49,7 +49,7 @@ sub trace_gen_main {
 
 
 sub build_trace_gui {
-	my ($self) = @_;
+	my ($self,$mode) = @_;
 	$self->object_add_attribute("file_id",undef,'a');
 	$self->object_add_attribute("trace_id",undef,0);
 	$self->object_add_attribute('select_multiple','action',"_");
@@ -60,8 +60,8 @@ sub build_trace_gui {
 	my $main_table= def_table(2,10,FALSE);
 	my ($scwin_info,$tview)= create_text();	
 	
-	my $traces=trace_pad($self,$tview);
-	my $traces_ctrl=trace_pad_ctrl($self,$tview);
+	my $traces=trace_pad($self,$tview,$mode);
+	my $traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
 	
 	my $map= trace_map($self,$tview);
 	my $map_ctrl= trace_map_ctrl($self,$tview);
@@ -72,7 +72,7 @@ sub build_trace_gui {
 	my $h3=gen_hpaned($h2,.65,$map_info);
 
 	my $v1=gen_vpaned($h1,.3,$h3);
-	#my $v2=gen_vpaned($v1,.6,$scwin_info);
+	my $v2=gen_vpaned($v1,.6,$scwin_info);
 	
 	my $generate = def_image_button('icons/gen.png','Generate');
 	my $open = def_image_button('icons/browse.png','Load');	
@@ -88,7 +88,7 @@ sub build_trace_gui {
 	my $save = def_image_button('icons/save.png','Save');
 	$entrybox->pack_end($save,   FALSE, FALSE,0);
 
-	$main_table->attach_defaults ($v1  , 0, 12, 0,24);
+	$main_table->attach_defaults ($v2  , 0, 12, 0,24);
 	$main_table->attach ($open,0, 3, 24,25,'expand','shrink',2,2);
 	$main_table->attach ($entrybox,3, 5, 24,25,'expand','shrink',2,2);
 	$main_table->attach ($entrybox2,5,6 , 24,25,'expand','shrink',2,2);
@@ -154,13 +154,13 @@ sub build_trace_gui {
 		
 									
 		$traces->destroy();
-		$traces=trace_pad($self,$tview);
+		$traces=trace_pad($self,$tview,$mode);
 		$map->destroy();
 		$map= trace_map($self,$tview);
 		$map_ctrl->destroy();
 		$map_ctrl= trace_map_ctrl($self,$tview);
 		$traces_ctrl->destroy();
-		$traces_ctrl=trace_pad_ctrl($self,$tview);
+		$traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
 		$map_info->destroy();
 		$map_info=map_info($self);
 		
@@ -192,7 +192,7 @@ sub build_trace_gui {
 ########
 
 sub trace_pad_ctrl{
-	my ($self,$tview)=@_;
+	my ($self,$tview,$mode)=@_;
 		
 	my $table= def_table(2,10,FALSE);
 	#my $separator = Gtk2::HSeparator->new;	
@@ -201,7 +201,8 @@ sub trace_pad_ctrl{
 	#$table->attach ($separator , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;	
 	
 	my $add = def_image_button('icons/import.png');
-	set_tip($add,'Load Task Graph');
+	set_tip($add,'Load Task Graph') if($mode eq "task");
+	set_tip($add,'Load ORCC source files') if($mode eq "orcc");
 	my $remove = def_image_button('icons/cancel.png');
 	set_tip($remove,'Remove Selected Trace(s)');
 	my $draw = def_image_button('icons/diagram.png');
@@ -233,7 +234,7 @@ sub trace_pad_ctrl{
 	
 my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arbiter (WRRA) instead of RRA, then the initial weights allow QoS support in NoC as in presence of contention, packets with higher initial weights receive higher bandwidth and lower worst case delay compared to others." ;
 	
-	my $selects="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot"; 
+	#my $selects="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot"; 
 	my $min=$self->object_get_attribute('select_multiple','min_pck_size');
 	my $max=$self->object_get_attribute('select_multiple','max_pck_size');	
 	$min=$max=5 if(!defined $min);
@@ -241,6 +242,7 @@ my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arb
 	my @selectedinfo;
 	$self->object_add_attribute('Auto','Auto_inject',"1\'b0" );
 	my $a= $self->object_get_attribute('Auto','Auto_inject');
+	
 	if ($a eq "1\'b0"){
 		@selectedinfo = (
 		{ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>$info1, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
@@ -260,6 +262,9 @@ my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arb
 		{ label=>" Max pck size ",param_name=>'max_pck_size', type=>'Spin-button', default_val=>5, content=>"$min,1024,1", info=>undef, param_parent=>'select_multiple', ref_delay=> 10, new_status=>'ref'},
 		
 	);
+	}
+	if($mode eq "orcc"){
+	 @selectedinfo = ({ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef});
 		
 	}
 	
@@ -299,27 +304,8 @@ my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arb
 	
 	
 	$add->signal_connect ( 'clicked'=> sub{
-		
- 		my $file;
-        my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-        	my $open_in	  = abs_path("${project_dir}/perl_gui/lib/simulate/embedded_app_graphs");
-        	$dialog->set_current_folder ($open_in); 
-        	my $filter = Gtk2::FileFilter->new();
-			$filter->set_name("app");
-			$filter->add_pattern("*.app");
-			$dialog->add_filter ($filter);
-		
-
-        	if ( "ok" eq $dialog->run ) {
-            		$file = $dialog->get_filename;
-					$self->load_tarce_file($file,$tview);
-            }
-       		$dialog->destroy;	
+		load_task_file($self,$project_dir,$tview) if($mode eq 'task');
+ 		load_orcc_file($self,$tview) if($mode eq 'orcc');
 	});
 	
 	$draw->signal_connect ( 'clicked'=> sub{
@@ -344,6 +330,29 @@ my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arb
 	
 }
 
+sub load_task_file{
+	my($self,$project_dir,$tview)=@_;
+ 		my $file;
+        my $dialog = Gtk2::FileChooserDialog->new(
+            	'Select a File', undef,
+            	'open',
+            	'gtk-cancel' => 'cancel',
+            	'gtk-ok'     => 'ok',
+        	);
+        	my $open_in	  = abs_path("${project_dir}/perl_gui/lib/simulate/embedded_app_graphs");
+        	$dialog->set_current_folder ($open_in); 
+        	my $filter = Gtk2::FileFilter->new();
+			$filter->set_name("app");
+			$filter->add_pattern("*.app");
+			$dialog->add_filter ($filter);
+		
+
+        	if ( "ok" eq $dialog->run ) {
+            		$file = $dialog->get_filename;
+					$self->load_tarce_file($file,$tview);
+            }
+       		$dialog->destroy;	
+}
 
 ######
 # map_ctr
@@ -439,7 +448,7 @@ sub trace_map_ctrl{
 #########
 
 sub trace_pad{
-	my ($self,$tview)=@_;
+	my ($self,$tview,$mode)=@_;
 	my $table= def_table(10,10,FALSE);
 	#my $separator = Gtk2::HSeparator->new;	
 	my $row=0;
@@ -454,6 +463,14 @@ sub trace_pad{
 		{ label=>" Inject rate(%) ", param_name=>'injct_rate', type=>'Spin-button', default_val=>10, content=>"1,100,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
 	    { label=>" Inject rate variation (%) ", param_name=>'injct_rate_var', type=>'Spin-button', default_val=>20, content=>"0,100,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
 	);
+	
+	
+	
+	if($mode eq "orcc"){
+		
+	@selectedinfo = (
+		{ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef});
+	}
 	
 	
 	my @traces= get_trace_list($self);
@@ -491,12 +508,20 @@ sub trace_pad{
 	if(scalar @traces ){$table-> attach  ($selcombo, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;}
 	
 	
-	my @titles = (scalar @traces ) ? (" # "," Source "," Destination "," Bandwidth(MB) ", " Initial weight ", " Min pck size ",  " Max pck size "):
+	my @titles;
+	#print "******************$mode*******************\n";
+	if($mode eq 'task'){
+		@titles = (scalar @traces ) ? (" # "," Source "," Destination "," Bandwidth(MB) ", " Initial weight ", " Min pck size ",  " Max pck size "):
 	("Load a task graph");
+	}
+	else{
+		@titles = (scalar @traces ) ? (" # "," Source "," Destination "," Bandwidth(MB) ", " Initial weight "):
+	("Load an ORCC file");
+	}
 	
 	my $auto=$self->object_get_attribute('Auto','Auto_inject');
 	
-	push (@titles, (" Burst_size ", " Inject rate(%) ", " Inject rate variation(%) ")) if ($auto eq "1\'b0");
+	push (@titles, (" Burst_size ", " Inject rate(%) ", " Inject rate variation(%) ")) if ($auto eq "1\'b0" && $mode eq 'task');
 	foreach my $p (@titles){
 		$table-> attach  (gen_label_in_left($p), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  
 		$col++;
@@ -533,15 +558,15 @@ sub trace_pad{
 		$table-> attach (gen_label_in_left("$dst") , $col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
 		$table-> attach (gen_label_in_left("$Mbytes") ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
 		$table-> attach ($weight ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
-		$table-> attach ($min_pck_size, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
-		$table-> attach ($max_pck_size, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
-		if ($auto eq "1\'b0"){
-			$table-> attach ($burst_size ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
-			$table-> attach ($injct_rate ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
-			$table-> attach ($injct_rate_var ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
-			
+		if($mode eq 'task'){			
+			$table-> attach ($min_pck_size, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
+		    $table-> attach ($max_pck_size, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
+		    if ($auto eq "1\'b0"){
+				$table-> attach ($burst_size ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
+				$table-> attach ($injct_rate ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
+				$table-> attach ($injct_rate_var ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;		
+		    }
 		}
-		
 		
 		$row++;	
 		$i++;		

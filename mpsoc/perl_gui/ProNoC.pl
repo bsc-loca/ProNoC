@@ -405,7 +405,7 @@ sub generate_main_notebook {
 		
 		
 		
-		my $trace_gen= trace_gen_main();
+		my $trace_gen= trace_gen_main('task');
 		my $lable1=def_image_label("icons/trace.png"," _Trace generator ",1);
 		#my $lb=Gtk2::Label->new_with_mnemonic (" _Trace generator   ");
 		set_tip($lable1, "Generate trace file from application task graph");
