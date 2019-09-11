@@ -264,10 +264,10 @@ my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arb
 	}
 	
 	
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	my $any_selected=0;
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=$self->get_trace($p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 		$any_selected=1 if($self->object_get_attribute("trace_$p",'selected')==1); 
 	
 	}	
@@ -456,14 +456,14 @@ sub trace_pad{
 	);
 	
 	
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	my %f;
 	
 	
 	my $sel=$self->object_get_attribute('select_multiple','action');
 	
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=$self->get_trace($p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 		$f{$file_id}=$file_id.'*';
 		$self->object_add_attribute("trace_$p",'selected', 1 ) if ($sel eq  'All');
 		$self->object_add_attribute("trace_$p",'selected', 0 ) if ($sel eq  'None');
@@ -508,7 +508,7 @@ sub trace_pad{
 	
 	foreach my $p (@traces) {	
 		$col=0;	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=$self->get_trace($p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 		
 				
 		my $check = gen_check_box_object ($self,"trace_$p",'selected',0,'ref',0);
@@ -763,9 +763,9 @@ sub get_map_info {
 	my $data=0;	
 	my $comtotal=0;	
 	
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	foreach my $p (@traces) {	
-		my ($src, $dst, $Mbytes, $file_id, $file_name)=$self->get_trace($p);
+		my ($src, $dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 		my $src_tile = $self->object_get_attribute('MAP_TILE',"$src");
 		my $dst_tile = $self->object_get_attribute('MAP_TILE',"$dst");
 		next if(!defined $src_tile || !defined  $dst_tile );
@@ -930,9 +930,9 @@ sub get_cfg_content{
 	
 
 	
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=$self->get_trace($p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$p);
 		
 		
 		my $src_tile=$self->get_tile_id($src);
@@ -1046,10 +1046,10 @@ sub get_trace{
 
 sub get_all_tasks{
 	my $self=shift;
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	my @x;
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=$self->get_trace($p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 		push(@x,$src);
 		push(@x,$dst);		
 	}
@@ -1301,7 +1301,7 @@ sub get_mah_distance{
 sub get_communication_task{
 	my $self=shift;
 	my %com_tasks;
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	my @tasks=get_all_tasks($self);
 	foreach my $p (@tasks){
 		$com_tasks{$p}{'total'}= 0;
@@ -1312,7 +1312,7 @@ sub get_communication_task{
 	}
 	
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=$self->get_trace($p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 		
 		
 		$com_tasks{$src}{'sent'} += $Mbytes;
@@ -1772,7 +1772,7 @@ sub map_task {
 
 sub remove_selected_traces{
 	my $self=shift;
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	foreach my $p (@traces) {	
 		my $select=$self->object_get_attribute("trace_$p",'selected', 0); 
 		
@@ -1789,9 +1789,9 @@ sub remove_selected_traces{
 sub auto_generate_injtratio{
 	my $self=shift;
 	my %com_tasks= $self->get_communication_task();
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=$self->get_trace($p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 		my $max= $com_tasks{$file_id}{'maxsent'};
 		my $sent= $com_tasks{$src}{'sent'};
 		my $ratio = ($sent*100)/$max;

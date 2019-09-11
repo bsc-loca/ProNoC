@@ -1,6 +1,7 @@
 #! /usr/bin/perl -w
 use strict;
-
+use FindBin;
+use lib $FindBin::Bin;
 
 package mpsoc;
 
@@ -264,6 +265,9 @@ sub object_remove_attribute{
 	}
 
 }
+
+
+
 
 1
 

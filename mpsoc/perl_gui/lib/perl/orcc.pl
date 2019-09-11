@@ -9,7 +9,7 @@ use lib $FindBin::Bin;
 
 use String::Scanf; # imports sscanf()
 
-
+require "trace_gen.pl";
 
 sub select_orcc_generated_srcs {
 	my ($self)=@_;
@@ -28,9 +28,13 @@ sub select_orcc_generated_srcs {
 		
 	});
     
-
-
-
+    my $draw = def_image_button('icons/diagram.png');
+	set_tip($draw,'View Actor Connection Graph');
+	$table->attach($draw,$col,$col+1,$row,$row+1,'shrink','shrink',2,2);$col++;
+	$draw->signal_connect ( 'clicked'=> sub{
+		show_trace_diagram($self,'trace');
+	});
+   
 
 	
 	my $i;	
@@ -112,28 +116,53 @@ sub read_orc_csv{
 	my $name =$self->object_get_attribute('ORCC','SRC_CSV');
 	my $file="$src/$name.csv";
 	open my $in, "<:encoding(utf8)", $file or die "$file: $!";
+	my $sect=0;
+	my $net;
 	my @actors;
+	my $actor_id=0;
 	while (my $line = <$in>) {
     	chomp $line;
-    	#acotor1, 0, 1, 0, 1, 1, false, 
-    	my  ($actor, $Incoming, $Outgoing, $Inputs, $Outputs, $Actions, $FSM)=
-			 sscanf("%s,%d,%d,%d,%d,%d,%s",$line);
-		push(@actors,$actor) if (defined $actor);   
+    	$line =~ s/[^\S\n]+//g; #remove space
+    	if ($line =~ /Name,Package,Actors,Connections/){
+    		$sect=1;
+    		next;	
+    	}
+    	if ($line =~ /Name,Incoming,Outgoing,Inputs,Outputs/){
+    		$sect=2;
+    		next;	
+    	}
+    	if ($line =~ /Source,SrcPort,Target,TgtPort/){
+    		$sect=3;
+    		next;	
+    	}
+    	if($sect==1){
+    		my @fileds=split(',',$line);
+    		if(defined $fileds[0]){$net=$fileds[0] if($fileds[0]=~/^\w/);}
+    	}
+    	if($sect==2){
+			my @fileds=split(',',$line);
+			if(defined $fileds[0]){ push(@actors,$fileds[0]) if($fileds[0]=~/^\w/);}
+    	}
+    	if($sect==3){
+    		my @fileds=split(',',$line);
+    		if(defined $fileds[0]){
+    			my $src=$fileds[0];
+    			my $dest=$fileds[2];
+    			add_trace($self, "${net}_",$actor_id, $src,$dest, undef,$file );	
+    			$actor_id++;
+    		}
+    		
+    	}		
+    	
+    	
 	}
-	close $in;
 	my $num=scalar @actors;
 	if($num==0){
 		add_colored_info($info,"Could not find any actor in $file\n",'red');
 		return;
 	}
 	add_info($info,"total of $num acotrs have found: @actors \n");
-
-
-
-
 }	
-
-
 
 
 

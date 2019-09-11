@@ -396,9 +396,9 @@ sub generate_trace_dot_file{
 	
 #add connections
 
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=$self->get_trace($p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 		$dotfile=$dotfile."\"$src\" -> \"$dst\"  [label=\"$Mbytes\" ];\n";	
 	}
 	
@@ -461,9 +461,9 @@ $node\[
 	$dotfile=$dotfile."\n\n";
 	
 	#add connections
-	my @traces= $self->get_trace_list();
+	my @traces= get_trace_list($self);
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=$self->get_trace($p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 				
 		my $src_tile= $self->object_get_attribute("MAP_TILE","$src");
 		my $dst_tile= $self->object_get_attribute("MAP_TILE","$dst");
