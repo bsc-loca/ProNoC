@@ -15,7 +15,14 @@ sub select_orcc_generated_srcs {
 	my $window = def_popwin_size(80,80,"Geberate software using ORCC compiler",'percent');	
 	#my $table = def_table(10, 10, FALSE);
 	#$table->attach_defaults($infobox,0,20,$row,$row+1);
-	my $trace_gen= trace_gen_main('orcc');	
+	
+	my %p;
+	my $params_ref=$self->object_get_attribute('noc_param');
+	if(defined $params_ref ){
+		
+		$p{'noc_param'}=$params_ref;	
+	}	
+	my $trace_gen= trace_gen_main('orcc',\%p);	
 
 	$window->add ($trace_gen);
 	$window->show_all();
@@ -176,8 +183,10 @@ sub load_orcc_csv{
     		my @fileds=split(',',$line);
     		if(defined $fileds[0]){
     			my $src=$fileds[0];
+    			my $src_port=$fileds[1];
     			my $dest=$fileds[2];
-    			add_trace($self, "${net}(${f_id})-",$t_id, $src,$dest, 1,$file );	
+    			my $dst_port=$fileds[3];
+    			add_trace($self, "${net}:${f_id}:",$t_id, $src,$dest, 1,$file, $src_port,$dst_port);	
     			$t_id++;
     		}
     		
@@ -208,63 +217,99 @@ sub load_orcc_csv{
 }
 
 
-
-
-
-
-
-sub actor_map {
+sub genereate_output_orcc{
 	my ($self,$tview)=@_;
+	add_info($tview,"Generating source files\n");
+	my @actors= get_all_tasks($self);
+	foreach my $actor (@actors){
+		my $transfer_str='';
+		my $sink_str='';
+		#each actor is mapped to one tile. we need to find all the the traces going in and out to this tile 
+		#1- get the actor generated c file name:
+		my $actor_file= get_actr_file_name($self,$actor);	   
+		#2- where it mapped?
+		my $actor_tile = $self->object_get_attribute("MAP_TILE",$actor);
+		my $actor_tile_id=get_tile_id($self,$actor);
+		#3- How many traces it transfers?
+		my @injectors= get_all_source_traces_of_actr($self,$actor);
+		#4- Where does it transffer?
+		foreach my $inject (@injectors) {
+				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port
+				)=get_trace($self,$inject);
+				my $dst_actor=$dst;
+				my $dst_tile = $self->object_get_attribute("MAP_TILE",$dst_actor);
+				my $dst_tile_id=get_tile_id($self,$dst_actor);
+				#5-Now generate all transfer functions (add inject ports) 		
+				$transfer_str=$transfer_str."
+	ni_transfer ($init_weight, 0, 0, (unsigned int)tokens_${src_port}[j],  unsigned int data_size, PHY_ADDR_ENDP_${dst_tile_id});				
+				";
+		}
+		#6-Where from it receive packets?
+		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor);
+		foreach my $sink (@sinkers){
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port
+				)=get_trace($self,$sink);				
+				#7 We need to add sink ports 
+				$sink_str=$sink_str."
+				$actor sink packts via $dst_port port;
+				"; 
+				
+			
+		}
+		add_info ($tview,"
 		
+		actor name: $actor
+		actor file name: $actor_file
+		actor map dest: sw/tile${actor_tile_id}/main.c
+		transffer function: $transfer_str
+		sink function:$sink_str 		
+		");
 	
 	
-	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);
-    my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
- 
-    
-    my $dim_y = floor(sqrt($NE));
 
-	
- 
-    my	$table=def_table($NE%8,$NE/8,FALSE);#    my ($row,$col,$homogeneous)=@_;
-      	for (my $i=0; $i<$NE;$i++){
-    		my $tile=get_tile($self,$i);
-    		my $y= int($i/$dim_y);
-    		my $x= $i % $dim_y;    		
-	        $table->attach_defaults ($tile, $x, $x+1 , $y, $y+1);
-    	}
-    my $sc_win = gen_scr_win_with_adjst($self,'actor_map');
-	$sc_win->add_with_viewport($table);	
-    return $sc_win;
-
-	
-	
-	
-	
+		
+	}
 	
 	
 	
 }
 
 
-
-
-
-
-##############
-#	create_tree 
-##############
-sub get_list_of_nets {
-	my $self=shift;
-	my @traces= get_trace_list($self);
-	my %f;
-    foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
-		$f{$file_id}=1;	
+sub get_all_dest_traces_of_actr{
+	my ($self,$actor)=@_;
+	my @traces =get_trace_list($self);
+	my @sources;
+	foreach my $p (@traces){
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$p);
+		push (@sources,$p) if($dst eq $actor);
 	}
-	
-	my @list = sort keys %f;
-	return @list;
+	return  @sources;	
+}
+
+sub get_all_source_traces_of_actr{
+	my ($self,$actor)=@_;
+	my @traces =get_trace_list($self);
+	my @dests;
+	foreach my $p (@traces){
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$p);
+		push (@dests,$p) if($src eq $actor);
+	}
+	return  @dests;	
+}	
+
+sub get_actr_file_name {
+	my ($self,$actor)=@_;
+	my @traces =get_trace_list($self);
+	foreach my $p (@traces){
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$p);
+		if($src eq $actor || $dst eq $actor){
+			#the actor supposed to be located next to CSV file and have the same file name as actor name
+			my ($fname,$path,$suffix) = fileparse("$file_name",qr"\..[^.]*$");	
+			my ($net,$num,$name)=split(':',$actor);
+			return "$path/$name.c"; 
+		}
+	}
+	return undef;
 }
 
 

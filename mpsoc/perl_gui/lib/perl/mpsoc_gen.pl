@@ -1521,7 +1521,7 @@ sub gen_tiles{
     my ($mpsoc)=@_;
 	
 	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($mpsoc);
-    my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
+   
     my $table;
     
     my $dim_y = floor(sqrt($NE));

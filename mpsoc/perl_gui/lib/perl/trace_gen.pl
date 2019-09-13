@@ -39,9 +39,9 @@ exit trace_gen_main() unless caller;
 
 
 sub trace_gen_main {
-	my $mode=shift;
+	my ($mode,$ref)=@_;
 	my $app = __PACKAGE__->new();
-	my $table=$app->build_trace_gui($mode);
+	my $table=$app->build_trace_gui($mode,$ref);
 		
 	return $table;
 }
@@ -49,11 +49,31 @@ sub trace_gen_main {
 
 
 sub build_trace_gui {
-	my ($self,$mode) = @_;
+	my ($self,$mode,$ref) = @_;
 	$self->object_add_attribute("file_id",undef,'a');
 	$self->object_add_attribute("trace_id",undef,0);
 	$self->object_add_attribute('select_multiple','action',"_");
 	$self->object_add_attribute('Auto','Auto_inject',"1\'b1");
+	if(defined $ref){
+	   # add noc parameters
+		my %params=%{$ref};
+		foreach my $p (sort keys %params){
+			$self->{$p}=$params{$p};
+			 
+		}
+		
+	}
+	
+	if($mode eq 'task'){
+		$self->object_add_attribute('noc_param','T1',2);
+		$self->object_add_attribute('noc_param','T2',2);
+		$self->object_add_attribute('noc_param','T3',0);
+		$self->object_add_attribute('noc_param','Fpay',32);
+		$self->object_add_attribute('noc_param','V',1);		
+		$self->object_add_attribute('noc_param','TOPOLOGY',"MESH");		
+	}
+	
+	
 	
 	set_gui_status($self,"ideal",0);
 
@@ -64,7 +84,7 @@ sub build_trace_gui {
 	my $traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
 	
 	my $map= trace_map($self,$tview);
-	my $map_ctrl= trace_map_ctrl($self,$tview);
+	my $map_ctrl= trace_map_ctrl($self,$tview,$mode);
 	my $map_info=map_info($self);
 	
 	my $h1=gen_hpaned($traces_ctrl,.25,$traces);
@@ -91,7 +111,7 @@ sub build_trace_gui {
 	$main_table->attach_defaults ($v2  , 0, 12, 0,24);
 	$main_table->attach ($open,0, 3, 24,25,'expand','shrink',2,2);
 	$main_table->attach ($entrybox,3, 5, 24,25,'expand','shrink',2,2);
-	$main_table->attach ($entrybox2,5,6 , 24,25,'expand','shrink',2,2);
+	$main_table->attach ($entrybox2,5,6 , 24,25,'expand','shrink',2,2) if ($mode eq 'task');
 	$main_table->attach ($generate, 6, 9, 24,25,'expand','shrink',2,2);
 	
 
@@ -116,8 +136,8 @@ sub build_trace_gui {
 	});	
 	
 	$generate->signal_connect("clicked" => sub{ 
-		genereate_output($self);
-		
+		genereate_output_tasks($self) if ($mode eq 'task');
+		genereate_output_orcc ($self,\$tview) if ($mode eq 'orcc');
 	
 	});	
 	
@@ -158,7 +178,7 @@ sub build_trace_gui {
 		$map->destroy();
 		$map= trace_map($self,$tview);
 		$map_ctrl->destroy();
-		$map_ctrl= trace_map_ctrl($self,$tview);
+		$map_ctrl= trace_map_ctrl($self,$tview,$mode);
 		$traces_ctrl->destroy();
 		$traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
 		$map_info->destroy();
@@ -360,23 +380,22 @@ sub load_task_file{
 	
 sub trace_map_ctrl{
 	
-	my ($self,$tview)=@_;
+	my ($self,$tview,$mode,$NE)=@_;
 	my $table= def_table(2,10,FALSE);
 	
 	my $run_map= def_image_button("icons/enter.png",undef);
 	my $drawmap = def_image_button('icons/diagram.png');
 	set_tip($drawmap,'View Task Mapping');
 	my $auto = def_image_button('icons/refresh.png');
-	set_tip($auto,'Automatically set the network dimentions acording to the task number');
-	
+	set_tip($auto,'Automatically set the network dimentions acording to the task number');	
 	my $clean = def_image_button('icons/clear.png');
 	set_tip($clean,'Remove mapping');
 	
 	
 	
-	
-	my $box=def_pack_hbox(FALSE,FALSE,$drawmap,$clean,$auto);
-	
+	my $box;
+	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$clean,$auto) if($mode eq 'task');
+	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$clean,$auto) if($mode eq 'orcc');
 	
 	
 	
@@ -386,13 +405,15 @@ sub trace_map_ctrl{
 	
 	
 	
-	my @info = (
+	my @info = ($mode eq 'task')? (
   	{ label=>'Routers per Row', param_name=>'T1', type=>"Spin-button", default_val=>2, content=>"2,64,1", info=>undef, param_parent=>'noc_param', ref_delay=>1,placement=>'vertical'},
 	{ label=>"Routers per Column", param_name=>"T2", type=>"Spin-button", default_val=>2, content=>"1,64,1", info=>undef, param_parent=>'noc_param',ref_delay=>1, placement=>'vertical'},
 	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizental'},
 	
-	);
+	) :
 	
+	(	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizental'},
+	);
 	
 	
 	foreach my $d (@info) {
@@ -569,7 +590,6 @@ sub trace_pad{
 		}
 		
 		$row++;	
-		$i++;		
 		
 	}
 	
@@ -913,10 +933,10 @@ sub load_workspace {
 
 
 ########
-# genereate_output
+# genereate_output_tasks
 ########
 
-sub genereate_output{
+sub genereate_output_tasks{
 	my $self=shift;
 	my $name= $self->object_get_attribute('out_name');
 	my $size= (defined $name)? length($name) :0;
@@ -1028,7 +1048,7 @@ sub object_remove_attribute{
 }
 
 sub add_trace{
-	my ($self, $file_id,$trace_id, $source,$dest, $Mbytes, $file_name)=@_;	
+	my ($self, $file_id,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port)=@_;	
 	$self->object_add_attribute("trace_$trace_id",'file',$file_id);
 	$self->object_add_attribute("trace_$trace_id",'source',"${file_id}${source}");
 	$self->object_add_attribute("trace_$trace_id",'destination',"${file_id}${dest}");
@@ -1036,7 +1056,8 @@ sub add_trace{
 	$self->object_add_attribute("trace_$trace_id",'file_name', $file_name);  
 	$self->object_add_attribute("trace_$trace_id",'selected', 0); 
 	$self->object_add_attribute("trace_$trace_id",'init_weight', 1); 
-		
+	$self->object_add_attribute("trace_$trace_id",'scr_port',$src_port);
+	$self->object_add_attribute("trace_$trace_id",'dst_port',$dst_port);		
 	$self->{'traces'}{$trace_id}=1;
 	
 }
@@ -1065,8 +1086,10 @@ sub get_trace{
 	my $burst_size	= $self->object_get_attribute("trace_$trace_id",'burst_size'); 
 	my $injct_rate  = $self->object_get_attribute("trace_$trace_id",'injct_rate');	
 	my $injct_rate_var = $self->object_get_attribute("trace_$trace_id",'injct_rate_var');	
+	my $src_port = $self->object_get_attribute("trace_$trace_id",'scr_port');
+	my $dst_port = $self->object_get_attribute("trace_$trace_id",'dst_port');
 	  
-	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var);	
+	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port);	
 }
 
 sub get_all_tasks{
@@ -1274,25 +1297,30 @@ sub network_dim_cal{
 sub get_tiles_name{
 	my $self=shift;
 	my @tiles;
-	my $nx=$self->object_get_attribute('noc_param','T1');
-	my $ny=$self->object_get_attribute('noc_param','T2');
-	if(defined $ny){
-		if($ny == 1){
-			for(my $x=0; $x<$nx; $x++){
-				push(@tiles,"tile($x)");
-			}
-			
-		}
-		else{
-			for(my $y=0; $y<$ny; $y++){my $nx=$self->object_get_attribute('noc_param','T1');
-	my $ny=$self->object_get_attribute('noc_param','T2');
-				for(my $x=0; $x<$nx; $x++){
-					push(@tiles,"tile(${x}_$y)");
-				}
-			}
-			
-		}
-	}
+    my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);
+	for (my $tile_num=0;$tile_num<$NE;$tile_num++){
+		push(@tiles,"tile($tile_num)");	
+	}	
+	
+	
+#	my $nx=$self->object_get_attribute('noc_param','T1');
+#	my $ny=$self->object_get_attribute('noc_param','T2');
+#	if(defined $ny){
+#		if($ny == 1){
+#			for(my $x=0; $x<$nx; $x++){
+#				push(@tiles,"tile($x)");
+#			}
+#			
+#		}
+#		else{
+#			for(my $y=0; $y<$ny; $y++){my $nx=$self->object_get_attribute('noc_param','T1');
+#	my $ny=$self->object_get_attribute('noc_param','T2');
+#				for(my $x=0; $x<$nx; $x++){
+#					push(@tiles,"tile(${x}_$y)");
+#				}
+#			}
+##		}
+#	}
 	return @tiles;	
 }
 
