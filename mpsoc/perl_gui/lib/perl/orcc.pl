@@ -239,9 +239,18 @@ sub genereate_output_orcc{
 				my $dst_actor=$dst;
 				my $dst_tile = $self->object_get_attribute("MAP_TILE",$dst_actor);
 				my $dst_tile_id=get_tile_id($self,$dst_actor);
-				#5-Now generate all transfer functions (add inject ports) 		
+				#5-Now generate all transfer functions (add inject ports) 	
+				my ($net,$num,$name)=split(':',$actor);	
 				$transfer_str=$transfer_str."
-	ni_transfer ($init_weight, 0, 0, (unsigned int)tokens_${src_port}[j],  unsigned int data_size, PHY_ADDR_ENDP_${dst_tile_id});				
+	if(index_${src_port} > ${name}_${src_port}->read_inds[0]){
+		//FiFo has some data to be sent	
+		int send_data_${src_port} = transfer_manage (1, 0, 0,(unsigned int)tokens_${src_port}[0],32, ${name}_${src_port}->read_inds[0],  index_${src_port}, unsigned int dest_phy_addr,PHY_ADDR_ENDP_${dst_tile_id},1000);
+		while (ni_send_is_busy(0));
+		${name}_${src_port}->read_inds[0]= ${name}_${src_port}->read_inds[0]+send_data_${src_port};
+		${name}_scheduler(x);		
+	    
+		//ni_transfer ($init_weight, 0, 0, (unsigned int)tokens_${src_port}[j],  unsigned int data_size, PHY_ADDR_ENDP_${dst_tile_id});				
+	}
 				";
 		}
 		#6-Where from it receive packets?
