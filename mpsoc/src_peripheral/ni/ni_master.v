@@ -36,6 +36,11 @@
 module  ni_master #(    
     parameter MAX_TRANSACTION_WIDTH=10, // Maximum transaction size will be 2 power of MAX_DMA_TRANSACTION_WIDTH words 
     parameter MAX_BURST_SIZE =256, // in words
+    parameter CRC_EN= "NO",// "YES","NO" if CRC is enable then the CRC32 of all packet data is calculated and sent via tail flit. 
+    parameter HDATA_PRECAPw=0,  
+    // The headr Data pre capture width. It Will be enabled when it is larger than zero. The header data can optionally carry a short width Data. This data can be pre-captured (completely/partially) 
+    // by the NI before saving the packet in a memory buffer. This can give some hints to the software regarding the incoming 
+    // packet such as its type, or source port so the software can store the packet in its appropriate buffer.
     parameter DEBUG_EN = 1, 
     //NoC parameters
     parameter TOPOLOGY =    "MESH",//"MESH","TORUS","RING" 
@@ -47,7 +52,7 @@ module  ni_master #(
     parameter V=4,
     parameter B = 4,
     parameter Fpay = 32,
-    parameter CRC_EN= "NO",// "YES","NO" if CRC is enable then the CRC32 of all packet data is calculated and sent via tail flit. 
+    parameter MIN_PCK_SIZE = 2, //minimum packet size in flits. The minimum value is 1.
     parameter SWA_ARBITER_TYPE = "RRA", // RRA WRRA
     parameter WEIGHTw          = 4, // weight width of WRRA   
     //wishbone port parameters
@@ -180,7 +185,8 @@ module  ni_master #(
         3   :   SEND_DATA_SIZE_WB_ADDR,  // The size of data to be sent in byte  
         4   :   SEND_STRT_WB_ADDR,       // The address of data to be sent   in byte       
         5   :   SEND_DEST_WB_ADDR        // The destination router address
-        6   :   SEND_CTRL_WB_ADDR
+        
+        6   :   SEND_HDR_DATA_WB_ADDR    //  The heder data address
             
         7   :   RECEIVE_DATA_SIZE_WB_ADDR // The size of recieved data in byte  
         8   :   RECEIVE_STRT_WB_ADDR      // The address pointer of reciever memory in byte
@@ -188,7 +194,7 @@ module  ni_master #(
         10  :   RECEIVE_CTRL_WB_ADDR      // The NI reciever control register 
         11  :   RECEIVE_MAX_BUFF_SIZ      // The reciver allocated buffer size in words. If the packet size is bigger than the buffer size the rest of ot will be discarred
         12  :   ERROR_FLAGS	// errors:  {burst_size_error,send_data_size_error,crc_miss_match,rcive_buff_ovrflw_err}; 
-         
+        13  :   RECEIVE_PRECAP_DATA_ADDR  // The address to the header filit data which can be precaptured befor buffering the actual data. 
       [4+Vw:4]
                 : Virtual channel num       
       
@@ -205,7 +211,8 @@ module  ni_master #(
         BURST_SIZE_WB_ADDR = 2,         // The busrt size in words 
         RECEIVE_DATA_SIZE_WB_ADDR = 7,  // The size of recieved data in byte  
         RECEIVE_SRC_WB_ADDR =9,         // The source router (the router which is sent this packet). 
-        ERRORS_FLAGS_WB_ADDR=12;
+        ERRORS_FLAGS_WB_ADDR=12,
+        RECEIVE_PRECAP_DATA_ADDR=13;
         
     localparam
         STATUS1w= 4 * V,
@@ -220,7 +227,12 @@ module  ni_master #(
         SEND_DONE_ISR_LOC=4,
         SAVE_DONE_ISR_LOC=5,
         GOT_PCK_ISR_LOC=6,
-        ERRORS_ISR_LOC=7;        
+        ERRORS_ISR_LOC=7;  
+    
+    localparam 
+        HDw = Fpay - (2*EAw) -  DSTPw - WEIGHTw,
+        PRE_Dw = (HDATA_PRECAPw>0)? HDATA_PRECAPw : 1;     
+        
  
     reg [BURST_SIZE_w-1  :   0] burst_size, burst_size_next,burst_counter,burst_counter_next;      
     wire [V-1 :   0] receive_vc_is_busy, send_vc_is_busy;
@@ -254,7 +266,8 @@ module  ni_master #(
     wire  received_flit_is_tail,received_flit_is_hdr;    
     wire [EAw-1  :   0]  vc_dest_e_addr [V-1   :  0];
     wire [Cw-1   :   0]  vc_pck_class [V-1   :  0]; 
-    wire [WEIGHTw-1 : 0] vc_weight [V-1:0];    
+    wire [WEIGHTw-1 : 0] vc_weight [V-1:0];  
+    wire [HDw-1 : 0] vc_hdr_data [V-1:0];
     wire [V-1    :   0]  send_vc_send_hdr,send_vc_send_tail;
     wire [V-1    :   0]  send_vc_done,receive_vc_done;    
     wire [V-1	 :   0]  receive_vc_packet_is_saved;
@@ -279,7 +292,7 @@ module  ni_master #(
     reg [V-1    :   0] crc_miss_match;    
     reg reset_errors, reset_errors_next;
     wire [V-1    :   0] burst_size_error,send_data_size_error,rcive_buff_ovrflw_err, illegal_send_req;           
-    wire [V-1    :   0] vc_got_error;
+    wire [V-1    :   0] vc_got_error;   
     wire any_vc_got_error = | vc_got_error; 
   
    
@@ -295,6 +308,15 @@ module  ni_master #(
     wire  [ERRw-1     : 0] errors [V-1 : 0];    
     wire [DSTPw-1 : 0] destport;
     wire [WEIGHTw-1 : 0] weight;  
+    wire [HDw-1 : 0 ] hdr_data; 
+    
+    
+      
+        
+    wire [PRE_Dw-1 : 0 ] recive_vc_precap_data [V-1 : 0];    
+    
+    
+    
   
     assign status1= {send_vc_is_busy,receive_vc_is_busy,receive_vc_packet_is_saved,receive_vc_got_packet};
     assign status2= {send_enable_binary,receive_enable_binary,vc_got_error,any_error_isr,got_pck_isr, save_done_isr,send_done_isr,any_error_int_en,got_pck_int_en, save_done_int_en,send_done_int_en};
@@ -318,12 +340,14 @@ module  ni_master #(
         end  
         RECEIVE_SRC_WB_ADDR: begin            
             s_dat_o[EAw-1: 0] = src_e_addr[vc_addr];   // first&second byte
-          //  s_dat_o[EYw+7: 8] = y_src_in[vc_addr];   // second byte                                          
             s_dat_o[Cw+15: 16]  =   class_in[vc_addr];  //third byte           
         end 
         ERRORS_FLAGS_WB_ADDR: begin 
              s_dat_o[ERRw-1     : 0] = errors[vc_addr];           
-        end       
+        end  
+        RECEIVE_PRECAP_DATA_ADDR: begin 
+            s_dat_o[PRE_Dw-1 : 0 ] =  (HDATA_PRECAPw>0)? recive_vc_precap_data[vc_addr]: {{(Dw-STATUS1w){1'b0}}, status1};        
+        end
         default: begin 
              s_dat_o = {{(Dw-STATUS1w){1'b0}}, status1};        
         end       
@@ -444,8 +468,83 @@ module  ni_master #(
     
     genvar i;
     generate
-    for (i=0;i<V; i=i+1) begin : vc_
     
+     wire [V-1 : 0 ] precap_hdr_flit_wr;
+     wire [HDATA_PRECAPw-1 : 0 ] precap_din;
+     wire [V-1 : 0] precap_hdr_flit_rd = (fifo_rd & received_flit_is_hdr) ?  receive_vc_enable : {V{1'b0}};
+     wire [HDATA_PRECAPw-1 : 0 ] precap_dout  [V-1 : 0] ;    
+    
+    
+        
+    //capture data before saving the actual flit in memory
+    if(HDATA_PRECAPw > 0 ) begin : precap
+      
+      
+       
+        
+        extract_header_flit_info #(
+            .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
+            .Fpay(Fpay),
+            .V(V),
+            .EAw(EAw),
+            .DSTPw(DSTPw),
+            .C(C),
+            .WEIGHTw(WEIGHTw),
+            .DATA_w(HDATA_PRECAPw)
+        )
+        data_extractor
+        (
+            .flit_in(flit_in),
+            .flit_in_we(flit_in_wr),
+            .src_e_addr_o( ),
+            .dest_e_addr_o( ),
+            .destport_o( ),
+            .class_o( ),
+            .weight_o( ),
+            .tail_flg_o( ),
+            .hdr_flg_o( ),
+            .vc_num_o( ),
+            .hdr_flit_wr_o(precap_hdr_flit_wr),
+            .data_o(precap_din)
+        ); 
+        
+        
+       for (i=0;i<V; i=i+1) begin : vc__          
+          
+          fwft_fifo #(
+            .DATA_WIDTH(HDATA_PRECAPw),
+            .MAX_DEPTH(B/MIN_PCK_SIZE),//maximum packet number which can be stored in buffer 
+            .IGNORE_SAME_LOC_RD_WR_WARNING("YES")
+          )
+          precap_data_fifo
+          (
+            .din(precap_din),
+            .wr_en(precap_hdr_flit_wr[i]),
+            .rd_en(precap_hdr_flit_rd[i]),
+            .dout(precap_dout[i]),
+            .full( ),
+            .nearly_full( ),
+            .recieve_more_than_0( ),
+            .recieve_more_than_1( ),
+            .reset(reset),
+            .clk(clk)
+          );
+      
+          assign recive_vc_precap_data[i] = precap_dout[i]; 
+      
+        end
+           
+    end    
+    
+      
+    
+    
+    
+    
+    
+    for (i=0;i<V; i=i+1) begin : vc_    
+    
+            
         assign errors[i] =  {crc_miss_match[i],illegal_send_req[i],burst_size_error[i],send_data_size_error[i],rcive_buff_ovrflw_err[i]};       
         assign vc_got_error[i] = | errors[i];
        
@@ -453,6 +552,9 @@ module  ni_master #(
             .MAX_TRANSACTION_WIDTH(MAX_TRANSACTION_WIDTH),
             .DEBUG_EN(DEBUG_EN),
             .EAw(EAw),
+            .Fpay(Fpay),
+            .DSTPw(DSTPw),
+            .HDw(HDw),
             .C(C),
             .Dw(Dw),
             .S_Aw(CHANNEL_REGw),
@@ -479,6 +581,7 @@ module  ni_master #(
             .dest_e_addr(vc_dest_e_addr[i]),
             .pck_class(vc_pck_class[i]),
             .weight(vc_weight[i]), 
+            .hdr_data(vc_hdr_data[i]),
             .send_start(send_vc_start[i]),
             .receive_start(receive_vc_start[i]),
             .receive_vc_got_packet(receive_vc_got_packet[i]),
@@ -724,7 +827,7 @@ module  ni_master #(
         .DSTPw(DSTPw),
         .C(C),
         .WEIGHTw(WEIGHTw),
-        .DATA_w(0)
+        .DATA_w(HDw)
     )
     hdr_flit_gen
     (
@@ -735,7 +838,7 @@ module  ni_master #(
         .destport_in(destport),
         .vc_num_in(send_vc_enable),
         .weight_in(weight),
-        .data_in( )
+        .data_in(hdr_data )
     );
     
   wire [V-1    :   0] wr_vc_send =  (fifo_wr) ? send_vc_enable : {V{1'b0}};  
@@ -759,6 +862,7 @@ module  ni_master #(
     assign dest_e_addr = vc_dest_e_addr[send_enable_binary];
     assign pck_class  = vc_pck_class[send_enable_binary];
     assign weight =   vc_weight[send_enable_binary];  
+    assign hdr_data = vc_hdr_data [send_enable_binary]; 
     assign send_hdr = send_vc_send_hdr[send_enable_binary]; 
     assign send_tail = send_vc_send_tail[send_enable_binary]; 
     
@@ -782,6 +886,10 @@ module  ni_master #(
     assign vc_fifo_empty = ~ ififo_vc_not_empty;
     assign receive_vc_got_packet = ififo_vc_not_empty;
    
+        
+    
+    
+    
     wire [Fw-1  :   0] fifo_dout;
     
     flit_buffer #(
@@ -830,6 +938,11 @@ module  ni_master #(
         .weight_o(),
         .data_o()
     );  
+  
+  
+
+
+  
   
  
   assign m_receive_dat_o = fifo_dout[Dw-1   :   0];

@@ -186,7 +186,8 @@ sub load_orcc_csv{
     			my $src_port=$fileds[1];
     			my $dest=$fileds[2];
     			my $dst_port=$fileds[3];
-    			add_trace($self, "${net}:${f_id}:",$t_id, $src,$dest, 1,$file, $src_port,$dst_port);	
+    			my $buff_Size=$fileds[4];
+    			add_trace($self, "${net}:${f_id}:",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size);	
     			$t_id++;
     		}
     		
@@ -219,6 +220,10 @@ sub load_orcc_csv{
 
 sub genereate_output_orcc{
 	my ($self,$tview)=@_;
+	
+	# Code each actor destination port
+	my %dstp_number=get_destport_constant_list($self); 
+	
 	add_info($tview,"Generating source files\n");
 	my @actors= get_all_tasks($self);
 	foreach my $actor (@actors){
@@ -234,22 +239,27 @@ sub genereate_output_orcc{
 		my @injectors= get_all_source_traces_of_actr($self,$actor);
 		#4- Where does it transffer?
 		foreach my $inject (@injectors) {
-				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port
+				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size
 				)=get_trace($self,$inject);
 				my $dst_actor=$dst;
 				my $dst_tile = $self->object_get_attribute("MAP_TILE",$dst_actor);
 				my $dst_tile_id=get_tile_id($self,$dst_actor);
 				#5-Now generate all transfer functions (add inject ports) 	
 				my ($net,$num,$name)=split(':',$actor);	
+				my $dstportnum = $dstp_number{$dst}{$dst_port};
+				#print "dstp_number{$dst}{$dst_port}= $dstp_number{$dst}{$dst_port};\n";
+				
 				$transfer_str=$transfer_str."
+			
 	if(index_${src_port} > ${name}_${src_port}->read_inds[0]){
-		//FiFo has some data to be sent	
-		int send_data_${src_port} = transfer_manage (1, 0, 0,(unsigned int)tokens_${src_port}[0],32, ${name}_${src_port}->read_inds[0],  index_${src_port}, unsigned int dest_phy_addr,PHY_ADDR_ENDP_${dst_tile_id},1000);
-		while (ni_send_is_busy(0));
-		${name}_${src_port}->read_inds[0]= ${name}_${src_port}->read_inds[0]+send_data_${src_port};
-		${name}_scheduler(x);		
-	    
-		//ni_transfer ($init_weight, 0, 0, (unsigned int)tokens_${src_port}[j],  unsigned int data_size, PHY_ADDR_ENDP_${dst_tile_id});				
+			//${name}_${src_port} FiFo has some data to be sent   
+			int send_data_${src_port} = transfer_manage (1, 0, 0,0, $dstportnum ,(unsigned int)tokens_${src_port}[0],SIZE_${src_port}, 
+			${name}_${src_port}->read_inds[0],  index_${src_port}, unsigned int dest_phy_addr,PHY_ADDR_ENDP_${dst_tile_id},1000);
+						
+			while (ni_send_is_busy(0));
+			${name}_${src_port}->read_inds[0]= ${name}_${src_port}->read_inds[0]+send_data_${src_port};
+			${name}_scheduler(x);		
+					 
 	}
 				";
 		}
@@ -265,22 +275,47 @@ sub genereate_output_orcc{
 				
 			
 		}
+		
+		
+		
+		
+		add_colored_info($tview,"actor name: $actor\n",'green');
+		
 		add_info ($tview,"
 		
-		actor name: $actor
 		actor file name: $actor_file
 		actor map dest: sw/tile${actor_tile_id}/main.c
 		transffer function: $transfer_str
 		sink function:$sink_str 		
 		");
-	
-	
-
 		
-	}
+	}	
+		
+}
+
+
+sub get_destport_constant_list{
+	my ($self,$tview)=@_;
+	my %destport_const;
+	#1- Get list of all actors
+	my @actors= get_all_tasks($self);
+	foreach my $actor (@actors){
 	
-	
-	
+		my $i=1;
+		#2- for each actor get the list of all input ports
+		my @injectors= get_all_dest_traces_of_actr($self,$actor);
+		#3- number each source port of this actor
+		foreach my $inject (@injectors){
+			
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size
+				)=get_trace($self,$inject);
+			
+			$destport_const{$actor}{$dst_port}= $i;
+			#print "destport_const{$actor}{$dst_port}= $i;\n";
+			$i++;
+		}
+	}	
+	return %destport_const;
 }
 
 

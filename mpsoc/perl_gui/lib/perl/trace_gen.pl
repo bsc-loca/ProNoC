@@ -1048,7 +1048,7 @@ sub object_remove_attribute{
 }
 
 sub add_trace{
-	my ($self, $file_id,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port)=@_;	
+	my ($self, $file_id,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size)=@_;	
 	$self->object_add_attribute("trace_$trace_id",'file',$file_id);
 	$self->object_add_attribute("trace_$trace_id",'source',"${file_id}${source}");
 	$self->object_add_attribute("trace_$trace_id",'destination',"${file_id}${dest}");
@@ -1057,7 +1057,8 @@ sub add_trace{
 	$self->object_add_attribute("trace_$trace_id",'selected', 0); 
 	$self->object_add_attribute("trace_$trace_id",'init_weight', 1); 
 	$self->object_add_attribute("trace_$trace_id",'scr_port',$src_port);
-	$self->object_add_attribute("trace_$trace_id",'dst_port',$dst_port);		
+	$self->object_add_attribute("trace_$trace_id",'dst_port',$dst_port);	
+	$self->object_add_attribute("trace_$trace_id",'buff_size',$buff_size);		
 	$self->{'traces'}{$trace_id}=1;
 	
 }
@@ -1088,8 +1089,9 @@ sub get_trace{
 	my $injct_rate_var = $self->object_get_attribute("trace_$trace_id",'injct_rate_var');	
 	my $src_port = $self->object_get_attribute("trace_$trace_id",'scr_port');
 	my $dst_port = $self->object_get_attribute("trace_$trace_id",'dst_port');
+	my $buff_size =$self->object_get_attribute("trace_$trace_id",'buff_size');
 	  
-	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port);	
+	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port,$buff_size);	
 }
 
 sub get_all_tasks{

@@ -36,7 +36,10 @@ module ni_vc_wb_slave_regs #(
     parameter DEBUG_EN=1,
     parameter EAw=4,
     parameter C = 4,    //  number of flit class 
-    parameter WEIGHTw=4,     
+    parameter Fpay=32,
+    parameter DSTPw=4,
+    parameter WEIGHTw=4,  
+    parameter HDw = 8,  
     //wishbones  bus  slave  port parameters
     parameter Dw            =   32,
     parameter S_Aw          =   4
@@ -58,6 +61,7 @@ module ni_vc_wb_slave_regs #(
     dest_e_addr,
     pck_class,
     weight,  
+    hdr_data,
     s_dat_i,
     s_addr_i,  
     s_stb_i,
@@ -96,7 +100,7 @@ module ni_vc_wb_slave_regs #(
         SEND_DATA_SIZE_WB_ADDR =3,  // The transfer data size in byte  
         SEND_STRT_WB_ADDR =4,  // The source start address in byte       
         SEND_DEST_WB_ADDR =5,
-        SEND_CTRL_WB_ADDR = 6,        
+        SEND_HDR_DATA_WB_ADDR = 6,        
         RECEIVE_STRT_WB_ADDR=8,   // The destination start address in byte
         RECEIVE_CTRL_WB_ADDR =10,  
         RECEIVE_MAX_BUFF_SIZ=11;   // The reciver buffer size in words. If the packet size is bigger tha the buffer size the rest of will be discarred
@@ -104,7 +108,9 @@ module ni_vc_wb_slave_regs #(
    localparam
         WORLD_SIZE = Dw/8,
         OFFSET_w= log2(WORLD_SIZE),        
-        Cw =  (C>1)? log2(C): 1;  
+        Cw =  (C>1)? log2(C): 1;
+       
+        
  
     input clk,reset;    
     input state_reg_enable;
@@ -121,6 +127,7 @@ module ni_vc_wb_slave_regs #(
     output  reg [Cw-1   :   0]  pck_class;
     output  reg [WEIGHTw-1 :0]  weight; 
     output  reg send_start, receive_start;
+    output  reg [HDw-1 : 0] hdr_data;
 
 //synthesis translate_off
 //synopsys  translate_off    
@@ -143,6 +150,8 @@ module ni_vc_wb_slave_regs #(
     reg  send_start_next;
     reg  receive_en,receive_en_next;
     reg  receive_packet_is_saved_next;
+    
+    reg [HDw-1 : 0] hdr_data_next;
    
      // update control registers   
     always @ (*) begin 
@@ -166,7 +175,8 @@ module ni_vc_wb_slave_regs #(
         receive_en_next = receive_en;
         receive_packet_is_saved_next = receive_packet_is_saved;
         max_receive_buff_siz_next = max_receive_buff_siz;
-        
+        hdr_data_next = hdr_data;
+         
         if(all_save_done_reg_rst) receive_packet_is_saved_next=1'b0;
         if (receive_vc_got_packet & receive_en ) begin 
             receive_en_next = 1'b0;
@@ -200,19 +210,19 @@ module ni_vc_wb_slave_regs #(
                             send_start_next = 1'b1;
                            end
                     end //SEND_DEST_WB_ADDR
-                    SEND_CTRL_WB_ADDR: begin
-                        if (send_fsm_is_ideal) begin 
-
-                        end                    
-                    end    // SEND_CTRL_WB_ADDR               
+                    
+                    SEND_HDR_DATA_WB_ADDR: begin
+                        if (send_fsm_is_ideal) hdr_data_next = s_dat_i [HDw-1 : 0];
+                    end    //  SEND_HDR_DATA_WB_ADDR
+                    
                     RECEIVE_MAX_BUFF_SIZ: begin 
                         if (receive_fsm_is_ideal) max_receive_buff_siz_next = s_dat_i [MAX_TRANSACTION_WIDTH-1 :   0]; 
-                    
                     end                    
+                    
                     RECEIVE_STRT_WB_ADDR: begin 
                         if (receive_fsm_is_ideal) receive_start_addr_next= {{OFFSET_w{1'b0}},s_dat_i [Dw-1 :   OFFSET_w]};
-                       
                     end //RECEIVE_STRT_WB_ADDR
+                    
                     RECEIVE_CTRL_WB_ADDR: begin
                         if (receive_fsm_is_ideal) begin 
                        	 	receive_en_next=1'b1;
@@ -244,6 +254,7 @@ module ni_vc_wb_slave_regs #(
             receive_en <= 1'b0;
             receive_packet_is_saved <= 1'b0;
             send_start <=1'b0;
+            hdr_data <= {HDw{1'b0}}; 
         end else begin 
             send_start_addr <= send_start_addr_next;
             receive_start_addr <= receive_start_addr_next;
@@ -255,6 +266,7 @@ module ni_vc_wb_slave_regs #(
             receive_en <=receive_en_next;
             receive_packet_is_saved<=receive_packet_is_saved_next;
             send_start <= send_start_next;
+            hdr_data <= hdr_data_next;
         end 
     end 
   
