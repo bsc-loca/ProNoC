@@ -94,17 +94,36 @@ module ni_vc_wb_slave_regs #(
     localparam
         DST_X_LSB  =0,
         CLASS_LSB  =16,
-        WEIGHT_LSB =24;        
+        WEIGHT_LSB =24; 
+        
+            /*
             
+                           2  :   SEND_DEST_WB_ADDR        // The destination router address
+                3  :   SEND_POINTER_WB_ADDR,       // The address of data to be sent   in byte 
+ Virtual        4  :   SEND_DATA_SIZE_WB_ADDR,  // The size of data to be sent in byte  
+ channel        5  :   SEND_HDR_DATA_WB_ADDR    //  The heder data address
+ number        
+                8  :   RECEIVE_SRC_WB_ADDR       // The source router (the router which is sent this packet).
+                9  :   RECEIVE_POINTER_WB_ADDR      // The address pointer of reciever memory in byte
+                10 :   RECEIVE_DATA_SIZE_WB_ADDR // The size of recieved data in byte
+                11 :   RECEIVE_MAX_BUFF_SIZ         // The reciver allocated buffer size in words. If the packet size is bigger than the buffer size the rest of ot will be discarred
+                12 :   RECEIVE_SATRT_INDEX_WB_ADDR  // The recived data is wrriten on RECEIVE_POINTER_WB_ADDR + RECEIVE_SATRT_INDEX_WB_ADDR. If the write address reach to the end of buffer pointer, it starts at the RECEIVE_POINTER_WB_ADDR.   
+                13 :   RECEIVE_CTRL_WB_ADDR      // The NI reciever control register 
+                14 :   RECEIVE_PRECAP_DATA_ADDR  // The address to the header filit 
+        */
+        
     localparam [S_Aw-1  :   0]
-        SEND_DATA_SIZE_WB_ADDR =3,  // The transfer data size in byte  
-        SEND_STRT_WB_ADDR =4,  // The source start address in byte       
-        SEND_DEST_WB_ADDR =5,
-        SEND_HDR_DATA_WB_ADDR = 6,        
-        RECEIVE_STRT_WB_ADDR=8,   // The destination start address in byte
-        RECEIVE_CTRL_WB_ADDR =10,  
-        RECEIVE_MAX_BUFF_SIZ=11;   // The reciver buffer size in words. If the packet size is bigger tha the buffer size the rest of will be discarred
-
+        SEND_DEST_WB_ADDR =2,
+        SEND_POINTER_WB_ADDR =3,       
+        SEND_DATA_SIZE_WB_ADDR =4,  
+        SEND_HDR_DATA_WB_ADDR = 5,   
+            
+        RECEIVE_POINTER_WB_ADDR=9,   
+        RECEIVE_MAX_BUFF_SIZ=11,  
+        RECEIVE_SATRT_INDEX_WB_ADDR=12,
+        RECEIVE_CTRL_WB_ADDR =13;  
+       
+      
    localparam
         WORLD_SIZE = Dw/8,
         OFFSET_w= log2(WORLD_SIZE),        
@@ -186,9 +205,9 @@ module ni_vc_wb_slave_regs #(
         end
         if(s_stb_i  &   s_cyc_i &  s_we_i & state_reg_enable)   begin             
                 case( s_addr_i)
-                    SEND_STRT_WB_ADDR: begin                    
+                    SEND_POINTER_WB_ADDR: begin                    
                          if (send_fsm_is_ideal) send_start_addr_next={{OFFSET_w{1'b0}},s_dat_i [Dw-1    : OFFSET_w]};
-                    end //SEND_STRT_WB_ADDR
+                    end //SEND_POINTER_WB_ADDR
                     SEND_DATA_SIZE_WB_ADDR: begin 
                         if (send_fsm_is_ideal) send_data_size_next=s_dat_i [MAX_TRANSACTION_WIDTH-1 :   0]; 
                     end //DATA_SIZE_WB_ADDR
@@ -219,9 +238,9 @@ module ni_vc_wb_slave_regs #(
                         if (receive_fsm_is_ideal) max_receive_buff_siz_next = s_dat_i [MAX_TRANSACTION_WIDTH-1 :   0]; 
                     end                    
                     
-                    RECEIVE_STRT_WB_ADDR: begin 
+                    RECEIVE_POINTER_WB_ADDR: begin 
                         if (receive_fsm_is_ideal) receive_start_addr_next= {{OFFSET_w{1'b0}},s_dat_i [Dw-1 :   OFFSET_w]};
-                    end //RECEIVE_STRT_WB_ADDR
+                    end //RECEIVE_POINTER_WB_ADDR
                     
                     RECEIVE_CTRL_WB_ADDR: begin
                         if (receive_fsm_is_ideal) begin 

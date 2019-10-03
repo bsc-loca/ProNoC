@@ -176,43 +176,56 @@ module  ni_master #(
         BURST_SIZE_w= log2(MAX_BURST_SIZE+1);
     
 /*   wishbone slave adderess :
-    
-    [3:0]  
-        0   :   STATUS1_WB_ADDR           // status1:  {send_vc_is_busy,receive_vc_is_busy,receive_vc_packet_is_saved,receive_vc_got_packet};
-        1   :   STATUS2_WB_ADDR           // status2:  {send_enable_binary,receive_enable_binary,vc_got_error,any_error_isr,got_pck_isr, save_done_isr,send_done_isr,any_error_int_en,got_pck_int_en, save_done_int_en,send_done_int_en};
-        2   :   BURST_SIZE_WB_ADDR       // The busrt size in words 
-            
-        3   :   SEND_DATA_SIZE_WB_ADDR,  // The size of data to be sent in byte  
-        4   :   SEND_STRT_WB_ADDR,       // The address of data to be sent   in byte       
-        5   :   SEND_DEST_WB_ADDR        // The destination router address
-        
-        6   :   SEND_HDR_DATA_WB_ADDR    //  The heder data address
-            
-        7   :   RECEIVE_DATA_SIZE_WB_ADDR // The size of recieved data in byte  
-        8   :   RECEIVE_STRT_WB_ADDR      // The address pointer of reciever memory in byte
-        9   :   RECEIVE_SRC_WB_ADDR       // The source router (the router which is sent this packet). 
-        10  :   RECEIVE_CTRL_WB_ADDR      // The NI reciever control register 
-        11  :   RECEIVE_MAX_BUFF_SIZ      // The reciver allocated buffer size in words. If the packet size is bigger than the buffer size the rest of ot will be discarred
-        12  :   ERROR_FLAGS	// errors:  {burst_size_error,send_data_size_error,crc_miss_match,rcive_buff_ovrflw_err}; 
-        13  :   RECEIVE_PRECAP_DATA_ADDR  // The address to the header filit data which can be precaptured befor buffering the actual data. 
-      [4+Vw:4]
-                : Virtual channel num       
+ 
+ VC specefic registers       
+       address bits       
+ [4+Vw:4]      [3:0]                     
+                1  :   ERROR_FLAGS    // errors:  {burst_size_error,send_data_size_error,crc_miss_match,rcive_buff_ovrflw_err}; 
+                
+                2  :   SEND_DEST_WB_ADDR        // The destination router address
+                3  :   SEND_POINTER_WB_ADDR,       // The address of data to be sent   in byte 
+ Virtual        4  :   SEND_DATA_SIZE_WB_ADDR,  // The size of data to be sent in byte  
+ channel        5  :   SEND_HDR_DATA_WB_ADDR    //  The heder data address
+ number        
+                8  :   RECEIVE_SRC_WB_ADDR       // The source router (the router which is sent this packet).
+                9  :   RECEIVE_POINTER_WB_ADDR      // The address pointer of reciever memory in byte
+                10 :   RECEIVE_DATA_SIZE_WB_ADDR // The size of recieved data in byte
+                11 :   RECEIVE_MAX_BUFF_SIZ         // The reciver allocated buffer size in words. If the packet size is bigger than the buffer size the rest of ot will be discarred
+                12 :   RECEIVE_SATRT_INDEX_WB_ADDR  // The recived data is wrriten on RECEIVE_POINTER_WB_ADDR + RECEIVE_SATRT_INDEX_WB_ADDR. If the write address reach to the end of buffer pointer, it starts at the RECEIVE_POINTER_WB_ADDR.   
+                13 :   RECEIVE_CTRL_WB_ADDR      // The NI reciever control register 
+                14 :   RECEIVE_PRECAP_DATA_ADDR  // The address to the header filit data which can be precaptured befor buffering the actual data. 
+ 
+ Shared registers for all VCs
+    address bits       
+      [5:0]   
+       0:    STATUS1_WB_ADDR     // status1:  {send_vc_is_busy,receive_vc_is_busy,receive_vc_packet_is_saved,receive_vc_got_packet};
+       16:   STATUS2_WB_ADDR     // status2:  {send_enable_binary,receive_enable_binary,vc_got_error,any_error_isr,got_pck_isr, save_done_isr,send_done_isr,any_error_int_en,got_pck_int_en, save_done_int_en,send_done_int_en};
+       32:   BURST_SIZE_WB_ADDR  // The busrt size in words        
+                
       
-    */
-    localparam CHANNEL_ADDRw= 4,
-                    CHANNEL_REGw = 4;
+*/
+    localparam 
+        CHANNEL_ADDRw= 4,
+        CHANNEL_REGw = 4,
+        GENRL_ADRw=2;
     
     wire [CHw-1 :   0] vc_addr = s_addr_i [CHANNEL_REGw+CHw-1	:	CHANNEL_REGw];
+    wire [GENRL_ADRw-1 :   0] genrl_reg_addr = s_addr_i [CHANNEL_REGw+GENRL_ADRw-1  :   CHANNEL_REGw];
     wire [CHANNEL_ADDRw-1     :   0] vc_s_addr_i = s_addr_i [CHANNEL_ADDRw-1: 0];
+
+//general registers     
+    localparam [GENRL_ADRw-1  :   0]
+        STATUS1_WB_ADDR  =   0,          // status1 
+        STATUS2_WB_ADDR  =   1,          // status2 
+        BURST_SIZE_WB_ADDR = 2;      
     
+ //Readonly registers per VC
     localparam [CHANNEL_ADDRw-1  :   0]
-        STATUS1_WB_ADDR  =   0,          // status 
-        STATUS2_WB_ADDR  =   1,          // status 
-        BURST_SIZE_WB_ADDR = 2,         // The busrt size in words 
-        RECEIVE_DATA_SIZE_WB_ADDR = 7,  // The size of recieved data in byte  
-        RECEIVE_SRC_WB_ADDR =9,         // The source router (the router which is sent this packet). 
-        ERRORS_FLAGS_WB_ADDR=12,
-        RECEIVE_PRECAP_DATA_ADDR=13;
+        GENERAL_REGS_WB_ADDR=0,
+        ERRORS_FLAGS_WB_ADDR=1,
+        RECEIVE_SRC_WB_ADDR =8,         // The source router (the router which is sent this packet).
+        RECEIVE_DATA_SIZE_WB_ADDR = 10,  // The size of recieved data in byte  
+        RECEIVE_PRECAP_DATA_ADDR=14;
         
     localparam
         STATUS1w= 4 * V,
@@ -329,22 +342,30 @@ module  ni_master #(
     always @(*)begin 
         s_dat_o ={Dw{1'b0}};
         case(vc_s_addr_i)
-        STATUS1_WB_ADDR: begin 
-            s_dat_o = {{(Dw-STATUS1w){1'b0}}, status1};
-        end 
-        STATUS2_WB_ADDR: begin 
-            s_dat_o = {{(Dw-STATUS2w){1'b0}}, status2};
-        end
-        RECEIVE_DATA_SIZE_WB_ADDR: begin        
-            s_dat_o   [MAX_TRANSACTION_WIDTH-1    :   0] = receive_counter[vc_addr];
+        GENERAL_REGS_WB_ADDR:begin // This is a general address. check the general address filed
+            case(genrl_reg_addr)
+            STATUS1_WB_ADDR: begin 
+                s_dat_o = {{(Dw-STATUS1w){1'b0}}, status1};
+            end 
+            STATUS2_WB_ADDR: begin 
+                s_dat_o = {{(Dw-STATUS2w){1'b0}}, status2};
+            end
+            endcase
+        end//0
+                
+        ERRORS_FLAGS_WB_ADDR: begin 
+             s_dat_o[ERRw-1     : 0] = errors[vc_addr];           
         end  
+      
         RECEIVE_SRC_WB_ADDR: begin            
             s_dat_o[EAw-1: 0] = src_e_addr[vc_addr];   // first&second byte
             s_dat_o[Cw+15: 16]  =   class_in[vc_addr];  //third byte           
         end 
-        ERRORS_FLAGS_WB_ADDR: begin 
-             s_dat_o[ERRw-1     : 0] = errors[vc_addr];           
-        end  
+        
+        RECEIVE_DATA_SIZE_WB_ADDR: begin        
+            s_dat_o   [MAX_TRANSACTION_WIDTH-1    :   0] = receive_counter[vc_addr];
+        end        
+        
         RECEIVE_PRECAP_DATA_ADDR: begin 
             s_dat_o[PRE_Dw-1 : 0 ] =  (HDATA_PRECAPw>0)? recive_vc_precap_data[vc_addr]: {{(Dw-STATUS1w){1'b0}}, status1};        
         end
@@ -375,42 +396,44 @@ module  ni_master #(
         send_done_isr_next= send_done_isr;
         any_error_isr_next= any_error_isr; 
         all_save_done_reg_rst=1'b0;
-       // all_got_pck_reg_rst=1'b0;
-      //  all_send_done_reg_rst=1'b0;
+        // all_got_pck_reg_rst=1'b0;
+        // all_send_done_reg_rst=1'b0;
         
-        if(s_stb_i  &    s_we_i)   begin 
-            case(vc_s_addr_i)
-                    BURST_SIZE_WB_ADDR: begin 
-                         if (send_vc_is_busy == {V{1'b0}}) burst_size_next=s_dat_i [BURST_SIZE_w-1 : 0];    
-                    end //BURST_SIZE_WB_ADDR
-                    STATUS2_WB_ADDR:    begin 
-                        got_pck_int_en_next = s_dat_i[GOT_PCK_INT_EN_LOC];
-                        save_done_int_en_next = s_dat_i[SAVE_DONE_INT_EN_LOC];
-                        send_done_int_en_next = s_dat_i[SEND_DONE_INT_EN_LOC];
-                        any_error_int_en_next = s_dat_i[ERRORS_INT_EN_LOC];
-                        // reset isr register by writting one on them
-                        if (s_dat_i[GOT_PCK_ISR_LOC]) begin 
-				got_pck_isr_next = 1'b0;
-				//all_got_pck_reg_rst=1'b1;
-			end
-                        if (s_dat_i[SAVE_DONE_ISR_LOC]) begin 
-				save_done_isr_next = 1'b0;
-				all_save_done_reg_rst=1'b1;
-			end
-                        if (s_dat_i[SEND_DONE_ISR_LOC]) begin 
-				send_done_isr_next = 1'b0; 
-				//all_send_done_reg_rst=1'b1; 
-			end
-                        if (s_dat_i[ERRORS_ISR_LOC]) begin 
-                            any_error_isr_next = 1'b0;                        
-                            reset_errors_next = 1'b1;
-                        end                 
-                    end //STATUS2_WB_ADDR 
+        if((s_stb_i  &    s_we_i) && (vc_s_addr_i == GENERAL_REGS_WB_ADDR)) begin // This is a general address. check the general address filed
+            case(genrl_reg_addr)
+            BURST_SIZE_WB_ADDR: begin 
+                if (send_vc_is_busy == {V{1'b0}}) burst_size_next=s_dat_i [BURST_SIZE_w-1 : 0];    
+            end //BURST_SIZE_WB_ADDR
+            STATUS2_WB_ADDR:    begin 
+                got_pck_int_en_next = s_dat_i[GOT_PCK_INT_EN_LOC];
+                save_done_int_en_next = s_dat_i[SAVE_DONE_INT_EN_LOC];
+                send_done_int_en_next = s_dat_i[SEND_DONE_INT_EN_LOC];
+                any_error_int_en_next = s_dat_i[ERRORS_INT_EN_LOC];
+                // reset isr register by writting one on them
+                if (s_dat_i[GOT_PCK_ISR_LOC]) begin 
+                    got_pck_isr_next = 1'b0;
+                    //all_got_pck_reg_rst=1'b1;
+                end
+                if (s_dat_i[SAVE_DONE_ISR_LOC]) begin 
+                    save_done_isr_next = 1'b0;
+                    all_save_done_reg_rst=1'b1;
+                end
+                if (s_dat_i[SEND_DONE_ISR_LOC]) begin 
+                    send_done_isr_next = 1'b0; 
+                    //all_send_done_reg_rst=1'b1; 
+                end
+                if (s_dat_i[ERRORS_ISR_LOC]) begin 
+                    any_error_isr_next = 1'b0;                        
+                    reset_errors_next = 1'b1;
+                end                 
+            end //STATUS2_WB_ADDR 
 		    default begin
 
 		    end                   
             endcase
-        end  else begin 
+        end//  if(s_stb_i  &    s_we_i)  
+        
+        else begin 
             if(any_vc_got_pck)      got_pck_isr_next  = 1'b1;
             if(any_vc_save_done)    save_done_isr_next  = 1'b1;
             if(any_vc_send_done)    send_done_isr_next  = 1'b1;

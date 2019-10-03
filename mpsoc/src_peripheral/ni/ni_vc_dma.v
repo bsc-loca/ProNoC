@@ -136,6 +136,7 @@ module ni_vc_dma #(
     localparam
         SEND_ST_NUM=5,
         RECEIVE_ST_NUM=4;
+        
     localparam [SEND_ST_NUM-1 :   0]
         SEND_IDEAL = 1,
         SEND_HDR=2,
