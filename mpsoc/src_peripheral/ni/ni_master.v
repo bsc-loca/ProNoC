@@ -65,7 +65,8 @@ module  ni_master #(
 (
     //general 
     reset,
-    clk,    
+    clk,  
+      
     //noc interface  
     current_r_addr,
     current_e_addr,
@@ -95,9 +96,8 @@ module  ni_master #(
     m_send_cyc_o,
     m_send_we_o,
     m_send_dat_i,
-    m_send_ack_i,    
-
-
+    m_send_ack_i,
+    
     //wishbone master wr interface signals
     m_receive_sel_o,
     m_receive_dat_o,
@@ -270,11 +270,15 @@ module  ni_master #(
     wire  [V-1 :   0] vc_m_receive_we_o; 
     wire  [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter [V-1 :   0];            
     wire  [V-1    :   0] send_vc_fsm_is_ideal,receive_vc_fsm_is_ideal;
-    wire  [Dw-1   :   0] send_vc_start_addr [V-1   :  0]; 
-    wire  [Dw-1   :   0] receive_vc_start_addr [V-1   :  0];
+    wire  [Dw-1   :   0] send_vc_pointer_addr [V-1   :  0]; 
+    wire  [Dw-1   :   0] receive_vc_pointer_addr [V-1   :  0];
     wire  [V-1    :   0] receive_vc_got_packet;    
     wire [MAX_TRANSACTION_WIDTH-1    :   0] send_vc_data_size [V-1   :  0];
     wire [MAX_TRANSACTION_WIDTH-1    :   0] receive_vc_max_buff_siz [V-1   :  0];
+    wire [MAX_TRANSACTION_WIDTH-1    :   0] receive_vc_start_index  [V-1   :  0];
+    
+    
+    
     wire [V-1   :  0]   send_vc_start, receive_vc_start; 
     wire  received_flit_is_tail,received_flit_is_hdr;    
     wire [EAw-1  :   0]  vc_dest_e_addr [V-1   :  0];
@@ -595,8 +599,9 @@ module  ni_master #(
             .state_reg_enable(vc_state_reg_enable[i]),
             .send_fsm_is_ideal(send_vc_fsm_is_ideal[i]),
             .receive_fsm_is_ideal(receive_vc_fsm_is_ideal[i]),
-            .send_start_addr(send_vc_start_addr[i]),
-            .receive_start_addr(receive_vc_start_addr[i]),
+            .send_pointer_addr(send_vc_pointer_addr[i]),
+            .receive_pointer_addr(receive_vc_pointer_addr[i]),
+            .receive_start_index(receive_vc_start_index[i]),
             .receive_done(receive_vc_done[i]),
             .receive_packet_is_saved(receive_vc_packet_is_saved[i]),    
             .send_data_size(send_vc_data_size[i]),
@@ -648,8 +653,9 @@ module  ni_master #(
             .receive_done(receive_vc_done[i]),                       
             .send_fsm_is_ideal(send_vc_fsm_is_ideal[i]),
             .receive_fsm_is_ideal(receive_vc_fsm_is_ideal[i]),
-            .send_start_addr(send_vc_start_addr[i]),
-            .receive_start_addr(receive_vc_start_addr[i]),
+            .send_pointer_addr(send_vc_pointer_addr[i]),
+            .receive_pointer_addr(receive_vc_pointer_addr[i]),
+            .receive_start_index(receive_vc_start_index[i]),
             .send_data_size(send_vc_data_size[i]),
             .max_receive_buff_siz(receive_vc_max_buff_siz[i]),
             .send_start(send_vc_start[i]),

@@ -71,8 +71,9 @@ module ni_vc_dma #(
     send_fsm_is_ideal,
     receive_fsm_is_ideal,
     received_flit_is_tail,
-    send_start_addr, 
-    receive_start_addr,
+    send_pointer_addr, 
+    receive_pointer_addr,
+    receive_start_index,
     
     send_data_size,
     max_receive_buff_siz,
@@ -129,8 +130,7 @@ module ni_vc_dma #(
 
 );
 
-
-           
+         
         
     //state machine registers/parameters
     localparam
@@ -182,8 +182,9 @@ module ni_vc_dma #(
     output reg save_hdr_info;
    
     output send_fsm_is_ideal,receive_fsm_is_ideal;
-    input  [Dw-1   :   0] send_start_addr; 
-    input  [Dw-1   :   0] receive_start_addr;
+    input  [Dw-1   :   0] send_pointer_addr; 
+    input  [Dw-1   :   0] receive_pointer_addr;
+    input [MAX_TRANSACTION_WIDTH-1    :   0] receive_start_index;
     
     input  [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size;
     input  [MAX_TRANSACTION_WIDTH-1    :   0] max_receive_buff_siz;
@@ -224,6 +225,8 @@ module ni_vc_dma #(
     
     reg [MAX_TRANSACTION_WIDTH-1    :   0] send_counter, send_counter_next;
     reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter_next;
+    
+    reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_index,receive_index_next ;
   
     reg burst_size_error_next, send_data_size_error_next;
     reg rcive_buff_ovrflw_err_next,  illegal_send_req_next;
@@ -253,8 +256,11 @@ module ni_vc_dma #(
     assign send_fsm_is_ideal = (send_ps== SEND_IDEAL);
     assign receive_fsm_is_ideal = (receive_ps== RECEIVE_IDEAL);
     /* verilator lint_off WIDTH */ 
-    assign m_send_addr_o =  send_start_addr  + send_counter;
-    assign m_receive_addr_o =  receive_start_addr  + receive_counter;
+    assign m_send_addr_o =  send_pointer_addr  + send_counter;
+    //assign m_receive_addr_o =  receive_pointer_addr  + receive_counter;
+    assign m_receive_addr_o =  receive_pointer_addr  + receive_index;
+    
+    
      /* verilator lint_on WIDTH */  
     assign m_send_stb_o =  m_send_cyc_o;
     assign m_receive_stb_o =  m_receive_cyc_o;
@@ -319,9 +325,7 @@ module ni_vc_dma #(
                          
             end // SEND_ACTIVE
             
-            
-            
-               
+                
             SEND_BODY: begin 
                     active_st_next =2'd2;
                     send_is_active =1'b1; // this signal sends request to the send_arbiter, the granted signal is send_enable
@@ -387,13 +391,7 @@ module ni_vc_dma #(
        endcase      
     end//alays
     
-    
- 
-            
-           
-       
-    
- 
+   
     reg hdr_flit_is_received,hdr_flit_is_received_next;
  
  //receive state machine    
@@ -401,6 +399,7 @@ module ni_vc_dma #(
         // default values 
         receive_ns = receive_ps;
         receive_counter_next=receive_counter;
+        receive_index_next = receive_index;
         m_receive_cyc_o=1'b0;
         m_receive_cti_o= CONST_ADDR_BURST;
         receive_fifo_rd=1'b0;
@@ -416,6 +415,7 @@ module ni_vc_dma #(
                     hdr_flit_is_received_next =1'b0;                
                     if(receive_start )begin 
                         receive_counter_next = {MAX_TRANSACTION_WIDTH{1'b0}};  
+                        receive_index_next = receive_start_index;    
                         receive_ns = RECEIVE_READ_FIFO;                         
                     end 
                     
@@ -451,7 +451,10 @@ module ni_vc_dma #(
                             if (m_receive_ack_i) begin 
                                 hdr_flit_is_received_next=1'b1;
                                 if(! hdr_flit_is_received) save_hdr_info=1'b1;
-                                if(! receive_overflow && hdr_flit_is_received) receive_counter_next=receive_counter +1'b1; //Donot save hedaer flit in memory
+                                if(! receive_overflow && hdr_flit_is_received) begin 
+                                    receive_counter_next=receive_counter +1'b1; //Donot save hedaer flit in memory
+                                    receive_index_next = (receive_index==max_receive_buff_siz-1'b1)? {MAX_TRANSACTION_WIDTH{1'b0}}:receive_index+1'b1;
+                                end
                                 if( receive_overflow)  rcive_buff_ovrflw_err_next = 1'b1;//set error  
                                 if (received_flit_is_tail) begin 
                                     receive_ns = RECEIVE_IDEAL;
@@ -508,6 +511,7 @@ module ni_vc_dma #(
             receive_ps <= RECEIVE_IDEAL;
             send_counter <=  {MAX_TRANSACTION_WIDTH{1'b0}};
             receive_counter <=   {MAX_TRANSACTION_WIDTH{1'b0}}; 
+            receive_index<= {MAX_TRANSACTION_WIDTH{1'b0}}; 
          //   send_is_busy<= 1'b0;
          //   receive_is_busy<= 1'b0;
             hdr_flit_is_received<=1'b0;
@@ -516,6 +520,7 @@ module ni_vc_dma #(
             send_data_size_error<=1'b0;
             rcive_buff_ovrflw_err <=1'b0;
             illegal_send_req <=1'b0;
+            
            
           
         end else begin 
@@ -523,6 +528,7 @@ module ni_vc_dma #(
             receive_ps <= receive_ns;
             send_counter <=  send_counter_next;
             receive_counter <=  receive_counter_next; 
+            receive_index<=receive_index_next;
           //  send_is_busy <=send_is_busy_next;
           //  receive_is_busy <=receive_is_busy_next;
             hdr_flit_is_received<=hdr_flit_is_received_next;
