@@ -191,7 +191,7 @@ sub def_h_labeled_combo_entry_help{
 ###########
 
 sub def_h_labeled_checkbutton{
-	my ($label_name,$status)=@_;
+	my ($label_name)=@_;
 	my $box = def_hbox(TRUE,0);
 	my $label= gen_label_in_left($label_name);	
 	my $check= Gtk2::CheckButton->new;

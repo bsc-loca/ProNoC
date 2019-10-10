@@ -27,7 +27,7 @@ require "mpsoc_gen.pl";
 require "emulator.pl";
 require "simulator.pl";
 require "trace_gen.pl";
-#require "network_maker.pl";
+require "network_maker.pl";
 
 use File::Basename;
 
@@ -151,8 +151,9 @@ sub main_window{
 	
 	my $rbtn_generator = gen_radiobutton (undef,'Generator','icons/hardware.png','ProNoC System Generator'); 
 	my $rbtn_simulator = gen_radiobutton ($rbtn_generator,'Simulator','icons/simulator.png', "ProNoC Simulator");
+	my $rbtn_networkgen= gen_radiobutton ($rbtn_generator,'Network maker','icons/diagram.png', "ProNoC Simulator");
 	
-	my $dt=creating_detachable_toolbar($rbtn_generator,$rbtn_simulator);
+	my $dt=creating_detachable_toolbar($rbtn_generator,$rbtn_simulator,$rbtn_networkgen);
 	
 	
 	$rbtn_generator->signal_connect('toggled', sub{
@@ -163,9 +164,9 @@ sub main_window{
 		open_page($notebook,$noteref,$table,'Simulator');		
 	});
 	
-	#$rbtn_networkgen->signal_connect('toggled', sub{
-	#	open_page($notebook,$noteref,$table,'Networkgen');		
-	#});	
+	$rbtn_networkgen->signal_connect('toggled', sub{
+		open_page($notebook,$noteref,$table,'Networkgen');		
+	});	
  
    $table->attach ($dt,1, 2, 0,1,'fill','fill',0,0);
    

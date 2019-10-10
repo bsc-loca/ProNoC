@@ -191,7 +191,7 @@ module  ni_master #(
                 9  :   RECEIVE_POINTER_WB_ADDR      // The address pointer of reciever memory in byte
                 10 :   RECEIVE_DATA_SIZE_WB_ADDR // The size of recieved data in byte
                 11 :   RECEIVE_MAX_BUFF_SIZ         // The reciver allocated buffer size in words. If the packet size is bigger than the buffer size the rest of ot will be discarred
-                12 :   RECEIVE_SATRT_INDEX_WB_ADDR  // The recived data is wrriten on RECEIVE_POINTER_WB_ADDR + RECEIVE_SATRT_INDEX_WB_ADDR. If the write address reach to the end of buffer pointer, it starts at the RECEIVE_POINTER_WB_ADDR.   
+                12 :   RECEIVE_START_INDEX_WB_ADDR  // The recived data is wrriten on RECEIVE_POINTER_WB_ADDR + RECEIVE_START_INDEX_WB_ADDR. If the write address reach to the end of buffer pointer, it starts at the RECEIVE_POINTER_WB_ADDR.   
                 13 :   RECEIVE_CTRL_WB_ADDR      // The NI reciever control register 
                 14 :   RECEIVE_PRECAP_DATA_ADDR  // The address to the header filit data which can be precaptured befor buffering the actual data. 
  

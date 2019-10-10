@@ -51,26 +51,26 @@ use Glib::Object::Subclass
     ;
 
 sub INIT_INSTANCE {
-        my $self = shift;
-        $self->{red} = 0xffff;
-        $self->{green} = 0xffff;
-        $self->{blue} = 0xffff;
+	my $self = shift;
+	$self->{red} = 0xffff;
+	$self->{green} = 0xffff;
+	$self->{blue} = 0xffff;
 	$self->{label} = "Colored_button";
 	
 
-        my $frame = Gtk2::Frame->new;
-        $frame->set_border_width (3);
-        $frame->set_shadow_type ('etched-in');
-        $self->add ($frame);
-        $frame->show;
-        my $event_box = Gtk2::EventBox->new;
-        $event_box->set_size_request (14, 14);
+	my $frame = Gtk2::Frame->new;
+	$frame->set_border_width (0);
+	$frame->set_shadow_type ('etched-in');
+	$self->add ($frame);
+	$frame->show;
+	my $event_box = Gtk2::EventBox->new;
+	# $event_box->set_size_request (140, 140);
 	my $lable   = Gtk2::Label->new($self->{label});
 	$event_box->add($lable);
 	
-        $frame->add ($event_box);
-        $event_box->show;
-        $self->{colorbox} = $event_box;
+	$frame->add ($event_box);
+	$event_box->show;
+	$self->{colorbox} = $event_box;
 	$self->{labelbox} = $lable; 
 }
 
