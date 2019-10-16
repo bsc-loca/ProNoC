@@ -1267,7 +1267,7 @@ sub emulator_main{
   	);
 		
 	my ($conf_box,$set_win)=process_notebook_gen($emulate,\$info,"emulate", @charts);
-	my $chart   =gen_multiple_charts ($emulate,\@pages,\@charts);
+	my $chart   =gen_multiple_charts ($emulate,\@pages,\@charts,.4);
     
 	$main_table->set_row_spacings (4);
 	$main_table->set_col_spacings (1);
@@ -1325,7 +1325,7 @@ sub emulator_main{
 		$image->destroy(); 
 		$image = get_status_gif($emulate);
 		($conf_box,$set_win)=process_notebook_gen($emulate,\$info,"emulate", @charts);
-		$chart   =gen_multiple_charts  ($emulate,\@pages,\@charts);
+		$chart   =gen_multiple_charts  ($emulate,\@pages,\@charts,.4);
 		$v1 -> pack1($conf_box, TRUE, TRUE); 	
 		$v1 -> pack2($image, TRUE, TRUE); 
 		$v2 -> pack2($chart, TRUE, TRUE); 

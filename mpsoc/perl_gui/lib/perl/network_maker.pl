@@ -83,7 +83,7 @@ sub gen_right_paned {
 	my ($self,$info) =@_;
 	my $page_num=$self->object_get_attribute ("process_notebook","currentpage");
 	
-	return show_paths_between_two_endps($self,$info) if($page_num==3);
+	return route_info_window($self,$info) if($page_num==3);
 	return custom_topology_diagram ($self,$info);
 	
 }
@@ -798,7 +798,12 @@ sub routing_page{
 	my $col=0;
 	
 	my $auto = def_image_button('icons/gen.png','AutoGenerate');
-	$table->attach ($auto,0, 10,  $row, $row+1,'fill','fill',2,2);$row++;
+	$table->attach ($auto,0, 10,  $row, $row+1,'fill','fill',2,2);
+	my $clear = def_image_button('icons/clear.png','Clear');
+	$table->attach ($clear,10, 20,  $row, $row+1,'fill','fill',2,2);$row++;
+	
+	
+	
 	$table->attach (Gtk2::HSeparator->new,0, 200,  $row, $row+1,'fill','fill',2,2);$row++;	
 	$table->attach (def_label(' source -> destination '),0,10,$row,$row+1,'fill','shrink',2,2);	$row++;	
 
@@ -807,7 +812,11 @@ sub routing_page{
 			auto_route($self,$info);	
 	});
 	
-
+	$clear-> signal_connect("clicked" => sub{
+			clean_route($self,$info);	
+	});
+	
+	
 		
 	my @all_endpoints=get_list_of_all_endpoints($self);
 		
@@ -815,8 +824,8 @@ sub routing_page{
 		foreach  my $dst  (@all_endpoints ){	
 			my $src_inst=$self->object_get_attribute("$src",'NAME');
 			my $dst_inst=$self->object_get_attribute("$dst",'NAME');
-		   	my $selected= $self->object_get_attribute("$src","PATH_TO_$dst");
-		   	my $color =( defined $selected)? 0 :17;		   		   	
+		   	my $select = $self->object_get_attribute('Route',"${src}::$dst");
+		   	my $color =( defined $select)? 0 :17;		   		   	
 		   	my $button = ($src_inst ne $dst_inst )?  def_colored_button("${src_inst}->$dst_inst",$color): gen_label_in_center(' - ');	
 		   	attach_widget_to_table ($table,$row,undef,undef,$button,$col);  $col++;	
 		   	
@@ -845,6 +854,216 @@ sub routing_page{
 }
 
 
+
+sub route_info_window{
+	my ($self,$info)= @_;	
+	my $w1 = show_paths_between_two_endps($self,$info);
+	my $w2 = routing_summary($self,$info);
+	my $h1=gen_hpaned($w1,.30,$w2);		
+	return $h1;	
+}
+
+sub get_path_adjacents_nodes{
+	my $ref=shift;
+	my @result;
+	my @path=@{$ref};
+	my $old_r;	
+	foreach my $r (@path){	
+		push (@result,"${old_r}::$r") if(defined $old_r);
+		$old_r=$r;
+	}	
+	return @result;
+	
+}
+
+
+sub get_route_info{
+	my ($self)=@_;
+	my %R_num;
+	my %L_num;
+	my @all_endpoints=get_list_of_all_endpoints($self);
+	foreach  my $r  (@all_endpoints ){
+		$R_num{$r} =0;
+	}
+	my @nodes=get_list_of_all_routers($self);
+	foreach my $p (@nodes){
+		$R_num{$p} =0;
+	}	
+	foreach  my $src  (@all_endpoints ){	
+		foreach  my $dst  (@all_endpoints ){	
+			my $path = $self->object_get_attribute('Route',"${src}::$dst");
+			if (defined $path){
+				#router counting
+				my @p=@{$path};
+				foreach my $r (@p){				
+					$R_num{$r} ++;					
+				}
+				#path counting
+				@p= 	get_path_adjacents_nodes($path);
+				foreach my $r (@p){				
+					$L_num{$r} ++;	
+							
+				}
+			
+			
+			}			
+		}
+	}
+	
+	my @Rkeys = sort { $R_num{$a} <=> $R_num{$b} } keys(%R_num);
+	my @Lkeys = sort { $L_num{$a} <=> $L_num{$b} } keys(%L_num);
+	my $sample="sample0";
+	foreach  my $r  (@nodes ){
+		my $inst=$self->object_get_attribute("$r",'NAME');
+		update_result ($self,$sample,"router_all_paths_result",'-',$inst,$R_num{$r});
+	}
+	
+	my $max_r = (defined $Rkeys[-1]) ? $R_num{$Rkeys[-1]} : 0;
+	my $min_r = (defined $Rkeys[ 0]) ? $R_num{$Rkeys[ 0]} : 0;
+	my $max_l = (defined $Lkeys[-1]) ? $L_num{$Lkeys[-1]} : 0;
+	my $min_l = (defined $Lkeys[ 0]) ? $L_num{$Lkeys[ 0]} : 0;
+	
+	$self->object_add_attribute ($sample,"link_all_paths_result",undef);
+	
+	foreach  my $r  (@Lkeys ){
+		my ($n1,$n2)=split(/::/,$r);
+		my $inst1=$self->object_get_attribute("$n1",'NAME');
+		my $inst2=$self->object_get_attribute("$n2",'NAME');
+		my $inst = "$inst1-$inst2"; 
+		update_result ($self,$sample,"link_all_paths_result",'-',$inst,$L_num{$r});
+	}
+	
+			
+		
+		
+		   
+	return ($max_r,$min_r,$max_l,$min_l);	
+}	
+
+
+sub routing_summary{
+	my ($self,$info)= @_;		
+	
+	my $sc_win = gen_scr_win_with_adjst($self,'map_info');
+	my $table= def_table(10,10,FALSE);
+	$sc_win->add_with_viewport($table);
+	
+	my $row=0;
+	my $col=0;
+	my ($max_r,$min_r,$max_l,$min_l)=get_route_info($self);
+	
+	
+	my @data = (
+   {label => "Max #Router in all Paths ",  value =>"$max_r"}, # The maximum number that a router is located in all paths between all source-destination pair in this routing algorithm.
+   {label => "Min #Router in all Paths",  value =>"$min_r" },  
+   {label => "Max #Link in all Paths ",  value =>"$max_l"}, # The maximum number that a node-2-node link is located in all paths between all source-destination pair in this routing algorithm.
+   {label => "Min #Link in all Paths",  value =>"$min_l" }  
+  );
+	
+	
+	
+  # create list store
+  my $store = Gtk2::ListStore->new (#'Glib::Boolean', # => G_TYPE_BOOLEAN
+                                    #'Glib::Uint',    # => G_TYPE_UINT
+                                    'Glib::String',  # => G_TYPE_STRING
+                                    'Glib::String',
+                                    'Glib::String'); # you get the idea
+
+  # add data to the list store
+  foreach my $d (@data) {
+      my $iter = $store->append;
+      $store->set ($iter,
+		   0, $d->{label},
+		   1, $d->{value},
+		   2, $d->{value},
+      );
+  }
+
+ my $treeview = Gtk2::TreeView->new ($store);
+    $treeview->set_rules_hint (TRUE);
+ 
+
+	$treeview->set_search_column (1);
+
+   
+    # add columns to the tree view
+   my $renderer = Gtk2::CellRendererToggle->new;
+   $renderer->signal_connect (toggled => \&fixed_toggled, $store);
+
+ 
+
+  # column for severities
+  $renderer = Gtk2::CellRendererText->new;
+  my $column = Gtk2::TreeViewColumn->new_with_attributes ("Routing Summary",
+						       $renderer,
+						       text => 0);
+  $column->set_sort_column_id (0);
+  $treeview->append_column ($column);
+
+  # column for description
+  $renderer = Gtk2::CellRendererText->new;
+  $column = Gtk2::TreeViewColumn->new_with_attributes (" ",
+						       $renderer,
+						       text => 1);
+  $column->set_sort_column_id (1);
+  $treeview->append_column ($column);
+  
+  
+  # column for description
+  $renderer = Gtk2::CellRendererText->new;
+  $column = Gtk2::TreeViewColumn->new_with_attributes (" ",
+						       $renderer,
+						       text => 2);
+  $column->set_sort_column_id (2);
+  $treeview->append_column ($column);
+
+	
+	$table-> attach  ($treeview, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
+	#$table-> attach  (gen_label_in_left("Max distance:  $max  "), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
+	#$table-> attach  (gen_label_in_left("Min distance: $min   "), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
+	#$table-> attach  (gen_label_in_left("Normlized data per hop: $norm"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
+		
+	my $charts =  gen_routing_charts($self,$info);
+	
+	my $v1=gen_vpaned($sc_win,.25,$charts);
+	
+	
+	
+	return $v1;
+	
+	
+}
+
+
+sub gen_routing_charts{
+	
+	my ($self,$info)=@_;
+	
+	my @pages =(
+	{page_name=>" # Routers in all Paths", page_num=>0},
+	{page_name=>" # Links in all Paths ", page_num=>1}	
+);
+
+
+
+my @charts = (
+	{ type=>"3D_bar", page_num=>0, graph_name=> "# Router in all Paths", result_name => "router_all_paths_result", X_Title=> 'Router Name', Y_Title=>'The total number of observing a router in all paths', Z_Title=>undef},
+	{ type=>"3D_bar", page_num=>1, graph_name=> "# Links in all paths", result_name => "link_all_paths_result", X_Title=> 'Connection Link', Y_Title=>'The total number of observing a link in all paths', Z_Title=>undef},
+  	#{ type=>"2D_line", page_num=>0, graph_name=> "SD latency", result_name => "sd_latency_result", X_Title=> 'Desired Avg. Injected Load Per Router (flits/clock (%))', Y_Title=>'Latency Standard Deviation (clock)', Z_Title=>undef},
+	#{ type=>"3D_bar",  page_num=>1, graph_name=> "Received", result_name => "packet_rsvd_result", X_Title=>'Core ID' , Y_Title=>'Received Packets Per Router', Z_Title=>undef},
+	#{ type=>"3D_bar",  page_num=>1, graph_name=> "Sent", result_name => "packet_sent_result", X_Title=>'Core ID' , Y_Title=>'Sent Packets Per Router', Z_Title=>undef},
+	
+	);
+	
+	
+	my $chart   =gen_multiple_charts  ($self,\@pages,\@charts,.3);
+    return $chart;
+	
+}
+
+
+
+
 sub show_paths_between_two_endps{
 	my ($self,$info)= @_;
 	my $table=def_table(20,20,FALSE);
@@ -868,10 +1087,10 @@ sub show_paths_between_two_endps{
 		my @paths = @{$ref1};
 		my @ports= @{$ref2};
 		my $n=0;
-		my $selected= $self->object_get_attribute("$src","PATH_TO_$dst");
-		if(defined $selected ) {$selected=undef if($selected> scalar (@paths));}
+		my $select = $self->object_get_attribute('Route',"${src}::$dst");
 		foreach my $p (@paths){
 			my $scal;
+			my $selp;
 			my $path_num=$n;
 			my $path=$p;
 			foreach my $q ( @{$p}){
@@ -879,17 +1098,26 @@ sub show_paths_between_two_endps{
 				$scal= (defined $scal)? $scal."->$inst" : $inst;
 			}
 			
+			foreach my $q ( @{$select}){
+				my $inst=$self->object_get_attribute("$q",'NAME');
+				$selp= (defined $selp)? $selp."->$inst" : $inst;
+			}
+			
 				
 			my $check= Gtk2::CheckButton->new();
-			if(defined $selected) {if($selected == $path_num) {$check->set_active(TRUE);}}
+			#print "if($select eq $path)";
+			if(defined $select) {if($selp eq $scal) {$check->set_active(TRUE);}}
 			else {$check->set_active(FALSE);}
 			
 			$check-> signal_connect("toggled" => sub{
 				if($check->get_active()) {
-					$self->object_add_attribute("$src","PATH_TO_$dst",$path_num);
+					 
 					$self->object_add_attribute('Route',"${src}::$dst",$path);
 				}
-				else {$self->object_add_attribute("$src","PATH_TO_$dst",undef);}
+				else {
+					 
+					$self->object_add_attribute('Route',"${src}::$dst",undef);
+				}
 				set_gui_status($self,"ref",1);
 			});
 			
@@ -1057,14 +1285,6 @@ sub get_all_paths_between_two_endps{
 
 
 
-
-
-
-
-
-
-
-
 sub auto_route {
 	my ($self,$info)=@_;
 	my %Psize;
@@ -1088,10 +1308,10 @@ sub auto_route {
 		my $size=$Psize{$key};
 		next if(defined $self->object_get_attribute('Route',$key));
 		
-        print "($key)->($Psize{$key})\n";
+       # print "($key)->($Psize{$key})\n";
         my ($src , $dst)=split ('::',$key);
         my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps($self,$src, $dst);
-        my @sort_paths=sort_paths_based_on_cngestion($self,$paths_to_dst);
+        my @sort_paths=sort_paths_based_on_congestion($self,$paths_to_dst);
         my $path;
         my $n=0;
         foreach my $p (@sort_paths ){
@@ -1109,24 +1329,48 @@ sub auto_route {
         }
         
         $self->object_add_attribute('Route',$key,$path);
-		$self->object_add_attribute("$src","PATH_TO_$dst",$n);
+		
 	}
 	
 	set_gui_status($self,"ref",1);
-	add_colored_info(\$info,"Route function is generated successfully!\n",'blue');
+	add_colored_info(\$info,"The routeing function table is generated successfully!\n",'blue');
+	return TRUE;
+}	
+
+
+sub clean_route {
+	my ($self,$info)=@_;
+	 
+	my @all_endpoints=get_list_of_all_endpoints($self);
+	foreach  my $src  (@all_endpoints ){	
+		foreach  my $dst  (@all_endpoints ){						
+        $self->object_add_attribute('Route',"${src}::$dst",undef);
+		
+	}}
+	
+	set_gui_status($self,"ref",1);
+	add_colored_info(\$info,"The Routing function table is cleared!\n",'blue');
 	return TRUE;
 }	
 
 
 
-sub sort_paths_based_on_cngestion{
+sub sort_paths_based_on_congestion{
 	my ($self,$paths_to_dst)=@_;
+	
+	
+	
+	
+	
 	return @{$paths_to_dst};#TODO sort based on congestion	
 	
 }
 
 sub check_cyclick_loop{
 	my ($self,$paths_to_dst)=@_;
+	
+	
+	#TODO Check acyclick loop using topology sorting algorithm	
 	return 0;
 	
 	
@@ -1186,10 +1430,32 @@ sub build_network_maker_gui {
 	$sc_win->add_with_viewport($main_table);
 	
 	
+	#setting for graphs
+	my $n=0;
+    my $sample="sample$n";
+	$n++;
+	$self->object_add_attribute("id",undef,$n);
+	$self->object_add_attribute("active_setting",undef,undef);
+	$self->object_add_attribute_order("samples",$sample);
+	$self->object_add_attribute($sample,"color",1);
+	add_color_to_gd($self);
+	
 	
 	$open-> signal_connect("clicked" => sub{ 
 		
+		
+		
 		load_net_maker($self,$info);
+		my $n=0;
+    my $sample="sample$n";
+	$n++;
+	$self->object_add_attribute("id",undef,$n);
+	$self->object_add_attribute("active_setting",undef,undef);
+	$self->object_add_attribute_order("samples",$sample);
+	$self->object_add_attribute($sample,"color",1);
+	add_color_to_gd($self);	
+		
+		
 		set_gui_status($self,"ref",5);
 	
 	});	

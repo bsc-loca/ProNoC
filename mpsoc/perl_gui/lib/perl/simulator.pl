@@ -948,7 +948,7 @@ my @charts = (
 	
 	
 	my ($conf_box,$set_win)=process_notebook_gen($simulate,\$info,"simulate",@charts);
-	my $chart   =gen_multiple_charts  ($simulate,\@pages,\@charts);
+	my $chart   =gen_multiple_charts  ($simulate,\@pages,\@charts,0.4);
     
 
 
@@ -1029,7 +1029,7 @@ my @charts = (
 		$image->destroy(); 
 		$image = get_status_gif($simulate);
 		($conf_box,$set_win)=process_notebook_gen($simulate,\$info,"simulate",@charts);				
-		$chart = gen_multiple_charts  ($simulate,\@pages,\@charts);
+		$chart = gen_multiple_charts  ($simulate,\@pages,\@charts,0.4);
 		$v1 -> pack1($conf_box, TRUE, TRUE); 	
 		$v1 -> pack2($image, TRUE, TRUE); 		
 		$v2 -> pack2($chart, TRUE, TRUE); 	

@@ -9,14 +9,14 @@ use Glib qw/TRUE FALSE/;
 
 
 sub gen_multiple_charts{
-	my ($self,$pageref,$charts_ref)=@_;
+	my ($self,$pageref,$charts_ref,$image_scale)=@_;
 	my @pages=@{$pageref};
 	my @charts=@{$charts_ref};
 	my $notebook = Gtk2::Notebook->new;
 	$notebook->set_scrollable(TRUE);
 	$notebook->can_focus(FALSE);
 
-	#check if we ned to save all graph results
+	#check if we need to save all graph results
 	my $save_all_status = $self->object_get_attribute ("graph_save","save_all_result");
 	$save_all_status=0 if (!defined $save_all_status);
 	$self->object_add_attribute ("graph_save","save_all_result",0);
@@ -47,7 +47,7 @@ sub gen_multiple_charts{
 				
 			if($active eq $chart->{graph_name} && $page->{page_num} == $chart->{page_num}){
 				
-				my $p=  gen_graph  ($self,$chart,@selects);
+				my $p=  gen_graph  ($self,$chart,$image_scale,@selects);
 				$notebook->append_page ($p,Gtk2::Label->new_with_mnemonic ($page->{page_name})); 
 				$self->object_add_attribute ($graph_id,'type',$chart->{type});	
 			}
@@ -143,28 +143,41 @@ sub save_all_results{
 	
 	
 }	
-
+use Scalar::Util qw(looks_like_number);
+sub check_numeric {
+	my ($ref)=@_;	
+	my %r=%$ref;
+	foreach my $p (sort keys %r){
+		return 0 unless (looks_like_number($p));
+	}
+	return 1;
+}	
 
 sub get_uniq_keys {
-	my ($ref,@x)=@_;
-	
+	my ($ref,@x)=@_;		
+		
 	if(defined $ref) {
-				my %r=%$ref;
-				
-				push(@x, sort {$a<=>$b} keys %r);
-	
-	my  @x2;
-	@x2 =  uniq(sort {$a<=>$b} @x) if (scalar @x);
-	return @x2;	
+		my %r=%$ref;
+		my $n = check_numeric($ref);
+		
+		
+		push(@x, sort {$a<=>$b} keys %r) if ($n);
+		push(@x, sort {$a cmp $b} keys %r) unless ($n);
+		
+		my  @x2;
+		@x2 =  uniq(sort {$a<=>$b} @x) if (scalar @x && $n == 1);
+		@x2 =  uniq(sort {$a cmp $b} @x) if (scalar @x && $n==0);
+		
+		return @x2;	
 	}
 	return @x;
 }
 
 
 sub gen_graph {
-	my ($self,$chart,@selects)=@_;	
+	my ($self,$chart,$image_scale,@selects)=@_;	
 	if($chart->{type} eq '2D_line') {return gen_2D_line($self,$chart,@selects);}
-	return  gen_3D_bar($self,$chart,@selects);
+	return  gen_3D_bar($self,$chart,$image_scale,@selects);
 }
 
 
@@ -172,8 +185,8 @@ sub gen_graph {
 
 
 sub gen_3D_bar{
-	my ($self,$chart,@selects)=@_;
-
+	my ($self,$chart,$image_scale,@selects)=@_;
+   # $image_scale = .4 if (!defined $image_scale);
 	my($width,$hight)=max_win_size();
 	my $page_id= "P$chart->{page_num}";
 	my $graph_id= $page_id."$chart->{graph_name}";
@@ -307,8 +320,8 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 		}
 	}
 	
-	my $graph_w=$width/2.5;
-	my $graph_h=$hight/2.5;
+	my $graph_w=$width*$image_scale;
+	my $graph_h=$hight*$image_scale;
 	my $graph = new GD::Graph::bars3d($graph_w, $graph_h);
 	my $dim = $self->object_get_attribute (${graph_id},"dimention");
 	#my $dir = $self->object_get_attribute ($graph_name,"direction"); 
