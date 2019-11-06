@@ -223,12 +223,51 @@ sub genereate_output_orcc{
 	
 	# Code each actor destination port
 	my %dstp_number=get_destport_constant_list($self); 
+	my %srcp_number=get_srcport_constant_list($self); 
 	
 	add_info($tview,"Generating source files\n");
 	my @actors= get_all_tasks($self);
 	foreach my $actor (@actors){
+		my $schedul='';
+		my $define='
+		static unsigned int credit_send_buff=0;
+		' ;
 		my $transfer_str='';
 		my $sink_str='';
+		my $crdit_update='';
+		my $got_pck_func= "
+	unsigned char iport_array[ni_NUM_VCs];
+	static unsigned int credit_buff[ni_NUM_VCs];
+	
+	void got_packet_funtion(){
+	unsigned int i ;
+	unsigned char iport;
+	for (i=0;i<ni_NUM_VCs;i++){
+		if(ni_got_packet(i)) {
+			iport =ni_RECEIVE_PRECAP_DATA_REG(i); 	
+			if(iport==0){ //a credit update packet is recived;
+				ni_receive (i, (unsigned int)& credit_buff[i] , 1, 0);	
+			}
+";	
+		my $check_pck_func ="		
+	void check_packet_funtion(){
+		unsigned char iport;
+		unsigned int i ,size ;
+		unsigned int credit_value,credit_port;
+		struct SRC_INFOS  src_info;
+		for (i=0;i<ni_NUM_VCs;i++){
+			if(ni_packet_is_saved(i)) {
+				src_info=get_src_info(i);
+				size=ni_RECEIVE_DATA_SIZE_REG(i); 
+				iport= iport_array[i];
+				if(iport==0){ // a credit update packet has been recived
+ 					credit_port  = credit_buff[i] >> 16; //output port num
+";				
+		#schedular function 
+		my ($net,$num,$name)=split(':',$actor);
+	    $schedul ="
+			${name}_scheduler(&${name}.sched_func);"; 
+		
 		#each actor is mapped to one tile. we need to find all the the traces going in and out to this tile 
 		#1- get the actor generated c file name:
 		my $actor_file= get_actr_file_name($self,$actor);	   
@@ -237,6 +276,8 @@ sub genereate_output_orcc{
 		my $actor_tile_id=get_tile_id($self,$actor);
 		#3- How many traces it transfers?
 		my @injectors= get_all_source_traces_of_actr($self,$actor);
+				
+		
 		#4- Where does it transffer?
 		foreach my $inject (@injectors) {
 				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size
@@ -246,52 +287,195 @@ sub genereate_output_orcc{
 				my $dst_tile_id=get_tile_id($self,$dst_actor);
 				#5-Now generate all transfer functions (add inject ports) 	
 				my ($net,$num,$name)=split(':',$actor);	
-				my $dstportnum = $dstp_number{$dst}{$dst_port};
+				
 				#print "dstp_number{$dst}{$dst_port}= $dstp_number{$dst}{$dst_port};\n";
 				
-				$transfer_str=$transfer_str."
+				
+				
+	$define=$define."	
+	//	transfer ${src_port} port definitions:	
+	#define ${src_port}_w  1
+	#define ${src_port}_v  0				
+	#define ${src_port}_class_num  0
+	#define ${src_port}_dest_port_num  $dstp_number{$dst}{$dst_port}
+	#define ${src_port}_src_port_num   $srcp_number{$src}{$src_port}
+	#define ${src_port}_queue_pointer (unsigned int)&tokens_${src_port}[0]
+	#define ${src_port}_queue_size  SIZE_${src_port}
+	#define ${src_port}_start_index  ${name}_${src_port}->read_inds[0]
+	#define ${src_port}_end_index   index_${src_port}
+	#define ${src_port}_dest_phy_addr PHY_ADDR_ENDP_${dst_tile_id}
+	#define ${src_port}_has_data_to_send    (${src_port}_end_index > ${src_port}_start_index)
+	
+	static unsigned int ${src_port}_credit =  SIZE_${src_port};
+	static unsigned int index_${src_port}_sender; 
+	
+	";
+				
+				
+				
+	$transfer_str=$transfer_str."		
 			
-	if(index_${src_port} > ${name}_${src_port}->read_inds[0]){
-			//${name}_${src_port} FiFo has some data to be sent   
-			int send_data_${src_port} = transfer_manage (1, 0, 0,0, $dstportnum ,(unsigned int)tokens_${src_port}[0],SIZE_${src_port}, 
-			${name}_${src_port}->read_inds[0],  index_${src_port}, unsigned int dest_phy_addr,PHY_ADDR_ENDP_${dst_tile_id},1000);
-						
-			while (ni_send_is_busy(0));
-			${name}_${src_port}->read_inds[0]= ${name}_${src_port}->read_inds[0]+send_data_${src_port};
-			${name}_scheduler(x);		
-					 
+	if(${src_port}_has_data_to_send){
+			//ask NI to transfer the data   
+			int send_data_${src_port} = transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port , ${src_port}_queue_pointer , ${src_port}_queue_size, 
+			${src_port}_start_index, ${src_port}_end_index, ${src_port}_dest_phy_addr, ${src_port}_credit);
+			while (ni_send_is_busy(${src_port}_v));
+			${src_port}_start_index= ${src_port}_start_index+send_data_${src_port};	
+			${src_port}_credit-=send_data_${src_port};					 
 	}
-				";
-		}
-		#6-Where from it receive packets?
+	";
+	
+	
+	
+	$check_pck_func =$check_pck_func."	
+					if( credit_port  == ${src_port}_src_port_num) 			${src_port}_credit = credit_buff[i] & 0xFFFF; //credit value
+";
+
+
+
+	
+	
+	
+		}# end inject
+		
+		
+		
+		
+		#6-Where the packet come from? we need to update the sender with the remaining credit 
 		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor);
 		foreach my $sink (@sinkers){
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port
-				)=get_trace($self,$sink);				
+				)=get_trace($self,$sink);
+				
+			my $src_tile_id=get_tile_id($self,$src);
+			my $srcportnum = $srcp_number{$src}{$src_port};					
 				#7 We need to add sink ports 
-				$sink_str=$sink_str."
-				$actor sink packts via $dst_port port;
-				"; 
+				
+				
+			#save the input  port index before running the credit	
+			$schedul =	"
+			index_${dst_port}_sender=index_$dst_port;$schedul";
+		
+	
+			
+	$define=$define."
+	//	Receiver port  ${dst_port} port definitions:
+	#define ${dst_port}_credit_w  1
+	#define ${dst_port}_credit_v  0   //Alternatively it can be another VC				
+	#define ${dst_port}_credit_class_num  0 //Alternatively it can be another class
+	#define ${dst_port}_credit_dest_port  0 //0 is rec=served for credit
+	#define ${dst_port}_credit_pointer (unsigned int)&credit_buff
+	#define ${dst_port}_credit_size  1
+	#define ${dst_port}_credit_start_index  0
+	#define ${dst_port}_credit_end_index   1
+	#define ${dst_port}_credit_dest_phy_addr PHY_ADDR_ENDP_${src_tile_id}
+	#define ${dst_port}_has_credit_to_send    (index_$dst_port > index_${dst_port}_sender)
+	#define ${dst_port}_src_port_num  $srcportnum
+	#define ${dst_port}_dst_port_num  $dstp_number{$dst}{$dst_port}
+	#define ${dst_port}_queu_pointer (unsigned int)&tokens_${dst_port}[0]		
+			";
+			
+			
+	$crdit_update=$crdit_update."
+	
+	if( ${dst_port}_has_credit_to_send){
+			credit_send_buff= (${dst_port}_src_port_num <<16 |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit 
+			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v,${dst_port}_credit_class_num,${dst_port}_credit_dest_port,${dst_port}_credit_pointer,${dst_port}_queue_size,${dst_port}_start_index, ${dst_port}_end_index, ${dst_port}_credit_dest_phy_addr ,2 )  index_${dst_port}_sender=index_${dst_port};
+			while (ni_send_is_busy(${dst_port}_v));
+	} 			
+	";
+	
+	$got_pck_func=$got_pck_func."
+			else if(iport==${dst_port}_dst_port_num){
+				ni_receive (i, ${dst_port}_queu_pointer , SIZE_${dst_port}, ${name}_${dst_port}->write_ind % SIZE_${dst_port});	
+				
+			}
+				
+	";
+	
+	$check_pck_func =$check_pck_func."	
+				}else if(iport==${dst_port}_dst_port_num){
+					${name}_${dst_port}->write_ind = ${name}_${dst_port}->write_ind + size;								
+				
+							
+	";
+	
+	
+	
+	
+	
 				
 			
+		} #sink
+		
+		$got_pck_func=$got_pck_func."
+		else{
+				//handle error	
+			}
+      iport_array[i]=iport;
+		}//If ni got packet
+	}//for	
+}
+	";
+	
+	
+	$check_pck_func =$check_pck_func."	
 		}
-		
-		
-		
+	}// end if packet is saved
+		}//for
+	}	
+	";			
 		
 		add_colored_info($tview,"actor name: $actor\n",'green');
 		
 		add_info ($tview,"
 		
 		actor file name: $actor_file
-		actor map dest: sw/tile${actor_tile_id}/main.c
-		transffer function: $transfer_str
-		sink function:$sink_str 		
+		actor map dest: sw/tile${actor_tile_id}/main.c :
+		
+		
+		
+		
+$define          
+		 
+$got_pck_func      
+		  
+$check_pck_func       
+
+int main(){
+	int_init();
+	int_add(0, ni_isr, 0);
+	// Enable ni interrupt (its connected to inttruupt pin 0)
+	int_enable(0);
+	cpu_enable_user_interrupts();
+	// hw interrupt enable function:
+	// ni_initial (burst_size,  errors_int_en,  send_int_en,  save_int_en,  got_pck_int_en)
+	ni_initial (16,1,0,1,1); //enable the intrrupt when a packet is recived, saved or got any error
+		
+	while(1){
+		//run schedular
+$schedul
+		
+		//check if input ports have credit update to send
+		$crdit_update  
+		
+		//check if output port has data to send
+		$transfer_str 		
+
+		
+	return 0;
+}		
+		
+
+		
 		");
 		
-	}	
+	}	#actor
 		
-}
+} #end sub
+
+
+
 
 
 sub get_destport_constant_list{
@@ -303,12 +487,12 @@ sub get_destport_constant_list{
 	
 		my $i=1;
 		#2- for each actor get the list of all input ports
-		my @injectors= get_all_dest_traces_of_actr($self,$actor);
+		my @sinkers= get_all_dest_traces_of_actr($self,$actor);
 		#3- number each source port of this actor
-		foreach my $inject (@injectors){
+		foreach my $sink (@sinkers){
 			
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size
-				)=get_trace($self,$inject);
+				)=get_trace($self,$sink);
 			
 			$destport_const{$actor}{$dst_port}= $i;
 			#print "destport_const{$actor}{$dst_port}= $i;\n";
@@ -317,6 +501,36 @@ sub get_destport_constant_list{
 	}	
 	return %destport_const;
 }
+
+
+
+
+sub get_srcport_constant_list{
+	my ($self,$tview)=@_;
+	my %srcport_const;
+	#1- Get list of all actors
+	my @actors= get_all_tasks($self);
+	foreach my $actor (@actors){
+	
+		my $i=1;
+		#2- for each actor get the list of all output ports
+		my @injectors= get_all_source_traces_of_actr($self,$actor);
+		#3- number each source port of this actor
+		foreach my $inject (@injectors){
+			
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size
+				)=get_trace($self,$inject);
+			
+			$srcport_const{$actor}{$src_port}= $i;
+			#print "destport_const{$actor}{$dst_port}= $i;\n";
+			$i++;
+		}
+	}	
+	return %srcport_const;
+}
+
+
+
 
 
 sub get_all_dest_traces_of_actr{

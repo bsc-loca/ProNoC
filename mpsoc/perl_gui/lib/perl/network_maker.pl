@@ -9,6 +9,10 @@ require "widget.pl";
 require "diagram.pl";
 use String::Scanf; # imports sscanf()
 
+use FindBin;
+use lib $FindBin::Bin;
+use tsort;
+
 
 
 __PACKAGE__->mk_accessors(qw{
@@ -863,10 +867,47 @@ sub route_info_window{
 	return $h1;	
 }
 
-sub get_path_adjacents_nodes{
+
+
+sub add_route_edge_to_graph{
+	my ($gref,$anodes_ref)=@_;
+	my %graph=%{$gref};
+	my @a_nodes= @{$anodes_ref};
+	
+	my $old_r;	
+	foreach my $r (@a_nodes){
+		
+		if(defined $old_r){
+			        push(@{$graph{$old_r}},$r);										
+		}
+		$old_r=$r;
+	}	
+	
+	return %graph;	
+}
+
+sub get_adjacent_node_in_a_path{
 	my $ref=shift;
 	my @result;
 	my @path=@{$ref};
+	my $old_r;	
+	foreach my $r (@path){	
+		push (@result,"${old_r}::$r") if(defined $old_r);
+		$old_r=$r;
+	}	
+	return @result;
+	
+}
+
+sub get_adjacent_router_in_a_path{
+	
+	my $ref=shift;
+	my @result;
+	my @path=@{$ref};
+	shift @path; #remove source node from the path
+	pop @path; #remove the estination node from the path
+	
+	
 	my $old_r;	
 	foreach my $r (@path){	
 		push (@result,"${old_r}::$r") if(defined $old_r);
@@ -899,7 +940,7 @@ sub get_route_info{
 					$R_num{$r} ++;					
 				}
 				#path counting
-				@p= 	get_path_adjacents_nodes($path);
+				@p= 	get_adjacent_router_in_a_path($path);
 				foreach my $r (@p){				
 					$L_num{$r} ++;	
 							
@@ -922,22 +963,34 @@ sub get_route_info{
 	my $min_r = (defined $Rkeys[ 0]) ? $R_num{$Rkeys[ 0]} : 0;
 	my $max_l = (defined $Lkeys[-1]) ? $L_num{$Lkeys[-1]} : 0;
 	my $min_l = (defined $Lkeys[ 0]) ? $L_num{$Lkeys[ 0]} : 0;
+	my @l = sort  values (%L_num);
+	my $std_l=stdev(\@l);	
 	
 	$self->object_add_attribute ($sample,"link_all_paths_result",undef);
 	
+	my $nn=0;
+	my $min_l_name="-";
+	my $max_l_name="-";
+	my $siz = $#Lkeys;
 	foreach  my $r  (@Lkeys ){
 		my ($n1,$n2)=split(/::/,$r);
 		my $inst1=$self->object_get_attribute("$n1",'NAME');
 		my $inst2=$self->object_get_attribute("$n2",'NAME');
 		my $inst = "$inst1-$inst2"; 
 		update_result ($self,$sample,"link_all_paths_result",'-',$inst,$L_num{$r});
+		$min_l_name= $inst if($nn==0);
+		$max_l_name= $inst if($nn==$siz-1);
+		$nn++;
 	}
 	
 			
 		
-		
+	my $max_r_name=$self->object_get_attribute("$Rkeys[-1]",'NAME');
+	my $min_r_name=$self->object_get_attribute("$Rkeys[0]",'NAME');	
+	
+    
 		   
-	return ($max_r,$min_r,$max_l,$min_l);	
+	return ($max_r,$min_r,$max_l,$min_l,$std_l,$max_r_name,$min_r_name,$max_l_name,$min_l_name);	
 }	
 
 
@@ -950,14 +1003,15 @@ sub routing_summary{
 	
 	my $row=0;
 	my $col=0;
-	my ($max_r,$min_r,$max_l,$min_l)=get_route_info($self);
+	my ($max_r,$min_r,$max_l,$min_l,$std_l,$max_r_name,$min_r_name,$max_l_name,$min_l_name)=get_route_info($self);
 	
 	
 	my @data = (
-   {label => "Max #Router in all Paths ",  value =>"$max_r"}, # The maximum number that a router is located in all paths between all source-destination pair in this routing algorithm.
-   {label => "Min #Router in all Paths",  value =>"$min_r" },  
-   {label => "Max #Link in all Paths ",  value =>"$max_l"}, # The maximum number that a node-2-node link is located in all paths between all source-destination pair in this routing algorithm.
-   {label => "Min #Link in all Paths",  value =>"$min_l" }  
+   {label => "The Maximum number that a router is used in routing",  value =>"$max_r", name =>"$max_r_name"}, # The maximum number that a router is located in all paths between all source-destination pair in this routing algorithm.
+   {label => "The Minimum number that a router is used in routing",  value =>"$min_r", name =>"$min_r_name" },  
+   {label => "The Maximum number that a link is used in routing ",  value =>"$max_l", name =>"$max_l_name"}, # The maximum number that a node-2-node link is located in all paths between all source-destination pair in this routing algorithm.
+   {label => "The Minimum number that a link is used in routing",  value =>"$min_l", name =>"$min_l_name" },  
+   {label => "Link usgae standard devision ",  value =>"$std_l" } 
   );
 	
 	
@@ -975,7 +1029,7 @@ sub routing_summary{
       $store->set ($iter,
 		   0, $d->{label},
 		   1, $d->{value},
-		   2, $d->{value},
+		   2, $d->{name},
       );
   }
 
@@ -1047,8 +1101,8 @@ sub gen_routing_charts{
 
 
 my @charts = (
-	{ type=>"3D_bar", page_num=>0, graph_name=> "# Router in all Paths", result_name => "router_all_paths_result", X_Title=> 'Router Name', Y_Title=>'The total number of observing a router in all paths', Z_Title=>undef},
-	{ type=>"3D_bar", page_num=>1, graph_name=> "# Links in all paths", result_name => "link_all_paths_result", X_Title=> 'Connection Link', Y_Title=>'The total number of observing a link in all paths', Z_Title=>undef},
+	{ type=>"3D_bar", page_num=>0, graph_name=> "# Router in all Paths", result_name => "router_all_paths_result", X_Title=> 'Router Name', Y_Title=>'The total number that a router is used in the routing', Z_Title=>undef},
+	{ type=>"3D_bar", page_num=>1, graph_name=> "# Links in all paths", result_name => "link_all_paths_result", X_Title=> 'Connection Link', Y_Title=>'The total number that a link is used in the routing', Z_Title=>undef},
   	#{ type=>"2D_line", page_num=>0, graph_name=> "SD latency", result_name => "sd_latency_result", X_Title=> 'Desired Avg. Injected Load Per Router (flits/clock (%))', Y_Title=>'Latency Standard Deviation (clock)', Z_Title=>undef},
 	#{ type=>"3D_bar",  page_num=>1, graph_name=> "Received", result_name => "packet_rsvd_result", X_Title=>'Core ID' , Y_Title=>'Received Packets Per Router', Z_Title=>undef},
 	#{ type=>"3D_bar",  page_num=>1, graph_name=> "Sent", result_name => "packet_sent_result", X_Title=>'Core ID' , Y_Title=>'Sent Packets Per Router', Z_Title=>undef},
@@ -1311,7 +1365,7 @@ sub auto_route {
        # print "($key)->($Psize{$key})\n";
         my ($src , $dst)=split ('::',$key);
         my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps($self,$src, $dst);
-        my @sort_paths=sort_paths_based_on_congestion($self,$paths_to_dst);
+        my @sort_paths=sort_paths_based_on_link_usage($self,$paths_to_dst);
         my $path;
         my $n=0;
         foreach my $p (@sort_paths ){
@@ -1355,14 +1409,91 @@ sub clean_route {
 
 
 
-sub sort_paths_based_on_congestion{
+sub average{
+        my($data) = @_;
+        if (not @$data) {
+               return 0;
+        }
+        my $total = 0;
+        foreach (@$data) {
+                $total += $_;
+        }
+        my $average = $total / @$data;
+        return $average;
+}
+sub stdev{
+        my($data) = @_;
+        if(@$data == 1){
+                return 0;
+        }
+        my $average = &average($data);
+        my $sqtotal = 0;
+        foreach(@$data) {
+                $sqtotal += ($average-$_) ** 2;
+        }
+        my $std = ($sqtotal / (@$data-1)) ** 0.5;
+        return $std;
+}
+
+sub clone_hash{
+	my $ref=shift;
+	my %hash=%{$ref};
+	my %copy;
+	foreach my $p (keys %hash){
+		if (defined $hash{$p}){	$copy{$p} =  $hash{$p};}
+	}
+	return %copy;
+}
+
+sub sort_paths_based_on_link_usage{
 	my ($self,$paths_to_dst)=@_;
 	
+	my %L_num;
+	my %max;
+	my @all_endpoints=get_list_of_all_endpoints($self);
+	#get link count
+	foreach  my $src  (@all_endpoints ){	
+		foreach  my $dst  (@all_endpoints ){	
+			my $path = $self->object_get_attribute('Route',"${src}::$dst");
+			if (defined $path){
+				#path counting
+				my @p= 	get_adjacent_router_in_a_path($path);
+				foreach my $r (@p){				
+					$L_num{$r} ++;						
+				}	
+			
+			}			
+		}
+	}
+	#get std_devision of link  foreach path if added   
+	my $i=0;
+	foreach my $path (@{$paths_to_dst}) {
+		my %copy = clone_hash(\%L_num);
+		my @p=get_adjacent_router_in_a_path($path);	
+		foreach my $r (@p){				
+					$copy{$r} ++;						
+		}				
+		my @l = sort  values (%copy);
+		my $std=stdev(\@l);		
+		$max{$i}=$std;
+		$i++;	
+	}
 	
 	
+	my @order = sort { $max{$b} <=> $max{$a} } keys(%max);
 	
+	#print "*********** @order ************"; 
+	my @sorted;
+	$i=0;
+	foreach my $a ( @order){
+		@sorted[$i]=@{$paths_to_dst}[$a];
+		#print "\$max{$a}=$max{$a},"
+	}
 	
-	return @{$paths_to_dst};#TODO sort based on congestion	
+	#print "\n";
+	
+	return @sorted;
+	#return @{$paths_to_dst};#TODO sort based on congestion	
 	
 }
 
@@ -1370,8 +1501,48 @@ sub check_cyclick_loop{
 	my ($self,$paths_to_dst)=@_;
 	
 	
+	my %graph;
+	my @all_endpoints=get_list_of_all_endpoints($self);
+	# create routing dependency graph
+	
+	foreach  my $src  (@all_endpoints ){	
+		foreach  my $dst  (@all_endpoints ){	
+			my $path = $self->object_get_attribute('Route',"${src}::$dst");
+			if (defined $path){
+				#path counting
+				my @p= 	get_adjacent_node_in_a_path($path);
+				%graph=add_route_edge_to_graph(\%graph,\@p);
+			
+			}			
+		}
+	}
+	
+	my @p= 	get_adjacent_node_in_a_path($paths_to_dst);
+	%graph=add_route_edge_to_graph(\%graph,\@p);
+	
+	my $result = Algorithm::TSort::cicle_detect( Algorithm::TSort::Graph( ADJ => \%graph ), keys %graph ); 
+	
+	#print Data::Dumper->Dump([\%graph],["link"]);
+	#print "result=$result\n";
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	#TODO Check acyclick loop using topology sorting algorithm	
-	return 0;
+	return  $result;
 	
 	
 }
