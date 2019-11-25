@@ -210,36 +210,36 @@ module  port_presel_based_dst_ports_credit #(
      
     genvar i;
     generate   
-        for(i=0;   i<P_1; i=i+1) begin :sep
-           
+        for(i=0;   i<P_1; i=i+1) begin :sep           
            assign  credit_increased_per_port[i]=|credit_increased_all[((i+1)*V)-1   : i*V];
            assign  credit_decreased_per_port[i]=|credit_decreased_all[((i+1)*V)-1   : i*V];
         end//for
-    endgenerate//always
-    
-    integer k; 
-            
-    always @(*) begin
-        for(k=0;    k<P; k=k+1'b1) begin 
-            credit_per_port_next[k]  =   credit_per_port[k];
-            if(credit_increased_per_port[k]  & ~credit_decreased_per_port[k]) begin 
-                credit_per_port_next[k]  = credit_per_port[k]+1'b1;
-            end else if (~credit_increased_per_port[k]   & credit_decreased_per_port[k])begin 
-                credit_per_port_next[k]  = credit_per_port[k]-1'b1;
+      
+   
+        for(i=0;   i<P; i=i+1'b1) begin 
+     always @(*) begin
+            credit_per_port_next[i]  =   credit_per_port[i];
+            if(credit_increased_per_port[i]  & ~credit_decreased_per_port[i]) begin 
+                credit_per_port_next[i]  = credit_per_port[i]+1'b1;
+            end else if (~credit_increased_per_port[i]   & credit_decreased_per_port[i])begin 
+                credit_per_port_next[i]  = credit_per_port[i]-1'b1;
             end
         end//for
     end//always
     
+  for(i=0;    i<P_1; i=i+1'b1) begin 
     always @(posedge clk or posedge reset) begin
-        for(k=0;    k<P_1; k=k+1'b1) begin 
+      
             if(reset) begin 
-                credit_per_port[k]   <=  C_INT;
+                credit_per_port[i]   <=  C_INT;
             end else begin 
-                credit_per_port[k]   <=  credit_per_port_next[k];
+                credit_per_port[i]   <=  credit_per_port_next[i];
             end
         end//for
     end
     
+ endgenerate//always
+
     /*******************    
 pre-sel[xy]
     y

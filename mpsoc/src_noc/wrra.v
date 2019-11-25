@@ -1124,7 +1124,7 @@ localparam W=WEIGHTw;
 always @ (posedge clk or posedge reset) begin 
     if(reset) begin 
         counter = {WEIGHTw{1'b0}};
-        weight_out_next = {WEIGHTw{1'b0}}; 
+        weight_out = {WEIGHTw{1'b0}}; 
     end else begin 
         counter = counter_next;
         weight_out = weight_out_next; 

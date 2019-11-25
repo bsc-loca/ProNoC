@@ -1337,11 +1337,139 @@ sub get_all_paths_between_two_endps{
 
 }
 
+sub get_turn_code {
+	my $turn =shift;
+	my ($pn1,$rn1,$pn2,$rn2)= sscanf( "ROUTER%u_%u::ROUTER%u_%u",$turn);
+	my $code = ($rn1<<20)+ ($pn1<<16) +  ($rn2<< 4) +  $pn2;
+	return $code;	
+}
+
+sub get_turn_str {
+	my $code =shift;
+	my $pn2  =  $code & 0xF;
+	$code >>=4;
+	my $rn2  = $code & 0xFFF;
+	$code >>=12;
+	my $pn1 =$code & 0xF;
+	$code >>=4;
+	my $rn1=$code;	
+	return   "ROUTER${pn1}_${rn1}::ROUTER${pn2}_${rn2}";
+}
+
+sub get_turn_involved_routrs{
+	my ($s1,$s2,$info)=@_;
+	my ($r1,$ra2) = split /::/, $s1;
+	my ($rb2,$r3) = split /::/, $s2;
+	add_colored_info(\$info,"Error in turn format. $s1 -> $s2 : $ra2 should be equal with $rb2 ",'red') if($ra2 ne $rb2);
+	return ($r1,$ra2,$r3);	
+}
+
+sub get_path_edges_graph_file{
+	my (@a_nodes) = @_;	
+	my $str1='';
+	my $str2='';
+	my $old_r;	
+	foreach my $r (@a_nodes){
+		
+		if(defined $old_r){
+			$str1 = $str1 ."$old_r $r\n" ;
+			my $n1  = get_turn_code($old_r);
+			my $n2  = get_turn_code($r); 
+			$str2 = $str2 ."$n1 $n2\n";			
+		}
+		$old_r=$r;
+	}
+	return ($str1,$str2);
+}	
+
+
+
+
+sub get_forbiden_turns {
+	
+	my ($self,$info)=@_;
+	add_info(\$info,"Calculate forbiden turns to avoid deadlock \n");
+	#step 1: get the list of all  minimal paths between all source and destination pairs
+	my $graph='';
+	my $graph_coded='';
+	my @all_endpoints=get_list_of_all_endpoints($self);
+	foreach  my $src  (@all_endpoints ){	
+		foreach  my $dst  (@all_endpoints ){
+			if($src ne $dst){	
+				my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps($self,$src, $dst);
+				foreach my $path (@{$paths_to_dst}) {
+					if (defined $path){
+						#path counting
+						my @a_nodes= 	get_adjacent_router_in_a_path($path);
+						my ($str1,$str2) = get_path_edges_graph_file (@a_nodes);
+						$graph  =$graph. $str1;
+						$graph_coded = $graph_coded . $str2;
+					}#defined path	
+				}#foreach	
+			}#if			
+		}#froeach				
+			
+	}#froeach			
+	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
+	save_file ("$tmp_dir/paths_graph.edges",$graph);
+	save_file ("$tmp_dir/paths_graph_coded.edges",$graph_coded);
+	
+	my $out = "$tmp_dir/paths_graph_coded_removed_by_dfs.edges";
+	
+	unlink ("$out") if (-f "$out"); #delete output file
+			
+	
+	# run remove_cycle_edges_by_dfs on coded graph 
+	my $remover = get_project_dir()."/mpsoc/remove_cycle/remove_cycle_edges_by_dfs.py";
+	my $cmd  =  "python  $remover -g $tmp_dir/paths_graph_coded.edges";	
+	#sort paths_graph_coded.edges | uniq > newfile.db
+	
+	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+	if(length $stderr>1){			
+		add_colored_info(\$info,"$stderr\n",'red');
+	}else {
+		add_info(\$info,"$stdout\n");
+	}			
+	# check if the output file is generated 
+	unless (-f $out ){
+		add_colored_info(\$info,"$out file has not been created! Please make sure $cmd has been run successfully\n",'red');
+		return;
+	}
+	
+	my $r;
+	open my $fh, "<", $out or $r = "$!\n";
+    if(defined $r) {
+    	add_colored_info(\$info,"Could not open $out: $r",'red');
+		return;
+    } 
+	while (my $line = <$fh>) {
+    	chomp $line;
+    	my ($s1,$s2) = split /\s/, $line;
+        $s1  = get_turn_str($s1);  
+  		$s2  = get_turn_str($s2);
+  		my ($r1,$r2,$r3) = get_turn_involved_routrs($s1,$s2);
+  		$r1 =$self->object_get_attribute("$r1",'NAME');
+  		$r2 =$self->object_get_attribute("$r2",'NAME');
+  		$r3 =$self->object_get_attribute("$r3",'NAME');
+  		
+  		add_info(\$info,"$r1->$r2->$r3\n");  
+
+  }
+}
+	
+	
+	
+	
+	
+	
+
 
 
 sub auto_route {
 	my ($self,$info)=@_;
 	my %Psize;
+	
+	get_forbiden_turns ($self,$info);
 	
 	#step 1: calculate all minimal paths between all source and destination pairs
 	add_info(\$info,"Calculate all minimal paths between all source and destination pairs\n");
@@ -1356,6 +1484,13 @@ sub auto_route {
 			}
 		}
 	}
+	#step 2: Remove cyclic paths between all source and destination pairs
+	
+	
+	
+	
+	
+	
 	#step 3 sort source destination based on the number of paths
 	my @keys = sort { $Psize{$a} <=> $Psize{$b} } keys(%Psize);
 	for my $key ( @keys) {

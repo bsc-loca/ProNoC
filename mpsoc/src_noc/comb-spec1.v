@@ -443,8 +443,9 @@ module spec_sw_alloc #(
                 if(nonspec_ivc_granted_all [(i+1)*V-1 : i*V] >0 && spec_ivc_granted_all_accepted[(i+1)*V-1 : i*V]>0 ) $display("%t: Error: Both speculative and nonspeculative is granted for one port",$time);
             end
         end //DEBUG
-    //synthesis translate_on
     //synopsys  translate_on
+    //synthesis translate_on
+   
     
     
     end//i

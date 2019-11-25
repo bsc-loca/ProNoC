@@ -49,9 +49,9 @@ module router # (
     parameter TOPOLOGY= "MESH", 
     parameter MUX_TYPE= "ONE_HOT",    //"ONE_HOT" or "BINARY"
     parameter VC_REALLOCATION_TYPE = "NONATOMIC",// "ATOMIC" , "NONATOMIC"
-    parameter COMBINATION_TYPE= "COMB_SPEC1",// "BASELINE", "COMB_SPEC1", "COMB_SPEC2", "COMB_NONSPEC"
-    parameter FIRST_ARBITER_EXT_P_EN = 0,  
-    parameter ROUTE_NAME = "DUATO",
+    parameter COMBINATION_TYPE= "COMB_NONSPEC",// "BASELINE", "COMB_SPEC1", "COMB_SPEC2", "COMB_NONSPEC"
+    parameter FIRST_ARBITER_EXT_P_EN = 1,  
+    parameter ROUTE_NAME = "XY",
     parameter CONGESTION_INDEX = 7,
     parameter DEBUG_EN=0,
     parameter AVC_ATOMIC_EN= 0,
@@ -60,9 +60,9 @@ module router # (
     parameter CVw=(C==0)? V : C * V,
     parameter [CVw-1:  0] CLASS_SETTING = {CVw{1'b1}}, // shows how each class can use VCs   
     parameter [V-1 :  0] ESCAP_VC_MASK = 4'b1000,  // mask scape vc, valid only for full adaptive
-    parameter SSA_EN="YES", // "YES" , "NO"
+    parameter SSA_EN="NO", // "YES" , "NO"
     parameter SWA_ARBITER_TYPE = "RRA",//"RRA","WRRA". RRA: Round Robin Arbiter WRRA weighted Round Robin Arbiter 
-    parameter WEIGHTw = 4, // WRRA width
+    parameter WEIGHTw = 7, // WRRA width
     parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
 )(
     current_r_addr,
@@ -388,17 +388,18 @@ module router # (
         	.flit_out_we_all(flit_out_we_all)
         );
     end// DEBUG
-    endgenerate   
-    // synthesis translate_on
+    endgenerate 
     // synopsys  translate_on  
+    // synthesis translate_on
+      
     
     
 // for testing the route path
     
 
-    // synopsys  translate_off
+   
     // synthesis translate_off
-                                      
+    // synopsys  translate_off                                  
      `ifdef MONITORE_PATH
      
     genvar i;
@@ -428,13 +429,13 @@ module router # (
     end
     endgenerate
     `endif
-    
-    // synthesis translate_on
-    // synopsys  translate_on  
-
+   
    
    
     /*
+
+
+
     reg [10 :  0]  counter;
     reg [31 :  0]  flit_counter;
     
@@ -454,6 +455,8 @@ module router # (
         end
     end
     */
+
+
 //synopsys  translate_on
 //synthesis translate_on 
 

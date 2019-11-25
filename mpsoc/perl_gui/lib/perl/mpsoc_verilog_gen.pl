@@ -369,7 +369,7 @@ sub gen_socs_v{
 	  
    
 	my $socs_v; 
-	my ($NE, $NR, $RAw, $EAw, $EYw)= get_topology_info ($mpsoc); 
+	my ($NE, $NR, $RAw, $EAw, $Fw)= get_topology_info ($mpsoc); 
         
  
 	my $processors_en=0;

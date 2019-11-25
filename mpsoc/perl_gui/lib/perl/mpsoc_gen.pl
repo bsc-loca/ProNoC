@@ -215,7 +215,8 @@ sub check_inserted_ip_nums{
         
     }
     #check if range does not exceed the tile numbers
-    my ($max_tile_num)=get_topology_info($mpsoc);
+    my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($mpsoc);
+    my $max_tile_num=$NE;
     
     my @f=sort { $a <=> $b }  @all_num;
     my @l;

@@ -946,8 +946,8 @@ sub generate_tree_dot_file{
 	}	
 	my $bp= join("|",@bp);
 	my $hp= join("|",@hp);
-	my ($NE,$NR)=get_topology_info($self);
-	
+#	my ($NE,$NR)=get_topology_info($self);
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($self);
 
 
 	#add endpoints

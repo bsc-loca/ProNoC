@@ -88,7 +88,7 @@ localparam
     RAw_FATTREE =  LKw + Lw,
     EAw_FATTREE  = LKw,
     NE_FATTREE = powi( K,L ), 
-    NR_FATTREE = L * powi( L , L - 1 ),  // total number of routers  
+    NR_FATTREE = L * powi( K , L - 1 ),  // total number of routers  
     ROUTE_TYPE_FATTREE = "DETERMINISTIC",
     DSTPw_FATTREE = K+1,
     MAX_P_FATTREE = 2*K;

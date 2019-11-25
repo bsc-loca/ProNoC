@@ -219,8 +219,9 @@ module  ss_allocator#(
                 //synthesis translate_off 
                 //synopsys  translate_off
                 ,.clk(clk)
+                //synopsys  translate_on
                 //synthesis translate_on 
-                //synopsys  translate_on	   
+	   
             );           
                
         end//ssa
@@ -287,8 +288,9 @@ module ssa_per_vc #(
 //synthesis translate_off 
 //synopsys  translate_off
         ,clk
+//synopsys  translate_on
 //synthesis translate_on 
-//synopsys  translate_on	      
+	      
         
    );             
         
@@ -327,8 +329,9 @@ module ssa_per_vc #(
 //synthesis translate_off 
 //synopsys  translate_off
     input clk;
-//synthesis translate_on
 //synopsys  translate_on
+//synthesis translate_on
+
 
  
 
@@ -405,8 +408,9 @@ ssa_check_destport #(
 //synopsys  translate_off	
 	,.clk(clk),
     .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant)
+//synopsys  translate_on  
 //synthesis translate_on
-//synopsys  translate_on    
+  
 );
 
 
@@ -527,8 +531,9 @@ module ssa_check_destport #(
             //synopsys  translate_off
             ,.clk(clk),
             .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant)
-            //synthesis translate_on 
             //synopsys  translate_on
+            //synthesis translate_on 
+
         );
     
     end

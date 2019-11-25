@@ -304,7 +304,7 @@ localparam
     
     
     generate 
-	if(P>5)begin 
+	if(P>5)begin :p5
 	    	assign dest_port_out[P_1-1:4] = dest_port_in[P_1-1:4]; //other local ports
             end      
 
@@ -967,7 +967,7 @@ assign {aa,bb} = destport_encoded[1:0];
     end else if ((SS_PORT == EAST) || SS_PORT == WEST )begin :xdir
          assign ss_port_hdr_flit = a;
          assign ss_port_nonhdr_flit =   aa;
-    end else begin
+    end else begin :ydir
         assign ss_port_hdr_flit = b;
         assign ss_port_nonhdr_flit =   bb;
     end

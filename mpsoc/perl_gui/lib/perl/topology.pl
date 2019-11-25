@@ -43,18 +43,18 @@ sub get_topology_info_sub {
         my $LKw=$L*$Kw;
         my $Lw=log2($L);  
         $RAw=$LKw + $Lw;   
-        $EAw = $RAw;          
+        $EAw = $LKw;          
 	
 	}elsif($topology eq '"FATTREE"') {
 		my $K =  $T1;
         my $L =  $T2;
 		$NE = powi( $K,$L );
-        $NR = $L * powi( $L , $L - 1 );
+        $NR = $L * powi( $K , $L - 1 );
         my $Kw=log2($K);
         my $LKw=$L*$Kw;
         my $Lw=log2($L);  
         $RAw=$LKw + $Lw;   
-        $EAw = $RAw;      
+        $EAw = $LKw;      
 		
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'){
 		my $NX=$T1;
@@ -259,7 +259,8 @@ sub get_noc_verilator_top_modules_info {
 	my %nr_p; # number of routers have $p port num
 	my $router_p; #number of routers with different port number in topology 
 	
-	my ($ne,$nr) =get_topology_info($self);
+	my ($ne, $nr, $RAw, $EAw)=get_topology_info($self); 
+
 	
 	if($topology eq '"FATTREE"') {
 		my $K =  $T1;
@@ -426,7 +427,7 @@ sub gen_tiles_physical_addrsses_header_file{
 	#define PHY_ADDR_H\n\n";
 	
 	#add phy addresses
-	my ($NE, $NR, $RAw, $EAw)=get_topology_info($self);
+	my ($NE, $NR, $RAw, $EAw,$Fw)=get_topology_info($self);
 	for (my $id=0; $id<$NE; $id++){
 		my $phy= endp_addr_encoder($self,$id);	
 		my $hex = sprintf("0x%x", $phy);

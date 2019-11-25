@@ -427,8 +427,9 @@ if(DEBUG_EN) begin: debug
 
 end// DEBUG
 endgenerate 
-    //synthesis translate_on
     //synopsys  translate_on
+    //synthesis translate_on
+
     
     
 endmodule 
