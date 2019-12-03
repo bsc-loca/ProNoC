@@ -67,7 +67,7 @@ sub build_trace_gui {
 	if($mode eq 'task'){
 		$self->object_add_attribute('noc_param','T1',2);
 		$self->object_add_attribute('noc_param','T2',2);
-		$self->object_add_attribute('noc_param','T3',0);
+		$self->object_add_attribute('noc_param','T3',1);
 		$self->object_add_attribute('noc_param','Fpay',32);
 		$self->object_add_attribute('noc_param','V',1);		
 		$self->object_add_attribute('noc_param','TOPOLOGY',"MESH");		
@@ -657,13 +657,13 @@ sub trace_map {
 	
 	 # 	{ label=>'Routers per Row', param_name=>'T1', type=>"Spin-button", default_val=>2, content=>"2,64,1", info=>undef, param_parent=>'noc_param', ref_delay=>undef},
 
-	my $nx=$self->object_get_attribute('noc_param','T1');
-	my $ny=$self->object_get_attribute('noc_param','T2');
+	#my $nx=$self->object_get_attribute('noc_param','T1');
+	#my $ny=$self->object_get_attribute('noc_param','T2');
 	
 	
 	
 	my @tiles=get_tiles_name($self);
-	
+	#print "\@tile= @tiles \n";
 	
 	my $i=0;
 	my @tasks=get_all_tasks($self);
@@ -682,6 +682,7 @@ sub trace_map {
 		my $value=$self->object_get_attribute("MAP_TILE",$p);
 		$value = "-" if (!defined $value);
 		my @l=($value eq "-" || grep (/^\Q$value\E$/,@tiles)==0 )? @list : (@list,$value);
+		
 		my $combo= map_combobox ($self,"$p",\@l,'-');
 		
 		#my $lock=$self->object_get_attribute("MAP_LOCK",$p);
@@ -1300,42 +1301,15 @@ sub get_tiles_name{
 	my $self=shift;
 	my @tiles;
     my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);
+    #print " my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self)\n";
 	for (my $tile_num=0;$tile_num<$NE;$tile_num++){
 		push(@tiles,"tile($tile_num)");	
 	}	
 	
-	
-#	my $nx=$self->object_get_attribute('noc_param','T1');
-#	my $ny=$self->object_get_attribute('noc_param','T2');
-#	if(defined $ny){
-#		if($ny == 1){
-#			for(my $x=0; $x<$nx; $x++){
-#				push(@tiles,"tile($x)");
-#			}
-#			
-#		}
-#		else{
-#			for(my $y=0; $y<$ny; $y++){my $nx=$self->object_get_attribute('noc_param','T1');
-#	my $ny=$self->object_get_attribute('noc_param','T2');
-#				for(my $x=0; $x<$nx; $x++){
-#					push(@tiles,"tile(${x}_$y)");
-#				}
-#			}
-##		}
-#	}
 	return @tiles;	
 }
 
-sub get_tile_name{
-	my ($self,$x,$y)=@_;
 
-	my $nx=$self->object_get_attribute('noc_param','T1');
-	my $ny=$self->object_get_attribute('noc_param','T2');
-	if(defined $ny){
-		return "tile($x)" if($ny == 1);
-	}
-	return "tile(${x}_$y)";
-}
 
 
 sub tile_id_to_loc{
@@ -1796,12 +1770,10 @@ sub worst_map_algorithm{
 
 
 sub get_task_assigned_to_tile {
-	my ($self,$x,$y)=@_;
+	my ($self,$i)=@_;
 	my $p;
-	$p= $self->object_get_attribute("MAP_TASK","tile($x)");
-	return $p if (defined $p); 
-	$p= $self->object_get_attribute("MAP_TASK","tile(${x}_$y)");
-	return $p;
+	$p= $self->object_get_attribute("MAP_TASK","tile($i)");
+	return $p; 	
 }
 
 

@@ -179,6 +179,21 @@ sub check_file_has_string {
     return $r;
 }
 
+sub count_file_line_num {
+    my ($file)=@_;
+    open(FILE,$file);
+    my $n=0;
+    while (my $line = <FILE>) {
+	   $n++;
+	}
+    close FILE;
+    return $n;
+}
+
+
+
+
+
 ##############
 #  clone_obj
 #############

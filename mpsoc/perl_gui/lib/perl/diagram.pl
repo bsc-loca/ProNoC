@@ -421,39 +421,34 @@ sub generate_map_dot_file{
 
 	
 #add nodes
-	my $nx=$self->object_get_attribute('noc_param','T1');
-	my $ny=$self->object_get_attribute('noc_param','T2');
-	my $nc= $nx * $ny;
+	
 	my @tasks=get_all_tasks($self);
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($self);
+	
+	my %pos=get_endp_pos($self);
 	
 	my @mappedtasks;
+
 	
-	
-	for(my $y=0; $y<$ny; $y++){ 
-		
-		
-				for(my $x=0; $x<$nx; $x++){
-					my $id=$y*$nx+$x;
-					my $task=get_task_assigned_to_tile($self,$x,$y);
+	for(my $i=0; $i<$NE; $i++){ 
+					my $task=get_task_assigned_to_tile($self,$i);
 					push(@mappedtasks,$task) if (defined $task); 
 					
 					$task= "_" if (!defined $task); 
-					my $n = ($ny==1)?   "tile(${x})" : "tile${id}(${x}_$y)" ;
-					my $m = ($ny==1)?   "tile(${x})" : "tile(${x}_$y)" ;
+					my $n =    "tile($i)" ;
+					my $m =    "tile($i)" ;
 					my $node = "\"$m\"";					
 					my $label =   "\"<S$task> $n|<R$task> $task\"" ;
-					my $xx=$x*1.5;
-					my $yy=($ny-$y-1)*1.5;
-					
+							
 					$dotfile=$dotfile."
 $node\[
 	label = $label
-    pos = \"$xx,$yy!\"
+    pos = $pos{$i}
 ];";					
 					
 					
 									
-				}
+				
 				
 	}					
 	
@@ -474,13 +469,17 @@ $node\[
 		
 		$dotfile=$dotfile." \"$src_tile\" :  \"S$src\" ->  \"$dst_tile\" : \"R$dst\"  ;\n";
 	
+	  
 	
 	}
 
 
-
+  
 	
 	$dotfile=$dotfile."\n}\n";
+	
+	 print $dotfile;
+	
 	return $dotfile;
 	
 }
@@ -788,6 +787,41 @@ $dotfile=$dotfile."
 
 }
 
+sub get_endp_pos {
+	my $self=shift;
+	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($self);
+	my %pos;
+	if($topology eq '"FATTREE"' || $topology eq '"TREE"'){
+		
+		for(my $i=0; $i<$NE; $i++){
+			    $pos{$i} = "\"$i,0!\"";
+	    }
+		return %pos;
+	}
+	#($topology eq '"TORUS"' || $topology eq '"RING"' || $topology eq '"RING"' || $topology eq '"LINE"');	
+	
+	my $nx=$self->object_get_attribute('noc_param','T1');
+	my $ny=$self->object_get_attribute('noc_param','T2');
+	my $nz=$self->object_get_attribute('noc_param','T3');		
+		
+	
+	#generate endpoints
+	for(my $y=0; $y<$ny; $y++){ 		
+				for(my $x=0; $x<$nx; $x++){
+					for(my $z=0; $z<$nz; $z++){
+						my $id=($y*$nx+$x)*$nz+$z;						
+						my $offsetx = ($z==0 || $z==3) ? 1.05 : -1.05; 
+						my $offsety = ($z==0 || $z==1) ? -0.85 : +0.85; 
+						my $tx=$x*3+$offsetx;
+						my $ty=($ny-$y-1)*2.5+1+$offsety;
+						$pos{$id} = "\"$tx,$ty!\"";
+					}
+				}
+	}
+		return %pos;
+}
+
 
 
 sub generate_fattree_dot_file{
@@ -800,6 +834,8 @@ sub generate_fattree_dot_file{
 	";
 		
 #add nodes
+    my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);
+
 	my $k=$self->object_get_attribute('noc_param','T1');
 	my $nl=$self->object_get_attribute('noc_param','T2');
 	my @bp;
@@ -808,12 +844,12 @@ sub generate_fattree_dot_file{
 	for(my $p=$k; $p<2*$k; $p++) {push (@hp,"<p$p>$p");}
 	my $bp= join("|",@bp);
 	my $hp= join("|",@hp);
-	my $NC= powi( $k,$nl  ); #total endpoints
-	my $NL= $NC/$k ; #number of nodes in  each layer 
+	#my $NC= powi( $k,$nl  ); #total endpoints
+	my $NL= $NE/$k ; #number of nodes in  each layer 
 
 
 #add endpoints
-for(my $i=0; $i<$NC; $i++){
+for(my $i=0; $i<$NE; $i++){
 	my $x=$i%$k;
 	my $y=int($i/$k); 		
 
@@ -904,7 +940,7 @@ $dotfile=$dotfile."T$i\[
 	}
 
 	#add endpoints connection
-	for(my $i=0; $i<$NC; $i++){ 
+	for(my $i=0; $i<$NE; $i++){ 
 		my $r= $NL*($nl-1)+int($i/$k);
 		 $dotfile=$dotfile.node_connection('T',$i,undef,undef,'R',$r,undef,$i%($k));	
 	

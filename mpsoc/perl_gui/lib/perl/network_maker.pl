@@ -812,6 +812,8 @@ sub routing_page{
 	$table->attach (def_label(' source -> destination '),0,10,$row,$row+1,'fill','shrink',2,2);	$row++;	
 
 
+
+
 	$auto-> signal_connect("clicked" => sub{
 			auto_route($self,$info);	
 	});
@@ -832,6 +834,8 @@ sub routing_page{
 		   	my $color =( defined $select)? 0 :17;		   		   	
 		   	my $button = ($src_inst ne $dst_inst )?  def_colored_button("${src_inst}->$dst_inst",$color): gen_label_in_center(' - ');	
 		   	attach_widget_to_table ($table,$row,undef,undef,$button,$col);  $col++;	
+		   	
+		   	
 		   	
 		   	$button->signal_connect("clicked" => sub {
 		   		$self->object_add_attribute("SELECT_PATH","src",$src);
@@ -1388,6 +1392,7 @@ sub get_path_edges_graph_file{
 sub get_forbiden_turns {
 	
 	my ($self,$info)=@_;
+	my @forbiden_turn;
 	add_info(\$info,"Calculate forbiden turns to avoid deadlock \n");
 	#step 1: get the list of all  minimal paths between all source and destination pairs
 	my $graph='';
@@ -1414,14 +1419,21 @@ sub get_forbiden_turns {
 	save_file ("$tmp_dir/paths_graph.edges",$graph);
 	save_file ("$tmp_dir/paths_graph_coded.edges",$graph_coded);
 	
-	my $out = "$tmp_dir/paths_graph_coded_removed_by_dfs.edges";
 	
-	unlink ("$out") if (-f "$out"); #delete output file
-			
+	#remove old files 
+	my @files = File::Find::Rule->file()
+                            ->name( 'paths_graph_coded_removed*.edges')
+                            ->in( "$tmp_dir" );	
+	foreach my $f (@files){
+		unlink  $f if (-f "$f");		
+	}			
 	
 	# run remove_cycle_edges_by_dfs on coded graph 
-	my $remover = get_project_dir()."/mpsoc/remove_cycle/remove_cycle_edges_by_dfs.py";
-	my $cmd  =  "python  $remover -g $tmp_dir/paths_graph_coded.edges";	
+	my $remover_dire = get_project_dir()."/mpsoc/remove_cycle/";
+	my $cmd  =  "cd $remover_dire; 
+	python  break_cycles.py  -g $tmp_dir/paths_graph_coded.edges;
+	python remove_cycle_edges_by_dfs.py -g $tmp_dir/paths_graph_coded.edges; 
+	python remove_cycle_edges_by_minimum_feedback_arc_set_greedy.py  -g $tmp_dir/paths_graph_coded.edges";	
 	#sort paths_graph_coded.edges | uniq > newfile.db
 	
 	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
@@ -1429,12 +1441,41 @@ sub get_forbiden_turns {
 		add_colored_info(\$info,"$stderr\n",'red');
 	}else {
 		add_info(\$info,"$stdout\n");
+	}	
+	# find the files with the list edges removal
+	@files = File::Find::Rule->file()
+                         ->name( 'paths_graph_coded_removed*.edges')
+                         ->in( "$tmp_dir" );	
+	
+	                       
+	my $line_num;
+	my $out;
+	foreach my $f (@files){
+		my $n =count_file_line_num ($f);
+		$line_num = $n if(! defined $line_num);
+		if($n <= $line_num){
+			$out = $f;
+			$line_num=$n; 
+		}		
 	}			
+	
+	
+	
+	
+	
+			
 	# check if the output file is generated 
-	unless (-f $out ){
-		add_colored_info(\$info,"$out file has not been created! Please make sure $cmd has been run successfully\n",'red');
+	if (-f $out ){
+		add_colored_info(\$info,"$out file has been selected as it has the minimum number of edfge removal of $line_num \n",'blue');
+		
+	} else {
+		add_colored_info(\$info,"could not find a paths_graph_coded_removed*.edges file.  Please make sure $cmd has been run successfully\n",'red');
 		return;
+		
 	}
+	
+	
+	
 	
 	my $r;
 	open my $fh, "<", $out or $r = "$!\n";
@@ -1442,21 +1483,69 @@ sub get_forbiden_turns {
     	add_colored_info(\$info,"Could not open $out: $r",'red');
 		return;
     } 
+    
+    add_colored_info(\$info,"List of forbidden turns: \n",'blue');
+    
 	while (my $line = <$fh>) {
     	chomp $line;
     	my ($s1,$s2) = split /\s/, $line;
         $s1  = get_turn_str($s1);  
   		$s2  = get_turn_str($s2);
-  		my ($r1,$r2,$r3) = get_turn_involved_routrs($s1,$s2);
-  		$r1 =$self->object_get_attribute("$r1",'NAME');
-  		$r2 =$self->object_get_attribute("$r2",'NAME');
-  		$r3 =$self->object_get_attribute("$r3",'NAME');
-  		
-  		add_info(\$info,"$r1->$r2->$r3\n");  
+  		my @turn = get_turn_involved_routrs($s1,$s2);
+  		my $str = get_path_instance_string($self,\@turn);
+  		my $string=join('->',@turn);
+  		push (@forbiden_turn, $string);
+  		add_info(\$info,"$str\n");  
 
   }
+  return @forbiden_turn;
+  
 }
 	
+sub get_path_instance_string {
+	my ($self,$path_ref)=@_;
+	my @path = @{$path_ref};
+	my @path_inst;
+	foreach my $p (@path){
+		push (@path_inst, $self->object_get_attribute("$p",'NAME'));	
+		
+	}
+	my $string=join('->',@path_inst);
+	return $string;
+}	
+
+
+sub remove_cycle_paths {
+	my ($self,$info,$paths_ref, $fturn_ref)=@_;	
+	my @free_paths;
+	my @paths= @{$paths_ref};
+	my @fturns= @{$fturn_ref};
+	my $remove;
+	
+	
+	
+	foreach my $path (@paths) {
+		my @p = @$path;
+		my $turn;
+		my $string=join('->',@p);
+		#print "$string\n";	
+		$remove=0;
+		foreach my $t (@fturns){
+			 if ($string =~ /$t/){
+			 	$remove=1;
+			 	$turn=$t;
+			 	last;
+			 }
+			 
+		}
+		push (@free_paths,$path) if($remove == 0);
+		if($remove == 1){
+			my @ft = split /->/, $turn; 
+			add_info(\$info,"path ".get_path_instance_string($self,$path)." is removed due to turn ".get_path_instance_string($self,\@ft)."\n") 
+		}
+	}	
+	return @free_paths;	
+}	
 	
 	
 	
@@ -1469,7 +1558,7 @@ sub auto_route {
 	my ($self,$info)=@_;
 	my %Psize;
 	
-	get_forbiden_turns ($self,$info);
+	my @forbiden_turn =get_forbiden_turns ($self,$info);
 	
 	#step 1: calculate all minimal paths between all source and destination pairs
 	add_info(\$info,"Calculate all minimal paths between all source and destination pairs\n");
@@ -1500,7 +1589,8 @@ sub auto_route {
        # print "($key)->($Psize{$key})\n";
         my ($src , $dst)=split ('::',$key);
         my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps($self,$src, $dst);
-        my @sort_paths=sort_paths_based_on_link_usage($self,$paths_to_dst);
+        my @cyle_free_paths=remove_cycle_paths($self,$info,$paths_to_dst, \@forbiden_turn);
+        my @sort_paths=sort_paths_based_on_link_usage($self,\@cyle_free_paths);
         my $path;
         my $n=0;
         foreach my $p (@sort_paths ){
@@ -1666,17 +1756,6 @@ sub check_cyclick_loop{
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	#TODO Check acyclick loop using topology sorting algorithm	
 	return  $result;
 	
 	

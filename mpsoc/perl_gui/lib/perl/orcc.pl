@@ -16,12 +16,17 @@ sub select_orcc_generated_srcs {
 	#my $table = def_table(10, 10, FALSE);
 	#$table->attach_defaults($infobox,0,20,$row,$row+1);
 	
+	#pass noc parameter to trace generator
 	my %p;
 	my $params_ref=$self->object_get_attribute('noc_param');
 	if(defined $params_ref ){
 		
 		$p{'noc_param'}=$params_ref;	
-	}	
+	}
+	#pass mpsoc name to trace genrator
+	my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+	$p{'mpsoc_name'}=$mpsoc_name;
+				
 	my $trace_gen= trace_gen_main('orcc',\%p);	
 
 	$window->add ($trace_gen);
@@ -235,6 +240,10 @@ sub genereate_output_orcc{
 		my $transfer_str='';
 		my $sink_str='';
 		my $crdit_update='';
+		my %fifos;
+
+		my $fifo_num=0;
+		my $actors_str='';
 		my $got_pck_func= "
 	unsigned char iport_array[ni_NUM_VCs];
 	static unsigned int credit_buff[ni_NUM_VCs];
@@ -290,7 +299,9 @@ sub genereate_output_orcc{
 				
 				#print "dstp_number{$dst}{$dst_port}= $dstp_number{$dst}{$dst_port};\n";
 				
-				
+	$fifos{"${name}_${src_port}"}{'size'}=$buff_size;	
+	$fifos{"$name"}{'file'}=$file_name;
+	#print  "\$fifos{\"$name\"}{'file'}=$file_name\n";		
 				
 	$define=$define."	
 	//	transfer ${src_port} port definitions:	
@@ -317,7 +328,7 @@ sub genereate_output_orcc{
 			
 	if(${src_port}_has_data_to_send){
 			//ask NI to transfer the data   
-			int send_data_${src_port} = transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port , ${src_port}_queue_pointer , ${src_port}_queue_size, 
+			int send_data_${src_port} = transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size, 
 			${src_port}_start_index, ${src_port}_end_index, ${src_port}_dest_phy_addr, ${src_port}_credit);
 			while (ni_send_is_busy(${src_port}_v));
 			${src_port}_start_index= ${src_port}_start_index+send_data_${src_port};	
@@ -344,7 +355,7 @@ sub genereate_output_orcc{
 		#6-Where the packet come from? we need to update the sender with the remaining credit 
 		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor);
 		foreach my $sink (@sinkers){
-			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size
 				)=get_trace($self,$sink);
 				
 			my $src_tile_id=get_tile_id($self,$src);
@@ -379,8 +390,8 @@ sub genereate_output_orcc{
 	$crdit_update=$crdit_update."
 	
 	if( ${dst_port}_has_credit_to_send){
-			credit_send_buff= (${dst_port}_src_port_num <<16 |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit 
-			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v,${dst_port}_credit_class_num,${dst_port}_credit_dest_port,${dst_port}_credit_pointer,${dst_port}_queue_size,${dst_port}_start_index, ${dst_port}_end_index, ${dst_port}_credit_dest_phy_addr ,2 )  index_${dst_port}_sender=index_${dst_port};
+			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit 
+			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index, ${dst_port}_credit_dest_phy_addr, 2 ) ) index_${dst_port}_sender=index_${dst_port};
 			while (ni_send_is_busy(${dst_port}_v));
 	} 			
 	";
@@ -400,6 +411,9 @@ sub genereate_output_orcc{
 							
 	";
 	
+	$fifos{"${name}_${src_port}"}{'size'}=$buff_size;	
+	$fifos{"$name"}{'file'}=$file_name;		
+	#print  "\$fifos{\"$name\"}{'file'}=$file_name\n";
 	
 	
 	
@@ -424,25 +438,36 @@ sub genereate_output_orcc{
 	}// end if packet is saved
 		}//for
 	}	
-	";			
-		
-		add_colored_info($tview,"actor name: $actor\n",'green');
-		
-		add_info ($tview,"
-		
-		actor file name: $actor_file
-		actor map dest: sw/tile${actor_tile_id}/main.c :
-		
-		
-		
-		
-$define          
-		 
-$got_pck_func      
-		  
-$check_pck_func       
+	";	
+	my $ni_isr='
+	
+	void ni_isr(void){
+	//place your interrupt code here
 
-int main(){
+	if( ni_STATUS2_REG & ERRORS_ISR ){
+		// An error ocure 
+		error_handelling_function();
+		ni_ack_errors_isr();
+	}
+	if( ni_STATUS2_REG & SAVE_DONE_ISR ){
+		//check which VC has finished saving the packet. This function must be called before got_packet_funtion
+		check_packet_funtion();
+		ni_ack_save_done_isr(); 
+	}
+
+
+	if( ni_STATUS2_REG & GOT_PCK_ISR ){
+		//check which VC got packet
+		got_packet_funtion();
+		ni_ack_got_pck_isr();
+	}
+	return;
+}
+	
+	';
+	
+	my $main=
+"	int main(){
 	int_init();
 	int_add(0, ni_isr, 0);
 	// Enable ni interrupt (its connected to inttruupt pin 0)
@@ -454,7 +479,7 @@ int main(){
 		
 	while(1){
 		//run schedular
-$schedul
+		$schedul
 		
 		//check if input ports have credit update to send
 		$crdit_update  
@@ -462,13 +487,120 @@ $schedul
 		//check if output port has data to send
 		$transfer_str 		
 
-		
+	}	
 	return 0;
 }		
-		
+			
+";	
 
+   my $r;
+   my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+   my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
+   add_colored_info($tview,"actor name: $actor\n",'green');
+  
+   #copy orcc lib files
+   my $orcc_lib_dir = get_project_dir()."/mpsoc/src_c/orcc/lib";
+   opendir(DIR,"$orcc_lib_dir") or $r= "$!\n";
+   if(defined $r) {
+    	add_colored_info($tview,"cannot open directory: $r",'red');
+		return;
+   } 
+   foreach my $name (readdir(DIR))
+   {
+   	 # add_colored_info($tview,"copy ($orcc_lib_dir/$name,$target_dir/sw/tile${actor_tile_id}/);\n   ",'red');
+   	  copy ("$orcc_lib_dir/$name","$target_dir/sw/tile${actor_tile_id}/");    
+   }
+   
+   #generate main.c  
+   my $main_c = "$target_dir/sw/tile${actor_tile_id}/main.c";
+   unlink $main_c; #delete old main.c file 
+   open my $fd, ">$main_c" or $r = "$!\n";
+   if(defined $r) {
+    	add_colored_info($tview,"Could not open $main_c to write: $r",'red');
+		return;
+   } 
+   print $fd autogen_warning();
+   print $fd get_license_header($main_c);   
+   print $fd " // Generated from $actor_file\n";
+   print $fd '   
+#include "mor1k_tile.h"
+#include "lib.h"
+';
+  
+  
+   
+   
+   
+	#read actor file name and remove unnesserly codes. comment every files start with #include and extern
+	open my $fh, "<", $actor_file or $r = "$!\n";
+    if(defined $r) {
+    	add_colored_info($tview,"Could not open $actor_file: $r",'red');
+		return;
+    } 
+	while (my $line = <$fh>) {
+	    chomp $line;
+	    $line = '//'.$line if( $line =~ /^\s*#include/); # comment every files start with #include
+	    if( $line =~ /^\s*extern\s+/){
+	    	
+	    	 $line =~ s/\s+/ /g; # remove extra spaces
+	    	 $line =~ s/^\s+//; #ltrim
+	    	 my  ($type,$fifo_name) = sscanf("extern fifo_%s_t *%s;",$line);
+	    	 if(defined $type){
+	    	 	if (defined $fifos{$fifo_name}{'size'}){
+	    	 		#add fifo definition:
+	    	 		print $fd " DECLARE_FIFO(${type}, $fifos{$fifo_name}{'size'}, $fifo_num, 1);\n";
+	    	 		print $fd " fifo_${type}_t *$fifo_name = &fifo_$fifo_num;\n  ";
+	    	 		$fifo_num++;
+	    	 	}		    	 	
+	    	 }
+	    	 my  ($actor_name) = sscanf("extern actor_t %s;",$line);
+	    	 if(defined $actor_name ){
+	    	 	
+	    	 	if (defined $fifos{"$actor_name"}{'file'}){
+	    	 	#	print "===============================================================\n";
+	    	 	#add actor definition
+	    	 	#search in network.c file for actor definition
+	    	 		my $csv=$fifos{"$actor_name"}{'file'};	
+	    	 		my ($fname,$path,$suffix) = fileparse("$csv",qr"\..[^.]*$");	
+	    	 		my $net= "$path/${fname}.c";
+	    	 		
+	    	 	    my @lines = get_line_have_string($net,"actor_t $actor_name",$tview);
+	    	 	    if(defined $lines[0]){
+	    	 	    	
+	    	 	    	#print $fd "void ${actor_name}_initialize(schedinfo_t *);\n";
+						#print $fd "void ${actor_name}_scheduler (schedinfo_t *);\n";	    	 	    	
+	    	 	    	#print $fd "$lines[0]\n";
+	    	 	    	$actors_str=$actors_str."$lines[0]\n";
+	    	 	    }
+	    	 	}
+	    	 	
+	    	 }
+	    	 
+	    	 $line= "//$line\n" ; # comment every files start with extern
+	    }
+        print $fd "$line\n";
+   
+
+  }
 		
-		");
+		
+	print $fd "	
+			
+$define          
+		 
+$got_pck_func      
+		  
+$check_pck_func       
+
+$ni_isr
+
+$actors_str
+
+$main
+		
+";
+
+
 		
 	}	#actor
 		
@@ -476,7 +608,26 @@ $schedul
 
 
 
-
+sub get_line_have_string{
+	my ($file,$str,$tview)=@_;
+	my $r;
+	my @matches;
+	open my $fh, "<", $file or $r = "$!\n";
+    if(defined $r) {
+    	add_colored_info($tview,"Could not open $file: $r",'red');
+		return;
+    } 
+    while (my $line = <$fh>) {
+	    chomp $line;
+	    $line =~ s/\s+/ /g; # remove extra spaces
+	    $line =~ s/^\s+//; #ltrim
+	    if ($line =~ /$str/){
+	    	push(@matches,$line);
+	    }    
+    	
+    }
+	return @matches;
+}	
 
 sub get_destport_constant_list{
 	my ($self,$tview)=@_;

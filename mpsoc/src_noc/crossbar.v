@@ -72,8 +72,8 @@ module crossbar #(
     
     input [PP_1-1 : 0] granted_dest_port_all;
     input [PFw-1 : 0] flit_in_all;
-    output reg [PFw-1 : 0] flit_out_all;
-    output reg [P-1 : 0] flit_out_we_all;
+    output [PFw-1 : 0] flit_out_all;
+    output [P-1 : 0] flit_out_we_all;
     input [P-1 : 0] ssa_flit_wr_all;
     input reset,clk;
     
@@ -196,23 +196,32 @@ module crossbar #(
     );
     
     assign    flit_out_we_all_internal = flit_we_mux_out | ssa_flit_wr_all;
+    
     generate 
-        if(    ADD_PIPREG_AFTER_CROSSBAR == 1)begin :pip_reg1
+        if( ADD_PIPREG_AFTER_CROSSBAR == 1) begin :pip_reg1
+            
+            reg [PFw-1 : 0] flit_out_all_pipe;
+            reg [P-1 : 0] flit_out_we_all_pipe;
+            
             always @(posedge clk or posedge reset)begin 
-               if(reset)begin
-        flit_out_all    <=  {PFw{1'b0}};
-        flit_out_we_all <=  {P{1'b0}};
-               end else begin
-        flit_out_all     <=   flit_out_all_internal;
-        flit_out_we_all  <=   flit_out_we_all_internal;
-               
+                if(reset)begin
+                    flit_out_all_pipe    <=  {PFw{1'b0}};
+                    flit_out_we_all_pipe <=  {P{1'b0}};
+                end else begin
+                    flit_out_all_pipe     <=   flit_out_all_internal;
+                    flit_out_we_all_pipe  <=   flit_out_we_all_internal;               
                end
-           end        
+            end        
+            
+           assign flit_out_all = flit_out_all_pipe;
+           assign flit_out_we_all = flit_out_we_all_pipe;       
+            
+         
         end else begin :no_pip_reg1    
-           always @(*)begin 
-               flit_out_all     =   flit_out_all_internal;
-               flit_out_we_all  =   flit_out_we_all_internal;
-           end
+            
+           assign    flit_out_all     =   flit_out_all_internal;
+           assign    flit_out_we_all  =   flit_out_we_all_internal;
+           
         end       
         
     endgenerate
