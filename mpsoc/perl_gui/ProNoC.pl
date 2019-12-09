@@ -151,7 +151,7 @@ sub main_window{
 	
 	my $rbtn_generator = gen_radiobutton (undef,'Generator','icons/hardware.png','ProNoC System Generator'); 
 	my $rbtn_simulator = gen_radiobutton ($rbtn_generator,'Simulator','icons/simulator.png', "ProNoC Simulator");
-	my $rbtn_networkgen= gen_radiobutton ($rbtn_generator,'Network maker','icons/diagram.png', "ProNoC Simulator");
+	my $rbtn_networkgen= gen_radiobutton ($rbtn_generator,'Network maker','icons/diagram.png', "ProNoC Topology Maker");
 	
 	my $dt=creating_detachable_toolbar($rbtn_generator,$rbtn_simulator,$rbtn_networkgen);
 	

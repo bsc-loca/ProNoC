@@ -1,0 +1,207 @@
+#######################################################################
+##	File: test.TRC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$Trace = bless( {
+                  'trace_2' => {
+                                 'source' => 'network:a:adder1',
+                                 'file' => 'network:a:',
+                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
+                                 'scr_port' => 'Output',
+                                 'dst_port' => 'result',
+                                 'destination' => 'network:a:printer1',
+                                 'injct_rate_var' => 20,
+                                 'selected' => 0,
+                                 'Mbytes' => 1,
+                                 'burst_size' => 1,
+                                 'max_pck_size' => 5,
+                                 'buff_size' => '32',
+                                 'min_pck_size' => 5,
+                                 'init_weight' => 1,
+                                 'injct_rate' => 10
+                               },
+                  'gui_status' => {
+                                    'timeout' => 0,
+                                    'status' => 'ideal'
+                                  },
+                  'MAP_LOCK' => {
+                                  'network:a:adder2' => 0,
+                                  'network:a:source1' => 0,
+                                  'network:a:source2' => 0,
+                                  'network:a:printer1' => 0,
+                                  'network:a:printer2' => 0,
+                                  'network:a:adder1' => 0
+                                },
+                  'trace_pad' => {
+                                   'va' => '0',
+                                   'ha' => '0'
+                                 },
+                  'trace_4' => {
+                                 'source' => 'network:a:source2',
+                                 'destination' => 'network:a:adder1',
+                                 'dst_port' => 'Input2',
+                                 'scr_port' => 'Output1',
+                                 'file' => 'network:a:',
+                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
+                                 'Mbytes' => 1,
+                                 'selected' => 0,
+                                 'injct_rate_var' => 20,
+                                 'injct_rate' => 10,
+                                 'init_weight' => 1,
+                                 'min_pck_size' => 5,
+                                 'buff_size' => '32',
+                                 'burst_size' => 1,
+                                 'max_pck_size' => 5
+                               },
+                  'trace_5' => {
+                                 'source' => 'network:a:source1',
+                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
+                                 'file' => 'network:a:',
+                                 'destination' => 'network:a:adder1',
+                                 'dst_port' => 'Input1',
+                                 'scr_port' => 'Output1',
+                                 'injct_rate_var' => 20,
+                                 'selected' => 0,
+                                 'Mbytes' => 1,
+                                 'burst_size' => 1,
+                                 'max_pck_size' => 5,
+                                 'buff_size' => '32',
+                                 'min_pck_size' => 5,
+                                 'init_weight' => 1,
+                                 'injct_rate' => 10
+                               },
+                  'map_info' => {
+                                  'ha' => '0',
+                                  'va' => '0'
+                                },
+                  'trace_0' => {
+                                 'source' => 'network:a:source1',
+                                 'scr_port' => 'Output2',
+                                 'dst_port' => 'Input1',
+                                 'destination' => 'network:a:adder2',
+                                 'file' => 'network:a:',
+                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
+                                 'selected' => 0,
+                                 'Mbytes' => 1,
+                                 'injct_rate_var' => 20,
+                                 'min_pck_size' => 5,
+                                 'init_weight' => 1,
+                                 'injct_rate' => 10,
+                                 'max_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'buff_size' => '32'
+                               },
+                  'trace_1' => {
+                                 'selected' => 0,
+                                 'Mbytes' => 1,
+                                 'injct_rate_var' => 20,
+                                 'min_pck_size' => 5,
+                                 'init_weight' => 1,
+                                 'injct_rate' => 10,
+                                 'max_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'buff_size' => '32',
+                                 'source' => 'network:a:source2',
+                                 'scr_port' => 'Output2',
+                                 'dst_port' => 'Input2',
+                                 'destination' => 'network:a:adder2',
+                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
+                                 'file' => 'network:a:'
+                               },
+                  'parameters_order' => {
+                                          'map_param' => [
+                                                           'Map_Algrm'
+                                                         ]
+                                        },
+                  'MAP_TASK' => {
+                                  'tile(3)' => 'network:a:source1',
+                                  'tile(0)' => 'network:a:printer1',
+                                  'tile(1)' => 'network:a:adder1',
+                                  'tile(2)' => 'network:a:source2',
+                                  'tile(4)' => 'network:a:adder2',
+                                  '-' => undef,
+                                  'tile(5)' => 'network:a:printer2'
+                                },
+                  'map_param' => {
+                                   'Map_Algrm' => 'Random'
+                                 },
+                  'trace_3' => {
+                                 'dst_port' => 'result',
+                                 'scr_port' => 'Output',
+                                 'destination' => 'network:a:printer2',
+                                 'file' => 'network:a:',
+                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
+                                 'source' => 'network:a:adder2',
+                                 'injct_rate' => 10,
+                                 'init_weight' => 1,
+                                 'min_pck_size' => 5,
+                                 'buff_size' => '32',
+                                 'max_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'selected' => 0,
+                                 'Mbytes' => 1,
+                                 'injct_rate_var' => 20
+                               },
+                  'noc_param' => {
+                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                   'T2' => 2,
+                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                   'WEIGHTw' => '4',
+                                   'T3' => '1',
+                                   'B' => '4',
+                                   'TOPOLOGY' => '"MESH"',
+                                   'SSA_EN' => '"NO"',
+                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                   'Fpay' => '32',
+                                   'ROUTE_NAME' => '"XY"',
+                                   'AVC_ATOMIC_EN' => 0,
+                                   'C' => 0,
+                                   'CONGESTION_INDEX' => 3,
+                                   'T1' => '3',
+                                   'MIN_PCK_SIZE' => '2',
+                                   'DEBUG_EN' => '0',
+                                   'V' => '2',
+                                   'MUX_TYPE' => '"BINARY"',
+                                   'ESCAP_VC_MASK' => '2\'b01'
+                                 },
+                  'select_multiple' => {
+                                         'action' => 'Select'
+                                       },
+                  'file_id' => 'b',
+                  'trace_id' => 6,
+                  'save_as' => 'test',
+                  'out_name' => undef,
+                  'MAP_TILE' => {
+                                  'network:a:printer1' => 'tile(0)',
+                                  'network:a:source2' => 'tile(2)',
+                                  'network:a:adder1' => 'tile(1)',
+                                  'network:a:printer2' => 'tile(5)',
+                                  'network:a:source1' => 'tile(3)',
+                                  'network:a:adder2' => 'tile(4)'
+                                },
+                  'mpsoc_name' => 'newAdder',
+                  'Auto' => {
+                              'Auto_inject' => '1\'b0'
+                            },
+                  'trace_map' => {
+                                   'ha' => '0',
+                                   'va' => '0'
+                                 },
+                  'traces' => {
+                                '2' => 1,
+                                '3' => 1,
+                                '4' => 1,
+                                '0' => 1,
+                                '5' => 1,
+                                '1' => 1
+                              }
+                }, 'ProNOC' );

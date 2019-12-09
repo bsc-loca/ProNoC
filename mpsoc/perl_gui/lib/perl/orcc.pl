@@ -27,7 +27,7 @@ sub select_orcc_generated_srcs {
 	my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
 	$p{'mpsoc_name'}=$mpsoc_name;
 				
-	my $trace_gen= trace_gen_main('orcc',\%p);	
+	my $trace_gen= trace_gen_main('orcc',\%p,$window);	
 
 	$window->add ($trace_gen);
 	$window->show_all();
@@ -224,7 +224,7 @@ sub load_orcc_csv{
 
 
 sub genereate_output_orcc{
-	my ($self,$tview)=@_;
+	my ($self,$tview,$window)=@_;
 	
 	# Code each actor destination port
 	my %dstp_number=get_destport_constant_list($self); 
@@ -300,11 +300,13 @@ sub genereate_output_orcc{
 				#print "dstp_number{$dst}{$dst_port}= $dstp_number{$dst}{$dst_port};\n";
 				
 	$fifos{"${name}_${src_port}"}{'size'}=$buff_size;	
-	$fifos{"$name"}{'file'}=$file_name;
-	#print  "\$fifos{\"$name\"}{'file'}=$file_name\n";		
+	$fifos{"$name"}{'file'}="$file_name";
+	#print  "\$fifos{\"$name\"}{'file'}=$file_name\n";
+    #print "\$fifos (${name}_${src_port}'size'=${buff_size};\n";		
 				
 	$define=$define."	
 	//	transfer ${src_port} port definitions:	
+	static unsigned int ${src_port}_credit =  SIZE_${src_port};
 	#define ${src_port}_w  1
 	#define ${src_port}_v  0				
 	#define ${src_port}_class_num  0
@@ -315,10 +317,7 @@ sub genereate_output_orcc{
 	#define ${src_port}_start_index  ${name}_${src_port}->read_inds[0]
 	#define ${src_port}_end_index   index_${src_port}
 	#define ${src_port}_dest_phy_addr PHY_ADDR_ENDP_${dst_tile_id}
-	#define ${src_port}_has_data_to_send    (${src_port}_end_index > ${src_port}_start_index)
-	
-	static unsigned int ${src_port}_credit =  SIZE_${src_port};
-	static unsigned int index_${src_port}_sender; 
+	#define ${src_port}_has_data_to_send    (${src_port}_end_index > ${src_port}_start_index)	
 	
 	";
 				
@@ -371,6 +370,7 @@ sub genereate_output_orcc{
 			
 	$define=$define."
 	//	Receiver port  ${dst_port} port definitions:
+	static unsigned int index_${dst_port}_sender; 
 	#define ${dst_port}_credit_w  1
 	#define ${dst_port}_credit_v  0   //Alternatively it can be another VC				
 	#define ${dst_port}_credit_class_num  0 //Alternatively it can be another class
@@ -392,7 +392,7 @@ sub genereate_output_orcc{
 	if( ${dst_port}_has_credit_to_send){
 			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit 
 			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index, ${dst_port}_credit_dest_phy_addr, 2 ) ) index_${dst_port}_sender=index_${dst_port};
-			while (ni_send_is_busy(${dst_port}_v));
+			while (ni_send_is_busy(${dst_port}_credit_v));
 	} 			
 	";
 	
@@ -411,10 +411,10 @@ sub genereate_output_orcc{
 							
 	";
 	
-	$fifos{"${name}_${src_port}"}{'size'}=$buff_size;	
-	$fifos{"$name"}{'file'}=$file_name;		
+	$fifos{"${name}_${dst_port}"}{'size'}=$buff_size;	
+	$fifos{"$name"}{'file'}="$file_name";		
 	#print  "\$fifos{\"$name\"}{'file'}=$file_name\n";
-	
+	#print "\$fifos ${name}_${dst_port}'size'=$buff_size;\n";	
 	
 	
 	
@@ -541,21 +541,39 @@ sub genereate_output_orcc{
 	    chomp $line;
 	    $line = '//'.$line if( $line =~ /^\s*#include/); # comment every files start with #include
 	    if( $line =~ /^\s*extern\s+/){
-	    	
+	    	 my $extern=0;
 	    	 $line =~ s/\s+/ /g; # remove extra spaces
 	    	 $line =~ s/^\s+//; #ltrim
+	    	 	 
+	    	 
+	    	 
+	    	 #fifo
 	    	 my  ($type,$fifo_name) = sscanf("extern fifo_%s_t *%s;",$line);
 	    	 if(defined $type){
+	    	 	$extern=1;
 	    	 	if (defined $fifos{$fifo_name}{'size'}){
 	    	 		#add fifo definition:
 	    	 		print $fd " DECLARE_FIFO(${type}, $fifos{$fifo_name}{'size'}, $fifo_num, 1);\n";
 	    	 		print $fd " fifo_${type}_t *$fifo_name = &fifo_$fifo_num;\n  ";
 	    	 		$fifo_num++;
+	    	 	}else{
+	    	 		add_colored_info($tview,"Could not find $fifo_name in csv file\n",'red');	 	 		
+	    	 			return;
 	    	 	}		    	 	
 	    	 }
+	    	 
+	    	 #connection_t
+	    	 my  ($connect_name) = sscanf("extern connection_t %s;",$line);
+	    	 if(defined $connect_name ){
+	    	   $extern=1;
+	    	   print $fd " connection_t $connect_name = {0, 0, 0, 0};// We dont need connection as they are done in hardware. just define to prevent error\n";
+	    	 }
+	    	 
+	    	 
+	    	 #actor_t
 	    	 my  ($actor_name) = sscanf("extern actor_t %s;",$line);
 	    	 if(defined $actor_name ){
-	    	 	
+	    	 	$extern=1;
 	    	 	if (defined $fifos{"$actor_name"}{'file'}){
 	    	 	#	print "===============================================================\n";
 	    	 	#add actor definition
@@ -572,11 +590,15 @@ sub genereate_output_orcc{
 	    	 	    	#print $fd "$lines[0]\n";
 	    	 	    	$actors_str=$actors_str."$lines[0]\n";
 	    	 	    }
+	    	 	     	
 	    	 	}
+	    	 	
 	    	 	
 	    	 }
 	    	 
 	    	 $line= "//$line\n" ; # comment every files start with extern
+	    	add_colored_info($tview,"The Auto generator does not know how to define this extern definition:\n $line \n",'red') if($extern == 0);
+	    	
 	    }
         print $fd "$line\n";
    
@@ -600,9 +622,25 @@ $main
 		
 ";
 
-
+ add_colored_info($tview,"$main_c file has been created successfully from $actor_file file \n",'blue');	
 		
 	}	#actor
+	
+	
+	#done ask the user if he wants to close the auto generator window
+	my $dialog = Gtk2::MessageDialog->new (my $w,
+                                      'destroy-with-parent',
+                                      'question', # message type
+                                      'yes-no', # which set of buttons?
+                                      "The source files have been generated successfully. Do you want to close the current window?");
+  		my $response = $dialog->run;
+  		if ($response eq 'yes') {
+      			$window->destroy;
+  		}
+  		$dialog->destroy;
+	
+	
+
 		
 } #end sub
 

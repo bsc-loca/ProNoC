@@ -1,5 +1,5 @@
 #######################################################################
-##	File: test.NWM
+##	File: test@112!*&7.NWM
 ##    
 ##	Copyright (C) 2014-2019  Alireza Monemi
 ##    
@@ -33,10 +33,7 @@ $nwmaker = bless( {
                     'ROUTER3' => {
                                    'NUM' => 0
                                  },
-                    'map_info' => {
-                                    'va' => '0',
-                                    'ha' => '0'
-                                  },
+                    'map_info' => {},
                     'ROUTER5_4' => {
                                      'PNUM' => 5,
                                      'TYPE' => 'ROUTER',
@@ -364,7 +361,7 @@ $nwmaker = bless( {
                                      'TYPE' => 'ROUTER',
                                      'PNUM' => 5
                                    },
-                    'save_as' => 'test',
+                    'save_as' => 'test@112!*&7',
                     'ROUTER12' => {
                                     'NUM' => 0
                                   },

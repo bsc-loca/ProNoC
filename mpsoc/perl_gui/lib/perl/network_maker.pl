@@ -1164,7 +1164,7 @@ sub show_paths_between_two_endps{
 				
 			my $check= Gtk2::CheckButton->new();
 			#print "if($select eq $path)";
-			if(defined $select) {if($selp eq $scal) {$check->set_active(TRUE);}}
+			if(defined $select && defined $scal) {if($selp eq $scal) {$check->set_active(TRUE);}}
 			else {$check->set_active(FALSE);}
 			
 			$check-> signal_connect("toggled" => sub{
@@ -1201,12 +1201,12 @@ sub show_paths_between_two_endps{
 ##########
 sub save_network {
 	my ($self)=@_;
-	# read emulation name
+	# read topology  name
 	my $name=$self->object_get_attribute('save_as');	
 	#print $name;
 	my $s= (!defined $name)? 0 : (length($name)==0)? 0 :1;	
 	if ($s == 0){
-		message_dialog("Please set a name!");
+		message_dialog("Please set the topology name!");
 		return 0;
 	}
 	# Write object file
@@ -1230,7 +1230,7 @@ sub get_all_endp_ids{
 
 
 #############
-#    load_mpsoc
+#    load
 #############
 
 sub load_net_maker{
@@ -1268,6 +1268,7 @@ sub load_net_maker{
         }                    
      }
      $dialog->destroy;
+     set_gui_status($self,"ref",1)
 }
 
 
@@ -1761,10 +1762,269 @@ sub check_cyclick_loop{
 	
 }
 
+sub generate_topology{
+	my ($self,$info)=@_;
+	my $name=$self->object_get_attribute('save_as');
+    my $error = check_verilog_identifier_syntax($name);
+    if ( defined $error ){
+        #message_dialog("The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
+        my $message = "The \"$name\" is given with an unacceptable formatting. The topology name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
+        add_colored_info(\$info, $message,'red' );
+        return 0;
+    }
+	
+	#generate topology top module verilog file
+	generate_topology_top_v($self,$info);
+	
+	
+	
+}
+
+
+sub get_router_instance_v {
+	my ($self,$vdb,$rname,$current_r)=@_;
+	
+	
+	my $instance= $self->object_get_attribute("$rname","NAME");		
+	my $Pnum=$self->object_get_attribute("$rname",'PNUM');
+	
+	#read ruter parameters and ports
+	my %parameters = $vdb->get_modules_parameters_not_local("router");
+    my @parameters_order= $vdb->get_modules_parameters_not_local_order("router");
+    my @ports_order=$vdb->get_module_ports_order("router");
+    my %Ptypes=get_ports_type($vdb,"router");
+    my %Pranges=get_ports_rang($vdb,"router");
+	
+	my $wires_v="
+	/*******************
+	*		$instance
+	*******************/;
+";
+	
+	my $router_v="	
+	/*******************
+	*		$instance
+	*******************/
+	router #(
+";
+	
+	my $f=0;
+	foreach my $p (@parameters_order){
+			if($p eq 'P'){
+				$router_v= ($f==0)? $router_v."\t\t.${p}($Pnum)" : $router_v.",\n\t\t.${p}(${Pnum})";		
+			}
+			else{
+				$router_v= ($f==0)? $router_v."\t\t.${p}(${p})" : $router_v.",\n\t\t.${p}(${p})";	
+				$f=1;		
+			}	
+	}
+	
+	$router_v=$router_v."	
+	)
+	$instance
+	(	
+";
+	
+	$f=0;
+    foreach my $p (@ports_order){		
+		$router_v= ($f==0)? $router_v."\t\t.${p}(${instance}_${p})" : $router_v.",\n\t\t.${p}(${instance}_${p})";	
+		$f=1;			
+	}	
+	
+	$router_v=$router_v."
+\t);
+";
+
+
+	
+$router_v= $router_v."
+\t\tassign ${instance}_clk = clk;
+\t\tassign ${instance}_reset = reset;
+\t\tassign ${instance}_current_r_addr = $current_r;
+\t\tassign ${instance}_neighbors_r_addr=0;
+"; 
+
+
+for (my $i=0;$i<$Pnum; $i++){ 
+	my $pname= "Port[${i}]";
+	my $connect = $self->{$rname}{'PCONNECT'}{$pname};
+	if(defined $connect){
+		my ($cname,$pnode)=split(',',$connect);
+		my $cinstance= $self->object_get_attribute("$cname","NAME");		
+		my ($cp)= sscanf("Port[%u]","$pnode");
+		$router_v = $router_v."//Connect $instance port $i to  $cinstance port $cp\n";
+		
+		foreach my $p (@ports_order){
+	  	  
+	  	
+	  	    next if($p eq 'clk'|| $p eq 'reset' || $p eq 'current_r_addr' || $p eq 'neighbors_r_addr'   );
+			my $Ptype=$Ptypes{$p};
+			my $Prange=$Pranges{$p};
+			
+			$wires_v=$wires_v."\twire [$Prange] ${instance}_${p};\n";
+			
+			if(defined $Prange && $Ptype eq 'input' ){		
+		    	my ($max, $min)=split (':',$Prange);
+		    
+		    	
+		    	if($max =~ /-1\s*$/){$max =~ s/-1\s*$//;}
+		    	else  {$max="$max+1"};
+		    	my $width = ($min eq 0)? "$max" : "$max-$min"; 
+		    	my $iplus=$i+1;
+		    	my $cpplus=$cp+1;
+		    	my $cport=$p;
+		    	($cport=$cport)=~ s/_in_/_out_/g ;
+		  	    $router_v=  $router_v."\t\tassign  	${instance}_${p} [$iplus*(W)-1 : 		 $i*(W) ] = ${cinstance}_${cport} [$cpplus*(W)-1 : 		 $cp*(W) ];\n";	
+			}
+		
+		}
+	
+	}	
+	else {
+			$router_v = $router_v."//Connect $instance port $i to  ground\n";
+			foreach my $p (@ports_order){
+	  	    next if($p eq 'clk'|| $p eq 'reset' || $p eq 'current_r_addr' || $p eq 'neighbors_r_addr'   );
+			my $Ptype=$Ptypes{$p};
+			my $Prange=$Pranges{$p};
+			if(defined $Prange && $Ptype eq 'input' ){		
+		    	my ($max, $min)=split (':',$Prange);		    	
+		    	if($max =~ /-1\s*$/){$max =~ s/-1\s*$//;}
+		    	else  {$max="$max+1"};
+		    	my $width = ($min eq 0)? "$max" : "$max-$min"; 
+		    	my $iplus=$i+1;
+		        $router_v=  $router_v."\t\tassign  	${instance}_${p} [$iplus*(W)-1 : 		 $i*(W) ] = {W{1'b0}};\n";	
+			}
+		}
+	}
+}
+	
+	
+	
+	return ($wires_v,$router_v);		
+}
 
 
 
 
+
+
+
+sub generate_topology_top_v {
+	my ($self,$info)=@_;
+	
+	#step 1 parse the router verilog  input file
+	my $router_v=	get_project_dir()."/mpsoc/src_noc/router.v";
+	unless(-f $router_v){
+		add_colored_info(\$info, "could not find $router_v file!\n",'red' );
+		return;
+	}	 
+	my $vdb=read_verilog_file($router_v);
+	
+	#create topology top file
+	my $name=$self->object_get_attribute('save_as');
+	my $dir  = "$ENV{'PRONOC_WORK'}/custom_topology/$name";
+	mkpath("$dir",1,01777);  
+	my $r; 
+	my $top="$dir/$name.v";
+    open my $fd, ">$top" or $r = "$!\n";
+    if(defined $r) {
+    	add_colored_info($info,"Error in creating $top: $r",'red');
+		return;
+    } 
+    print $fd autogen_warning();
+    print $fd get_license_header($top);   
+
+    my %params = $vdb->get_modules_parameters_not_local('router');
+    my @param_order =$vdb->get_modules_parameters_not_local_order('router');
+
+    my $param_str;
+	foreach my $p (@param_order){
+		my $value =$params{$p}; 
+		$value = 0 if($p eq 'T0' || $p eq 'T1' || $p eq 'T2' || $p eq 'T3');
+		$value = "\"${name}\"" if($p eq 'TOPOLOGY');
+		$value = "\"${name}_DETERMINISTIC\"" if  ($p eq "ROUTE_NAME");
+		$param_str =(defined $param_str)? $param_str.",\n\tparameter $p = $value" : "\tparameter $p = $value" 		
+	}
+ 
+    my @ends=get_list_of_all_endpoints($self);
+    my @routers=get_list_of_all_routers($self);
+    
+    my $MAX_P=0;
+    foreach my $p (@routers){
+    	my $Pnum=$self->object_get_attribute("$p",'PNUM');
+    	$MAX_P =$Pnum  if($Pnum>$MAX_P );    	
+    }	
+
+    my $NE= scalar @ends;
+    my $NR= scalar @routers;
+
+    print $fd "
+module   ${name}_noc #(  
+    $param_str
+)(
+    reset,
+    clk,    
+    flit_out_all,
+    flit_out_wr_all, 
+    credit_in_all,
+    flit_in_all,  
+    flit_in_wr_all,  
+    credit_out_all   
+);
+
+
+
+	localparam 
+		NE = $NE,
+		NR = $NR,
+		RAw=log2(NR),
+		MAX_P=$MAX_P;
+	
+
+	 localparam
+        PV = V * MAX_P,
+        Fw = 2+V+Fpay, //flit width;    
+        PFw = MAX_P * Fw,
+        NEFw = NE * Fw,
+        NEV = NE * V,
+        CONG_ALw = CONGw * MAX_P,
+        PRAw = MAX_P * RAw; 
+
+
+    
+    input reset,clk;    
+    
+    output [NEFw-1 : 0] flit_out_all;
+    output [NE-1 : 0] flit_out_wr_all;
+    input  [NEV-1 : 0] credit_in_all;
+    input  [NEFw-1 : 0] flit_in_all;
+    input  [NE-1 : 0] flit_in_wr_all;  
+    output [NEV-1 : 0] credit_out_all;                
+	";
+	
+	#step 2 	add routers
+	my @nodes=get_list_of_all_routers($self);
+	my $i=0;
+	
+	my $wires='',
+	my $routers='';
+	
+	foreach my $p (@nodes){
+		
+		my ($wire,$router) = get_router_instance_v($self,$vdb,$p,$i);
+		$wires=$wires.$wire,
+		$routers=$routers.$router;
+		 
+		
+		$i++;
+	}
+	
+	print $fd $wires.$routers; 
+	
+	close $fd;
+	
+	
+}
 
 
 sub build_network_maker_gui {
@@ -1794,12 +2054,15 @@ sub build_network_maker_gui {
 	my $open = def_image_button('icons/browse.png','Load');	
 	
 	
-	my ($entrybox,$entry) = def_h_labeled_entry('Save as:',undef);
+	my ($entrybox,$entry) = def_h_labeled_entry('Topology name:',undef);
 	
 	$entry->signal_connect( 'changed'=> sub{
 		my $name=$entry->get_text();
 		$self->object_add_attribute ("save_as",undef,$name);	
 	});	
+	
+	
+	
 	my $save = def_image_button('icons/save.png','Save');
 	$entrybox->pack_end($save,   FALSE, FALSE,0);
 
@@ -1854,7 +2117,7 @@ sub build_network_maker_gui {
 	});	
 	
 	$generate->signal_connect("clicked" => sub{ 
-			
+		generate_topology($self,$info);
 	
 	});	
 		
@@ -1895,17 +2158,18 @@ sub build_network_maker_gui {
 			$draw=gen_right_paned($self);
 			$h1 -> pack2($draw, TRUE, TRUE);    
 						
-			print "ref\n";
+			my $saved_name=$self->object_get_attribute('save_as');
+		    if(defined $saved_name) {$entry->set_text($saved_name);}
 			set_gui_status($self,"ideal",0);
 			$main_table->show_all();	
+			
 			return TRUE;
 			 
 		}
 		
 		
 		#refresh GUI
-		my $saved_name=$self->object_get_attribute('save_as');
-		if(defined $saved_name) {$entry->set_text($saved_name);}
+		
 											
 		
 		

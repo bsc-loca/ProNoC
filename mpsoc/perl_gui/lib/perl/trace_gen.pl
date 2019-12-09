@@ -39,9 +39,9 @@ exit trace_gen_main() unless caller;
 
 
 sub trace_gen_main {
-	my ($mode,$ref)=@_;
+	my ($mode,$ref,$w)=@_;
 	my $app = __PACKAGE__->new();
-	my $table=$app->build_trace_gui($mode,$ref);
+	my $table=$app->build_trace_gui($mode,$ref,$w);
 		
 	return $table;
 }
@@ -49,7 +49,7 @@ sub trace_gen_main {
 
 
 sub build_trace_gui {
-	my ($self,$mode,$ref) = @_;
+	my ($self,$mode,$ref,$w) = @_;
 	$self->object_add_attribute("file_id",undef,'a');
 	$self->object_add_attribute("trace_id",undef,0);
 	$self->object_add_attribute('select_multiple','action',"_");
@@ -137,7 +137,7 @@ sub build_trace_gui {
 	
 	$generate->signal_connect("clicked" => sub{ 
 		genereate_output_tasks($self) if ($mode eq 'task');
-		genereate_output_orcc ($self,\$tview) if ($mode eq 'orcc');
+		genereate_output_orcc ($self,\$tview,$w) if ($mode eq 'orcc');
 	
 	});	
 	
