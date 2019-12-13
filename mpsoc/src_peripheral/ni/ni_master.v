@@ -843,6 +843,7 @@ module  ni_master #(
         .reset(reset),
         .clk(clk),
         .current_r_addr(current_r_addr),
+        .current_e_addr(current_e_addr),
         .dest_e_addr(dest_e_addr),
         .destport(destport)
     );

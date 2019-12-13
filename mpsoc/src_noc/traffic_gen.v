@@ -304,9 +304,10 @@ module  traffic_gen #(
         .pck_wr(pck_wr),
         .pck_rd(pck_rd),
         .current_r_addr(current_r_addr),
+        .current_e_addr(current_e_addr),
         .clk_counter(clk_counter),
         .pck_number(pck_number),
-        .dest_e_addr(dest_e_addr_reg),
+        .dest_e_addr(dest_e_addr_reg),        
         .pck_timestamp(pck_timestamp),
         .buffer_full(buffer_full),
         .pck_ready(pck_ready),
@@ -852,6 +853,7 @@ endmodule
     pck_wr,
     pck_rd,
     current_r_addr,
+    current_e_addr,
     pck_number,
     dest_e_addr,
     pck_timestamp,
@@ -879,6 +881,7 @@ endmodule
  
     input  reset,clk, pck_wr, pck_rd;
     input  [RAw-1  :0] current_r_addr;
+    input  [EAw-1 : 0] current_e_addr;
     input  [CLK_CNTw-1 :0] clk_counter;
      
     output [PCK_CNTw-1 :0] pck_number;
@@ -910,6 +913,7 @@ endmodule
         .clk(clk),
         .current_r_addr(current_r_addr),
         .dest_e_addr(dest_e_addr),
+        .current_e_addr(current_e_addr),
         .destport(destport)
     );
 

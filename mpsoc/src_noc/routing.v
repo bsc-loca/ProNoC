@@ -43,6 +43,7 @@ module ni_conventional_routing #(
     reset,
     clk,
     current_r_addr,
+    current_e_addr,
     dest_e_addr,
     destport
 );    
@@ -58,6 +59,7 @@ module ni_conventional_routing #(
   
     input  reset,clk;          
     input   [RAw-1   :0] current_r_addr;
+    input   [EAw-1   :0] current_e_addr;
     input   [EAw-1   :0] dest_e_addr;
     output  [DSTPw-1 :0] destport;
     
@@ -130,8 +132,10 @@ module ni_conventional_routing #(
             .dest_y(dest_ey),
             .destport(destport)
         );
-    
-    end else begin : others
+    /* verilator lint_off WIDTH */ 
+    end else if(TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" ) begin :tree_based
+    /* verilator lint_on WIDTH */  
+     
         localparam
             K=T1,
             L=T2,
@@ -154,7 +158,7 @@ module ni_conventional_routing #(
         );    
         
         /* verilator lint_off WIDTH */ 
-        if(TOPOLOGY == "FATTREE" )begin : fat    
+        if(TOPOLOGY == "FATTREE" )begin : fattree    
         /* verilator lint_on WIDTH */ 
                    
             fattree_conventional_routing #(
@@ -171,9 +175,9 @@ module ni_conventional_routing #(
                 .dest_addr_encoded(dest_e_addr),
                 .destport_encoded(destport)
             );    
-        
-        end else begin : tree 
-                          
+        /* verilator lint_off WIDTH */ 
+        end else  if(TOPOLOGY == "TREE" )begin : tree 
+        /* verilator lint_on WIDTH */                   
             tree_conventional_routing #(
                 .ROUTE_NAME(ROUTE_NAME),
                 .K(T1),
@@ -187,8 +191,23 @@ module ni_conventional_routing #(
                 .dest_addr_encoded(dest_e_addr),
                 .destport_encoded(destport)
             );    
-        end
-    end
+        end // tree 
+    end else begin :custom
+    
+        custom_ni_routing  #(
+            .TOPOLOGY(TOPOLOGY),
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_conventional_routing
+        (
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(current_e_addr),
+            .destport(destport)        
+        );    
+    
+    end //custom
     endgenerate
 
 endmodule
@@ -219,14 +238,15 @@ module look_ahead_routing #(
 (
     current_r_addr,  //current router  address
     neighbors_r_addr,
-    dest_e_addr,  // destination router x address          
+    dest_e_addr,  // destination endpoint address   
+    src_e_addr, //   source endpoint address
     destport_encoded,   // current router destination port number       
     lkdestport_encoded, // look ahead destination port number
     reset,
     clk
 );
     
-     function integer log2;
+    function integer log2;
     input integer number; begin   
        log2=(number <=1) ? 1: 0;    
        while(2**log2<number) begin    
@@ -249,6 +269,7 @@ module look_ahead_routing #(
     input   [PRAw-1:  0]  neighbors_r_addr;
     input   [RAw-1   :   0]  current_r_addr;
     input   [EAw-1   :   0]  dest_e_addr;
+    input   [EAw-1   :   0]  src_e_addr;
     input   [DSTPw-1  :   0]  destport_encoded;
     output  [DSTPw-1  :   0]  lkdestport_encoded;
     input                   reset,clk;
@@ -383,7 +404,25 @@ module look_ahead_routing #(
         	.reset(reset),
         	.clk(clk)
         );    
-    end    
+    end else begin : custom
+    
+        custom_lkh_routing  #(
+            .TOPOLOGY(TOPOLOGY),
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        look_ahead_routing
+        (
+            .current_r_addr(current_r_addr),
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(lkdestport_encoded),
+            .reset(reset),
+            .clk(clk)
+        );
+        
+    end
     endgenerate
 endmodule
     

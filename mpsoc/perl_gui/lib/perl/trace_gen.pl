@@ -11,7 +11,7 @@ use File::Path;
 use File::Copy;
 use POSIX qw(ceil floor);
 use Cwd 'abs_path';
-
+use List::MoreUtils qw(uniq);
 
 
 use base 'Class::Accessor::Fast';
@@ -1026,14 +1026,19 @@ sub object_get_attribute{
 sub object_add_attribute_order{
 	my ($self,$attribute,@param)=@_;
 	$self->{'parameters_order'}{$attribute}=[] if (!defined $self->{parameters_order}{$attribute});
-	foreach my $p (@param){
+	
+	foreach my $p (uniq @param){
 		push (@{$self->{parameters_order}{$attribute}},$p);
 
 	}
 }
+
+
+
 sub object_get_attribute_order{
 	my ($self,$attribute)=@_;
-	return @{$self->{parameters_order}{$attribute}};
+	my @order=@{$self->{parameters_order}{$attribute}};
+	return uniq(@order)
 }
 
 sub object_remove_attribute{

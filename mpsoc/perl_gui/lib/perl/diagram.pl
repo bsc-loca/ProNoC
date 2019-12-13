@@ -322,10 +322,8 @@ sub show_diagram {
 	$scrolled_win->add_with_viewport($diagram);
 	$scrolled_win->show_all();	
 		
-		
-
-
 }
+
 
 
 sub save_diagram_as {
@@ -376,6 +374,56 @@ sub save_diagram_as {
 					
 	      		 }
 	     		$dialog->destroy;
+}
+
+
+
+
+sub save_inline_diagram_as {
+	my $self= shift;
+	
+	my $file;
+	my $title ='Save as';
+
+
+
+	my @extensions=('png','jpeg');
+	my $open_in=undef;
+	my $dialog = Gtk2::FileChooserDialog->new(
+            	'Save file', undef,
+            	'save',
+            	'gtk-cancel' => 'cancel',
+            	'gtk-ok'     => 'ok',
+        	);
+	# if(defined $extension){
+		
+		foreach my $ext (@extensions){
+			my $filter = Gtk2::FileFilter->new();
+			$filter->set_name($ext);
+			$filter->add_pattern("*.$ext");
+			$dialog->add_filter ($filter);
+		}
+		
+	# }
+	  if(defined  $open_in){
+		$dialog->set_current_folder ($open_in); 
+		# print "$open_in\n";
+		 
+	}
+		
+	if ( "ok" eq $dialog->run ) {
+	    	$file = $dialog->get_filename;
+			my $ext = $dialog->get_filter;
+			$ext=$ext->get_name;
+			my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
+			$file = ($suffix eq ".$ext" )? $file : "$file.$ext";
+			
+			$self->object_add_attribute("graph_save","name",$file);
+			$self->object_add_attribute("graph_save","extension",$ext);
+			$self->object_add_attribute("graph_save","enable",1);
+			set_gui_status($self,"ref",5);				
+	}
+	$dialog->destroy;
 }
 
 
@@ -493,7 +541,7 @@ sub show_trace_diagram {
 
 	my $table=def_table(20,20,FALSE);
 	
-	my $window=def_popwin_size(80,80,"Processing Tile functional block diagram",'percent');	
+	my $window=def_popwin_size(80,80,"Trace Diagram",'percent');	
 	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
 	$scrolled_win->set_policy( "automatic", "automatic" );
 	
@@ -543,6 +591,10 @@ sub show_trace_diagram {
 	if(gen_diagram($self,$type)){
 		show_diagram ($self,$scrolled_win,$table, "${type}_diagram");
 	}
+	
+	
+	
+	
 	$window->show_all();
 
 	

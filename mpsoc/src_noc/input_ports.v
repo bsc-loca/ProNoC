@@ -382,7 +382,7 @@ module input_queue_per_port  #(
          .class_o(class_in),
          .destport_o(destport_in),
          .dest_e_addr_o(dest_e_addr_in),
-         .src_e_addr_o(src_e_addr_in ),
+         .src_e_addr_o(src_e_addr_in),
          .vc_num_o(vc_num_in),
          .hdr_flit_wr_o(hdr_flit_wr),
          .hdr_flg_o(hdr_flg_in),
@@ -795,6 +795,7 @@ endgenerate
         .current_r_addr(current_r_addr),
         .neighbors_r_addr(neighbors_r_addr),
         .dest_e_addr(dest_e_addr_in),
+        .src_e_addr(src_e_addr_in),
         .destport_encoded(destport_in_encoded),
         .lkdestport_encoded(lk_destination_in_encoded),
         .reset(reset),
@@ -969,7 +970,7 @@ module destp_generator #(
             .dest_port_out(dest_port_out)
           );    
     
-   end else begin : mesh
+   end else if(TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") begin : mesh
     
         mesh_torus_destp_generator #(
         	.TOPOLOGY(TOPOLOGY),
@@ -992,6 +993,81 @@ module destp_generator #(
         	.odd_column(odd_column)// only needed for od even routing
         );
     
+    end else begin :custom
+    
+        custom_topology_destp_decoder #(
+        	.ROUTE_TYPE(ROUTE_TYPE),
+        	.DSTPw(DSTPw),
+        	.P(P),
+        	.SW_LOC(SW_LOC)
+        )
+        destp_generator
+        (
+        	.dest_port_in_encoded(dest_port_encoded),
+            .dest_port_out(dest_port_out)
+        );    
     end
     endgenerate
+endmodule
+
+/******************
+ *   custom_topology_destp_decoder
+ * ***************/
+
+
+module custom_topology_destp_decoder #(
+    parameter ROUTE_TYPE="DETERMINISTIC",
+    parameter DSTPw=4,
+    parameter P=5,
+    parameter SW_LOC=0        
+)(
+    dest_port_in_encoded,
+    dest_port_out
+ );
+  
+    localparam
+        P_1 = P-1,
+        MAXW =2**DSTPw;
+  
+    input  [DSTPw-1 : 0] dest_port_in_encoded;
+    output [P_1-1 : 0] dest_port_out;
+      
+   
+    wire [MAXW-1 : 0] dest_port_one_hot;
+    
+    bin_to_one_hot #(
+    	.BIN_WIDTH(DSTPw),
+    	.ONE_HOT_WIDTH(MAXW)
+    )
+    conv
+    (
+    	.bin_code(dest_port_in_encoded),
+    	.one_hot_code(dest_port_one_hot)
+    );
+   
+    remove_sw_loc_one_hot #(
+         .P(P),
+         .SW_LOC(SW_LOC)
+    )
+    remove_sw_loc
+    (
+         .destport_in(dest_port_one_hot[P-1 : 0]),
+         .destport_out(dest_port_out)
+    );
+   
+   //synthesis translate_off 
+   //synopsys  translate_off
+   
+   initial begin
+   #10;
+      if( ROUTE_TYPE != "DETERMINISTIC") begin
+        $display("%t: Error: Custom topologies can only support deterministic routing in the current version of ProNoC",$time);
+        $stop; 
+      end
+   end
+   
+   
+   //synopsys  translate_on
+   //synthesis translate_on 
+   
 endmodule
