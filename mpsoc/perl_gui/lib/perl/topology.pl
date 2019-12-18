@@ -68,7 +68,7 @@ sub get_topology_info_sub {
         $RAw = $Xw; 
         $EAw = ($NL==1) ? $RAw : $RAw + $Lw;		
        
-	}else {#mesh torus
+	}elsif ($topology eq '"MESH"' || $topology eq '"TORUS"' ) {
 		my $NX=$T1;
 		my $NY=$T2;
 		my $NL=$T3;
@@ -80,7 +80,12 @@ sub get_topology_info_sub {
         $RAw = $Xw + $Yw;
         $EAw = ($NL==1) ? $RAw : $RAw + $Lw;
 	}	
-		
+	else{ #custom
+		$NE= $T1; 
+		$NR= $T2;
+		$RAw=log2($NR);
+		$EAw=log2($NE);		
+	}		
 	return ($NE, $NR, $RAw, $EAw, $Fw); 	
 }
 
@@ -132,8 +137,11 @@ sub get_connected_router_id_to_endp{
 	my $T3=$self->object_get_attribute('noc_param','T3');
 	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
 		return int($endp_id/$T1);
-	}else{
+	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		 return int($endp_id/$T3);
+	}else{#custom
+		my @er_addr = $self->object_get_attribute('noc_connection','er_addr');  
+		return $er_addr[$endp_id];		
 	}	
 }
 
@@ -145,8 +153,10 @@ sub get_router_num {
 	my $T2=$self->object_get_attribute('noc_param','T2');
 	if($topology eq '"FATTREE"') {
 		return fattree_addrdecode($x, $T1, $T2);
-	}else{
+	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		 return ($y*$T1)+$x;		
+	}else{#custom
+		#It is not used for custom topology 
 	}
 }
 
@@ -158,8 +168,10 @@ sub router_addr_encoder{
 	my $T3=$self->object_get_attribute('noc_param','T3');
 	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
 		return fattree_addrencode($id, $T1, $T2);
-	}else{
+	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		return mesh_tori_addrencode($id,$T1, $T2,1);
+	}else { #custom
+		return $id;		
 	}	
 }
 
@@ -171,8 +183,10 @@ sub endp_addr_encoder{
 	my $T3=$self->object_get_attribute('noc_param','T3');
 	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
 		return fattree_addrencode($id, $T1, $T2);
-	}else{
-	return mesh_tori_addrencode($id,$T1, $T2,$T3);
+	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
+		return mesh_tori_addrencode($id,$T1, $T2,$T3);
+	}else{#CUSTOM
+		return $id;
 	}
 }
 
@@ -185,10 +199,12 @@ sub endp_addr_decoder {
 	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
 		return fattree_addrdecode($code, $T1, $T2);
 	}
-	else{
+	elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		my ($x, $y, $l) = mesh_tori_addr_sep($code,$T1, $T2,$T3);
 		#print "my ($x, $y, $l) = mesh_tori_addr_sep($code,$T1, $T2,$T3);\n";
 		return (($y*$T1)+$x)*$T3+$l;
+	}else{#custom
+		return $code;
 	}
 }
 
@@ -308,7 +324,7 @@ sub get_noc_verilator_top_modules_info {
     	);
 				
        
-	}else {#mesh torus
+	}elsif ($topology eq '"MESH"' || $topology eq '"TORUS"' ) {
 		
         $router_p=1;
         $nr_p{1}=$nr;
@@ -320,7 +336,44 @@ sub get_noc_verilator_top_modules_info {
 	 		
     	);
         
-	}
+	}else {#custom
+		
+		my $dir =get_project_dir()."/mpsoc/src_topolgy";
+		my $file="$dir/param.obj";	
+		my %param;
+		if(-f $file){
+			my ($pp,$r,$err) = regen_object($file );
+	        if ($r){        
+	        	print "**Error: cannot open $file file: $err\n";
+	            return;
+	         } 
+	         
+		 	%param=%{$pp};		
+		}else {
+			print "**Error: cannot find $file \n";
+			return;
+		}
+		 
+	    my $topology_name=$self->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME'); 
+		my $ref=$param{$topology_name}{'ROUTER_Ps'};
+		print $ref;
+		my %router_ps= %{$ref};
+		my $i=1;
+		%tops = ("Vnoc" => "noc_connection.sv");
+		
+		#should sort neumeric. The router with smaller port number should comes first
+		
+		foreach my $p (sort { $a <=> $b } keys  %router_ps){
+			$nr_p{$i}=$router_ps{$p};
+            $nr_p{"p$i"}=$p;
+            $tops{"Vrouter$i"}= "router_verilator_p${p}.v", 
+			$i++;
+			
+		}	
+		$router_p=$i-1;	
+	}#else
+	
+		
 	
 	my $includ_h="\n";
 	for (my $p=1; $p<=$router_p ; $p++){
@@ -328,20 +381,23 @@ sub get_noc_verilator_top_modules_info {
 	}
 	for (my $p=1; $p<=$router_p ; $p++){
 		 $includ_h=$includ_h."#define NR${p} $nr_p{$p}\n";
-		 $includ_h=$includ_h."Vrouter${p}		*router${p}[ $nr_p{$p} ];   // Instantiation of router with   port number\n";
+		 my $pnum= $nr_p{"p$p"};
+		 $includ_h=$includ_h."Vrouter${p}		*router${p}[ $nr_p{$p} ];   // Instantiation of router with $pnum  port number\n";
 	}
 	
+	
+	my $st1='';
+	my $st2='';
+	my $st3='';
+	my $st4='';
+	my $st5='';
+	
+	my $i=1;
+	my $j=0;
+	my $accum=0;
 	for (my $p=1; $p<=$router_p ; $p++){
 		$includ_h=$includ_h."
 		
-	#define NE  $ne
- 	#define NR  $nr
- 	#define ROUTER_P_NUM $router_p
- 	
- 	extern Vnoc		 	*noc;
-    extern int reset,clk;
- 	
- 	
 		
 void router${p}_connect_to_noc (unsigned int r, unsigned int n){
 	unsigned int j;
@@ -350,70 +406,77 @@ void router${p}_connect_to_noc (unsigned int r, unsigned int n){
 	router${p}[r]->neighbors_r_addr 	= noc->neighbors_r_addr[n];
 	
 
-	router${p}[r]->flit_in_we_all	= noc->router_flit_out_we_all[n];
+	router${p}[r]->flit_in_wr_all	= noc->router_flit_out_wr_all[n];
 	router${p}[r]->credit_in_all	= noc->router_credit_out_all[n];
 	router${p}[r]->congestion_in_all	= noc->router_congestion_out_all[n];
 	for(j=0;j<flit_out_all_size;j++)router${p}[r]->flit_in_all[j] 	= noc->router_flit_out_all[n][j];
-		noc->router_flit_in_we_all[n]	=	router${p}[r]->flit_out_we_all ;
+		noc->router_flit_in_wr_all[n]	=	router${p}[r]->flit_out_wr_all ;
 		noc->router_credit_in_all[n]	=	router${p}[r]->credit_out_all;
 		noc->router_congestion_in_all[n]=	router${p}[r]->congestion_out_all;
 	for(j=0;j<flit_out_all_size;j++) noc->router_flit_in_all[n][j]	= router${p}[r]->flit_out_all[j] ;	
 }
 ";
+#if		ROUTER_P_NUM >$j
+$st1=$st1."
+	for(i=0;i<NR${i};i++) router${i}_connect_to_noc (i, i+$accum);
+";
+#endif
+
+$st2=$st2."
+	for(i=0;i<NR${i};i++)	router${i}[i] 	= new Vrouter${i};            
+";
+
+$st3=$st3."
+	for(i=0;i<NR${i};i++){
+		router${i}[i]->reset= reset;
+		router${i}[i]->clk= clk ;
 	}
+";
+
+$st4=$st4."
+	for(i=0;i<NR${i};i++) router${i}[i]->eval();
+";
+
+
+$st5=$st5."
+	for(i=0;i<NR${i};i++) router${i}[i]->final();
+";
+
+
+	$i++;
+	$j++;
+	$accum=$accum+$nr_p{$p};
+	
+}
+	
+	
 $includ_h=$includ_h."
 void inline connect_all_routers_to_noc ( ){
 	int i;
-if((strcmp(TOPOLOGY ,\"FATTREE\")==0) || (strcmp(TOPOLOGY ,\"TREE\")==0) ){				
-				for(i=0;i<NR1;i++) router1_connect_to_noc (i, i);
-#if		ROUTER_P_NUM >1
-				for(i=0;i<NR2;i++) router2_connect_to_noc (i, i+NR1);
-#endif
-				
-			}else{
-				for (i=0;i<NR1;i++) 	router1_connect_to_noc (i, i);						
-			}
+    $st1
 }
 
 void Vrouter_new(){
 	int i=0;
-	for(i=0;i<NR1;i++)	router1[i] 	= new Vrouter1;             // root nodes
-#if		ROUTER_P_NUM >1
-	for(i=0;i<NR2;i++)	router2[i] 	= new Vrouter2;             // leaves
-#endif
+	$st2
 
 	
 }
 
 void inline connect_routers_reset_clk(){
 	int i;
-	for(i=0;i<NR1;i++) {
-		router1[i]->reset= reset;
-		router1[i]->clk= clk ;
-	}
-#if		ROUTER_P_NUM >1
-	for(i=0;i<NR2;i++) {
-		router2[i]->reset= reset;
-		router2[i]->clk= clk ;
-	}
-#endif
+	$st3;
 }
 
 
 void inline routers_eval(){
 	int i=0;
-	for(i=0;i<NR1;i++) router1[i]->eval();
-#if		ROUTER_P_NUM >1
-	for(i=0;i<NR2;i++) router2[i]->eval();
-#endif
+	$st4;
 }
 
 void inline routers_final(){
 	int i;
-	for(i=0;i<NR1;i++) router1[i]->final();
-#if		ROUTER_P_NUM >1
-		for(i=0;i<NR2;i++) router2[i]->final();
-#endif
+	$st5;
 }		
 ";	
 	 return ($nr,$ne,$router_p,\%tops,$includ_h);	

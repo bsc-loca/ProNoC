@@ -780,7 +780,7 @@ module  endp_addr_encoder #(
        );
      
      
-     end else begin 
+     end else if  (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin :tori
      
         mesh_tori_addr_encoder #(
         	.NX(T1),
@@ -795,6 +795,10 @@ module  endp_addr_encoder #(
         	.code(code)
         );
      
+     
+     end else begin :custom
+     
+        assign code =id;
      
      end
      endgenerate

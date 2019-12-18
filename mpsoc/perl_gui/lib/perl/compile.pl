@@ -1235,6 +1235,9 @@ sub verilator_compilation {
 	}
 	
 	
+	
+	
+	
 
 	#"split all verilog modules in separate  files"
 	add_info(\$outtext,"split all verilog modules in separate files\n");

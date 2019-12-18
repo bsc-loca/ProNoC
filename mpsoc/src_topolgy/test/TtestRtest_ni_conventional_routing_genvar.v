@@ -6,7 +6,7 @@
 
 
 /**********************************************************************
-**	File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_topolgy/test/test_ni_conventional_routing_genvar.v
+**	File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_topolgy/test/TtestRtest_ni_conventional_routing_genvar.v
 **    
 **	Copyright (C) 2014-2019  Alireza Monemi
 **    
@@ -25,7 +25,7 @@
 ** 	You should have received a copy of the GNU Lesser General Public
 ** 	License along with ProNoC. If not, see <http:**www.gnu.org/licenses/>.
 ******************************************************************************/ 
-module test_ni_conventional_routing_genvar  #(
+module TtestRtest_ni_conventional_routing_genvar  #(
 	parameter RAw = 3,  
 	parameter EAw = 3,   
 	parameter DSTPw=4,

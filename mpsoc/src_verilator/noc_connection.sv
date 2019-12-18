@@ -18,11 +18,11 @@ module noc_connection (
  start_i,
  start_o,
  router_flit_out_all, 
- router_flit_out_we_all,    
+ router_flit_out_wr_all,    
  router_credit_in_all,
  router_credit_out_all,
  router_flit_in_all,     
- router_flit_in_we_all,
+ router_flit_in_wr_all,
  router_congestion_in_all,
  router_congestion_out_all,
 // router_iport_weight_in_all,
@@ -68,12 +68,12 @@ module noc_connection (
                     
                     
     output [PFw-1 : 0] router_flit_out_all [NR-1 : 0];
-    output [MAX_P-1 : 0] router_flit_out_we_all [NR-1 : 0];    
+    output [MAX_P-1 : 0] router_flit_out_wr_all [NR-1 : 0];    
     input  [PV-1 : 0] router_credit_in_all [NR-1 : 0];
     
     
     input  [PFw-1 : 0] router_flit_in_all [NR-1 : 0];
-    input  [MAX_P-1 : 0] router_flit_in_we_all [NR-1 : 0];
+    input  [MAX_P-1 : 0] router_flit_in_wr_all [NR-1 : 0];
     output [PV-1 : 0] router_credit_out_all[NR-1: 0];                    
     
     input  [CONG_ALw-1  :   0] router_congestion_in_all [NR-1         :0];    
@@ -111,11 +111,11 @@ generate
          .start_i(start_i),
          .start_o(start_o),
          .router_flit_out_all(router_flit_out_all), 
-         .router_flit_out_we_all(router_flit_out_we_all),    
+         .router_flit_out_wr_all(router_flit_out_wr_all),    
          .router_credit_in_all(router_credit_in_all),
          .router_credit_out_all(router_credit_out_all),
          .router_flit_in_all(router_flit_in_all),     
-         .router_flit_in_we_all(router_flit_in_we_all),
+         .router_flit_in_wr_all(router_flit_in_wr_all),
          .router_congestion_in_all(router_congestion_in_all),
          .router_congestion_out_all(router_congestion_out_all),
          .ni_flit_in(ni_flit_in),    
@@ -139,11 +139,11 @@ generate
          .start_i(start_i),
          .start_o(start_o),
          .router_flit_out_all(router_flit_out_all), 
-         .router_flit_out_we_all(router_flit_out_we_all),    
+         .router_flit_out_wr_all(router_flit_out_wr_all),    
          .router_credit_in_all(router_credit_in_all),
          .router_credit_out_all(router_credit_out_all),
          .router_flit_in_all(router_flit_in_all),     
-         .router_flit_in_we_all(router_flit_in_we_all),
+         .router_flit_in_wr_all(router_flit_in_wr_all),
          .router_congestion_in_all(router_congestion_in_all),
          .router_congestion_out_all(router_congestion_out_all),
          .ni_flit_in(ni_flit_in),    
@@ -156,20 +156,22 @@ generate
          .current_r_addr(current_r_addr),
          .neighbors_r_all(neighbors_r_addr)    
         );       
-       
-    end else begin :mesh_torus
-        mesh_torus_noc_connection connections
+    /* verilator lint_off WIDTH */      
+    end else if (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin :mesh_torus
+    /* verilator lint_on WIDTH */      
+
+    mesh_torus_noc_connection connections
        (    
          .clk(clk),
          .reset(reset),
          .start_i(start_i),
          .start_o(start_o),
          .router_flit_out_all(router_flit_out_all), 
-         .router_flit_out_we_all(router_flit_out_we_all),    
+         .router_flit_out_wr_all(router_flit_out_wr_all),    
          .router_credit_in_all(router_credit_in_all),
          .router_credit_out_all(router_credit_out_all),
          .router_flit_in_all(router_flit_in_all),     
-         .router_flit_in_we_all(router_flit_in_we_all),
+         .router_flit_in_wr_all(router_flit_in_wr_all),
          .router_congestion_in_all(router_congestion_in_all),
          .router_congestion_out_all(router_congestion_out_all),
          .ni_flit_in(ni_flit_in),    
@@ -178,10 +180,38 @@ generate
          .ni_flit_out(ni_flit_out), 
          .ni_flit_out_wr(ni_flit_out_wr),  
          .ni_credit_in(ni_credit_in),
-	     .er_addr(er_addr),
+         .er_addr(er_addr),
     	 .current_r_addr(current_r_addr)  	
     
 );
+
+    end else begin :custom
+
+	custom_noc_connection connections
+       (    
+         .clk(clk),
+         .reset(reset),
+         .start_i(start_i),
+         .start_o(start_o),
+         .router_flit_out_all(router_flit_out_all), 
+         .router_flit_out_wr_all(router_flit_out_wr_all),    
+         .router_credit_in_all(router_credit_in_all),
+         .router_credit_out_all(router_credit_out_all),
+         .router_flit_in_all(router_flit_in_all),     
+         .router_flit_in_wr_all(router_flit_in_wr_all),
+         .router_congestion_in_all(router_congestion_in_all),
+         .router_congestion_out_all(router_congestion_out_all),
+         .ni_flit_in(ni_flit_in),    
+         .ni_flit_in_wr(ni_flit_in_wr), 
+         .ni_credit_out(ni_credit_out),                 
+         .ni_flit_out(ni_flit_out), 
+         .ni_flit_out_wr(ni_flit_out_wr),  
+         .ni_credit_in(ni_credit_in),
+         .er_addr(er_addr),
+    	 .current_r_addr(current_r_addr)  	
+    
+	);
+
 
     end
   endgenerate

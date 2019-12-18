@@ -167,8 +167,11 @@ sub gen_noc_param_v{
 	my $param_v="\n\n//NoC parameters\n";
 	my $pass_param;
 	my @params=$mpsoc->object_get_attribute_order('noc_param');
+	my $custom_topology = $mpsoc->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
 	foreach my $p (@params){
 		my $val=$mpsoc->object_get_attribute('noc_param',$p);
+		next if($p eq "CUSTOM_TOPOLOGY_NAME");
+		$val=$custom_topology if($p eq "TOPOLOGY" && $val eq "\"CUSTOM\"");
 		add_text_to_string (\$param_v,"\tlocalparam $p=$val;\n");
 		add_text_to_string (\$pass_param,".$p($p),\n");
 		#print "$p:$val\n";
@@ -213,8 +216,11 @@ sub gen_noc_param_h{
 	my $param_h="\n\n//NoC parameters\n";
 	
 	my @params=$mpsoc->object_get_attribute_order('noc_param');
+	my $custom_topology = $mpsoc->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
 	foreach my $p (@params){
 		my $val=$mpsoc->object_get_attribute('noc_param',$p);
+		next if($p eq "CUSTOM_TOPOLOGY_NAME");
+		$val=$custom_topology if($p eq "TOPOLOGY" && $val eq "\"CUSTOM\"");
 		add_text_to_string (\$param_h,"\t#define $p\t$val\n");
 		
 		#print "$p:$val\n";

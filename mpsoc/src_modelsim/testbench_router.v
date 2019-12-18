@@ -77,10 +77,10 @@ module testbench_router;
 	reg										reset;
 
 	wire	[PFw-1						:0]	flit_in_all; 
-	reg	[P-1						:0]	flit_in_we_all;
+	reg	[P-1						:0]	flit_in_wr_all;
 	
 	wire	[PV-1						:0]	credit_out_all;
-	wire	[P-1						:0]	flit_out_we_all;
+	wire	[P-1						:0]	flit_out_wr_all;
 	wire	[PFw-1						:0]	flit_out_all;
 	wire	[PV-1						:0]	credit_in_all;
 
@@ -143,12 +143,12 @@ endgenerate
 		.current_x(3'd3),	
         	.current_y(3'd3),
 		.flit_in_all		(flit_in_all),
-		.flit_in_we_all		(flit_in_we_all),
+		.flit_in_wr_all		(flit_in_wr_all),
 		.credit_out_all		(credit_out_all),
 		.congestion_in_all	(0), 
 
 		.flit_out_all		(flit_out_all),
-		.flit_out_we_all	(flit_out_we_all),
+		.flit_out_wr_all	(flit_out_wr_all),
 		.credit_in_all		(credit_in_all),
 		.congestion_out_all     ( ),
 		
@@ -171,7 +171,7 @@ endgenerate
 	initial begin 
 	//reset 
 		 reset=1'b1;		 
-		 flit_in_we_all ={P{1'b0}};
+		 flit_in_wr_all ={P{1'b0}};
 		 for (k=0;k<P;k=k+1) begin
 		 	flit_in[k]= {Fw{1'b0}};	 
 			credit_in[k]=	{V{1'b0}}; 
@@ -188,7 +188,7 @@ endgenerate
 	 	@(posedge clk)#1
 
 		// send header flit
-		flit_in_we_all[0]  = 1'b1;
+		flit_in_wr_all[0]  = 1'b1;
 		flit_in[0][Fw-1:Fw-2]=2'b10; // header flag
 		flit_in[0][Fpay+V-1:Fpay]=1; // inputport VC
 		//header flit payload		
@@ -229,7 +229,7 @@ endgenerate
 		
 		@(posedge clk)#1
 		//send body flit 1
-		flit_in_we_all[0]  = 1'b1;
+		flit_in_wr_all[0]  = 1'b1;
 		flit_in[0][Fw-1:Fw-2]=2'b00; // body flag
 		flit_in[0][Fpay+V-1:Fpay]=1; // inputport VC	
 		flit_in[0][Fpay-1:0]=  32'hAB000000; // your first data to send
@@ -237,7 +237,7 @@ endgenerate
 
 		@(posedge clk)#1
 		//send body flit 2
-		flit_in_we_all[0]  = 1'b1;
+		flit_in_wr_all[0]  = 1'b1;
 		flit_in[0][Fw-1:Fw-2]=2'b00; // body flag
 		flit_in[0][Fpay+V-1:Fpay]=1; // inputport VC	
 		flit_in[0][Fpay-1:0]=  32'hAB000001; // your first data to send
@@ -245,13 +245,13 @@ endgenerate
 
 		@(posedge clk)#1
 		//send tail flit 3
-		flit_in_we_all[0]  = 1'b1;
+		flit_in_wr_all[0]  = 1'b1;
 		flit_in[0][Fw-1:Fw-2]=2'b01; // tail flag
 		flit_in[0][Fpay+V-1:Fpay]=1; // inputport VC	
 		flit_in[0][Fpay-1:0]=  32'hAB000002; // your first data to send
 
 		@(posedge clk)#1
-		flit_in_we_all[0]  = 1'b0;
+		flit_in_wr_all[0]  = 1'b0;
 
 		#100
 		$stop;
@@ -262,7 +262,7 @@ endgenerate
 	// assume the credit is recived with one clock cycle delay
 	always @ (posedge clk) begin
 		for (k=0;k<P;k=k+1)begin 
-			credit_in[k]<=(flit_out_we_all[k]==1'b1)? flit_out[k][Fpay+V-1:Fpay] : {V{1'b0}};
+			credit_in[k]<=(flit_out_wr_all[k]==1'b1)? flit_out[k][Fpay+V-1:Fpay] : {V{1'b0}};
 		end
 
 	end

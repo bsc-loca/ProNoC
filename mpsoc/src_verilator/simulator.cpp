@@ -378,7 +378,7 @@ int main(int argc, char** argv) {
 			}//for
 		}//else
 		//if(main_time > 20 && main_time < 30 ) traffic->start=1; else traffic->start=0;
-		//if(main_time == saved_time+25) router1[0]->flit_in_we_all=0;
+		//if(main_time == saved_time+25) router1[0]->flit_in_wr_all=0;
 		//if((main_time % 250)==0) printf("router->all_done =%u\n",router->all_done);
 		
 
@@ -558,9 +558,12 @@ if((strcmp (TOPOLOGY,"MESH")==0)||(strcmp (TOPOLOGY,"TORUS")==0)){
 }else if ((strcmp (TOPOLOGY,"RING")==0)||(strcmp (TOPOLOGY,"LINE")==0)){
 		printf ("\t Total Router num: %d \n",T1);
 }
-else{
+else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 		printf ("\tK: %d \n",T1);
 		printf ("\tL: %d \n",T2);
+} else{ //CUSTOM
+	    printf ("\tTotal Endpoints number: %d \n",T1);
+		printf ("\tTotal Routers number: %d \n",T2);
 }
 	    printf ("\tNumber of Class: %d\n", C);
 	    printf ("\tFlit data width: %d \n", Fpay);

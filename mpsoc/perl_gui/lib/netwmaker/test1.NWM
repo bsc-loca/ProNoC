@@ -643,10 +643,10 @@ $nwmaker = bless( {
                                                        {
                                                          'type' => 'input',
                                                          'width' => 'P',
-                                                         'pconnect' => 'flit_out_we',
-                                                         'pname' => 'flit_in_we',
-                                                         'connect' => 'flit_out_we_all',
-                                                         'name' => 'flit_in_we_all',
+                                                         'pconnect' => 'flit_out_wr',
+                                                         'pname' => 'flit_in_wr',
+                                                         'connect' => 'flit_out_wr_all',
+                                                         'name' => 'flit_in_wr_all',
                                                          'pwidth' => 1,
                                                          'endp' => 'yes'
                                                        },

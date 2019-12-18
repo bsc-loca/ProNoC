@@ -71,12 +71,12 @@ module router # (
     neighbors_r_addr,
    
     flit_in_all,
-    flit_in_we_all,
+    flit_in_wr_all,
     credit_out_all,
     congestion_in_all,
     
     flit_out_all,
-    flit_out_we_all,
+    flit_out_wr_all,
     credit_in_all,
     congestion_out_all,
     
@@ -115,12 +115,12 @@ module router # (
     
 
     input  [PFw-1 :  0]  flit_in_all;
-    input  [P-1 :  0]  flit_in_we_all;
+    input  [P-1 :  0]  flit_in_wr_all;
     output [PV-1 :  0]  credit_out_all;
     input  [CONG_ALw-1 :  0]  congestion_in_all;
     
     output [PFw-1 :  0]  flit_out_all;
-    output [P-1 :  0]  flit_out_we_all;
+    output [P-1 :  0]  flit_out_wr_all;
     input  [PV-1 :  0]  credit_in_all;
     output [CONG_ALw-1 :  0]  congestion_out_all;
     
@@ -202,7 +202,7 @@ module router # (
         .current_r_addr(current_r_addr),
         .neighbors_r_addr(neighbors_r_addr),
         .flit_in_all(flit_in_all),
-        .flit_in_we_all(flit_in_we_all),
+        .flit_in_wr_all(flit_in_wr_all),
         .credit_out_all(credit_out_all),
         .credit_in_all(credit_in_all),
         .masked_ovc_request_all(masked_ovc_request_all),
@@ -299,7 +299,7 @@ module router # (
         .granted_dest_port_all (granted_dest_port_all_delayed),
         .flit_in_all (iport_flit_out_all),
         .flit_out_all (cross_bar_flit_out_all),
-        .flit_out_we_all (flit_out_we_all),
+        .flit_out_wr_all (flit_out_wr_all),
         .ssa_flit_wr_all (ssa_flit_wr_all),
         .clk (clk),
         .reset (reset)
@@ -355,7 +355,7 @@ module router # (
         	.contention_all(contention_all),
         	.flit_in_all(cross_bar_flit_out_all),
         	.flit_out_all(flit_out_all),
-        	.flit_out_we_all(flit_out_we_all),
+        	.flit_out_wr_all(flit_out_wr_all),
         	.clk(clk),
         	.reset(reset)
         );        
@@ -387,7 +387,7 @@ module router # (
         (
         	.clk(clk),
         	.current_r_addr(current_r_addr),
-        	.flit_out_we_all(flit_out_we_all)
+        	.flit_out_wr_all(flit_out_wr_all)
         );
     end// DEBUG
     endgenerate 
@@ -415,12 +415,12 @@ module router # (
              t1[i]<=1'b0;
              t2[i]<=1'b0;             
         end else begin 
-            if(flit_in_we_all[i]>0 && t1[i]==0)begin 
+            if(flit_in_wr_all[i]>0 && t1[i]==0)begin 
                 $display("%t : router (addr=%h, port=%d)",$time,current_r_addr,i);
                 $display("%t : Flit_in=%b, current_r_addr=%x, Port=%x, neighbors_r_addr=%x, ",$time,flit_in_all[(i+1)*Fw-1 : i*Fw],current_r_addr, i, neighbors_r_addr);
                 t1[i]<=1;
             end
-            if(flit_out_we_all[i]>0 && t2[i]==0)begin 
+            if(flit_out_wr_all[i]>0 && t2[i]==0)begin 
                 $display("%t port=%d: Flit_out=%b",$time,i,flit_out_all[(i+1)*Fw-1 : i*Fw]);
                 t2[i]<=1;
             end
@@ -446,7 +446,7 @@ module router # (
             flit_counter <=0;
             counter <= 0;
         end else begin 
-            if(flit_in_we_all>0 )begin 
+            if(flit_in_wr_all>0 )begin 
                 counter <=0;
                 flit_counter<=flit_counter+1'b1;
                           

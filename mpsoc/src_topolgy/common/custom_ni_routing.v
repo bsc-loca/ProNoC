@@ -1,0 +1,75 @@
+module custom_ni_routing  #(
+    parameter TOPOLOGY = "CUSTOM_NAME",
+    parameter ROUTE_NAME = "CUSTOM_NAME",
+    parameter ROUTE_TYPE = "DETERMINISTIC",
+    parameter RAw  = 4,  
+    parameter EAw  = 4,   
+    parameter DSTPw = 4   
+)
+(
+    dest_e_addr,
+    src_e_addr,
+    destport        
+);    
+
+    input   [EAw-1   :0] dest_e_addr;
+    input   [EAw-1   :0] src_e_addr;
+    output  [DSTPw-1 :0] destport;   
+
+
+   generate 
+    
+    
+    
+	//do not modify this line ===TtestRtest===
+    if(TOPOLOGY == "test" && ROUTE_NAME== "test" ) begin : TtestRtest
+    
+        TtestRtest_ni_conventional_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_conventional_routing
+        (
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport)        
+        );    
+    
+    end	
+    
+     
+	
+    
+     
+	//do not modify this line ===TmuliRtest===
+    if(TOPOLOGY == "muli" && ROUTE_NAME== "test" ) begin : TmuliRtest
+    
+        TmuliRtest_ni_conventional_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_conventional_routing
+        (
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport)        
+        );    
+    
+    end	
+    
+    endgenerate
+    	
+ 
+    	
+ 
+    	
+ 
+    	
+ 
+ 
+
+endmodule
+ 
+ 

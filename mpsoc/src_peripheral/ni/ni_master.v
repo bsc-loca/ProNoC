@@ -522,7 +522,7 @@ module  ni_master #(
         data_extractor
         (
             .flit_in(flit_in),
-            .flit_in_we(flit_in_wr),
+            .flit_in_wr(flit_in_wr),
             .src_e_addr_o( ),
             .dest_e_addr_o( ),
             .destport_o( ),
@@ -956,7 +956,7 @@ module  ni_master #(
     extractor
     (
         .flit_in(fifo_dout),
-        .flit_in_we(),
+        .flit_in_wr(),
         .class_o(class_in_next),
         .destport_o(),
         .dest_e_addr_o(),

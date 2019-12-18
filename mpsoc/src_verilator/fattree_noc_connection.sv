@@ -6,11 +6,11 @@ module fattree_noc_connection (
  start_i,
  start_o,
  router_flit_out_all, 
- router_flit_out_we_all,    
+ router_flit_out_wr_all,    
  router_credit_in_all,
  router_credit_out_all,
  router_flit_in_all,     
- router_flit_in_we_all,
+ router_flit_in_wr_all,
  router_congestion_in_all,
  router_congestion_out_all,
 
@@ -75,10 +75,10 @@ module fattree_noc_connection (
    
     input reset,clk;     
     output [PFw-1 : 0] router_flit_out_all [NR-1 :0];
-    output [MAX_P-1 : 0] router_flit_out_we_all [NR-1 :0];    
+    output [MAX_P-1 : 0] router_flit_out_wr_all [NR-1 :0];    
     input  [PV-1 : 0] router_credit_in_all [NR-1 :0];    
     input  [PFw-1 : 0] router_flit_in_all [NR-1 :0];
-    input  [MAX_P-1 : 0] router_flit_in_we_all [NR-1 :0];
+    input  [MAX_P-1 : 0] router_flit_in_wr_all [NR-1 :0];
     output [PV-1 : 0] router_credit_out_all[NR-1 :0]; 
     input  [CONG_ALw-1: 0] router_congestion_in_all[NR-1 :0];  
     output [CONG_ALw-1: 0] router_congestion_out_all [NR-1 :0];   
@@ -147,8 +147,8 @@ for (level = 0; level<L-1; level=level+1) begin : level_c
             assign  router_flit_out_all   [ID2][(PORT2+1)*Fw-1 : PORT2*Fw] = router_flit_in_all [ID1][(port+1)*Fw-1 : port*Fw];  
             assign  router_credit_out_all [ID1][(port+1)*V-1 : port*V]= router_credit_in_all  [ID2][(PORT2+1)*V-1 : PORT2*V];
             assign  router_credit_out_all [ID2][(PORT2+1)*V-1 : PORT2*V]= router_credit_in_all [ID1][(port+1)*V-1 : port*V];
-            assign  router_flit_out_we_all[ID1][port] = router_flit_in_we_all [ID2][PORT2];
-            assign  router_flit_out_we_all[ID2][PORT2] = router_flit_in_we_all [ID1][port];
+            assign  router_flit_out_wr_all[ID1][port] = router_flit_in_wr_all [ID2][PORT2];
+            assign  router_flit_out_wr_all[ID2][PORT2] = router_flit_in_wr_all [ID1][port];
 
             assign  router_congestion_out_all  [ID1][(port+1)*CONGw-1 : port*CONGw]  = router_congestion_in_all  [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw];
             assign  router_congestion_out_all [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw] = router_congestion_in_all [ID1][(port+1)*CONGw-1 : port*CONGw];
@@ -185,13 +185,13 @@ for ( pos = 0; pos <  NE; pos=pos+1 ) begin : endpoints
  
             assign router_flit_out_all [RID][(RPORT+1)*Fw-1 : RPORT*Fw] =    ni_flit_in [pos];
             assign router_credit_out_all [RID][(RPORT+1)*V-1 : RPORT*V] =    ni_credit_in [pos];
-            assign router_flit_out_we_all [RID][RPORT] =    ni_flit_in_wr [pos];
+            assign router_flit_out_wr_all [RID][RPORT] =    ni_flit_in_wr [pos];
             assign router_congestion_out_all[RID][(RPORT+1)*CONGw-1 : RPORT*CONGw] =   {CONGw{1'b0}}; 
            // assign  neighbors_layer_all[RID][(RPORT+1)*Lw-1 : RPORT*Lw] = {Lw{1'b0}};                 
             assign  neighbors_r_all[RID][(RPORT+1)*RAw-1 : RPORT*RAw]   = {RAw{1'b0}};            
             
             assign ni_flit_out [pos] = router_flit_in_all [RID][(RPORT+1)*Fw-1 : RPORT*Fw]; 
-            assign ni_flit_out_wr [pos] = router_flit_in_we_all[RID][RPORT];
+            assign ni_flit_out_wr [pos] = router_flit_in_wr_all[RID][RPORT];
             assign ni_credit_out [pos] = router_credit_in_all [RID][(RPORT+1)*V-1 : RPORT*V]; 
             
             assign er_addr [pos] = CURRENTPOS [RAw-1 : 0];

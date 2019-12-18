@@ -81,7 +81,28 @@ sub generate_sim_bin_file {
 	
 	copy_file_and_folders (\@files,$project_dir,$target_verilog_dr);	
 	
+	#check if we have a custom topology 
+	my $topology=$simulate->object_get_attribute('noc_param','TOPOLOGY');
+	if ($topology eq '"CUSTOM"'){ 
+		my $name=$simulate->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
+		$name=~s/["]//gs;     
+		my $dir1=  get_project_dir()."/mpsoc/src_topolgy/$name";
+		my $dir2=  get_project_dir()."/mpsoc/src_topolgy/common";
+		my @files = File::Find::Rule->file()
+                            ->name( '*.v','*.V','*.sv' )
+                            ->in( "$dir1" );
+		copy_file_and_folders (\@files,$project_dir,$target_verilog_dr);
+		
+		@files = File::Find::Rule->file()
+                            ->name( '*.v','*.V','*.sv' )
+                            ->in( "$dir2" );
+                         
+		copy_file_and_folders (\@files,$project_dir,$target_verilog_dr);
+		
+		
+		
 	
+	}
 	# generate NoC parameter file
 	my ($noc_param,$pass_param)=gen_noc_param_v($simulate);
 	open(FILE,  ">$target_verilog_dr/parameter.v") || die "Can not open: $!";
@@ -194,6 +215,10 @@ sub generate_sim_bin_file {
 	#add_info($info_text, "$src_verilator_dir!\n");
 	#mkpath("$path",1,01777);
 }
+
+
+
+
 
 
 ##########

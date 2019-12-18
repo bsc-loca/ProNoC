@@ -565,17 +565,26 @@ sub check_verilog_identifier_syntax {
 	my $in=shift;
 	my $error=0;
 	my $message='';
+#check if $in is defined
+	if(!defined $in){
+		return "Identifier is not defined! An Identifier must begin with an alphabetic character.\n";	
+	}
+
+	if(length $in ==0){
+		return "Identifier length is zero! An Identifier must begin with an alphabetic character.\n";	
+	}
+
 # an Identifiers must begin with an alphabetic character or the underscore character
 	if ($in =~ /^[0-9\$]/){
-		return 'an Identifier must begin with an alphabetic character or the underscore character';
+		return "An Identifier must begin with an alphabetic character or the underscore character.\n";
 	}
 	
 
 #	Identifiers may contain alphabetic characters, numeric characters, the underscore, and the dollar sign (a-z A-Z 0-9 _ $ )
 	if ($in =~ /[^a-zA-Z0-9_\$]+/){
-		 print "use of illegal character after\n" ;
+		 #print "use of illegal character after\n" ;
 		 my @w= split /([^a-zA-Z0-9_\$]+)/, $in; 
-		 return "Contain illegal character of \"$w[1]\". Identifiers may contain alphabetic characters, numeric characters, the underscore, and the dollar sign (a-z A-Z 0-9 _ \$ )\n";
+		 return "Contain illegal character of \"$w[1]\" after $w[0]. Identifiers may contain alphabetic characters, numeric characters, the underscore, and the dollar sign (a-z A-Z 0-9 _ \$ )\n";
 		
 	}
 
@@ -583,7 +592,7 @@ sub check_verilog_identifier_syntax {
 # check Verilog reserved words
 	my @keys =			("always","and","assign","automatic","begin","buf","bufif0","bufif1","case","casex","casez","cell","cmos","config","deassign","default","defparam","design","disable","edge","else","end","endcase","endconfig","endfunction","endgenerate","endmodule","endprimitive","endspecify","endtable","endtask","event","for","force","forever","fork","function","generate","genvar","highz0","highz1","if","ifnone","incdir","include","initial","inout","input","instance","integer","join","large","liblist","library","localparam","macromodule","medium","module","nand","negedge","nmos","nor","noshowcancelled","not","notif0","notif1","or","output","parameter","pmos","posedge","primitive","pull0","pull1","pulldown","pullup","pulsestyle_onevent","pulsestyle_ondetect","remos","real","realtime","reg","release","repeat","rnmos","rpmos","rtran","rtranif0","rtranif1","scalared","showcancelled","signed","small","specify","specparam","strong0","strong1","supply0","supply1","table","task","time","tran","tranif0","tranif1","tri","tri0","tri1","triand","trior","trireg","unsigned","use","vectored","wait","wand","weak0","weak1","while","wire","wor","xnor","xor");
 	if( grep (/^$in$/,@keys)){
-		return  "$in is a Verlig reserved word.";
+		return  "$in is a Verlig reserved word.\n";
 	}
 	return undef;
 	

@@ -64,7 +64,7 @@ module inout_ports #(
        
     // to/from neighboring router
     flit_in_all,
-    flit_in_we_all,
+    flit_in_wr_all,
     credit_out_all,
     credit_in_all,
     congestion_in_all,
@@ -130,7 +130,7 @@ module inout_ports #(
            
                     
     input [PFw-1 : 0] flit_in_all;
-    input [P-1 : 0] flit_in_we_all;
+    input [P-1 : 0] flit_in_wr_all;
     output reg[PV-1 : 0] credit_out_all;
     input [PV-1 : 0] credit_in_all;
     input [PV-1 : 0] ovc_allocated_all;
@@ -225,7 +225,7 @@ end
         )
         the_ssa
         (
-            .flit_in_we_all(flit_in_we_all),
+            .flit_in_wr_all(flit_in_wr_all),
             .flit_in_all(flit_in_all),
             .any_ivc_sw_request_granted_all(any_ivc_sw_request_granted_all),
             .any_ovc_granted_in_outport_all(any_ovc_granted_in_outport_all),
@@ -537,7 +537,7 @@ endgenerate
         .ivc_num_getting_sw_grant (ivc_num_getting_sw_grant_all_or_ssa ),
         .any_ivc_sw_request_granted_all (any_ivc_sw_request_granted_all),    
         .flit_in_all (flit_in_all),
-        .flit_in_we_all (flit_in_we_all),
+        .flit_in_wr_all (flit_in_wr_all),
         .reset_ivc_all (reset_ivc_all),
         .flit_is_tail_all (flit_is_tail_all),
         .ivc_request_all (ivc_request_all),    

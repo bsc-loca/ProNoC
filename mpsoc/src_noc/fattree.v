@@ -110,11 +110,11 @@ module  fattree_noc #(
                         
                 
     wire [PFw-1 : 0] router_flit_in_all [NR-1 :0];
-    wire [MAX_P-1 : 0] router_flit_in_we_all [NR-1 :0];    
+    wire [MAX_P-1 : 0] router_flit_in_wr_all [NR-1 :0];    
     wire [PV-1 : 0] router_credit_out_all [NR-1 :0];
     
     wire [PFw-1 : 0] router_flit_out_all [NR-1 :0];
-    wire [MAX_P-1 : 0] router_flit_out_we_all [NR-1 :0];
+    wire [MAX_P-1 : 0] router_flit_out_wr_all [NR-1 :0];
     wire [PV-1 : 0] router_credit_in_all [NR-1 :0];                    
     wire [CONG_ALw-1: 0] router_congestion_out_all[NR-1 :0];    
     wire [CONG_ALw-1: 0] router_congestion_in_all [NR-1 :0];   
@@ -178,12 +178,12 @@ for( pos=0; pos<NRL; pos=pos+1) begin : root
                 .neighbors_r_addr(neighbors_r_all[pos][K*RAw-1    :   0]),                
                 
                 .flit_in_all(router_flit_in_all[pos][(K*Fw)-1 : 0]),
-                .flit_in_we_all(router_flit_in_we_all[pos][K-1 : 0]),
+                .flit_in_wr_all(router_flit_in_wr_all[pos][K-1 : 0]),
                 .credit_out_all(router_credit_out_all[pos][(K*V)-1 : 0]),
                 .congestion_in_all(router_congestion_in_all[pos][(K*CONGw)-1 : 0]),            
             
                 .flit_out_all(router_flit_out_all[pos][(K*Fw)-1 : 0]),
-                .flit_out_we_all(router_flit_out_we_all[pos][K-1 : 0]),
+                .flit_out_wr_all(router_flit_out_wr_all[pos][K-1 : 0]),
                 .credit_in_all(router_credit_in_all[pos][(K*V)-1 : 0]),
                 .congestion_out_all(router_congestion_out_all[pos][(K*CONGw)-1 : 0]),
             
@@ -236,12 +236,12 @@ for( level=1; level<L; level=level+1) begin :level_lp
                 .neighbors_r_addr(neighbors_r_all[NRL*level+pos]),                  
                 
                 .flit_in_all(router_flit_in_all[NRL*level+pos]),
-                .flit_in_we_all(router_flit_in_we_all[NRL*level+pos]),
+                .flit_in_wr_all(router_flit_in_wr_all[NRL*level+pos]),
                 .credit_out_all(router_credit_out_all[NRL*level+pos]),
                 .congestion_in_all(router_congestion_in_all[NRL*level+pos]),            
             
                 .flit_out_all(router_flit_out_all[NRL*level+pos]),
-                .flit_out_we_all(router_flit_out_we_all[NRL*level+pos]),
+                .flit_out_wr_all(router_flit_out_wr_all[NRL*level+pos]),
                 .credit_in_all(router_credit_in_all[NRL*level+pos]),
                 .congestion_out_all(router_congestion_out_all[NRL*level+pos]),
             
@@ -297,8 +297,8 @@ for (level = 0; level<L-1; level=level+1) begin : level_c
             assign  router_credit_in_all [ID1][(port+1)*V-1 : port*V]= router_credit_out_all  [ID2][(PORT2+1)*V-1 : PORT2*V];
             assign  router_credit_in_all [ID2][(PORT2+1)*V-1 : PORT2*V]= router_credit_out_all [ID1][(port+1)*V-1 : port*V];
 
-            assign  router_flit_in_we_all[ID1][port] = router_flit_out_we_all [ID2][PORT2];
-            assign  router_flit_in_we_all[ID2][PORT2] = router_flit_out_we_all [ID1][port];
+            assign  router_flit_in_wr_all[ID1][port] = router_flit_out_wr_all [ID2][PORT2];
+            assign  router_flit_in_wr_all[ID2][PORT2] = router_flit_out_wr_all [ID1][port];
 
             assign  router_congestion_in_all  [ID1][(port+1)*CONGw-1 : port*CONGw]  = router_congestion_out_all  [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw];
             assign  router_congestion_in_all [ID2][(PORT2+1)*CONGw-1 : PORT2*CONGw] = router_congestion_out_all [ID1][(port+1)*CONGw-1 : port*CONGw];
@@ -332,14 +332,14 @@ end
  
             assign router_flit_in_all [RID][(RPORT+1)*Fw-1 : RPORT*Fw] =    ni_flit_out [pos];
             assign router_credit_in_all [RID][(RPORT+1)*V-1 : RPORT*V] =    ni_credit_out [pos];
-            assign router_flit_in_we_all [RID][RPORT] =    ni_flit_out_wr [pos];
+            assign router_flit_in_wr_all [RID][RPORT] =    ni_flit_out_wr [pos];
             assign router_congestion_in_all[RID][(RPORT+1)*CONGw-1 : RPORT*CONGw] =   {CONGw{1'b0}};  
             
           //  assign  neighbors_layer_all[RID][(RPORT+1)*Lw-1 : RPORT*Lw] = {Lw{1'b0}};  
             assign  neighbors_r_all[RID][(RPORT+1)*RAw-1 : RPORT*RAw]   = {RAw{1'b0}};
             
             assign ni_flit_in [pos] = router_flit_out_all [RID][(RPORT+1)*Fw-1 : RPORT*Fw]; 
-            assign ni_flit_in_wr [pos] = router_flit_out_we_all[RID][RPORT];
+            assign ni_flit_in_wr [pos] = router_flit_out_wr_all[RID][RPORT];
             assign ni_credit_in [pos] = router_credit_out_all [RID][(RPORT+1)*V-1 : RPORT*V]; 
             
                                      

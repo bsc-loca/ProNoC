@@ -15,7 +15,7 @@ sub generate_topology_top_v {
 	my $name=$self->object_get_attribute('save_as');
 	
 	my $r; 
-	my $top="$dir/${name}_topology.v";
+	my $top="$dir/${name}_noc.v";
     open my $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -309,7 +309,7 @@ sub generate_topology_top_genvar_v{
 	#create topology top file
 	my $name=$self->object_get_attribute('save_as');
 	my $r; 
-	my $top="$dir/${name}_topology_genvar.v";
+	my $top="$dir/${name}_noc_genvar.v";
     open my $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -556,7 +556,7 @@ sub get_router_genvar_instance_v{
 		.clk(clk), 
 		.reset(reset),
 		.current_r_addr($router_pos),
-		.neighbors_r_addr(0)";
+		.neighbors_r_addr({RAw{1'b0}})";
 	
 
     foreach my $p (@ports){	
@@ -627,10 +627,12 @@ for (my $i=0;$i<$Pnum; $i++){
 			
 			
 			if($ctype eq 'ENDP' && $p->{endp} eq "no" && $p->{type} eq 'input' ){						
-				 $assign=  $assign."\t\tassign  $port $range = 0;\n" if($reverse==0);		
+				 $assign=  $assign."\t\tassign  $port $range = 0;\n" if($reverse==0);
+				 	
 						
 			}elsif($type eq 'ENDP' && $p->{endp} eq "no"  ){						
-				$assign=  $assign."\t\tassign  $cport $crange = 0;\n" if($reverse==0);						
+				$assign=  $assign."\t\tassign  $cport $crange = 0;\n" if($reverse==0);	
+									
 			}
 			
 			else{
@@ -651,10 +653,12 @@ for (my $i=0;$i<$Pnum; $i++){
 				my $w=$p->{pwidth};
 				my $port ="router_$p->{name}";
 				my $range = ($w eq 1)? 	"\[$pos\]\[$i]" : "\[$pos\]\[($iplus*$w)-1 : 		 $i*$w ]";
-				if($p->{type} eq 'input' ){		
-					my $zero=($w eq 1)?  "1'b0": "\{$w\{1'b0\}\}";
-			 		$assign=  $assign."\t\tassign  $port $range = $zero;\n" ;			
-				}
+				my $zero=($w eq 1)?  "1'b0": "\{$w\{1'b0\}\}";
+				if($p->{type} eq 'input' ){						
+					$assign=  $assign."\t\tassign  $port $range = $zero;\n" if($reverse==0);			
+				}else{
+				    $assign=  $assign."\t\tassign  $port $range = $zero;\n" if($reverse==1);	
+				}	
 			}	
 	}		
 			
@@ -680,9 +684,11 @@ sub generate_routing_v {
 
 	#create routing file
 	my $name=$self->object_get_attribute('save_as');
+	my $rname=$self->object_get_attribute('routing_name');
+	my $Vname="T${name}R${rname}";
 	
 	my $r; 
-	my $top="$dir/${name}_ni_conventional_routing.v";
+	my $top="$dir/${Vname}_ni_conventional_routing.v";
     open my $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -729,7 +735,7 @@ sub generate_routing_v {
 
 	
 	
-	 print $fd "module ${name}_ni_conventional_routing  #(
+	 print $fd "module ${Vname}_ni_conventional_routing  #(
 \tparameter RAw = 3,  
 \tparameter EAw = 3,   
 \tparameter DSTPw=4  
@@ -759,7 +765,7 @@ add_info(\$info,"$top file is created\n  ");
 ###################
 
 #create routing file
-	$top="$dir/${name}_look_ahead_routing.v";
+	$top="$dir/${Vname}_look_ahead_routing.v";
     open  $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -834,9 +840,9 @@ my $localparam="";
 
  print $fd "
 /*******************
-*  ${name}_look_ahead_routing
+*  ${Vname}_look_ahead_routing
 *******************/  
-module ${name}_look_ahead_routing  #(
+module ${Vname}_look_ahead_routing  #(
 \tparameter RAw = 3,  
 \tparameter EAw = 3,   
 \tparameter DSTPw=4  
@@ -869,7 +875,7 @@ module ${name}_look_ahead_routing  #(
 		end 	
 	end
 
-	${name}_look_ahead_routing_comb  #(
+	${Vname}_look_ahead_routing_comb  #(
 		.RAw(RAw),  
 		.EAw(EAw),   
 		.DSTPw(DSTPw)  
@@ -887,10 +893,10 @@ module ${name}_look_ahead_routing  #(
 endmodule  
  
 /*******************
-*  ${name}_look_ahead_routing_comb
+*  ${Vname}_look_ahead_routing_comb
 *******************/ 
   
- module ${name}_look_ahead_routing_comb  #(
+ module ${Vname}_look_ahead_routing_comb  #(
 \tparameter RAw = 3,  
 \tparameter EAw = 3,   
 \tparameter DSTPw=4  
@@ -926,7 +932,7 @@ add_info(\$info,"$top file is created\n  ");
 
 
 	#create routing file
-	$top="$dir/${name}_ni_conventional_routing_genvar.v";
+	$top="$dir/${Vname}_ni_conventional_routing_genvar.v";
     open $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -974,7 +980,7 @@ add_info(\$info,"$top file is created\n  ");
 
 	
 	
-	 print $fd "module ${name}_ni_conventional_routing_genvar  #(
+	 print $fd "module ${Vname}_ni_conventional_routing_genvar  #(
 \tparameter RAw = 3,  
 \tparameter EAw = 3,   
 \tparameter DSTPw=4,
@@ -1003,7 +1009,7 @@ add_info(\$info,"$top file is created\n  ");
 ###################
 
 #create routing file
-	$top="$dir/${name}_look_ahead_routing_genvar.v";
+	$top="$dir/${Vname}_look_ahead_routing_genvar.v";
     open  $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -1070,16 +1076,11 @@ foreach my $router (@routers){
 	
 
 
-
-	
-
-
-
  print $fd "
 /*****************************
-*	${name}_look_ahead_routing_genvar
+*	${Vname}_look_ahead_routing_genvar
 ******************************/ 
-module ${name}_look_ahead_routing_genvar  #(
+module ${Vname}_look_ahead_routing_genvar  #(
 \tparameter RAw = 3,  
 \tparameter EAw = 3,   
 \tparameter DSTPw=4,
@@ -1115,7 +1116,7 @@ module ${name}_look_ahead_routing_genvar  #(
 		.RAw(RAw),  
 		.EAw(EAw),   
 		.DSTPw(DSTPw),
-		CURRENT_R_ADDR(CURRENT_R_ADDR)  
+		.CURRENT_R_ADDR(CURRENT_R_ADDR)  
 	)
 	lkp_cmb
 	(
@@ -1130,11 +1131,11 @@ module ${name}_look_ahead_routing_genvar  #(
 endmodule   
  
 /*******************
-* ${name}_look_ahead_routing_genvar_comb
-******************** 
+* ${Vname}_look_ahead_routing_genvar_comb
+********************/ 
   
  
- module ${name}_look_ahead_routing_genvar_comb  #(
+ module ${Vname}_look_ahead_routing_genvar_comb  #(
 \tparameter RAw = 3,  
 \tparameter EAw = 3,   
 \tparameter DSTPw=4,
@@ -1225,7 +1226,7 @@ sub generate_connection_v{
 \tinput clk;
 \tinput start_i;
 \toutput [RAw-1 : 0] er_addr [NE-1 : 0]; // provide router address for each connected endpoint 
-\toutput [RAw-1 : 0] current_r_addr [NR-1 : 0] // provide each router current address  ;
+\toutput [RAw-1 : 0] current_r_addr [NR-1 : 0]; // provide each router current address  ;
 \toutput [NE-1 : 0] start_o;
 ";
 
@@ -1246,16 +1247,16 @@ sub generate_connection_v{
 			$ports_def=$ports_def."\t$type\t$pdef_range ni_$d->{pname} $pdef_range2;\n";
 			$ports_def=$ports_def."\t$ctype\t$pdef_range ni_$d->{pconnect} $pdef_range2;\n";			
 			$ports=$ports.",\n\tni_$d->{pname},\n\tni_$d->{pconnect}";
-			
-			if($d->{width} eq 1){
-				$ports_def=$ports_def. "\t$type\t[NR-1 :0] router_$d->{name};\n";
-				$ports_def=$ports_def. "\t$type\t[NR-1 :0] router_$d->{connect};\n";
-			}else{	
-				$ports_def=$ports_def. "\t$type\t$range router_$d->{name} [NR-1 :0];\n";
-				$ports_def=$ports_def. "\t$type\t$range router_$d->{connect} [NR-1 :0];\n";
-			}
-					
+		}	
+		if($d->{width} eq 1){
+			$ports_def=$ports_def. "\t$type\t[NR-1 :0] router_$d->{name};\n";
+			$ports_def=$ports_def. "\t$ctype\t[NR-1 :0] router_$d->{connect};\n";
+		}else{	
+			$ports_def=$ports_def. "\t$type\t$range router_$d->{name} [NR-1 :0];\n";
+			$ports_def=$ports_def. "\t$ctype\t$range router_$d->{connect} [NR-1 :0];\n";
 		}
+					
+		
 	}	
 	
 	  
@@ -1411,15 +1412,16 @@ endmodule
 sub add_routing_instance_v{
 	my ($self,$info,$dir)=@_;
 	my $name=$self->object_get_attribute('save_as');
-	
+	my $rname=$self->object_get_attribute('routing_name');
+	my $Vname="T${name}R${rname}";
 	#####################################
 	#			custom_ni_routing
 	####################################
 	my $str="
-	//do not modify this line ===$name===
-    if(TOPOLOGY == \"$name\" ) begin : T${name}
+	//do not modify this line ===${Vname}===
+    if(TOPOLOGY == \"$name\" && ROUTE_NAME== \"$rname\" ) begin : $Vname
     
-        ${name}_ni_conventional_routing  #(
+        ${Vname}_ni_conventional_routing  #(
             .RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
@@ -1437,21 +1439,21 @@ sub add_routing_instance_v{
     	
 ";
 	
-	my $file = "$dir/../custom_ni_routing.v";	
+	my $file = "$dir/../common/custom_ni_routing.v";	
 	#check if ***$name**** exist in the file
 	unless (-f $file){
 		add_colored_info(\$info,"$file dose not exist\n",'red');
 		return; 
 	}	
-	my $r = check_file_has_string($file, "===$name==="); 
+	my $r = check_file_has_string($file, "===${Vname}==="); 
 	if ($r==1){
-		add_info(\$info,"The instance  ${name}_ni_conventional_routing exists in $file. This file is not modified\n  ",'blue');
+		add_info(\$info,"The instance  ${Vname}_ni_conventional_routing exists in $file. This file is not modified\n  ",'blue');
 	
 	}else{
 		my $text = read_file_cntent($file,' ');
         my @a = split('endgenerate',$text);
         save_file($file,"$a[0] $str $a[1]");
-        add_info(\$info,"$file has been modified. The  ${name}_ni_conventional_routing has been added to the file\n  ",'blue');
+        add_info(\$info,"$file has been modified. The  ${Vname}_ni_conventional_routing has been added to the file\n  ",'blue');
 			
 	}
 	
@@ -1461,10 +1463,10 @@ sub add_routing_instance_v{
 	#			custom_lkh_routing
 	####################################
 	 $str="
-	//do not modify this line ===$name===
-    if(TOPOLOGY == \"$name\" ) begin : T${name}
+	//do not modify this line ===${Vname}===
+    if(TOPOLOGY == \"$name\" && ROUTE_NAME== \"$rname\" ) begin : ${Vname}
      
-	   ${name}_look_ahead_routing  #(
+	   ${Vname}_look_ahead_routing  #(
             .RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
@@ -1485,29 +1487,159 @@ sub add_routing_instance_v{
     	
 ";
 	
-	$file = "$dir/../custom_lkh_routing.v";	
-	#check if ***$name**** exist in the file
+	$file = "$dir/../common/custom_lkh_routing.v";	
+
 	unless (-f $file){
 		add_colored_info(\$info,"$file dose not exist\n",'red');
 		return; 
 	}	
-	$r = check_file_has_string($file, "===$name==="); 
+	$r = check_file_has_string($file, "===${Vname}==="); 
 	if ($r==1){
-		add_info(\$info,"The instance ${name}_look_ahead_routing exist in $file. This file is not modified\n  ",'blue');
+		add_info(\$info,"The instance ${Vname}_look_ahead_routing exist in $file. This file is not modified\n  ",'blue');
 	
 	}else{
 		my $text = read_file_cntent($file,' ');
         my @a = split('endgenerate',$text);
         save_file($file,"$a[0] $str $a[1]");	
-        add_info(\$info,"$file has been modified. The  ${name}_look_ahead_routing has been added to the file\n  ",'blue');
+        add_info(\$info,"$file has been modified. The  ${Vname}_look_ahead_routing has been added to the file\n  ",'blue');
 				
 	}
 	
 
 }
 
+sub add_noc_instance_v{
+	my ($self,$info,$dir)=@_;
+	my $name=$self->object_get_attribute('save_as');
 	
+	#####################################
+	#			add connection
+	####################################
+	
+	my $ports="\t\t.reset(reset),
+\t\t.clk(clk),
+\t\t.start_i(start_i),
+\t\t.start_o(start_o),
+\t\t.er_addr(er_addr), 
+\t\t.current_r_addr(current_r_addr)";
+	
+	my @ports= @{$self->object_get_attribute('Verilog','Router_ports')}; 
+	foreach my $d (@ports){		
+		$ports=$ports.",\n\t\t.router_$d->{name}(router_$d->{name}),\n\t\t.router_$d->{connect}(router_$d->{connect})";
+		my $type=$d->{type};
+		my $ctype= ($type eq 'input')? 'output' : 'input';
+		if( $d->{endp} eq "yes"){ 	    	 
+			$ports=$ports.",\n\t\t.ni_$d->{pname}(ni_$d->{pname}),\n\t\t.ni_$d->{pconnect}(ni_$d->{pconnect})";
+		}
+	}	
 
+	
+	my $str="
+	//do not modify this line ===${name}===
+    if(TOPOLOGY == \"$name\" ) begin : T$name
+    
+        ${name}_connection  connection
+        (
+$ports     
+        );    
+    
+    end	
+    
+    endgenerate
+    	
+";
+	
+	my $file = "$dir/../common/custom_noc_connection.sv";	
+	#check if ***$name**** exist in the file
+	unless (-f $file){
+		add_colored_info(\$info,"$file dose not exist\n",'red');
+		return; 
+	}	
+	my $r = check_file_has_string($file, "===${name}==="); 
+	if ($r==1){
+		add_info(\$info,"The instance  ${name}_connection exists in $file. This file is not modified\n  ",'blue');
+	
+	}else{
+		my $text = read_file_cntent($file,' ');
+        my @a = split('endgenerate',$text);
+        save_file($file,"$a[0] $str $a[1]");
+        add_info(\$info,"$file has been modified. The  ${name}_connection has been added to the file\n  ",'blue');
+			
+	}
+	
+	
+	#####################################
+	#		add NoC 
+	####################################
+	
+	
+	 my $param_str ="\t\t.TOPOLOGY(TOPOLOGY),
+\t\t.ROUTE_NAME(ROUTE_NAME)";
+
+   my @parameters=@{$self->object_get_attribute ('Verilog','Router_param')};
+      
+	foreach my $d (@parameters){
+		$param_str = $param_str.",\n\t\t.$d->{param_name}($d->{param_name})";
+	}
+	
+	$ports="\t\t.reset(reset),
+\t\t.clk(clk)";
+	
+	foreach my $d (@ports){		
+		if( $d->{endp} eq "yes"){ 	    	 
+			$ports=$ports.",\n\t\t.$d->{name}($d->{name}),\n\t\t.$d->{connect}($d->{connect})";
+		}	
+	}	
+	
+	
+	$str="
+	//do not modify this line ===${name}===
+    if(TOPOLOGY == \"$name\" ) begin : T$name
+    
+        ${name}_noc_genvar #(
+$param_str
+        )
+        the_noc
+        (
+$ports     
+        );    
+    
+    end	
+    
+    endgenerate
+	
+	";
+	
+	
+	
+	$file = "$dir/../common/custom_noc.v";	
+	#check if ***$name**** exist in the file
+	unless (-f $file){
+		add_colored_info(\$info,"$file dose not exist\n",'red');
+		return; 
+	}	
+	 $r = check_file_has_string($file, "===${name}==="); 
+	if ($r==1){
+		add_info(\$info,"The instance  ${name}_noc exists in $file. This file is not modified\n  ",'blue');
+	
+	}else{
+		my $text = read_file_cntent($file,' ');
+        my @a = split('endgenerate',$text);
+        save_file($file,"$a[0] $str $a[1]");
+        add_info(\$info,"$file has been modified. The  ${name}_noc has been added to the file\n  ",'blue');			
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+}
 
 
 1

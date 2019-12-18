@@ -766,7 +766,7 @@ module weights_update # (
     contention_all, 
     flit_in_all,
     flit_out_all,
-    flit_out_we_all,
+    flit_out_wr_all,
     iport_weight_all,
     refresh_w_counter,
     clk,
@@ -797,7 +797,7 @@ module weights_update # (
     input [WP-1 : 0] contention_all;
     input [PFw-1 :  0]  flit_in_all;
     output[PFw-1 :  0]  flit_out_all;
-    input [P-1 :  0]  flit_out_we_all;
+    input [P-1 :  0]  flit_out_wr_all;
     input [WP-1: 0] iport_weight_all;
     output[WP-1 : 0] limited_oports_weight;  
     output refresh_w_counter;
@@ -827,7 +827,7 @@ module weights_update # (
             .contention_in(contention_all[(i+1)*W-1  :   i*W]),
             .flit_in(flit_in_all[ (i+1)*Fw-1 : i*Fw]),
             .flit_out(flit_out_all[(i+1)*Fw-1 : i*Fw]),
-            .flit_out_we(flit_out_we_all[i]),
+            .flit_out_wr(flit_out_wr_all[i]),
             .clk(clk),
             .reset(reset)
         );       
@@ -845,7 +845,7 @@ module weights_update # (
         reg  [W-1 : 0] oport_weight_counter [P-1 : 0];
         reg  [W-1 : 0] limited_oport_weight [P-1 : 0];
         
-        assign tail_flit_is_sent = (flit_out_we_all & flit_out_is_tail);
+        assign tail_flit_is_sent = (flit_out_wr_all & flit_out_is_tail);
         assign any_tail_is_sent = | tail_flit_is_sent;
         for (i=0; i<P; i=i+1) begin : lp
             assign flit_out_is_tail[i] = flit_out_all[(i+1)*Fw-2];
@@ -928,7 +928,7 @@ module weights_update # (
         end
         
         
-        assign tail_flit_is_sent = (flit_out_we_all & flit_out_is_tail);
+        assign tail_flit_is_sent = (flit_out_wr_all & flit_out_is_tail);
         assign any_tail_is_sent = | tail_flit_is_sent;
     
     
@@ -993,7 +993,7 @@ module weight_update_per_port # (
     contention_in, 
     flit_in,
     flit_out,
-    flit_out_we,
+    flit_out_wr,
     clk,
     reset
 ); 
@@ -1012,7 +1012,7 @@ module weight_update_per_port # (
     input [W-1 : 0] contention_in;
     input [Fw-1 :  0]  flit_in;
     output[Fw-1 :  0]  flit_out;
-    input flit_out_we;
+    input flit_out_wr;
     input clk,reset;  
    
     
@@ -1022,7 +1022,7 @@ module weight_update_per_port # (
     generate
     if(WEIGHT_LATCHED == 1) begin : add_latch
      
-        wire update = flit_out_we & flit_is_hdr;
+        wire update = flit_out_wr & flit_is_hdr;
         wire [W-1 : 0] contention_out;
         output_weight_latch #(
             .WEIGHTw (WEIGHTw)    

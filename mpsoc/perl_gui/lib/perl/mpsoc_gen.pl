@@ -548,7 +548,7 @@ you can add individual numbers or ranges as follow
 ######################
 
 sub noc_config{
-    my ($mpsoc,$table)=@_;
+    my ($mpsoc,$table,$txview)=@_;
     
 
     
@@ -600,13 +600,14 @@ sub noc_config{
     $label='Topology';
     $param='TOPOLOGY';
     $default='"MESH"';
-    $content='"MESH","TORUS","RING","LINE","FATTREE","TREE"';
+    $content='"MESH","TORUS","RING","LINE","FATTREE","TREE","CUSTOM"';
     $type='Combo-box';
     $info="NoC topology"; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
             
     my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
-    
+
+if($topology ne '"CUSTOM"' ){
     #topology T1 parameter
     $label= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'K' : 'Routers per row';
     $param= 'T1';
@@ -642,7 +643,13 @@ sub noc_config{
         $type= 'Spin-button';             
         ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
     }
-
+    
+       
+    
+    
+}else{#its a custom Topology
+	($row,$coltmp)=config_custom_topology_gui($mpsoc,$table,$txview,$row);
+}
     #VC number per port
     if($router_type eq '"VC_BASED"'){    
         my $v=$mpsoc->object_get_attribute('noc_param','V');
@@ -677,7 +684,7 @@ sub noc_config{
     $info="The packet payload width in bits"; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info,$table,$row,undef,$show_noc,'noc_param',undef);
 
-
+if($topology ne '"CUSTOM"' ){
     #routing algorithm
     $label='Routing Algorithm';
     $param="ROUTE_NAME";
@@ -711,7 +718,7 @@ sub noc_config{
     
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
 
-
+}
 	#MIN_PCK_SIZE 
 	# 2 //minimum packet size in flits. The minimum value is 1. 
 	$label='Minimum packet size'; 
@@ -765,7 +772,7 @@ sub noc_config{
     $content="0,12,1";
     $info="Congestion index determines how congestion information is collected from neighboring routers. Please refer to the usere manual for more information";
     $default=3;
-    if($route ne '"XY"' and $route ne '"TRANC_XY"' ){
+    if($topology ne '"CUSTOM"' && $route ne '"XY"' && $route ne '"TRANC_XY"' ){
            ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);
     } else {
         ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,0,'noc_param',undef);
@@ -969,6 +976,65 @@ arbiters external priority enable';
 }
 
 
+#############
+# config_custom_topology_gui
+############
+
+sub config_custom_topology_gui{
+	my($mpsoc,$table,$txview,$row)=@_;
+
+my $coltmp=0;
+#read param.obj file to load cutom topology info
+	my $dir =get_project_dir()."/mpsoc/src_topolgy";
+	my $file="$dir/param.obj";
+	unless (-f $file){
+		 add_colored_info($txview,"No Custom topology find in $dir. You can define a Custom Topology using ProNoC Topology maker.\n",'red');
+		 return;		
+	}	
+	
+	my %param;	
+    my ($pp,$r,$err) = regen_object($file );
+    if ($r){        
+         add_colored_info($txview,"Error: cannot open $file file: $err\n",'red');
+         return;  
+    } 		
+	
+	%param=%{$pp};
+	my @topologies=sort keys %param;
+			
+	my $label='Topology_name';
+    my $param='CUSTOM_TOPOLOGY_NAME';
+    my $default=$topologies[0];
+    my $content= join(",", @topologies);  
+    my $type='Combo-box';
+    my $info="Custom topology name"; 
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,1,'noc_param',1);
+    
+    my $topology_name=$mpsoc->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');        		
+	
+	
+	$label='Routing Algorithm';
+    $param="ROUTE_NAME";
+    $type="Combo-box";
+    $content=$param{$topology_name}{'ROUTE_NAME'};    		 
+    my @rr=split(',',$content);
+    $default=$rr[0];
+    $info="Select the routing algorithm";
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,1,'noc_param',1);
+  
+	$mpsoc->object_add_attribute('noc_param','T1',$param{$topology_name}{'T1'});    
+	$mpsoc->object_add_attribute('noc_param','T2',$param{$topology_name}{'T2'}); 
+	$mpsoc->object_add_attribute('noc_param','T3',$param{$topology_name}{'T3'});     
+  	$mpsoc->object_add_attribute('noc_connection','er_addr',$param{$topology_name}{'er_addr'});  		
+			
+            	
+	return ($row,$coltmp);
+
+}
+
+
+
+
 #######################
 #   get_config
 ######################
@@ -981,7 +1047,7 @@ sub get_config{
     #$scrolled_win->add_with_viewport($table);
 
     #noc_setting
-    my $row=noc_config ($mpsoc,$table);
+    my $row=noc_config ($mpsoc,$table,$info);
     
         
     #tiles setting 
@@ -1253,7 +1319,25 @@ sub generate_mpsoc{
     add_to_project_file_list(\@files,"$hw_dir/lib/",$hw_dir);
     my ($file_v,$top_v)=mpsoc_generate_verilog($mpsoc,$sw_dir);
     
-    
+    #if Topology is custom copy custom topology files
+    my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
+	if ($topology eq '"CUSTOM"'){ 
+		my $Tname=$mpsoc->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
+		$Tname=~s/["]//gs;     
+		my $dir1=  get_project_dir()."/mpsoc/src_topolgy/$Tname";
+		my $dir2=  get_project_dir()."/mpsoc/src_topolgy/common";
+		my @files = File::Find::Rule->file()
+                            ->name( '*.v','*.V')
+                            ->in( "$dir1" );
+		copy_file_and_folders (\@files,$dir,"$hw_dir/lib/");
+		
+		@files = File::Find::Rule->file()
+                            ->name( '*.v','*.V')
+                            ->in( "$dir2" );
+                         
+		copy_file_and_folders (\@files,$dir,"$hw_dir/lib/");	
+	}
+     
         
     # Write object file
     generate_mpsoc_lib_file($mpsoc,$info);

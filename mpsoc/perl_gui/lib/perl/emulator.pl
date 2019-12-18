@@ -821,7 +821,7 @@ sub get_noc_setting_gui {
 	
 	my $scrolled_win = gen_scr_win_with_adjst ($emulate,"noc_setting_gui");
 	$scrolled_win->add_with_viewport($table);
-	my $row=noc_config ($emulate,$table);
+	my $row=noc_config ($emulate,$table,$info_text);
 	    
 	my($label,$param,$default,$content,$type,$info);
 	my @dirs = grep {-d} glob("../boards/*");
@@ -1201,6 +1201,9 @@ sub gen_sim_parameter_h {
  	#define NE  $ne
  	#define NR  $nr
  	#define ROUTER_P_NUM $router_p
+ 	
+	extern Vnoc		 	*noc;
+	extern int reset,clk;
 	
 	//simulation parameter	
 	#define MAX_RATIO   ".MAX_RATIO."

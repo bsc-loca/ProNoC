@@ -41,7 +41,6 @@ sub network_maker_main {
     {param_name=> "CONGESTION_INDEX ", value=>7},
     {param_name=> "DEBUG_EN", value=>0},
     {param_name=> "AVC_ATOMIC_EN", value=>0},
-    {param_name=> "CONGw ", value=>3},  
     {param_name=> "ADD_PIPREG_AFTER_CROSSBAR", value=>0},
     {param_name=> "CVw", value=>"(C==0)? V : C * V"},
     {param_name=> "CLASS_SETTING ", value=>"{CVw{1\'b1}}"}, 
@@ -53,7 +52,7 @@ sub network_maker_main {
 
 my @ports =(
 	{name=> "flit_in_all", type=>"input", width=>"PFw", connect=>"flit_out_all",  pwidth=>"Fw", pname=> "flit_in", pconnect=>"flit_out", endp=>"yes"},
-	{name=> "flit_in_we_all", type=>"input", width=>"P", connect=>"flit_out_we_all",  pwidth=>1, pname=> "flit_in_we", pconnect=>"flit_out_we",endp=>"yes"},
+	{name=> "flit_in_wr_all", type=>"input", width=>"P", connect=>"flit_out_wr_all",  pwidth=>1, pname=> "flit_in_wr", pconnect=>"flit_out_wr",endp=>"yes"},
 	{name=> "congestion_in_all", type=>"input", width=>"CONG_ALw", connect=>"congestion_out_all",  pwidth=>"CONGw", pname=> "congestion_in", pconnect=>"congestion_out",endp=>"no"},
 	{name=> "credit_out_all", type=>"output", width=>"PV", connect=>"credit_in_all",  pwidth=>"V" ,pname=> "credit_out", pconnect=>"credit_in",endp=>"yes"}
 );
@@ -271,10 +270,12 @@ sub get_connection_port_num_between_two_nodes{
 
 sub show_custom_topology_diagram {
 	my ($self,$scrolled_win,$table, $name)=@_;
-	$scrolled_win->destroy;
-	$scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$table->attach_defaults ($scrolled_win, 1, 20, 0, 20); #,'fill','shrink',2,2);		
+	if(defined $scrolled_win){
+		$scrolled_win->destroy;
+		$scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
+		$scrolled_win->set_policy( "automatic", "automatic" );
+		$table->attach_defaults ($scrolled_win, 1, 20, 0, 20); #,'fill','shrink',2,2);		
+	}
 	my $scale=$self->object_get_attribute($name,"scale");
 	$scale= 1 if (!defined $scale);	
 	my $dotfile = generate_custom_topology_dot_file($self);
@@ -292,8 +293,11 @@ sub show_custom_topology_diagram {
 	}
 
 		my $diagram =open_inline_image( $stdout,70*$scale,70*$scale,'percent');
-		$scrolled_win->add_with_viewport($diagram);
-		$scrolled_win->show_all();	
+		
+		if(defined $scrolled_win){
+			$scrolled_win->add_with_viewport($diagram);
+			$scrolled_win->show_all();	
+		}
 		
 		my $save=$self->object_get_attribute("graph_save","enable");
 		$save=0 if(!defined $save);
@@ -301,7 +305,7 @@ sub show_custom_topology_diagram {
 			my $file = $self->object_get_attribute("graph_save","name");
 			my $ext  = $self->object_get_attribute("graph_save","extension");
 			my $pixbuff= $diagram->get_pixbuf;
-		    $pixbuff->save ("$file", "$ext");	
+		    $pixbuff->save ("$file.$ext", "$ext");	
 		    $self->object_add_attribute("graph_save","enable",'0');	
 		}	
 		
@@ -446,10 +450,6 @@ sub get_default_instance_name {
 }	
 	
 	
-	
-	
-
-
 
 
 sub get_list_of_all_routers {
@@ -1835,19 +1835,117 @@ sub generate_topology{
         add_colored_info(\$info, $message,'red' );
         return 0;
     }
+    my $rname=$self->object_get_attribute('routing_name');
+    $error = check_verilog_identifier_syntax($rname);
+    if ( defined $error ){
+        #message_dialog("The \"$rname\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
+        $rname='Undefined' if(!defined $rname);
+        my $message = "The \"$name\" is given with an unacceptable formatting. The routing name will be used as routing verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
+        add_colored_info(\$info, $message,'red' );
+        return 0;
+    }
+    
+    
+    
+    
 	#make destination dir
 	my $dir =get_project_dir()."/mpsoc/src_topolgy/$name";
 	mkpath("$dir",1,01777) unless (-d $dir) ;  
-
+    mkpath("$dir/../common",1,01777) unless (-d "$dir/../common") ;  
+    
+	#save topology image file
+	$self->object_add_attribute("graph_save","name","$dir/$name");
+	$self->object_add_attribute("graph_save","extension",'png');
+	$self->object_add_attribute("graph_save","enable",1);
+	
+	show_custom_topology_diagram ($self,undef,undef,"topology_diagram");
+	
+	
+	
 	#generate topology top module verilog file
 	generate_topology_top_v($self,$info,$dir);
 	generate_topology_top_genvar_v($self,$info,$dir);
 	generate_routing_v($self,$info,$dir);
 	generate_connection_v($self,$info,$dir);
 	add_routing_instance_v($self,$info,$dir);
+	add_noc_instance_v($self,$info,$dir);
+	save_topology_parameter_object_file($self,$info);	
+}
+
+
+sub save_topology_parameter_object_file{
+	my ($self,$info)=@_;	
+	my $name=$self->object_get_attribute('save_as');
+	my $rname=$self->object_get_attribute('routing_name');
+	my $dir =get_project_dir()."/mpsoc/src_topolgy";
+	my $file="$dir/param.obj";
 	
+	my %param;
+	
+	if(-f $file){
+		 my ($pp,$r,$err) = regen_object($file );
+            if ($r){        
+                add_info(\$info,"**Error: cannot open $file file: $err\n");
+                return;
+            } 
+		
+		%param=%{$pp};		
+	}
+	
+	
+	my @ends=get_list_of_all_endpoints($self);
+    my @routers=get_list_of_all_routers($self);
+    
+    my $MAX_P=0;
+    my %router_ps;
+    foreach my $p (@routers){
+    	my $Pnum=$self->object_get_attribute("$p",'PNUM');
+    	$MAX_P =$Pnum  if($Pnum>$MAX_P ); 
+    	$router_ps{$Pnum}=(defined $router_ps{$Pnum})? $router_ps{$Pnum}+1 : '1';   	
+    }	
+
+    my $NE= scalar @ends;
+    my $NR= scalar @routers;
+	
+	
+	$param{"\"$name\""}{'T1'}=$NE;
+	$param{"\"$name\""}{'T2'}=$NR;
+	$param{"\"$name\""}{'T3'}=$MAX_P;
+	my $routs = $param{"\"$name\""}{'ROUTE_NAME'};
+	my $new="\"$rname\"";
+	if(!defined $routs){
+		$param{"\"$name\""}{'ROUTE_NAME'}=$new;
+	}
+	else {	
+		my @r=split(',',$routs);
+		unless( grep (/^$new$/,@r)){
+			$param{"\"$name\""}{'ROUTE_NAME'}= $routs.",$new" ;
+		}
+	}
+	
+	$param{"\"$name\""}{'ROUTER_Ps'}= \%router_ps;
+	
+	
+	my @er_addr;
+	foreach my $end (@ends){
+		my $connect = $self->{$end}{'PCONNECT'}{'Port[0]'};
+		my ($Rname,$Rport)=split(',',$connect);
+		my $R = get_scolar_pos($Rname,@routers);
+		push(@er_addr,$R);			
+	}
+	$param{"\"$name\""}{'er_addr'}= \@er_addr;
+	
+	
+	
+	
+    open(FILE,  ">$file") || die "Can not open: $!";
+    print FILE perl_file_header("$file");
+    print FILE Data::Dumper->Dump([\%param],['Topology']);
+    close(FILE) || die "Error closing file: $!";
 	
 }
+
+
 
 
 
@@ -1886,14 +1984,22 @@ sub build_network_maker_gui {
 		$self->object_add_attribute ("save_as",undef,$name);	
 	});	
 	
+	my ($entrybox2,$entry2) = def_h_labeled_entry('Routing Alg. name:',undef);
 	
+	$entry2->signal_connect( 'changed'=> sub{
+		my $name=$entry2->get_text();
+		$self->object_add_attribute ("routing_name",undef,$name);	
+	});	
 	
 	my $save = def_image_button('icons/save.png','Save');
-	$entrybox->pack_end($save,   FALSE, FALSE,0);
+	#$entrybox->pack_end($save,   FALSE, FALSE,0);
 
 	$main_table->attach_defaults ($v2  , 0, 12, 0,24);
-	$main_table->attach ($open,0, 3, 24,25,'expand','shrink',2,2);
-	$main_table->attach ($entrybox,3, 5, 24,25,'expand','shrink',2,2);
+	$main_table->attach ($open,0, 1, 24,25,'expand','shrink',2,2);
+	$main_table->attach ($save,1, 2, 24,25,'expand','shrink',2,2);
+	
+	$main_table->attach ($entrybox,2, 4, 24,25,'expand','shrink',2,2);
+	$main_table->attach ($entrybox2,4, 6, 24,25,'expand','shrink',2,2);
 	
 	$main_table->attach ($generate, 6, 9, 24,25,'expand','shrink',2,2);
 	
@@ -1984,7 +2090,11 @@ sub build_network_maker_gui {
 			$h1 -> pack2($draw, TRUE, TRUE);    
 						
 			my $saved_name=$self->object_get_attribute('save_as');
-		    if(defined $saved_name) {$entry->set_text($saved_name);}
+		    $entry->set_text($saved_name)if(defined $saved_name);
+		    
+		    $saved_name = $self->object_get_attribute('routing_name');
+		    $entry2->set_text($saved_name) if(defined $saved_name);
+		    
 			set_gui_status($self,"ideal",0);
 			$main_table->show_all();	
 			

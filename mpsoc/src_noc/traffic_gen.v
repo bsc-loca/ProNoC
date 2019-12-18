@@ -398,7 +398,7 @@ module  traffic_gen #(
      header_extractor
      (
         .flit_in(flit_in),
-        .flit_in_we(flit_in_wr),
+        .flit_in_wr(flit_in_wr),
         .class_o(rd_class_hdr),
         .destport_o(),
         .dest_e_addr_o(rd_des_e_addr),
@@ -626,7 +626,7 @@ always @(posedge clk or posedge reset )begin
     // synthesis translate_off
     always @(posedge clk) begin     
         if(flit_out_wr && hdr_flit && dest_e_addr_reg  == current_e_addr) $display("%t: Error: The source and destination address of injected packet is the same in endpoint (%h): %m",$time, dest_e_addr );                                                             
-        if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr    != current_e_addr )) $display("%t: Error: packet with des(%h) which is sent by source (%h) has been recieved in wrong router (%h).  %m",$time,rd_des_e_addr, rd_src_e_addr, current_e_addr);        
+        if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr    != current_e_addr )) $display("%t: Error: packet with destination(%h) which is sent by source (%h) has been recieved in wrong destination (%h).  %m",$time,rd_des_e_addr, rd_src_e_addr, current_e_addr);        
     end
     // synthesis translate_on
     // synopsys  translate_on

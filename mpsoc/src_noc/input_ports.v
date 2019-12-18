@@ -64,7 +64,7 @@ module input_ports
     ivc_num_getting_sw_grant,// for non spec ivc_num_getting_first_sw_grant,
     any_ivc_sw_request_granted_all,
     flit_in_all,
-    flit_in_we_all,
+    flit_in_wr_all,
     reset_ivc_all,
     flit_is_tail_all,
     ivc_request_all,
@@ -114,7 +114,7 @@ module input_ports
     input   [PV-1 : 0] ivc_num_getting_sw_grant;
     input   [P-1 : 0] any_ivc_sw_request_granted_all;
     input   [PFw-1 : 0] flit_in_all;
-    input   [P-1 : 0] flit_in_we_all;
+    input   [P-1 : 0] flit_in_wr_all;
     input   [PV-1 : 0] reset_ivc_all;
     output  [PV-1 : 0] flit_is_tail_all;
     output  [PV-1 : 0] ivc_request_all;
@@ -181,7 +181,7 @@ generate
         .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant  [(i+1)*V-1 : i*V]),// for non spec ivc_num_getting_first_sw_grant,
         .any_ivc_sw_request_granted(any_ivc_sw_request_granted_all  [i]),    
         .flit_in(flit_in_all[(i+1)*Fw-1 : i*Fw]),
-        .flit_in_we(flit_in_we_all[i]),
+        .flit_in_wr(flit_in_wr_all[i]),
         .reset_ivc(reset_ivc_all [(i+1)*V-1 : i*V]),
         .flit_is_tail(flit_is_tail_all  [(i+1)*V-1 : i*V]),
         .ivc_request(ivc_request_all [(i+1)*V-1 : i*V]),    
@@ -255,7 +255,7 @@ module input_queue_per_port  #(
     ivc_num_getting_sw_grant,// for non spec ivc_num_getting_first_sw_grant,
     any_ivc_sw_request_granted,
     flit_in,
-    flit_in_we,
+    flit_in_wr,
     reset_ivc,
     flit_is_tail,
     ivc_request,
@@ -320,7 +320,7 @@ module input_queue_per_port  #(
     input   [V-1 : 0] ivc_num_getting_sw_grant;
     input                      any_ivc_sw_request_granted;
     input   [Fw-1 : 0] flit_in;
-    input                       flit_in_we;
+    input                       flit_in_wr;
     input   [V-1 : 0] reset_ivc;
     output  [V-1 : 0] flit_is_tail;
     output  [V-1 : 0] ivc_request;
@@ -378,7 +378,7 @@ module input_queue_per_port  #(
      header_extractor
      (
          .flit_in(flit_in),
-         .flit_in_we(flit_in_we),         
+         .flit_in_wr(flit_in_wr),         
          .class_o(class_in),
          .destport_o(destport_in),
          .dest_e_addr_o(dest_e_addr_in),
@@ -406,7 +406,7 @@ module input_queue_per_port  #(
         if(reset)begin 
              t1[j]<=1'b0;               
         end else begin 
-            if(flit_in_we >0 && vc_num_in[j] && t1[j]==0)begin 
+            if(flit_in_wr >0 && vc_num_in[j] && t1[j]==0)begin 
                 $display("%t : Parser: class_in=%x, destport_in=%x, dest_e_addr_in=%x, src_e_addr_in=%x, vc_num_in=%x,hdr_flit_wr=%x, hdr_flg_in=%x,tail_flg_in=%x ",$time,class_in, destport_in, dest_e_addr_in, src_e_addr_in, vc_num_in,hdr_flit_wr, hdr_flg_in,tail_flg_in);
                 t1[j]<=1;
             end           
@@ -740,7 +740,7 @@ generate
             .din(flit_in),     // Data in
             .vc_num_wr(vc_num_in),//write vertual channel   
             .vc_num_rd(nonspec_first_arbiter_granted_ivc),//read vertual channel     
-            .wr_en(flit_in_we),   // Write enable
+            .wr_en(flit_in_wr),   // Write enable
             .rd_en(any_ivc_sw_request_granted),     // Read the next word
             .dout(buffer_out),    // Data out
             .vc_not_empty(ivc_not_empty),
@@ -764,7 +764,7 @@ generate
             .din(flit_in),     // Data in
             .vc_num_wr(vc_num_in),//write vertual channel   
             .vc_num_rd(ivc_num_getting_sw_grant),//read vertual channel     
-            .wr_en(flit_in_we),   // Write enable
+            .wr_en(flit_in_wr),   // Write enable
             .rd_en(any_ivc_sw_request_granted),     // Read the next word
             .dout(buffer_out),    // Data out
             .vc_not_empty(ivc_not_empty),
@@ -827,7 +827,7 @@ endgenerate
         .clk (clk)
     );
     
-    assign flit_wr =(flit_in_we )? vc_num_in : {V{1'b0}};
+    assign flit_wr =(flit_in_wr )? vc_num_in : {V{1'b0}};
         
     always @(posedge clk or posedge reset) begin 
         if(reset) begin 
@@ -856,7 +856,7 @@ if(DEBUG_EN) begin :dbg
     	.reset(reset),
     	.hdr_flg_in(hdr_flg_in),
     	.tail_flg_in(tail_flg_in),
-    	.flit_in_we(flit_in_we),
+    	.flit_in_wr(flit_in_wr),
     	.vc_num_in(vc_num_in),
     	.reset_all_errors(1'b0),
     	.active_IVC_hdr_flit_received_err( ),
@@ -887,7 +887,7 @@ if(DEBUG_EN) begin :dbg
             .reset(reset),
             .clk(clk),
             .hdr_flg_in(hdr_flg_in),
-            .flit_in_we(flit_in_we),
+            .flit_in_wr(flit_in_wr),
             .vc_num_in(vc_num_in),
             .flit_is_tail(flit_is_tail),
             .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant),
@@ -969,9 +969,9 @@ module destp_generator #(
             .dest_port_in_encoded(dest_port_encoded),
             .dest_port_out(dest_port_out)
           );    
-    
+    /* verilator lint_off WIDTH */
    end else if(TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") begin : mesh
-    
+    /* verilator lint_on WIDTH */
         mesh_torus_destp_generator #(
         	.TOPOLOGY(TOPOLOGY),
         	.ROUTE_NAME(ROUTE_NAME),
@@ -1059,7 +1059,6 @@ module custom_topology_destp_decoder #(
    //synopsys  translate_off
    
    initial begin
-   #10;
       if( ROUTE_TYPE != "DETERMINISTIC") begin
         $display("%t: Error: Custom topologies can only support deterministic routing in the current version of ProNoC",$time);
         $stop; 

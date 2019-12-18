@@ -16,11 +16,11 @@ module router_verilator_p$p
     current_r_addr,
     neighbors_r_addr,    
     flit_in_all,
-    flit_in_we_all,
+    flit_in_wr_all,
     credit_out_all,
     congestion_in_all,
     flit_out_all,
-    flit_out_we_all,
+    flit_out_wr_all,
     credit_in_all,
     congestion_out_all,
     clk,reset
@@ -58,12 +58,12 @@ module router_verilator_p$p
     input  [RAw-1 : 0] current_r_addr;    
     input  [PRAw-1 :  0] neighbors_r_addr;    
     input  [PFw-1 : 0]  flit_in_all;
-    input  [P-1 : 0]  flit_in_we_all;
+    input  [P-1 : 0]  flit_in_wr_all;
     output [PV-1 : 0]  credit_out_all;
     input  [CONG_ALw-1 : 0]  congestion_in_all;  
      
     output [PFw-1 : 0]  flit_out_all;
-    output [P-1 : 0]  flit_out_we_all;
+    output [P-1 : 0]  flit_out_wr_all;
     input  [PV-1 : 0]  credit_in_all;
     output [CONG_ALw-1 : 0]  congestion_out_all;  
 
@@ -100,11 +100,11 @@ module router_verilator_p$p
         .current_r_addr(current_r_addr),
         .neighbors_r_addr(neighbors_r_addr),
         .flit_in_all(flit_in_all),
-        .flit_in_we_all(flit_in_we_all),
+        .flit_in_wr_all(flit_in_wr_all),
         .credit_out_all(credit_out_all),
         .congestion_in_all(congestion_in_all),
         .flit_out_all(flit_out_all),
-        .flit_out_we_all(flit_out_we_all),
+        .flit_out_wr_all(flit_out_wr_all),
         .credit_in_all(credit_in_all),
         .congestion_out_all(congestion_out_all),
         .clk(clk),

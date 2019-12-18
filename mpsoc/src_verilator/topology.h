@@ -82,19 +82,26 @@ unsigned int endp_addr_encoder ( unsigned int id){
 	if((strcmp(TOPOLOGY ,"FATTREE")==0)||(strcmp(TOPOLOGY ,"TREE")==0)) {
 		return fattree_addrencode(id, T1, T2);
 	}
-	return mesh_tori_addrencode(id);
+	if((strcmp(TOPOLOGY ,"MESH")==0) || (strcmp(TOPOLOGY ,"TORUS")==0) || (strcmp(TOPOLOGY ,"LINE")==0) || (strcmp(TOPOLOGY ,"RING")==0) ) {
+		return mesh_tori_addrencode(id);
+	}
+	//custom. not coded
+    return id;
 }
 
 
 unsigned int endp_addr_decoder (unsigned int code){
 	if(strcmp(TOPOLOGY ,"FATTREE")==0 ||(strcmp(TOPOLOGY ,"TREE")==0)) {
 		return fattree_addrdecode(code, T1, T2);
-	}else{
+	}
+	if((strcmp(TOPOLOGY ,"MESH")==0) || (strcmp(TOPOLOGY ,"TORUS")==0) || (strcmp(TOPOLOGY ,"LINE")==0) || (strcmp(TOPOLOGY ,"RING")==0) ) {
 		unsigned int x, y, l;
 		mesh_tori_addr_sep(code,&x,&y,&l);
 		//if(code==0x1a) printf("code=%x,x=%u,y=%u,l=%u\n",code,x,y,l);
 		return ((y*T1)+x)*T3+l;
 	}
+	//custom. not coded
+	return code;
 }
 
 #endif

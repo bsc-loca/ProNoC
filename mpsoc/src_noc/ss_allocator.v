@@ -47,7 +47,7 @@ module  ss_allocator#(
     parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000  
    )
    (
-        flit_in_we_all,
+        flit_in_wr_all,
         flit_in_all,
         any_ovc_granted_in_outport_all ,
         any_ivc_sw_request_granted_all ,
@@ -95,7 +95,7 @@ module  ss_allocator#(
                 
 
     input   [PFw-1          :   0]  flit_in_all;
-    input   [P-1            :   0]  flit_in_we_all;
+    input   [P-1            :   0]  flit_in_wr_all;
     input   [P-1            :   0]  any_ovc_granted_in_outport_all;
     input   [P-1            :   0]  any_ivc_sw_request_granted_all;
     input   [PV-1           :   0]  ovc_avalable_all;
@@ -199,7 +199,7 @@ module  ss_allocator#(
             )
             the_ssa_per_vc
             (
-                .flit_in_we(flit_in_we_all[(i/V)]),
+                .flit_in_wr(flit_in_wr_all[(i/V)]),
                 .flit_in(flit_in_all[((i/V)+1)*Fw-1 :   (i/V)*Fw]),
                 .any_ivc_sw_request_granted(any_ivc_sw_request_granted_all[(i/V)]),                
                 .any_ovc_granted_in_ss_port(any_ovc_granted_in_ss_port[i]),                
@@ -268,7 +268,7 @@ module ssa_per_vc #(
     parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000
     )
     (
-        flit_in_we,
+        flit_in_wr,
         flit_in,
         any_ovc_granted_in_ss_port,
         any_ivc_sw_request_granted,
@@ -307,7 +307,7 @@ module ssa_per_vc #(
                
 
     input   [Fw-1          :   0]  flit_in;
-    input                          flit_in_we;
+    input                          flit_in_wr;
     input                          any_ovc_granted_in_ss_port;
     input                          any_ivc_sw_request_granted;
     input                          ovc_avalable_in_ss_port;
@@ -366,7 +366,7 @@ module ssa_per_vc #(
        extractor
        (
        	.flit_in(flit_in),
-       	.flit_in_we(flit_in_we),
+       	.flit_in_wr(flit_in_wr),
        	.class_o(),
        	.destport_o(destport_in_encoded),
        	.src_e_addr_o( ),
@@ -439,7 +439,7 @@ endgenerate
  check incomming packet conditions 
  *****************************/
  wire ss_vc_wr, decrease_credit_pre,allocate_ss_ovc_pre,release_ss_ovc_pre;
- assign ss_vc_wr = flit_in_we & vc_num_in[V_LOCAL];
+ assign ss_vc_wr = flit_in_wr & vc_num_in[V_LOCAL];
  assign decrease_credit_pre= ~(hdr_flg & (~ss_port_hdr_flit));
  assign allocate_ss_ovc_pre= hdr_flg & ss_port_hdr_flit;
  assign release_ss_ovc_pre= tail_flg;

@@ -1,0 +1,41 @@
+#######################################################################
+##	File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_topolgy/param.obj
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$Topology = {
+              '"muli"' => {
+                            'ROUTE_NAME' => '"test"',
+                            'er_addr' => [
+                                           0,
+                                           1,
+                                           2,
+                                           3,
+                                           4,
+                                           5
+                                         ],
+                            'ROUTER_Ps' => {
+                                             '3' => 2,
+                                             '2' => 3,
+                                             '4' => '1'
+                                           },
+                            'T2' => 6,
+                            'T1' => 6,
+                            'T3' => 4
+                          },
+              '"test"' => {
+                            'T1' => 9,
+                            'T3' => 5,
+                            'T2' => 9,
+                            'ROUTER_Ps' => {
+                                             '5' => 9
+                                           },
+                            'ROUTE_NAME' => '"test"'
+                          }
+            };

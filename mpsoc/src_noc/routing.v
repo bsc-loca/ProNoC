@@ -196,6 +196,8 @@ module ni_conventional_routing #(
     
         custom_ni_routing  #(
             .TOPOLOGY(TOPOLOGY),
+            .ROUTE_NAME(ROUTE_NAME),
+            .ROUTE_TYPE(ROUTE_TYPE),
             .RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
@@ -408,6 +410,8 @@ module look_ahead_routing #(
     
         custom_lkh_routing  #(
             .TOPOLOGY(TOPOLOGY),
+            .ROUTE_NAME(ROUTE_NAME),
+            .ROUTE_TYPE(ROUTE_TYPE),
             .RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  

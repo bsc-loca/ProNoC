@@ -139,7 +139,7 @@ module extract_header_flit_info #(
 )(
     //inputs
     flit_in,
-    flit_in_we,
+    flit_in_wr,
     //outputs
     src_e_addr_o,
     dest_e_addr_o,
@@ -175,7 +175,7 @@ module extract_header_flit_info #(
      
     
     input [Fw-1 : 0] flit_in;
-    input flit_in_we;
+    input flit_in_wr;
     
     output [EAw-1 : 0] src_e_addr_o;
     output [EAw-1 : 0] dest_e_addr_o;
@@ -242,7 +242,7 @@ module extract_header_flit_info #(
     assign vc_num_o = flit_in [Fpay+V-1 : Fpay];
     assign hdr_flg_o= flit_in [Fw-1];
     assign tail_flg_o=    flit_in   [Fw-2];
-    assign hdr_flit_wr_o= (flit_in_we & hdr_flg_o )? vc_num_o : {V{1'b0}};
+    assign hdr_flit_wr_o= (flit_in_wr & hdr_flg_o )? vc_num_o : {V{1'b0}};
 
 endmodule
 

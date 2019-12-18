@@ -40,13 +40,13 @@ $nwmaker = bless( {
                                                        },
                                                        {
                                                          'type' => 'input',
-                                                         'pname' => 'flit_in_we',
-                                                         'name' => 'flit_in_we_all',
-                                                         'pconnect' => 'flit_out_we',
+                                                         'pname' => 'flit_in_wr',
+                                                         'name' => 'flit_in_wr_all',
+                                                         'pconnect' => 'flit_out_wr',
                                                          'width' => 'P',
                                                          'endp' => 'yes',
                                                          'pwidth' => 1,
-                                                         'connect' => 'flit_out_we_all'
+                                                         'connect' => 'flit_out_wr_all'
                                                        },
                                                        {
                                                          'type' => 'input',

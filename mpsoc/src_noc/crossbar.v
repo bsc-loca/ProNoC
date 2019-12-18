@@ -38,7 +38,7 @@ module crossbar #(
     granted_dest_port_all,
     flit_in_all,
     flit_out_all,
-    flit_out_we_all,
+    flit_out_wr_all,
     ssa_flit_wr_all,
     clk,
     reset
@@ -73,20 +73,20 @@ module crossbar #(
     input [PP_1-1 : 0] granted_dest_port_all;
     input [PFw-1 : 0] flit_in_all;
     output [PFw-1 : 0] flit_out_all;
-    output [P-1 : 0] flit_out_we_all;
+    output [P-1 : 0] flit_out_wr_all;
     input [P-1 : 0] ssa_flit_wr_all;
     input reset,clk;
     
     
     
     wire [PFw-1 : 0]  flit_out_all_internal;
-    wire [P-1 : 0]  flit_out_we_all_internal,flit_we_mux_out;
+    wire [P-1 : 0]  flit_out_wr_all_internal,flit_we_mux_out;
     wire [P_1-1 : 0] granted_dest_port [P-1 : 0];
     wire [P_1Fw-1 : 0] mux_in [P-1 : 0];
     wire [P_1-1 : 0] mux_sel_pre [P-1 : 0];
     wire [P_1-1 : 0]  mux_sel [P-1 : 0];
     wire [P_1w-1 : 0] mux_sel_bin [P-1 : 0];
-    wire [PP-1 : 0] flit_out_we_gen;
+    wire [PP-1 : 0] flit_out_wr_gen;
     
     genvar i,j;
     generate
@@ -174,7 +174,7 @@ module crossbar #(
         add_sw_loc
         (
             .destport_in(granted_dest_port_all[(i+1)*P_1-1 : i*P_1]),
-            .destport_out(flit_out_we_gen [(i+1)*P-1 : i*P])
+            .destport_out(flit_out_wr_gen [(i+1)*P-1 : i*P])
         );
         
    
@@ -191,36 +191,36 @@ module crossbar #(
     )
     wide_or
     (
-        .or_in(flit_out_we_gen),
+        .or_in(flit_out_wr_gen),
         .or_out(flit_we_mux_out)
     );
     
-    assign    flit_out_we_all_internal = flit_we_mux_out | ssa_flit_wr_all;
+    assign    flit_out_wr_all_internal = flit_we_mux_out | ssa_flit_wr_all;
     
     generate 
         if( ADD_PIPREG_AFTER_CROSSBAR == 1) begin :pip_reg1
             
             reg [PFw-1 : 0] flit_out_all_pipe;
-            reg [P-1 : 0] flit_out_we_all_pipe;
+            reg [P-1 : 0] flit_out_wr_all_pipe;
             
             always @(posedge clk or posedge reset)begin 
                 if(reset)begin
                     flit_out_all_pipe    <=  {PFw{1'b0}};
-                    flit_out_we_all_pipe <=  {P{1'b0}};
+                    flit_out_wr_all_pipe <=  {P{1'b0}};
                 end else begin
                     flit_out_all_pipe     <=   flit_out_all_internal;
-                    flit_out_we_all_pipe  <=   flit_out_we_all_internal;               
+                    flit_out_wr_all_pipe  <=   flit_out_wr_all_internal;               
                end
             end        
             
            assign flit_out_all = flit_out_all_pipe;
-           assign flit_out_we_all = flit_out_we_all_pipe;       
+           assign flit_out_wr_all = flit_out_wr_all_pipe;       
             
          
         end else begin :no_pip_reg1    
             
            assign    flit_out_all     =   flit_out_all_internal;
-           assign    flit_out_we_all  =   flit_out_we_all_internal;
+           assign    flit_out_wr_all  =   flit_out_wr_all_internal;
            
         end       
         

@@ -1,5 +1,7 @@
 module custom_lkh_routing  #(
 	parameter TOPOLOGY = "CUSTOM_NAME",
+        parameter ROUTE_NAME = "CUSTOM_NAME",
+	parameter ROUTE_TYPE = "DETERMINISTIC",
 	parameter RAw = 3,  
 	parameter EAw = 3,   
 	parameter DSTPw=4  
@@ -22,12 +24,36 @@ module custom_lkh_routing  #(
     generate 
     
     
-       
+    
      
-	//do not modify this line ===test===
-    if(TOPOLOGY == "test" ) begin : Ttest
+	//do not modify this line ===TtestRtest===
+    if(TOPOLOGY == "test" && ROUTE_NAME== "test" ) begin : TtestRtest
      
-	   test_look_ahead_routing  #(
+	   TtestRtest_look_ahead_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_lkh_routing
+        (
+            .current_r_addr(current_r_addr),
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport),
+            .reset(reset),
+            .clk(clk)        
+        );    
+    
+    end	
+    
+     
+	
+    
+     
+	//do not modify this line ===TmuliRtest===
+    if(TOPOLOGY == "muli" && ROUTE_NAME== "test" ) begin : TmuliRtest
+     
+	   TmuliRtest_look_ahead_routing  #(
             .RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
@@ -47,7 +73,10 @@ module custom_lkh_routing  #(
     endgenerate
     	
  
-
-
+    	
+ 
+    	
+ 
+    
 
 endmodule

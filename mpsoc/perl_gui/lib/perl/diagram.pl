@@ -273,6 +273,22 @@ sub show_topology_diagram {
 
 sub gen_diagram {
 	my ($self,$type)=@_;
+	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
+	if ($type eq 'topology' && $topology eq '"CUSTOM"'){
+		
+		 my $name=$self->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
+		 $name=~s/["]//gs;        		
+		 my $image=  get_project_dir()."/mpsoc/src_topolgy/$name/$name.png";
+		 my $tmp  = "$ENV{'PRONOC_WORK'}/tmp/diagram.png";
+		
+		 unlink $tmp; 
+		 return 0 unless (-f "$image");
+		 copy ($image,$tmp);
+		 return 0 unless (-f "$tmp");
+		 return 1;
+	}
+	
+	
 	
 	my $dotfile;
 	$dotfile=   get_dot_file($self) if ($type eq 'tile');
@@ -1120,7 +1136,8 @@ sub get_topology_dot_file{
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
 	return generate_mesh_dot_file ($self) if($topology eq '"RING"' || $topology eq '"LINE"' || $topology eq '"MESH"' || $topology eq '"TORUS"' );
 	return generate_fattree_dot_file ($self) if($topology eq '"FATTREE"');
-	return generate_tree_dot_file($self);
+	return generate_tree_dot_file($self) if($topology eq '"TREE"');
+	
 }
 
 

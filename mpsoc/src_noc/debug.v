@@ -11,7 +11,7 @@ module debug_IVC_flit_type_order_check #(
     parameter V=4
 )(
     hdr_flg_in,
-    flit_in_we,
+    flit_in_wr,
     tail_flg_in,
     vc_num_in,
     clk,
@@ -26,7 +26,7 @@ module debug_IVC_flit_type_order_check #(
 );
 
     input clk, reset;
-    input hdr_flg_in, tail_flg_in, flit_in_we;
+    input hdr_flg_in, tail_flg_in, flit_in_wr;
     input [V-1 : 0] vc_num_in;
     input reset_all_errors;
     output reg active_IVC_hdr_flit_received_err; 
@@ -37,9 +37,9 @@ module debug_IVC_flit_type_order_check #(
     reg  [V-1 : 0] hdr_passed, hdr_passed_next;
     wire [V-1 : 0] single_flit_pck;
     
-    assign  vc_num_hdr_wr =(hdr_flg_in && flit_in_we)?    vc_num_in : 0;
-    assign  vc_num_tail_wr =(tail_flg_in && flit_in_we)?    vc_num_in : 0;
-    assign  vc_num_bdy_wr =({hdr_flg_in,tail_flg_in} == 2'b00 && flit_in_we)?    vc_num_in : 0;
+    assign  vc_num_hdr_wr =(hdr_flg_in && flit_in_wr)?    vc_num_in : 0;
+    assign  vc_num_tail_wr =(tail_flg_in && flit_in_wr)?    vc_num_in : 0;
+    assign  vc_num_bdy_wr =({hdr_flg_in,tail_flg_in} == 2'b00 && flit_in_wr)?    vc_num_in : 0;
     assign  single_flit_pck = vc_num_hdr_wr & vc_num_tail_wr;
     always @(*)begin
         hdr_passed_next = (hdr_passed | vc_num_hdr_wr) & ~vc_num_tail_wr; 
@@ -93,7 +93,7 @@ module debug_mesh_tori_route_ckeck #(
     reset,
     clk,
     hdr_flg_in,
-    flit_in_we,
+    flit_in_wr,
     flit_is_tail,
     ivc_num_getting_sw_grant,
     vc_num_in,
@@ -114,7 +114,7 @@ module debug_mesh_tori_route_ckeck #(
     
     
     input reset,clk;
-    input hdr_flg_in , flit_in_we;
+    input hdr_flg_in , flit_in_wr;
     input [V-1 : 0] vc_num_in, flit_is_tail,  ivc_num_getting_sw_grant;
     input [RAw-1 : 0] current_r_addr;
     input [EAw-1 : 0] dest_e_addr_in,src_e_addr_in;
@@ -205,7 +205,7 @@ if(ROUTE_TYPE == "DETERMINISTIC")begin :dtrmn
     );
   
     always@( posedge clk)begin 
-        if(flit_in_we & hdr_flg_in)begin  
+        if(flit_in_wr & hdr_flg_in)begin  
                if( sum != 1 && T3==1) $display ( "%t\t  Error: destport port %x is illegal. It should be one hot coded.  %m",$time,destport_in );
                if( sum > 1 && T3>1) $display ( "%t\t  Error: destport port %x is illegal. It should be one hot coded.  %m",$time,destport_in );
        
@@ -221,7 +221,7 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
             if(reset) begin
                not_empty <=0;
             end else begin 
-               if(hdr_flg_in & flit_in_we) begin
+               if(hdr_flg_in & flit_in_wr) begin
                     not_empty <= not_empty | vc_num_in;
                     if( ((AVC_ATOMIC_EN==1)&& (SW_LOC!= LOCAL)) || (SW_LOC== NORTH) || (SW_LOC== SOUTH) )begin   
                         if((vc_num_in  & ~ESCAP_VC_MASK)>0) begin // adaptive VCs
@@ -259,7 +259,7 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
           
         always@( posedge clk)begin 
                if((current_x <low_x) | (current_x > high_x) | (current_y <low_y) | (current_y > high_y) )  
-                    if(flit_in_we & hdr_flg_in )$display ( "%t\t  Error: non_minimal routing %m",$time );
+                    if(flit_in_wr & hdr_flg_in )$display ( "%t\t  Error: non_minimal routing %m",$time );
         end
            
     
@@ -278,7 +278,7 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
  )(
     clk,
     current_r_addr,
-    flit_out_we_all
+    flit_out_wr_all
  );
  
     function integer log2;
@@ -292,7 +292,7 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
   
     input clk;
     input  [RAw-1 :  0]  current_r_addr;
-    input  [P-1 :  0]  flit_out_we_all;
+    input  [P-1 :  0]  flit_out_wr_all;
     
     localparam 
         RXw = log2(T1),    // number of node in x axis
@@ -325,10 +325,10 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
         SOUTH = 4;
  
         always @(posedge clk) begin            
-                if(current_rx == {RXw{1'b0}}         && flit_out_we_all[WEST]) $display ( "%t\t   Error: a packet is going to the WEST in a router located in first column in mesh topology %m",$time ); 
-                if(current_rx == T1-1     && flit_out_we_all[EAST]) $display ( "%t\t   Error: a packet is going to the EAST in a router located in last column in mesh topology %m",$time ); 
-                if(current_ry == {RYw{1'b0}}         && flit_out_we_all[NORTH])$display ( "%t\t  Error: a packet is going to the NORTH in a router located in first row in mesh topology %m",$time ); 
-                if(current_ry == T2-1    && flit_out_we_all[SOUTH])$display ( "%t\t  Error: a packet is going to the SOUTH in a router located in last row in mesh topology %m",$time); 
+                if(current_rx == {RXw{1'b0}}         && flit_out_wr_all[WEST]) $display ( "%t\t   Error: a packet is going to the WEST in a router located in first column in mesh topology %m",$time ); 
+                if(current_rx == T1-1     && flit_out_wr_all[EAST]) $display ( "%t\t   Error: a packet is going to the EAST in a router located in last column in mesh topology %m",$time ); 
+                if(current_ry == {RYw{1'b0}}         && flit_out_wr_all[NORTH])$display ( "%t\t  Error: a packet is going to the NORTH in a router located in first row in mesh topology %m",$time ); 
+                if(current_ry == T2-1    && flit_out_wr_all[SOUTH])$display ( "%t\t  Error: a packet is going to the SOUTH in a router located in last row in mesh topology %m",$time); 
         end//always
    
 endmodule

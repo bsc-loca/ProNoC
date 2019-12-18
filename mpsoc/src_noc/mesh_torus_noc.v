@@ -105,11 +105,11 @@ module mesh_torus_noc #(
                     
                    
     wire [PFw-1 : 0] router_flit_in_all [NR-1 :0];
-    wire [MAX_P-1 : 0] router_flit_in_we_all [NR-1 :0];    
+    wire [MAX_P-1 : 0] router_flit_in_wr_all [NR-1 :0];    
     wire [PV-1 : 0] router_credit_out_all [NR-1 :0];
     
     wire [PFw-1 : 0] router_flit_out_all [NR-1 :0];
-    wire [MAX_P-1 : 0] router_flit_out_we_all [NR-1 :0];
+    wire [MAX_P-1 : 0] router_flit_out_wr_all [NR-1 :0];
     wire [PV-1 : 0] router_credit_in_all [NR-1 :0];                    
     wire [CONG_ALw-1: 0] router_congestion_out_all[NR-1 :0];    
     wire [CONG_ALw-1: 0] router_congestion_in_all [NR-1 :0];   
@@ -181,13 +181,13 @@ generate
                 .neighbors_r_addr( ),// not needed for mesh as routers addresses are easy to be predicted
 
                 .flit_in_all(router_flit_in_all[x]),
-                .flit_in_we_all(router_flit_in_we_all[x]),
+                .flit_in_wr_all(router_flit_in_wr_all[x]),
                 .credit_out_all(router_credit_out_all[x]),
                 .congestion_in_all(router_congestion_in_all[x]),
             
             
                 .flit_out_all(router_flit_out_all[x]),
-                .flit_out_we_all(router_flit_out_we_all[x]),
+                .flit_out_wr_all(router_flit_out_wr_all[x]),
                 .credit_in_all(router_credit_in_all[x]),
                 .congestion_out_all(router_congestion_out_all[x]),
             
@@ -199,7 +199,7 @@ generate
             if(x    <   NX-1) begin: not_last_node            
                 assign  router_flit_in_all [`SELECT_WIRE(x,0,FORWARD,Fw)] = router_flit_out_all [`SELECT_WIRE((x+1),0,BACKWARD,Fw)];
                 assign  router_credit_in_all [`SELECT_WIRE(x,0,FORWARD,V)] = router_credit_out_all [`SELECT_WIRE((x+1),0,BACKWARD,V)];
-                assign  router_flit_in_we_all [x][FORWARD] = router_flit_out_we_all [`router_id((x+1),0)][BACKWARD];
+                assign  router_flit_in_wr_all [x][FORWARD] = router_flit_out_wr_all [`router_id((x+1),0)][BACKWARD];
                 assign  router_congestion_in_all [`SELECT_WIRE(x,0,FORWARD,CONGw)]  = router_congestion_out_all [`SELECT_WIRE((x+1),0,BACKWARD,CONGw)];
             end else begin :last_node
                 /* verilator lint_off WIDTH */ 
@@ -207,12 +207,12 @@ generate
                 /* verilator lint_on WIDTH */ 
                     assign  router_flit_in_all [`SELECT_WIRE(x,0,FORWARD,Fw)] = {Fw{1'b0}};
                     assign  router_credit_in_all [`SELECT_WIRE(x,0,FORWARD,V)] = {V{1'b0}};
-                    assign  router_flit_in_we_all [x][FORWARD] = 1'b0;
+                    assign  router_flit_in_wr_all [x][FORWARD] = 1'b0;
                     assign  router_congestion_in_all [`SELECT_WIRE(x,0,FORWARD,CONGw)] = {CONGw{1'b0}};                
                 end else begin : ring_last_x
                     assign  router_flit_in_all [`SELECT_WIRE(x,0,FORWARD,Fw)] =   router_flit_out_all [`SELECT_WIRE(0,0,BACKWARD,Fw)];
                     assign  router_credit_in_all [`SELECT_WIRE(x,0,FORWARD,V)] =   router_credit_out_all [`SELECT_WIRE(0,0,BACKWARD,V)];
-                    assign  router_flit_in_we_all [x][FORWARD]  =   router_flit_out_we_all [`router_id(0,0)][BACKWARD];
+                    assign  router_flit_in_wr_all [x][FORWARD]  =   router_flit_out_wr_all [`router_id(0,0)][BACKWARD];
                     assign  router_congestion_in_all [`SELECT_WIRE(x,0,FORWARD,CONGw)]  = router_congestion_out_all [`SELECT_WIRE(0,0,BACKWARD,CONGw)];
                 end
             end 
@@ -220,7 +220,7 @@ generate
             if(x>0)begin :not_first_x
                 assign  router_flit_in_all [`SELECT_WIRE(x,0,BACKWARD,Fw)] = router_flit_out_all [`SELECT_WIRE((x-1),0,FORWARD,Fw)];
                 assign  router_credit_in_all [`SELECT_WIRE(x,0,BACKWARD,V)] =  router_credit_out_all [`SELECT_WIRE((x-1),0,FORWARD,V)] ;
-                assign  router_flit_in_we_all [x][BACKWARD] =   router_flit_out_we_all [`router_id((x-1),0)][FORWARD];
+                assign  router_flit_in_wr_all [x][BACKWARD] =   router_flit_out_wr_all [`router_id((x-1),0)][FORWARD];
                 assign  router_congestion_in_all[`SELECT_WIRE(x,0,BACKWARD,CONGw)] =   router_congestion_out_all [`SELECT_WIRE((x-1),0,FORWARD,CONGw)];
             end else begin :first_x
                 /* verilator lint_off WIDTH */ 
@@ -228,12 +228,12 @@ generate
                 /* verilator lint_on WIDTH */ 
                     assign  router_flit_in_all [`SELECT_WIRE(x,0,BACKWARD,Fw)] = {Fw{1'b0}};
                     assign  router_credit_in_all [`SELECT_WIRE(x,0,BACKWARD,V)] = {V{1'b0}};
-                    assign  router_flit_in_we_all [x][BACKWARD] = 1'b0;
+                    assign  router_flit_in_wr_all [x][BACKWARD] = 1'b0;
                     assign  router_congestion_in_all[`SELECT_WIRE(x,0,BACKWARD,CONGw)] = {CONGw{1'b0}};
                  end else begin : ring_first_x
                     assign  router_flit_in_all [`SELECT_WIRE(x,0,BACKWARD,Fw)] = router_flit_out_all [`SELECT_WIRE((NX-1),0,FORWARD,Fw)] ;
                     assign  router_credit_in_all [`SELECT_WIRE(x,0,BACKWARD,V)] = router_credit_out_all [`SELECT_WIRE((NX-1),0,FORWARD,V)] ;
-                    assign  router_flit_in_we_all [x][BACKWARD] = router_flit_out_we_all [`router_id((NX-1),0)][FORWARD];
+                    assign  router_flit_in_wr_all [x][BACKWARD] = router_flit_out_wr_all [`router_id((NX-1),0)][FORWARD];
                     assign  router_congestion_in_all[`SELECT_WIRE(x,0,BACKWARD,CONGw)] = router_congestion_out_all [`SELECT_WIRE((NX-1),0,FORWARD,CONGw)];
                 end
             end            
@@ -245,11 +245,11 @@ generate
                 
                 assign router_flit_in_all [`SELECT_WIRE(x,0,LOCALP,Fw)] =    ni_flit_out [ENDPID];
                 assign router_credit_in_all [`SELECT_WIRE(x,0,LOCALP,V)] =    ni_credit_out [ENDPID];
-                assign router_flit_in_we_all [`router_id(x,0)][LOCALP] =    ni_flit_out_wr [ENDPID];
+                assign router_flit_in_wr_all [`router_id(x,0)][LOCALP] =    ni_flit_out_wr [ENDPID];
                 assign router_congestion_in_all[`SELECT_WIRE(x,0,LOCALP,CONGw)] =   {CONGw{1'b0}};              
             
                 assign ni_flit_in [ENDPID] = router_flit_out_all [`SELECT_WIRE(x,0,LOCALP,Fw)];
-                assign ni_flit_in_wr [ENDPID] = router_flit_out_we_all[`router_id(x,0)][LOCALP];
+                assign ni_flit_in_wr [ENDPID] = router_flit_out_wr_all[`router_id(x,0)][LOCALP];
                 assign ni_credit_in [ENDPID] = router_credit_out_all [`SELECT_WIRE(x,0,LOCALP,V)];                             
             
                 
@@ -307,12 +307,12 @@ generate
                 .current_r_addr(current_r_addr [ROUTER_NUM]),    
                 .neighbors_r_addr( ),
                 .flit_in_all(router_flit_in_all[`router_id(x,y)]),
-                .flit_in_we_all(router_flit_in_we_all[`router_id(x,y)]),
+                .flit_in_wr_all(router_flit_in_wr_all[`router_id(x,y)]),
                 .credit_out_all(router_credit_out_all[`router_id(x,y)]),
                 .congestion_in_all(router_congestion_in_all[`router_id(x,y)]),            
             
                 .flit_out_all(router_flit_out_all[`router_id(x,y)]),
-                .flit_out_we_all(router_flit_out_we_all[`router_id(x,y)]),
+                .flit_out_wr_all(router_flit_out_wr_all[`router_id(x,y)]),
                 .credit_in_all(router_credit_in_all[`router_id(x,y)]),
                 .congestion_out_all(router_congestion_out_all[`router_id(x,y)]),
             
@@ -331,7 +331,7 @@ generate
             if(x    <    NX-1) begin: not_last_x
                 assign    router_flit_in_all [`SELECT_WIRE(x,y,EAST,Fw)] = router_flit_out_all [`SELECT_WIRE((x+1),y,WEST,Fw)];
                 assign    router_credit_in_all [`SELECT_WIRE(x,y,EAST,V)] = router_credit_out_all [`SELECT_WIRE((x+1),y,WEST,V)];
-                assign    router_flit_in_we_all [`router_id(x,y)][EAST] = router_flit_out_we_all [`router_id((x+1),y)][WEST];
+                assign    router_flit_in_wr_all [`router_id(x,y)][EAST] = router_flit_out_wr_all [`router_id((x+1),y)][WEST];
                 assign    router_congestion_in_all [`SELECT_WIRE(x,y,EAST,CONGw)]  = router_congestion_out_all [`SELECT_WIRE((x+1),y,WEST,CONGw)];
             end else begin :last_x
                 /* verilator lint_off WIDTH */ 
@@ -339,14 +339,14 @@ generate
                 /* verilator lint_on WIDTH */ 
                     assign    router_flit_in_all [`SELECT_WIRE(x,y,EAST,Fw)] =    {Fw{1'b0}};
                     assign    router_credit_in_all [`SELECT_WIRE(x,y,EAST,V)] =    {V{1'b0}};
-                    assign    router_flit_in_we_all [`router_id(x,y)][EAST] =    1'b0;
+                    assign    router_flit_in_wr_all [`router_id(x,y)][EAST] =    1'b0;
                     assign    router_congestion_in_all [`SELECT_WIRE(x,y,EAST,CONGw)]  = {CONGw{1'b0}};
                 /* verilator lint_off WIDTH */ 
                 end else if(TOPOLOGY == "TORUS") begin : last_x_torus
                 /* verilator lint_on WIDTH */ 
                     assign    router_flit_in_all [`SELECT_WIRE(x,y,EAST,Fw)] =    router_flit_out_all [`SELECT_WIRE(0,y,WEST,Fw)];
                     assign    router_credit_in_all [`SELECT_WIRE(x,y,EAST,V)] =    router_credit_out_all [`SELECT_WIRE(0,y,WEST,V)];
-                    assign    router_flit_in_we_all [`router_id(x,y)][EAST] =    router_flit_out_we_all [`router_id(0,y)][WEST];
+                    assign    router_flit_in_wr_all [`router_id(x,y)][EAST] =    router_flit_out_wr_all [`router_id(0,y)][WEST];
                     assign    router_congestion_in_all [`SELECT_WIRE(x,y,EAST,CONGw)]  = router_congestion_out_all [`SELECT_WIRE(0,y,WEST,CONGw)];
                 end //topology
             end 
@@ -355,7 +355,7 @@ generate
             if(y>0) begin : not_first_y
                 assign    router_flit_in_all [`SELECT_WIRE(x,y,NORTH,Fw)] =    router_flit_out_all [`SELECT_WIRE(x,(y-1),SOUTH,Fw)];
                 assign    router_credit_in_all [`SELECT_WIRE(x,y,NORTH,V)] =  router_credit_out_all [`SELECT_WIRE(x,(y-1),SOUTH,V)];
-                assign    router_flit_in_we_all [`router_id(x,y)][NORTH] =    router_flit_out_we_all [`router_id(x,(y-1))][SOUTH];
+                assign    router_flit_in_wr_all [`router_id(x,y)][NORTH] =    router_flit_out_wr_all [`router_id(x,(y-1))][SOUTH];
                 assign    router_congestion_in_all [`SELECT_WIRE(x,y,NORTH,CONGw)]   =     router_congestion_out_all [`SELECT_WIRE(x,(y-1),SOUTH,CONGw)];
             end else begin :first_y
                 /* verilator lint_off WIDTH */ 
@@ -363,14 +363,14 @@ generate
                 /* verilator lint_on WIDTH */ 
                     assign     router_flit_in_all [`SELECT_WIRE(x,y,NORTH,Fw)] =    {Fw{1'b0}};
                     assign    router_credit_in_all [`SELECT_WIRE(x,y,NORTH,V)] =    {V{1'b0}};
-                    assign    router_flit_in_we_all [`router_id(x,y)][NORTH] =    1'b0;
+                    assign    router_flit_in_wr_all [`router_id(x,y)][NORTH] =    1'b0;
                     assign    router_congestion_in_all [`SELECT_WIRE(x,y,NORTH,CONGw)]   =     {CONGw{1'b0}};
                 /* verilator lint_off WIDTH */ 
                 end else if(TOPOLOGY == "TORUS") begin :first_y_torus
                 /* verilator lint_on WIDTH */ 
                     assign    router_flit_in_all [`SELECT_WIRE(x,y,NORTH,Fw)] =    router_flit_out_all [`SELECT_WIRE(x,(NY-1),SOUTH,Fw)];
                     assign    router_credit_in_all [`SELECT_WIRE(x,y,NORTH,V)] =  router_credit_out_all [`SELECT_WIRE(x,(NY-1),SOUTH,V)];
-                    assign    router_flit_in_we_all [`router_id(x,y)][NORTH] =    router_flit_out_we_all [`router_id(x,(NY-1))][SOUTH];
+                    assign    router_flit_in_wr_all [`router_id(x,y)][NORTH] =    router_flit_out_wr_all [`router_id(x,(NY-1))][SOUTH];
                     assign    router_congestion_in_all [`SELECT_WIRE(x,y,NORTH,CONGw)]   =     router_congestion_out_all [`SELECT_WIRE(x,(NY-1),SOUTH,CONGw)];
                 end//topology
             end//y>0
@@ -379,7 +379,7 @@ generate
             if(x>0)begin :not_first_x
                 assign    router_flit_in_all [`SELECT_WIRE(x,y,WEST,Fw)] =    router_flit_out_all [`SELECT_WIRE((x-1),y,EAST,Fw)] ;
                 assign    router_credit_in_all [`SELECT_WIRE(x,y,WEST,V)] =  router_credit_out_all [`SELECT_WIRE((x-1),y,EAST,V)] ;
-                assign    router_flit_in_we_all [`router_id(x,y)][WEST] =    router_flit_out_we_all [`router_id((x-1),y)][EAST];
+                assign    router_flit_in_wr_all [`router_id(x,y)][WEST] =    router_flit_out_wr_all [`router_id((x-1),y)][EAST];
                 assign    router_congestion_in_all [`SELECT_WIRE(x,y,WEST,CONGw)]   =     router_congestion_out_all [`SELECT_WIRE((x-1),y,EAST,CONGw)];
             end else begin :first_x
                 /* verilator lint_off WIDTH */ 
@@ -387,14 +387,14 @@ generate
                 /* verilator lint_on WIDTH */ 
                     assign    router_flit_in_all [`SELECT_WIRE(x,y,WEST,Fw)] =  {Fw{1'b0}};
                     assign    router_credit_in_all [`SELECT_WIRE(x,y,WEST,V)] =    {V{1'b0}};
-                    assign    router_flit_in_we_all [`router_id(x,y)][WEST] =    1'b0;
+                    assign    router_flit_in_wr_all [`router_id(x,y)][WEST] =    1'b0;
                     assign    router_congestion_in_all [`SELECT_WIRE(x,y,WEST,CONGw)]   =     {CONGw{1'b0}};
                 /* verilator lint_off WIDTH */                
                 end else if(TOPOLOGY == "TORUS") begin :first_x_torus
                 /* verilator lint_on WIDTH */ 
                     assign    router_flit_in_all [`SELECT_WIRE(x,y,WEST,Fw)] =    router_flit_out_all [`SELECT_WIRE((NX-1),y,EAST,Fw)] ;
                     assign    router_credit_in_all [`SELECT_WIRE(x,y,WEST,V)] =  router_credit_out_all [`SELECT_WIRE((NX-1),y,EAST,V)] ;
-                    assign    router_flit_in_we_all [`router_id(x,y)][WEST] =    router_flit_out_we_all [`router_id((NX-1),y)][EAST];
+                    assign    router_flit_in_wr_all [`router_id(x,y)][WEST] =    router_flit_out_wr_all [`router_id((NX-1),y)][EAST];
                     assign    router_congestion_in_all [`SELECT_WIRE(x,y,WEST,CONGw)]   =     router_congestion_out_all [`SELECT_WIRE((NX-1),y,EAST,CONGw)];
                 end//topology
             end    
@@ -402,7 +402,7 @@ generate
             if(y    <    NY-1) begin : firsty
                 assign    router_flit_in_all [`SELECT_WIRE(x,y,SOUTH,Fw)] =    router_flit_out_all [`SELECT_WIRE(x,(y+1),NORTH,Fw)];
                 assign    router_credit_in_all [`SELECT_WIRE(x,y,SOUTH,V)] =     router_credit_out_all [`SELECT_WIRE(x,(y+1),NORTH,V)];
-                assign    router_flit_in_we_all [`router_id(x,y)][SOUTH] =    router_flit_out_we_all [`router_id(x,(y+1))][NORTH];
+                assign    router_flit_in_wr_all [`router_id(x,y)][SOUTH] =    router_flit_out_wr_all [`router_id(x,(y+1))][NORTH];
                 assign    router_congestion_in_all [`SELECT_WIRE(x,y,SOUTH,CONGw)]   =     router_congestion_out_all [`SELECT_WIRE(x,(y+1),NORTH,CONGw)];
             end else     begin : lasty
                 /* verilator lint_off WIDTH */ 
@@ -410,14 +410,14 @@ generate
                 /* verilator lint_on WIDTH */ 
                     assign    router_flit_in_all [`SELECT_WIRE(x,y,4,Fw)] =  {Fw{1'b0}};
                     assign    router_credit_in_all [`SELECT_WIRE(x,y,4,V)] =    {V{1'b0}};
-                    assign    router_flit_in_we_all [`router_id(x,y)][4] =    1'b0;
+                    assign    router_flit_in_wr_all [`router_id(x,y)][4] =    1'b0;
                     assign    router_congestion_in_all [`SELECT_WIRE(x,y,4,CONGw)]   =     {CONGw{1'b0}};    
                 /* verilator lint_off WIDTH */ 
                 end else if(TOPOLOGY == "TORUS") begin :ly_torus
                 /* verilator lint_on WIDTH */ 
                     assign    router_flit_in_all [`SELECT_WIRE(x,y,SOUTH,Fw)] =    router_flit_out_all [`SELECT_WIRE(x,0,NORTH,Fw)];
                     assign    router_credit_in_all [`SELECT_WIRE(x,y,SOUTH,V)] =     router_credit_out_all [`SELECT_WIRE(x,0,NORTH,V)];
-                    assign    router_flit_in_we_all [`router_id(x,y)][SOUTH] =    router_flit_out_we_all [`router_id(x,0)][NORTH];
+                    assign    router_flit_in_wr_all [`router_id(x,y)][SOUTH] =    router_flit_out_wr_all [`router_id(x,0)][NORTH];
                     assign    router_congestion_in_all [`SELECT_WIRE(x,y,SOUTH,CONGw)]   =     router_congestion_out_all [`SELECT_WIRE(x,0,NORTH,CONGw)];
                 end//topology
             end          
@@ -431,11 +431,11 @@ generate
                 
                 assign router_flit_in_all [`SELECT_WIRE(x,y,LOCALP,Fw)] =    ni_flit_out [ENDPID];
                 assign router_credit_in_all [`SELECT_WIRE(x,y,LOCALP,V)] =    ni_credit_out [ENDPID];
-                assign router_flit_in_we_all [`router_id(x,y)][LOCALP] =    ni_flit_out_wr [ENDPID];
+                assign router_flit_in_wr_all [`router_id(x,y)][LOCALP] =    ni_flit_out_wr [ENDPID];
                 assign router_congestion_in_all[`SELECT_WIRE(x,y,LOCALP,CONGw)] =   {CONGw{1'b0}};              
             
                 assign ni_flit_in [ENDPID] = router_flit_out_all [`SELECT_WIRE(x,y,LOCALP,Fw)];
-                assign ni_flit_in_wr [ENDPID] = router_flit_out_we_all[`router_id(x,y)][LOCALP];
+                assign ni_flit_in_wr [ENDPID] = router_flit_out_wr_all[`router_id(x,y)][LOCALP];
                 assign ni_credit_in [ENDPID] = router_credit_out_all [`SELECT_WIRE(x,y,LOCALP,V)];                             
                             
                 assign flit_out_all [(ENDPID+1)*Fw-1 : ENDPID*Fw] =    ni_flit_in [ENDPID];    

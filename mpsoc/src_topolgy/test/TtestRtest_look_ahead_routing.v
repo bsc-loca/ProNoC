@@ -6,7 +6,7 @@
 
 
 /**********************************************************************
-**	File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_topolgy/test/test_look_ahead_routing_genvar.v
+**	File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_topolgy/test/TtestRtest_look_ahead_routing.v
 **    
 **	Copyright (C) 2014-2019  Alireza Monemi
 **    
@@ -26,26 +26,27 @@
 ** 	License along with ProNoC. If not, see <http:**www.gnu.org/licenses/>.
 ******************************************************************************/ 
 
-/*****************************
-*	test_look_ahead_routing_genvar
-******************************/ 
-module test_look_ahead_routing_genvar  #(
+/*******************
+*  TtestRtest_look_ahead_routing
+*******************/  
+module TtestRtest_look_ahead_routing  #(
 	parameter RAw = 3,  
 	parameter EAw = 3,   
-	parameter DSTPw=4,
-	parameter CURRENT_R_ADDR=0
+	parameter DSTPw=4  
 )
 (
+	reset,
+	clk,
+	current_r_addr,
 	dest_e_addr,
 	src_e_addr,
-	destport,
-	reset,
-	clk        
+	destport        
 );
-
+    
+	input   [RAw-1   :0] current_r_addr;
 	input   [EAw-1   :0] dest_e_addr;
 	input   [EAw-1   :0] src_e_addr;
-	output  [DSTPw-1 :0] destport;
+	output  [DSTPw-1 :0] destport;	
 	input reset,clk;
 
 	reg [EAw-1   :0] dest_e_addr_delay;
@@ -61,15 +62,14 @@ module test_look_ahead_routing_genvar  #(
 		end 	
 	end
 
-	test_look_ahead_routing_genvar_comb  #(
+	TtestRtest_look_ahead_routing_comb  #(
 		.RAw(RAw),  
 		.EAw(EAw),   
-		.DSTPw(DSTPw),
-		CURRENT_R_ADDR(CURRENT_R_ADDR)  
+		.DSTPw(DSTPw)  
 	)
 	lkp_cmb
 	(
-		
+		.current_r_addr(current_r_addr),
 		.dest_e_addr(dest_e_addr_delay),
 		.src_e_addr(src_e_addr_delay),
 		.destport(destport)        
@@ -77,28 +77,28 @@ module test_look_ahead_routing_genvar  #(
 
 
 	
-endmodule   
+endmodule  
  
 /*******************
-* test_look_ahead_routing_genvar_comb
-******************** 
+*  TtestRtest_look_ahead_routing_comb
+*******************/ 
   
- 
- module test_look_ahead_routing_genvar_comb  #(
+ module TtestRtest_look_ahead_routing_comb  #(
 	parameter RAw = 3,  
 	parameter EAw = 3,   
-	parameter DSTPw=4,
-	parameter CURRENT_R_ADDR=0
+	parameter DSTPw=4  
 )
 (
+	current_r_addr,
 	dest_e_addr,
 	src_e_addr,
 	destport        
 );
-
+    
+	input   [RAw-1   :0] current_r_addr;
 	input   [EAw-1   :0] dest_e_addr;
 	input   [EAw-1   :0] src_e_addr;
-	output  reg [DSTPw-1 :0] destport;
+	output reg [DSTPw-1 :0] destport;	
 
 localparam [EAw-1 : 0]	E0=0;
 localparam [EAw-1 : 0]	E1=1;
@@ -111,10 +111,10 @@ localparam [EAw-1 : 0]	E7=7;
 localparam [EAw-1 : 0]	E8=8;
 
         
-	generate
-	if(CURRENT_R_ADDR == 0) begin :R0
-		always@(*)begin	
-			destport= 0; 
+	always@(*)begin
+		destport=0;
+		case(current_r_addr) //current_r_addr of each individual router is fixed. So this CASE will be optimized by the sybthesizer for each router. 
+		0: begin
 			case({src_e_addr,dest_e_addr})
 			{E0,E1},{E0,E3}: begin 
 				destport= 0; 
@@ -126,12 +126,8 @@ localparam [EAw-1 : 0]	E8=8;
 				destport= 4; 
 			end
 			endcase
-		end
-	end//R0
-
-	if(CURRENT_R_ADDR == 1) begin :R1
-		always@(*)begin	
-			destport= 0; 
+		end//0
+		1: begin
 			case({src_e_addr,dest_e_addr})
 			{E0,E2},{E1,E0},{E1,E2},{E1,E4},{E4,E0},{E5,E0},{E8,E0}: begin 
 				destport= 0; 
@@ -143,12 +139,8 @@ localparam [EAw-1 : 0]	E8=8;
 				destport= 4; 
 			end
 			endcase
-		end
-	end//R1
-
-	if(CURRENT_R_ADDR == 2) begin :R2
-		always@(*)begin	
-			destport= 0; 
+		end//1
+		2: begin
 			case({src_e_addr,dest_e_addr})
 			{E1,E3},{E2,E1},{E2,E3},{E2,E5},{E3,E1},{E5,E1}: begin 
 				destport= 0; 
@@ -166,12 +158,8 @@ localparam [EAw-1 : 0]	E8=8;
 				destport= 4; 
 			end
 			endcase
-		end
-	end//R2
-
-	if(CURRENT_R_ADDR == 3) begin :R3
-		always@(*)begin	
-			destport= 0; 
+		end//2
+		3: begin
 			case({src_e_addr,dest_e_addr})
 			{E0,E4},{E0,E6},{E1,E6},{E2,E0},{E2,E4},{E3,E0},{E3,E2},{E3,E4},{E3,E6},{E4,E2},{E6,E0},{E6,E2},{E7,E0},{E7,E2}: begin 
 				destport= 0; 
@@ -183,12 +171,8 @@ localparam [EAw-1 : 0]	E8=8;
 				destport= 3; 
 			end
 			endcase
-		end
-	end//R3
-
-	if(CURRENT_R_ADDR == 4) begin :R4
-		always@(*)begin	
-			destport= 0; 
+		end//3
+		4: begin
 			case({src_e_addr,dest_e_addr})
 			{E0,E5},{E0,E7},{E1,E5},{E1,E7},{E3,E5},{E4,E1},{E4,E3},{E4,E5},{E4,E7},{E5,E3},{E6,E1},{E7,E1},{E7,E3},{E8,E1}: begin 
 				destport= 0; 
@@ -200,12 +184,8 @@ localparam [EAw-1 : 0]	E8=8;
 				destport= 3; 
 			end
 			endcase
-		end
-	end//R4
-
-	if(CURRENT_R_ADDR == 5) begin :R5
-		always@(*)begin	
-			destport= 0; 
+		end//4
+		5: begin
 			case({src_e_addr,dest_e_addr})
 			{E1,E8},{E2,E6},{E2,E8},{E4,E6},{E5,E2},{E5,E4},{E5,E6},{E5,E8},{E6,E4},{E6,E8},{E8,E2}: begin 
 				destport= 0; 
@@ -220,12 +200,8 @@ localparam [EAw-1 : 0]	E8=8;
 				destport= 3; 
 			end
 			endcase
-		end
-	end//R5
-
-	if(CURRENT_R_ADDR == 6) begin :R6
-		always@(*)begin	
-			destport= 0; 
+		end//5
+		6: begin
 			case({src_e_addr,dest_e_addr})
 			{E2,E7},{E3,E7},{E5,E7},{E6,E3},{E6,E5},{E6,E7},{E7,E5},{E8,E3}: begin 
 				destport= 0; 
@@ -243,12 +219,8 @@ localparam [EAw-1 : 0]	E8=8;
 				destport= 4; 
 			end
 			endcase
-		end
-	end//R6
-
-	if(CURRENT_R_ADDR == 7) begin :R7
-		always@(*)begin	
-			destport= 0; 
+		end//6
+		7: begin
 			case({src_e_addr,dest_e_addr})
 			{E0,E8},{E3,E8},{E4,E8},{E7,E4},{E7,E6},{E7,E8},{E8,E4},{E8,E6}: begin 
 				destport= 0; 
@@ -260,12 +232,8 @@ localparam [EAw-1 : 0]	E8=8;
 				destport= 3; 
 			end
 			endcase
-		end
-	end//R7
-
-	if(CURRENT_R_ADDR == 8) begin :R8
-		always@(*)begin	
-			destport= 0; 
+		end//7
+		8: begin
 			case({src_e_addr,dest_e_addr})
 			{E8,E5},{E8,E7}: begin 
 				destport= 0; 
@@ -277,10 +245,9 @@ localparam [EAw-1 : 0]	E8=8;
 				destport= 3; 
 			end
 			endcase
-		end
-	end//R8
-
-	endgenerate
+		end//8
+		endcase
+	end
   
 
 	
