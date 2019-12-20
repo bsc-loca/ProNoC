@@ -375,7 +375,7 @@ sub genereate_output_orcc{
 	#define ${dst_port}_credit_v  0   //Alternatively it can be another VC				
 	#define ${dst_port}_credit_class_num  0 //Alternatively it can be another class
 	#define ${dst_port}_credit_dest_port  0 //0 is rec=served for credit
-	#define ${dst_port}_credit_pointer (unsigned int)&credit_buff
+	#define ${dst_port}_credit_pointer (unsigned int)&credit_send_buff
 	#define ${dst_port}_credit_size  1
 	#define ${dst_port}_credit_start_index  0
 	#define ${dst_port}_credit_end_index   1

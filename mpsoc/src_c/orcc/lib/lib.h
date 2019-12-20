@@ -305,8 +305,8 @@ void error_handelling_function(){
 
 unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned int class_num, unsigned char dest_port, unsigned int queue_pointer,unsigned int queue_size, unsigned int start_index,  unsigned int end_index, unsigned int dest_phy_addr,unsigned int credit){
     
-printf ( "core:%u transfer_manage (w=%u, v=%u, c=%u, dest_port=%u, queue_pointer=%u, queue_size=%u,  start_index=%u, end_index=%u,dest_phy_addr=%u, credit=%u", COREID,
- w,  v,  class_num,  dest_port,  queue_pointer, queue_size,  start_index,  end_index,  dest_phy_addr, credit);
+//printf ( "core:%u transfer_manage (w=%u, v=%u, c=%u, dest_port=%u, queue_pointer=%u, queue_size=%u,  start_index=%u, end_index=%u,dest_phy_addr=%u, credit=%u", COREID,
+// w,  v,  class_num,  dest_port,  queue_pointer, queue_size,  start_index,  end_index,  dest_phy_addr, credit);
    
 
     unsigned int start_addr_pointer;

@@ -65,7 +65,7 @@ module TtestRtest_look_ahead_routing_genvar  #(
 		.RAw(RAw),  
 		.EAw(EAw),   
 		.DSTPw(DSTPw),
-		CURRENT_R_ADDR(CURRENT_R_ADDR)  
+		.CURRENT_R_ADDR(CURRENT_R_ADDR)  
 	)
 	lkp_cmb
 	(
@@ -81,7 +81,7 @@ endmodule
  
 /*******************
 * TtestRtest_look_ahead_routing_genvar_comb
-******************** 
+********************/ 
   
  
  module TtestRtest_look_ahead_routing_genvar_comb  #(

@@ -308,7 +308,9 @@ end
         localparam ENDPL= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")? 0 :(T3>1)? i%T3: 0;
         localparam ENDPX= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")?  addrencode(i,K,L,Kw) : CURRENTX;
         localparam ENDPY= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")? 0 : CURRENTY;    
-        localparam [EAw-1 : 0] ENDP_ADRR = (ENDPL<<(NXw+NYw)) + (ENDPY<<NXw) + ENDPX;
+        localparam [EAw-1 : 0] ENDP_ADRR =          
+        (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE")? 
+        (ENDPL<<(NXw+NYw)) + (ENDPY<<NXw) + ENDPX : i;
        
             
         traffic_gen #(
