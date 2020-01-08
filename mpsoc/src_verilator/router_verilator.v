@@ -64,7 +64,7 @@ module router_verilator_p2
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -84,7 +84,8 @@ module router_verilator_p2
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -170,7 +171,7 @@ module router_verilator_p3
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -190,7 +191,8 @@ module router_verilator_p3
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -276,7 +278,7 @@ module router_verilator_p4
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -296,7 +298,8 @@ module router_verilator_p4
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -382,7 +385,7 @@ module router_verilator_p5
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -402,7 +405,8 @@ module router_verilator_p5
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -488,7 +492,7 @@ module router_verilator_p6
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -508,7 +512,8 @@ module router_verilator_p6
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -594,7 +599,7 @@ module router_verilator_p7
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -614,7 +619,8 @@ module router_verilator_p7
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -700,7 +706,7 @@ module router_verilator_p8
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -720,7 +726,8 @@ module router_verilator_p8
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -806,7 +813,7 @@ module router_verilator_p9
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -826,7 +833,8 @@ module router_verilator_p9
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -912,7 +920,7 @@ module router_verilator_p10
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -932,7 +940,8 @@ module router_verilator_p10
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -1018,7 +1027,7 @@ module router_verilator_p11
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -1038,7 +1047,8 @@ module router_verilator_p11
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -1124,7 +1134,7 @@ module router_verilator_p12
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -1144,7 +1154,8 @@ module router_verilator_p12
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -1230,7 +1241,7 @@ module router_verilator_p13
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -1250,7 +1261,8 @@ module router_verilator_p13
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -1336,7 +1348,7 @@ module router_verilator_p14
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -1356,7 +1368,8 @@ module router_verilator_p14
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -1442,7 +1455,7 @@ module router_verilator_p15
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -1462,7 +1475,8 @@ module router_verilator_p15
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -1548,7 +1562,7 @@ module router_verilator_p16
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -1568,7 +1582,8 @@ module router_verilator_p16
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -1654,7 +1669,7 @@ module router_verilator_p17
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -1674,7 +1689,8 @@ module router_verilator_p17
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -1760,7 +1776,7 @@ module router_verilator_p18
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -1780,7 +1796,8 @@ module router_verilator_p18
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (
@@ -1866,7 +1883,7 @@ module router_verilator_p19
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -1886,7 +1903,8 @@ module router_verilator_p19
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (

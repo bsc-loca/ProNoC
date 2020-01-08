@@ -49,7 +49,8 @@ module  traffic_gen #(
     //header flit filds' width 
     parameter SWA_ARBITER_TYPE = "RRA", // RRA WRRA
     parameter WEIGHTw = 4, // weight width of WRRA
-    parameter MIN_PCK_SIZE=2
+    parameter MIN_PCK_SIZE=2,
+    parameter BYTE_EN=0 //0:disable, 1: enable.   Add byte enable (BE) filed to header flit which shows the location of last valid byte in tail flit. It is needed once the send data unit is smaller than Fpay.              
 )
 (
     //input 
@@ -114,7 +115,8 @@ module  traffic_gen #(
         /* verilator lint_off WIDTH */
         DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY=="TREE" ) ? log2(2*L+1): log2(NR+1), 
         /* verilator lint_on WIDTH */
-        W = WEIGHTw;      
+        W = WEIGHTw,
+        BEw = (BYTE_EN)? 2*log2(Fpay/8) : 1;      
 
     input reset, clk;
     input  [RATIOw-1                :0] ratio;
@@ -348,7 +350,8 @@ module  traffic_gen #(
         .DSTPw(DSTPw),
         .C(C),
         .WEIGHTw(WEIGHTw),
-        .DATA_w(HDR_DATA_w)
+        .DATA_w(HDR_DATA_w),
+        .BYTE_EN(BYTE_EN)
     )
     the_header_flit_generator
     (
@@ -359,7 +362,8 @@ module  traffic_gen #(
         .src_e_addr_in(current_e_addr),
         .weight_in(init_weight),
         .destport_in(destport),
-        .data_in(hdr_data_in)
+        .data_in(hdr_data_in),
+        .be_in({BEw{1'b1}} )// Be is not used in simulation as we dont sent real data
     );
     
     

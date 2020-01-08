@@ -40,7 +40,8 @@ module  tree_noc #(
     parameter SSA_EN="NO", // "YES" , "NO" 
     parameter SWA_ARBITER_TYPE = "RRA",//"RRA","WRRA". SWA: Switch Allocator.  RRA: Round Robin Arbiter. WRRA Weighted Round Robin Arbiter          
     parameter WEIGHTw=4, // WRRA weights' max width
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
+    parameter BYTE_EN=0 //0:disable, 1: enable.   Add byte enable (BE) filed to header flit which shows the location of last valid byte in tail flit. It is needed once the send data unit is smaller than Fpay.   
 )(
     reset,
     clk,    
@@ -167,7 +168,8 @@ module  tree_noc #(
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE) 
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+        .BYTE_EN(BYTE_EN) 
     )
     the_router
     (
@@ -221,7 +223,8 @@ for( level=1; level<L; level=level+1) begin :level_lp
             .SSA_EN(SSA_EN),
             .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
             .WEIGHTw(WEIGHTw),
-            .MIN_PCK_SIZE(MIN_PCK_SIZE)       
+            .MIN_PCK_SIZE(MIN_PCK_SIZE),
+            .BYTE_EN(BYTE_EN)       
         )
         the_router
         (                                  

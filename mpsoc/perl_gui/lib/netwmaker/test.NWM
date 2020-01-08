@@ -142,6 +142,10 @@ $nwmaker = bless( {
                                                          'param_name' => 'WEIGHTw ',
                                                          'value' => 7
                                                        },
+                                                        {
+                                                         'value' => 0,
+                                                         'param_name' => 'BYTE_EN'
+                                                       },
                                                        {
                                                          'param_name' => 'MIN_PCK_SIZE',
                                                          'value' => 2

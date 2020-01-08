@@ -306,18 +306,23 @@ sub genereate_output_orcc{
 				
 	$define=$define."	
 	//	transfer ${src_port} port definitions:	
-	static unsigned int ${src_port}_credit =  SIZE_${src_port};
+	
+	
 	#define ${src_port}_w  1
 	#define ${src_port}_v  0				
 	#define ${src_port}_class_num  0
 	#define ${src_port}_dest_port_num  $dstp_number{$dst}{$dst_port}
 	#define ${src_port}_src_port_num   $srcp_number{$src}{$src_port}
 	#define ${src_port}_queue_pointer (unsigned int)&tokens_${src_port}[0]
-	#define ${src_port}_queue_size  SIZE_${src_port}
-	#define ${src_port}_start_index  ${name}_${src_port}->read_inds[0]
-	#define ${src_port}_end_index   index_${src_port}
+	#define ${src_port}_queue_size_in_byte  (SIZE_${src_port} << ${name}_${src_port}_size_shift)
+	#define ${src_port}_start_index ${name}_${src_port}->read_inds[0]
+	#define ${src_port}_start_index_in_byte (${src_port}_start_index << ${name}_${src_port}_size_shift)
+	#define ${src_port}_end_index   index_${src_port} 
+	#define ${src_port}_end_index_in_byte   (${src_port}_end_index << ${name}_${src_port}_size_shift)
 	#define ${src_port}_dest_phy_addr PHY_ADDR_ENDP_${dst_tile_id}
 	#define ${src_port}_has_data_to_send    (${src_port}_end_index > ${src_port}_start_index)	
+	
+	static unsigned int ${src_port}_credit =  ${src_port}_queue_size_in_byte;
 	
 	";
 				
@@ -327,10 +332,10 @@ sub genereate_output_orcc{
 			
 	if(${src_port}_has_data_to_send){
 			//ask NI to transfer the data   
-			int send_data_${src_port} = transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size, 
-			${src_port}_start_index, ${src_port}_end_index, ${src_port}_dest_phy_addr, ${src_port}_credit);
+			int send_data_${src_port} = transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
+			${src_port}_start_index_in_byte, ${src_port}_end_index_in_byte, ${src_port}_dest_phy_addr, ${src_port}_credit  );
 			while (ni_send_is_busy(${src_port}_v));
-			${src_port}_start_index= ${src_port}_start_index+send_data_${src_port};	
+			${src_port}_start_index= ${src_port}_start_index+ (send_data_${src_port}>>${name}_${src_port}_size_shift);	
 			${src_port}_credit-=send_data_${src_port};					 
 	}
 	";
@@ -338,7 +343,7 @@ sub genereate_output_orcc{
 	
 	
 	$check_pck_func =$check_pck_func."	
-					if( credit_port  == ${src_port}_src_port_num) 			${src_port}_credit = credit_buff[i] & 0xFFFF; //credit value
+					if( credit_port  == ${src_port}_src_port_num) 			${src_port}_credit = (credit_buff[i] & 0xFFFF)<<2; //credit value in byte
 ";
 
 
@@ -371,14 +376,15 @@ sub genereate_output_orcc{
 	$define=$define."
 	//	Receiver port  ${dst_port} port definitions:
 	static unsigned int index_${dst_port}_sender; 
+
 	#define ${dst_port}_credit_w  1
 	#define ${dst_port}_credit_v  0   //Alternatively it can be another VC				
 	#define ${dst_port}_credit_class_num  0 //Alternatively it can be another class
 	#define ${dst_port}_credit_dest_port  0 //0 is rec=served for credit
 	#define ${dst_port}_credit_pointer (unsigned int)&credit_send_buff
-	#define ${dst_port}_credit_size  1
+	#define ${dst_port}_credit_size_in_byte  4
 	#define ${dst_port}_credit_start_index  0
-	#define ${dst_port}_credit_end_index   1
+	#define ${dst_port}_credit_end_index_in_byte   4
 	#define ${dst_port}_credit_dest_phy_addr PHY_ADDR_ENDP_${src_tile_id}
 	#define ${dst_port}_has_credit_to_send    (index_$dst_port > index_${dst_port}_sender)
 	#define ${dst_port}_src_port_num  $srcportnum
@@ -390,8 +396,8 @@ sub genereate_output_orcc{
 	$crdit_update=$crdit_update."
 	
 	if( ${dst_port}_has_credit_to_send){
-			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit 
-			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index, ${dst_port}_credit_dest_phy_addr, 2 ) ) index_${dst_port}_sender=index_${dst_port};
+			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit in word 
+			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index_in_byte, ${dst_port}_credit_dest_phy_addr, 5 ) ) index_${dst_port}_sender=index_${dst_port};
 			while (ni_send_is_busy(${dst_port}_credit_v));
 	} 			
 	";
@@ -539,7 +545,7 @@ sub genereate_output_orcc{
     } 
 	while (my $line = <$fh>) {
 	    chomp $line;
-	    $line = '//'.$line if( $line =~ /^\s*#include/); # comment every files start with #include
+	    $line = '//'.$line if( $line =~ /^\s*#include/); # comment every line start with #include
 	    if( $line =~ /^\s*extern\s+/){
 	    	 my $extern=0;
 	    	 $line =~ s/\s+/ /g; # remove extra spaces
@@ -555,6 +561,9 @@ sub genereate_output_orcc{
 	    	 		#add fifo definition:
 	    	 		print $fd " DECLARE_FIFO(${type}, $fifos{$fifo_name}{'size'}, $fifo_num, 1);\n";
 	    	 		print $fd " fifo_${type}_t *$fifo_name = &fifo_$fifo_num;\n  ";
+	    	 		print $fd " #define ${fifo_name}_size_shift  2 \n";
+	    	 		
+	    	 		
 	    	 		$fifo_num++;
 	    	 	}else{
 	    	 		add_colored_info($tview,"Could not find $fifo_name in csv file\n",'red');	 	 		

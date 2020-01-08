@@ -99,10 +99,10 @@ module ni_vc_wb_slave_regs #(
         
             /*
             
-                2  :   SEND_DEST_WB_ADDR        // The destination router address
-                3  :   SEND_POINTER_WB_ADDR,       // The address of data to be sent   in byte 
- Virtual        4  :   SEND_DATA_SIZE_WB_ADDR,  // The size of data to be sent in byte  
- channel        5  :   SEND_HDR_DATA_WB_ADDR    //  The heder data address
+                2  :   SEND_DEST_WB_ADDR           // The destination router address
+                3  :   SEND_POINTER_WB_ADDR,       // The address of data to be sent in byte 
+ Virtual        4  :   SEND_DATA_SIZE_WB_ADDR,     // The size of data to be sent in byte  
+ channel        5  :   SEND_HDR_DATA_WB_ADDR       //  The heder data address
  number        
                 8  :   RECEIVE_SRC_WB_ADDR       // The source router (the router which is sent this packet).
                 9  :   RECEIVE_POINTER_WB_ADDR      // The address pointer of reciever memory in byte
@@ -211,7 +211,7 @@ module ni_vc_wb_slave_regs #(
                          if (send_fsm_is_ideal) send_pointer_addr_next={{OFFSET_w{1'b0}},s_dat_i [Dw-1    : OFFSET_w]};
                     end //SEND_POINTER_WB_ADDR
                     SEND_DATA_SIZE_WB_ADDR: begin 
-                        if (send_fsm_is_ideal) send_data_size_next=s_dat_i [MAX_TRANSACTION_WIDTH-1 :   0]; 
+                        if (send_fsm_is_ideal) send_data_size_next=s_dat_i [MAX_TRANSACTION_WIDTH + OFFSET_w -1 :    OFFSET_w]; 
                     end //DATA_SIZE_WB_ADDR
                     SEND_DEST_WB_ADDR: begin 
                         if (send_fsm_is_ideal) begin 

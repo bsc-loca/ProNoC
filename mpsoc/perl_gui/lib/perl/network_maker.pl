@@ -47,7 +47,8 @@ sub network_maker_main {
     {param_name=> "SSA_EN", value=>'"NO"'},
     {param_name=> "SWA_ARBITER_TYPE ", value=>'"RRA"'}, 
     {param_name=> "WEIGHTw ", value=>7},  
-    {param_name=> "MIN_PCK_SIZE", value=>2}
+    {param_name=> "MIN_PCK_SIZE", value=>2},
+    {param_name=> "BYTE_EN", value=>0}
 ); 
 
 my @ports =(
@@ -78,15 +79,29 @@ sub custom_topology_diagram {
 	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
 	$scrolled_win->set_policy( "automatic", "automatic" );	
 	
+	
+	my ($col,$row)=(0,0);
+	
+	
+	
+	
 	my $plus = def_image_button('icons/plus.png',undef,TRUE);
 	my $minues = def_image_button('icons/minus.png',undef,TRUE);
 	my $save = def_image_button('icons/save.png',undef,TRUE);
 	
+	
 	my $scale=$self->object_get_attribute("tile_diagram","scale");
 	$scale= 1 if (!defined $scale);	
-		
 	
-	my ($col,$row)=(0,0);
+	my $state=$self->object_get_attribute("tile_diagram","auto_draw");
+	if (!defined $state){
+		$state='ON' ;
+		$self->object_add_attribute("tile_diagram","auto_draw",$state);
+	}		
+	my $auto= ($state eq 'ON')? def_colored_button('ON',17): def_colored_button('OFF',4);
+	
+	$table->attach (Gtk2::Label->new  ("Auto Draw") ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
+	$table->attach ($auto ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($plus ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($minues,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($save,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
@@ -114,6 +129,16 @@ sub custom_topology_diagram {
 	#if(gen_custom_diagram($self,'custom_topology')){
 		show_custom_topology_diagram ($self,$scrolled_win,$table,"topology_diagram");
 	#}
+	$auto -> signal_connect("clicked" => sub{ 
+			my $state=$self->object_get_attribute("tile_diagram","auto_draw");
+			
+			
+			my $new = ($state eq "ON")? "OFF" : "ON";
+			$self->object_add_attribute("tile_diagram","auto_draw",$new);	
+			set_gui_status($self,"ref",1);		
+		});	
+	
+	
 	return $table;
 }
 
@@ -129,6 +154,8 @@ sub gen_right_paned {
 	return custom_topology_diagram ($self,$info);
 	
 }
+
+
 
 
 sub endp_node_dot {
@@ -278,22 +305,30 @@ sub show_custom_topology_diagram {
 	}
 	my $scale=$self->object_get_attribute($name,"scale");
 	$scale= 1 if (!defined $scale);	
-	my $dotfile = generate_custom_topology_dot_file($self);
-	my $cmd;
-	#$cmd=  "dot  $tmp_dir/diagram.txt | neato -n  -Tpng -o $tmp_dir/diagram.png" if ($type eq 'tile' || $type eq 'trace'  );
-	#$cmd = "twopi  $tmp_dir/diagram.txt -Kfdp -n -Tpng -o $tmp_dir/diagram.png" if ( $type eq 'map' || $type eq 'topology' || $type eq 'custom_topology' );	
-	$cmd =  " dot  -Goverlap=false -Kfdp    -Tjpg " ;
-	#$cmd =  " dot  | neato -Goverlap=false -n  -Tpng " ;
-	
-    $cmd = "echo \'$dotfile\' | $cmd";
-	my ($stdout,$exit,$stderr)= run_cmd_in_back_ground_get_stdout ($cmd);
-	if ( length( $stderr || '' ) !=0)  {
-		message_dialog("$stderr\nHave you installed graphviz? If not run \n \t \"sudo apt-get install graphviz\" \n in terminal");
+	my $diagram;
+	my $state=$self->object_get_attribute("tile_diagram","auto_draw");
+	if( $state eq "ON") {
+		my $dotfile = generate_custom_topology_dot_file($self);
+		my $cmd;
+		#$cmd=  "dot  $tmp_dir/diagram.txt | neato -n  -Tpng -o $tmp_dir/diagram.png" if ($type eq 'tile' || $type eq 'trace'  );
+		#$cmd = "twopi  $tmp_dir/diagram.txt -Kfdp -n -Tpng -o $tmp_dir/diagram.png" if ( $type eq 'map' || $type eq 'topology' || $type eq 'custom_topology' );	
+		$cmd =  " dot  -Goverlap=false -Kfdp    -Tjpg " ;
+		#$cmd =  " dot  | neato -Goverlap=false -n  -Tpng " ;
 		
+	    $cmd = "echo \'$dotfile\' | $cmd";
+		my ($stdout,$exit,$stderr)= run_cmd_in_back_ground_get_stdout ($cmd);
+		if ( length( $stderr || '' ) !=0)  {
+			message_dialog("$stderr\nHave you installed graphviz? If not run \n \t \"sudo apt-get install graphviz\" \n in terminal");
+		}
+	     $diagram =open_inline_image( $stdout,70*$scale,70*$scale,'percent');
 	}
-
-		my $diagram =open_inline_image( $stdout,70*$scale,70*$scale,'percent');
+	else{
+		 my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
+		 $diagram=open_image("$tmp_dir/saved_diagram.png",70*$scale,70*$scale,'percent');		
+	}	
 		
+	
+	
 		if(defined $scrolled_win){
 			$scrolled_win->add_with_viewport($diagram);
 			$scrolled_win->show_all();	
@@ -344,7 +379,7 @@ sub topology_maker_notebook{
 			
 			set_gui_status($self,"ref",1);
 		}else {
-			set_gui_status($self,"redraw",1);
+			set_gui_status($self,"ref",1);
 		}
 		$first=0;		
 	});
@@ -872,9 +907,14 @@ sub routing_page{
 	
 	
 	$table->attach (Gtk2::HSeparator->new,0, 200,  $row, $row+1,'fill','fill',2,2);$row++;	
-	$table->attach (def_label(' source -> destination '),0,10,$row,$row+1,'fill','shrink',2,2);	$row++;	
 
-
+	$table->attach (gen_colored_icon('Not selected',17),5,10,$row,$row+1,'fill','shrink',2,2);	
+	$table->attach (gen_colored_icon('Selected',0),10,15,$row,$row+1,'fill','shrink',2,2);	
+	$table->attach (gen_colored_icon('Not Existed',11),15,20,$row,$row+1,'fill','shrink',2,2);	
+	$row++;	
+	
+	$table->attach (def_label(' source -> destination '),10,15,$row,$row+1,'fill','shrink',2,2);	
+    $row++;	
 
 
 	$auto-> signal_connect("clicked" => sub{
@@ -894,7 +934,12 @@ sub routing_page{
 			my $src_inst=$self->object_get_attribute("$src",'NAME');
 			my $dst_inst=$self->object_get_attribute("$dst",'NAME');
 		   	my $select = $self->object_get_attribute('Route',"${src}::$dst");
-		   	my $color =( defined $select)? 0 :17;		   		   	
+		   	
+		   	my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps($self,$src, $dst);
+		   	
+		  
+		   	
+		   	my $color =(scalar @{$paths_to_dst}==0)? 11 :  (defined $select)? 0 : 17;		   		   	
 		   	my $button = ($src_inst ne $dst_inst )?  def_colored_button("${src_inst}->$dst_inst",$color): gen_label_in_center(' - ');	
 		   	attach_widget_to_table ($table,$row,undef,undef,$button,$col);  $col++;	
 		   	
@@ -1052,9 +1097,11 @@ sub get_route_info{
 	
 			
 		
-	my $max_r_name=$self->object_get_attribute("$Rkeys[-1]",'NAME');
-	my $min_r_name=$self->object_get_attribute("$Rkeys[0]",'NAME');	
+	my $max_r_name= (defined $Rkeys[-1])? $self->object_get_attribute("$Rkeys[-1]",'NAME') : "-";
+	my $min_r_name= (defined $Rkeys[0]) ? $self->object_get_attribute("$Rkeys[0]",'NAME') : "-";	
 	
+	$max_r_name= "-" if (!defined $max_r_name); 
+	$min_r_name= "-" if (!defined $min_r_name); 	
     
 		   
 	return ($max_r,$min_r,$max_l,$min_l,$std_l,$max_r_name,$min_r_name,$max_l_name,$min_l_name);	
@@ -1227,7 +1274,7 @@ sub show_paths_between_two_endps{
 				
 			my $check= Gtk2::CheckButton->new();
 			#print "if($select eq $path)";
-			if(defined $select && defined $scal) {if($selp eq $scal) {$check->set_active(TRUE);}}
+			if(defined $select && defined $scal && defined $selp) {if($selp eq $scal) {$check->set_active(TRUE);}}
 			else {$check->set_active(FALSE);}
 			
 			$check-> signal_connect("toggled" => sub{
@@ -1631,8 +1678,8 @@ sub auto_route {
 		foreach  my $dst  (@all_endpoints ){
 			if($src ne $dst){	
 				my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps($self,$src, $dst);
-				#step 2 get number of paths for each pair:
-				my $size = scalar  @{$paths_to_dst};
+				my @cyle_free_paths=remove_cycle_paths($self,$info,$paths_to_dst, \@forbiden_turn);
+				my $size = scalar  @cyle_free_paths;
 				$Psize{"${src}::$dst"} = $size;
 			}
 		}
@@ -1648,6 +1695,7 @@ sub auto_route {
 	my @keys = sort { $Psize{$a} <=> $Psize{$b} } keys(%Psize);
 	for my $key ( @keys) {
 		my $size=$Psize{$key};
+		#print "$size\n";
 		next if(defined $self->object_get_attribute('Route',$key));
 		
        # print "($key)->($Psize{$key})\n";
@@ -1754,7 +1802,7 @@ sub sort_paths_based_on_link_usage{
 			}			
 		}
 	}
-	#get std_devision of link  foreach path if added   
+	#get std_devision of link  for each path if added   
 	my $i=0;
 	foreach my $path (@{$paths_to_dst}) {
 		my %copy = clone_hash(\%L_num);
@@ -1764,25 +1812,26 @@ sub sort_paths_based_on_link_usage{
 		}				
 		my @l = sort  values (%copy);
 		my $std=stdev(\@l);		
-		$max{$i}=$std;
+		$max{$i}=$std*100;
 		$i++;	
 	}
 	
 	
-	my @order = sort { $max{$b} <=> $max{$a} } keys(%max);
+	my @order = sort { $max{$a} <=> $max{$b} } keys(%max);
 	
 	#print "*********** @order ************"; 
 	my @sorted;
 	$i=0;
 	foreach my $a ( @order){
 		$sorted[$i]=${$paths_to_dst}[$a];
+		$i++;
 		#print "\$max{$a}=$max{$a},"
 	}
 	
 	#print "\n";
 	
 	return @sorted;
-	#return @{$paths_to_dst};#TODO sort based on congestion	
+	
 	
 }
 
@@ -1959,11 +2008,12 @@ sub build_network_maker_gui {
 	# The box which holds the info, warning, error ...  mesages
     my ($infobox,$info)= create_text();
 	my $notebook = topology_maker_notebook($self,$info);
-	my $draw=gen_right_paned($self);
+	my $draw=custom_topology_diagram($self);
 	my $h1=gen_hpaned($notebook,.35,$draw);
 	
 	
 	my $v2=gen_vpaned($h1,.65,$infobox);
+	
 	
 	
 #	my $h1=gen_hpaned($traces_ctrl,.25,$traces);
@@ -2052,7 +2102,10 @@ sub build_network_maker_gui {
 	
 	});	
 		
+	my $w1 = def_table(2,10,FALSE);
+	my $w2 = def_table(2,10,FALSE);
 	
+	my $h2=gen_hpaned($w1,.35,$w2);
 	
 	#check soc status every 0.5 second. referesh device table if there is any changes 
 	Glib::Timeout->add (100, sub{ 
@@ -2069,26 +2122,34 @@ sub build_network_maker_gui {
 			return TRUE;
 			 
 		}
-		if($state eq "redraw"){
+		
+		if($state eq "ref" || $state eq "redraw"){
+			my $back= $h2;
+			if($state eq "ref"){
+				$notebook->destroy;
+				$notebook = topology_maker_notebook($self,$info);
+				$h1 -> pack1($notebook, TRUE, TRUE); 
+			}
 			$draw->destroy;
-			$draw=gen_right_paned($self);
-			$h1 -> pack2($draw, TRUE, TRUE);    
-			
-			#print "REDRAW\n";
-			set_gui_status($self,"ideal",0);
-			$main_table->show_all();	
-			return TRUE;			 
-		}
-		if($state eq "ref"){
-			
-			$notebook->destroy;
-			$notebook = topology_maker_notebook($self,$info);
-			$h1 -> pack1($notebook, TRUE, TRUE); 
-			
-			$draw->destroy;
-			$draw=gen_right_paned($self);
-			$h1 -> pack2($draw, TRUE, TRUE);    
-						
+			$w1 ->destroy;
+			$w2 ->destroy;
+			my $page_num=$self->object_get_attribute ("process_notebook","currentpage");
+			if($page_num==3){
+				
+				$w1 = show_paths_between_two_endps($self,$info);
+				$w2 = routing_summary($self,$info);
+				
+				$back -> pack1($w1, TRUE, TRUE); 
+				$back -> pack2($w2, TRUE, TRUE); 
+				
+				$h1 -> pack2($back, TRUE, TRUE);   	
+				
+				
+			}else{
+				$h2-> destroy; 
+				$draw=custom_topology_diagram($self);
+				$h1 -> pack2($draw, TRUE, TRUE);    
+			}			
 			my $saved_name=$self->object_get_attribute('save_as');
 		    $entry->set_text($saved_name)if(defined $saved_name);
 		    

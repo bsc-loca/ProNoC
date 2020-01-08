@@ -36,7 +36,8 @@ module header_flit_generator  #(
     parameter DSTPw=4,  
     parameter C = 4,    //  number of flit class 
     parameter WEIGHTw = 4, // WRRA weight width
-    parameter DATA_w = 9 // header flit can carry Optional data. The data will be placed after contol data.  Fpay >= DATA_w + CTRL_BITS_w  
+    parameter DATA_w = 9, // header flit can carry Optional data. The data will be placed after contol data.  Fpay >= DATA_w + CTRL_BITS_w  
+    parameter BYTE_EN = 0
 )(
     
     flit_out,    
@@ -46,6 +47,7 @@ module header_flit_generator  #(
     class_in,
     weight_in, 
     vc_num_in,
+    be_in,
     data_in    
 );
 
@@ -63,7 +65,8 @@ module header_flit_generator  #(
     localparam
         Fw   =   2+V+Fpay,//flit width
         Cw   =  (C>1)? log2(C): 1,
-        HDR_FLAG  =   2'b10;
+        HDR_FLAG  =   2'b10,
+        BEw = (BYTE_EN)? 2*log2(Fpay/8) : 1;
 /* verilator lint_on WIDTH */      
 
 
@@ -71,18 +74,20 @@ module header_flit_generator  #(
         Dw = (DATA_w==0)? 1 : DATA_w;       
        
 
-    localparam 
+     localparam 
         E_SRC_LSB =0,                   E_SRC_MSB = E_SRC_LSB + EAw-1,
         E_DST_LSB = E_SRC_MSB +1,       E_DST_MSB = E_DST_LSB + EAw-1,  
         DST_P_LSB = E_DST_MSB + 1,      DST_P_MSB = DST_P_LSB + DSTPw-1, 
         CLASS_LSB = DST_P_MSB + 1,      CLASS_MSB = CLASS_LSB + Cw -1, 
         MSB_CLASS = (C>1)? CLASS_MSB : DST_P_MSB,
-        WEIGHT_LSB= MSB_CLASS + 1,           WEIGHT_MSB = WEIGHT_LSB + WEIGHTw -1,
+        WEIGHT_LSB= MSB_CLASS + 1,      WEIGHT_MSB = WEIGHT_LSB + WEIGHTw -1,
         /* verilator lint_off WIDTH */ 
         MSB_W = (SWA_ARBITER_TYPE== "WRRA")? WEIGHT_MSB : MSB_CLASS,
-        /* verilator lint_on WIDTH */ 
-        DATA_LSB= MSB_W+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1;
-    
+        /* verilator lint_on WIDTH */
+        BE_LSB =  MSB_W + 1,            BE_MSB = BE_LSB+ BEw-1,
+        MSB_BE = (BYTE_EN==1)?   BE_MSB  : MSB_W,         
+        DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1;
+        
     
     output   [Fw-1  :   0] flit_out; 
     input    [Cw-1  :   0] class_in;    
@@ -91,6 +96,7 @@ module header_flit_generator  #(
     input    [V-1   :   0] vc_num_in;
     input    [WEIGHTw-1 :   0] weight_in;
     input    [DSTPw-1   :   0] destport_in;
+    input    [BEw-1 : 0] be_in;
     input    [Dw-1  :   0] data_in;
  
    // assign flit_out [W+Cw+P_1+Xw+Yw+Xw+Yw-1 :0] = {weight_i,class_i,destport_i,x_dst_i,y_dst_i,x_src_i,y_src_i};
@@ -101,14 +107,18 @@ module header_flit_generator  #(
    
     generate
     if(C>1)begin :have_class 
-        assign flit_out [CLASS_MSB :CLASS_LSB]= class_in; 
+        assign flit_out [CLASS_MSB :CLASS_LSB] = class_in; 
     end 
 
     /* verilator lint_off WIDTH */
     if(SWA_ARBITER_TYPE != "RRA")begin  : wrra_b
     /* verilator lint_on WIDTH */
-        assign flit_out [WEIGHT_MSB :WEIGHT_LSB] =weight_in;   
+        assign flit_out [WEIGHT_MSB :WEIGHT_LSB] = weight_in;   
     end 
+    
+    if( BYTE_EN ) begin : be_1
+        assign flit_out [BE_MSB : BE_LSB] = be_in;    
+    end
     
     
     if (DATA_w ==0) begin :no_data
@@ -135,7 +145,8 @@ module extract_header_flit_info #(
     parameter DSTPw=4,
     parameter C = 4,    //  number of flit class 
     parameter Fpay = 32,     //payload width
-    parameter DATA_w = 0
+    parameter DATA_w = 0,
+    parameter BYTE_EN = 0
 )(
     //inputs
     flit_in,
@@ -150,7 +161,8 @@ module extract_header_flit_info #(
     tail_flg_o,
     hdr_flg_o,   
     vc_num_o,  
-    hdr_flit_wr_o
+    hdr_flit_wr_o,
+    be_o
     
 );
 
@@ -168,7 +180,8 @@ module extract_header_flit_info #(
     localparam
         Fw = 2+V+Fpay,//flit width
         Cw = (C>1)? log2(C): 1,
-        W = WEIGHTw;
+        W = WEIGHTw,
+        BEw = (BYTE_EN)? 2*log2(Fpay/8) : 1;
      
     localparam 
         Dw = (DATA_w==0)? 1 : DATA_w;
@@ -186,6 +199,7 @@ module extract_header_flit_info #(
     output hdr_flg_o;    
     output [V-1 : 0] vc_num_o;
     output [V-1 : 0] hdr_flit_wr_o;
+    output [BEw-1 : 0] be_o;
     output [Dw-1  :   0] data_o;
     
     
@@ -196,11 +210,13 @@ module extract_header_flit_info #(
         DST_P_LSB = E_DST_MSB + 1,      DST_P_MSB = DST_P_LSB + DSTPw-1, 
         CLASS_LSB = DST_P_MSB + 1,      CLASS_MSB = CLASS_LSB + Cw -1, 
         MSB_CLASS = (C>1)? CLASS_MSB : DST_P_MSB,
-        WEIGHT_LSB= MSB_CLASS + 1,           WEIGHT_MSB = WEIGHT_LSB + WEIGHTw -1,
+        WEIGHT_LSB= MSB_CLASS + 1,      WEIGHT_MSB = WEIGHT_LSB + WEIGHTw -1,
         /* verilator lint_off WIDTH */ 
         MSB_W = (SWA_ARBITER_TYPE== "WRRA")? WEIGHT_MSB : MSB_CLASS,
-        /* verilator lint_on WIDTH */ 
-        DATA_LSB= MSB_W+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1;
+        /* verilator lint_on WIDTH */
+        BE_LSB =  MSB_W + 1,            BE_MSB = BE_LSB+ BEw-1,
+        MSB_BE = (BYTE_EN==1)?   BE_MSB  : MSB_W,         
+        DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1;
         
              
      
@@ -227,6 +243,13 @@ module extract_header_flit_info #(
     end else begin : rra_b
         assign weight_o = {WEIGHTw{1'bX}};        
     end 
+    
+    if( BYTE_EN ) begin : be_1
+        assign be_o = flit_in [BE_MSB : BE_LSB];    
+    end else begin : be_0    
+        assign be_o = {BEw{1'bX}};
+    end
+    
     
     assign offset = flit_in [DATA_MSB : DATA_LSB];    
     

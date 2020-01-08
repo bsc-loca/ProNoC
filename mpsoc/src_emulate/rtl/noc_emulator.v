@@ -32,7 +32,8 @@ module  noc_emulator #(
     parameter SSA_EN = "NO",        
     parameter SWA_ARBITER_TYPE = "RRA", 
     parameter WEIGHTw = 4, 
-    parameter MIN_PCK_SIZE = 2,  
+    parameter MIN_PCK_SIZE = 2, 
+    parameter BYTE_EN=0,    
     
     
     // simulation
@@ -118,7 +119,8 @@ module  noc_emulator #(
         .SSA_EN(SSA_EN),
     	.SWA_ARBITER_TYPE(SWA_ARBITER_TYPE), 
     	.WEIGHTw(WEIGHTw),
-    	.MIN_PCK_SIZE(MIN_PCK_SIZE)
+    	.MIN_PCK_SIZE(MIN_PCK_SIZE),
+        .BYTE_EN(BYTE_EN)
     )
     the_noc
     (
@@ -148,6 +150,7 @@ module  noc_emulator #(
         .ROUTE_NAME(ROUTE_NAME),
         .C(C),
         .MIN_PCK_SIZE(MIN_PCK_SIZE),
+        .BYTE_EN(BYTE_EN),
         .RAM_Aw(RAM_Aw),
         .STATISTIC_NUM(STATISTIC_NUM),  // the last 8 rows of RAM is reserved for collecting statistic values;
         .MAX_SIM_CLKs(MAX_SIM_CLKs),
@@ -215,6 +218,7 @@ module  Jtag_traffic_gen #(
     parameter ROUTE_NAME    = "XY",
     parameter C = 4 ,   //  number of flit class
     parameter MIN_PCK_SIZE = 2,
+    parameter BYTE_EN=0,    
     parameter RAM_Aw=7,
     parameter STATISTIC_NUM=8, 
     parameter MAX_RATIO = 100,
@@ -421,6 +425,7 @@ module  Jtag_traffic_gen #(
             .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
             .WEIGHTw(WEIGHTw),
             .MIN_PCK_SIZE(MIN_PCK_SIZE),
+            .BYTE_EN(BYTE_EN),        
             .RAw(RAw),
             .EAw(EAw)          	
           )
@@ -484,12 +489,12 @@ module  traffic_gen_ram #(
     parameter SWA_ARBITER_TYPE ="RRA",
     parameter WEIGHTw  =4,
     parameter MIN_PCK_SIZE=2,
+    parameter BYTE_EN=0,    
     parameter RAw = 4,
     parameter EAw=4    
 )
 (
-    
-   
+       
     done,    
     current_r_addr,
     current_e_addr,
@@ -691,7 +696,8 @@ module  traffic_gen_ram #(
         .MAX_RATIO(MAX_RATIO),
     	.SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+        .BYTE_EN(BYTE_EN)
     )
     the_traffic_gen
     (

@@ -303,21 +303,36 @@ void error_handelling_function(){
 	}
 }
 
+
+/*
+transfer_manage
+	w: initial weight
+	v: Virtual channel number
+	class_num: message class number
+	dest_port: destination queue number
+	queue_pointer: address in byte
+	queue_size: queue size in byte
+	start_index: start index byte number
+	end_index:  end index byte number
+	dest_phy_addr
+	credit: Number of byte available in destination queue
+*/
+
+
+
 unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned int class_num, unsigned char dest_port, unsigned int queue_pointer,unsigned int queue_size, unsigned int start_index,  unsigned int end_index, unsigned int dest_phy_addr,unsigned int credit){
     
 //printf ( "core:%u transfer_manage (w=%u, v=%u, c=%u, dest_port=%u, queue_pointer=%u, queue_size=%u,  start_index=%u, end_index=%u,dest_phy_addr=%u, credit=%u", COREID,
 // w,  v,  class_num,  dest_port,  queue_pointer, queue_size,  start_index,  end_index,  dest_phy_addr, credit);
    
 
-    unsigned int start_addr_pointer;
-    
-	  unsigned int data_size;
-    
+	unsigned int start_addr_pointer;
+	unsigned int data_size;
     if (ni_send_is_busy(v)) return 0 ; // if VC is busy sending previous packet do nothing
 
     unsigned int start_addr_in_Q = start_index % queue_size;
-   
-    start_addr_pointer = queue_pointer + (start_addr_in_Q<<2);
+    start_addr_pointer = queue_pointer + start_addr_in_Q;
+
 // printf("start_addr_pointer(%u) = queue_pointer(%u) + start_addr_in_Q(%u)\n)", start_addr_pointer , queue_pointer , start_addr_in_Q);
 
     data_size =  end_index-start_index;
@@ -326,7 +341,7 @@ unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned int clas
 
     if((start_addr_in_Q + data_size)> queue_size) data_size =  queue_size-start_addr_in_Q; // we only send data until end of the queque. The rest will be sent in next round starting from begining of the queue   
 
-   if(data_size>0) ni_transfer (w, v, class_num, dest_port , start_addr_pointer, data_size, dest_phy_addr);   
+	if(data_size>0) ni_transfer (w, v, class_num, dest_port , start_addr_pointer, data_size, dest_phy_addr);
 
     return data_size;   
 }

@@ -73,7 +73,7 @@ module router_verilator_p$p
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),  
         .Fpay(Fpay),    
         .MUX_TYPE(MUX_TYPE),
@@ -93,7 +93,8 @@ module router_verilator_p$p
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)           
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+    	.BYTE_EN(BYTE_EN)           
     )
     the_router
     (

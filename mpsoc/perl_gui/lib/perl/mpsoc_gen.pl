@@ -730,18 +730,17 @@ if($topology ne '"CUSTOM"' ){
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',undef);
 
 
-    #SSA
-    $label='SSA Ebable'; 
-    $param='SSA_EN';
-    $default='"NO"';
-    $content='"YES","NO"';
-    $type='Combo-box';
-    $info="Enable single cycle latency on packets traversing in the same direction using static straight allocator (SSA)"; 
-    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',undef);
-
-
+    # BYTE_EN
+    $label='Byte Enable';
+    $param='BYTE_EN';
+    $default= 0;
+    $info='0:disable, 1: enable. Add byte enable (BE) filed to header flit which shows the location of last valid byte in tail flit. It is needed once the send data unit is smaller than Fpay.'; 
+    $content='0,1';
+    $type="Combo-box";
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param');
     
-
+    
+    
     if($show_noc == 1){    
         $b1= def_image_button("icons/up.png","NoC Parameters");
         $table->attach  ( $b1 , 0, 2, $row,$row+1,'fill','shrink',2,2);
@@ -753,6 +752,8 @@ if($topology ne '"CUSTOM"' ){
         set_gui_status($mpsoc,"ref",1);
     });
 
+	
+
 
     #advance parameter start
     my $advc;
@@ -762,6 +763,18 @@ if($topology ne '"CUSTOM"' ){
         $table->attach ( $advc , 0, 2, $row,$row+1,'fill','shrink',2,2);
         $row++;    
     }
+    
+    
+    #SSA
+    $label='SSA Ebable'; 
+    $param='SSA_EN';
+    $default='"NO"';
+    $content='"YES","NO"';
+    $type='Combo-box';
+    $info="Enable single cycle latency on packets traversing in the same direction using static straight allocator (SSA)"; 
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);
+    
+    
     
     
     #Fully and partially adaptive routing setting

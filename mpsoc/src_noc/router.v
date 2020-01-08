@@ -65,7 +65,8 @@ module router # (
     parameter SSA_EN="NO", // "YES" , "NO"
     parameter SWA_ARBITER_TYPE = "RRA",//"RRA","WRRA". RRA: Round Robin Arbiter WRRA weighted Round Robin Arbiter 
     parameter WEIGHTw = 7, // WRRA width
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1. 
+    parameter BYTE_EN=0 //0:disable, 1: enable.   Add byte enable (BE) filed to header flit which shows the location of last valid byte in tail flit. It is needed once the send data unit is smaller than Fpay.   
 )(
     current_r_addr,
     neighbors_r_addr,

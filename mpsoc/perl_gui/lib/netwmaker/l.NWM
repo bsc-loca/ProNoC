@@ -10,94 +10,91 @@
 ################################################################################
 
 $nwmaker = bless( {
-                    'ROUTER10' => {
-                                    'NUM' => 0
-                                  },
-                    'ROUTER12' => {
-                                    'NUM' => 0
-                                  },
-                    'tile_diagram' => {},
-                    'src_dir' => {
-                                   '/home/alireza/work/hca_git/ProNoC/mpsoc/src_topolgy/' => undef
-                                 },
-                    'process_notebook' => {
-                                            'currentpage' => 0
-                                          },
-                    'parameters_order' => {
-                                            'ROUTER8' => [
-                                                           'NUM'
-                                                         ],
-                                            'samples' => [
-                                                           'sample0'
-                                                         ],
-                                            'ROUTER5' => [
-                                                           'NUM'
-                                                         ],
-                                            'ROUTER10' => [
-                                                            'NUM'
-                                                          ],
-                                            'ROUTER3' => [
-                                                           'NUM'
-                                                         ],
-                                            'ROUTER12' => [
-                                                            'NUM'
-                                                          ],
-                                            'ROUTER4' => [
-                                                           'NUM'
-                                                         ],
-                                            'ROUTER6' => [
-                                                           'NUM'
-                                                         ],
-                                            'ROUTER11' => [
-                                                            'NUM'
-                                                          ],
-                                            'ENDP' => [
-                                                        'NUM'
-                                                      ],
-                                            'ROUTER2' => [
-                                                           'NUM'
-                                                         ],
-                                            'ROUTER9' => [
-                                                           'NUM'
-                                                         ],
-                                            'ROUTER7' => [
-                                                           'NUM'
-                                                         ]
-                                          },
-                    'id' => 1,
-                    'active_setting' => undef,
-                    'graph_save' => {},
-                    'ROUTER7' => {
+                    'ROUTER9' => {
                                    'NUM' => 0
                                  },
                     'save_as' => 'l',
+                    'ROUTER12' => {
+                                    'NUM' => 0
+                                  },
+                    'id' => 1,
+                    'tile_diagram' => {
+                                        'auto_draw' => 'ON'
+                                      },
+                    'gui_status' => {
+                                      'timeout' => 0,
+                                      'status' => 'ideal'
+                                    },
+                    'ROUTER7' => {
+                                   'NUM' => 0
+                                 },
                     'ROUTER2' => {
                                    'NUM' => 0
                                  },
-                    'gui_status' => {
-                                      'status' => 'ideal',
-                                      'timeout' => 0
-                                    },
+                    'ENDP' => {
+                                'NUM' => 0
+                              },
+                    'ROUTER8' => {
+                                   'NUM' => 0
+                                 },
+                    'active_setting' => undef,
+                    'topology_diagram' => {},
+                    'process_notebook' => {
+                                            'currentpage' => 0
+                                          },
                     'sample0' => {
                                    'color' => 1
                                  },
-                    'ROUTER5' => {
-                                   'NUM' => 0
-                                 },
-                    'ROUTER3' => {
-                                   'NUM' => 0
-                                 },
-                    'ROUTER6' => {
-                                   'NUM' => 0
-                                 },
-                    'ROUTER4' => {
-                                   'NUM' => 0
-                                 },
+                    'ROUTER11' => {
+                                    'NUM' => 0
+                                  },
                     'Verilog' => {
+                                   'Router_ports' => [
+                                                       {
+                                                         'type' => 'input',
+                                                         'pconnect' => 'flit_out',
+                                                         'pname' => 'flit_in',
+                                                         'pwidth' => 'Fw',
+                                                         'endp' => 'yes',
+                                                         'width' => 'PFw',
+                                                         'name' => 'flit_in_all',
+                                                         'connect' => 'flit_out_all'
+                                                       },
+                                                       {
+                                                         'connect' => 'flit_out_wr_all',
+                                                         'name' => 'flit_in_wr_all',
+                                                         'pwidth' => 1,
+                                                         'endp' => 'yes',
+                                                         'width' => 'P',
+                                                         'pname' => 'flit_in_wr',
+                                                         'pconnect' => 'flit_out_wr',
+                                                         'type' => 'input'
+                                                       },
+                                                       {
+                                                         'pname' => 'congestion_in',
+                                                         'width' => 'CONG_ALw',
+                                                         'pwidth' => 'CONGw',
+                                                         'endp' => 'no',
+                                                         'type' => 'input',
+                                                         'pconnect' => 'congestion_out',
+                                                         'name' => 'congestion_in_all',
+                                                         'connect' => 'congestion_out_all'
+                                                       },
+                                                       {
+                                                         'width' => 'PV',
+                                                         'endp' => 'yes',
+                                                         'pwidth' => 'V',
+                                                         'pname' => 'credit_out',
+                                                         'pconnect' => 'credit_in',
+                                                         'type' => 'output',
+                                                         'connect' => 'credit_in_all',
+                                                         'name' => 'credit_out_all'
+                                                       }
+                                                     ],
                                    'Router_param' => [
                                                        {
-                                                         'value' => 2,
-                                                         'param_name' => 'V '
+                                                         'param_name' => 'V ',
+                                                         'value' => 2
                                                        },
                                                        {
                                                          'param_name' => 'B ',
@@ -124,108 +121,115 @@ $nwmaker = bless( {
                                                          'param_name' => 'COMBINATION_TYPE'
                                                        },
                                                        {
-                                                         'param_name' => 'FIRST_ARBITER_EXT_P_EN ',
-                                                         'value' => 1
+                                                         'value' => 1,
+                                                         'param_name' => 'FIRST_ARBITER_EXT_P_EN '
                                                        },
                                                        {
-                                                         'value' => 7,
-                                                         'param_name' => 'CONGESTION_INDEX '
+                                                         'param_name' => 'CONGESTION_INDEX ',
+                                                         'value' => 7
                                                        },
                                                        {
                                                          'value' => 0,
                                                          'param_name' => 'DEBUG_EN'
                                                        },
                                                        {
-                                                         'value' => 0,
-                                                         'param_name' => 'AVC_ATOMIC_EN'
-                                                       },
-                                                       {
-                                                         'value' => 3,
-                                                         'param_name' => 'CONGw '
+                                                         'param_name' => 'AVC_ATOMIC_EN',
+                                                         'value' => 0
                                                        },
                                                        {
                                                          'param_name' => 'ADD_PIPREG_AFTER_CROSSBAR',
                                                          'value' => 0
                                                        },
                                                        {
-                                                         'param_name' => 'CVw',
-                                                         'value' => '(C==0)? V : C * V'
+                                                         'value' => '(C==0)? V : C * V',
+                                                         'param_name' => 'CVw'
                                                        },
                                                        {
-                                                         'param_name' => 'CLASS_SETTING ',
-                                                         'value' => '{CVw{1\'b1}}'
+                                                         'value' => '{CVw{1\'b1}}',
+                                                         'param_name' => 'CLASS_SETTING '
                                                        },
                                                        {
                                                          'param_name' => 'SSA_EN',
                                                          'value' => '"NO"'
                                                        },
                                                        {
-                                                         'param_name' => 'SWA_ARBITER_TYPE ',
-                                                         'value' => '"RRA"'
+                                                         'value' => '"RRA"',
+                                                         'param_name' => 'SWA_ARBITER_TYPE '
                                                        },
                                                        {
                                                          'param_name' => 'WEIGHTw ',
                                                          'value' => 7
                                                        },
                                                        {
-                                                         'value' => 2,
-                                                         'param_name' => 'MIN_PCK_SIZE'
-                                                       }
-                                                     ],
-                                   'Router_ports' => [
-                                                       {
-                                                         'name' => 'flit_in_all',
-                                                         'type' => 'input',
-                                                         'pname' => 'flit_in',
-                                                         'width' => 'PFw',
-                                                         'connect' => 'flit_out_all',
-                                                         'pwidth' => 'Fw',
-                                                         'endp' => 'yes',
-                                                         'pconnect' => 'flit_out'
+                                                         'param_name' => 'MIN_PCK_SIZE',
+                                                         'value' => 2
                                                        },
                                                        {
-                                                         'endp' => 'yes',
-                                                         'pwidth' => 1,
-                                                         'pconnect' => 'flit_out_wr',
-                                                         'connect' => 'flit_out_wr_all',
-                                                         'width' => 'P',
-                                                         'name' => 'flit_in_wr_all',
-                                                         'pname' => 'flit_in_wr',
-                                                         'type' => 'input'
-                                                       },
-                                                       {
-                                                         'endp' => 'no',
-                                                         'pwidth' => 'CONGw',
-                                                         'pconnect' => 'congestion_out',
-                                                         'connect' => 'congestion_out_all',
-                                                         'width' => 'CONG_ALw',
-                                                         'name' => 'congestion_in_all',
-                                                         'pname' => 'congestion_in',
-                                                         'type' => 'input'
-                                                       },
-                                                       {
-                                                         'width' => 'PV',
-                                                         'pname' => 'credit_out',
-                                                         'type' => 'output',
-                                                         'name' => 'credit_out_all',
-                                                         'pconnect' => 'credit_in',
-                                                         'endp' => 'yes',
-                                                         'pwidth' => 'V',
-                                                         'connect' => 'credit_in_all'
+                                                         'value' => 0,
+                                                         'param_name' => 'BYTE_EN'
                                                        }
                                                      ]
                                  },
-                    'ROUTER8' => {
+                    'ROUTER6' => {
                                    'NUM' => 0
                                  },
-                    'ROUTER9' => {
+                    'ROUTER4' => {
                                    'NUM' => 0
                                  },
-                    'ROUTER11' => {
+                    'graph_save' => {
+                                      'name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/src_topolgy/ll/ll',
+                                      'enable' => '0',
+                                      'extension' => 'png'
+                                    },
+                    'parameters_order' => {
+                                            'ROUTER5' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER3' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER10' => [
+                                                            'NUM'
+                                                          ],
+                                            'ENDP' => [
+                                                        'NUM'
+                                                      ],
+                                            'ROUTER8' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER7' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER4' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER2' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER6' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER11' => [
+                                                            'NUM'
+                                                          ],
+                                            'ROUTER12' => [
+                                                            'NUM'
+                                                          ],
+                                            'ROUTER9' => [
+                                                           'NUM'
+                                                         ],
+                                            'samples' => [
+                                                           'sample0'
+                                                         ]
+                                          },
+                    'ROUTER5' => {
+                                   'NUM' => 0
+                                 },
+                    'ROUTER3' => {
+                                   'NUM' => 0
+                                 },
+                    'ROUTER10' => {
                                     'NUM' => 0
                                   },
-                    'ENDP' => {
-                                'NUM' => 0
-                              },
-                    'topology_diagram' => {}
+                    'routing_name' => 'l'
                   }, 'ProNOC' );

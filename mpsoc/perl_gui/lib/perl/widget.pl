@@ -281,6 +281,7 @@ sub gen_label_help {
 #############
 
 
+
 sub button_box{
 # create a new button
 	my @label=@_;
@@ -323,6 +324,7 @@ sub open_image{
 		} # else its pixels
 			
 	}
+	$image_file ="icons/blank.png"  unless(-f $image_file);
 	my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($image_file,$x,$y,TRUE);
  	my $image = Gtk2::Image->new_from_pixbuf($pixbuf);
 	return $image;
@@ -474,6 +476,28 @@ sub gen_radiobutton {
 	set_tip($rbtn, $tip) if(defined $tip);
 	return $rbtn;
 }
+
+sub gen_colored_icon{
+	my ($lable, $color_num)=@_;
+	my $frame = Gtk2::Frame->new;
+	$frame->set_border_width (0);
+	$frame->set_shadow_type ('etched-in');
+	$frame->show;
+	my $event_box = Gtk2::EventBox->new;
+	# $event_box->set_size_request (140, 140);
+	if(defined $lable){
+		my $lable_widget   = $lable=gen_label_in_center($lable);
+		$event_box->add($lable_widget);
+	}
+	$frame->add ($event_box);
+	$event_box->show;
+	my ($red,$green,$blue) = get_color($color_num);
+	my $color = Gtk2::Gdk::Color->new ($red,$green,$blue);
+    $event_box->get_colormap->alloc_color ($color, 0, 1);
+    $event_box->modify_bg ('normal', $color);
+	return $frame;
+}
+
 
 ############
 #	message_dialog

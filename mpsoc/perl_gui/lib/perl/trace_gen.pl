@@ -1037,6 +1037,7 @@ sub object_add_attribute_order{
 
 sub object_get_attribute_order{
 	my ($self,$attribute)=@_;
+	return undef unless(defined $self->{parameters_order}{$attribute});
 	my @order=@{$self->{parameters_order}{$attribute}};
 	return uniq(@order)
 }

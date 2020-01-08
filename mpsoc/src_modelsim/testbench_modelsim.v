@@ -108,7 +108,10 @@ module testbench_sub #(
     parameter SWA_ARBITER_TYPE = "WRRA",//"RRA","WRRA". SWA: Switch Allocator.  RRA: Round Robin Arbiter. WRRA Weighted Round Robin Arbiter          
     parameter WEIGHTw=7, // WRRA weights' max width
     //hardware minimum packet size support
-    parameter MIN_PCK_SIZE=2,  
+    parameter MIN_PCK_SIZE=2, 
+    parameter BYTE_EN=0, //0:disable, 1: enable.   Add byte enable (BE) filed to header flit which shows the location of last valid byte in tail flit. It is needed once the send data unit is smaller than Fpay.   
+    
+    
   
     parameter C0_p=100,
     parameter C1_p=0,
@@ -230,7 +233,7 @@ module testbench_sub #(
         .B(B), 
         .T1(T1),
         .T2(T2),
-	.T3(T3),
+        .T3(T3),
         .C(C),    
         .Fpay(Fpay), 
         .MUX_TYPE(MUX_TYPE),
@@ -249,9 +252,8 @@ module testbench_sub #(
         .SSA_EN(SSA_EN),
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
         .WEIGHTw(WEIGHTw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)
-               
-
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+        .BYTE_EN(BYTE_EN)
     )
     the_noc
     (
@@ -330,7 +332,8 @@ end
             .MAX_RATIO(100),
             .TIMSTMP_FIFO_NUM(TIMSTMP_FIFO_NUM),
             .WEIGHTw(WEIGHTw),
-            .MIN_PCK_SIZE(MIN_PCK_SIZE)
+            .MIN_PCK_SIZE(MIN_PCK_SIZE),
+            .BYTE_EN(BYTE_EN)
         )
         the_traffic_gen
         (

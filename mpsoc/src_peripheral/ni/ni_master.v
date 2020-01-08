@@ -53,6 +53,7 @@ module  ni_master #(
     parameter B = 4,
     parameter Fpay = 32,
     parameter MIN_PCK_SIZE = 2, //minimum packet size in flits. The minimum value is 1.
+    parameter BYTE_EN=0,
     parameter SWA_ARBITER_TYPE = "RRA", // RRA WRRA
     parameter WEIGHTw          = 4, // weight width of WRRA   
     //wishbone port parameters
@@ -531,6 +532,7 @@ module  ni_master #(
             .tail_flg_o( ),
             .hdr_flg_o( ),
             .vc_num_o( ),
+            .be_o( ),
             .hdr_flit_wr_o(precap_hdr_flit_wr),
             .data_o(precap_din)
         ); 
@@ -825,7 +827,9 @@ module  ni_master #(
         assign receive_enable_binary = 1'b0;
     end
     endgenerate  
-      
+  
+   localparam  BEw = (BYTE_EN)? 2*log2(Fpay/8) : 1; 
+   wire [BEw-1 : 0 ] be_in = {BEw{1'b1}};    
   
     ni_conventional_routing #(
         .TOPOLOGY(TOPOLOGY),
@@ -857,7 +861,8 @@ module  ni_master #(
         .DSTPw(DSTPw),
         .C(C),
         .WEIGHTw(WEIGHTw),
-        .DATA_w(HDw)
+        .DATA_w(HDw),
+        .BYTE_EN(BYTE_EN)
     )
     hdr_flit_gen
     (
@@ -868,7 +873,9 @@ module  ni_master #(
         .destport_in(destport),
         .vc_num_in(send_vc_enable),
         .weight_in(weight),
+        .be_in(be_in),
         .data_in(hdr_data )
+        
     );
     
   wire [V-1    :   0] wr_vc_send =  (fifo_wr) ? send_vc_enable : {V{1'b0}};  
@@ -966,6 +973,7 @@ module  ni_master #(
         .hdr_flg_o( ),
         .tail_flg_o( ),
         .weight_o(),
+        .be_o( ),
         .data_o()
     );  
   

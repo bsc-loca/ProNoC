@@ -119,7 +119,9 @@ module  traffic_gen_verilator (
    	.MAX_RATIO(MAX_RATIO),
    	.SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
    	.WEIGHTw(WEIGHTw),
-   	.MIN_PCK_SIZE(MIN_PCK_SIZE)
+   	.MIN_PCK_SIZE(MIN_PCK_SIZE),
+    .BYTE_EN(BYTE_EN)           
+   	
    )
    the_traffic_gen
    (

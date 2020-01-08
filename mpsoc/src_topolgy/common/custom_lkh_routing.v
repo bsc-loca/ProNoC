@@ -70,7 +70,53 @@ module custom_lkh_routing  #(
     
     end	
     
+     
+	//do not modify this line ===TlRl===
+    if(TOPOLOGY == "l" && ROUTE_NAME== "l" ) begin : TlRl
+     
+	   TlRl_look_ahead_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_lkh_routing
+        (
+            .current_r_addr(current_r_addr),
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport),
+            .reset(reset),
+            .clk(clk)        
+        );    
+    
+    end	
+    
+     
+	//do not modify this line ===TllRll===
+    if(TOPOLOGY == "ll" && ROUTE_NAME== "ll" ) begin : TllRll
+     
+	   TllRll_look_ahead_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_lkh_routing
+        (
+            .current_r_addr(current_r_addr),
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport),
+            .reset(reset),
+            .clk(clk)        
+        );    
+    
+    end	
+    
     endgenerate
+    	
+ 
+    	
+ 
     	
  
     	

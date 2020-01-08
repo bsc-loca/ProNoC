@@ -171,7 +171,92 @@ module   custom_noc #(
     
     end	
     
+     
+	//do not modify this line ===l===
+    if(TOPOLOGY == "l" ) begin : Tl
+    
+        l_noc_genvar #(
+		.TOPOLOGY(TOPOLOGY),
+		.ROUTE_NAME(ROUTE_NAME),
+		.V (V ),
+		.B (B ),
+		.C (C ),
+		.Fpay (Fpay ),
+		.MUX_TYPE(MUX_TYPE),
+		.VC_REALLOCATION_TYPE (VC_REALLOCATION_TYPE ),
+		.COMBINATION_TYPE(COMBINATION_TYPE),
+		.FIRST_ARBITER_EXT_P_EN (FIRST_ARBITER_EXT_P_EN ),
+		.CONGESTION_INDEX (CONGESTION_INDEX ),
+		.DEBUG_EN(DEBUG_EN),
+		.AVC_ATOMIC_EN(AVC_ATOMIC_EN),
+		.ADD_PIPREG_AFTER_CROSSBAR(ADD_PIPREG_AFTER_CROSSBAR),
+		.CVw(CVw),
+		.CLASS_SETTING (CLASS_SETTING ),
+		.SSA_EN(SSA_EN),
+		.SWA_ARBITER_TYPE (SWA_ARBITER_TYPE ),
+		.WEIGHTw (WEIGHTw ),
+		.MIN_PCK_SIZE(MIN_PCK_SIZE)
+        )
+        the_noc
+        (
+		.reset(reset),
+		.clk(clk),
+		.flit_in_all(flit_in_all),
+		.flit_out_all(flit_out_all),
+		.flit_in_wr_all(flit_in_wr_all),
+		.flit_out_wr_all(flit_out_wr_all),
+		.credit_out_all(credit_out_all),
+		.credit_in_all(credit_in_all)     
+        );    
+    
+    end	
+    
+     
+	//do not modify this line ===ll===
+    if(TOPOLOGY == "ll" ) begin : Tll
+    
+        ll_noc_genvar #(
+		.TOPOLOGY(TOPOLOGY),
+		.ROUTE_NAME(ROUTE_NAME),
+		.V (V ),
+		.B (B ),
+		.C (C ),
+		.Fpay (Fpay ),
+		.MUX_TYPE(MUX_TYPE),
+		.VC_REALLOCATION_TYPE (VC_REALLOCATION_TYPE ),
+		.COMBINATION_TYPE(COMBINATION_TYPE),
+		.FIRST_ARBITER_EXT_P_EN (FIRST_ARBITER_EXT_P_EN ),
+		.CONGESTION_INDEX (CONGESTION_INDEX ),
+		.DEBUG_EN(DEBUG_EN),
+		.AVC_ATOMIC_EN(AVC_ATOMIC_EN),
+		.ADD_PIPREG_AFTER_CROSSBAR(ADD_PIPREG_AFTER_CROSSBAR),
+		.CVw(CVw),
+		.CLASS_SETTING (CLASS_SETTING ),
+		.SSA_EN(SSA_EN),
+		.SWA_ARBITER_TYPE (SWA_ARBITER_TYPE ),
+		.WEIGHTw (WEIGHTw ),
+		.MIN_PCK_SIZE(MIN_PCK_SIZE),
+		.BYTE_EN(BYTE_EN)
+        )
+        the_noc
+        (
+		.reset(reset),
+		.clk(clk),
+		.flit_in_all(flit_in_all),
+		.flit_out_all(flit_out_all),
+		.flit_in_wr_all(flit_in_wr_all),
+		.flit_out_wr_all(flit_out_wr_all),
+		.credit_out_all(credit_out_all),
+		.credit_in_all(credit_in_all)     
+        );    
+    
+    end	
+    
     endgenerate
+	
+	 
+	
+	 
 	
 	 
 	
