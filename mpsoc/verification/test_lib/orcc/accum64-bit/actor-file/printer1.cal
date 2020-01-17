@@ -1,0 +1,24 @@
+package accumulatorv2;
+ 
+
+ 
+ actor printer1 () int(size=64) result ==> :
+ 
+  int (size=64) temp :=0;
+  int (size=64) temp2 :=0;
+  
+   action result:[a] ==>
+     do
+         temp := temp + 1 ;
+         temp2:= temp2-((temp / 10)*10);
+         
+         if temp  = 60
+		 then
+		   println("The result printer1 is " + a);
+	     else
+		//    println("P1: " + temp );
+	     end
+         
+          
+     end
+ end

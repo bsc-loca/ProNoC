@@ -34,53 +34,56 @@
 
  
  
-module ni_vc_dma #(
-   
-    parameter MAX_TRANSACTION_WIDTH=10, // MAximum transaction size will be 2 power of MAX_DMA_TRANSACTION_WIDTH words 
-    parameter CRC_EN= "NO",// "YES","NO" if CRC is enable then the CRC32 of all packet data is calculated and sent via tail flit. 
-    
+module ni_vc_dma #(   
+    parameter MAX_TRANSACTION_WIDTH = 10, // MAximum transaction size will be 2 power of MAX_DMA_TRANSACTION_WIDTH words 
+    parameter CRC_EN = "NO",// "YES","NO" if CRC is enable then the CRC32 of all packet data is calculated and sent via tail flit. 
+    parameter Fpay=32,
+    parameter BYTE_EN = 0,
     //wishbone port parameters
     parameter Dw            =   32,
     parameter M_Aw          =   32,
     parameter TAGw          =   3,
     parameter SELw          =   4
-
-
 )
 (
-     // 
+    // 
     reset,
     clk,
     
     //ctrl signals
-    send_enable,
-    receive_enable,
+    send_enable,    
     send_is_busy,
-    receive_is_busy,
     send_is_active,
-    receive_is_active,
-    last_burst,
     send_hdr,
     send_tail,
-    status,
-    save_hdr_info,
     send_done,
-    receive_done,    
-    
-  
     send_fsm_is_ideal,
+    send_pointer_addr, 
+    send_data_size,
+    send_start, 
+    
+    
+    receive_enable,
+    receive_is_busy,
+    receive_is_active,   
+    receive_done,
     receive_fsm_is_ideal,
     received_flit_is_tail,
-    send_pointer_addr, 
     receive_pointer_addr,
     receive_start_index,
-    
-    send_data_size,
-    max_receive_buff_siz,
-    send_start, 
+    receive_start_index_offset,
     receive_start,
-    receive_counter,
+    receive_dat_size_in_byte,
+    receive_be,
+    receive_max_buff_siz,
     
+    
+    last_burst,   
+    status,
+    save_hdr_info,    
+   
+   
+   
     
     //fifo signals
         
@@ -130,6 +133,15 @@ module ni_vc_dma #(
 
 );
 
+
+    function integer log2;
+      input integer number; begin   
+         log2=(number <=1) ? 1: 0;    
+         while(2**log2<number) begin    
+            log2=log2+1;    
+         end       
+      end   
+    endfunction // log2  
          
         
     //state machine registers/parameters
@@ -156,13 +168,18 @@ module ni_vc_dma #(
         CONST_ADDR_BURST = 3'b010,
         INCREMENT_BURST = 3'b011,
         END_OF_BURST = 3'b111;
-        
+     
+       
         
       //control Registers/ parameters 
     
    
 
-    localparam STATUSw=SEND_ST_NUM+RECEIVE_ST_NUM;
+    localparam 
+        STATUSw=SEND_ST_NUM+RECEIVE_ST_NUM,
+        MAX_PCK_SIZE_IN_BYTE = MAX_TRANSACTION_WIDTH + log2(Fpay/8),
+        OFFSETw= log2(Fpay/8),
+        BEw = (BYTE_EN)? log2(Fpay/8) : 1; 
    
     output  [STATUSw-1  :0] status;  
 
@@ -178,18 +195,92 @@ module ni_vc_dma #(
     output send_tail;
     output reg send_is_active, receive_is_active;
     input received_flit_is_tail;
-    output reg  [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter;
+  
+    
     output reg save_hdr_info;
    
     output send_fsm_is_ideal,receive_fsm_is_ideal;
     input  [Dw-1   :   0] send_pointer_addr; 
     input  [Dw-1   :   0] receive_pointer_addr;
     input [MAX_TRANSACTION_WIDTH-1    :   0] receive_start_index;
+    input [OFFSETw-1 : 0] receive_start_index_offset;
     
     input  [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size;
-    input  [MAX_TRANSACTION_WIDTH-1    :   0] max_receive_buff_siz;
+    input  [MAX_TRANSACTION_WIDTH-1    :   0] receive_max_buff_siz;
+    output [MAX_PCK_SIZE_IN_BYTE-1     :   0] receive_dat_size_in_byte;
+    
+    
+    
     input  send_start, receive_start;
     
+    input [BEw-1 : 0] receive_be;
+    
+    
+     reg  [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter;
+     
+      wire [SELw-1 : 0]  tail_flit_sel;
+   
+    localparam BE_ONEHOTw= 2**BEw;
+  
+
+ genvar i;
+ generate   
+ if(BYTE_EN)begin:be 
+    wire [OFFSETw:0] byte2 = (receive_be==0)? (1<<OFFSETw) : {1'b0,receive_be}; 
+    wire [OFFSETw:0] byte1 = byte2 - {1'b0,receive_start_index_offset}; 
+   
+    reg  [MAX_PCK_SIZE_IN_BYTE-1     :   0] receive_size_cal;
+    always @(*)begin 
+        receive_size_cal={MAX_PCK_SIZE_IN_BYTE{1'b0}};
+        if (receive_counter==1)begin 
+            receive_size_cal [OFFSETw:0]= byte1;
+        end else begin 
+            receive_size_cal = (((receive_counter-1'b1)<<OFFSETw)+byte2)-receive_start_index_offset;        
+        end
+    end
+    assign receive_dat_size_in_byte= receive_size_cal;
+      
+      
+     wire [BE_ONEHOTw-1 : 0] one_hot_code,sel_reversed;
+  
+      bin_to_one_hot #(
+        .BIN_WIDTH(BEw),
+        .ONE_HOT_WIDTH(BE_ONEHOTw)
+      )
+      be_cnv
+      (
+        .bin_code(receive_be),
+        .one_hot_code(one_hot_code)
+      );
+  
+    assign sel_reversed = one_hot_code-1'b1;
+   
+    for (i=0; i<BE_ONEHOTw; i=i+1)begin :ff
+        assign tail_flit_sel[i] = sel_reversed[BE_ONEHOTw-i-1];
+     //assign tail_flit_sel[i] = sel_reversed[i];
+    end//for  
+      
+   
+ end else begin: nbe
+     assign receive_dat_size_in_byte= (receive_counter<< OFFSETw );  
+     assign tail_flit_sel = {SELw{1'b1}};    
+ end     
+ endgenerate 
+ 
+ 
+ 
+  
+  
+
+ 
+  
+   
+ 
+ 
+ 
+ 
+ 
+ 
     //fifo
     output reg  send_fifo_wr, receive_fifo_rd;
     input       send_fifo_full, send_fifo_nearly_full,send_fifo_rd, receive_fifo_empty;
@@ -213,7 +304,7 @@ module ni_vc_dma #(
     input                           m_send_ack_i;    
      
      //wishbone write master interface signals
-    output  [SELw-1          :   0] m_receive_sel_o;
+    output  reg [SELw-1          :   0] m_receive_sel_o;
   //  output  [Dw-1            :   0] m_receive_dat_o;
     output  [M_Aw-1          :   0] m_receive_addr_o;
     output  reg [TAGw-1      :   0] m_receive_cti_o;
@@ -235,7 +326,7 @@ module ni_vc_dma #(
     
     wire last_data = (send_counter == send_data_size-1'b1);
    
-    wire receive_overflow= (receive_counter == max_receive_buff_siz);    
+    wire receive_overflow= (receive_counter == receive_max_buff_siz);    
     
     reg [SEND_ST_NUM-1    :0] send_ps,send_ns; // read  peresent state, read next sate 
     reg [RECEIVE_ST_NUM-1    :0] receive_ps,receive_ns; // read  peresent state, read next sate
@@ -266,8 +357,16 @@ module ni_vc_dma #(
     assign m_receive_stb_o =  m_receive_cyc_o;
     assign m_receive_we_o = 1'b1;
     assign m_send_we_o = 1'b0;
-    assign m_receive_sel_o = 4'b1111;
-    assign m_send_sel_o = 4'b1111;
+    
+    assign m_send_sel_o = {SELw{1'b1}};
+    
+    
+ 
+
+  
+   
+ 
+    
     
  
     reg [1:0] active_st,active_st_next;
@@ -408,6 +507,7 @@ module ni_vc_dma #(
         hdr_flit_is_received_next=hdr_flit_is_received;
         save_hdr_info=1'b0;
         rcive_buff_ovrflw_err_next =  rcive_buff_ovrflw_err;
+        m_receive_sel_o = {SELw{1'b1}}; // deafult all byte enable bits are set. It may changed only for tail flit
         if(reset_errors) rcive_buff_ovrflw_err_next=1'b0;
             case(receive_ps)
                 RECEIVE_IDEAL: begin 
@@ -445,6 +545,11 @@ module ni_vc_dma #(
    //                             end
   //                          end else  
                             m_receive_cyc_o=1'b1; //CRC_EN == "NO"
+                            if (received_flit_is_tail) begin
+                                m_receive_sel_o= (receive_be == {BEw{1'b0}})? {SELw{1'b1}} : tail_flit_sel;
+                            end
+                                  
+                            
                             if (receive_fifo_empty) begin 
                                 m_receive_cti_o= END_OF_BURST;                             
                             end
@@ -453,7 +558,7 @@ module ni_vc_dma #(
                                 if(! hdr_flit_is_received) save_hdr_info=1'b1;
                                 if(! receive_overflow && hdr_flit_is_received) begin 
                                     receive_counter_next=receive_counter +1'b1; //Donot save hedaer flit in memory
-                                    receive_index_next = (receive_index==max_receive_buff_siz-1'b1)? {MAX_TRANSACTION_WIDTH{1'b0}}:receive_index+1'b1;
+                                    receive_index_next = (receive_index==receive_max_buff_siz-1'b1)? {MAX_TRANSACTION_WIDTH{1'b0}}:receive_index+1'b1;
                                 end
                                 if( receive_overflow)  rcive_buff_ovrflw_err_next = 1'b1;//set error  
                                 if (received_flit_is_tail) begin 

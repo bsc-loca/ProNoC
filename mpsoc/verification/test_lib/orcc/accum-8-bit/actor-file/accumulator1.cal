@@ -1,0 +1,20 @@
+package accumulatorv2;
+ 
+actor accumulator1 () int(size=8) Input1, int(size=8) Input2 ==> int(size=8) Output:
+ 
+
+int (size=8) temp :=0;
+
+ add: action Input1: [a], Input2: [b] ==>  Output: [temp]
+  
+    do	
+  			 
+    		 temp := temp + a + b ;
+    		   	
+    		  	
+  
+  end
+  
+ 
+  
+end

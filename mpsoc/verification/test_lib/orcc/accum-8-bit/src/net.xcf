@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Partitioning>
+		<Partition id="1">
+			<Instance id="src1"/>
+			<Instance id="src2"/>
+			<Instance id="add1"/>
+			<Instance id="add2"/>
+			<Instance id="print1"/>
+			<Instance id="print2"/>
+		</Partition>
+		<!-- Unmapped id="src1" -->
+		<!-- Unmapped id="src2" -->
+		<!-- Unmapped id="add1" -->
+		<!-- Unmapped id="add2" -->
+		<!-- Unmapped id="print1" -->
+		<!-- Unmapped id="print2" -->
+	</Partitioning>
+	
+	<!-- Other useful informations related to any element of the instanciated model can be printed here -->
+</Configuration>

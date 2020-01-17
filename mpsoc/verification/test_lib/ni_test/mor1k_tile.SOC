@@ -1,0 +1,1741 @@
+#######################################################################
+##	File: mor1k_tile.SOC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$soc = bless( {
+                'sim_uart0' => {
+                                 'version' => 7
+                               },
+                'global_param' => {
+                                    'CORE_ID' => 5,
+                                    'SW_LOC' => '/home/alireza/mywork/git-hca/mpsoc_work/SOC/mor1k_tile/sw'
+                                  },
+                'timer0' => {
+                              'version' => 9
+                            },
+                'modules' => {},
+                'gui_status' => {
+                                  'status' => 'ideal',
+                                  'timeout' => 0
+                                },
+                'dma0' => {
+                            'version' => 4
+                          },
+                'Unset-intfc' => {
+                                   'uart-RxD_din_sim' => 'NC',
+                                   'bus-snoop_adr_o' => 'NC',
+                                   'uart-RxD_ready_sim' => 'NC',
+                                   'bus-snoop_en_o' => 'NC',
+                                   'uart-RxD_wr_sim' => 'NC'
+                                 },
+                'verilator' => {
+                                 'libs' => {
+                                             'Vtop' => 'mor1k_tile.v'
+                                           }
+                               },
+                'mor1kx0' => {
+                               'version' => 17
+                             },
+                'instances' => {
+                                 'ni_master0' => {
+                                                   'module' => 'ni_master',
+                                                   'parameters_order' => [
+                                                                           'TOPOLOGY',
+                                                                           'ROUTE_NAME',
+                                                                           'T1',
+                                                                           'T2',
+                                                                           'T3',
+                                                                           'C',
+                                                                           'V',
+                                                                           'B',
+                                                                           'Fpay',
+                                                                           'MAX_TRANSACTION_WIDTH',
+                                                                           'MAX_BURST_SIZE',
+                                                                           'DEBUG_EN',
+                                                                           'Dw',
+                                                                           'S_Aw',
+                                                                           'M_Aw',
+                                                                           'TAGw',
+                                                                           'SELw',
+                                                                           'Fw',
+                                                                           'CRC_EN',
+                                                                           'RAw',
+                                                                           'EAw',
+                                                                           'HDATA_PRECAPw'
+                                                                         ],
+                                                   'module_name' => 'ni_master',
+                                                   'category' => 'NoC',
+                                                   'parameters' => {
+                                                                     'AVC_ATOMIC_EN' => {
+                                                                                          'value' => 0
+                                                                                        },
+                                                                     'T3' => {
+                                                                               'value' => '1'
+                                                                             },
+                                                                     'ADD_PIPREG_AFTER_CROSSBAR' => {
+                                                                                                      'value' => '1\'b0'
+                                                                                                    },
+                                                                     'CONGESTION_INDEX' => {
+                                                                                             'value' => 3
+                                                                                           },
+                                                                     'SELw' => {
+                                                                                 'value' => '4'
+                                                                               },
+                                                                     'Dw' => {
+                                                                               'value' => '32'
+                                                                             },
+                                                                     'ESCAP_VC_MASK' => {
+                                                                                          'value' => '2\'b01'
+                                                                                        },
+                                                                     'TOPOLOGY' => {
+                                                                                     'value' => '"MESH"'
+                                                                                   },
+                                                                     'Fw' => {
+                                                                               'value' => '2+V+Fpay'
+                                                                             },
+                                                                     'MAX_TRANSACTION_WIDTH' => {
+                                                                                                  'value' => '13'
+                                                                                                },
+                                                                     'VC_REALLOCATION_TYPE' => {
+                                                                                                 'value' => '"NONATOMIC"'
+                                                                                               },
+                                                                     'EAw' => {
+                                                                                'value' => '16'
+                                                                              },
+                                                                     'HDATA_PRECAPw' => {
+                                                                                          'value' => 4
+                                                                                        },
+                                                                     'SSA_EN' => {
+                                                                                   'value' => '"NO"'
+                                                                                 },
+                                                                     'CRC_EN' => {
+                                                                                   'value' => '"NO"'
+                                                                                 },
+                                                                     'RAw' => {
+                                                                                'value' => '16'
+                                                                              },
+                                                                     'BYTE_EN' => {
+                                                                                    'value' => '1'
+                                                                                  },
+                                                                     'TAGw' => {
+                                                                                 'value' => '3'
+                                                                               },
+                                                                     'Fpay' => {
+                                                                                 'value' => '32'
+                                                                               },
+                                                                     'M_Aw' => {
+                                                                                 'value' => '32'
+                                                                               },
+                                                                     'V' => {
+                                                                              'value' => '2'
+                                                                            },
+                                                                     'MIN_PCK_SIZE' => {
+                                                                                         'value' => '2'
+                                                                                       },
+                                                                     'FIRST_ARBITER_EXT_P_EN' => {
+                                                                                                   'value' => 1
+                                                                                                 },
+                                                                     'S_Aw' => {
+                                                                                 'value' => '8'
+                                                                               },
+                                                                     'ROUTE_NAME' => {
+                                                                                       'value' => '"XY"'
+                                                                                     },
+                                                                     'COMBINATION_TYPE' => {
+                                                                                             'value' => '"COMB_NONSPEC"'
+                                                                                           },
+                                                                     'CUSTOM_TOPOLOGY_NAME' => {
+                                                                                                 'value' => '"muli"'
+                                                                                               },
+                                                                     'WEIGHTw' => {
+                                                                                    'value' => '4'
+                                                                                  },
+                                                                     'T1' => {
+                                                                               'value' => '3'
+                                                                             },
+                                                                     'SWA_ARBITER_TYPE' => {
+                                                                                             'value' => '"RRA"'
+                                                                                           },
+                                                                     'MAX_BURST_SIZE' => {
+                                                                                           'value' => '16'
+                                                                                         },
+                                                                     'DEBUG_EN' => {
+                                                                                     'value' => '0'
+                                                                                   },
+                                                                     'MUX_TYPE' => {
+                                                                                     'value' => '"BINARY"'
+                                                                                   },
+                                                                     'C' => {
+                                                                              'value' => 0
+                                                                            },
+                                                                     'B' => {
+                                                                              'value' => '4'
+                                                                            },
+                                                                     'T2' => {
+                                                                               'value' => 2
+                                                                             }
+                                                                   },
+                                                   'instance_name' => 'ni',
+                                                   'sockets' => {
+                                                                  'ni' => {
+                                                                            'type' => 'num',
+                                                                            'value' => 1,
+                                                                            'connection_num' => 'single connection',
+                                                                            'nums' => {
+                                                                                        '0' => {
+                                                                                                 'name' => 'ni'
+                                                                                               }
+                                                                                      }
+                                                                          }
+                                                                },
+                                                   'description_pdf' => '/mpsoc/src_peripheral/ni/NI.pdf',
+                                                   'plugs' => {
+                                                                'reset' => {
+                                                                             'type' => 'num',
+                                                                             'value' => 1,
+                                                                             'nums' => {
+                                                                                         '0' => {
+                                                                                                  'name' => 'reset',
+                                                                                                  'connect_socket' => 'reset',
+                                                                                                  'connect_socket_num' => '0',
+                                                                                                  'connect_id' => 'clk_source0'
+                                                                                                }
+                                                                                       },
+                                                                             'connection_num' => undef
+                                                                           },
+                                                                'wb_master' => {
+                                                                                 'type' => 'num',
+                                                                                 'value' => 2,
+                                                                                 'nums' => {
+                                                                                             '0' => {
+                                                                                                      'connect_id' => 'wishbone_bus0',
+                                                                                                      'connect_socket_num' => '0',
+                                                                                                      'name' => 'wb_send',
+                                                                                                      'connect_socket' => 'wb_master'
+                                                                                                    },
+                                                                                             '1' => {
+                                                                                                      'connect_socket' => 'wb_master',
+                                                                                                      'name' => 'wb_receive',
+                                                                                                      'connect_id' => 'wishbone_bus0',
+                                                                                                      'connect_socket_num' => '1'
+                                                                                                    }
+                                                                                           },
+                                                                                 'connection_num' => undef
+                                                                               },
+                                                                'wb_slave' => {
+                                                                                'type' => 'num',
+                                                                                'value' => 1,
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'connect_socket' => 'wb_slave',
+                                                                                                     'connect_socket_num' => '3',
+                                                                                                     'width' => 10,
+                                                                                                     'connect_id' => 'wishbone_bus0',
+                                                                                                     'name' => 'wb_slave',
+                                                                                                     'addr' => '0xb800_0000	0xbfff_ffff		custom devices',
+                                                                                                     'base' => 3087007744,
+                                                                                                     'end' => 3087008767
+                                                                                                   }
+                                                                                          },
+                                                                                'connection_num' => undef
+                                                                              },
+                                                                'clk' => {
+                                                                           'nums' => {
+                                                                                       '0' => {
+                                                                                                'name' => 'clk',
+                                                                                                'connect_socket' => 'clk',
+                                                                                                'connect_id' => 'clk_source0',
+                                                                                                'connect_socket_num' => '0'
+                                                                                              }
+                                                                                     },
+                                                                           'connection_num' => undef,
+                                                                           'value' => 1,
+                                                                           'type' => 'num'
+                                                                         },
+                                                                'interrupt_peripheral' => {
+                                                                                            'type' => 'num',
+                                                                                            'nums' => {
+                                                                                                        '0' => {
+                                                                                                                 'connect_socket' => 'interrupt_peripheral',
+                                                                                                                 'name' => 'interrupt',
+                                                                                                                 'connect_socket_num' => '0',
+                                                                                                                 'connect_id' => 'mor1kx0'
+                                                                                                               }
+                                                                                                      },
+                                                                                            'connection_num' => undef,
+                                                                                            'value' => 1
+                                                                                          }
+                                                              }
+                                                 },
+                                 'clk_source0' => {
+                                                    'plugs' => {
+                                                                 'clk' => {
+                                                                            'type' => 'num',
+                                                                            'value' => 1,
+                                                                            'connection_num' => undef,
+                                                                            'nums' => {
+                                                                                        '0' => {
+                                                                                                 'connect_socket_num' => undef,
+                                                                                                 'connect_id' => 'IO',
+                                                                                                 'connect_socket' => undef,
+                                                                                                 'name' => 'clk'
+                                                                                               }
+                                                                                      }
+                                                                          },
+                                                                 'reset' => {
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'connect_socket' => undef,
+                                                                                                   'name' => 'reset',
+                                                                                                   'connect_socket_num' => undef,
+                                                                                                   'connect_id' => 'IO'
+                                                                                                 }
+                                                                                        },
+                                                                              'connection_num' => undef,
+                                                                              'value' => 1,
+                                                                              'type' => 'num'
+                                                                            }
+                                                               },
+                                                    'description_pdf' => undef,
+                                                    'module_name' => 'clk_source',
+                                                    'parameters_order' => [],
+                                                    'module' => 'clk_source',
+                                                    'sockets' => {
+                                                                   'clk' => {
+                                                                              'type' => 'num',
+                                                                              'connection_num' => 'multi connection',
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'name' => 'clk'
+                                                                                                 }
+                                                                                        },
+                                                                              'value' => 1
+                                                                            },
+                                                                   'reset' => {
+                                                                                'connection_num' => 'multi connection',
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'name' => 'reset'
+                                                                                                   }
+                                                                                          },
+                                                                                'value' => 1,
+                                                                                'type' => 'num'
+                                                                              }
+                                                                 },
+                                                    'category' => 'Source',
+                                                    'instance_name' => 'ss',
+                                                    'parameters' => {}
+                                                  },
+                                 'single_port_ram0' => {
+                                                         'plugs' => {
+                                                                      'reset' => {
+                                                                                   'type' => 'num',
+                                                                                   'connection_num' => undef,
+                                                                                   'nums' => {
+                                                                                               '0' => {
+                                                                                                        'name' => 'reset',
+                                                                                                        'connect_socket' => 'reset',
+                                                                                                        'connect_id' => 'clk_source0',
+                                                                                                        'connect_socket_num' => '0'
+                                                                                                      }
+                                                                                             },
+                                                                                   'value' => 1
+                                                                                 },
+                                                                      'clk' => {
+                                                                                 'type' => 'num',
+                                                                                 'value' => 1,
+                                                                                 'connection_num' => undef,
+                                                                                 'nums' => {
+                                                                                             '0' => {
+                                                                                                      'connect_socket' => 'clk',
+                                                                                                      'name' => 'clk',
+                                                                                                      'connect_id' => 'clk_source0',
+                                                                                                      'connect_socket_num' => '0'
+                                                                                                    }
+                                                                                           }
+                                                                               },
+                                                                      'wb_slave' => {
+                                                                                      'type' => 'num',
+                                                                                      'value' => 1,
+                                                                                      'connection_num' => undef,
+                                                                                      'nums' => {
+                                                                                                  '0' => {
+                                                                                                           'connect_id' => 'wishbone_bus0',
+                                                                                                           'width' => 'WB_Aw',
+                                                                                                           'connect_socket_num' => '0',
+                                                                                                           'connect_socket' => 'wb_slave',
+                                                                                                           'end' => 65535,
+                                                                                                           'base' => 0,
+                                                                                                           'addr' => '0x0000_0000	0x3fff_ffff		RAM',
+                                                                                                           'name' => 'wb'
+                                                                                                         }
+                                                                                                }
+                                                                                    }
+                                                                    },
+                                                         'description_pdf' => '/mpsoc/src_peripheral/ram/RAM.pdf',
+                                                         'parameters_order' => [
+                                                                                 'Dw',
+                                                                                 'Aw',
+                                                                                 'BYTE_WR_EN',
+                                                                                 'FPGA_VENDOR',
+                                                                                 'JTAG_CONNECT',
+                                                                                 'JTAG_INDEX',
+                                                                                 'TAGw',
+                                                                                 'SELw',
+                                                                                 'CTIw',
+                                                                                 'BTEw',
+                                                                                 'WB_Aw',
+                                                                                 'BURST_MODE',
+                                                                                 'MEM_CONTENT_FILE_NAME',
+                                                                                 'INITIAL_EN',
+                                                                                 'INIT_FILE_PATH'
+                                                                               ],
+                                                         'module_name' => 'wb_single_port_ram',
+                                                         'module' => 'single_port_ram',
+                                                         'parameters' => {
+                                                                           'TAGw' => {
+                                                                                       'value' => '3'
+                                                                                     },
+                                                                           'INITIAL_EN' => {
+                                                                                             'value' => '"YES"'
+                                                                                           },
+                                                                           'WB_Aw' => {
+                                                                                        'value' => 'Aw+2'
+                                                                                      },
+                                                                           'JTAG_INDEX' => {
+                                                                                             'value' => 'CORE_ID'
+                                                                                           },
+                                                                           'MEM_CONTENT_FILE_NAME' => {
+                                                                                                        'value' => '"ram0"'
+                                                                                                      },
+                                                                           'INIT_FILE_PATH' => {
+                                                                                                 'value' => 'SW_LOC'
+                                                                                               },
+                                                                           'BURST_MODE' => {
+                                                                                             'value' => '"ENABLED"'
+                                                                                           },
+                                                                           'CTIw' => {
+                                                                                       'value' => '3'
+                                                                                     },
+                                                                           'JTAG_CONNECT' => {
+                                                                                               'value' => '"DISABLED"'
+                                                                                             },
+                                                                           'FPGA_VENDOR' => {
+                                                                                              'value' => '"ALTERA"'
+                                                                                            },
+                                                                           'SELw' => {
+                                                                                       'value' => 'Dw/8'
+                                                                                     },
+                                                                           'BYTE_WR_EN' => {
+                                                                                             'value' => '"YES"'
+                                                                                           },
+                                                                           'Dw' => {
+                                                                                     'value' => '32'
+                                                                                   },
+                                                                           'BTEw' => {
+                                                                                       'value' => '2'
+                                                                                     },
+                                                                           'Aw' => {
+                                                                                     'value' => 14
+                                                                                   }
+                                                                         },
+                                                         'category' => 'RAM',
+                                                         'instance_name' => 'ram',
+                                                         'sockets' => {}
+                                                       },
+                                 'timer0' => {
+                                               'category' => 'Timer',
+                                               'parameters' => {
+                                                                 'SELw' => {
+                                                                             'value' => '4'
+                                                                           },
+                                                                 'PRESCALER_WIDTH' => {
+                                                                                        'value' => '8'
+                                                                                      },
+                                                                 'TAGw' => {
+                                                                             'value' => '3'
+                                                                           },
+                                                                 'Dw' => {
+                                                                           'value' => '32'
+                                                                         },
+                                                                 'CNTw' => {
+                                                                             'value' => '32     '
+                                                                           },
+                                                                 'Aw' => {
+                                                                           'value' => '3'
+                                                                         }
+                                                               },
+                                               'instance_name' => 'timer',
+                                               'sockets' => {},
+                                               'module' => 'timer',
+                                               'parameters_order' => [
+                                                                       'CNTw',
+                                                                       'Dw',
+                                                                       'Aw',
+                                                                       'TAGw',
+                                                                       'SELw',
+                                                                       'PRESCALER_WIDTH'
+                                                                     ],
+                                               'module_name' => 'timer',
+                                               'description_pdf' => '/mpsoc/src_peripheral/timer/timer.pdf',
+                                               'plugs' => {
+                                                            'wb_slave' => {
+                                                                            'nums' => {
+                                                                                        '0' => {
+                                                                                                 'addr' => '0x9600_0000	0x96ff_ffff		PWM/Timer/Counter Ctrl',
+                                                                                                 'base' => 2516582400,
+                                                                                                 'end' => 2516582431,
+                                                                                                 'name' => 'wb',
+                                                                                                 'connect_socket_num' => '2',
+                                                                                                 'width' => 5,
+                                                                                                 'connect_id' => 'wishbone_bus0',
+                                                                                                 'connect_socket' => 'wb_slave'
+                                                                                               }
+                                                                                      },
+                                                                            'connection_num' => undef,
+                                                                            'value' => 1,
+                                                                            'type' => 'num'
+                                                                          },
+                                                            'interrupt_peripheral' => {
+                                                                                        'type' => 'num',
+                                                                                        'value' => 1,
+                                                                                        'nums' => {
+                                                                                                    '0' => {
+                                                                                                             'connect_id' => 'mor1kx0',
+                                                                                                             'connect_socket_num' => '1',
+                                                                                                             'connect_socket' => 'interrupt_peripheral',
+                                                                                                             'name' => 'intrp'
+                                                                                                           }
+                                                                                                  },
+                                                                                        'connection_num' => undef
+                                                                                      },
+                                                            'clk' => {
+                                                                       'nums' => {
+                                                                                   '0' => {
+                                                                                            'name' => 'clk',
+                                                                                            'connect_socket' => 'clk',
+                                                                                            'connect_socket_num' => '0',
+                                                                                            'connect_id' => 'clk_source0'
+                                                                                          }
+                                                                                 },
+                                                                       'connection_num' => undef,
+                                                                       'value' => 1,
+                                                                       'type' => 'num'
+                                                                     },
+                                                            'reset' => {
+                                                                         'value' => 1,
+                                                                         'nums' => {
+                                                                                     '0' => {
+                                                                                              'connect_socket_num' => '0',
+                                                                                              'connect_id' => 'clk_source0',
+                                                                                              'connect_socket' => 'reset',
+                                                                                              'name' => 'reset'
+                                                                                            }
+                                                                                   },
+                                                                         'connection_num' => undef,
+                                                                         'type' => 'num'
+                                                                       }
+                                                          }
+                                             },
+                                 'jtag_uart0' => {
+                                                   'parameters_order' => [
+                                                                           'FPGA_VENDOR',
+                                                                           'SIM_BUFFER_SIZE',
+                                                                           'SIM_WAIT_COUNT'
+                                                                         ],
+                                                   'module_name' => 'jtag_uart_wb',
+                                                   'module' => 'jtag_uart',
+                                                   'instance_name' => 'uart',
+                                                   'parameters' => {
+                                                                     'FPGA_VENDOR' => {
+                                                                                        'value' => ' "ALTERA"'
+                                                                                      },
+                                                                     'SIM_BUFFER_SIZE' => {
+                                                                                            'value' => 2000
+                                                                                          },
+                                                                     'SIM_WAIT_COUNT' => {
+                                                                                           'value' => '1000'
+                                                                                         }
+                                                                   },
+                                                   'category' => 'Communication',
+                                                   'sockets' => {
+                                                                  'RxD_sim' => {
+                                                                                 'type' => 'num',
+                                                                                 'connection_num' => 'single connection',
+                                                                                 'nums' => {
+                                                                                             '0' => {
+                                                                                                      'name' => 'RxD_sim'
+                                                                                                    }
+                                                                                           },
+                                                                                 'value' => 1
+                                                                               }
+                                                                },
+                                                   'plugs' => {
+                                                                'interrupt_peripheral' => {
+                                                                                            'value' => 1,
+                                                                                            'nums' => {
+                                                                                                        '0' => {
+                                                                                                                 'name' => 'interrupt_peripheral',
+                                                                                                                 'connect_socket' => undef,
+                                                                                                                 'connect_id' => 'NC',
+                                                                                                                 'connect_socket_num' => undef
+                                                                                                               }
+                                                                                                      },
+                                                                                            'connection_num' => undef,
+                                                                                            'type' => 'num'
+                                                                                          },
+                                                                'clk' => {
+                                                                           'nums' => {
+                                                                                       '0' => {
+                                                                                                'connect_socket_num' => '0',
+                                                                                                'connect_id' => 'clk_source0',
+                                                                                                'name' => 'clk',
+                                                                                                'connect_socket' => 'clk'
+                                                                                              }
+                                                                                     },
+                                                                           'connection_num' => undef,
+                                                                           'value' => 1,
+                                                                           'type' => 'num'
+                                                                         },
+                                                                'wb_slave' => {
+                                                                                'value' => 1,
+                                                                                'connection_num' => undef,
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'connect_socket_num' => '1',
+                                                                                                     'width' => 5,
+                                                                                                     'connect_id' => 'wishbone_bus0',
+                                                                                                     'connect_socket' => 'wb_slave',
+                                                                                                     'addr' => '0x9000_0000	0x90ff_ffff		UART16550 Controller',
+                                                                                                     'end' => 2415919135,
+                                                                                                     'base' => 2415919104,
+                                                                                                     'name' => 'wb_slave'
+                                                                                                   }
+                                                                                          },
+                                                                                'type' => 'num'
+                                                                              },
+                                                                'reset' => {
+                                                                             'type' => 'num',
+                                                                             'nums' => {
+                                                                                         '0' => {
+                                                                                                  'connect_socket' => 'reset',
+                                                                                                  'name' => 'reset',
+                                                                                                  'connect_socket_num' => '0',
+                                                                                                  'connect_id' => 'clk_source0'
+                                                                                                }
+                                                                                       },
+                                                                             'connection_num' => undef,
+                                                                             'value' => 1
+                                                                           }
+                                                              },
+                                                   'description_pdf' => undef
+                                                 },
+                                 'mor1kx0' => {
+                                                'parameters_order' => [
+                                                                        'OPTION_OPERAND_WIDTH',
+                                                                        'IRQ_NUM',
+                                                                        'OPTION_DCACHE_SNOOP',
+                                                                        'FEATURE_INSTRUCTIONCACHE',
+                                                                        'FEATURE_DATACACHE',
+                                                                        'FEATURE_IMMU',
+                                                                        'FEATURE_DMMU'
+                                                                      ],
+                                                'module_name' => 'mor1k',
+                                                'module' => 'mor1kx',
+                                                'instance_name' => 'cpu',
+                                                'category' => 'Processor',
+                                                'parameters' => {
+                                                                  'OPTION_DCACHE_SNOOP' => {
+                                                                                             'value' => '"ENABLED"'
+                                                                                           },
+                                                                  'FEATURE_INSTRUCTIONCACHE' => {
+                                                                                                  'value' => '"ENABLED"'
+                                                                                                },
+                                                                  'OPTION_OPERAND_WIDTH' => {
+                                                                                              'value' => '32'
+                                                                                            },
+                                                                  'FEATURE_DATACACHE' => {
+                                                                                           'value' => '"ENABLED"'
+                                                                                         },
+                                                                  'FEATURE_DMMU' => {
+                                                                                      'value' => '"ENABLED"'
+                                                                                    },
+                                                                  'IRQ_NUM' => {
+                                                                                 'value' => '32'
+                                                                               },
+                                                                  'FEATURE_IMMU' => {
+                                                                                      'value' => '"ENABLED"'
+                                                                                    }
+                                                                },
+                                                'sockets' => {
+                                                               'interrupt_peripheral' => {
+                                                                                           'nums' => {
+                                                                                                       '0' => {
+                                                                                                                'name' => 'interrupt_peripheral'
+                                                                                                              }
+                                                                                                     },
+                                                                                           'connection_num' => 'single connection',
+                                                                                           'value' => 'IRQ_NUM',
+                                                                                           'type' => 'param'
+                                                                                         }
+                                                             },
+                                                'plugs' => {
+                                                             'clk' => {
+                                                                        'connection_num' => undef,
+                                                                        'nums' => {
+                                                                                    '0' => {
+                                                                                             'connect_socket_num' => '0',
+                                                                                             'connect_id' => 'clk_source0',
+                                                                                             'name' => 'clk',
+                                                                                             'connect_socket' => 'clk'
+                                                                                           }
+                                                                                  },
+                                                                        'value' => 1,
+                                                                        'type' => 'num'
+                                                                      },
+                                                             'enable' => {
+                                                                           'nums' => {
+                                                                                       '0' => {
+                                                                                                'connect_socket' => undef,
+                                                                                                'name' => 'enable',
+                                                                                                'connect_socket_num' => undef,
+                                                                                                'connect_id' => 'IO'
+                                                                                              }
+                                                                                     },
+                                                                           'connection_num' => undef,
+                                                                           'value' => 1,
+                                                                           'type' => 'num'
+                                                                         },
+                                                             'wb_master' => {
+                                                                              'type' => 'num',
+                                                                              'nums' => {
+                                                                                          '1' => {
+                                                                                                   'connect_id' => 'wishbone_bus0',
+                                                                                                   'connect_socket_num' => '3',
+                                                                                                   'connect_socket' => 'wb_master',
+                                                                                                   'name' => 'dwb'
+                                                                                                 },
+                                                                                          '0' => {
+                                                                                                   'name' => 'iwb',
+                                                                                                   'connect_socket' => 'wb_master',
+                                                                                                   'connect_id' => 'wishbone_bus0',
+                                                                                                   'connect_socket_num' => '2'
+                                                                                                 }
+                                                                                        },
+                                                                              'connection_num' => undef,
+                                                                              'value' => 2
+                                                                            },
+                                                             'snoop' => {
+                                                                          'value' => 1,
+                                                                          'connection_num' => undef,
+                                                                          'nums' => {
+                                                                                      '0' => {
+                                                                                               'connect_id' => 'wishbone_bus0',
+                                                                                               'connect_socket_num' => '0',
+                                                                                               'connect_socket' => 'snoop',
+                                                                                               'name' => 'snoop'
+                                                                                             }
+                                                                                    },
+                                                                          'type' => 'num'
+                                                                        },
+                                                             'reset' => {
+                                                                          'type' => 'num',
+                                                                          'connection_num' => undef,
+                                                                          'nums' => {
+                                                                                      '0' => {
+                                                                                               'connect_id' => 'clk_source0',
+                                                                                               'connect_socket_num' => '0',
+                                                                                               'connect_socket' => 'reset',
+                                                                                               'name' => 'reset'
+                                                                                             }
+                                                                                    },
+                                                                          'value' => 1
+                                                                        }
+                                                           },
+                                                'description_pdf' => undef
+                                              },
+                                 'wishbone_bus0' => {
+                                                      'sockets' => {
+                                                                     'wb_addr_map' => {
+                                                                                        'type' => 'num',
+                                                                                        'nums' => {
+                                                                                                    '0' => {
+                                                                                                             'name' => 'wb_addr_map'
+                                                                                                           }
+                                                                                                  },
+                                                                                        'connection_num' => 'single connection',
+                                                                                        'value' => 1
+                                                                                      },
+                                                                     'snoop' => {
+                                                                                  'nums' => {
+                                                                                              '0' => {
+                                                                                                       'name' => 'snoop'
+                                                                                                     }
+                                                                                            },
+                                                                                  'connection_num' => 'single connection',
+                                                                                  'value' => 1,
+                                                                                  'type' => 'num'
+                                                                                },
+                                                                     'wb_master' => {
+                                                                                      'nums' => {
+                                                                                                  '0' => {
+                                                                                                           'name' => 'wb_master'
+                                                                                                         }
+                                                                                                },
+                                                                                      'connection_num' => 'single connection',
+                                                                                      'value' => 'M',
+                                                                                      'type' => 'param'
+                                                                                    },
+                                                                     'wb_slave' => {
+                                                                                     'connection_num' => 'single connection',
+                                                                                     'nums' => {
+                                                                                                 '0' => {
+                                                                                                          'name' => 'wb_slave'
+                                                                                                        }
+                                                                                               },
+                                                                                     'value' => 'S',
+                                                                                     'type' => 'param'
+                                                                                   }
+                                                                   },
+                                                      'instance_name' => 'bus',
+                                                      'category' => 'Bus',
+                                                      'parameters' => {
+                                                                        'CTIw' => {
+                                                                                    'value' => '3'
+                                                                                  },
+                                                                        'TAGw' => {
+                                                                                    'value' => '3'
+                                                                                  },
+                                                                        'M' => {
+                                                                                 'value' => ' 4'
+                                                                               },
+                                                                        'Dw' => {
+                                                                                  'value' => '32'
+                                                                                },
+                                                                        'BTEw' => {
+                                                                                    'value' => '2 '
+                                                                                  },
+                                                                        'Aw' => {
+                                                                                  'value' => '32'
+                                                                                },
+                                                                        'SELw' => {
+                                                                                    'value' => 'Dw/8'
+                                                                                  },
+                                                                        'S' => {
+                                                                                 'value' => '4'
+                                                                               }
+                                                                      },
+                                                      'module' => 'wishbone_bus',
+                                                      'module_name' => 'wishbone_bus',
+                                                      'parameters_order' => [
+                                                                              'M',
+                                                                              'S',
+                                                                              'Dw',
+                                                                              'Aw',
+                                                                              'SELw',
+                                                                              'TAGw',
+                                                                              'CTIw',
+                                                                              'BTEw'
+                                                                            ],
+                                                      'description_pdf' => undef,
+                                                      'plugs' => {
+                                                                   'clk' => {
+                                                                              'type' => 'num',
+                                                                              'connection_num' => undef,
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'connect_socket_num' => '0',
+                                                                                                   'connect_id' => 'clk_source0',
+                                                                                                   'connect_socket' => 'clk',
+                                                                                                   'name' => 'clk'
+                                                                                                 }
+                                                                                        },
+                                                                              'value' => 1
+                                                                            },
+                                                                   'reset' => {
+                                                                                'type' => 'num',
+                                                                                'value' => 1,
+                                                                                'connection_num' => undef,
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'connect_id' => 'clk_source0',
+                                                                                                     'connect_socket_num' => '0',
+                                                                                                     'connect_socket' => 'reset',
+                                                                                                     'name' => 'reset'
+                                                                                                   }
+                                                                                          }
+                                                                              }
+                                                                 }
+                                                    }
+                               },
+                'single_port_ram0' => {
+                                        'version' => 22
+                                      },
+                'jtag_uart0' => {
+                                  'version' => 14
+                                },
+                'parameters_order' => {
+                                        'Unset-intfc' => [
+                                                           'uart-RxD_din_sim',
+                                                           'uart-RxD_ready_sim',
+                                                           'uart-RxD_wr_sim',
+                                                           'bus-snoop_adr_o',
+                                                           'bus-snoop_en_o'
+                                                         ]
+                                      },
+                'wishbone_bus0' => {
+                                     'version' => 1
+                                   },
+                'compile_pin_pos' => {},
+                'compile' => {
+                               'compilers' => 'QuartusII,Verilator,Modelsim',
+                               'modelsim_bin' => '/home/alireza/intelFPGA_lite/17.1/modelsim_ase/bin',
+                               'type' => 'Verilator',
+                               'quartus_bin' => '/home/alireza/intelFPGA_lite/17.1/quartus/bin',
+                               'board' => 'DE10_Nano_VB2'
+                             },
+                'ni_master0' => {
+                                  'version' => 67
+                                },
+                'clk_source0' => {
+                                   'version' => 0
+                                 },
+                'soc_name' => 'mor1k_tile',
+                'instance_order' => [
+                                      'jtag_uart0',
+                                      'single_port_ram0',
+                                      'timer0',
+                                      'wishbone_bus0',
+                                      'clk_source0',
+                                      'mor1kx0',
+                                      'ni_master0'
+                                    ],
+                'hdl_files' => undef,
+                'top_ip' => bless( {
+                                     'instance_ids' => {
+                                                         'mor1kx0' => {
+                                                                        'category' => 'Processor',
+                                                                        'instance' => 'cpu',
+                                                                        'parameters' => {
+                                                                                          'cpu_IRQ_NUM' => {
+                                                                                                             'default' => '32',
+                                                                                                             'global_param' => 'Parameter',
+                                                                                                             'type' => 'Fixed',
+                                                                                                             'info' => undef,
+                                                                                                             'redefine_param' => 1,
+                                                                                                             'content' => ''
+                                                                                                           },
+                                                                                          'cpu_FEATURE_INSTRUCTIONCACHE' => {
+                                                                                                                              'type' => 'Combo-box',
+                                                                                                                              'global_param' => 'Parameter',
+                                                                                                                              'default' => '"ENABLED"',
+                                                                                                                              'content' => '"NONE","ENABLED"',
+                                                                                                                              'info' => '',
+                                                                                                                              'redefine_param' => 1
+                                                                                                                            },
+                                                                                          'cpu_FEATURE_DATACACHE' => {
+                                                                                                                       'redefine_param' => 1,
+                                                                                                                       'info' => '',
+                                                                                                                       'content' => '"NONE","ENABLED"',
+                                                                                                                       'default' => '"ENABLED"',
+                                                                                                                       'global_param' => 'Parameter',
+                                                                                                                       'type' => 'Combo-box'
+                                                                                                                     },
+                                                                                          'cpu_FEATURE_DMMU' => {
+                                                                                                                  'default' => '"ENABLED"',
+                                                                                                                  'global_param' => 'Parameter',
+                                                                                                                  'type' => 'Combo-box',
+                                                                                                                  'redefine_param' => 1,
+                                                                                                                  'info' => '',
+                                                                                                                  'content' => '"NONE","ENABLED"'
+                                                                                                                },
+                                                                                          'cpu_FEATURE_IMMU' => {
+                                                                                                                  'type' => 'Combo-box',
+                                                                                                                  'global_param' => 'Parameter',
+                                                                                                                  'default' => '"ENABLED"',
+                                                                                                                  'content' => '"NONE","ENABLED"',
+                                                                                                                  'info' => '',
+                                                                                                                  'redefine_param' => 1
+                                                                                                                },
+                                                                                          'cpu_OPTION_DCACHE_SNOOP' => {
+                                                                                                                         'global_param' => 'Parameter',
+                                                                                                                         'default' => '"ENABLED"',
+                                                                                                                         'type' => 'Combo-box',
+                                                                                                                         'redefine_param' => 1,
+                                                                                                                         'info' => '',
+                                                                                                                         'content' => '"NONE","ENABLED"'
+                                                                                                                       },
+                                                                                          'cpu_OPTION_OPERAND_WIDTH' => {
+                                                                                                                          'global_param' => 'Parameter',
+                                                                                                                          'default' => '32',
+                                                                                                                          'type' => 'Fixed',
+                                                                                                                          'info' => 'Parameter',
+                                                                                                                          'redefine_param' => 1,
+                                                                                                                          'content' => ''
+                                                                                                                        }
+                                                                                        },
+                                                                        'ports' => {
+                                                                                     'cpu_cpu_en' => {
+                                                                                                       'range' => '',
+                                                                                                       'intfc_name' => 'plug:enable[0]',
+                                                                                                       'type' => 'input',
+                                                                                                       'intfc_port' => 'enable_i'
+                                                                                                     }
+                                                                                   },
+                                                                        'module_name' => 'mor1k',
+                                                                        'module' => 'mor1kx'
+                                                                      },
+                                                         'wishbone_bus0' => {
+                                                                              'module_name' => 'wishbone_bus',
+                                                                              'module' => 'wishbone_bus',
+                                                                              'category' => 'Bus',
+                                                                              'instance' => 'bus',
+                                                                              'localparam' => {
+                                                                                                'bus_Aw' => {
+                                                                                                              'default' => '32',
+                                                                                                              'global_param' => 'Localparam',
+                                                                                                              'type' => 'Spin-button',
+                                                                                                              'info' => 'The wishbone Bus address width',
+                                                                                                              'redefine_param' => 1,
+                                                                                                              'content' => '4,128,1'
+                                                                                                            },
+                                                                                                'bus_CTIw' => {
+                                                                                                                'info' => undef,
+                                                                                                                'redefine_param' => 1,
+                                                                                                                'content' => '',
+                                                                                                                'default' => '3',
+                                                                                                                'global_param' => 'Localparam',
+                                                                                                                'type' => 'Fixed'
+                                                                                                              },
+                                                                                                'bus_S' => {
+                                                                                                             'content' => '1,256,1',
+                                                                                                             'redefine_param' => 1,
+                                                                                                             'info' => 'Number of wishbone slave interface',
+                                                                                                             'type' => 'Spin-button',
+                                                                                                             'global_param' => 'Localparam',
+                                                                                                             'default' => '4'
+                                                                                                           },
+                                                                                                'bus_TAGw' => {
+                                                                                                                'global_param' => 'Localparam',
+                                                                                                                'default' => '3',
+                                                                                                                'type' => 'Fixed',
+                                                                                                                'info' => undef,
+                                                                                                                'redefine_param' => 1,
+                                                                                                                'content' => ''
+                                                                                                              },
+                                                                                                'bus_Dw' => {
+                                                                                                              'info' => 'The wishbone Bus data width in bits.',
+                                                                                                              'redefine_param' => 1,
+                                                                                                              'content' => '8,512,8',
+                                                                                                              'default' => '32',
+                                                                                                              'global_param' => 'Localparam',
+                                                                                                              'type' => 'Spin-button'
+                                                                                                            },
+                                                                                                'bus_M' => {
+                                                                                                             'info' => 'Number of wishbone master interface',
+                                                                                                             'redefine_param' => 1,
+                                                                                                             'content' => '1,256,1',
+                                                                                                             'default' => ' 4',
+                                                                                                             'global_param' => 'Localparam',
+                                                                                                             'type' => 'Spin-button'
+                                                                                                           },
+                                                                                                'bus_SELw' => {
+                                                                                                                'type' => 'Fixed',
+                                                                                                                'default' => 'bus_Dw/8',
+                                                                                                                'global_param' => 'Localparam',
+                                                                                                                'content' => '',
+                                                                                                                'info' => undef,
+                                                                                                                'redefine_param' => 1
+                                                                                                              },
+                                                                                                'bus_BTEw' => {
+                                                                                                                'global_param' => 'Localparam',
+                                                                                                                'default' => '2 ',
+                                                                                                                'type' => 'Fixed',
+                                                                                                                'redefine_param' => 1,
+                                                                                                                'info' => undef,
+                                                                                                                'content' => ''
+                                                                                                              }
+                                                                                              }
+                                                                            },
+                                                         'jtag_uart0' => {
+                                                                           'module' => 'jtag_uart',
+                                                                           'module_name' => 'jtag_uart_wb',
+                                                                           'instance' => 'uart',
+                                                                           'category' => 'Communication',
+                                                                           'localparam' => {
+                                                                                             'uart_SIM_WAIT_COUNT' => {
+                                                                                                                        'redefine_param' => 1,
+                                                                                                                        'info' => 'This parameter is valid only in simulation. 
+If internal buffer has a data, the internal timer incremented by one in each clock cycle. If the timer reaches the WAIT_COUNT value, it writes the buffer value on the simulator terminal.',
+                                                                                                                        'content' => '2,100000,1',
+                                                                                                                        'global_param' => 'Localparam',
+                                                                                                                        'default' => '1000',
+                                                                                                                        'type' => 'Spin-button'
+                                                                                                                      },
+                                                                                             'uart_FPGA_VENDOR' => {
+                                                                                                                     'info' => 'FPGA VENDOR name. Only Altera FPGA is supported. Currently the Generic serial port is not supported. ',
+                                                                                                                     'redefine_param' => 1,
+                                                                                                                     'content' => ' "ALTERA"',
+                                                                                                                     'default' => ' "ALTERA"',
+                                                                                                                     'global_param' => 'Localparam',
+                                                                                                                     'type' => 'Combo-box'
+                                                                                                                   },
+                                                                                             'uart_SIM_BUFFER_SIZE' => {
+                                                                                                                         'content' => '10,10000,1',
+                                                                                                                         'info' => 'Internal buffer size. 
+This parameter is valid only in simulation. 
+If internal buffer overflows, the buffer content are displayed on simulator terminal.',
+                                                                                                                         'redefine_param' => 1,
+                                                                                                                         'type' => 'Spin-button',
+                                                                                                                         'global_param' => 'Localparam',
+                                                                                                                         'default' => 2000
+                                                                                                                       }
+                                                                                           }
+                                                                         },
+                                                         'timer0' => {
+                                                                       'category' => 'Timer',
+                                                                       'instance' => 'timer',
+                                                                       'parameters' => {
+                                                                                         'timer_PRESCALER_WIDTH' => {
+                                                                                                                      'content' => '1,32,1',
+                                                                                                                      'redefine_param' => 1,
+                                                                                                                      'info' => ' The prescaler  timer width. The prescaler takes the basic timer clock frequency and divides it by some value before feeding it to the timer, according to how the prescaler register(s) are configured. 
+
+
+',
+                                                                                                                      'type' => 'Spin-button',
+                                                                                                                      'default' => '8',
+                                                                                                                      'global_param' => 'Parameter'
+                                                                                                                    }
+                                                                                       },
+                                                                       'localparam' => {
+                                                                                         'timer_SELw' => {
+                                                                                                           'global_param' => 'Localparam',
+                                                                                                           'default' => '4',
+                                                                                                           'type' => 'Fixed',
+                                                                                                           'redefine_param' => 1,
+                                                                                                           'info' => undef,
+                                                                                                           'content' => ''
+                                                                                                         },
+                                                                                         'timer_Dw' => {
+                                                                                                         'type' => 'Fixed',
+                                                                                                         'default' => '32',
+                                                                                                         'global_param' => 'Localparam',
+                                                                                                         'content' => '',
+                                                                                                         'redefine_param' => 1,
+                                                                                                         'info' => undef
+                                                                                                       },
+                                                                                         'timer_TAGw' => {
+                                                                                                           'default' => '3',
+                                                                                                           'global_param' => 'Localparam',
+                                                                                                           'type' => 'Fixed',
+                                                                                                           'redefine_param' => 1,
+                                                                                                           'info' => undef,
+                                                                                                           'content' => ''
+                                                                                                         },
+                                                                                         'timer_CNTw' => {
+                                                                                                           'type' => 'Fixed',
+                                                                                                           'global_param' => 'Localparam',
+                                                                                                           'default' => '32     ',
+                                                                                                           'content' => '',
+                                                                                                           'info' => undef,
+                                                                                                           'redefine_param' => 1
+                                                                                                         },
+                                                                                         'timer_Aw' => {
+                                                                                                         'info' => undef,
+                                                                                                         'redefine_param' => 1,
+                                                                                                         'content' => '',
+                                                                                                         'default' => '3',
+                                                                                                         'global_param' => 'Localparam',
+                                                                                                         'type' => 'Fixed'
+                                                                                                       }
+                                                                                       },
+                                                                       'module_name' => 'timer',
+                                                                       'module' => 'timer'
+                                                                     },
+                                                         'single_port_ram0' => {
+                                                                                 'module_name' => 'wb_single_port_ram',
+                                                                                 'module' => 'single_port_ram',
+                                                                                 'instance' => 'ram',
+                                                                                 'parameters' => {
+                                                                                                   'ram_Dw' => {
+                                                                                                                 'type' => 'Spin-button',
+                                                                                                                 'global_param' => 'Parameter',
+                                                                                                                 'default' => '32',
+                                                                                                                 'content' => '8,1024,1',
+                                                                                                                 'info' => 'Memory data width in Bits.',
+                                                                                                                 'redefine_param' => 1
+                                                                                                               },
+                                                                                                   'ram_Aw' => {
+                                                                                                                 'type' => 'Spin-button',
+                                                                                                                 'global_param' => 'Parameter',
+                                                                                                                 'default' => 14,
+                                                                                                                 'content' => '4,31,1',
+                                                                                                                 'info' => 'Memory address width',
+                                                                                                                 'redefine_param' => 1
+                                                                                                               }
+                                                                                                 },
+                                                                                 'category' => 'RAM',
+                                                                                 'localparam' => {
+                                                                                                   'ram_INITIAL_EN' => {
+                                                                                                                         'content' => '"YES","NO"',
+                                                                                                                         'info' => 'If selected as "ENABLED", the memory content will be initialized at compilation time using MEM_CONTENT_FILE_NAME.',
+                                                                                                                         'redefine_param' => 1,
+                                                                                                                         'type' => 'Combo-box',
+                                                                                                                         'global_param' => 'Localparam',
+                                                                                                                         'default' => '"YES"'
+                                                                                                                       },
+                                                                                                   'ram_TAGw' => {
+                                                                                                                   'content' => '',
+                                                                                                                   'info' => 'Parameter',
+                                                                                                                   'redefine_param' => 1,
+                                                                                                                   'type' => 'Fixed',
+                                                                                                                   'global_param' => 'Localparam',
+                                                                                                                   'default' => '3'
+                                                                                                                 },
+                                                                                                   'ram_JTAG_INDEX' => {
+                                                                                                                         'type' => 'Entry',
+                                                                                                                         'global_param' => 'Localparam',
+                                                                                                                         'default' => 'CORE_ID',
+                                                                                                                         'content' => '',
+                                                                                                                         'redefine_param' => 1,
+                                                                                                                         'info' => '   A unique index number which will be used for accessing to the memory content using JTAG cable.The default value is the processing tile id (CORE_ID) . You can also inter a unique number for each individula memory.
+
+   In case you have \'n\' memory in each processing core you can define their index as "n*CORE_ID+1 , n*CORE_ID+2 ...n*CORE_ID+n-1). 
+
+   You also can disabled JTAG access here and connect one jtag to wb interface (jtag_wb) to the wishbone bus. Using single jtag index number, a jtag_wb module can read/wr any IP that is connected to wishbone bus slave port (including all memory units).
+
+'
+                                                                                                                       },
+                                                                                                   'ram_FPGA_VENDOR' => {
+                                                                                                                          'type' => 'Combo-box',
+                                                                                                                          'default' => '"ALTERA"',
+                                                                                                                          'global_param' => 'Localparam',
+                                                                                                                          'content' => '"ALTERA","GENERIC"',
+                                                                                                                          'redefine_param' => 1,
+                                                                                                                          'info' => ''
+                                                                                                                        },
+                                                                                                   'ram_BURST_MODE' => {
+                                                                                                                         'default' => '"ENABLED"',
+                                                                                                                         'global_param' => 'Localparam',
+                                                                                                                         'type' => 'Combo-box',
+                                                                                                                         'redefine_param' => 1,
+                                                                                                                         'info' => 'Enable the Wishbone bus Incrementing burst mode data transfer. Support Linear burst and 4,8,16-beat wrap burst types. ',
+                                                                                                                         'content' => '"DISABLED","ENABLED"'
+                                                                                                                       },
+                                                                                                   'ram_INIT_FILE_PATH' => {
+                                                                                                                             'type' => 'Fixed',
+                                                                                                                             'default' => 'SW_LOC',
+                                                                                                                             'global_param' => 'Localparam',
+                                                                                                                             'content' => '',
+                                                                                                                             'redefine_param' => 1,
+                                                                                                                             'info' => undef
+                                                                                                                           },
+                                                                                                   'ram_CTIw' => {
+                                                                                                                   'content' => '',
+                                                                                                                   'redefine_param' => 1,
+                                                                                                                   'info' => 'Parameter',
+                                                                                                                   'type' => 'Fixed',
+                                                                                                                   'default' => '3',
+                                                                                                                   'global_param' => 'Localparam'
+                                                                                                                 },
+                                                                                                   'ram_BTEw' => {
+                                                                                                                   'content' => '',
+                                                                                                                   'redefine_param' => 1,
+                                                                                                                   'info' => 'Parameter',
+                                                                                                                   'type' => 'Fixed',
+                                                                                                                   'default' => '2',
+                                                                                                                   'global_param' => 'Localparam'
+                                                                                                                 },
+                                                                                                   'ram_MEM_CONTENT_FILE_NAME' => {
+                                                                                                                                    'type' => 'Entry',
+                                                                                                                                    'global_param' => 'Localparam',
+                                                                                                                                    'default' => '"ram0"',
+                                                                                                                                    'content' => '',
+                                                                                                                                    'redefine_param' => 1,
+                                                                                                                                    'info' => 'MEM_FILE_NAME:
+The memory file name (without file type extension ) that is used for writting the memory content either at run time or at initialization time. 
+
+File Path: 
+For bus-based SoC the file path is {ProNoC_work}/SOC/{soc_name}/sw/RAM/{file_type}/{MEM_FILE_NAME}.
+For NoC-based MPSoC the file path is {ProNoC_work}/MPSOC/{mpsoc_name}/sw/tile{tile_num}/RAM/{file_type}/{MEM_FILE_NAME} 
+
+file_type: 
+bin: raw binary format . It will be used by JTAG_WB to change the memory content at runtime.
+memh: hexadecimal-string format . It will be used for initialing the Generic RAM using $readmemh command.
+mif: memory initialization file format. This file can be used to initialize Altera FPGA memory. Also if the JTAG_CONECT is selected as ALTERA_IEMC it can be used for changing memory content at run time . '
+                                                                                                                                  },
+                                                                                                   'ram_SELw' => {
+                                                                                                                   'content' => '',
+                                                                                                                   'info' => 'Parameter',
+                                                                                                                   'redefine_param' => 1,
+                                                                                                                   'type' => 'Fixed',
+                                                                                                                   'default' => 'ram_Dw/8',
+                                                                                                                   'global_param' => 'Localparam'
+                                                                                                                 },
+                                                                                                   'ram_JTAG_CONNECT' => {
+                                                                                                                           'info' => 'JTAG_CONNECT:
+if it is not disabled then the actual memory is implemented as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb. This allows that the memory content can be read/written using JTAG.   ',
+                                                                                                                           'redefine_param' => 1,
+                                                                                                                           'content' => '"DISABLED", "JTAG_WB" , "ALTERA_IMCE"',
+                                                                                                                           'default' => '"DISABLED"',
+                                                                                                                           'global_param' => 'Localparam',
+                                                                                                                           'type' => 'Combo-box'
+                                                                                                                         },
+                                                                                                   'ram_BYTE_WR_EN' => {
+                                                                                                                         'redefine_param' => 1,
+                                                                                                                         'info' => 'Byte enable',
+                                                                                                                         'content' => '"YES","NO"',
+                                                                                                                         'default' => '"YES"',
+                                                                                                                         'global_param' => 'Localparam',
+                                                                                                                         'type' => 'Combo-box'
+                                                                                                                       }
+                                                                                                 }
+                                                                               },
+                                                         'clk_source0' => {
+                                                                            'module_name' => 'clk_source',
+                                                                            'module' => 'clk_source',
+                                                                            'instance' => 'ss',
+                                                                            'category' => 'Source',
+                                                                            'ports' => {
+                                                                                         'ss_clk_in' => {
+                                                                                                          'type' => 'input',
+                                                                                                          'intfc_port' => 'clk_i',
+                                                                                                          'intfc_name' => 'plug:clk[0]',
+                                                                                                          'range' => ''
+                                                                                                        },
+                                                                                         'ss_reset_in' => {
+                                                                                                            'range' => '',
+                                                                                                            'intfc_name' => 'plug:reset[0]',
+                                                                                                            'type' => 'input',
+                                                                                                            'intfc_port' => 'reset_i'
+                                                                                                          }
+                                                                                       }
+                                                                          },
+                                                         'ni_master0' => {
+                                                                           'parameters' => {
+                                                                                             'ni_Fpay' => {
+                                                                                                            'type' => 'Fixed',
+                                                                                                            'default' => '32',
+                                                                                                            'global_param' => 'Parameter',
+                                                                                                            'content' => '',
+                                                                                                            'info' => 'Parameter',
+                                                                                                            'redefine_param' => 1
+                                                                                                          },
+                                                                                             'ni_EAw' => {
+                                                                                                           'global_param' => 'Parameter',
+                                                                                                           'default' => '16',
+                                                                                                           'type' => 'Fixed',
+                                                                                                           'info' => undef,
+                                                                                                           'redefine_param' => 0,
+                                                                                                           'content' => ''
+                                                                                                         },
+                                                                                             'ni_RAw' => {
+                                                                                                           'default' => '16',
+                                                                                                           'global_param' => 'Parameter',
+                                                                                                           'type' => 'Fixed',
+                                                                                                           'info' => undef,
+                                                                                                           'redefine_param' => 0,
+                                                                                                           'content' => ''
+                                                                                                         },
+                                                                                             'ni_DEBUG_EN' => {
+                                                                                                                'content' => '',
+                                                                                                                'redefine_param' => 1,
+                                                                                                                'info' => 'Parameter',
+                                                                                                                'type' => 'Fixed',
+                                                                                                                'default' => '0',
+                                                                                                                'global_param' => 'Parameter'
+                                                                                                              },
+                                                                                             'ni_T3' => {
+                                                                                                          'redefine_param' => 1,
+                                                                                                          'info' => 'Parameter',
+                                                                                                          'content' => '',
+                                                                                                          'global_param' => 'Parameter',
+                                                                                                          'default' => '1',
+                                                                                                          'type' => 'Fixed'
+                                                                                                        },
+                                                                                             'ni_V' => {
+                                                                                                         'type' => 'Fixed',
+                                                                                                         'global_param' => 'Parameter',
+                                                                                                         'default' => '2',
+                                                                                                         'content' => '',
+                                                                                                         'info' => 'Parameter',
+                                                                                                         'redefine_param' => 1
+                                                                                                       },
+                                                                                             'ni_TOPOLOGY' => {
+                                                                                                                'info' => 'Parameter',
+                                                                                                                'redefine_param' => 1,
+                                                                                                                'content' => '',
+                                                                                                                'global_param' => 'Parameter',
+                                                                                                                'default' => '"MESH"',
+                                                                                                                'type' => 'Fixed'
+                                                                                                              },
+                                                                                             'ni_ROUTE_NAME' => {
+                                                                                                                  'redefine_param' => 1,
+                                                                                                                  'info' => 'Parameter',
+                                                                                                                  'content' => '',
+                                                                                                                  'default' => '"XY"',
+                                                                                                                  'global_param' => 'Parameter',
+                                                                                                                  'type' => 'Fixed'
+                                                                                                                },
+                                                                                             'ni_T2' => {
+                                                                                                          'type' => 'Fixed',
+                                                                                                          'global_param' => 'Parameter',
+                                                                                                          'default' => 2,
+                                                                                                          'content' => '',
+                                                                                                          'info' => 'Parameter',
+                                                                                                          'redefine_param' => 1
+                                                                                                        },
+                                                                                             'ni_C' => {
+                                                                                                         'content' => '',
+                                                                                                         'info' => 'Parameter',
+                                                                                                         'redefine_param' => 1,
+                                                                                                         'type' => 'Fixed',
+                                                                                                         'global_param' => 'Parameter',
+                                                                                                         'default' => 0
+                                                                                                       },
+                                                                                             'ni_B' => {
+                                                                                                         'type' => 'Fixed',
+                                                                                                         'default' => '4',
+                                                                                                         'global_param' => 'Parameter',
+                                                                                                         'content' => '',
+                                                                                                         'redefine_param' => 1,
+                                                                                                         'info' => 'Parameter'
+                                                                                                       },
+                                                                                             'ni_T1' => {
+                                                                                                          'type' => 'Fixed',
+                                                                                                          'global_param' => 'Parameter',
+                                                                                                          'default' => '3',
+                                                                                                          'content' => '',
+                                                                                                          'info' => 'Parameter',
+                                                                                                          'redefine_param' => 1
+                                                                                                        }
+                                                                                           },
+                                                                           'instance' => 'ni',
+                                                                           'category' => 'NoC',
+                                                                           'localparam' => {
+                                                                                             'ni_S_Aw' => {
+                                                                                                            'redefine_param' => 1,
+                                                                                                            'info' => 'Parameter',
+                                                                                                            'content' => '',
+                                                                                                            'global_param' => 'Localparam',
+                                                                                                            'default' => '8',
+                                                                                                            'type' => 'Fixed'
+                                                                                                          },
+                                                                                             'ni_SELw' => {
+                                                                                                            'type' => 'Fixed',
+                                                                                                            'default' => '4',
+                                                                                                            'global_param' => 'Localparam',
+                                                                                                            'content' => '',
+                                                                                                            'info' => 'Parameter',
+                                                                                                            'redefine_param' => 1
+                                                                                                          },
+                                                                                             'ni_Dw' => {
+                                                                                                          'info' => 'wishbone_bus data width in bits.',
+                                                                                                          'redefine_param' => 1,
+                                                                                                          'content' => '32,256,8',
+                                                                                                          'default' => '32',
+                                                                                                          'global_param' => 'Localparam',
+                                                                                                          'type' => 'Spin-button'
+                                                                                                        },
+                                                                                             'ni_M_Aw' => {
+                                                                                                            'type' => 'Fixed',
+                                                                                                            'global_param' => 'Localparam',
+                                                                                                            'default' => '32',
+                                                                                                            'content' => 'Dw',
+                                                                                                            'info' => 'Parameter',
+                                                                                                            'redefine_param' => 1
+                                                                                                          },
+                                                                                             'ni_Fw' => {
+                                                                                                          'global_param' => 'Localparam',
+                                                                                                          'default' => '2+ni_V+ni_Fpay',
+                                                                                                          'type' => 'Fixed',
+                                                                                                          'redefine_param' => 0,
+                                                                                                          'info' => undef,
+                                                                                                          'content' => ''
+                                                                                                        },
+                                                                                             'ni_MAX_TRANSACTION_WIDTH' => {
+                                                                                                                             'type' => 'Spin-button',
+                                                                                                                             'default' => '13',
+                                                                                                                             'global_param' => 'Localparam',
+                                                                                                                             'content' => '4,32,1',
+                                                                                                                             'info' => 'maximum packet size width  in words.
+The maximum data that can be sent via one packet will be 2 power of MAX_DMA_TRANSACTION_WIDTH in words.',
+                                                                                                                             'redefine_param' => 1
+                                                                                                                           },
+                                                                                             'ni_TAGw' => {
+                                                                                                            'redefine_param' => 1,
+                                                                                                            'info' => 'Parameter',
+                                                                                                            'content' => '',
+                                                                                                            'default' => '3',
+                                                                                                            'global_param' => 'Localparam',
+                                                                                                            'type' => 'Fixed'
+                                                                                                          },
+                                                                                             'ni_HDATA_PRECAPw' => {
+                                                                                                                     'redefine_param' => 1,
+                                                                                                                     'info' => ' The headr Data pre capture width. It Will be enabled when it is larger than zero. The header data can optionally carry a short width Data. This data can be pre-captured (completely/partially) by the NI before saving the packet in a memory buffer. This can give some hints to the software regarding the incoming packet such as its type, or source port so the software can store the packet in its appropriate buffer.',
+                                                                                                                     'content' => '0,8,1',
+                                                                                                                     'global_param' => 'Localparam',
+                                                                                                                     'default' => 4,
+                                                                                                                     'type' => 'Spin-button'
+                                                                                                                   },
+                                                                                             'ni_MAX_BURST_SIZE' => {
+                                                                                                                      'content' => '2,4,8,16,32,64,128,256,512,1024,2048',
+                                                                                                                      'redefine_param' => 1,
+                                                                                                                      'info' => 'Maximum burst size in words. 
+The NI releases the wishbone bus  each time one burst is completed or when the VC\'s internal FIFO becomes full.  The bus will be released for one clock cycle. Then in case, there are other active VCs, another active VC will get access to the bus using round robin arbiter.  This process will be continued until all of the desired data is transferred. ',
+                                                                                                                      'type' => 'Combo-box',
+                                                                                                                      'default' => '16',
+                                                                                                                      'global_param' => 'Localparam'
+                                                                                                                    },
+                                                                                             'ni_CRC_EN' => {
+                                                                                                              'redefine_param' => 1,
+                                                                                                              'info' => 'The parameter can be selected as "YES" or "NO". 
+If CRC is enabled, then two CRC32 generator modules will be added to the NI. One CRC generator for calculating CRC of sending packets and another for receiving packets.   The CRC32 value of each packet is send via tail flit and at destination NI, is will be compared with received packet generated CRC32. The matching results can be used for error-detection and can be read via NI slave interface. ',
+                                                                                                              'content' => '"YES","NO"',
+                                                                                                              'global_param' => 'Localparam',
+                                                                                                              'default' => '"NO"',
+                                                                                                              'type' => 'Combo-box'
+                                                                                                            }
+                                                                                           },
+                                                                           'ports' => {
+                                                                                        'ni_credit_out' => {
+                                                                                                             'intfc_name' => 'socket:ni[0]',
+                                                                                                             'range' => 'ni_V-1    :   0',
+                                                                                                             'intfc_port' => 'credit_out',
+                                                                                                             'type' => 'output'
+                                                                                                           },
+                                                                                        'ni_flit_out_wr' => {
+                                                                                                              'intfc_name' => 'socket:ni[0]',
+                                                                                                              'range' => '',
+                                                                                                              'type' => 'output',
+                                                                                                              'intfc_port' => 'flit_out_wr'
+                                                                                                            },
+                                                                                        'ni_flit_in' => {
+                                                                                                          'range' => 'ni_Fw-1   :   0',
+                                                                                                          'intfc_name' => 'socket:ni[0]',
+                                                                                                          'type' => 'input',
+                                                                                                          'intfc_port' => 'flit_in'
+                                                                                                        },
+                                                                                        'ni_flit_out' => {
+                                                                                                           'range' => 'ni_Fw-1   :   0',
+                                                                                                           'intfc_name' => 'socket:ni[0]',
+                                                                                                           'intfc_port' => 'flit_out',
+                                                                                                           'type' => 'output'
+                                                                                                         },
+                                                                                        'ni_current_e_addr' => {
+                                                                                                                 'type' => 'input',
+                                                                                                                 'intfc_port' => 'current_e_addr',
+                                                                                                                 'range' => 'ni_EAw-1   :   0',
+                                                                                                                 'intfc_name' => 'socket:ni[0]'
+                                                                                                               },
+                                                                                        'ni_credit_in' => {
+                                                                                                            'intfc_port' => 'credit_in',
+                                                                                                            'type' => 'input',
+                                                                                                            'range' => 'ni_V-1    :   0',
+                                                                                                            'intfc_name' => 'socket:ni[0]'
+                                                                                                          },
+                                                                                        'ni_current_r_addr' => {
+                                                                                                                 'intfc_name' => 'socket:ni[0]',
+                                                                                                                 'range' => 'ni_RAw-1   :   0',
+                                                                                                                 'type' => 'input',
+                                                                                                                 'intfc_port' => 'current_r_addr'
+                                                                                                               },
+                                                                                        'ni_flit_in_wr' => {
+                                                                                                             'type' => 'input',
+                                                                                                             'intfc_port' => 'flit_in_wr',
+                                                                                                             'intfc_name' => 'socket:ni[0]',
+                                                                                                             'range' => ''
+                                                                                                           }
+                                                                                      },
+                                                                           'module_name' => 'ni_master',
+                                                                           'module' => 'ni_master'
+                                                                         }
+                                                       },
+                                     'ports' => {
+                                                  'ni_flit_in' => {
+                                                                    'type' => 'input',
+                                                                    'instance_name' => 'ni_master0',
+                                                                    'intfc_port' => 'flit_in',
+                                                                    'intfc_name' => 'socket:ni[0]',
+                                                                    'range' => 'ni_Fw-1   :   0'
+                                                                  },
+                                                  'ni_flit_out_wr' => {
+                                                                        'type' => 'output',
+                                                                        'instance_name' => 'ni_master0',
+                                                                        'intfc_port' => 'flit_out_wr',
+                                                                        'range' => '',
+                                                                        'intfc_name' => 'socket:ni[0]'
+                                                                      },
+                                                  'ni_credit_out' => {
+                                                                       'range' => 'ni_V-1    :   0',
+                                                                       'intfc_name' => 'socket:ni[0]',
+                                                                       'type' => 'output',
+                                                                       'instance_name' => 'ni_master0',
+                                                                       'intfc_port' => 'credit_out'
+                                                                     },
+                                                  'ni_flit_out' => {
+                                                                     'intfc_port' => 'flit_out',
+                                                                     'instance_name' => 'ni_master0',
+                                                                     'type' => 'output',
+                                                                     'intfc_name' => 'socket:ni[0]',
+                                                                     'range' => 'ni_Fw-1   :   0'
+                                                                   },
+                                                  'ss_clk_in' => {
+                                                                   'instance_name' => 'clk_source0',
+                                                                   'type' => 'input',
+                                                                   'intfc_port' => 'clk_i',
+                                                                   'range' => '',
+                                                                   'intfc_name' => 'plug:clk[0]'
+                                                                 },
+                                                  'ni_current_e_addr' => {
+                                                                           'type' => 'input',
+                                                                           'instance_name' => 'ni_master0',
+                                                                           'intfc_port' => 'current_e_addr',
+                                                                           'intfc_name' => 'socket:ni[0]',
+                                                                           'range' => 'ni_EAw-1   :   0'
+                                                                         },
+                                                  'ni_credit_in' => {
+                                                                      'instance_name' => 'ni_master0',
+                                                                      'type' => 'input',
+                                                                      'intfc_port' => 'credit_in',
+                                                                      'intfc_name' => 'socket:ni[0]',
+                                                                      'range' => 'ni_V-1    :   0'
+                                                                    },
+                                                  'ss_reset_in' => {
+                                                                     'type' => 'input',
+                                                                     'instance_name' => 'clk_source0',
+                                                                     'intfc_port' => 'reset_i',
+                                                                     'intfc_name' => 'plug:reset[0]',
+                                                                     'range' => ''
+                                                                   },
+                                                  'ni_flit_in_wr' => {
+                                                                       'type' => 'input',
+                                                                       'instance_name' => 'ni_master0',
+                                                                       'intfc_port' => 'flit_in_wr',
+                                                                       'intfc_name' => 'socket:ni[0]',
+                                                                       'range' => ''
+                                                                     },
+                                                  'ni_current_r_addr' => {
+                                                                           'intfc_port' => 'current_r_addr',
+                                                                           'instance_name' => 'ni_master0',
+                                                                           'type' => 'input',
+                                                                           'intfc_name' => 'socket:ni[0]',
+                                                                           'range' => 'ni_RAw-1   :   0'
+                                                                         },
+                                                  'cpu_cpu_en' => {
+                                                                    'intfc_port' => 'enable_i',
+                                                                    'instance_name' => 'mor1kx0',
+                                                                    'type' => 'input',
+                                                                    'range' => '',
+                                                                    'intfc_name' => 'plug:enable[0]'
+                                                                  }
+                                                },
+                                     'interface' => {
+                                                      'plug:enable[0]' => {
+                                                                            'ports' => {
+                                                                                         'cpu_cpu_en' => {
+                                                                                                           'intfc_port' => 'enable_i',
+                                                                                                           'instance_name' => 'mor1kx0',
+                                                                                                           'type' => 'input',
+                                                                                                           'range' => ''
+                                                                                                         }
+                                                                                       }
+                                                                          },
+                                                      'socket:ni[0]' => {
+                                                                          'ports' => {
+                                                                                       'ni_current_e_addr' => {
+                                                                                                                'range' => 'ni_EAw-1   :   0',
+                                                                                                                'intfc_port' => 'current_e_addr',
+                                                                                                                'instance_name' => 'ni_master0',
+                                                                                                                'type' => 'input'
+                                                                                                              },
+                                                                                       'ni_flit_out_wr' => {
+                                                                                                             'instance_name' => 'ni_master0',
+                                                                                                             'type' => 'output',
+                                                                                                             'intfc_port' => 'flit_out_wr',
+                                                                                                             'range' => ''
+                                                                                                           },
+                                                                                       'ni_flit_in' => {
+                                                                                                         'range' => 'ni_Fw-1   :   0',
+                                                                                                         'type' => 'input',
+                                                                                                         'instance_name' => 'ni_master0',
+                                                                                                         'intfc_port' => 'flit_in'
+                                                                                                       },
+                                                                                       'ni_credit_out' => {
+                                                                                                            'intfc_port' => 'credit_out',
+                                                                                                            'type' => 'output',
+                                                                                                            'instance_name' => 'ni_master0',
+                                                                                                            'range' => 'ni_V-1    :   0'
+                                                                                                          },
+                                                                                       'ni_flit_out' => {
+                                                                                                          'range' => 'ni_Fw-1   :   0',
+                                                                                                          'intfc_port' => 'flit_out',
+                                                                                                          'type' => 'output',
+                                                                                                          'instance_name' => 'ni_master0'
+                                                                                                        },
+                                                                                       'ni_flit_in_wr' => {
+                                                                                                            'intfc_port' => 'flit_in_wr',
+                                                                                                            'instance_name' => 'ni_master0',
+                                                                                                            'type' => 'input',
+                                                                                                            'range' => ''
+                                                                                                          },
+                                                                                       'ni_current_r_addr' => {
+                                                                                                                'intfc_port' => 'current_r_addr',
+                                                                                                                'instance_name' => 'ni_master0',
+                                                                                                                'type' => 'input',
+                                                                                                                'range' => 'ni_RAw-1   :   0'
+                                                                                                              },
+                                                                                       'ni_credit_in' => {
+                                                                                                           'range' => 'ni_V-1    :   0',
+                                                                                                           'instance_name' => 'ni_master0',
+                                                                                                           'type' => 'input',
+                                                                                                           'intfc_port' => 'credit_in'
+                                                                                                         }
+                                                                                     }
+                                                                        },
+                                                      'plug:clk[0]' => {
+                                                                         'ports' => {
+                                                                                      'ss_clk_in' => {
+                                                                                                       'range' => '',
+                                                                                                       'instance_name' => 'clk_source0',
+                                                                                                       'type' => 'input',
+                                                                                                       'intfc_port' => 'clk_i'
+                                                                                                     }
+                                                                                    }
+                                                                       },
+                                                      'plug:reset[0]' => {
+                                                                           'ports' => {
+                                                                                        'ss_reset_in' => {
+                                                                                                           'instance_name' => 'clk_source0',
+                                                                                                           'type' => 'input',
+                                                                                                           'intfc_port' => 'reset_i',
+                                                                                                           'range' => ''
+                                                                                                         }
+                                                                                      }
+                                                                         }
+                                                    }
+                                   }, 'ip_gen' ),
+                'compile_assign_type' => {
+                                           'cpu_cpu_en' => 'Direct',
+                                           'ni_flit_in_wr' => 'Direct',
+                                           'ss_reset_in' => 'Direct',
+                                           'ni_credit_in' => 'Direct',
+                                           'ni_current_y' => 'Direct',
+                                           'ss_clk_in' => 'Direct',
+                                           'ni_current_x' => 'Direct',
+                                           'ni_flit_in' => 'Direct'
+                                         },
+                'tile_diagram' => {
+                                    'show_reset' => 1,
+                                    'show_clk' => 1,
+                                    'show_unused' => 1
+                                  }
+              }, 'soc' );

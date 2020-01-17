@@ -57,7 +57,8 @@ module input_ports
     parameter WEIGHTw=4,
     parameter WRRA_CONFIG_INDEX=0,
     parameter PPSw=4,
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
+    parameter BYTE_EN=0
 )(
     current_r_addr,
     neighbors_r_addr,
@@ -172,7 +173,8 @@ generate
         .WEIGHTw(WEIGHTw),
         .WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
         .PPSw(PPSw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)    
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+        .BYTE_EN(BYTE_EN)
     )
     the_input_queue_per_port
     (
@@ -247,7 +249,8 @@ module input_queue_per_port  #(
     parameter WEIGHTw=4,
     parameter WRRA_CONFIG_INDEX=0,
     parameter PPSw=4,
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
+    parameter BYTE_EN=0
 
 )(
     current_r_addr,
@@ -373,7 +376,8 @@ module input_queue_per_port  #(
         .DSTPw(DSTPw),
         .C(C),
         .Fpay(Fpay),
-        .DATA_w(0)
+        .DATA_w(0),
+        .BYTE_EN(BYTE_EN)
      )
      header_extractor
      (
@@ -388,6 +392,7 @@ module input_queue_per_port  #(
          .hdr_flg_o(hdr_flg_in),
          .tail_flg_o(tail_flg_in),
          .weight_o(weight_in),
+         .be_o( ),
          .data_o( )
      );
      

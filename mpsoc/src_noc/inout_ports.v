@@ -56,7 +56,8 @@ module inout_ports #(
     parameter WEIGHTw=4,
     parameter WRRA_CONFIG_INDEX=0,
     parameter PPSw=4,
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
+    parameter BYTE_EN=0
 )
 (
     current_r_addr,
@@ -221,7 +222,8 @@ end
             .Fpay(Fpay), //payload width
             .ROUTE_TYPE(ROUTE_TYPE),                   
             .DEBUG_EN(DEBUG_EN),
-            .ESCAP_VC_MASK(ESCAP_VC_MASK)     
+            .ESCAP_VC_MASK(ESCAP_VC_MASK),
+            .BYTE_EN(BYTE_EN)
         )
         the_ssa
         (
@@ -527,7 +529,8 @@ endgenerate
         .WEIGHTw(WEIGHTw),
         .WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
         .PPSw(PPSw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)  
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+        .BYTE_EN(BYTE_EN)
         
     )
         the_input_port

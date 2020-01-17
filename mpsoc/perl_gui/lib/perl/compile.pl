@@ -245,7 +245,7 @@ sub select_compiler {
 
 	$window->add ($table);
 	$window->show_all();
-	my $next=def_image_button('icons/right.png','Next');
+	my $next=def_image_button('icons/right.png','_Next',FALSE,1);
 	$table->attach($next,$col,$col+1,$row,$row+1,'shrink','shrink',2,2);$col++;
 	$next-> signal_connect("clicked" => sub{
 		my $compiler_type=$self->object_get_attribute('compile','type');
@@ -1095,7 +1095,7 @@ sub modelsim_compilation{
 	#my $window = def_popwin_size(80,80,"Step 2: Compile",'percent');
 	
 	
-	my $run=def_image_button('icons/run.png','run');
+	my $run=def_image_button('icons/run.png','_run',FALSE,1);
 	my $back=def_image_button('icons/left.png','Previous');	
 	my $regen=def_image_button('icons/refresh.png','Regenerate testbench.v');	
 	#create testbench.v

@@ -38,7 +38,8 @@ module ni_vc_wb_slave_regs #(
     parameter C = 4,    //  number of flit class 
     parameter Fpay=32,
     parameter DSTPw=4,
-    parameter WEIGHTw=4,  
+    parameter WEIGHTw=4, 
+    parameter BYTE_EN=0,
     parameter HDw = 8,  
     //wishbones  bus  slave  port parameters
     parameter Dw            =   32,
@@ -55,10 +56,12 @@ module ni_vc_wb_slave_regs #(
     receive_packet_is_saved,
     all_save_done_reg_rst,   
     send_pointer_addr, 
+    be_in,
     receive_pointer_addr,
     receive_start_index,
+    receive_start_index_offset,
     send_data_size,
-    max_receive_buff_siz,    
+    receive_max_buff_siz,    
     dest_e_addr,
     pck_class,
     weight,  
@@ -127,8 +130,9 @@ module ni_vc_wb_slave_regs #(
       
    localparam
         WORLD_SIZE = Dw/8,
-        OFFSET_w= log2(WORLD_SIZE),        
-        Cw =  (C>1)? log2(C): 1;
+        OFFSETw= log2(WORLD_SIZE),        
+        Cw =  (C>1)? log2(C): 1,
+        BEw = (BYTE_EN)? log2(Fpay/8) : 1; 
        
         
  
@@ -138,12 +142,15 @@ module ni_vc_wb_slave_regs #(
     input receive_vc_got_packet;
     input receive_done;
     output  reg [Dw-1   :   0] send_pointer_addr; 
+    output      [BEw-1 : 0 ] be_in;
+   
     output  reg [Dw-1   :   0] receive_pointer_addr;
     output  reg receive_packet_is_saved;
     input   all_save_done_reg_rst;    
-    output  reg [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size;
-    output  reg [MAX_TRANSACTION_WIDTH-1    :   0] max_receive_buff_siz;
+    output  [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size;
+    output  reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_max_buff_siz;
     output  reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_start_index; 
+    output  reg [OFFSETw-1 : 0] receive_start_index_offset;
     output  reg [EAw-1   :   0]  dest_e_addr;
     output  reg [Cw-1   :   0]  pck_class;
     output  reg [WEIGHTw-1 :0]  weight; 
@@ -156,7 +163,7 @@ module ni_vc_wb_slave_regs #(
 //synthesis translate_on
 //synopsys  translate_on   
    
- //wishbone slave interface signals
+//wishbone slave interface signals
     input   [Dw-1       :   0]      s_dat_i;
     input   [S_Aw-1     :   0]      s_addr_i;  
     input                           s_stb_i;
@@ -167,13 +174,29 @@ module ni_vc_wb_slave_regs #(
     reg  [Cw-1   :   0]  pck_class_next;
     reg  [WEIGHTw-1 : 0] weight_next; 
     reg  [Dw-1   :   0]  send_pointer_addr_next, receive_pointer_addr_next;
-    reg  [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size_next, max_receive_buff_siz_next,receive_start_index_next;
+    reg  [OFFSETw-1 : 0] send_pointer_addr_byte_offset_next, send_pointer_addr_byte_offset; 
+    reg  [OFFSETw-1 : 0] send_data_size_byte_offset_next,send_data_size_byte_offset,receive_start_index_offset_next;
+    reg  [MAX_TRANSACTION_WIDTH-1    :   0]  send_data_size_reg,send_data_size_next, receive_max_buff_siz_next,receive_start_index_next;
     reg  send_start_next;
     reg  receive_en,receive_en_next;
     reg  receive_packet_is_saved_next;
     
     reg [HDw-1 : 0] hdr_data_next;
    
+   
+    wire [OFFSETw : 0] add_offsets;
+    assign add_offsets =send_pointer_addr_byte_offset +  send_data_size_byte_offset;
+    assign be_in = add_offsets [BEw-1 : 0];
+   
+    generate 
+    if(BYTE_EN)begin
+         assign send_data_size =  (add_offsets>0)?  send_data_size_reg+1'b1 :  send_data_size_reg;
+    end else begin:nbe
+        assign send_data_size = send_data_size_reg;    
+    end
+    endgenerate
+    
+    
      // update control registers   
     always @ (*) begin 
         //default values       
@@ -187,15 +210,17 @@ module ni_vc_wb_slave_regs #(
     always @ (*) begin 
         //default values
         send_pointer_addr_next= send_pointer_addr;
+        send_pointer_addr_byte_offset_next=send_pointer_addr_byte_offset;
         receive_pointer_addr_next=receive_pointer_addr;
-        send_data_size_next= send_data_size;
+        send_data_size_next= send_data_size_reg;
+        send_data_size_byte_offset_next=send_data_size_byte_offset;
         dest_e_addr_next = dest_e_addr;                                         
         pck_class_next= pck_class;
         weight_next = weight;          
         send_start_next = 1'b0;
         receive_en_next = receive_en;
         receive_packet_is_saved_next = receive_packet_is_saved;
-        max_receive_buff_siz_next = max_receive_buff_siz;
+        receive_max_buff_siz_next = receive_max_buff_siz;
         hdr_data_next = hdr_data;
          
         if(all_save_done_reg_rst) receive_packet_is_saved_next=1'b0;
@@ -208,10 +233,16 @@ module ni_vc_wb_slave_regs #(
         if(s_stb_i  &   s_cyc_i &  s_we_i & state_reg_enable)   begin             
                 case( s_addr_i)
                     SEND_POINTER_WB_ADDR: begin                    
-                         if (send_fsm_is_ideal) send_pointer_addr_next={{OFFSET_w{1'b0}},s_dat_i [Dw-1    : OFFSET_w]};
+                         if (send_fsm_is_ideal) begin 
+                            send_pointer_addr_next={{OFFSETw{1'b0}},s_dat_i [Dw-1    : OFFSETw]};
+                            send_pointer_addr_byte_offset_next = s_dat_i[OFFSETw-1: 0];
+                         end
                     end //SEND_POINTER_WB_ADDR
                     SEND_DATA_SIZE_WB_ADDR: begin 
-                        if (send_fsm_is_ideal) send_data_size_next=s_dat_i [MAX_TRANSACTION_WIDTH + OFFSET_w -1 :    OFFSET_w]; 
+                        if (send_fsm_is_ideal) begin 
+                            send_data_size_next=s_dat_i [MAX_TRANSACTION_WIDTH + OFFSETw -1 :    OFFSETw];
+                            send_data_size_byte_offset_next = s_dat_i[OFFSETw-1: 0];
+                        end
                     end //DATA_SIZE_WB_ADDR
                     SEND_DEST_WB_ADDR: begin 
                         if (send_fsm_is_ideal) begin 
@@ -237,15 +268,18 @@ module ni_vc_wb_slave_regs #(
                     end    //  SEND_HDR_DATA_WB_ADDR
                     
                     RECEIVE_MAX_BUFF_SIZ: begin 
-                        if (receive_fsm_is_ideal) max_receive_buff_siz_next = s_dat_i [MAX_TRANSACTION_WIDTH-1 :   0]; 
+                        if (receive_fsm_is_ideal) receive_max_buff_siz_next = s_dat_i [MAX_TRANSACTION_WIDTH+ OFFSETw -1 :    OFFSETw]; 
                     end                    
                     
                     RECEIVE_POINTER_WB_ADDR: begin 
-                        if (receive_fsm_is_ideal) receive_pointer_addr_next= {{OFFSET_w{1'b0}},s_dat_i [Dw-1 :   OFFSET_w]};
+                        if (receive_fsm_is_ideal) receive_pointer_addr_next= {{OFFSETw{1'b0}},s_dat_i [Dw-1 :   OFFSETw]};
                     end //RECEIVE_POINTER_WB_ADDR
                     
                     RECEIVE_START_INDEX_WB_ADDR:begin 
-                        if (receive_fsm_is_ideal) receive_start_index_next= s_dat_i [MAX_TRANSACTION_WIDTH-1 :   0];                    
+                        if (receive_fsm_is_ideal) begin 
+                            receive_start_index_next= s_dat_i [MAX_TRANSACTION_WIDTH+ OFFSETw -1 :    OFFSETw];
+                            receive_start_index_offset_next= s_dat_i [OFFSETw-1 : 0];
+                        end
                     end
                     
                     
@@ -272,10 +306,13 @@ module ni_vc_wb_slave_regs #(
     always @ (posedge clk or posedge reset)begin 
         if(reset) begin        
             send_pointer_addr   <= {Dw{1'b0}};
+            send_pointer_addr_byte_offset<={OFFSETw{1'b0}};
             receive_pointer_addr   <= {Dw{1'b0}};
-            send_data_size    <= {MAX_TRANSACTION_WIDTH{1'b0}};
-            max_receive_buff_siz <= {MAX_TRANSACTION_WIDTH{1'b0}}; 
+            send_data_size_reg    <= {MAX_TRANSACTION_WIDTH{1'b0}};
+            send_data_size_byte_offset<={OFFSETw{1'b0}};
+            receive_max_buff_siz <= {MAX_TRANSACTION_WIDTH{1'b0}}; 
             receive_start_index <= {MAX_TRANSACTION_WIDTH{1'b0}};
+            receive_start_index_offset<={OFFSETw{1'b0}};
             dest_e_addr     <= {EAw{1'b0}};                                        
             pck_class  <= {Cw{1'b0}};
             weight <= INIT_WEIGHT;
@@ -285,11 +322,14 @@ module ni_vc_wb_slave_regs #(
             hdr_data <= {HDw{1'b0}}; 
         end else begin 
             send_pointer_addr <= send_pointer_addr_next;
+            send_pointer_addr_byte_offset<=send_pointer_addr_byte_offset_next;
             receive_pointer_addr <= receive_pointer_addr_next;
-            send_data_size <= send_data_size_next;           
-            max_receive_buff_siz <= max_receive_buff_siz_next;
+            send_data_size_reg <= send_data_size_next; 
+            send_data_size_byte_offset <= send_data_size_byte_offset_next;            
+            receive_max_buff_siz <= receive_max_buff_siz_next;
             dest_e_addr     <= dest_e_addr_next;   
-            receive_start_index<=receive_start_index_next;                                      
+            receive_start_index<=receive_start_index_next; 
+            receive_start_index_offset<=receive_start_index_offset_next;
             pck_class  <= pck_class_next;
             weight <= weight_next;
             receive_en <=receive_en_next;

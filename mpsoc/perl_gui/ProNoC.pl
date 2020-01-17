@@ -373,22 +373,22 @@ sub generate_main_notebook {
 	$notebook->show_all;
 	if($mode eq 'Generator'){
 		my $intfc_gen=  intfc_main();
-		my $lable1=def_image_label("icons/intfc.png"," Interface generator ");
+		my $lable1=def_image_label("icons/intfc.png"," _Interface generator ",1);
 		$notebook->append_page ($intfc_gen,$lable1);#Gtk2::Label->new_with_mnemonic ("  _Interface generator  "));
 		$lable1->show_all;
 
 		my $ipgen=ipgen_main();
-		my $lable2=def_image_label("icons/ip.png"," IP generator ");
+		my $lable2=def_image_label("icons/ip.png"," I_P generator ",1);
 		$notebook->append_page ($ipgen,$lable2);#Gtk2::Label->new_with_mnemonic ("  _IP generator  "));
 		$lable2->show_all;
 
 		my $socgen=socgen_main();
-		my $lable3=def_image_label("icons/tile.png"," Processing tile generator ");			
+		my $lable3=def_image_label("icons/tile.png"," P_rocessing tile generator ",1);			
 		$notebook->append_page ($socgen,$lable3 );#,Gtk2::Label->new_with_mnemonic ("  _Processing tile generator  "));
 		$lable3->show_all;		
 
 		my $mpsocgen =mpsocgen_main();
-		my $lable4=def_image_label("icons/noc.png"," NoC based MPSoC generator ");	
+		my $lable4=def_image_label("icons/noc.png"," _NoC based MPSoC generator ",1);	
 		$notebook->append_page ($mpsocgen,$lable4);#Gtk2::Label->new_with_mnemonic ("  _NoC based MPSoC generator  "));	
 		$lable4->show_all;	
 		

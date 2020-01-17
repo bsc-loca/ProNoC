@@ -116,7 +116,7 @@ module  traffic_gen #(
         DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY=="TREE" ) ? log2(2*L+1): log2(NR+1), 
         /* verilator lint_on WIDTH */
         W = WEIGHTw,
-        BEw = (BYTE_EN)? 2*log2(Fpay/8) : 1;      
+        BEw = (BYTE_EN)? log2(Fpay/8) : 1;      
 
     input reset, clk;
     input  [RATIOw-1                :0] ratio;
@@ -397,7 +397,8 @@ module  traffic_gen #(
         .DSTPw(DSTPw),
         .C(C),
         .Fpay(Fpay),
-        .DATA_w(HDR_DATA_w)
+        .DATA_w(HDR_DATA_w),
+        .BYTE_EN(BYTE_EN)
      )
      header_extractor
      (
@@ -412,6 +413,7 @@ module  traffic_gen #(
         .hdr_flg_o(rd_hdr_flg),
         .tail_flg_o(rd_tail_flg),
         .weight_o( ),
+        .be_o( ),
         .data_o(rd_hdr_data_out)
      );   
    

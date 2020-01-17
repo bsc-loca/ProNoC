@@ -1656,7 +1656,7 @@ sub software_edit_mpsoc {
     
     
 	my $prog = def_image_button('icons/refresh.png','Regenerate main.c');
-    my $make = def_image_button('icons/gen.png','Compile');
+    my $make = def_image_button('icons/gen.png','_Compile',FALSE,1);
     my $orcc = def_image_button('icons/orcc.png','Autogenrate Software with ORCC');
             
     $table->attach ($orcc,0, 1, 1,2,'shrink','shrink',0,0);
@@ -1816,10 +1816,10 @@ sub mpsocgen_main{
     $main_table->set_col_spacings (1);
     
         
-    my $generate = def_image_button('icons/gen.png','Generate RTL');
-    my $open = def_image_button('icons/browse.png','Load MPSoC');
-    my $compile  = def_image_button('icons/gate.png','Compile RTL');
-    my $software = def_image_button('icons/binary.png','Software');
+    my $generate = def_image_button('icons/gen.png','_Generate RTL',FALSE,1);
+    my $open = def_image_button('icons/browse.png','_Load MPSoC',FALSE,1);
+    my $compile  = def_image_button('icons/gate.png','_Compile RTL',FALSE,1);
+    my $software = def_image_button('icons/binary.png','_Software',FALSE,1);
     my $entry=gen_entry_object($mpsoc,'mpsoc_name',undef,undef,undef,undef);
     my $entrybox=labele_widget_info(" MPSoC name:",$entry);
     my $diagram  = def_image_button('icons/diagram.png','Diagram');

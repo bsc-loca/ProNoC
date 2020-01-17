@@ -1,0 +1,18 @@
+Name, Package, Actors, Connections, SDF, CSDF, QSDF, KPN, DPN
+net, accumulatorv2, 6, 6, 0, 0, 0, 0, 0
+
+Name, Incoming, Outgoing, Inputs, Outputs, Actions, FSM, MoC
+src1, 0, 2, 0, 2, 2, false, 
+src2, 0, 2, 0, 2, 2, false, 
+add1, 2, 1, 2, 1, 1, false, 
+add2, 2, 1, 2, 1, 1, false, 
+print1, 1, 0, 1, 0, 1, false, 
+print2, 1, 0, 1, 0, 1, false, 
+
+Source, SrcPort, Target, TgtPort, Size
+src1, Output1, add1, Input1, 512
+src1, Output2, add2, Input1, 512
+src2, Output1, add1, Input2, 512
+src2, Output2, add2, Input2, 512
+add2, Output, print2, result, 512
+add1, Output, print1, result, 512

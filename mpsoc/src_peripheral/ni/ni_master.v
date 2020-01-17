@@ -244,8 +244,13 @@ module  ni_master #(
         ERRORS_ISR_LOC=7;  
     
     localparam 
+        WORLD_SIZE = Dw/8,
+        OFFSETw= log2(WORLD_SIZE),        
         HDw = Fpay - (2*EAw) -  DSTPw - WEIGHTw,
-        PRE_Dw = (HDATA_PRECAPw>0)? HDATA_PRECAPw : 1;     
+        PRE_Dw = (HDATA_PRECAPw>0)? HDATA_PRECAPw : 1,
+        MAX_PCK_SIZE_IN_BYTE = MAX_TRANSACTION_WIDTH + log2(Fpay/8),
+        BEw = (BYTE_EN)? log2(Fpay/8) : 1; 
+      
         
  
     reg [BURST_SIZE_w-1  :   0] burst_size, burst_size_next,burst_counter,burst_counter_next;      
@@ -269,14 +274,15 @@ module  ni_master #(
     wire  [V-1 :   0] vc_m_receive_stb_o; 
     wire  [V-1 :   0] vc_m_receive_cyc_o; 
     wire  [V-1 :   0] vc_m_receive_we_o; 
-    wire  [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter [V-1 :   0];            
+    wire  [MAX_PCK_SIZE_IN_BYTE-1    :   0] receive_dat_size_in_byte [V-1 :   0];            
     wire  [V-1    :   0] send_vc_fsm_is_ideal,receive_vc_fsm_is_ideal;
-    wire  [Dw-1   :   0] send_vc_pointer_addr [V-1   :  0]; 
+    wire  [Dw-1   :   0] send_vc_pointer_addr [V-1   :  0];
     wire  [Dw-1   :   0] receive_vc_pointer_addr [V-1   :  0];
     wire  [V-1    :   0] receive_vc_got_packet;    
     wire [MAX_TRANSACTION_WIDTH-1    :   0] send_vc_data_size [V-1   :  0];
     wire [MAX_TRANSACTION_WIDTH-1    :   0] receive_vc_max_buff_siz [V-1   :  0];
     wire [MAX_TRANSACTION_WIDTH-1    :   0] receive_vc_start_index  [V-1   :  0];
+    wire [OFFSETw-1 : 0] receive_vc_start_index_offset [V-1   :  0];
     
     
     
@@ -285,12 +291,14 @@ module  ni_master #(
     wire [EAw-1  :   0]  vc_dest_e_addr [V-1   :  0];
     wire [Cw-1   :   0]  vc_pck_class [V-1   :  0]; 
     wire [WEIGHTw-1 : 0] vc_weight [V-1:0];  
+    wire [BEw-1 : 0 ] vc_be_in  [V-1    :   0];   
     wire [HDw-1 : 0] vc_hdr_data [V-1:0];
     wire [V-1    :   0]  send_vc_send_hdr,send_vc_send_tail;
     wire [V-1    :   0]  send_vc_done,receive_vc_done;    
     wire [V-1	 :   0]  receive_vc_packet_is_saved;
     wire [EAw-1   :   0]  dest_e_addr;
-    wire [Cw-1   :   0]  pck_class;  
+    wire [Cw-1   :   0]  pck_class;
+    wire [BEw-1 : 0 ] be_in;
     wire send_hdr, send_tail;
     wire [Fw-1   :   0] hdr_flit_out;         
     wire burst_counter_ld = | vc_burst_counter_ld; 
@@ -302,11 +310,13 @@ module  ni_master #(
     wire any_vc_save_done = | receive_vc_done;        
     wire last_burst = (burst_counter == 1);
     wire burst_is_set =  (burst_size>0);    
-    wire [Cw-1   :   0] class_in_next;
-    wire [EAw-1   :   0] src_e_addr_next;
+    wire [Cw-1   :   0] received_class_next;
+    wire [EAw-1   :   0] received_src_e_addr_next;
+    wire [BEw-1 : 0 ] received_be_next;
     wire [Fpay-1    :   0] tail_flit_out;   
     reg [Cw-1   :   0] class_in [V-1    :   0];
     reg [EAw-1   :   0] src_e_addr [V-1    :   0];
+    reg [BEw-1 : 0] receive_vc_be [V-1 : 0];
     reg [V-1    :   0] crc_miss_match;    
     reg reset_errors, reset_errors_next;
     wire [V-1    :   0] burst_size_error,send_data_size_error,rcive_buff_ovrflw_err, illegal_send_req;           
@@ -363,12 +373,12 @@ module  ni_master #(
         end  
       
         RECEIVE_SRC_WB_ADDR: begin            
-            s_dat_o[EAw-1: 0] = src_e_addr[vc_addr];   // first&second byte
+            s_dat_o[EAw-1: 0]   =   src_e_addr[vc_addr];   // first&second byte
             s_dat_o[Cw+15: 16]  =   class_in[vc_addr];  //third byte           
         end 
         
         RECEIVE_DATA_SIZE_WB_ADDR: begin        
-            s_dat_o   [MAX_TRANSACTION_WIDTH-1    :   0] = receive_counter[vc_addr];
+            s_dat_o   [MAX_PCK_SIZE_IN_BYTE-1    :   0] = receive_dat_size_in_byte[vc_addr];
         end        
         
         RECEIVE_PRECAP_DATA_ADDR: begin 
@@ -518,7 +528,8 @@ module  ni_master #(
             .DSTPw(DSTPw),
             .C(C),
             .WEIGHTw(WEIGHTw),
-            .DATA_w(HDATA_PRECAPw)
+            .DATA_w(HDATA_PRECAPw),
+            .BYTE_EN(BYTE_EN)
         )
         data_extractor
         (
@@ -587,7 +598,9 @@ module  ni_master #(
             .C(C),
             .Dw(Dw),
             .S_Aw(CHANNEL_REGw),
-            .WEIGHTw(WEIGHTw)           
+            .WEIGHTw(WEIGHTw),
+            .BYTE_EN(BYTE_EN)
+            
         )
         wb_slave_registers
         (
@@ -602,12 +615,14 @@ module  ni_master #(
             .send_fsm_is_ideal(send_vc_fsm_is_ideal[i]),
             .receive_fsm_is_ideal(receive_vc_fsm_is_ideal[i]),
             .send_pointer_addr(send_vc_pointer_addr[i]),
+            .be_in(vc_be_in[i]),
             .receive_pointer_addr(receive_vc_pointer_addr[i]),
             .receive_start_index(receive_vc_start_index[i]),
+            .receive_start_index_offset(receive_vc_start_index_offset[i]),
             .receive_done(receive_vc_done[i]),
             .receive_packet_is_saved(receive_vc_packet_is_saved[i]),    
             .send_data_size(send_vc_data_size[i]),
-            .max_receive_buff_siz(receive_vc_max_buff_siz[i]),
+            .receive_max_buff_siz(receive_vc_max_buff_siz[i]),
             .dest_e_addr(vc_dest_e_addr[i]),
             .pck_class(vc_pck_class[i]),
             .weight(vc_weight[i]), 
@@ -629,7 +644,9 @@ module  ni_master #(
             .Dw(Dw),
             .M_Aw(M_Aw),
             .TAGw(TAGw),
-            .SELw(SELw)
+            .SELw(SELw),
+            .Fpay(Fpay),
+            .BYTE_EN(BYTE_EN)
         )
         vc_dma
         (
@@ -645,21 +662,23 @@ module  ni_master #(
             .receive_is_active(receive_vc_is_active[i]),
             .burst_counter_ld(vc_burst_counter_ld[i]),
             .burst_counter_dec(vc_burst_counter_dec[i]),
-            .burst_size_is_set(burst_is_set),
+            .burst_size_is_set(burst_is_set),           
             .last_burst(last_burst),
             .send_hdr(send_vc_send_hdr[i]),
             .send_tail(send_vc_send_tail[i]),
-            .receive_counter(receive_counter[i]),
+            .receive_dat_size_in_byte(receive_dat_size_in_byte[i]),
+            .receive_be(receive_vc_be[i]),
             .save_hdr_info(save_hdr_info[i]),
             .send_done(send_vc_done[i]),
             .receive_done(receive_vc_done[i]),                       
             .send_fsm_is_ideal(send_vc_fsm_is_ideal[i]),
             .receive_fsm_is_ideal(receive_vc_fsm_is_ideal[i]),
-            .send_pointer_addr(send_vc_pointer_addr[i]),
+            .send_pointer_addr(send_vc_pointer_addr[i]),           
             .receive_pointer_addr(receive_vc_pointer_addr[i]),
             .receive_start_index(receive_vc_start_index[i]),
+            .receive_start_index_offset(receive_vc_start_index_offset[i]),
             .send_data_size(send_vc_data_size[i]),
-            .max_receive_buff_siz(receive_vc_max_buff_siz[i]),
+            .receive_max_buff_siz(receive_vc_max_buff_siz[i]),
             .send_start(send_vc_start[i]),
             .receive_start(receive_vc_start[i]),
             .received_flit_is_tail(received_flit_is_tail),
@@ -701,9 +720,11 @@ module  ni_master #(
             if(reset) begin 
                 class_in[i]<= {Cw{1'b0}};
                 src_e_addr[i]<= {EAw{1'b0}};
+                receive_vc_be[i] <= {BEw{1'b0}};
             end else if(save_hdr_info[i])begin 
-                class_in[i]<= class_in_next;
-                src_e_addr[i]<= src_e_addr_next;
+                class_in[i]<= received_class_next;
+                src_e_addr[i]<= received_src_e_addr_next;
+                receive_vc_be[i]<= received_be_next;
             end
         end//always
    
@@ -828,8 +849,7 @@ module  ni_master #(
     end
     endgenerate  
   
-   localparam  BEw = (BYTE_EN)? 2*log2(Fpay/8) : 1; 
-   wire [BEw-1 : 0 ] be_in = {BEw{1'b1}};    
+   
   
     ni_conventional_routing #(
         .TOPOLOGY(TOPOLOGY),
@@ -902,6 +922,7 @@ module  ni_master #(
     assign hdr_data = vc_hdr_data [send_enable_binary]; 
     assign send_hdr = send_vc_send_hdr[send_enable_binary]; 
     assign send_tail = send_vc_send_tail[send_enable_binary]; 
+    assign be_in = vc_be_in[send_enable_binary];
     
     //wb multiplexors    
     assign m_send_sel_o  = vc_m_send_sel_o[send_enable_binary];
@@ -958,22 +979,23 @@ module  ni_master #(
         .DSTPw(DSTPw),
         .C(C),
         .Fpay(Fpay),
-        .DATA_w (0)
+        .DATA_w (0),
+        .BYTE_EN(BYTE_EN)
     )
     extractor
     (
         .flit_in(fifo_dout),
         .flit_in_wr(),
-        .class_o(class_in_next),
+        .class_o(received_class_next),
         .destport_o(),
         .dest_e_addr_o(),
-        .src_e_addr_o(src_e_addr_next),
+        .src_e_addr_o(received_src_e_addr_next),
         .vc_num_o(),
         .hdr_flit_wr_o( ),
         .hdr_flg_o( ),
         .tail_flg_o( ),
         .weight_o(),
-        .be_o( ),
+        .be_o(received_be_next),
         .data_o()
     );  
   

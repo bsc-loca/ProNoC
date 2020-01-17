@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XDF name="net">
+    <Instance id="src1">
+        <Class name="accumulatorv2.source1"/>
+    </Instance>
+    <Instance id="src2">
+        <Class name="accumulatorv2.source2"/>
+    </Instance>
+    <Instance id="add1">
+        <Class name="accumulatorv2.accumulator1"/>
+    </Instance>
+    <Instance id="add2">
+        <Class name="accumulatorv2.accumulator2"/>
+    </Instance>
+    <Instance id="print1">
+        <Class name="accumulatorv2.printer1"/>
+    </Instance>
+    <Instance id="print2">
+        <Class name="accumulatorv2.printer2"/>
+    </Instance>
+    <Connection dst="add1" dst-port="Input1" src="src1" src-port="Output1"/>
+    <Connection dst="add2" dst-port="Input1" src="src1" src-port="Output2"/>
+    <Connection dst="add1" dst-port="Input2" src="src2" src-port="Output1"/>
+    <Connection dst="add2" dst-port="Input2" src="src2" src-port="Output2"/>
+    <Connection dst="print2" dst-port="result" src="add2" src-port="Output"/>
+    <Connection dst="print1" dst-port="result" src="add1" src-port="Output"/>
+</XDF>

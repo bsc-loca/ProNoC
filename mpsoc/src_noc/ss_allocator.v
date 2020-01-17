@@ -44,7 +44,8 @@ module  ss_allocator#(
     parameter DSTPw=P-1,
     parameter C = 4,    //  number of flit class 
     parameter DEBUG_EN =   1,
-    parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000  
+    parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000,
+    parameter BYTE_EN=0
    )
    (
         flit_in_wr_all,
@@ -195,7 +196,8 @@ module  ss_allocator#(
                 .Fpay(Fpay),
                 .ROUTE_TYPE(ROUTE_TYPE),
                 .DEBUG_EN(DEBUG_EN),
-                .ESCAP_VC_MASK(ESCAP_VC_MASK)
+                .ESCAP_VC_MASK(ESCAP_VC_MASK),
+                .BYTE_EN(BYTE_EN)
             )
             the_ssa_per_vc
             (
@@ -265,7 +267,8 @@ module ssa_per_vc #(
     parameter DSTPw=P-1,
     parameter C = 4,    //  number of flit class 
     parameter DEBUG_EN =   1,
-    parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000
+    parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000,
+    parameter BYTE_EN=0
     )
     (
         flit_in_wr,
@@ -361,7 +364,8 @@ module ssa_per_vc #(
        	.EAw(EAw),
        	.DSTPw(DSTPw),
        	.C(C),
-       	.Fpay(Fpay)
+       	.Fpay(Fpay),
+       	.BYTE_EN(BYTE_EN)
        )
        extractor
        (
@@ -376,6 +380,7 @@ module ssa_per_vc #(
        	.hdr_flg_o(hdr_flg),
        	.tail_flg_o(tail_flg),
        	.weight_o( ),
+       	.be_o( ),
        	.data_o( )
    );
    

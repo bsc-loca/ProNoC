@@ -195,7 +195,8 @@ module router # (
         .WEIGHTw(WEIGHTw),
         .WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
         .PPSw(PPSw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+        .BYTE_EN(BYTE_EN)
         
     )
     the_inout_ports

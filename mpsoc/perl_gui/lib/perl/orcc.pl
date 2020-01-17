@@ -255,7 +255,7 @@ sub genereate_output_orcc{
 		if(ni_got_packet(i)) {
 			iport =ni_RECEIVE_PRECAP_DATA_REG(i); 	
 			if(iport==0){ //a credit update packet is recived;
-				ni_receive (i, (unsigned int)& credit_buff[i] , 1, 0);	
+				ni_receive (i, (unsigned int)& credit_buff[i] , 4, 0);	
 			}
 ";	
 		my $check_pck_func ="		
@@ -267,7 +267,7 @@ sub genereate_output_orcc{
 		for (i=0;i<ni_NUM_VCs;i++){
 			if(ni_packet_is_saved(i)) {
 				src_info=get_src_info(i);
-				size=ni_RECEIVE_DATA_SIZE_REG(i); 
+				size=ni_RECEIVE_DATA_SIZE_REG(i); //size in byte
 				iport= iport_array[i];
 				if(iport==0){ // a credit update packet has been recived
  					credit_port  = credit_buff[i] >> 16; //output port num
@@ -389,7 +389,9 @@ sub genereate_output_orcc{
 	#define ${dst_port}_has_credit_to_send    (index_$dst_port > index_${dst_port}_sender)
 	#define ${dst_port}_src_port_num  $srcportnum
 	#define ${dst_port}_dst_port_num  $dstp_number{$dst}{$dst_port}
-	#define ${dst_port}_queu_pointer (unsigned int)&tokens_${dst_port}[0]		
+	#define ${dst_port}_queu_pointer (unsigned int)&tokens_${dst_port}[0]
+	#define ${dst_port}_queue_size_in_byte  (SIZE_${dst_port} << ${name}_${dst_port}_size_shift)	
+	#define ${dst_port}_start_index_in_byte	((${name}_${dst_port}->write_ind % SIZE_${dst_port})<< ${name}_${dst_port}_size_shift)
 			";
 			
 			
@@ -404,7 +406,7 @@ sub genereate_output_orcc{
 	
 	$got_pck_func=$got_pck_func."
 			else if(iport==${dst_port}_dst_port_num){
-				ni_receive (i, ${dst_port}_queu_pointer , SIZE_${dst_port}, ${name}_${dst_port}->write_ind % SIZE_${dst_port});	
+				ni_receive (i, ${dst_port}_queu_pointer , ${dst_port}_queue_size_in_byte, ${dst_port}_start_index_in_byte);	
 				
 			}
 				
@@ -412,7 +414,7 @@ sub genereate_output_orcc{
 	
 	$check_pck_func =$check_pck_func."	
 				}else if(iport==${dst_port}_dst_port_num){
-					${name}_${dst_port}->write_ind = ${name}_${dst_port}->write_ind + size;								
+					${name}_${dst_port}->write_ind = ${name}_${dst_port}->write_ind + (size >> ${name}_${dst_port}_size_shift);								
 				
 							
 	";
@@ -561,7 +563,16 @@ sub genereate_output_orcc{
 	    	 		#add fifo definition:
 	    	 		print $fd " DECLARE_FIFO(${type}, $fifos{$fifo_name}{'size'}, $fifo_num, 1);\n";
 	    	 		print $fd " fifo_${type}_t *$fifo_name = &fifo_$fifo_num;\n  ";
-	    	 		print $fd " #define ${fifo_name}_size_shift  2 \n";
+	    	 		
+	    	 		  	 		
+	    	 		
+	    	 		my $shift =
+	    	 			($type eq "i8"  || $type eq "u8")  ? 0 :
+	    	 			($type eq "i16" || $type eq "u16") ? 1 :
+	    	 			($type eq "i32" || $type eq "u32") ? 2 :
+	    	 			($type eq "i64" || $type eq "u64") ? 3 : "undef_type check orcc.pl";
+	    	 			 
+	    	 		print $fd " #define ${fifo_name}_size_shift  $shift \n";
 	    	 		
 	    	 		
 	    	 		$fifo_num++;

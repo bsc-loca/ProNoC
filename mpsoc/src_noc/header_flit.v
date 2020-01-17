@@ -66,7 +66,7 @@ module header_flit_generator  #(
         Fw   =   2+V+Fpay,//flit width
         Cw   =  (C>1)? log2(C): 1,
         HDR_FLAG  =   2'b10,
-        BEw = (BYTE_EN)? 2*log2(Fpay/8) : 1;
+        BEw = (BYTE_EN)? log2(Fpay/8) : 1;
 /* verilator lint_on WIDTH */      
 
 
@@ -131,7 +131,20 @@ module header_flit_generator  #(
     endgenerate    
      
     assign flit_out [Fpay+V-1    :    Fpay] = vc_num_in;
-    assign flit_out [Fw-1        :    Fw-2] = HDR_FLAG;       
+    assign flit_out [Fw-1        :    Fw-2] = HDR_FLAG;  
+    
+    
+    //synthesis translate_off 
+    //synopsys  translate_off
+    initial begin
+        if((DATA_LSB + DATA_w)>=Fpay)begin
+            $display("%t: The reqired header flit size is %d which is larger than %d payload size   ",$time,(DATA_LSB + DATA_w)-1,Fpay);
+            $stop;        
+        end
+    end    
+    //synopsys  translate_on
+    //synthesis translate_on 
+    
 
 endmodule
 
@@ -181,7 +194,7 @@ module extract_header_flit_info #(
         Fw = 2+V+Fpay,//flit width
         Cw = (C>1)? log2(C): 1,
         W = WEIGHTw,
-        BEw = (BYTE_EN)? 2*log2(Fpay/8) : 1;
+        BEw = (BYTE_EN)? log2(Fpay/8) : 1;
      
     localparam 
         Dw = (DATA_w==0)? 1 : DATA_w;

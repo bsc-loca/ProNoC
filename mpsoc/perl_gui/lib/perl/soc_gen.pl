@@ -1838,7 +1838,7 @@ sub socgen_main{
 	my  $device_win=show_active_dev($soc,$ip,$infc,\$refresh_dev_win,$info);
 	
 	
-	my $generate = def_image_button('icons/gen.png','Generate RTL');
+	my $generate = def_image_button('icons/gen.png','_Generate RTL',FALSE,1);
 	my $compile  = def_image_button('icons/gate.png','Compile RTL');
 	my $software = def_image_button('icons/binary.png','Software');
 	my $diagram  = def_image_button('icons/diagram.png','Diagram');
@@ -1855,7 +1855,7 @@ sub socgen_main{
 	
 	
 	
-	my $open = def_image_button('icons/browse.png','Load Tile');
+	my $open = def_image_button('icons/browse.png',"_Load Tile",FALSE,1);
 	
 	
 	my $entry=gen_entry_object($soc,'soc_name',undef,undef,undef,undef);

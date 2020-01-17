@@ -779,7 +779,8 @@ sub run_make_file {
 			add_info(\$outtext,"$stdout\n"); 
 			add_colored_info(\$outtext,"$stderr\n","red"); 
 		}
-		add_colored_info(\$outtext,"Compilation failed.\n",'red'); 
+		add_colored_info(\$outtext,"Compilation failed.\n",'red');
+		print " failed!\n";   
 		return 0;
 
 	}else{
@@ -790,7 +791,8 @@ sub run_make_file {
 			add_colored_info(\$outtext,"$stderr\n","green"); 
 		}
 		
-		add_colored_info(\$outtext,"Compilation finished successfully.\n",'blue');  
+		add_colored_info(\$outtext,"Compilation finished successfully.\n",'blue');
+		print " successfull!\n";  
 		return 1;
 	}
 			
