@@ -36,10 +36,12 @@ $TOOLCHAIN/aemb/bin/mb-objcopy -O ihex $ELFFILE $ELFFILE.ihex && \
 
 # Generate a MIF & BIN files from the IHEX file
 #$TOOLCHAIN/bin/ihex2mif -f $ELFFILE.ihex -e $RAMSIZE -o ram.mif && \
-$TOOLCHAIN/bin/ihex2mif -f $ELFFILE.ihex  -o ram.mif && \
-echo "ihex2mif=$?" 
+
 $TOOLCHAIN/bin/ihex2bin -i $ELFFILE.ihex  -o ram.bin && \
 echo "ihex2bin=$?" 
+
+$TOOLCHAIN/bin/bin2mif -f ram.bin  -o ram.mif -w 32 && \
+echo "bin2mif=$?" 
 
 $TOOLCHAIN/bin/bin2str -f ram.bin -h   && \
 echo "bin2str=$?" 

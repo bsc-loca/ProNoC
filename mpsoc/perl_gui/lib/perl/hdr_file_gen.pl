@@ -101,6 +101,8 @@ sub generate_header_file{
 						add_text_to_string(\$system_h,"//intrrupt flag location\n");
 						add_text_to_string(\$system_h," #define $inst\_INT (1<<$connect_socket_num)\n") if(scalar (@nums)==1);
 						add_text_to_string(\$system_h," #define $inst\_$num\_INT    (1<<$connect_socket_num)\n") if(scalar (@nums)>1);
+						add_text_to_string(\$system_h," #define $inst\_INT_PIN $connect_socket_num\n") if(scalar (@nums)==1);
+						add_text_to_string(\$system_h," #define $inst\_$num\_INT_PIN    $connect_socket_num\n") if(scalar (@nums)>1);
 					}
 					
 			}

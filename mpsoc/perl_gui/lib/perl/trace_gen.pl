@@ -917,7 +917,8 @@ sub load_workspace {
 	if ( "ok" eq $dialog->run ) {
 		$file = $dialog->get_filename;
 		my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
-		if($suffix eq '.TRC'){			
+		if($suffix eq '.TRC'){		
+							
 			my ($pp,$r,$err) = regen_object($file);
 			if ($r){		
 				message_dialog("**Error reading  $file file: $err\n");
@@ -925,7 +926,34 @@ sub load_workspace {
 				return;
 			} 
 			
+			my ($tmp,$r1,$err1) = regen_object($file);
+			
+			
+			clone_obj($tmp,$self);
+			
+								
 			clone_obj($self,$pp);
+			
+			#update current parameter 
+			my @pnames=('soc_name','ni_name','noc_param');
+			foreach my $n (@pnames){
+				my $param=$tmp->object_get_attribute($n);
+				if( defined $param){
+					my %params=%{$param};
+					foreach my $p (sort keys %params){
+						$self->{$n}{$p}=$params{$p};			 
+					}
+				}
+			}
+				
+		
+			
+			
+			
+			
+			
+			#print Dumper($self);
+			
 			#message_dialog("done!");				
 		}					
      }
@@ -1055,7 +1083,7 @@ sub object_remove_attribute{
 }
 
 sub add_trace{
-	my ($self, $file_id,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size)=@_;	
+	my ($self, $file_id,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size,$channel)=@_;	
 	$self->object_add_attribute("trace_$trace_id",'file',$file_id);
 	$self->object_add_attribute("trace_$trace_id",'source',"${file_id}${source}");
 	$self->object_add_attribute("trace_$trace_id",'destination',"${file_id}${dest}");
@@ -1065,7 +1093,8 @@ sub add_trace{
 	$self->object_add_attribute("trace_$trace_id",'init_weight', 1); 
 	$self->object_add_attribute("trace_$trace_id",'scr_port',$src_port);
 	$self->object_add_attribute("trace_$trace_id",'dst_port',$dst_port);	
-	$self->object_add_attribute("trace_$trace_id",'buff_size',$buff_size);		
+	$self->object_add_attribute("trace_$trace_id",'buff_size',$buff_size);	
+	$self->object_add_attribute("trace_$trace_id",'channel',$channel);		
 	$self->{'traces'}{$trace_id}=1;
 	
 }
@@ -1096,9 +1125,10 @@ sub get_trace{
 	my $injct_rate_var = $self->object_get_attribute("trace_$trace_id",'injct_rate_var');	
 	my $src_port = $self->object_get_attribute("trace_$trace_id",'scr_port');
 	my $dst_port = $self->object_get_attribute("trace_$trace_id",'dst_port');
-	my $buff_size =$self->object_get_attribute("trace_$trace_id",'buff_size');
+	my $buff_size= $self->object_get_attribute("trace_$trace_id",'buff_size');
+	my $channel = $self->object_get_attribute("trace_$trace_id",'channel');
 	  
-	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port,$buff_size);	
+	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port,$buff_size,$channel);	
 }
 
 sub get_all_tasks{
