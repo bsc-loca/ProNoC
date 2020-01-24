@@ -75,4 +75,25 @@ unsigned long cpu_get_timer_ticks(void);
 /* Wait for 10ms, assumes CLK_HZ is 100, which it usually is.
    Will be slightly inaccurate!*/
 void cpu_sleep_10ms(void);
+
+
+
+/******************
+*	General inttrupt functions for all CPUs added to ProNoC
+*******************/
+
+#define  general_int_init int_init
+
+#define  general_int_add   int_add
+
+#define  general_int_enable int_enable
+
+#define  general_cpu_int_en	cpu_enable_user_interrupts
+
+
+
+
+
+
+
  

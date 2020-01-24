@@ -542,7 +542,7 @@ $node\[
 	
 	$dotfile=$dotfile."\n}\n";
 	
-	 print $dotfile;
+	# print $dotfile;
 	
 	return $dotfile;
 	

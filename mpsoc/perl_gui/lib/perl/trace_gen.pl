@@ -18,6 +18,7 @@ use base 'Class::Accessor::Fast';
 require "widget.pl"; 
 require "diagram.pl";
 require "orcc.pl";
+require "drag_drop.pl";
 
 __PACKAGE__->mk_accessors(qw{
 	window
@@ -48,165 +49,6 @@ sub trace_gen_main {
 
 
 
-sub build_trace_gui {
-	my ($self,$mode,$ref,$w) = @_;
-	$self->object_add_attribute("file_id",undef,'a');
-	$self->object_add_attribute("trace_id",undef,0);
-	$self->object_add_attribute('select_multiple','action',"_");
-	$self->object_add_attribute('Auto','Auto_inject',"1\'b1");
-	if(defined $ref){
-	   # add noc parameters
-		my %params=%{$ref};
-		foreach my $p (sort keys %params){
-			$self->{$p}=$params{$p};
-			 
-		}
-		
-	}
-	
-	if($mode eq 'task'){
-		$self->object_add_attribute('noc_param','T1',2);
-		$self->object_add_attribute('noc_param','T2',2);
-		$self->object_add_attribute('noc_param','T3',1);
-		$self->object_add_attribute('noc_param','Fpay',32);
-		$self->object_add_attribute('noc_param','V',1);		
-		$self->object_add_attribute('noc_param','TOPOLOGY',"MESH");		
-	}
-	
-	
-	
-	set_gui_status($self,"ideal",0);
-
-	my $main_table= def_table(2,10,FALSE);
-	my ($scwin_info,$tview)= create_text();	
-	
-	my $traces=trace_pad($self,$tview,$mode);
-	my $traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
-	
-	my $map= trace_map($self,$tview);
-	my $map_ctrl= trace_map_ctrl($self,$tview,$mode);
-	my $map_info=map_info($self);
-	
-	my $h1=gen_hpaned($traces_ctrl,.25,$traces);
-	my $h2=gen_hpaned($map_ctrl,.25,$map);
-	my $h3=gen_hpaned($h2,.65,$map_info);
-
-	my $v1=gen_vpaned($h1,.3,$h3);
-	my $v2=gen_vpaned($v1,.6,$scwin_info);
-	
-	my $generate = def_image_button('icons/gen.png','Generate');
-	my $open = def_image_button('icons/browse.png','Load');	
-	my ($entrybox,$entry) = def_h_labeled_entry('Save as:',undef);
-	$entry->signal_connect( 'changed'=> sub{
-		my $name=$entry->get_text();
-		$self->object_add_attribute ("save_as",undef,$name);	
-	});	
-	
-	my $entry2=gen_entry_object($self,'out_name',undef,undef,undef,undef);
-	my $entrybox2=labele_widget_info(" Output file name:",$entry2);
-	
-	my $save = def_image_button('icons/save.png','Save');
-	$entrybox->pack_end($save,   FALSE, FALSE,0);
-
-	$main_table->attach_defaults ($v2  , 0, 12, 0,24);
-	$main_table->attach ($open,0, 3, 24,25,'expand','shrink',2,2);
-	$main_table->attach ($entrybox,3, 5, 24,25,'expand','shrink',2,2);
-	$main_table->attach ($entrybox2,5,6 , 24,25,'expand','shrink',2,2) if ($mode eq 'task');
-	$main_table->attach ($generate, 6, 9, 24,25,'expand','shrink',2,2);
-	
-
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($main_table);
-	
-	
-	
-	$open-> signal_connect("clicked" => sub{ 
-		
-		load_workspace($self);
-		set_gui_status($self,"ref",5);
-	
-	});	
-
-	$save-> signal_connect("clicked" => sub{ 
-		save_as($self);		
-		set_gui_status($self,"ref",5);
-		
-	
-	});	
-	
-	$generate->signal_connect("clicked" => sub{ 
-		genereate_output_tasks($self) if ($mode eq 'task');
-		genereate_output_orcc ($self,\$tview,$w) if ($mode eq 'orcc');
-	
-	});	
-	
-	
-	
-	
-	
-	
-	#check soc status every 0.5 second. referesh device table if there is any changes 
-	Glib::Timeout->add (100, sub{ 
-	   
-		my ($state,$timeout)= get_gui_status($self);
-		
-		if ($timeout>0){
-			$timeout--;
-			set_gui_status($self,$state,$timeout);	
-			return TRUE;
-			
-		}
-		if($state eq "ideal"){
-			return TRUE;
-			 
-		}
-		
-		
-		
-		#refresh GUI
-		my $saved_name=$self->object_get_attribute('save_as');
-		if(defined $saved_name) {$entry->set_text($saved_name);}
-		
-		$saved_name=$self->object_get_attribute('out_name');
-		if(defined $saved_name) {$entry2->set_text($saved_name);}
-		
-		
-									
-		$traces->destroy();
-		$traces=trace_pad($self,$tview,$mode);
-		$map->destroy();
-		$map= trace_map($self,$tview);
-		$map_ctrl->destroy();
-		$map_ctrl= trace_map_ctrl($self,$tview,$mode);
-		$traces_ctrl->destroy();
-		$traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
-		$map_info->destroy();
-		$map_info=map_info($self);
-		
-		$h1 -> pack1($traces_ctrl, TRUE, TRUE); 	
-		$h1 -> pack2($traces, TRUE, TRUE); 	
-		$h2 -> pack1($map_ctrl, TRUE, TRUE); 		
-		$h2 -> pack2($map, TRUE, TRUE); 
-		$h3 -> pack2($map_info, TRUE, TRUE); 	
-		
-		$traces->show_all();
-		$map->show_all();
-		$main_table->show_all();			
-		set_gui_status($self,"ideal",0);
-		
-		return TRUE;
-		
-	} );	
-
-
-
-	return $sc_win;
-
-	
-	
-}
-
 ########
 #  trace_ctr
 ########
@@ -229,10 +71,6 @@ sub trace_pad_ctrl{
 	set_tip($draw,'View Task Graph');
 	my $auto = def_image_button('icons/refresh.png');
 	set_tip($auto,'Automatically calculate the traces burst size and injection ratio according to their bandwith');
-	
-	
-	
-	
 	my $box=def_pack_hbox(FALSE,FALSE,$add,$draw,$remove,$auto);
 	
 	#my $auto = def_image_button('icons/setting.png');
@@ -638,7 +476,7 @@ sub load_tarce_file{
 
 
 sub trace_map {
-	my ($self,$tview)=@_;
+	my ($self,$tview,$mode)=@_;
 	my $table= def_table(10,10,FALSE);
 	
 	
@@ -648,7 +486,9 @@ sub trace_map {
 	my $row=0;
 	my $col=0;
 	
-	my @titles = (" # "," Task-name ", " Mapped-to " ,"Lock ", " Sent-Bandwidth ", " Resvd-Bandwidth ", " Total-Bandwidth ");
+	my $lab= ($mode eq 'task')? "Task-name" :"Actor-name";
+	
+	my @titles = (" # "," $lab ", " Mapped-to " ,"Lock ", " Sent-Bandwidth ", " Resvd-Bandwidth ", " Total-Bandwidth ");
 	foreach my $p (@titles){
 		$table-> attach  (gen_label_in_left($p), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
 	}
@@ -1796,15 +1636,6 @@ sub worst_map_algorithm{
 
 
 
-
-
-
-
-
-
-
-
-
 sub get_task_assigned_to_tile {
 	my ($self,$i)=@_;
 	my $p;
@@ -1878,4 +1709,275 @@ sub auto_generate_injtratio{
 	
 	
 }
+
+
+sub trace_merger{
+	my ($self,$tview,$mode)=@_;	
+	my $table= def_table(2,10,FALSE);
+	my $row=0;
+	my $col=0;
+	
+	my $m= ($mode eq 'task')? "Task" :"Actor";
+	
+	
+	my $label = Gtk2::Label->new;
+    $label->set_markup ("<u>Group ${m}s</u>      ");	
+	$table->attach ($label,$col, $col+5,  $row, $row+1,'shrink','shrink',2,2);$col+=5;	
+	my ($Ebox,$entry)=def_h_labeled_entry ("New group name:",undef);
+	$table->attach ($Ebox,$col, $col+4,  $row, $row+1,'shrink','shrink',2,2);$col+=5;
+	my $add=def_image_button('icons/plus.png');
+	$table->attach ($add,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);$col+=1;
+	
+	$row++;
+	$col=0;
+	
+	#my @info =  (
+  	#{ label=>'Number of Group', param_name=>'GROUP_NUM', type=>"Spin-button", default_val=>1, content=>"1,1000,1", info=>"Several  ${m}s can be grouped and mapped on the same tile. Define the number of groups which ${m} can be categorized to.", param_parent=>'noc_param', ref_delay=>1,placement=>'vertical'}
+	#);
+	
+	#foreach my $d (@info) {
+	#	($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},'ref',$d->{placement});
+	#}
+	
+	
+	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
+	$sc_win->set_policy( "automatic", "automatic" );
+	$sc_win->add_with_viewport($table);
+	return $sc_win;	
+}
+
+
+
+
+sub select_trace_file {
+	my ($self,$tview,$mode)=@_;
+	my $traces=trace_pad($self,$tview,$mode);
+	my $traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
+	my $h=gen_hpaned($traces_ctrl,.20,$traces);
+	return $h;
+}
+
+
+sub trace_maker_notebook{
+	my ($self,$mode,$tview)=@_;		
+	my $notebook = Gtk2::Notebook->new;
+	my $lb= ($mode eq 'orcc')?  'Actor' : 'Trace';
+	my $group_num=16;
+	
+	
+	$notebook->set_tab_pos ('left');
+	$notebook->set_scrollable(TRUE);
+	$notebook->can_focus(FALSE);
+	my $page1=select_trace_file($self,$tview,$mode);
+	$notebook->append_page ($page1,Gtk2::Label->new  ("1-Select $mode file"));
+	
+	#group tasks
+	$self->object_add_attribute('grouping','group_name_root','group');	
+	$self->object_add_attribute('grouping','group_name_editble','YES');	
+	my @tasks=get_all_tasks($self);
+	my $page2=drag_and_drop_page($self,$lb,$tview,'grouping',$group_num,\@tasks);
+	$notebook->append_page ($page2,Gtk2::Label->new  ("2-Groap ${lb}s   "));
+	
+	#map tasks
+	
+	$self->object_add_attribute('mapping','group_name_root','Tile');	
+	$self->object_add_attribute('mapping','group_name_editble','NO');	
+	#get list of non-empty groups
+	my @merged_tasks;
+	for(my $i=0;$i<$group_num;$i=$i+1){
+		my $gref = $self->object_get_attribute('grouping',"grouped$i");
+		next if(! defined $gref);
+		push (@merged_tasks,"grouped$i");
+	}
+	
+	my $uref= $self->object_get_attribute('grouping','ungrouped');	
+	push (@merged_tasks, @{$uref}) if(defined  $uref);	
+	my $page3=drag_and_drop_page($self,$lb,$tview,'mapping',$group_num,\@merged_tasks);
+	$notebook->append_page ($page3,Gtk2::Label->new  ("3-Map ${lb}s"));
+	
+	
+	
+	
+	my $page4=routing_page($self,$tview);
+	$notebook->append_page ($page4,Gtk2::Label->new  ("Route Selection"));
+	
+	
+	
+	$notebook->show_all;
+		
+	my $first=1;
+	my $page_num=$self->object_get_attribute ("process_notebook","currentpage");		
+	$notebook->set_current_page ($page_num) if(defined $page_num);
+	$notebook->signal_connect( 'switch-page'=> sub{			
+		$self->object_add_attribute ("process_notebook","currentpage",$_[2]);	#save the new pagenumber
+	});	
+	$notebook->signal_connect("switch-page" => sub{ 		
+		if(!$first){
+			
+			set_gui_status($self,"ref",1);
+		}else {
+			set_gui_status($self,"ref",1);
+		}
+		$first=0;		
+	});
+	
+	return $notebook;
+	
+}
+
+
+
+
+
+
+
+sub build_trace_gui {
+	my ($self,$mode,$ref,$w) = @_;
+	set_gui_status($self,"ideal",0);
+	$self->object_add_attribute ("process_notebook","currentpage",0);
+	my ($scwin_info,$tview)= create_text();	
+	my $notebook = trace_maker_notebook($self,$mode,$tview);	
+	my $v2=gen_vpaned($notebook,.65,$scwin_info);
+	
+	
+	$self->object_add_attribute("file_id",undef,'a');
+	$self->object_add_attribute("trace_id",undef,0);
+	$self->object_add_attribute('select_multiple','action',"_");
+	$self->object_add_attribute('Auto','Auto_inject',"1\'b1");
+	if(defined $ref){
+	   # add noc parameters
+		my %params=%{$ref};
+		foreach my $p (sort keys %params){
+			$self->{$p}=$params{$p};
+			 
+		}
+		
+	}
+	
+	if($mode eq 'task'){
+		$self->object_add_attribute('noc_param','T1',2);
+		$self->object_add_attribute('noc_param','T2',2);
+		$self->object_add_attribute('noc_param','T3',1);
+		$self->object_add_attribute('noc_param','Fpay',32);
+		$self->object_add_attribute('noc_param','V',1);		
+		$self->object_add_attribute('noc_param','TOPOLOGY','"MESH"');		
+	}
+	
+	
+	
+	set_gui_status($self,"ideal",0);
+
+	my $main_table= def_table(2,10,FALSE);
+	
+	
+#	my $traces=trace_pad($self,$tview,$mode);
+#	my $traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
+#	my $traces_mrg=trace_merger($self,$tview,$mode);
+	#
+	#my $map= trace_map($self,$tview,$mode);
+	#my $map_ctrl= trace_map_ctrl($self,$tview,$mode);
+	#my $map_info=map_info($self);
+	
+	#my $h1=gen_hpaned($traces_ctrl,.20,$traces);
+	#my $h4=gen_hpaned($h1,.55,$traces_mrg);
+	
+	#my $h2=gen_hpaned($map_ctrl,.20,$map);
+	#my $h3=gen_hpaned($h2,.55,$map_info);
+
+	#my $v1=gen_vpaned($h4,.3,$h3);
+	#my $v2=gen_vpaned($v1,.6,$scwin_info);
+	
+	my $generate = def_image_button('icons/gen.png','Generate');
+	my $open = def_image_button('icons/browse.png','Load');	
+	my ($entrybox,$entry) = def_h_labeled_entry('Save as:',undef);
+	$entry->signal_connect( 'changed'=> sub{
+		my $name=$entry->get_text();
+		$self->object_add_attribute ("save_as",undef,$name);	
+	});	
+	
+	my $entry2=gen_entry_object($self,'out_name',undef,undef,undef,undef);
+	my $entrybox2=labele_widget_info(" Output file name:",$entry2);
+	
+	my $save = def_image_button('icons/save.png','Save');
+	$entrybox->pack_end($save,   FALSE, FALSE,0);
+
+	$main_table->attach_defaults ($v2  , 0, 12, 0,24);
+	$main_table->attach ($open,0, 3, 24,25,'expand','shrink',2,2);
+	$main_table->attach ($entrybox,3, 5, 24,25,'expand','shrink',2,2);
+	$main_table->attach ($entrybox2,5,6 , 24,25,'expand','shrink',2,2) if ($mode eq 'task');
+	$main_table->attach ($generate, 6, 9, 24,25,'expand','shrink',2,2);
+	
+
+	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
+	$sc_win->set_policy( "automatic", "automatic" );
+	$sc_win->add_with_viewport($main_table);
+	
+	
+	
+	$open-> signal_connect("clicked" => sub{ 
+		
+		load_workspace($self);
+		set_gui_status($self,"ref",5);
+	
+	});	
+
+	$save-> signal_connect("clicked" => sub{ 
+		save_as($self);		
+		set_gui_status($self,"ref",5);
+		
+	
+	});	
+	
+	$generate->signal_connect("clicked" => sub{ 
+		genereate_output_tasks($self) if ($mode eq 'task');
+		genereate_output_orcc ($self,\$tview,$w) if ($mode eq 'orcc');
+	
+	});	
+	
+	
+	
+	
+	
+	
+	#check soc status every 0.5 second. referesh device table if there is any changes 
+	Glib::Timeout->add (100, sub{ 
+	   
+		my ($state,$timeout)= get_gui_status($self);
+		
+		if ($timeout>0){
+			$timeout--;
+			set_gui_status($self,$state,$timeout);	
+			return TRUE;
+			
+		}
+		if($state eq "ideal"){
+			return TRUE;
+			 
+		}
+		
+		
+		
+		#refresh GUI
+		my $saved_name=$self->object_get_attribute('save_as');
+		if(defined $saved_name) {$entry->set_text($saved_name);}
+		
+		$saved_name=$self->object_get_attribute('out_name');
+		if(defined $saved_name) {$entry2->set_text($saved_name);}
+		
+		
+		$notebook->destroy;
+		$notebook = trace_maker_notebook($self,$mode,$tview);
+		$v2 -> pack1($notebook, TRUE, TRUE); 							
+		
+		set_gui_status($self,"ideal",0);
+		
+		return TRUE;
+		
+	} );	
+
+	return $sc_win;
+	
+}
+
+
 	

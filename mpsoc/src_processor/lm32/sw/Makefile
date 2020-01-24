@@ -22,7 +22,7 @@ LIBRARIES = -L${LM32_LIB1} -lc -lg  -L${LM32_LIB2}  -lgcc
 VRAMFILE=image.ram
 
 #CFLAGS=-MMD -O2 -Wall -g -s -fomit-frame-pointer ${CPU_FLAGS}
-CFLAGS  := -Wall -Os -ggdb -ffreestanding ${CPU_FLAGS}
+CFLAGS  := -Wall -Os -ggdb  ${CPU_FLAGS}
 LDFLAGS=-nostdlib -nodefaultlibs -Tlinker.ld 
 #LDFLAGS=-nostdlib -T -Tlinker.ld
 SEGMENTS = -j .text -j .rodata -j .data

@@ -9,13 +9,14 @@
 /****************************************************************************
  * Types
  */
-typedef unsigned int  uint32_t;    // 32 Bit
-typedef signed   int   int32_t;    // 32 Bit
-
-typedef unsigned char  uint8_t;    // 8 Bit
-typedef signed   char   int8_t;    // 8 Bit
+#include <stdint.h>
 
 /****************************************************************************/
+
+
+
+
+
 
 typedef void(*isr_ptr_t)(void);
 void     halt();
@@ -57,5 +58,44 @@ void isr_unregister(int irq)
 {
 	isr_table[irq] = &isr_null;
 }
+
+
+
+
+
+/******************
+*	General inttrupt functions for all CPUs added to ProNoC
+*******************/
+
+extern void irq_set_mask (unsigned long);
+extern unsigned long irq_get_mask(void);
+
+#define general_int_init isr_init
+
+
+int general_int_add(unsigned long irq, isr_ptr_t handler, void *arg)
+{
+	
+	isr_register(irq, handler);
+        return 0;
+}
+
+
+
+void general_int_enable(unsigned long irq){
+	irq_set_mask( (0x00000001L << irq)| irq_get_mask() );
+	
+}
+
+#define  general_cpu_int_en	irq_enable
+
+
+
+
+
+
+
+
+
 
 #endif

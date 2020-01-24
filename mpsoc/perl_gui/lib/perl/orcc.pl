@@ -12,7 +12,7 @@ use String::Scanf; # imports sscanf()
 
 sub select_orcc_generated_srcs {
 	my ($self)=@_;
-	my $window = def_popwin_size(80,80,"Geberate software using ORCC compiler",'percent');	
+	my $window = def_popwin_size(80,80,"Generate software using ORCC compiler",'percent');	
 	#my $table = def_table(10, 10, FALSE);
 	#$table->attach_defaults($infobox,0,20,$row,$row+1);
 	
@@ -619,11 +619,11 @@ void ${name}_run (void) {
 ";	
 	my $main="	
 int main(){
-	int_init();
-	int_add(${ni_name}_INT_PIN, ${ni_name}_isr, 0); //${ni_name}_INT_PIN
+	general_int_init();
+	general_int_add(${ni_name}_INT_PIN, ${ni_name}_isr, 0); //${ni_name}_INT_PIN
 	// Enable ${ni_name} interrupt (its connected to inttruupt pin 0)
-	int_enable(${ni_name}_INT_PIN);
-	cpu_enable_user_interrupts();
+	general_int_enable(${ni_name}_INT_PIN);
+	general_cpu_int_en();
 	// hw interrupt enable function:
 	// ${ni_name}_initial (burst_size,  errors_int_en,  send_int_en,  save_int_en,  got_pck_int_en)
 	${ni_name}_initial (16,1,0,1,1); //enable the intrrupt when a packet is recived, saved or got any error
@@ -743,7 +743,7 @@ extern unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned i
 	    	 		
 	    	 		$fifo_num++;
 	    	 	}else{
-	    	 		print Dumper(\%fifos);
+	    	 		#print Dumper(\%fifos);
 	    	 		add_colored_info($tview,"Could not find $fifo_name in csv file\n",'red');	 	 		
 	    	 			return;
 	    	 	}		    	 	
