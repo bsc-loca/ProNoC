@@ -23,20 +23,16 @@ use constant ID_URI                 => 50;
 
 
 sub drag_and_drop_page {
-	my ($self,$lb,$tview,$name,$group_num,$items_ref)=@_;
+	my ($self,$tview,$name,$group_num,$items_ref)=@_;
     my $vbox = Gtk2::VBox->new(FALSE,5);
 
 	update_group_item_list($self,$group_num,$name,$items_ref);
 
 	my $ref_source = $self->object_get_attribute("$name",'ungrouped');
+    my $lb=$self->object_get_attribute($name,'lable');
+    my ($win,$list_store)=create_iconview($self,"$lb",'NO', $ref_source,$name,'ungrouped');
+ 
   
-    my ($win,$list_store)=create_iconview($self,"${lb}s: Drag and drop ${lb}s to bottom group list",'NO', $ref_source,$name,'ungrouped');
- 
- 
- 
-   
-    
-   
      
   
     my $table = def_table($group_num%8,$group_num/8,FALSE);
@@ -130,7 +126,7 @@ sub create_iconview {
 #---------------------------------------------------
 	my ($self,$lable,$editable,$ref,$name,$param)=@_;
     my $icon_string= undef;
-    my $tree_model = create_iconview_model($ref);
+    my $tree_model = create_iconview_model($self,$name,$ref);
 
     my $icon_view = Gtk2::IconView->new_with_model($tree_model);
     $icon_view->set_markup_column(C_MARKUP);
@@ -205,7 +201,7 @@ sub create_iconview_model {
 #text of the icon, and the last for the icon self----
 #Gtk2::ListStore is ideal for this ------------------
 #----------------------------------------------------
-	my $ref=shift;
+	my ($self,$name,$ref)=@_;
 	my @sources= (defined $ref)? @{$ref}:(); 
     my $list_store = Gtk2::ListStore->new(qw/Glib::String Gtk2::Gdk::Pixbuf/);
 
@@ -219,7 +215,7 @@ sub create_iconview_model {
         #get the iconset from the icon_factory
        # my $iconset = $icon_factory->lookup_default($val);
         #try and extract the icon from it
-        add_icon_to_tree($list_store,$val);
+        add_icon_to_tree($self,$name,$list_store,$val);
     }
 
     return $list_store;
@@ -239,26 +235,27 @@ sub target_drag_data_received {
 
 	my ($target,$name,$param,$self) = @{$ref};
    
-
+	my $icon=$self->object_get_attribute($name,'trace_icon');
+	my $pixbuf = get_icon_pixbuff ($icon );
     if ($info eq ID_LABEL){
      
-       
-        my $pixbuf = get_icon_pixbuff ( );
+        
+        
 		my $r=$self->object_get_attribute("$name","$param");
         my @array = defined ($r)? @{$r}:();
         push (@array ,$data->data); 
         $self->object_add_attribute("$name","$param",\@array);
-        add_icon_to_tree($target,$data->data) ;
+        add_icon_to_tree($self,$name,$target,$data->data) ;
     }
 
     if ($info eq ID_URI){
       
        
-        my $pixbuf = get_icon_pixbuff ( );
+       
 
 
         foreach ($data->get_uris){
-           add_icon_to_tree($target,$data->data) ;
+           add_icon_to_tree($self,$name,$target,$data->data) ;
             my $r=$self->object_get_attribute("$name","$param");
         	my @array = defined ($r)? @{$r}:();
         	push (@array ,$data->data); 
@@ -272,9 +269,9 @@ sub target_drag_data_received {
         $no_markup =~ s/<[^>]*>//g;       
 
 	
-        my $pixbuf = get_icon_pixbuff ( );
+       
 
-        add_icon_to_tree($target,$no_markup) ;
+         add_icon_to_tree($self,$name,$target,$no_markup) ;
         my $r=$self->object_get_attribute("$name","$param");
         my @array = defined ($r)? @{$r}:();
         push (@array ,$no_markup);
@@ -301,7 +298,7 @@ sub source_drag_data_get {
 }
 
 sub get_icon_pixbuff{
-    my $icon_file="icons/cd.png";
+    my $icon_file=shift;
 	my $font_size=get_defualt_font_size();
 	my $size=($font_size==10)? 25:
 		     ($font_size==9 )? 22:
@@ -313,9 +310,10 @@ sub get_icon_pixbuff{
 
 
 sub add_icon_to_tree{
-	my ($list_store,$val)=@_;
+	my ($self,$name,$list_store,$val)=@_;
 	 
-    my $pixbuf = get_icon_pixbuff ( );
+    my $icon=$self->object_get_attribute($name,'trace_icon');
+	my $pixbuf = get_icon_pixbuff ($icon );
 
         #if there was a valid icon in the iconset, add it
         if( defined $pixbuf ){
@@ -332,25 +330,7 @@ sub add_icon_to_tree{
 }
 
 
-sub show_key{
-	my ($slist,$event,$list_store)= @_;
-	
-	my $key_nr = $event->keyval();
-	if ($key_nr == $Gtk2::Gdk::Keysyms{Delete} ){
-		print "delete key is pressed!  $key_nr\n";
-		my @sel = $slist->get_selected_indices;
-		foreach my $p (sort {$b <=> $a} @sel){
-			my @d= @{$slist->{data}[$p]};
-			
-			my $dd=capture_string_between('<b>',$d[1],'</b>');
-			add_icon_to_tree($list_store,$dd);
-			delete $slist->{data}[$p];
-			
 
-		}
-
-	}
-}
 
 sub add_drag_source {
 	my $widget=shift;

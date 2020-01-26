@@ -1774,14 +1774,20 @@ sub trace_maker_notebook{
 	#group tasks
 	$self->object_add_attribute('grouping','group_name_root','group');	
 	$self->object_add_attribute('grouping','group_name_editble','YES');	
+	$self->object_add_attribute('grouping','trace_icon','icons/cd.png');
+	$self->object_add_attribute('grouping','lable',"${lb}s: Drag and drop ${lb}s to bottom group list");
+	
+		
 	my @tasks=get_all_tasks($self);
-	my $page2=drag_and_drop_page($self,$lb,$tview,'grouping',$group_num,\@tasks);
+	my $page2=drag_and_drop_page($self,$tview,'grouping',$group_num,\@tasks);
 	$notebook->append_page ($page2,Gtk2::Label->new  ("2-Groap ${lb}s   "));
 	
 	#map tasks
 	
 	$self->object_add_attribute('mapping','group_name_root','Tile');	
-	$self->object_add_attribute('mapping','group_name_editble','NO');	
+	$self->object_add_attribute('mapping','group_name_editble','NO');
+	$self->object_add_attribute('mapping','trace_icon','icons/cd2.png');	
+	$self->object_add_attribute('mapping','lable',"${lb}s: Drag and drop ${lb}s/grouped ${lb}s to bottom tile list");
 	#get list of non-empty groups
 	my @merged_tasks;
 	for(my $i=0;$i<$group_num;$i=$i+1){
@@ -1792,14 +1798,14 @@ sub trace_maker_notebook{
 	
 	my $uref= $self->object_get_attribute('grouping','ungrouped');	
 	push (@merged_tasks, @{$uref}) if(defined  $uref);	
-	my $page3=drag_and_drop_page($self,$lb,$tview,'mapping',$group_num,\@merged_tasks);
+	my $page3=drag_and_drop_page($self,$tview,'mapping',$group_num,\@merged_tasks);
 	$notebook->append_page ($page3,Gtk2::Label->new  ("3-Map ${lb}s"));
 	
 	
 	
 	
-	my $page4=routing_page($self,$tview);
-	$notebook->append_page ($page4,Gtk2::Label->new  ("Route Selection"));
+	#my $page4=routing_page($self,$tview);
+	#$notebook->append_page ($page4,Gtk2::Label->new  ("Route Selection"));
 	
 	
 	
