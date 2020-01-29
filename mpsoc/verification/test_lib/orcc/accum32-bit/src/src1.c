@@ -28,12 +28,12 @@ extern fifo_i32_t *src1_Output2;
 // Output Fifo control variables
 static unsigned int index_Output1;
 #define NUM_READERS_Output1 1
-#define SIZE_Output1 512
+#define SIZE_Output1 32
 #define tokens_Output1 src1_Output1->contents
 
 static unsigned int index_Output2;
 #define NUM_READERS_Output2 1
-#define SIZE_Output2 512
+#define SIZE_Output2 32
 #define tokens_Output2 src1_Output2->contents
 
 ////////////////////////////////////////////////////////////////////////////////

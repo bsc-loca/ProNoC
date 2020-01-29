@@ -452,11 +452,7 @@ sub generate_trace_dot_file{
 	
 ";
 	
-#add nodes
-	#my @tasks=get_all_tasks($self);
-	#foreach my $p (@tasks){
-	#	$dotfile=$dotfile."\"$p\" [label=\"{   $p} }\"];\n"; 		
-	#}	
+
 	
 #add connections
 
@@ -524,8 +520,11 @@ $node\[
 	foreach my $p (@traces){
 		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
 				
-		my $src_tile= $self->object_get_attribute("MAP_TILE","$src");
-		my $dst_tile= $self->object_get_attribute("MAP_TILE","$dst");
+	#	my $src_tile= $self->object_get_attribute("MAP_TILE","$src");
+	#	my $dst_tile= $self->object_get_attribute("MAP_TILE","$dst");
+		
+		my $src_tile=get_task_give_tile($self,"$src");
+		my $dst_tile=get_task_give_tile($self,"$dst");
 		
 		next if ( $src_tile eq "-" ||  $dst_tile eq "-" ) ;
 		

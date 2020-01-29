@@ -34,13 +34,15 @@ void error_handelling_function(){
 
 unsigned char iport_array[ni_NUM_VCs];
 
+unsigned int index=0;
+
 void got_packet_funtion(){
 	unsigned int i ;
 	unsigned char iport;
 	for (i=0;i<ni_NUM_VCs;i++){
 		if(ni_got_packet(i)) {
 			iport =ni_RECEIVE_PRECAP_DATA_REG(i); 	
-			ni_receive (i, recive_buffer[iport] , 32, 0);		
+			ni_receive (i, recive_buffer[iport] , 32, index%32);		
 		  iport_array[i]=iport;
 		}//If ni got packet
 	}//for	
@@ -56,12 +58,15 @@ void check_packet_funtion(){
 			if(ni_packet_is_saved(i)) {
 				src_info=get_src_info(i);
 				size=ni_RECEIVE_DATA_SIZE_REG(i); 
+      
 				iport= iport_array[i];
 				
 				printf("Tile%u:A message of %u bytes is recived from core (%x) vc%u port%u:", COREID,size,src_info.addr,i,iport);
-				for (j=0;j<size;j++){
+				for (j=index;j<index+size;j++){
 					 printf("%c", recive_buffer[iport][j]);
 				}//for
+         index+=size;
+         index%=8;
 				printf("\n");
 		}// end if packet is saved
 	}//for

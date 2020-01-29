@@ -28,7 +28,7 @@ extern fifo_i32_t *add2_Input2;
 // Input Fifo control variables
 static unsigned int index_Input1;
 static unsigned int numTokens_Input1;
-#define SIZE_Input1 512
+#define SIZE_Input1 32
 #define tokens_Input1 add2_Input1->contents
 
 extern connection_t connection_add2_Input1;
@@ -36,7 +36,7 @@ extern connection_t connection_add2_Input1;
 
 static unsigned int index_Input2;
 static unsigned int numTokens_Input2;
-#define SIZE_Input2 512
+#define SIZE_Input2 32
 #define tokens_Input2 add2_Input2->contents
 
 extern connection_t connection_add2_Input2;
@@ -55,7 +55,7 @@ extern fifo_i32_t *add2_Output;
 // Output Fifo control variables
 static unsigned int index_Output;
 #define NUM_READERS_Output 1
-#define SIZE_Output 512
+#define SIZE_Output 32
 #define tokens_Output add2_Output->contents
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -52,9 +52,12 @@ module ni_vc_wb_slave_regs #(
     send_start,
     receive_start,
     receive_done,
+    send_done,
     receive_vc_got_packet,
     receive_packet_is_saved,
-    all_save_done_reg_rst,   
+    send_packet_is_sent,
+    all_save_done_reg_rst,  
+    all_send_done_reg_rst,
     send_pointer_addr, 
     be_in,
     receive_pointer_addr,
@@ -141,12 +144,15 @@ module ni_vc_wb_slave_regs #(
     input send_fsm_is_ideal,receive_fsm_is_ideal;
     input receive_vc_got_packet;
     input receive_done;
+    input send_done;
     output  reg [Dw-1   :   0] send_pointer_addr; 
     output      [BEw-1 : 0 ] be_in;
    
     output  reg [Dw-1   :   0] receive_pointer_addr;
     output  reg receive_packet_is_saved;
-    input   all_save_done_reg_rst;    
+    output  reg send_packet_is_sent; 
+    input   all_save_done_reg_rst; 
+    input all_send_done_reg_rst;
     output  [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size;
     output  reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_max_buff_siz;
     output  reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_start_index; 
@@ -179,7 +185,7 @@ module ni_vc_wb_slave_regs #(
     reg  [MAX_TRANSACTION_WIDTH-1    :   0]  send_data_size_reg,send_data_size_next, receive_max_buff_siz_next,receive_start_index_next;
     reg  send_start_next;
     reg  receive_en,receive_en_next;
-    reg  receive_packet_is_saved_next;
+    reg  receive_packet_is_saved_next,send_packet_is_sent_next;
     
     reg [HDw-1 : 0] hdr_data_next;
    
@@ -190,7 +196,8 @@ module ni_vc_wb_slave_regs #(
    
     generate 
     if(BYTE_EN)begin
-         assign send_data_size =  (add_offsets>0)?  send_data_size_reg+1'b1 :  send_data_size_reg;
+         wire [1:0] send_offset= (add_offsets==0)? 2'b00 : (add_offsets<=(1<<OFFSETw))? 2'b01 : 2'b10;    
+         assign send_data_size =  send_data_size_reg+ send_offset;
     end else begin:nbe
         assign send_data_size = send_data_size_reg;    
     end
@@ -220,15 +227,20 @@ module ni_vc_wb_slave_regs #(
         send_start_next = 1'b0;
         receive_en_next = receive_en;
         receive_packet_is_saved_next = receive_packet_is_saved;
+        send_packet_is_sent_next = send_packet_is_sent;
         receive_max_buff_siz_next = receive_max_buff_siz;
         hdr_data_next = hdr_data;
-         
+        
+        if(all_send_done_reg_rst) send_packet_is_sent_next =1'b0; 
         if(all_save_done_reg_rst) receive_packet_is_saved_next=1'b0;
         if (receive_vc_got_packet & receive_en ) begin 
             receive_en_next = 1'b0;
         end
         if(receive_done) begin 
             receive_packet_is_saved_next = 1'b1;
+        end
+        if(send_done) begin 
+            send_packet_is_sent_next = 1'b1;
         end
         if(s_stb_i  &   s_cyc_i &  s_we_i & state_reg_enable)   begin             
                 case( s_addr_i)
@@ -318,6 +330,7 @@ module ni_vc_wb_slave_regs #(
             weight <= INIT_WEIGHT;
             receive_en <= 1'b0;
             receive_packet_is_saved <= 1'b0;
+            send_packet_is_sent<=1'b0;
             send_start <=1'b0;
             hdr_data <= {HDw{1'b0}}; 
         end else begin 
@@ -334,6 +347,7 @@ module ni_vc_wb_slave_regs #(
             weight <= weight_next;
             receive_en <=receive_en_next;
             receive_packet_is_saved<=receive_packet_is_saved_next;
+            send_packet_is_sent<=send_packet_is_sent_next;
             send_start <= send_start_next;
             hdr_data <= hdr_data_next;
         end 

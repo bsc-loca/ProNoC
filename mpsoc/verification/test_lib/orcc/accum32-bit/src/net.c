@@ -14,12 +14,12 @@
 
 /////////////////////////////////////////////////
 // FIFO allocation
-DECLARE_FIFO(i32, 512, 0, 1)
-DECLARE_FIFO(i32, 512, 1, 1)
-DECLARE_FIFO(i32, 512, 2, 1)
-DECLARE_FIFO(i32, 512, 3, 1)
-DECLARE_FIFO(i32, 512, 4, 1)
-DECLARE_FIFO(i32, 512, 5, 1)
+DECLARE_FIFO(i32, 32, 0, 1)
+DECLARE_FIFO(i32, 32, 1, 1)
+DECLARE_FIFO(i32, 32, 2, 1)
+DECLARE_FIFO(i32, 32, 3, 1)
+DECLARE_FIFO(i32, 32, 4, 1)
+DECLARE_FIFO(i32, 32, 5, 1)
 
 /////////////////////////////////////////////////
 // FIFO pointer assignments

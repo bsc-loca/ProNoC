@@ -199,10 +199,10 @@ module  ni_master #(
  Shared registers for all VCs
     address bits       
       [5:0]   
-       0:    STATUS1_WB_ADDR     // status1:  {send_vc_is_busy,receive_vc_is_busy,receive_vc_packet_is_saved,receive_vc_got_packet};
+       0:    STATUS1_WB_ADDR     // status1:  {receive_vc_is_busy,receive_vc_packet_is_saved,receive_vc_got_packet};
        16:   STATUS2_WB_ADDR     // status2:  {send_enable_binary,receive_enable_binary,vc_got_error,any_error_isr,got_pck_isr, save_done_isr,send_done_isr,any_error_int_en,got_pck_int_en, save_done_int_en,send_done_int_en};
        32:   BURST_SIZE_WB_ADDR  // The busrt size in words        
-                
+       48:   STATUS3_WB_ADDR         
       
 */
     localparam 
@@ -218,6 +218,7 @@ module  ni_master #(
     localparam [GENRL_ADRw-1  :   0]
         STATUS1_WB_ADDR  =   0,          // status1 
         STATUS2_WB_ADDR  =   1,          // status2 
+        STATUS3_WB_ADDR  =   3,          // status3
         BURST_SIZE_WB_ADDR = 2;      
     
  //Readonly registers per VC
@@ -229,8 +230,9 @@ module  ni_master #(
         RECEIVE_PRECAP_DATA_ADDR=14;
         
     localparam
-        STATUS1w= 4 * V,
+        STATUS1w= 3 * V,
         STATUS2w= 2 * CHw + V + 8,
+        STATUS3w= 2 * V,
         ERRw= 5;     
     
     localparam 
@@ -278,7 +280,7 @@ module  ni_master #(
     wire  [V-1    :   0] send_vc_fsm_is_ideal,receive_vc_fsm_is_ideal;
     wire  [Dw-1   :   0] send_vc_pointer_addr [V-1   :  0];
     wire  [Dw-1   :   0] receive_vc_pointer_addr [V-1   :  0];
-    wire  [V-1    :   0] receive_vc_got_packet;    
+    wire  [V-1    :   0] receive_vc_got_packet,receive_vc_got_hdr_flit_at_head;    
     wire [MAX_TRANSACTION_WIDTH-1    :   0] send_vc_data_size [V-1   :  0];
     wire [MAX_TRANSACTION_WIDTH-1    :   0] receive_vc_max_buff_siz [V-1   :  0];
     wire [MAX_TRANSACTION_WIDTH-1    :   0] receive_vc_start_index  [V-1   :  0];
@@ -296,6 +298,7 @@ module  ni_master #(
     wire [V-1    :   0]  send_vc_send_hdr,send_vc_send_tail;
     wire [V-1    :   0]  send_vc_done,receive_vc_done;    
     wire [V-1	 :   0]  receive_vc_packet_is_saved;
+    wire [V-1    :   0]  send_vc_packet_is_sent;
     wire [EAw-1   :   0]  dest_e_addr;
     wire [Cw-1   :   0]  pck_class;
     wire [BEw-1 : 0 ] be_in;
@@ -305,7 +308,7 @@ module  ni_master #(
     wire burst_counter_dec= | vc_burst_counter_dec;
     wire fifo_wr = | vc_fifo_wr; 
     wire fifo_rd = | vc_fifo_rd;
-    wire any_vc_got_pck;
+    wire any_vc_has_hdr_flit_at_head;
     wire any_vc_send_done = | send_vc_done;     
     wire any_vc_save_done = | receive_vc_done;        
     wire last_burst = (burst_counter == 1);
@@ -333,6 +336,8 @@ module  ni_master #(
             
     wire  [STATUS1w-1  :0] status1;
     wire  [STATUS2w-1  :0] status2; 
+    wire  [STATUS3w-1  :0] status3;
+    
     wire  [ERRw-1     : 0] errors [V-1 : 0];    
     wire [DSTPw-1 : 0] destport;
     wire [WEIGHTw-1 : 0] weight;  
@@ -346,7 +351,8 @@ module  ni_master #(
     
     
   
-    assign status1= {send_vc_is_busy,receive_vc_is_busy,receive_vc_packet_is_saved,receive_vc_got_packet};
+    assign status1= {receive_vc_is_busy,receive_vc_packet_is_saved,receive_vc_got_packet};
+    assign status3= {send_vc_packet_is_sent,send_vc_is_busy};
     assign status2= {send_enable_binary,receive_enable_binary,vc_got_error,any_error_isr,got_pck_isr, save_done_isr,send_done_isr,any_error_int_en,got_pck_int_en, save_done_int_en,send_done_int_en};
       
     
@@ -364,6 +370,9 @@ module  ni_master #(
             end 
             STATUS2_WB_ADDR: begin 
                 s_dat_o = {{(Dw-STATUS2w){1'b0}}, status2};
+            end
+            STATUS3_WB_ADDR: begin 
+                s_dat_o = {{(Dw-STATUS3w){1'b0}}, status3};
             end
             endcase
         end//0
@@ -391,7 +400,7 @@ module  ni_master #(
     end      
      
    
-   reg all_save_done_reg_rst;
+   reg all_save_done_reg_rst,all_send_done_reg_rst;
     
     //write wb registers
     always @ (*)begin 
@@ -412,7 +421,7 @@ module  ni_master #(
         any_error_isr_next= any_error_isr; 
         all_save_done_reg_rst=1'b0;
         // all_got_pck_reg_rst=1'b0;
-        // all_send_done_reg_rst=1'b0;
+        all_send_done_reg_rst=1'b0;
         
         if((s_stb_i  &    s_we_i) && (vc_s_addr_i == GENERAL_REGS_WB_ADDR)) begin // This is a general address. check the general address filed
             case(genrl_reg_addr)
@@ -435,7 +444,7 @@ module  ni_master #(
                 end
                 if (s_dat_i[SEND_DONE_ISR_LOC]) begin 
                     send_done_isr_next = 1'b0; 
-                    //all_send_done_reg_rst=1'b1; 
+                    all_send_done_reg_rst=1'b1; 
                 end
                 if (s_dat_i[ERRORS_ISR_LOC]) begin 
                     any_error_isr_next = 1'b0;                        
@@ -449,7 +458,7 @@ module  ni_master #(
         end//  if(s_stb_i  &    s_we_i)  
         
         else begin 
-            if(any_vc_got_pck)      got_pck_isr_next  = 1'b1;
+            if(any_vc_has_hdr_flit_at_head)      got_pck_isr_next  = 1'b1;
             if(any_vc_save_done)    save_done_isr_next  = 1'b1;
             if(any_vc_send_done)    send_done_isr_next  = 1'b1;
             if(any_vc_got_error)    any_error_isr_next = 1'b1;
@@ -601,7 +610,7 @@ module  ni_master #(
             .WEIGHTw(WEIGHTw),
             .BYTE_EN(BYTE_EN)
             
-        )
+        )        
         wb_slave_registers
         (
 //synthesis translate_off
@@ -620,7 +629,9 @@ module  ni_master #(
             .receive_start_index(receive_vc_start_index[i]),
             .receive_start_index_offset(receive_vc_start_index_offset[i]),
             .receive_done(receive_vc_done[i]),
-            .receive_packet_is_saved(receive_vc_packet_is_saved[i]),    
+            .send_done(send_vc_done[i]),
+            .receive_packet_is_saved(receive_vc_packet_is_saved[i]),
+            .send_packet_is_sent(send_vc_packet_is_sent[i]),
             .send_data_size(send_vc_data_size[i]),
             .receive_max_buff_siz(receive_vc_max_buff_siz[i]),
             .dest_e_addr(vc_dest_e_addr[i]),
@@ -630,7 +641,8 @@ module  ni_master #(
             .send_start(send_vc_start[i]),
             .receive_start(receive_vc_start[i]),
             .receive_vc_got_packet(receive_vc_got_packet[i]),
-            .all_save_done_reg_rst(all_save_done_reg_rst),	    
+            .all_save_done_reg_rst(all_save_done_reg_rst),
+            .all_send_done_reg_rst(all_send_done_reg_rst),
 	        .s_dat_i(s_dat_i),
             .s_addr_i(s_addr_i[CHANNEL_REGw-1:0]),
             .s_stb_i(s_stb_i),
@@ -943,7 +955,7 @@ module  ni_master #(
     wire [V-1    :   0]  ififo_vc_not_empty; 
     assign vc_fifo_empty = ~ ififo_vc_not_empty;
     assign receive_vc_got_packet = ififo_vc_not_empty;
-   
+    assign receive_vc_got_hdr_flit_at_head=  ififo_vc_not_empty & receive_vc_fsm_is_ideal;
         
     
     
@@ -1008,8 +1020,8 @@ module  ni_master #(
   assign m_receive_dat_o = fifo_dout[Dw-1   :   0];
   assign received_flit_is_tail = fifo_dout[Fw-2];
   assign received_flit_is_hdr  = fifo_dout[Fw-1];  
-  assign any_vc_got_pck = |receive_vc_got_packet;
-  
+//  assign any_vc_got_pck = |receive_vc_got_packet;
+  assign any_vc_has_hdr_flit_at_head = | receive_vc_got_hdr_flit_at_head;
     localparam [1:0] 
         HDR_FLAG           =   2'b10,
         BDY_FLAG            =   2'b00,

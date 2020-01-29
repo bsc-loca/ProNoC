@@ -23,14 +23,15 @@ use constant ID_URI                 => 50;
 
 
 sub drag_and_drop_page {
-	my ($self,$tview,$name,$group_num,$items_ref)=@_;
+	my ($self,$tview,$name,$items_ref, $ctrl_box)=@_;
     my $vbox = Gtk2::VBox->new(FALSE,5);
 
+	my $group_num=$self->object_get_attribute($name,'group_num');
 	update_group_item_list($self,$group_num,$name,$items_ref);
 
 	my $ref_source = $self->object_get_attribute("$name",'ungrouped');
     my $lb=$self->object_get_attribute($name,'lable');
-    my ($win,$list_store)=create_iconview($self,"$lb",'NO', $ref_source,$name,'ungrouped');
+    my ($win,$list_store)=create_iconview($self,"$lb",'NO', $ref_source,$name,'ungrouped',undef);
  
   
      
@@ -40,14 +41,12 @@ sub drag_and_drop_page {
   	my $gname=$self->object_get_attribute("$name",'group_name_root');	
 	my $editable =$self->object_get_attribute("$name",'group_name_editble');	
   	
-  	
+  	my $limit=$self->object_get_attribute($name,'map_limit');
   	for (my $i=0; $i<$group_num;$i++){
   		
-  			my $ref_grp = $self->object_get_attribute("$name","grouped$i");
+  			my $ref_grp = $self->object_get_attribute("$name","$gname($i)");  			
   			
-  			
-  			
-    		my ($gwin,$list_store)=create_iconview($self,"$gname$i",$editable,$ref_grp,$name,"grouped$i" );
+    		my ($gwin,$list_store)=create_iconview($self,"$gname($i)",$editable,$ref_grp,$name,"$gname($i)",$limit );
     		my $y= int($i/$dim_y);
     		my $x= $i % $dim_y;    		
 	        $table->attach_defaults ($gwin, $x, $x+1 , $y, $y+1);
@@ -55,39 +54,9 @@ sub drag_and_drop_page {
    my $sw = add_widget_to_scrolled_win($table);
    
    my  $v_paned=gen_vpaned($win,.2,$sw);
-   
- 	
- 	
-      
-        #create an eventbox to accept drag actions
-        my $event_box = Gtk2::EventBox->new();
-        
-        my  $h_paned=gen_hpaned($v_paned,.7,$event_box);    
-        
-        
-        
-        my $label_drag_me = Gtk2::Label->new("Now Stanley,\nDO NOT drag this item");
-        $event_box->add($label_drag_me);
+   my  $h_paned= (defined $ctrl_box)? gen_hpaned($v_paned,.7,$ctrl_box) : $v_paned;   
 
-        #Try and convince the user otherwise
-      
-        #Setting up the Gtk2::Event Box instead of the Gtk2::Label, enabling it as 
-        #a drag source
-        $event_box->drag_source_set (
-                                    ['button1_mask', 'button3_mask'],
-                                    ['copy'],
-                                    {
-                                    'target' => 'text/plain',
-                                    'flags' => [],
-                                    'info' => ID_LABEL,
-                                    },
-        );
-
-            my $text_to_drag = '<span foreground="red" size="x-large">"Well there\'s another nice mess you\'ve gotten me into."</span>';
-
-        #set up the data which needs to be fed to the drag destination (drop)
-        $event_box->signal_connect ('drag-data-get' => \&source_drag_data_get,$text_to_drag );
-
+       
     
 
 $vbox->add($h_paned);
@@ -97,18 +66,21 @@ return $vbox;
 
 
 
+
 sub update_group_item_list{
 	my ($self,$group_num,$name,$items_ref)=@_;
 	#get the list of current items
 	my @items = (defined $items_ref) ? @{$items_ref}:();
 	my @items_grouped;
+	my $gname=$self->object_get_attribute("$name",'group_name_root');
 	#update groaped_list
 	for(my $i=0;$i<$group_num;$i=$i+1){
-		my $gref = $self->object_get_attribute("$name","grouped$i");
+		my $gref = $self->object_get_attribute("$name","$gname($i)");
 		next if(! defined $gref);
 		my @grouped =  @{$gref};
 		@grouped=get_common_array(\@grouped,\@items);		
-		$self->object_add_attribute("$name","grouped$i",\@grouped);
+		$self->object_add_attribute("$name","$gname($i)",\@grouped);
+		
 		push (@items_grouped,@grouped);
 	}	
 	#@items_ungroaped= @items - @items_groaped
@@ -124,7 +96,7 @@ sub create_iconview {
 #Creates an Iconview in a ScrolledWindow. This -----
 #Iconview has the ability to drag items off it  -----
 #---------------------------------------------------
-	my ($self,$lable,$editable,$ref,$name,$param)=@_;
+	my ($self,$lable,$editable,$ref,$name,$param,$limit)=@_;
     my $icon_string= undef;
     my $tree_model = create_iconview_model($self,$name,$ref);
 
@@ -134,7 +106,7 @@ sub create_iconview {
 
     #Enable the Gtk2::IconView as a drag source
     add_drag_source($icon_view);
-    add_drop_source($icon_view,$tree_model,$name,$param,$self);
+    add_drop_source($icon_view,$tree_model,$name,$param,$self,$limit);
 
     #This is a nice to have. It changes the drag icon to that of the
     #icon which are now selected and dragged (single selection mode)
@@ -164,7 +136,8 @@ sub create_iconview {
 		$tree_model->remove($saved);
 		source_drag_data_get(@_,$icon_string); 
 		my @array=remove_scolar_from_array($gref,$no_markup );
-		$self->object_add_attribute("$name",$param,\@array);	
+		$self->object_add_attribute("$name",$param,\@array);
+		
 		
 	} );
     
@@ -233,8 +206,8 @@ sub target_drag_data_received {
 
     my ($widget, $context, $x, $y, $data, $info, $time,$ref) = @_;
 
-	my ($target,$name,$param,$self) = @{$ref};
-   
+	my ($target,$name,$param,$self,$limit) = @{$ref};
+    my @array;
 	my $icon=$self->object_get_attribute($name,'trace_icon');
 	my $pixbuf = get_icon_pixbuff ($icon );
     if ($info eq ID_LABEL){
@@ -242,7 +215,7 @@ sub target_drag_data_received {
         
         
 		my $r=$self->object_get_attribute("$name","$param");
-        my @array = defined ($r)? @{$r}:();
+        @array = defined ($r)? @{$r}:();
         push (@array ,$data->data); 
         $self->object_add_attribute("$name","$param",\@array);
         add_icon_to_tree($self,$name,$target,$data->data) ;
@@ -257,7 +230,7 @@ sub target_drag_data_received {
         foreach ($data->get_uris){
            add_icon_to_tree($self,$name,$target,$data->data) ;
             my $r=$self->object_get_attribute("$name","$param");
-        	my @array = defined ($r)? @{$r}:();
+        	@array = defined ($r)? @{$r}:();
         	push (@array ,$data->data); 
         	$self->object_add_attribute("$name","$param",\@array);
         }
@@ -271,15 +244,23 @@ sub target_drag_data_received {
 	
        
 
-         add_icon_to_tree($self,$name,$target,$no_markup) ;
+        add_icon_to_tree($self,$name,$target,$no_markup) ;
         my $r=$self->object_get_attribute("$name","$param");
-        my @array = defined ($r)? @{$r}:();
+        
+        @array = defined ($r)? @{$r}:();
         push (@array ,$no_markup);
         $self->object_add_attribute("$name","$param",\@array); 
+      
         
         
         
     }
+# check if the maximum number of droped item is recived
+$limit =655350 if(!defined $limit);
+if( scalar @array >= $limit){    
+    stop_drag_dest( $widget);
+}    
+#	print "stop_drag_dest( $icon_view);\n";
 
     $context->finish (0, 0, $time);
 }
@@ -345,8 +326,14 @@ sub add_drag_source {
                         );
 }
 
+sub stop_drag_dest {
+	my $widget=shift;
+	$widget->drag_dest_unset ();
+}
+
+
 sub add_drop_source {
-	my ($widget,$target,$name,$param,$self)=@_;	
+	my ($widget,$target,$name,$param,$self,$limit)=@_;	
 	
 	  #Create a target table to receive drops
     my @target_table = (
@@ -357,10 +344,21 @@ sub add_drop_source {
     );
 
     #make this the drag destination (drop) for various drag sources
+    my $r=$self->object_get_attribute("$name","$param");
+    my    @array = defined ($r)? @{$r}:();
     $widget->drag_dest_set('all', ['copy'], @target_table);
+    # check if the maximum number of droped item is recived
+	$limit =655350 if(!defined $limit);
+	if( scalar @array >= $limit){    
+	    stop_drag_dest( $widget);
+	}    
+    
 
     #do a callback as soon as drag data is received
-    my @params=($target,$name,$param,$self);
+    my @params=($target,$name,$param,$self,$limit);
     $widget->signal_connect ('drag-data-received' => \&target_drag_data_received,\@params );
+    $widget->signal_connect ('drag-data-get' => sub {
+    	 $widget->drag_dest_set('all', ['copy'], @target_table);
+    });
 	
 }

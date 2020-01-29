@@ -14,12 +14,12 @@
 
 /////////////////////////////////////////////////
 // FIFO allocation
-DECLARE_FIFO(i8, 512, 0, 1)
-DECLARE_FIFO(i8, 512, 1, 1)
-DECLARE_FIFO(i8, 512, 2, 1)
-DECLARE_FIFO(i8, 512, 3, 1)
-DECLARE_FIFO(i8, 512, 4, 1)
-DECLARE_FIFO(i8, 512, 5, 1)
+DECLARE_FIFO(i8, 32, 0, 1)
+DECLARE_FIFO(i8, 32, 1, 1)
+DECLARE_FIFO(i8, 32, 2, 1)
+DECLARE_FIFO(i8, 32, 3, 1)
+DECLARE_FIFO(i8, 32, 4, 1)
+DECLARE_FIFO(i8, 32, 5, 1)
 
 /////////////////////////////////////////////////
 // FIFO pointer assignments
@@ -29,11 +29,11 @@ fifo_i8_t *add1_Input1 = &fifo_0;
 fifo_i8_t *src1_Output2 = &fifo_1;
 fifo_i8_t *add2_Input1 = &fifo_1;
 
-fifo_i8_t *src2_Output1 = &fifo_2;
-fifo_i8_t *add1_Input2 = &fifo_2;
+fifo_i8_t *src2_Output2 = &fifo_2;
+fifo_i8_t *add2_Input2 = &fifo_2;
 
-fifo_i8_t *src2_Output2 = &fifo_3;
-fifo_i8_t *add2_Input2 = &fifo_3;
+fifo_i8_t *src2_Output1 = &fifo_3;
+fifo_i8_t *add1_Input2 = &fifo_3;
 
 fifo_i8_t *add1_Output = &fifo_4;
 fifo_i8_t *print1_result = &fifo_4;

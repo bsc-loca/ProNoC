@@ -27,7 +27,7 @@ extern fifo_i8_t *print2_result;
 // Input Fifo control variables
 static unsigned int index_result;
 static unsigned int numTokens_result;
-#define SIZE_result 512
+#define SIZE_result 32
 #define tokens_result print2_result->contents
 
 extern connection_t connection_print2_result;

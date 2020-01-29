@@ -1,9 +1,14 @@
 //This code send packets to tile 3 
 #include "mor1k_tile.h"
 
-unsigned char pck3[32]={"123456789ABCDEFGHJKLMNOPQRSTUVWXYZ"}; 
-unsigned char pck1[12]={"first data"}; 
-unsigned char pck2[11]={"second data"}; 
+struct  TT{
+    char pck3[32];
+    unsigned long ul;
+} u;
+
+// char pck3[20]={"123456789ABCDEFGHJKLMNOPQRSTUVWXYZ"};
+
+
 
 
 
@@ -62,10 +67,23 @@ int main(){
 	ni_initial (16,1,0,0,1); //enable the  intrrupt when a packet is recived or when there is an error
 	
 // ni_transfer (w, v, c,  port,  data_start_addr,  data_size,  dest_phy_addr);
-for (i=1;i<33;i++){
-	ni_transfer (1,0, 0, i%4,(unsigned int)&pck3[0], i, PHY_ADDR_ENDP_1);
+int index=0;
+
+for (i=0;i<32;i++){
+	u.pck3[i]='a'+i;
 }
-	
+
+
+for (i=0;i<32;i++){
+	ni_transfer (1,0, 0,0,(unsigned int)&u.pck3[index%32],3, PHY_ADDR_ENDP_1);
+  index+=3;
+}
+
+for (i=0;i<32;i++){
+	ni_transfer (1,0, 0,0,(unsigned int)&u.pck3[index%32], 4, PHY_ADDR_ENDP_1);
+  index+=4;
+}
+
 
 
 

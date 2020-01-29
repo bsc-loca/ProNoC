@@ -279,7 +279,7 @@ sub trace_map_ctrl{
 	});
 	
 	$auto->signal_connect ( 'clicked'=> sub{
-		my @tasks = $self->get_all_tasks();
+		my @tasks = $self->get_all_merged_tasks();
 		my $task_num= scalar @tasks;
 		return if($task_num ==0);
 		my ($nx,$ny) =network_dim_cal($task_num);
@@ -506,7 +506,7 @@ sub trace_map {
 	#print "\@tile= @tiles \n";
 	
 	my $i=0;
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_merged_tasks($self);
 	
 	my @assigned = $self->get_assigned_tiles();
 	
@@ -519,7 +519,8 @@ sub trace_map {
 	my %com_tasks= $self->get_communication_task();
 	
 	foreach my $p (@tasks){
-		my $value=$self->object_get_attribute("MAP_TILE",$p);
+		#my $value=$self->object_get_attribute("MAP_TILE",$p);
+		my $value=get_task_give_tile($self,$p);
 		$value = "-" if (!defined $value);
 		my @l=($value eq "-" || grep (/^\Q$value\E$/,@tiles)==0 )? @list : (@list,$value);
 		
@@ -652,8 +653,10 @@ sub get_map_info {
 	my @traces= get_trace_list($self);
 	foreach my $p (@traces) {	
 		my ($src, $dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
-		my $src_tile = $self->object_get_attribute('MAP_TILE',"$src");
-		my $dst_tile = $self->object_get_attribute('MAP_TILE',"$dst");
+		#my $src_tile = $self->object_get_attribute('MAP_TILE',"$src");
+		my  $src_tile = get_task_give_tile($self,"$src");
+		#my $dst_tile = $self->object_get_attribute('MAP_TILE',"$dst");
+		my $dst_tile  = get_task_give_tile($self,"$dst");
 		next if(!defined $src_tile || !defined  $dst_tile );
 		next if($src_tile eq '-' || $dst_tile eq "-" );
 		my ($src_x,$src_y)= tile_id_to_loc($src_tile);
@@ -689,11 +692,12 @@ sub get_map_info {
 sub map_combobox {
  	my ($object,$task_name,$content,$default)=@_;
 	my @combo_list=@{$content};
-	my $value=$object->object_get_attribute("MAP_TILE",$task_name);
+	#my $value=$object->object_get_attribute("MAP_TILE",$task_name);
+	my $value=get_task_give_tile($object,$task_name);
 	my $pos;
 	$pos=get_pos($value, @combo_list) if (defined $value);
 	if(!defined $pos && defined $default){
-		$object->object_add_attribute("MAP_TILE",$task_name,$default);	
+		#$object->object_add_attribute("MAP_TILE",$task_name,$default);	
 	 	$pos=get_item_pos($default, @combo_list);
 	}
 	#print " my $pos=get_item_pos($value, @combo_list);\n";
@@ -821,9 +825,10 @@ sub genereate_output_tasks{
 	my $target_dir  = "$ENV{'PRONOC_WORK'}/traffic_pattern";
 	mkpath("$target_dir",1,0755);
 	
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_merged_tasks($self);
 	foreach my $p (@tasks) {	
-		my $tile=$self->object_get_attribute("MAP_TILE",$p);
+		#my $tile=$self->object_get_attribute("MAP_TILE",$p);
+		my $tile= get_task_give_tile($self,$p);
 		if ( $tile eq "-" ){
 			message_dialog("Error: unmapped task. Please map task $p to a tile", 'error' );
 			return;
@@ -866,7 +871,8 @@ sub get_cfg_content{
 sub get_tile_id{
 	my ($self,$task)=@_;
 	my $nx=$self->object_get_attribute('noc_param','T1');
-	my $tile=$self->object_get_attribute("MAP_TILE",$task);
+	#my $tile=$self->object_get_attribute("MAP_TILE",$task);
+	my $tile= get_task_give_tile($self,$task);
 	my ($x, $y) =  $tile =~ /(\d+)/g;  
 	$y=0 if(!defined $y);
 	my $IP_NUM =    ($y * $nx) +    $x;	
@@ -988,22 +994,26 @@ sub get_all_tasks{
 sub remove_mapping{
 	my $self=shift;
 	$self->object_add_attribute('MAP_TASK',undef,undef);
-	$self->object_add_attribute('MAP_TILE',undef,undef);
+	$self->object_add_attribute('mapping',undef,undef); 
+	#$self->object_add_attribute('MAP_TILE',undef,undef);
 }
 
 
 
 sub remove_nlock_mapping{
 	my $self=shift;
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_merged_tasks($self);
 	
 	foreach my $p (@tasks){
 		my $lock=$self->object_get_attribute("MAP_LOCK",$p);
 		$lock = 0 if (!defined $lock);
 		if($lock == 0){
-			my $tile=$self->object_get_attribute("MAP_TILE",$p);
-			$self->object_add_attribute("MAP_TILE",$p,undef);
+			#my $tile=$self->object_get_attribute("MAP_TILE",$p);
+			my $tile=get_task_give_tile($self,$p);
+			#$self->object_add_attribute("MAP_TILE",$p,undef);
 			$self->object_add_attribute("MAP_TASK",$tile,undef);
+			$self->object_add_attribute("mapping",$tile,undef);
+			
 			
 		}		
 	}	
@@ -1014,7 +1024,7 @@ sub get_nlock_tasks {
 	#my ($self,$taskref,$tileref)=shift;
 	my $self=shift;
 	my @unluck_tasks;
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_merged_tasks($self);
 	
 	foreach my $p (@tasks){
 		my $lock=$self->object_get_attribute("MAP_LOCK",$p);
@@ -1031,13 +1041,14 @@ sub get_nlock_tiles {
 	#my ($self,$taskref,$tileref)=shift;
 	my $self=shift;
 	my @luck_tiles;
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_merged_tasks($self);
 	
 	foreach my $task (@tasks){
 		my $lock=$self->object_get_attribute("MAP_LOCK",$task);
 		$lock = 0 if (!defined $lock);
 		if($lock == 1){
-			my $tile=$self->object_get_attribute('MAP_TILE',"$task");
+			#my $tile=$self->object_get_attribute('MAP_TILE',"$task");
+			my $tile=get_task_give_tile($self,"$task");
 			push(@luck_tiles,$tile);
 		}
 	
@@ -1052,14 +1063,15 @@ sub get_nlock_tiles {
 sub get_locked_map {
 	my $self=shift;
 	my %map; 
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_merged_tasks($self);
 	
 	foreach my $task (@tasks){
 		my $lock=$self->object_get_attribute("MAP_LOCK",$task);
 		
 		$lock = 0 if (!defined $lock);
 		if($lock == 1){
-			my $tile=$self->object_get_attribute('MAP_TILE',"$task");
+			#my $tile=$self->object_get_attribute('MAP_TILE',"$task");
+			my $tile=get_task_give_tile($self,"$task");
 			$map{$task}=$tile;
 		}
 	
@@ -1095,9 +1107,11 @@ sub random_map{
 			last;
 		};
 		my $tile=$rnd[$i];
-		$self->object_add_attribute('MAP_TILE',"$task",$tile);
+		#$self->object_add_attribute('MAP_TILE',"$task",$tile);
 		$self->object_add_attribute('MAP_TASK',"$tile",$task);
-	
+		my @l=($task);
+		$self->object_add_attribute("mapping","$tile",\@l); 
+		
 		$i++;	
 		
 	}
@@ -1139,8 +1153,10 @@ sub direct_map {
 			last;
 		};
 		my $tile=$sort_tiles[$i];
-		$self->object_add_attribute('MAP_TILE',"$task",$tile);
+		#$self->object_add_attribute('MAP_TILE',"$task",$tile);
 		$self->object_add_attribute('MAP_TASK',"$tile",$task);
+		my @l = ($task);
+		$self->object_add_attribute("mapping","$tile",\@l); 
 	
 		$i++;	
 		
@@ -1152,6 +1168,19 @@ sub direct_map {
 }
 
 
+sub get_task_give_tile{
+	my ($self,$task)=@_;
+	my @tiles=get_tiles_name($self);
+	foreach my $p (@tiles){
+		my $r=$self->object_get_attribute("mapping","$p");
+		
+		my @l=@{$r} if(defined $r); 		
+		if(defined $l[0] ){
+			return $p	if($l[0] eq $task );
+		}		
+	}	
+	return undef;
+}
 
 	
 	
@@ -1306,7 +1335,7 @@ sub nmap_algorithm{
 	my $ny=$self->object_get_attribute('noc_param','T2');
 	my $nc= $nx * $ny;
 	
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_merged_tasks($self);
 	my @tiles= get_tiles_name($self);
 	
 	my $n_tasks = scalar  @tasks;
@@ -1453,9 +1482,10 @@ sub nmap_algorithm{
 	foreach my $mapped_task (sort keys %map){
 			my $mapped_tile=$map{$mapped_task};
 			#print "$mapped_tile=\$map{$mapped_task};\n";
-			$self->object_add_attribute('MAP_TILE',"$mapped_task", $mapped_tile) if(defined $mapped_tile);
+			#$self->object_add_attribute('MAP_TILE',"$mapped_task", $mapped_tile) if(defined $mapped_tile);
 			$self->object_add_attribute('MAP_TASK',"$mapped_tile",$mapped_task) if(defined $mapped_tile);
-			
+			my @l = ($mapped_tile);
+			$self->object_add_attribute('mapping',"$mapped_tile",\@l) if(defined $mapped_tile);		
 	}
 	set_gui_status($self,"ref",1);
 		
@@ -1477,7 +1507,7 @@ sub worst_map_algorithm{
 	my $ny=$self->object_get_attribute('noc_param','T2');
 	my $nc= $nx * $ny;
 	
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_merged_tasks($self);
 	my @tiles= get_tiles_name($self);
 	
 	my $n_tasks = scalar  @tasks;
@@ -1624,9 +1654,12 @@ sub worst_map_algorithm{
 	foreach my $mapped_task (sort keys %map){
 			my $mapped_tile=$map{$mapped_task};
 			#print "$mapped_tile=\$map{$mapped_task};\n";
-			$self->object_add_attribute('MAP_TILE',"$mapped_task", $mapped_tile) if(defined $mapped_tile);
+			#$self->object_add_attribute('MAP_TILE',"$mapped_task", $mapped_tile) if(defined $mapped_tile);
+			 	
 			$self->object_add_attribute('MAP_TASK',"$mapped_tile",$mapped_task) if(defined $mapped_tile);
-			
+			my @l=($mapped_task);
+			$self->object_add_attribute("mapping","$mapped_tile",\@l) if(defined $mapped_tile); 
+			#print "$self->object_add_attribute(\"mapping\",\"$mapped_tile\",$mapped_task);\n"; 
 	}
 	set_gui_status($self,"ref",1);
 		
@@ -1638,30 +1671,40 @@ sub worst_map_algorithm{
 
 sub get_task_assigned_to_tile {
 	my ($self,$i)=@_;
-	my $p;
-	$p= $self->object_get_attribute("MAP_TASK","tile($i)");
-	return $p; 	
+	#my $p= $self->object_get_attribute("MAP_TASK","tile($i)");
+	my @l=@{$self->object_get_attribute("mapping","tile($i)")}; 
+	return $l[0]; 	
+	#return $p; 	
 }
 
 
 
 sub get_assigned_tiles{
 	my $self=shift;
-	my @tiles = sort keys %{$self->{'MAP_TASK'}};
-	return @tiles;	
-	
+	my @assigned_tiles;
+	my @tiles=get_tiles_name($self);
+	foreach my $p (@tiles){
+		my @l=@{$self->object_get_attribute("mapping","$p")}; 
+		push(@assigned_tiles,$p)if(defined $l[0] );		
+	}	
+	#my @assigned_tiles = sort keys %{$self->{'MAP_TASK'}};
+	return @assigned_tiles;		
 }
 
 sub map_task {
 	my ($self,$task,$tile)=@_;
-	my $oldtile= $self->{"MAP_TILE"}{$task};
+	#my $oldtile= $self->{"MAP_TILE"}{$task};
+	my $oldtile=get_task_give_tile($self,$task);
 	if($tile eq "-"){		
-	 	delete $self->{"MAP_TILE"}{$task};
+	 	#delete $self->{"MAP_TILE"}{$task};	 	
 	}else{
-		$self->{"MAP_TILE"}{$task}= $tile;
+		#$self->{"MAP_TILE"}{$task}= $tile;
 		$self->{'MAP_TASK'}{$tile}= $task;
+		my @l=($task);
+		$self->object_add_attribute("mapping","$tile",\@l); 
 	}	
-	delete $self->{"MAP_TASK"}{$oldtile} if(defined $oldtile);			
+	delete $self->{"MAP_TASK"}{$oldtile} if(defined $oldtile);	
+	$self->object_add_attribute("mapping",$oldtile,undef) if(defined $oldtile);	
 }
 
 sub remove_selected_traces{
@@ -1771,34 +1814,36 @@ sub trace_maker_notebook{
 	my $page1=select_trace_file($self,$tview,$mode);
 	$notebook->append_page ($page1,Gtk2::Label->new  ("1-Select $mode file"));
 	
+	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);
+	
 	#group tasks
 	$self->object_add_attribute('grouping','group_name_root','group');	
 	$self->object_add_attribute('grouping','group_name_editble','YES');	
 	$self->object_add_attribute('grouping','trace_icon','icons/cd.png');
+	$self->object_add_attribute('grouping','group_num',$NE);
+	$self->object_add_attribute('grouping','map_limit',$NE);
 	$self->object_add_attribute('grouping','lable',"${lb}s: Drag and drop ${lb}s to bottom group list");
 	
 		
 	my @tasks=get_all_tasks($self);
-	my $page2=drag_and_drop_page($self,$tview,'grouping',$group_num,\@tasks);
+	my $page2=drag_and_drop_page($self,$tview,'grouping',\@tasks);
 	$notebook->append_page ($page2,Gtk2::Label->new  ("2-Groap ${lb}s   "));
 	
-	#map tasks
-	
-	$self->object_add_attribute('mapping','group_name_root','Tile');	
+	#map tasks	
+	$self->object_add_attribute('mapping','group_name_root','tile');	
 	$self->object_add_attribute('mapping','group_name_editble','NO');
 	$self->object_add_attribute('mapping','trace_icon','icons/cd2.png');	
 	$self->object_add_attribute('mapping','lable',"${lb}s: Drag and drop ${lb}s/grouped ${lb}s to bottom tile list");
-	#get list of non-empty groups
-	my @merged_tasks;
-	for(my $i=0;$i<$group_num;$i=$i+1){
-		my $gref = $self->object_get_attribute('grouping',"grouped$i");
-		next if(! defined $gref);
-		push (@merged_tasks,"grouped$i");
-	}
+	$self->object_add_attribute('mapping','map_limit',1);
+	$self->object_add_attribute('mapping','group_num',$NE);
 	
-	my $uref= $self->object_get_attribute('grouping','ungrouped');	
-	push (@merged_tasks, @{$uref}) if(defined  $uref);	
-	my $page3=drag_and_drop_page($self,$tview,'mapping',$group_num,\@merged_tasks);
+	#get list of non-empty groups
+	
+	my @merged_tasks=get_all_merged_tasks($self);
+	my $map_ctrl =gen_mapping_ctrl_box($self,$tview,$mode);
+	
+	
+	my $page3=drag_and_drop_page($self,$tview,'mapping',\@merged_tasks,$map_ctrl);
 	$notebook->append_page ($page3,Gtk2::Label->new  ("3-Map ${lb}s"));
 	
 	
@@ -1831,9 +1876,29 @@ sub trace_maker_notebook{
 	
 }
 
+sub get_all_merged_tasks {
+	my($self)=@_;
+	my @merged;
+	my $group_num=$self->object_get_attribute('mapping','group_num');	
+	
+	for(my $i=0;$i<$group_num;$i=$i+1){
+		my $gref = $self->object_get_attribute('grouping',"grouped$i");
+		next if(! defined $gref);
+		push (@merged,"grouped$i");
+	}
+	my $uref= $self->object_get_attribute('grouping','ungrouped');	
+	push (@merged, @{$uref}) if(defined  $uref);	
+	return @merged;
+}
 
 
-
+sub gen_mapping_ctrl_box{
+	my ($self,$tview,$mode)=@_;
+	my $map_ctrl= trace_map_ctrl($self,$tview,$mode);
+	my $map_info=map_info($self);
+	my $v_paned=gen_vpaned($map_ctrl,.5,$map_info);
+	return $v_paned; 
+}
 
 
 
@@ -1841,10 +1906,14 @@ sub build_trace_gui {
 	my ($self,$mode,$ref,$w) = @_;
 	set_gui_status($self,"ideal",0);
 	$self->object_add_attribute ("process_notebook","currentpage",0);
-	my ($scwin_info,$tview)= create_text();	
-	my $notebook = trace_maker_notebook($self,$mode,$tview);	
-	my $v2=gen_vpaned($notebook,.65,$scwin_info);
-	
+	if($mode eq 'task'){
+		$self->object_add_attribute('noc_param','T1',2);
+		$self->object_add_attribute('noc_param','T2',2);
+		$self->object_add_attribute('noc_param','T3',1);
+		$self->object_add_attribute('noc_param','Fpay',32);
+		$self->object_add_attribute('noc_param','V',1);		
+		$self->object_add_attribute('noc_param','TOPOLOGY','"MESH"');		
+	}
 	
 	$self->object_add_attribute("file_id",undef,'a');
 	$self->object_add_attribute("trace_id",undef,0);
@@ -1860,14 +1929,15 @@ sub build_trace_gui {
 		
 	}
 	
-	if($mode eq 'task'){
-		$self->object_add_attribute('noc_param','T1',2);
-		$self->object_add_attribute('noc_param','T2',2);
-		$self->object_add_attribute('noc_param','T3',1);
-		$self->object_add_attribute('noc_param','Fpay',32);
-		$self->object_add_attribute('noc_param','V',1);		
-		$self->object_add_attribute('noc_param','TOPOLOGY','"MESH"');		
-	}
+	
+	my ($scwin_info,$tview)= create_text();	
+	my $notebook = trace_maker_notebook($self,$mode,$tview);	
+	my $v2=gen_vpaned($notebook,.65,$scwin_info);
+	
+	
+	
+	
+	
 	
 	
 	

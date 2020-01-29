@@ -90,20 +90,23 @@ module  simulator_UART #(
             
   
   reg print_en,buff_en;
-  
+  reg [5:0] reset_count,reset_count_next;  
    always @(*)begin 
         counter_next = counter;
+        reset_count_next=reset_count;
         ptr_next = ptr;
         print_en =0;
         buff_en=0;
-        if (ptr > 0 ) counter_next = counter + 1'b1;
-        if (counter == WAIT_COUNT || ptr == BUFFER_SIZE) begin
-           counter_next = 0;  
+        if (reset_count>=10 || counter >= WAIT_COUNT || ptr >= BUFFER_SIZE) begin
+           reset_count_next=0;
+	   counter_next = 0;  
            ptr_next =0;
            print_en =1;
-        end       
+        end  
+	else if (ptr > 0 ) counter_next = counter + 1'b1;
         if( s_stb_i &  s_cyc_i &  s_we_i & s_ack_o  )begin 
            counter_next=0;
+           reset_count_next=reset_count + 1'b1;
            buff_en=1;
            if( ptr < BUFFER_SIZE)begin 
                 ptr_next  =  ptr+1;
@@ -122,10 +125,12 @@ module  simulator_UART #(
   
   
   always @(posedge clk)begin 
-    if(reset) begin 
+    if(reset) begin
+        reset_count<=0; 
         counter<=0;
         ptr<=0;
     end else begin
+       reset_count<=reset_count_next;
        counter<=counter_next;
        ptr <= ptr_next;
        if( buff_en )  buffer[ptr]<=s_dat_i[7:0];

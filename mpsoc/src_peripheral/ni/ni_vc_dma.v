@@ -216,67 +216,6 @@ module ni_vc_dma #(
     input [BEw-1 : 0] receive_be;
     
     
-     reg  [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter;
-     
-      wire [SELw-1 : 0]  tail_flit_sel;
-   
-    localparam BE_ONEHOTw= 2**BEw;
-  
-
- genvar i;
- generate   
- if(BYTE_EN)begin:be 
-    wire [OFFSETw:0] byte2 = (receive_be==0)? (1<<OFFSETw) : {1'b0,receive_be}; 
-    wire [OFFSETw:0] byte1 = byte2 - {1'b0,receive_start_index_offset}; 
-   
-    reg  [MAX_PCK_SIZE_IN_BYTE-1     :   0] receive_size_cal;
-    always @(*)begin 
-        receive_size_cal={MAX_PCK_SIZE_IN_BYTE{1'b0}};
-        if (receive_counter==1)begin 
-            receive_size_cal [OFFSETw:0]= byte1;
-        end else begin 
-            receive_size_cal = (((receive_counter-1'b1)<<OFFSETw)+byte2)-receive_start_index_offset;        
-        end
-    end
-    assign receive_dat_size_in_byte= receive_size_cal;
-      
-      
-     wire [BE_ONEHOTw-1 : 0] one_hot_code,sel_reversed;
-  
-      bin_to_one_hot #(
-        .BIN_WIDTH(BEw),
-        .ONE_HOT_WIDTH(BE_ONEHOTw)
-      )
-      be_cnv
-      (
-        .bin_code(receive_be),
-        .one_hot_code(one_hot_code)
-      );
-  
-    assign sel_reversed = one_hot_code-1'b1;
-   
-    for (i=0; i<BE_ONEHOTw; i=i+1)begin :ff
-        assign tail_flit_sel[i] = sel_reversed[BE_ONEHOTw-i-1];
-     //assign tail_flit_sel[i] = sel_reversed[i];
-    end//for  
-      
-   
- end else begin: nbe
-     assign receive_dat_size_in_byte= (receive_counter<< OFFSETw );  
-     assign tail_flit_sel = {SELw{1'b1}};    
- end     
- endgenerate 
- 
- 
- 
-  
-  
-
- 
-  
-   
- 
- 
  
  
  
@@ -304,7 +243,7 @@ module ni_vc_dma #(
     input                           m_send_ack_i;    
      
      //wishbone write master interface signals
-    output  reg [SELw-1          :   0] m_receive_sel_o;
+    output  [SELw-1          :   0] m_receive_sel_o;
   //  output  [Dw-1            :   0] m_receive_dat_o;
     output  [M_Aw-1          :   0] m_receive_addr_o;
     output  reg [TAGw-1      :   0] m_receive_cti_o;
@@ -321,6 +260,9 @@ module ni_vc_dma #(
   
     reg burst_size_error_next, send_data_size_error_next;
     reg rcive_buff_ovrflw_err_next,  illegal_send_req_next;
+      
+     reg  [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter;   
+       
        
         
     
@@ -361,6 +303,94 @@ module ni_vc_dma #(
     assign m_send_sel_o = {SELw{1'b1}};
     
     
+ 
+ 
+  
+     
+ 
+   
+  
+
+
+ generate   
+ if(BYTE_EN)begin:be 
+    wire [OFFSETw:0] byte2 = (receive_be==0)? (1<<OFFSETw) : {1'b0,receive_be}; 
+    wire [OFFSETw:0] byte1 = byte2 - {1'b0,receive_start_index_offset}; 
+   
+    reg  [MAX_PCK_SIZE_IN_BYTE-1     :   0] receive_size_cal;
+    always @(*)begin 
+        receive_size_cal={MAX_PCK_SIZE_IN_BYTE{1'b0}};
+        if (receive_counter==1)begin 
+            receive_size_cal [OFFSETw:0]= byte1;
+        end else begin 
+            receive_size_cal = (((receive_counter-1'b1)<<OFFSETw)+byte2)-receive_start_index_offset;        
+        end
+    end
+    assign receive_dat_size_in_byte= receive_size_cal;
+      
+   /*************
+    *  sel generator  
+    * ***********/
+      wire [SELw-1 : 0]  first_flit_sel,last_flit_sel,first_flit_sel_not;  
+    
+     little_endian_sel_gen #(
+     	.SELw(SELw),
+     	.BEw(BEw)
+     )
+     last_sel_gen
+     (
+     	.byte_location(receive_be),
+     	.sel(last_flit_sel)
+     	
+     );
+     
+        
+    little_endian_sel_gen #(
+        .SELw(SELw),
+        .BEw(BEw)
+     )
+     first_sel_gen
+     (
+        .byte_location(receive_start_index_offset),
+        .sel(first_flit_sel_not)
+        
+     );
+
+     assign first_flit_sel =(receive_start_index_offset==0)?{SELw{1'b1}}:   ~first_flit_sel_not;
+    
+     
+      
+    
+    
+    
+    reg  [SELw-1 : 0] receive_sel;
+    wire recive_first_word= (receive_counter == 0);  
+       
+    always @(*) begin 
+        receive_sel = {SELw{1'b1}}; // default all byte enable bits are set. It may changed only for tail flit
+        
+        if(recive_first_word & received_flit_is_tail) begin 
+             receive_sel=  first_flit_sel & last_flit_sel;
+        end else  if(recive_first_word )begin 
+            receive_sel=  first_flit_sel;
+        end else  if (received_flit_is_tail) begin
+            receive_sel=  last_flit_sel;
+        end
+    end
+   
+
+     assign m_receive_sel_o  = receive_sel;  
+      
+      
+      
+      
+      
+   
+ end else begin: nbe
+     assign receive_dat_size_in_byte= (receive_counter<< OFFSETw );  
+     assign m_receive_sel_o = {SELw{1'b1}};   
+ end     
+ endgenerate 
  
 
   
@@ -507,7 +537,7 @@ module ni_vc_dma #(
         hdr_flit_is_received_next=hdr_flit_is_received;
         save_hdr_info=1'b0;
         rcive_buff_ovrflw_err_next =  rcive_buff_ovrflw_err;
-        m_receive_sel_o = {SELw{1'b1}}; // deafult all byte enable bits are set. It may changed only for tail flit
+       
         if(reset_errors) rcive_buff_ovrflw_err_next=1'b0;
             case(receive_ps)
                 RECEIVE_IDEAL: begin 
@@ -545,9 +575,8 @@ module ni_vc_dma #(
    //                             end
   //                          end else  
                             m_receive_cyc_o=1'b1; //CRC_EN == "NO"
-                            if (received_flit_is_tail) begin
-                                m_receive_sel_o= (receive_be == {BEw{1'b0}})? {SELw{1'b1}} : tail_flit_sel;
-                            end
+                            
+                         
                                   
                             
                             if (receive_fifo_empty) begin 
@@ -669,7 +698,45 @@ module ni_vc_dma #(
  
 
 
+endmodule
 
 
+module  little_endian_sel_gen #(
+    parameter SELw=4,
+    parameter BEw=2
+)(
+    byte_location,
+    sel
+);
+    
+     localparam BE_ONEHOTw= 2**BEw;
+     
+     output [SELw-1 : 0]  sel;  
+     input  [BEw-1 :  0]  byte_location;
+
+     wire [SELw-1 : 0]  sel_gen;  
+     wire [BE_ONEHOTw-1 : 0] one_hot_code,sel_reversed;
+  
+      bin_to_one_hot #(
+        .BIN_WIDTH(BEw),
+        .ONE_HOT_WIDTH(BE_ONEHOTw)
+      )
+      be_cnv
+      (
+        .bin_code(byte_location),
+        .one_hot_code(one_hot_code)
+      );
+  
+    assign sel_reversed = one_hot_code-1'b1;
+   
+   genvar i;
+   generate
+    for (i=0; i<BE_ONEHOTw; i=i+1)begin :ff
+        assign sel_gen[i] = sel_reversed[BE_ONEHOTw-i-1];
+     //assign tail_flit_sel[i] = sel_reversed[i];
+    end//for  
+   endgenerate   
+   assign sel= (byte_location == {BEw{1'b0}})? {SELw{1'b1}} : sel_gen;
 
 endmodule
+

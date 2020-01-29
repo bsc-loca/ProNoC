@@ -258,7 +258,8 @@ sub genereate_output_orcc{
 	foreach my $actor (@actors){
 		my ($net,$num,$name)=split(':',$actor);
 		
-		my $actor_tile = $self->object_get_attribute("MAP_TILE",$actor);
+		#my $actor_tile = $self->object_get_attribute("MAP_TILE",$actor);
+		my $actor_tile =get_task_give_tile($self,$actor);
 		my $actor_tile_id=get_tile_id($self,$actor);
 		
 		my $soc_name=$soc_names{$actor_tile_id};
@@ -286,9 +287,19 @@ char ${name}_update_credit (unsigned int credit_port,unsigned int credit_value){
 
 		my $actor_check_pck_func= "
 char ${name}_check_packet_funtion (unsigned char iport,unsigned int size){
-";		
+";	
+
+		my $actor_sent_pck_done_func= "
+char ${name}_sent_packet_done_funtion (unsigned char oport){
+";	
+
+		my $actor_init="
+void ${name}_init_actor (void) { 
+";
+	
 		my $got_pck_func= "
 unsigned char iport_array[${ni_name}_NUM_VCs];
+unsigned char oport_array[${ni_name}_NUM_VCs];
 unsigned int credit_buff[${ni_name}_NUM_VCs];
 	
 void got_packet_funtion(void){
@@ -309,7 +320,7 @@ void got_packet_funtion(void){
 ";	
 		
 		my $check_pck_func ="		
-void check_packet_funtion(void){
+void check_packet_funtion (void){
 	unsigned char iport;
 	unsigned int i ,size ;
 	unsigned int credit_value,credit_port;
@@ -321,7 +332,7 @@ void check_packet_funtion(void){
 			iport= iport_array[i];
 			if(iport==0){ // a credit update packet has been recived
 				credit_port  = credit_buff[i] >> 16; //output port num
-				credit_value = (credit_buff[i] & 0xFFFF)<<2; // credit value in byte
+				credit_value = (credit_buff[i] & 0xFFFF); // credit value in word
 				${name}_update_credit(credit_port,credit_value);
 			}else{	
 				${name}_check_packet_funtion(iport,size);
@@ -331,7 +342,28 @@ void check_packet_funtion(void){
 	}//for	
 }// check_packet_funtion
 				
-";				
+";	
+
+
+	my $sent_packet_done_funtion = "
+void sent_packet_done_funtion (void){
+	unsigned char oport;
+	unsigned int i;
+	for (i=0;i<${ni_name}_NUM_VCs;i++){
+		if(${ni_name}_packet_is_sent(i)) {
+			oport= oport_array[i];
+			if(oport==0){ // a credit update packet has sentout
+				
+			}else{	
+				${name}_sent_packet_done_funtion(oport);
+			}			
+		}//If ${ni_name}_packet_is_sent
+	}//for		
+}//sent_packet_done_funtion		
+";
+
+
+			
 		#schedular function 
 		
 	    $schedul ="
@@ -352,7 +384,8 @@ void check_packet_funtion(void){
 				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
 				)=get_trace($self,$inject);
 				my $dst_actor=$dst;
-				my $dst_tile = $self->object_get_attribute("MAP_TILE",$dst_actor);
+				#my $dst_tile = $self->object_get_attribute("MAP_TILE",$dst_actor);
+				my $dst_tile = get_task_give_tile($self,$dst_actor);
 				my $dst_tile_id=get_tile_id($self,$dst_actor);
 				#5-Now generate all transfer functions (add inject ports) 	
 				my ($net,$num,$name)=split(':',$actor);	
@@ -388,6 +421,7 @@ void check_packet_funtion(void){
 #define ${src_port}_ch${channel}_start_index_in_byte (${src_port}_ch${channel}_start_index << ${name}_${src_port}_size_shift)
 #define ${src_port}_ch${channel}_has_data_to_send    (${src_port}_end_index > ${src_port}_ch${channel}_start_index)	
 static unsigned int ${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in_byte;	
+static int send_data_${src_port};
 ";
 				
 				
@@ -396,19 +430,27 @@ static unsigned int ${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in
 			
 	if(${src_port}_ch${channel}_has_data_to_send){
 			//ask NI to transfer the data   
-			int send_data_${src_port} = transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
-			${src_port}_ch${channel}_start_index_in_byte, ${src_port}_end_index_in_byte, ${src_port}_dest_phy_addr, ${src_port}_ch${channel}_credit  );
+			oport_array[${src_port}_v]= ${src_port}_ch${channel}_src_port_num;
+			send_data_${src_port} = transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
+			${src_port}_ch${channel}_start_index_in_byte, ${src_port}_end_index_in_byte, ${src_port}_dest_phy_addr, ${src_port}_ch${channel}_credit );
 			while (${ni_name}_send_is_busy(${src_port}_v));
-			${src_port}_ch${channel}_start_index= ${src_port}_ch${channel}_start_index+ (send_data_${src_port}>>${name}_${src_port}_size_shift);	
-			${src_port}_ch${channel}_credit-=send_data_${src_port};					 
+						 
 	}
 	";
 	
+	$actor_sent_pck_done_func=$actor_sent_pck_done_func."
 	
+	if(oport == ${src_port}_ch${channel}_src_port_num){ 
+		${src_port}_ch${channel}_start_index= ${src_port}_ch${channel}_start_index+ (send_data_${src_port}>>${name}_${src_port}_size_shift);	
+		${src_port}_ch${channel}_credit-=send_data_${src_port};			
+		return 1;
+	}	
+	
+	";
 	
 	$actor_update_credit =$actor_update_credit."	
 	if( credit_port  == ${src_port}_ch${channel}_src_port_num){
-		${src_port}_ch${channel}_credit = credit_value; //credit value in byte
+		${src_port}_ch${channel}_credit = credit_value << ${name}_${src_port}_size_shift; //credit value in byte
 		return 1;
 	}	
 ";
@@ -435,8 +477,8 @@ static unsigned int ${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in
 			
 				
 			#save the input  port index before running the credit	
-			$schedul =	"
-			index_${dst_port}_sender=index_$dst_port;$schedul";
+			$actor_init =$actor_init."index_${dst_port}_sender=index_$dst_port;
+";
 		
 	
 			
@@ -485,6 +527,10 @@ static unsigned int index_${dst_port}_sender;
 	}						
 	";
 	
+	
+	
+	
+	
 	$fifos{"${name}_${dst_port}"}{'size'}=$buff_size;	
 	$fifos{"$name"}{'file'}="$file_name";		
 	#print  "\$fifos{\"$name\"}{'file'}=$file_name\n";
@@ -504,12 +550,19 @@ $actor_check_pck_func=$actor_check_pck_func."
 }	
 ";
 
+$actor_sent_pck_done_func=$actor_sent_pck_done_func."
+	return 0;
+}
+";
+
 $actor_update_credit =$actor_update_credit."	
 	return 0;
 }
 ";		
 	
-	
+$actor_init=$actor_init."
+}
+";	
 	my $ni_isr='
 	
 /*
@@ -540,6 +593,7 @@ unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned int clas
 	
 $ni_isr=$ni_isr."
     if (${ni_name}_send_is_busy(v)) return 0 ; // if VC is busy sending previous packet do nothing
+    if(credit==0) return 0;
 ";
 
 $ni_isr=$ni_isr.'
@@ -588,12 +642,19 @@ void ${ni_name}_isr(void){
 		error_handelling_function();
 		${ni_name}_ack_errors_isr();
 	}
+	
+	if( ${ni_name}_STATUS2_REG & SEND_DONE_ISR ){
+		//check which VC has finished sending the packet. 
+		sent_packet_done_funtion();
+		${ni_name}_ack_sent_done_isr(); 
+	}
+
+
 	if( ${ni_name}_STATUS2_REG & SAVE_DONE_ISR ){
 		//check which VC has finished saving the packet. This function must be called before got_packet_funtion
 		check_packet_funtion();
 		${ni_name}_ack_save_done_isr(); 
 	}
-
 
 	if( ${ni_name}_STATUS2_REG & GOT_PCK_ISR ){
 		//check which VC got packet
@@ -606,7 +667,7 @@ void ${ni_name}_isr(void){
 	";
 	
 	my $actor_run="
-void ${name}_run (void) { 
+void ${name}_run_actor (void) { 
 	//run schedular
 	$schedul
 		
@@ -616,7 +677,10 @@ void ${name}_run (void) {
 	//check if output port has data to send
 	$transfer_str 		
 }
-";	
+";
+
+
+	
 	my $main="	
 int main(){
 	general_int_init();
@@ -627,9 +691,10 @@ int main(){
 	// hw interrupt enable function:
 	// ${ni_name}_initial (burst_size,  errors_int_en,  send_int_en,  save_int_en,  got_pck_int_en)
 	${ni_name}_initial (16,1,0,1,1); //enable the intrrupt when a packet is recived, saved or got any error
-		
+	
+	${name}_init_actor();	
 	while(1){
-		${name}_run();
+		${name}_run_actor();
 	}	
 	return 0;
 }		
@@ -645,6 +710,7 @@ int main(){
   
    #copy orcc lib files
    my $target_orccdir= "$target_dir/sw/tile${actor_tile_id}/orcc";
+   rmtree("$target_orccdir");
    mkpath("$target_orccdir",1,0755);
    my $orcc_lib_dir = get_project_dir()."/mpsoc/src_c/orcc/lib";
    opendir(DIR,"$orcc_lib_dir") or $r= "$!\n";
@@ -686,7 +752,7 @@ int main(){
 #include \"orcc_lib.h\"
 
 extern unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned int class_num, unsigned char dest_port, unsigned int queue_pointer,unsigned int queue_size, unsigned int start_index,  unsigned int end_index, unsigned int dest_phy_addr,unsigned int credit);
-    
+extern unsigned char oport_array[${ni_name}_NUM_VCs];    
 
 ";
   
@@ -810,28 +876,27 @@ $actor_got_pck_func
 $actor_update_credit
 
 $actor_check_pck_func
+
+$actor_sent_pck_done_func
 	
 $actors_str
 
 $actor_run
 
+$actor_init
 
 ";		
 		
 
 print $fd "	
 
-
-			
-         
-		 
 $got_pck_func      
 		  
-$check_pck_func       
+$check_pck_func  
+
+$sent_packet_done_funtion     
 
 $ni_isr
-
-
 
 $main
 		

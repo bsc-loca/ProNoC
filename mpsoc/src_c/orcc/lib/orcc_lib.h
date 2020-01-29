@@ -17,7 +17,7 @@ typedef unsigned long long int u64;
 ///////////////////////////////////////////////////
 
 #ifndef CACHELINE_SIZE
-#define CACHELINE_SIZE 64 // Standard size for x86 processors
+#define CACHELINE_SIZE 4 // 
 #endif
 
 // Declare the FIFO structure with a size equal to (size)
