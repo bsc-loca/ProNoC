@@ -41,6 +41,7 @@ module ni_vc_wb_slave_regs #(
     parameter WEIGHTw=4, 
     parameter BYTE_EN=0,
     parameter HDw = 8,  
+    parameter CTRL_FLGw=14,
     //wishbones  bus  slave  port parameters
     parameter Dw            =   32,
     parameter S_Aw          =   4
@@ -54,10 +55,8 @@ module ni_vc_wb_slave_regs #(
     receive_done,
     send_done,
     receive_vc_got_packet,
-    receive_packet_is_saved,
-    send_packet_is_sent,
-    all_save_done_reg_rst,  
-    all_send_done_reg_rst,
+   
+  
     send_pointer_addr, 
     be_in,
     receive_pointer_addr,
@@ -69,6 +68,25 @@ module ni_vc_wb_slave_regs #(
     pck_class,
     weight,  
     hdr_data,
+    
+    burst_size_err,
+    send_data_size_err,
+    rcive_buff_ovrflw_err,
+    crc_miss_match_err,
+    invalid_send_req_err,  
+    
+    receive_vc_got_hdr_flit_at_head,
+    receive_is_busy,
+    send_is_busy,
+    
+    any_err_isr_en,
+    got_packet_isr_en,
+    packet_is_saved_isr_en,
+    packet_is_sent_isr_en,
+    
+    irq,  
+    ctrl_flags,
+    
     s_dat_i,
     s_addr_i,  
     s_stb_i,
@@ -104,7 +122,7 @@ module ni_vc_wb_slave_regs #(
         WEIGHT_LSB =24; 
         
             /*
-            
+                1  :   CTRL_FLAGS
                 2  :   SEND_DEST_WB_ADDR           // The destination router address
                 3  :   SEND_POINTER_WB_ADDR,       // The address of data to be sent in byte 
  Virtual        4  :   SEND_DATA_SIZE_WB_ADDR,     // The size of data to be sent in byte  
@@ -120,6 +138,7 @@ module ni_vc_wb_slave_regs #(
         */
         
     localparam [S_Aw-1  :   0]
+        CTRL_FLAGS =1,
         SEND_DEST_WB_ADDR =2,
         SEND_POINTER_WB_ADDR =3,       
         SEND_DATA_SIZE_WB_ADDR =4,  
@@ -149,10 +168,8 @@ module ni_vc_wb_slave_regs #(
     output      [BEw-1 : 0 ] be_in;
    
     output  reg [Dw-1   :   0] receive_pointer_addr;
-    output  reg receive_packet_is_saved;
-    output  reg send_packet_is_sent; 
-    input   all_save_done_reg_rst; 
-    input all_send_done_reg_rst;
+  
+  
     output  [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size;
     output  reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_max_buff_siz;
     output  reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_start_index; 
@@ -162,6 +179,16 @@ module ni_vc_wb_slave_regs #(
     output  reg [WEIGHTw-1 :0]  weight; 
     output  reg send_start, receive_start;
     output  reg [HDw-1 : 0] hdr_data;
+    
+    input  burst_size_err,  send_data_size_err, rcive_buff_ovrflw_err,crc_miss_match_err,invalid_send_req_err;
+    input receive_vc_got_hdr_flit_at_head;
+    input  receive_is_busy,    send_is_busy;
+   
+    output  any_err_isr_en ,got_packet_isr_en , packet_is_saved_isr_en, packet_is_sent_isr_en;
+   
+   
+    output  irq;
+    output [CTRL_FLGw-1:0] ctrl_flags;
 
 //synthesis translate_off
 //synopsys  translate_off    
@@ -185,7 +212,7 @@ module ni_vc_wb_slave_regs #(
     reg  [MAX_TRANSACTION_WIDTH-1    :   0]  send_data_size_reg,send_data_size_next, receive_max_buff_siz_next,receive_start_index_next;
     reg  send_start_next;
     reg  receive_en,receive_en_next;
-    reg  receive_packet_is_saved_next,send_packet_is_sent_next;
+  
     
     reg [HDw-1 : 0] hdr_data_next;
    
@@ -212,8 +239,51 @@ module ni_vc_wb_slave_regs #(
             receive_start = 1'b1;
            
         end
-    end 
-     
+    end
+    
+   
+    
+    wire  s_dat_invalid_send_req_err_isr,s_dat_burst_size_err_isr, s_dat_send_data_size_err_isr, s_dat_crc_miss_match_isr, s_dat_rcive_buff_ovrflw_err_isr,
+          s_dat_got_packet_isr, s_dat_packet_is_saved_isr, s_dat_packet_is_sent_isr,s_dat_got_any_err_int_en,
+          s_dat_got_packet_int_en, s_dat_packet_is_saved_int_en, s_dat_packet_is_sent_int_en; 
+        
+  
+   reg    invalid_send_req_err_isr_next,burst_size_err_isr_next, send_data_size_err_isr_next, crc_miss_match_isr_next, rcive_buff_ovrflw_err_isr_next,
+          got_packet_isr_next, packet_is_saved_isr_next, packet_is_sent_isr_next,
+          got_any_err_int_en_next, got_packet_int_en_next, packet_is_saved_int_en_next, packet_is_sent_int_en_next; 
+   
+   reg    invalid_send_req_err_isr,burst_size_err_isr, send_data_size_err_isr, crc_miss_match_isr, rcive_buff_ovrflw_err_isr,
+          got_packet_isr, packet_is_saved_isr, packet_is_sent_isr,got_any_err_int_en,
+          got_packet_int_en, packet_is_saved_int_en, packet_is_sent_int_en; 
+   
+   
+   assign {s_dat_invalid_send_req_err_isr,s_dat_burst_size_err_isr, s_dat_send_data_size_err_isr, s_dat_crc_miss_match_isr, s_dat_rcive_buff_ovrflw_err_isr,
+          s_dat_got_packet_isr, s_dat_packet_is_saved_isr, s_dat_packet_is_sent_isr,s_dat_got_any_err_int_en,
+          s_dat_got_packet_int_en, s_dat_packet_is_saved_int_en, s_dat_packet_is_sent_int_en}=s_dat_i[CTRL_FLGw-1:2];                 
+    
+   
+    
+   
+   assign any_err_isr_en = (invalid_send_req_err_isr & got_any_err_int_en) |
+        (burst_size_err_isr & got_any_err_int_en) |
+        (send_data_size_err_isr & got_any_err_int_en) |
+        (crc_miss_match_isr & got_any_err_int_en) |
+        (rcive_buff_ovrflw_err_isr & got_any_err_int_en) ;
+   
+   
+   assign got_packet_isr_en =     (got_packet_isr & got_packet_int_en);   
+   assign packet_is_saved_isr_en =(packet_is_saved_isr & packet_is_saved_int_en);
+   assign packet_is_sent_isr_en = (packet_is_sent_isr & packet_is_sent_int_en);   
+   assign irq =  got_packet_isr_en | packet_is_saved_isr_en | packet_is_sent_isr_en | any_err_isr_en;
+                 
+
+
+   
+   assign ctrl_flags = 
+          {invalid_send_req_err_isr,burst_size_err_isr, send_data_size_err_isr, crc_miss_match_isr, rcive_buff_ovrflw_err_isr,
+          got_packet_isr, packet_is_saved_isr, packet_is_sent_isr,got_any_err_int_en,
+          got_packet_int_en, packet_is_saved_int_en, packet_is_sent_int_en,receive_is_busy, send_is_busy};      
+    
     always @ (*) begin 
         //default values
         send_pointer_addr_next= send_pointer_addr;
@@ -226,24 +296,57 @@ module ni_vc_wb_slave_regs #(
         weight_next = weight;          
         send_start_next = 1'b0;
         receive_en_next = receive_en;
-        receive_packet_is_saved_next = receive_packet_is_saved;
-        send_packet_is_sent_next = send_packet_is_sent;
+       
         receive_max_buff_siz_next = receive_max_buff_siz;
         hdr_data_next = hdr_data;
         
-        if(all_send_done_reg_rst) send_packet_is_sent_next =1'b0; 
-        if(all_save_done_reg_rst) receive_packet_is_saved_next=1'b0;
+        //ctrl flags
+        invalid_send_req_err_isr_next = invalid_send_req_err_isr;
+        burst_size_err_isr_next = burst_size_err_isr; 
+        send_data_size_err_isr_next = send_data_size_err_isr;
+        crc_miss_match_isr_next =crc_miss_match_isr;
+        rcive_buff_ovrflw_err_isr_next =rcive_buff_ovrflw_err_isr;
+       
+        got_packet_isr_next =got_packet_isr;
+        packet_is_saved_isr_next = packet_is_saved_isr;
+        packet_is_sent_isr_next = packet_is_sent_isr;
+        got_any_err_int_en_next = got_any_err_int_en;
+        got_packet_int_en_next = got_packet_int_en;
+        packet_is_saved_int_en_next = packet_is_saved_int_en;
+        packet_is_sent_int_en_next = packet_is_sent_int_en;
+        
+        
+       
         if (receive_vc_got_packet & receive_en ) begin 
             receive_en_next = 1'b0;
         end
-        if(receive_done) begin 
-            receive_packet_is_saved_next = 1'b1;
-        end
-        if(send_done) begin 
-            send_packet_is_sent_next = 1'b1;
-        end
+             
+        
+        
         if(s_stb_i  &   s_cyc_i &  s_we_i & state_reg_enable)   begin             
                 case( s_addr_i)
+                    CTRL_FLAGS:begin 
+                        got_any_err_int_en_next = s_dat_got_any_err_int_en;
+                        got_packet_int_en_next = s_dat_got_packet_int_en;
+                        packet_is_saved_int_en_next = s_dat_packet_is_saved_int_en;
+                        packet_is_sent_int_en_next = s_dat_packet_is_sent_int_en;
+                        
+                        //reset isr flag when writting 1 
+                        if(s_dat_invalid_send_req_err_isr)  invalid_send_req_err_isr_next = 1'b0;
+                        if(s_dat_burst_size_err_isr)        burst_size_err_isr_next = 1'b0;
+                        if(s_dat_send_data_size_err_isr)    send_data_size_err_isr_next = 1'b0;
+                        if(s_dat_crc_miss_match_isr)        crc_miss_match_isr_next = 1'b0;
+                        if(s_dat_rcive_buff_ovrflw_err_isr) rcive_buff_ovrflw_err_isr_next = 1'b0;
+                        if(s_dat_got_packet_isr)            got_packet_isr_next = 1'b0;
+                        if(s_dat_packet_is_saved_isr)       packet_is_saved_isr_next = 1'b0;
+                        if(s_dat_packet_is_sent_isr)        packet_is_sent_isr_next = 1'b0;
+                           
+                    
+                    end//CTRL_FLAGS
+                
+                
+                
+                
                     SEND_POINTER_WB_ADDR: begin                    
                          if (send_fsm_is_ideal) begin 
                             send_pointer_addr_next={{OFFSETw{1'b0}},s_dat_i [Dw-1    : OFFSETw]};
@@ -264,7 +367,7 @@ module ni_vc_wb_slave_regs #(
 //synopsys  translate_off
 			if(DEBUG_EN)begin
 				if(s_dat_i [EAw+ DST_X_LSB-1    :    DST_X_LSB] == current_e_addr )begin
-					$display("%t: ERROR: source destination address are identical in: %m",$time);
+					$display("%t: err: source destination address are identical in: %m",$time);
 				end
 			end
 //synthesis translate_on
@@ -299,7 +402,7 @@ module ni_vc_wb_slave_regs #(
                     RECEIVE_CTRL_WB_ADDR: begin
                         if (receive_fsm_is_ideal) begin 
                        	 	receive_en_next=1'b1;
-                            receive_packet_is_saved_next=1'b0;   
+                         
                         end                 
                     end                 
                     
@@ -308,6 +411,18 @@ module ni_vc_wb_slave_regs #(
                     end                         
                  endcase//wb_receive_send_addr
             end//if
+            
+            //isr setting flags
+            if(invalid_send_req_err) invalid_send_req_err_isr_next = 1'b1;
+            if(burst_size_err)      burst_size_err_isr_next = 1'b1;
+            if(send_data_size_err)  send_data_size_err_isr_next = 1'b1;
+            if(crc_miss_match_err)  crc_miss_match_isr_next = 1'b1;
+            if(rcive_buff_ovrflw_err) rcive_buff_ovrflw_err_isr_next = 1'b1;
+            if(receive_vc_got_hdr_flit_at_head)            got_packet_isr_next = 1'b1;
+            if(receive_done)       packet_is_saved_isr_next = 1'b1;
+            if(send_done)        packet_is_sent_isr_next = 1'b1;
+            
+            
         
     end// always
    
@@ -329,10 +444,26 @@ module ni_vc_wb_slave_regs #(
             pck_class  <= {Cw{1'b0}};
             weight <= INIT_WEIGHT;
             receive_en <= 1'b0;
-            receive_packet_is_saved <= 1'b0;
-            send_packet_is_sent<=1'b0;
+           
+            
             send_start <=1'b0;
             hdr_data <= {HDw{1'b0}}; 
+          
+            //ctrl flags
+            invalid_send_req_err_isr<=1'b0;
+            burst_size_err_isr<=1'b0;
+            send_data_size_err_isr<=1'b0;
+            crc_miss_match_isr<=1'b0;
+            rcive_buff_ovrflw_err_isr<=1'b0;
+            got_packet_isr<=1'b0;
+            packet_is_saved_isr<=1'b0;
+            packet_is_sent_isr<=1'b0;
+            got_any_err_int_en<=1'b0;
+            got_packet_int_en<=1'b0;
+            packet_is_saved_int_en<=1'b0;
+            packet_is_sent_int_en<=1'b0;
+            
+            
         end else begin 
             send_pointer_addr <= send_pointer_addr_next;
             send_pointer_addr_byte_offset<=send_pointer_addr_byte_offset_next;
@@ -346,10 +477,24 @@ module ni_vc_wb_slave_regs #(
             pck_class  <= pck_class_next;
             weight <= weight_next;
             receive_en <=receive_en_next;
-            receive_packet_is_saved<=receive_packet_is_saved_next;
-            send_packet_is_sent<=send_packet_is_sent_next;
+           
             send_start <= send_start_next;
             hdr_data <= hdr_data_next;
+            
+            //ctrl_flags
+            invalid_send_req_err_isr        <=invalid_send_req_err_isr_next;
+            burst_size_err_isr              <=burst_size_err_isr_next;
+            send_data_size_err_isr          <=send_data_size_err_isr_next;
+            crc_miss_match_isr              <=crc_miss_match_isr_next;
+            rcive_buff_ovrflw_err_isr       <=rcive_buff_ovrflw_err_isr_next;
+            got_packet_isr                  <=got_packet_isr_next;
+            packet_is_saved_isr             <=packet_is_saved_isr_next;
+            packet_is_sent_isr              <=packet_is_sent_isr_next;
+            got_any_err_int_en              <=got_any_err_int_en_next;
+            got_packet_int_en               <=got_packet_int_en_next;
+            packet_is_saved_int_en          <=packet_is_saved_int_en_next;
+            packet_is_sent_int_en           <=packet_is_sent_int_en_next;
+            
         end 
     end 
   

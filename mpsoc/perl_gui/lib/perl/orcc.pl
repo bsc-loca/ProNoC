@@ -314,6 +314,7 @@ void got_packet_funtion(void){
 				${name}_got_packet_funtion(iport,i);
 			}
 			iport_array[i]=iport;
+			${ni_name}_ack_got_pck_isr(i); 
 		}//If ${ni_name} got packet
 	}//for	
 }// got_packet_funtion
@@ -337,7 +338,7 @@ void check_packet_funtion (void){
 			}else{	
 				${name}_check_packet_funtion(iport,size);
 			}
-			
+			${ni_name}_ack_save_done_isr(i); 
 		}//If ${ni_name}_packet_is_saved
 	}//for	
 }// check_packet_funtion
@@ -356,7 +357,8 @@ void sent_packet_done_funtion (void){
 				
 			}else{	
 				${name}_sent_packet_done_funtion(oport);
-			}			
+			}
+			${ni_name}_ack_send_done_isr(i); 			
 		}//If ${ni_name}_packet_is_sent
 	}//for		
 }//sent_packet_done_funtion		
@@ -427,15 +429,14 @@ static int send_data_${src_port};
 				
 				
 	$transfer_str=$transfer_str."		
-			
-	if(${src_port}_ch${channel}_has_data_to_send){
+	if(	${ni_name}_send_is_busy(${src_port}_v)==0){	
+		if(${src_port}_ch${channel}_has_data_to_send){
 			//ask NI to transfer the data   
 			oport_array[${src_port}_v]= ${src_port}_ch${channel}_src_port_num;
 			send_data_${src_port} = transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
 			${src_port}_ch${channel}_start_index_in_byte, ${src_port}_end_index_in_byte, ${src_port}_dest_phy_addr, ${src_port}_ch${channel}_credit );
-			while (${ni_name}_send_is_busy(${src_port}_v));
-						 
-	}
+		}//has data					 
+	}//not busy
 	";
 	
 	$actor_sent_pck_done_func=$actor_sent_pck_done_func."
@@ -505,12 +506,12 @@ static unsigned int index_${dst_port}_sender;
 			
 			
 	$crdit_update=$crdit_update."
-	
-	if( ${dst_port}_has_credit_to_send){
+	if(${ni_name}_send_is_busy(${dst_port}_credit_v)==0){
+		if( ${dst_port}_has_credit_to_send){
 			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit in word 
 			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index_in_byte, ${dst_port}_credit_dest_phy_addr, 5 ) ) index_${dst_port}_sender=index_${dst_port};
-			while (${ni_name}_send_is_busy(${dst_port}_credit_v));
-	} 			
+		} 
+	}			
 	";
 	
 	$actor_got_pck_func=$actor_got_pck_func."
@@ -618,48 +619,65 @@ $ni_isr=$ni_isr."
 	
 	
 	
+
+	
+	
 void error_handelling_function(){
 	unsigned int i;
 	for (i=0;i<${ni_name}_NUM_VCs;i++){
-			if(${ni_name}_ERROR_FLAGS_REG(i)){
-				printf (\"Error in vc \%u\\n\",i);
-				if(${ni_name}_ERROR_FLAGS_REG(i) & BUFF_OVER_FLOW_ERR) printf (\"The receiver allocated buffer size is smaller than the received packet size in core\%u\\n\",COREID);
-				if(${ni_name}_ERROR_FLAGS_REG(i) & SEND_DATA_SIZE_ERR)  printf (\"the send data size is not set in core\%u\\n\",COREID);
-				if(${ni_name}_ERROR_FLAGS_REG(i) & BURST_SIZE_ERR)	 printf (\" the burst size is not set in core%u\\n\",COREID);
-				if(${ni_name}_ERROR_FLAGS_REG(i) & ILLEGAL_SEND_REQ)  printf( \"A new send request is received while the DMA is still busy sending previous packet in core\%u\\n\",COREID);
-				if(${ni_name}_ERROR_FLAGS_REG(i) & CRC_MISS_MATCH)	    printf( \"CRC miss-matched in core\%u\\n\",COREID);
-		 } 
-	}
-}	
+		if(${ni_name}_got_buff_ovf(i)) {
+			printf (\"VC%u:The receiver allocated buffer size is smaller than the received packet size in core\%u\\n\",i,COREID);
+			${ni_name}_ack_buff_ovf_isr(i);
+		}
+		if(${ni_name}_got_send_dsize_err(i)) {
+			 printf (\"VC%u:The send data size is not set in core\%u\\n\",i,COREID);
+			 ${ni_name}_ack_send_dsize_err_isr(i); 
+		}
+		if(${ni_name}_got_burst_size_err(i)){
+ 			 printf (\"VC%u:The burst size is not set in core\%u\\n\",i,COREID);
+			 ${ni_name}_ack_burst_size_err_isr(i);
+		}
+		if(${ni_name}_got_invalid_send_req(i)){
+			 printf( \"VC%u:A new send request is received while the DMA is still busy sending previous packet in core\%u\\n\",i,COREID);
+			 ${ni_name}_ack_invalid_send_req_isr(i);
+		}
+		if(${ni_name}_got_crc_mismatch(i)){
+			printf( \"VC%u:CRC miss-matched in core\%u\\n\",i,COREID);
+			${ni_name}_ack_crc_mismatch_isr(i);
+		}		  
+	}//for
+}//error_handle		
 	
+	
+	
+	
+     
+     
+      
+         
 	
 	
 void ${ni_name}_isr(void){
 	//place your interrupt code here
 
-	if( ${ni_name}_STATUS2_REG & ERRORS_ISR ){
+	if(${ni_name}_any_err_isr_is_asserted()  ){
 		// An error ocure 
-		error_handelling_function();
-		${ni_name}_ack_errors_isr();
+		error_handelling_function();	
 	}
 	
-	if( ${ni_name}_STATUS2_REG & SEND_DONE_ISR ){
+	if( ${ni_name}_any_sent_done_isr_is_asserted()  ){
 		//check which VC has finished sending the packet. 
-		sent_packet_done_funtion();
-		${ni_name}_ack_sent_done_isr(); 
+		sent_packet_done_funtion();		
 	}
 
-
-	if( ${ni_name}_STATUS2_REG & SAVE_DONE_ISR ){
+	if( ${ni_name}_any_save_done_isr_is_asserted()){
 		//check which VC has finished saving the packet. This function must be called before got_packet_funtion
-		check_packet_funtion();
-		${ni_name}_ack_save_done_isr(); 
+		check_packet_funtion();		
 	}
 
-	if( ${ni_name}_STATUS2_REG & GOT_PCK_ISR ){
+	if(${ni_name}_any_got_pck_isr_is_asserted() ){
 		//check which VC got packet
-		got_packet_funtion();
-		${ni_name}_ack_got_pck_isr();
+		got_packet_funtion();		
 	}
 	return;
 }
@@ -690,7 +708,7 @@ int main(){
 	general_cpu_int_en();
 	// hw interrupt enable function:
 	// ${ni_name}_initial (burst_size,  errors_int_en,  send_int_en,  save_int_en,  got_pck_int_en)
-	${ni_name}_initial (16,1,0,1,1); //enable the intrrupt when a packet is recived, saved or got any error
+	${ni_name}_initial (16,1,1,1,1); //enable the intrrupt when a packet is recived, saved or got any error
 	
 	${name}_init_actor();	
 	while(1){

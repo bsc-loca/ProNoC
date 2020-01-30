@@ -81,8 +81,7 @@ module ni_vc_dma #(
     last_burst,   
     status,
     save_hdr_info,    
-   
-   
+      
    
     
     //fifo signals
@@ -100,11 +99,10 @@ module ni_vc_dma #(
     burst_size_is_set,
     
     //errors
-    reset_errors,
-    burst_size_error,
-    send_data_size_error,
+    burst_size_err,
+    send_data_size_err,
     rcive_buff_ovrflw_err, 
-    illegal_send_req,
+    invalid_send_req_err,
    
     //wishbone master rd interface signals
     m_send_sel_o,
@@ -207,29 +205,21 @@ module ni_vc_dma #(
     
     input  [MAX_TRANSACTION_WIDTH-1    :   0] send_data_size;
     input  [MAX_TRANSACTION_WIDTH-1    :   0] receive_max_buff_siz;
-    output [MAX_PCK_SIZE_IN_BYTE-1     :   0] receive_dat_size_in_byte;
+    output [MAX_PCK_SIZE_IN_BYTE-1     :   0] receive_dat_size_in_byte;  
     
-    
-    
-    input  send_start, receive_start;
-    
+    input  send_start, receive_start;    
     input [BEw-1 : 0] receive_be;
     
-    
- 
- 
- 
- 
     //fifo
     output reg  send_fifo_wr, receive_fifo_rd;
     input       send_fifo_full, send_fifo_nearly_full,send_fifo_rd, receive_fifo_empty;
     
    //errors 
-    input reset_errors;
-    output reg burst_size_error;
-    output reg send_data_size_error;
+  
+    output reg burst_size_err;
+    output reg send_data_size_err;
     output reg rcive_buff_ovrflw_err; 
-    output reg illegal_send_req;
+    output reg invalid_send_req_err;
   
     
     //wishbone read master interface signals
@@ -254,18 +244,11 @@ module ni_vc_dma #(
     
     
     reg [MAX_TRANSACTION_WIDTH-1    :   0] send_counter, send_counter_next;
-    reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter_next;
-    
-    reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_index,receive_index_next ;
-  
-    reg burst_size_error_next, send_data_size_error_next;
-    reg rcive_buff_ovrflw_err_next,  illegal_send_req_next;
-      
-     reg  [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter;   
+    reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter_next;    
+    reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_index,receive_index_next ;      
+    reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter;   
        
        
-        
-    
     wire last_data = (send_counter == send_data_size-1'b1);
    
     wire receive_overflow= (receive_counter == receive_max_buff_siz);    
@@ -301,16 +284,7 @@ module ni_vc_dma #(
     assign m_send_we_o = 1'b0;
     
     assign m_send_sel_o = {SELw{1'b1}};
-    
-    
  
- 
-  
-     
- 
-   
-  
-
 
  generate   
  if(BYTE_EN)begin:be 
@@ -357,12 +331,7 @@ module ni_vc_dma #(
      );
 
      assign first_flit_sel =(receive_start_index_offset==0)?{SELw{1'b1}}:   ~first_flit_sel_not;
-    
-     
       
-    
-    
-    
     reg  [SELw-1 : 0] receive_sel;
     wire recive_first_word= (receive_counter == 0);  
        
@@ -380,11 +349,7 @@ module ni_vc_dma #(
    
 
      assign m_receive_sel_o  = receive_sel;  
-      
-      
-      
-      
-      
+        
    
  end else begin: nbe
      assign receive_dat_size_in_byte= (receive_counter<< OFFSETw );  
@@ -415,17 +380,14 @@ module ni_vc_dma #(
         send_hdr = 1'b0;
         send_crc = 1'b0; 
         active_st_next = active_st;
-        burst_size_error_next=burst_size_error;
-        send_data_size_error_next=send_data_size_error;
-        illegal_send_req_next = illegal_send_req;
-        // the send req must be asserted only when the Ni_send_DMA(v) is in ideal status  
-        if( (send_ps != SEND_IDEAL && send_ps != SEND_HDR) & send_start) illegal_send_req_next=1'b1; 
+      
+        burst_size_err=1'b0;
+        send_data_size_err=1'b0;
+        invalid_send_req_err = 1'b0;
         
-        if(reset_errors) begin 
-            burst_size_error_next=1'b0;
-            send_data_size_error_next=1'b0;
-            illegal_send_req_next=1'b0;        
-        end
+        // the send req must be asserted only when the Ni_send_DMA(v) is in ideal status  
+        if( (send_ps != SEND_IDEAL && send_ps != SEND_HDR) & send_start) invalid_send_req_err=1'b1; 
+              
         case(send_ps)
             SEND_IDEAL: begin 
                 if(send_start) begin 
@@ -434,8 +396,8 @@ module ni_vc_dma #(
                         burst_counter_ld=1'b1;
                         send_ns = SEND_HDR;
                     end else begin // set error reg
-                        if(!burst_size_is_set) burst_size_error_next=1'b1;
-                        else send_data_size_error_next=1'b1; 
+                        if(!burst_size_is_set) burst_size_err=1'b1;
+                        else send_data_size_err=1'b1; 
                     end
                 end
             end // SEND_IDEAL
@@ -536,9 +498,7 @@ module ni_vc_dma #(
         receive_is_active =1'b0;
         hdr_flit_is_received_next=hdr_flit_is_received;
         save_hdr_info=1'b0;
-        rcive_buff_ovrflw_err_next =  rcive_buff_ovrflw_err;
-       
-        if(reset_errors) rcive_buff_ovrflw_err_next=1'b0;
+        rcive_buff_ovrflw_err=1'b0;
             case(receive_ps)
                 RECEIVE_IDEAL: begin 
                     
@@ -589,7 +549,7 @@ module ni_vc_dma #(
                                     receive_counter_next=receive_counter +1'b1; //Donot save hedaer flit in memory
                                     receive_index_next = (receive_index==receive_max_buff_siz-1'b1)? {MAX_TRANSACTION_WIDTH{1'b0}}:receive_index+1'b1;
                                 end
-                                if( receive_overflow)  rcive_buff_ovrflw_err_next = 1'b1;//set error  
+                                if( receive_overflow)  rcive_buff_ovrflw_err = 1'b1;//set error  
                                 if (received_flit_is_tail) begin 
                                     receive_ns = RECEIVE_IDEAL;
                                     m_receive_cti_o= END_OF_BURST; 
@@ -646,32 +606,18 @@ module ni_vc_dma #(
             send_counter <=  {MAX_TRANSACTION_WIDTH{1'b0}};
             receive_counter <=   {MAX_TRANSACTION_WIDTH{1'b0}}; 
             receive_index<= {MAX_TRANSACTION_WIDTH{1'b0}}; 
-         //   send_is_busy<= 1'b0;
-         //   receive_is_busy<= 1'b0;
             hdr_flit_is_received<=1'b0;
             active_st <= 2'd0;
-            burst_size_error<=1'b0;
-            send_data_size_error<=1'b0;
-            rcive_buff_ovrflw_err <=1'b0;
-            illegal_send_req <=1'b0;
-            
-           
-          
+             
         end else begin 
+     
             send_ps <= send_ns;
             receive_ps <= receive_ns;
             send_counter <=  send_counter_next;
             receive_counter <=  receive_counter_next; 
             receive_index<=receive_index_next;
-          //  send_is_busy <=send_is_busy_next;
-          //  receive_is_busy <=receive_is_busy_next;
             hdr_flit_is_received<=hdr_flit_is_received_next;
-            active_st <= active_st_next;
-            burst_size_error<=burst_size_error_next;
-            send_data_size_error<=send_data_size_error_next;
-            rcive_buff_ovrflw_err <=  rcive_buff_ovrflw_err_next;
-            illegal_send_req <=  illegal_send_req_next;
-           
+            active_st <= active_st_next;          
         end 
     end 
     
