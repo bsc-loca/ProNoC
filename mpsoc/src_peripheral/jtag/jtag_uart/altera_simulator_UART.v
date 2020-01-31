@@ -118,11 +118,10 @@ module  altera_simulator_UART #(
             
   
   reg print_en,buff_en;
-  reg [5:0] reset_count,reset_count_next;  
+ 
 
    always @(*)begin 
         counter_next = counter;
-        reset_count_next= reset_count;
         ptr_next = ptr;
         print_en =0;
         buff_en=0;
@@ -130,8 +129,7 @@ module  altera_simulator_UART #(
         s_dat_o = 32'hFFFF0000;
 
        
-        if (reset_count>=10 || counter >= WAIT_COUNT || ptr >= BUFFER_SIZE) begin
-           reset_count_next=0;
+        if ( counter >= WAIT_COUNT || ptr >= BUFFER_SIZE) begin
 	   counter_next = 0;  
            ptr_next =0;
            print_en =1;
@@ -141,8 +139,6 @@ module  altera_simulator_UART #(
 
 	//write      
         if( s_stb_i &  s_cyc_i &  s_we_i & s_ack_o  )begin 
-           reset_count_next=reset_count + 1'b1;
-	   counter_next=0;
            buff_en=1;
            if( ptr < BUFFER_SIZE)begin 
                 ptr_next  =  ptr+1;
@@ -182,12 +178,10 @@ module  altera_simulator_UART #(
   always @(posedge clk)begin 
     if(reset) begin 
         counter<=0;
-	reset_count_next<=0;
         ptr<=0;
         for(i=0;i<BUFFER_SIZE;i=i+1) buffer[i]=0; 
     end else begin
        counter<=counter_next;
-       reset_count<=reset_count_next;
        ptr <= ptr_next;
        if( buff_en )begin 
 	  buffer[ptr]=s_dat_i[7:0];

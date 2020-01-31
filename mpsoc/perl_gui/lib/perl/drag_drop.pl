@@ -54,7 +54,7 @@ sub drag_and_drop_page {
    my $sw = add_widget_to_scrolled_win($table);
    
    my  $v_paned=gen_vpaned($win,.2,$sw);
-   my  $h_paned= (defined $ctrl_box)? gen_hpaned($v_paned,.7,$ctrl_box) : $v_paned;   
+   my  $h_paned= (defined $ctrl_box)? gen_hpaned($v_paned,.5,$ctrl_box) : $v_paned;   
 
        
     

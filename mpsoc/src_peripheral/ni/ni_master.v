@@ -1,4 +1,4 @@
-
+//`define MONITOR_HDR_FLITS 
 /**********************************************************************
 **	File:  ni_master.v 
 **	Date:2017-06-04
@@ -459,7 +459,7 @@ module  ni_master #(
     if(HDATA_PRECAPw > 0 ) begin : precap
       
       
-       
+       wire [EAw-1 : 0] src_endp_addr;
         
         extract_header_flit_info #(
             .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
@@ -476,7 +476,7 @@ module  ni_master #(
         (
             .flit_in(flit_in),
             .flit_in_wr(flit_in_wr),
-            .src_e_addr_o( ),
+            .src_e_addr_o(src_endp_addr ),
             .dest_e_addr_o( ),
             .destport_o( ),
             .class_o( ),
@@ -488,6 +488,27 @@ module  ni_master #(
             .hdr_flit_wr_o(precap_hdr_flit_wr),
             .data_o(precap_din)
         ); 
+        
+        
+//synthesis translate_off
+//synopsys  translate_off    
+`ifdef MONITOR_HDR_FLITS 
+always @(posedge clk) begin
+    
+    if(precap_hdr_flit_wr)begin 
+        $display("%t: endp %u got a packet with port address %u from endp %u",$time,current_e_addr,precap_din,src_endp_addr);
+    end
+    
+    if(send_hdr & flit_out_wr)begin 
+        $display("%t: endp %u sends a packet with port address %u to endp %u",$time,current_e_addr,hdr_data,dest_e_addr);
+    end
+    
+    
+end
+`endif
+//synopsys  translate_on 
+//synthesis translate_on
+        
         
         
        for (i=0;i<V; i=i+1) begin : vc__          

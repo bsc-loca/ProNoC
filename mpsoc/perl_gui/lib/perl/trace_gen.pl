@@ -90,7 +90,7 @@ sub trace_pad_ctrl{
 	
 	$col=0;
 	
-my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arbiter (WRRA) instead of RRA, then the initial weights allow QoS support in NoC as in presence of contention, packets with higher initial weights receive higher bandwidth and lower worst case delay compared to others." ;
+	my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arbiter (WRRA) instead of RRA, then the initial weights allow QoS support in NoC as in presence of contention, packets with higher initial weights receive higher bandwidth and lower worst case delay compared to others." ;
 	
 	#my $selects="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot"; 
 	my $min=$self->object_get_attribute('select_multiple','min_pck_size');
@@ -225,7 +225,7 @@ sub trace_map_ctrl{
 	my $drawmap = def_image_button('icons/diagram.png');
 	set_tip($drawmap,'View Task Mapping');
 	my $auto = def_image_button('icons/refresh.png');
-	set_tip($auto,'Automatically set the network dimentions acording to the task number');	
+	set_tip($auto,'Automatically set the network dimentions according to the task number');	
 	my $clean = def_image_button('icons/clear.png');
 	set_tip($clean,'Remove mapping');
 	

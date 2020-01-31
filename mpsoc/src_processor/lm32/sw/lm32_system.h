@@ -69,6 +69,7 @@ void isr_unregister(int irq)
 
 extern void irq_set_mask (unsigned long);
 extern unsigned long irq_get_mask(void);
+extern void irq_enable (void);
 
 #define general_int_init isr_init
 

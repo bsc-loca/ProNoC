@@ -95,8 +95,9 @@ module ni_vc_wb_slave_regs #(
 //synthesis translate_off
 //synopsys  translate_off    
     current_e_addr,
+//synopsys  translate_on 
 //synthesis translate_on
-//synopsys  translate_on      
+     
     reset,
     clk  
  ); 

@@ -429,7 +429,8 @@ static int send_data_${src_port};
 				
 				
 	$transfer_str=$transfer_str."		
-	if(	${ni_name}_send_is_busy(${src_port}_v)==0){	
+	// if the sent vc is not busy and the sent_done_isr is not asserted sent a new packet
+	if((	${ni_name}_send_is_busy(${src_port}_v)==0) && (${ni_name}_packet_is_sent(${src_port}_v)==0))        {	
 		if(${src_port}_ch${channel}_has_data_to_send){
 			//ask NI to transfer the data   
 			oport_array[${src_port}_v]= ${src_port}_ch${channel}_src_port_num;
@@ -478,7 +479,8 @@ static int send_data_${src_port};
 			
 				
 			#save the input  port index before running the credit	
-			$actor_init =$actor_init."index_${dst_port}_sender=index_$dst_port;
+			$actor_init =$actor_init."	read_${dst_port}();
+			index_${dst_port}_sender=index_$dst_port;			
 ";
 		
 	
@@ -506,10 +508,13 @@ static unsigned int index_${dst_port}_sender;
 			
 			
 	$crdit_update=$crdit_update."
-	if(${ni_name}_send_is_busy(${dst_port}_credit_v)==0){
+	if((${ni_name}_send_is_busy(${dst_port}_credit_v)==0) && (${ni_name}_packet_is_sent(${dst_port}_credit_v)==0)){
 		if( ${dst_port}_has_credit_to_send){
 			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit in word 
-			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index_in_byte, ${dst_port}_credit_dest_phy_addr, 5 ) ) index_${dst_port}_sender=index_${dst_port};
+			oport_array[${dst_port}_credit_v]= ${dst_port}_credit_dest_port;
+			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index_in_byte, ${dst_port}_credit_dest_phy_addr, 5 ) ){
+				index_${dst_port}_sender=index_${dst_port};					
+			}		 
 		} 
 	}			
 	";
@@ -611,8 +616,8 @@ $ni_isr=$ni_isr.'
 ';
 
 $ni_isr=$ni_isr."
-	if(data_size>0) ${ni_name}_transfer (w, v, class_num, dest_port , start_addr_pointer, data_size, dest_phy_addr);
-
+	if(data_size==0) return 0;
+	${ni_name}_transfer (w, v, class_num, dest_port , start_addr_pointer, data_size, dest_phy_addr);
     return data_size;   
 }	
 	
