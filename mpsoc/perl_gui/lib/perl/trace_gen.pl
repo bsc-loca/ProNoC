@@ -127,10 +127,10 @@ sub trace_pad_ctrl{
 	}
 	
 	
-	my @traces= get_trace_list($self);
+	my @traces= get_trace_list($self,'raw');
 	my $any_selected=0;
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'raw',$p);
 		$any_selected=1 if($self->object_get_attribute("trace_$p",'selected')==1); 
 	
 	}	
@@ -171,11 +171,11 @@ sub trace_pad_ctrl{
 	});
 	
 	$remove->signal_connect ( 'clicked'=> sub{
-		$self->remove_selected_traces();
+		$self->remove_selected_traces('raw');
 	});
 	
 	$auto->signal_connect ( 'clicked'=> sub{
-		$self->auto_generate_injtratio();
+		$self->auto_generate_injtratio('raw');
 	});
 	
 	
@@ -332,14 +332,14 @@ sub trace_pad{
 	}
 	
 	
-	my @traces= get_trace_list($self);
+	my @traces= get_trace_list($self,'raw');
 	my %f;
 	
 	
 	my $sel=$self->object_get_attribute('select_multiple','action');
 	
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'raw',$p);
 		$f{$file_id}=$file_id.'*';
 		$self->object_add_attribute("trace_$p",'selected', 1 ) if ($sel eq  'All');
 		$self->object_add_attribute("trace_$p",'selected', 0 ) if ($sel eq  'None');
@@ -392,7 +392,7 @@ sub trace_pad{
 	
 	foreach my $p (@traces) {	
 		$col=0;	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'raw',$p);
 		
 				
 		my $check = gen_check_box_object ($self,"trace_$p",'selected',0,'ref',0);
@@ -456,7 +456,7 @@ sub load_tarce_file{
 			next if (! defined $data[0]);
 			next if ($data[0] eq '#' || scalar @data < 3);
 			
-			$self->add_trace($f_id,$t_id,$data[0],$data[1],$data[2],$file);
+			$self->add_trace($f_id,'raw',$t_id,$data[0],$data[1],$data[2],$file);
 			$t_id++;			
 		}
 		$f_id++;
@@ -495,10 +495,7 @@ sub trace_map {
 	$col=0;
 	$row++;	
 	
-	 # 	{ label=>'Routers per Row', param_name=>'T1', type=>"Spin-button", default_val=>2, content=>"2,64,1", info=>undef, param_parent=>'noc_param', ref_delay=>undef},
-
-	#my $nx=$self->object_get_attribute('noc_param','T1');
-	#my $ny=$self->object_get_attribute('noc_param','T2');
+	
 	
 	
 	
@@ -508,6 +505,10 @@ sub trace_map {
 	my $i=0;
 	my @tasks=get_all_merged_tasks($self);
 	
+	
+	
+	
+	
 	my @assigned = $self->get_assigned_tiles();
 	
 	
@@ -516,7 +517,7 @@ sub trace_map {
 	push(@list,'-');
 	
 	#print "tils=@tiles \nass=@assigned  \nlist=@list\n";
-	my %com_tasks= $self->get_communication_task();
+	my %com_tasks= $self->get_communication_task('merge');
 	
 	foreach my $p (@tasks){
 		#my $value=$self->object_get_attribute("MAP_TILE",$p);
@@ -550,11 +551,19 @@ sub trace_map {
 		$col=0;
 		$row++;						
 	}
+		
+   
+   		
 			
 	
 	return $sc_win;
 	
 }
+
+
+
+
+
 
 
 
@@ -650,9 +659,9 @@ sub get_map_info {
 	my $data=0;	
 	my $comtotal=0;	
 	
-	my @traces= get_trace_list($self);
+	my @traces= get_trace_list($self,'merge');
 	foreach my $p (@traces) {	
-		my ($src, $dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
+		my ($src, $dst, $Mbytes, $file_id, $file_name)=get_trace($self,'merge',$p);
 		#my $src_tile = $self->object_get_attribute('MAP_TILE',"$src");
 		my  $src_tile = get_task_give_tile($self,"$src");
 		#my $dst_tile = $self->object_get_attribute('MAP_TILE',"$dst");
@@ -849,9 +858,9 @@ sub get_cfg_content{
 	
 
 	
-	my @traces= get_trace_list($self);
+	my @traces= get_trace_list($self,'merge');
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,'merge',$p);
 		
 		
 		my $src_tile=$self->get_tile_id($src);
@@ -929,60 +938,70 @@ sub object_remove_attribute{
 }
 
 sub add_trace{
-	my ($self, $file_id,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size,$channel)=@_;	
-	$self->object_add_attribute("trace_$trace_id",'file',$file_id);
-	$self->object_add_attribute("trace_$trace_id",'source',"${file_id}${source}");
-	$self->object_add_attribute("trace_$trace_id",'destination',"${file_id}${dest}");
-	$self->object_add_attribute("trace_$trace_id",'Mbytes', $Mbytes);
-	$self->object_add_attribute("trace_$trace_id",'file_name', $file_name);  
-	$self->object_add_attribute("trace_$trace_id",'selected', 0); 
-	$self->object_add_attribute("trace_$trace_id",'init_weight', 1); 
-	$self->object_add_attribute("trace_$trace_id",'scr_port',$src_port);
-	$self->object_add_attribute("trace_$trace_id",'dst_port',$dst_port);	
-	$self->object_add_attribute("trace_$trace_id",'buff_size',$buff_size);	
-	$self->object_add_attribute("trace_$trace_id",'channel',$channel);		
-	$self->{'traces'}{$trace_id}=1;
+	my ($self, $file_id,$category,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size,$channel)=@_;	
+	$self->object_add_attribute("${category}_$trace_id",'file',$file_id);
+	$self->object_add_attribute("${category}_$trace_id",'source',"${file_id}${source}");
+	$self->object_add_attribute("${category}_$trace_id",'destination',"${file_id}${dest}");
+	$self->object_add_attribute("${category}_$trace_id",'Mbytes', $Mbytes);
+	$self->object_add_attribute("${category}_$trace_id",'file_name', $file_name);  
+	$self->object_add_attribute("${category}_$trace_id",'selected', 0); 
+	$self->object_add_attribute("${category}_$trace_id",'init_weight', 1); 
+	$self->object_add_attribute("${category}_$trace_id",'scr_port',$src_port);
+	$self->object_add_attribute("${category}_$trace_id",'dst_port',$dst_port);	
+	$self->object_add_attribute("${category}_$trace_id",'buff_size',$buff_size);	
+	$self->object_add_attribute("${category}_$trace_id",'channel',$channel);		
+	$self->{"${category}_traces"}{$trace_id}=1;
 	
 }
 
 sub remove_trace{
-	my ($self, $trace_id)=@_;
-	delete $self->{"trace_$trace_id"};	
-	delete $self->{'traces'}{$trace_id};
+	my ($self,$category, $trace_id)=@_;
+	delete $self->{"${category}_$trace_id"};	
+	delete $self->{"${category}_traces"}{$trace_id};
 }
 
 sub get_trace_list{
-	my ($self)=@_;
-	return sort (keys %{$self->{'traces'}});	
+	my ($self,$category)=@_;
+	#print "($self,$category)\n";
+	return sort (keys %{$self->{"${category}_traces"}});	
 }
 
+sub remove_all_traces{
+	my ($self,$category)=@_;
+	my @all =get_trace_list($self,$category);
+	foreach my $trace_id (@all ){
+		remove_trace ($self,$category, $trace_id);
+	}
+}
+
+
 sub get_trace{
-	my ($self,$trace_id)=@_;	
-	my $file_id		= $self->object_get_attribute("trace_$trace_id",'file');
-	my $source 		= $self->object_get_attribute("trace_$trace_id",'source');
-	my $dest		= $self->object_get_attribute("trace_$trace_id",'destination');
-	my $Mbytes  	= $self->object_get_attribute("trace_$trace_id",'Mbytes');
-	my $file_name	= $self->object_get_attribute("trace_$trace_id",'file_name');	
-	my $init_weight = $self->object_get_attribute("trace_$trace_id",'init_weight'); 
-	my $min_pck_size= $self->object_get_attribute("trace_$trace_id",'min_pck_size');
-	my $max_pck_size= $self->object_get_attribute("trace_$trace_id",'max_pck_size');
-	my $burst_size	= $self->object_get_attribute("trace_$trace_id",'burst_size'); 
-	my $injct_rate  = $self->object_get_attribute("trace_$trace_id",'injct_rate');	
-	my $injct_rate_var = $self->object_get_attribute("trace_$trace_id",'injct_rate_var');	
-	my $src_port = $self->object_get_attribute("trace_$trace_id",'scr_port');
-	my $dst_port = $self->object_get_attribute("trace_$trace_id",'dst_port');
-	my $buff_size= $self->object_get_attribute("trace_$trace_id",'buff_size');
-	my $channel = $self->object_get_attribute("trace_$trace_id",'channel');
+	my ($self,$category,$trace_id)=@_;	
+	my $file_id		= $self->object_get_attribute("${category}_$trace_id",'file');
+	my $source 		= $self->object_get_attribute("${category}_$trace_id",'source');
+	my $dest		= $self->object_get_attribute("${category}_$trace_id",'destination');
+	my $Mbytes  	= $self->object_get_attribute("${category}_$trace_id",'Mbytes');
+	my $file_name	= $self->object_get_attribute("${category}_$trace_id",'file_name');	
+	my $init_weight = $self->object_get_attribute("${category}_$trace_id",'init_weight'); 
+	my $min_pck_size= $self->object_get_attribute("${category}_$trace_id",'min_pck_size');
+	my $max_pck_size= $self->object_get_attribute("${category}_$trace_id",'max_pck_size');
+	my $burst_size	= $self->object_get_attribute("${category}_$trace_id",'burst_size'); 
+	my $injct_rate  = $self->object_get_attribute("${category}_$trace_id",'injct_rate');	
+	my $injct_rate_var = $self->object_get_attribute("${category}_$trace_id",'injct_rate_var');	
+	my $src_port = $self->object_get_attribute("${category}_$trace_id",'scr_port');
+	my $dst_port = $self->object_get_attribute("${category}_$trace_id",'dst_port');
+	my $buff_size= $self->object_get_attribute("${category}_$trace_id",'buff_size');
+	my $channel = $self->object_get_attribute("${category}_$trace_id",'channel');
 	  
 	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port,$buff_size,$channel);	
 }
 
 sub get_all_tasks{
-	my $self=shift;
-	my @traces= get_trace_list($self);
+	my ($self,$category)=@_;
+	my @traces= get_trace_list($self,$category);
 	my @x;
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$category,$p);
 		push(@x,$src);
 		push(@x,$dst);		
 	}
@@ -1233,10 +1252,10 @@ sub get_mah_distance{
 }
 
 sub get_communication_task{
-	my $self=shift;
+	my ($self,$category)=@_;
 	my %com_tasks;
-	my @traces= get_trace_list($self);
-	my @tasks=get_all_tasks($self);
+	my @traces= get_trace_list($self,$category);
+	my @tasks=get_all_tasks($self,$category);
 	foreach my $p (@tasks){
 		$com_tasks{$p}{'total'}= 0;
 		foreach my $q (@tasks){
@@ -1246,7 +1265,7 @@ sub get_communication_task{
 	}
 	
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$category,$p);
 		
 		
 		$com_tasks{$src}{'sent'} += $Mbytes;
@@ -1353,7 +1372,7 @@ sub nmap_algorithm{
 	# find the max of com_vol
 	# consider all incoming and outgoing connections of each tasks
 	
-	my %com_tasks= $self->get_communication_task();
+	my %com_tasks= $self->get_communication_task('merge');
 	#print  Data::Dumper->Dump([\%com_tasks],['mpsoc']);	
 	
 	my $max_com_task;
@@ -1525,7 +1544,7 @@ sub worst_map_algorithm{
 	# find the max of com_vol
 	# consider all incoming and outgoing connections of each tasks
 	
-	my %com_tasks= $self->get_communication_task();
+	my %com_tasks= $self->get_communication_task('merge');
 	#print  Data::Dumper->Dump([\%com_tasks],['mpsoc']);	
 	
 	my $max_com_task;
@@ -1708,13 +1727,13 @@ sub map_task {
 }
 
 sub remove_selected_traces{
-	my $self=shift;
-	my @traces= get_trace_list($self);
+	my ($self,$category)=@_;
+	my @traces= get_trace_list($self,$category);
 	foreach my $p (@traces) {	
-		my $select=$self->object_get_attribute("trace_$p",'selected', 0); 
+		my $select=$self->object_get_attribute("${$category}_$p",'selected', 0); 
 		
 		if($select){
-			$self->remove_trace("$p");
+			$self->remove_trace($category,"$p");
 			
 		}
 	}
@@ -1724,11 +1743,11 @@ sub remove_selected_traces{
 
 
 sub auto_generate_injtratio{
-	my $self=shift;
-	my %com_tasks= $self->get_communication_task();
-	my @traces= get_trace_list($self);
+	my ($self,$category)=@_;
+	my %com_tasks= $self->get_communication_task($category);
+	my @traces= get_trace_list($self,$category);
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$category,$p);
 		my $max= $com_tasks{$file_id}{'maxsent'};
 		my $sent= $com_tasks{$src}{'sent'};
 		my $ratio = ($sent*100)/$max;
@@ -1825,7 +1844,7 @@ sub trace_maker_notebook{
 	$self->object_add_attribute('grouping','lable',"${lb}s: Drag and drop ${lb}s to bottom group list");
 	
 		
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_tasks($self,'raw');
 	my $page2=drag_and_drop_page($self,$tview,'grouping',\@tasks);
 	$notebook->append_page ($page2,Gtk2::Label->new  ("2-Groap ${lb}s   "));
 	
@@ -1837,10 +1856,15 @@ sub trace_maker_notebook{
 	$self->object_add_attribute('mapping','map_limit',1);
 	$self->object_add_attribute('mapping','group_num',$NE);
 	
-	#get list of non-empty groups
-	
+	#get list of non-empty groups	
 	my @merged_tasks=get_all_merged_tasks($self);
 	my $map_ctrl =gen_mapping_ctrl_box($self,$tview,$mode);
+	
+	# check task names to be uniq 
+	my @r= return_not_unique_names_in_array(@merged_tasks);
+    foreach my $p (@r){
+    	add_colored_info(\$tview,"$lb name $p is not unique!\n",'red');
+    }
 	
 	
 	my $page3=drag_and_drop_page($self,$tview,'mapping',\@merged_tasks,$map_ctrl);
@@ -1882,9 +1906,13 @@ sub get_all_merged_tasks {
 	my $group_num=$self->object_get_attribute('mapping','group_num');	
 	
 	for(my $i=0;$i<$group_num;$i=$i+1){
-		my $gref = $self->object_get_attribute('grouping',"grouped$i");
+		my $gref = $self->object_get_attribute('grouping',"group($i)");
 		next if(! defined $gref);
-		push (@merged,"grouped$i");
+		next if (scalar @{$gref} == 0);
+		
+		my $lable =  $self->object_get_attribute('grouping',"group($i)"."_name");
+		$lable = "group($i)" if(!defined $lable);		
+		push (@merged,"$lable");
 	}
 	my $uref= $self->object_get_attribute('grouping','ungrouped');	
 	push (@merged, @{$uref}) if(defined  $uref);	

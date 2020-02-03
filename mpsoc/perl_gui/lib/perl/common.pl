@@ -313,6 +313,14 @@ sub remove_all_white_spaces($)
 }
 
 
+sub check_scolar_exist_in_array{
+	my ($value,$ref)=@_;
+	my @array= @{$ref};
+	if ( grep( /^$value$/, @array ) ) {
+	  return 1;
+	}
+	return 0
+}
 
 
 sub get_scolar_pos{
@@ -380,6 +388,20 @@ sub get_diff_array{
 	
 }
 
+
+sub return_not_unique_names_in_array{
+	my @array = @_;
+	my %seen;
+	my @r;
+	foreach my $value (@array) {
+  		if (! $seen{$value}) {
+    		$seen{$value} = 1;
+  		}else{
+  			push(@r,$value);
+  		}
+	}
+	return @r;
+}
 
 
 sub compress_nums{

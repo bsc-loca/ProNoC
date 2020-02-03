@@ -14,10 +14,11 @@ use POSIX qw(ceil floor);
 #Declare our columns
 use constant C_MARKUP               => 0;
 use constant C_PIXBUF               => 1;
+
+
 #Declare our IDENDTIFIER ID's
 use constant ID_ICONVIEW            => 48;
-use constant ID_LABEL               => 49;
-use constant ID_URI                 => 50;
+
 
 
 
@@ -25,22 +26,15 @@ use constant ID_URI                 => 50;
 sub drag_and_drop_page {
 	my ($self,$tview,$name,$items_ref, $ctrl_box)=@_;
     my $vbox = Gtk2::VBox->new(FALSE,5);
-
 	my $group_num=$self->object_get_attribute($name,'group_num');
 	update_group_item_list($self,$group_num,$name,$items_ref);
-
 	my $ref_source = $self->object_get_attribute("$name",'ungrouped');
     my $lb=$self->object_get_attribute($name,'lable');
     my ($win,$list_store)=create_iconview($self,"$lb",'NO', $ref_source,$name,'ungrouped',undef);
- 
-  
-     
-  
     my $table = def_table($group_num%8,$group_num/8,FALSE);
     my $dim_y = floor(sqrt($group_num));
   	my $gname=$self->object_get_attribute("$name",'group_name_root');	
-	my $editable =$self->object_get_attribute("$name",'group_name_editble');	
-  	
+	my $editable =$self->object_get_attribute("$name",'group_name_editble');	  	
   	my $limit=$self->object_get_attribute($name,'map_limit');
   	for (my $i=0; $i<$group_num;$i++){
   		
@@ -56,15 +50,21 @@ sub drag_and_drop_page {
    my  $v_paned=gen_vpaned($win,.2,$sw);
    my  $h_paned= (defined $ctrl_box)? gen_hpaned($v_paned,.5,$ctrl_box) : $v_paned;   
 
-       
-    
-
 $vbox->add($h_paned);
 $vbox->show_all();
 return $vbox;
 }
 
-
+sub get_item_group_name{
+	my ($self,$group_num,$name,$item)=@_;
+	my $gname=$self->object_get_attribute("$name",'group_name_root');
+	for(my $i=0;$i<$group_num;$i=$i+1){
+		my $gref = $self->object_get_attribute("$name","$gname($i)");
+		next if(! defined $gref);
+		return $self->object_get_attribute("$name","$gname($i)".'_name') if( check_scolar_exist_in_array($item,$gref ));
+	}	
+	return $item;
+}
 
 
 sub update_group_item_list{
@@ -79,8 +79,7 @@ sub update_group_item_list{
 		next if(! defined $gref);
 		my @grouped =  @{$gref};
 		@grouped=get_common_array(\@grouped,\@items);		
-		$self->object_add_attribute("$name","$gname($i)",\@grouped);
-		
+		$self->object_add_attribute("$name","$gname($i)",\@grouped);		
 		push (@items_grouped,@grouped);
 	}	
 	#@items_ungroaped= @items - @items_groaped
@@ -101,8 +100,12 @@ sub create_iconview {
     my $tree_model = create_iconview_model($self,$name,$ref);
 
     my $icon_view = Gtk2::IconView->new_with_model($tree_model);
+   	
+                        
+       
     $icon_view->set_markup_column(C_MARKUP);
     $icon_view->set_pixbuf_column(C_PIXBUF);
+
 
     #Enable the Gtk2::IconView as a drag source
     add_drag_source($icon_view);
@@ -118,7 +121,6 @@ sub create_iconview {
 				$saved=$iter;
                 #set the text and pixbuf
                 my $icon_pixbuf = $tree_model->get_value($iter,C_PIXBUF);
-                $icon_string = $tree_model->get_value($iter,C_MARKUP);
                 $icon_view->drag_source_set_icon_pixbuf ($icon_pixbuf);
         } );
     });
@@ -127,7 +129,7 @@ sub create_iconview {
     $icon_view->signal_connect ('drag-data-get' => sub { 
 		
 		$icon_string = $tree_model->get_value($saved,C_MARKUP);		
-		print "\$icon_string=$icon_string\n";
+		#print "\$icon_string=$icon_string\n";
 		my $no_markup = $icon_string;
         $no_markup =~ s/<[^>]*>//g;
 		
@@ -158,8 +160,8 @@ sub create_iconview {
 	
 	
 	
-	
-	$frame->set_label_widget (gen_entry($lable)) if($editable eq 'YES');
+	my $entry=gen_entry_object($self,$name,$param."_name",$lable);
+	$frame->set_label_widget ($entry) if($editable eq 'YES');
 	$frame->set_label_widget (gen_label_in_center($lable)) unless($editable eq 'YES');
     
     
@@ -176,7 +178,7 @@ sub create_iconview_model {
 #----------------------------------------------------
 	my ($self,$name,$ref)=@_;
 	my @sources= (defined $ref)? @{$ref}:(); 
-    my $list_store = Gtk2::ListStore->new(qw/Glib::String Gtk2::Gdk::Pixbuf/);
+    my $list_store = Gtk2::ListStore->new(qw/Glib::String Gtk2::Gdk::Pixbuf Glib::String/);
 
     #******************************************************
     #we populate the Gtk2::ListStore with Gtk2::Stock icons
@@ -186,7 +188,7 @@ sub create_iconview_model {
 
     foreach my $val(@sources){
         #get the iconset from the icon_factory
-       # my $iconset = $icon_factory->lookup_default($val);
+        #my $iconset = $icon_factory->lookup_default($val);
         #try and extract the icon from it
         add_icon_to_tree($self,$name,$list_store,$val);
     }
@@ -210,33 +212,9 @@ sub target_drag_data_received {
     my @array;
 	my $icon=$self->object_get_attribute($name,'trace_icon');
 	my $pixbuf = get_icon_pixbuff ($icon );
-    if ($info eq ID_LABEL){
-     
-        
-        
-		my $r=$self->object_get_attribute("$name","$param");
-        @array = defined ($r)? @{$r}:();
-        push (@array ,$data->data); 
-        $self->object_add_attribute("$name","$param",\@array);
-        add_icon_to_tree($self,$name,$target,$data->data) ;
-    }
+    
 
-    if ($info eq ID_URI){
-      
-       
-       
-
-
-        foreach ($data->get_uris){
-           add_icon_to_tree($self,$name,$target,$data->data) ;
-            my $r=$self->object_get_attribute("$name","$param");
-        	@array = defined ($r)? @{$r}:();
-        	push (@array ,$data->data); 
-        	$self->object_add_attribute("$name","$param",\@array);
-        }
-    }
-
-    if ($info eq ID_ICONVIEW){
+   
 
         my $no_markup = $data->data;
         $no_markup =~ s/<[^>]*>//g;       
@@ -254,7 +232,7 @@ sub target_drag_data_received {
         
         
         
-    }
+   
 # check if the maximum number of droped item is recived
 $limit =655350 if(!defined $limit);
 if( scalar @array >= $limit){    
@@ -292,10 +270,11 @@ sub get_icon_pixbuff{
 
 sub add_icon_to_tree{
 	my ($self,$name,$list_store,$val)=@_;
-	 
+	
     my $icon=$self->object_get_attribute($name,'trace_icon');
 	my $pixbuf = get_icon_pixbuff ($icon );
-
+	
+	
         #if there was a valid icon in the iconset, add it
         if( defined $pixbuf ){
 
@@ -339,8 +318,7 @@ sub add_drop_source {
     my @target_table = (
 
         {'target' => 'STRING',       'flags' => [], 'info' => ID_ICONVIEW   },
-        {'target' => "text/uri-list",'flags' => [], 'info' => ID_URI        },
-        {'target' => "text/plain",  'flags' => [], 'info' => ID_LABEL       },
+        
     );
 
     #make this the drag destination (drop) for various drag sources

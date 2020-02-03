@@ -456,9 +456,9 @@ sub generate_trace_dot_file{
 	
 #add connections
 
-	my @traces= get_trace_list($self);
+	my @traces= get_trace_list($self,'raw');
 	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'raw',$p);
 		$dotfile=$dotfile."\"$src\" -> \"$dst\"  [label=\"$Mbytes\" ];\n";	
 	}
 	
@@ -482,7 +482,7 @@ sub generate_map_dot_file{
 	
 #add nodes
 	
-	my @tasks=get_all_tasks($self);
+	my @tasks=get_all_tasks($self,"merge");
 	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($self);
 	
 	my %pos=get_endp_pos($self);
@@ -516,9 +516,9 @@ $node\[
 	$dotfile=$dotfile."\n\n";
 	
 	#add connections
-	my @traces= get_trace_list($self);
+	my @traces= get_trace_list($self,'merge');
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'merge',$p);
 				
 	#	my $src_tile= $self->object_get_attribute("MAP_TILE","$src");
 	#	my $dst_tile= $self->object_get_attribute("MAP_TILE","$dst");

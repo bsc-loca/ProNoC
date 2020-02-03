@@ -210,10 +210,9 @@ sub load_orcc_csv{
     			my $dest=$fileds[2];
     			my $dst_port=$fileds[3];
     			my $buff_Size=$fileds[4];    			
-    			$channels{"${src}:$src_port"}= (defined $channels{"${src}:$src_port"})? $channels{"${src}:$src_port"}+1 : 0;
-    			
-    			
-    			add_trace($self, "${net}:${f_id}:",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size,$channels{"${src}:$src_port"});	
+    			$channels{"${src}:$src_port"}= (defined $channels{"${src}:$src_port"})? $channels{"${src}:$src_port"}+1 : 0;    			
+    			add_trace($self, "${net}:${f_id}:","raw",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size,$channels{"${src}:$src_port"});	
+    			#print "add_trace($self, \"${net}:${f_id}:\",\"raw\",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size,$channels{\"${src}:$src_port\"});\n";	
     			$t_id++;
     		}
     		
@@ -244,17 +243,128 @@ sub load_orcc_csv{
 }
 
 
+sub update_merge_actor_list{
+	my ($self,$tview)=@_;
+	
+		
+	
+	 #delete old mapping objects
+    remove_all_traces ($self,'merge');
+	
+	#add not mereged traces 
+	my $t_id=0;
+	my $ungrouped_ref= $self->object_get_attribute("grouping",'ungrouped');
+	my @ungrouped = (defined $ungrouped_ref)? @{$ungrouped_ref}:[];		
+	foreach my $actor (@ungrouped){
+		my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
+		foreach my $inject (@injectors) {
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
+			)=get_trace($self,'raw',$inject);
+			my ($snet,$snum,$sname)=split(':',$src);
+			my ($dnet,$dnum,$dname)=split(':',$dst);
+			
+			add_trace($self, "$file_id",'merge',$t_id, $sname,$dname, 1,$file_name, $src_port,$dst_port,$buff_size,$channel);
+			#print "add_trace(\$self, \"$file_id\",merge,$t_id, $src,$dst, 1,$file_name, $src_port,$dst_port,$buff_size,$channel);\n";
+			$t_id++;
+		}		
+		
+	}
+	
+	#update groaped_list
+	my $group_num=$self->object_get_attribute("grouping",'group_num');
+	my $gname=$self->object_get_attribute("grouping",'group_name_root');
+	for(my $i=0;$i<$group_num;$i=$i+1){
+		my $gref = $self->object_get_attribute("grouping","$gname($i)");
+		next if(! defined $gref);
+		my @grouped =  @{$gref};
+		next if (scalar @grouped == 0);
+			
+		
+		my $merged_actor =  $self->object_get_attribute('grouping',"group($i)"."_name");
+		$merged_actor = "group($i)" if(!defined $merged_actor);		
+		my $tile =get_task_give_tile($self,$merged_actor);
+		my $tile_id=get_tile_id($self,$merged_actor);
+		add_info($tview,"Generating $merged_actor.c grouped actor file from: @grouped  actors on $tile\n");
+		   
+		#my $r;
+		my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+		my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
+		#my $target_orccdir =  "$target_dir/sw/tile${tile_id}/orcc";
+		#my $target_actor_file = "$target_orccdir/$merged_actor.c";;
+			
+		#	open my $fc, ">$target_actor_file" or $r = "$!\n";
+		#	if(defined $r) {
+		#    	add_colored_info($tview,"Could not open $target_actor_file to write: $r",'red');
+		#		return;
+		#	} 
+			
+		#setp 1 : find local commiunication ports in merged actor
+		foreach my $actor (@grouped) {
+			my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
+			#Where does it transffer?
+			foreach my $inject (@injectors) {
+				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
+				)=get_trace($self,'raw',$inject);
+				my $dst_actor=$dst;
+				if (check_scolar_exist_in_array($dst,\@grouped)){
+					print "$src $src_port is locally connected to $dst $dst_port\n";
+				}
+				else
+				{
+					my ($net,$num,$name)=split(':',$src);
+					my $merge_src="$net:$num:$actor";
+					my $merge_src_port="${actor}_src_port";
+					my $tdst= get_item_group_name($dst);
+					my $merge_dst=$dst;
+					my $file="$target_dir/sw/$actor.c";
+					if($tdst ne $dst){
+						$dst="$net:$num:$tdst";
+						$dst_port="${actor}_$dst_port";
+					}		
+						
+					add_trace($self, "$file_id",'merge',$t_id, $merge_src,$dst, 1,$file, $src_port,$dst_port,$buff_size,$channel);
+					$t_id++;	
+				}#else
+			}#$ink=ject
+		}#actor	
+	}		
+}
+
 sub genereate_output_orcc{
 	my ($self,$tview,$window)=@_;
 	
 	# Code each actor destination port
-	my %dstp_number=get_destport_constant_list($self); 
-	my %srcp_number=get_srcport_constant_list($self); 
+	
+
 	my %soc_names=%{$self->object_get_attribute('soc_name')};
     my %ni_names =%{$self->object_get_attribute('ni_name')};
    
+	add_info($tview,"Generating grouped actor files\n");
+	my $group_num=$self->object_get_attribute("grouping",'group_num');
+	my $gname=$self->object_get_attribute("grouping",'group_name_root');
+	
+	
+	my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+    my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
+	
+	#remove old orcc lib folder
+	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);	
+    for (my $tile_num=0;$tile_num<$NE;$tile_num++){	
+		my $target_orccdir= "$target_dir/sw/tile${tile_num}/orcc";
+   		rmtree("$target_orccdir");
+   		mkpath("$target_orccdir",1,0755);
+    }
+    
+   update_merge_actor_list ($self,$tview);
+	
+	
+	
+	
+	my %srcp_number=get_srcport_constant_list($self,'merge');
+	my %dstp_number=get_destport_constant_list($self,'merge');  
+	
 	add_info($tview,"Generating source files\n");
-	my @actors= get_all_tasks($self);
+	my @actors= get_all_tasks($self,'merge');
 	foreach my $actor (@actors){
 		my ($net,$num,$name)=split(':',$actor);
 		
@@ -373,18 +483,18 @@ void sent_packet_done_funtion (void){
 		
 		#each actor is mapped to one tile. we need to find all the the traces going in and out to this tile 
 		#1- get the actor generated C file name:
-		my $actor_file= get_actr_file_name($self,$actor);	   
+		my $actor_file= get_actr_file_name($self,$actor,'merge');	   
 		#2- where it mapped?
 #		my $actor_tile = $self->object_get_attribute("MAP_TILE",$actor);
 #		my $actor_tile_id=get_tile_id($self,$actor);
 		#3- How many traces it transfers?
-		my @injectors= get_all_source_traces_of_actr($self,$actor);
+		my @injectors= get_all_source_traces_of_actr($self,$actor,'merge');
 				
 		
 		#4- Where does it transffer?
 		foreach my $inject (@injectors) {
 				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
-				)=get_trace($self,$inject);
+				)=get_trace($self,'merge',$inject);
 				my $dst_actor=$dst;
 				#my $dst_tile = $self->object_get_attribute("MAP_TILE",$dst_actor);
 				my $dst_tile = get_task_give_tile($self,$dst_actor);
@@ -468,10 +578,10 @@ static int send_data_${src_port};
 		
 		
 		#6-Where the packet come from? we need to update the sender with the remaining credit 
-		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor);
+		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor,'merge');
 		foreach my $sink (@sinkers){
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
-				)=get_trace($self,$sink);
+				)=get_trace($self,'merge',$sink);
 				
 			my $src_tile_id=get_tile_id($self,$src);
 			my $srcportnum = $srcp_number{$src}{$src_port}{$channel};					
@@ -725,16 +835,13 @@ int main(){
 ";	
 
    my $r;
-   my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
-   my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
+  
    add_colored_info($tview,"actor name: $actor\n",'green');
    
    
   
    #copy orcc lib files
    my $target_orccdir= "$target_dir/sw/tile${actor_tile_id}/orcc";
-   rmtree("$target_orccdir");
-   mkpath("$target_orccdir",1,0755);
    my $orcc_lib_dir = get_project_dir()."/mpsoc/src_c/orcc/lib";
    opendir(DIR,"$orcc_lib_dir") or $r= "$!\n";
    if(defined $r) {
@@ -974,20 +1081,20 @@ sub get_line_have_string{
 }	
 
 sub get_destport_constant_list{
-	my ($self,$tview)=@_;
+	my ($self,$category)=@_;
 	my %destport_const;
 	#1- Get list of all actors
-	my @actors= get_all_tasks($self);
+	my @actors= get_all_tasks($self,$category);
 	foreach my $actor (@actors){
 	
 		my $i=1;
 		#2- for each actor get the list of all input ports
-		my @sinkers= get_all_dest_traces_of_actr($self,$actor);
+		my @sinkers= get_all_dest_traces_of_actr($self,$actor,$category);
 		#3- number each source port of this actor
 		foreach my $sink (@sinkers){
 			
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size
-				)=get_trace($self,$sink);
+				)=get_trace($self,$category,$sink);
 			
 			$destport_const{$actor}{$dst_port}= $i;
 			#print "destport_const{$actor}{$dst_port}= $i;\n";
@@ -1001,20 +1108,20 @@ sub get_destport_constant_list{
 
 
 sub get_srcport_constant_list{
-	my ($self,$tview)=@_;
+	my ($self,$category)=@_;
 	my %srcport_const;
 	#1- Get list of all actors
-	my @actors= get_all_tasks($self);
+	my @actors= get_all_tasks($self,$category);
 	foreach my $actor (@actors){
 	
 		my $i=1;
 		#2- for each actor get the list of all output ports
-		my @injectors= get_all_source_traces_of_actr($self,$actor);
+		my @injectors= get_all_source_traces_of_actr($self,$actor,$category);
 		#3- number each source port of this actor
 		foreach my $inject (@injectors){
 			
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
-				)=get_trace($self,$inject);
+				)=get_trace($self,$category,$inject);
 			
 			$srcport_const{$actor}{$src_port}{$channel}= $i;
 			#print "destport_const{$actor}{$dst_port}= $i;\n";
@@ -1029,32 +1136,32 @@ sub get_srcport_constant_list{
 
 
 sub get_all_dest_traces_of_actr{
-	my ($self,$actor)=@_;
-	my @traces =get_trace_list($self);
+	my ($self,$actor,$category)=@_;
+	my @traces =get_trace_list($self,$category);
 	my @sources;
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$category,$p);
 		push (@sources,$p) if($dst eq $actor);
 	}
 	return  @sources;	
 }
 
 sub get_all_source_traces_of_actr{
-	my ($self,$actor)=@_;
-	my @traces =get_trace_list($self);
+	my ($self,$actor,$category)=@_;
+	my @traces =get_trace_list($self,$category);
 	my @dests;
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$category,$p);
 		push (@dests,$p) if($src eq $actor);
 	}
 	return  @dests;	
 }	
 
 sub get_actr_file_name {
-	my ($self,$actor)=@_;
-	my @traces =get_trace_list($self);
+	my ($self,$actor,$category)=@_;
+	my @traces =get_trace_list($self,$category);
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,$category,$p);
 		if($src eq $actor || $dst eq $actor){
 			#the actor supposed to be located next to CSV file and have the same file name as actor name
 			my ($fname,$path,$suffix) = fileparse("$file_name",qr"\..[^.]*$");	
