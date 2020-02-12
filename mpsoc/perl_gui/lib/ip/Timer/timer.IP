@@ -1,15 +1,58 @@
 #######################################################################
 ##	File: timer.IP
 ##    
-##	Copyright (C) 2014-2016  Alireza Monemi
+##	Copyright (C) 2014-2019  Alireza Monemi
 ##    
-##	This file is part of ProNoC 1.7.0 
+##	This file is part of ProNoC 1.9.1 
 ##
 ## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
 ##	MAY CAUSE UNEXPECTED BEHAIVOR.
 ################################################################################
 
-$timer = bless( {
+$ipgen = bless( {
+                  'plugs' => {
+                               'interrupt_peripheral' => {
+                                                           'interrupt_peripheral' => {},
+                                                           '0' => {
+                                                                    'name' => 'intrp'
+                                                                  },
+                                                           'type' => 'num',
+                                                           'value' => 1
+                                                         },
+                               'wb_slave' => {
+                                               'wb_slave' => {},
+                                               'value' => 1,
+                                               '0' => {
+                                                        'width' => 5,
+                                                        'addr' => '0x9600_0000	0x96ff_ffff		PWM/Timer/Counter Ctrl',
+                                                        'name' => 'wb'
+                                                      },
+                                               'type' => 'num'
+                                             },
+                               'reset' => {
+                                            'type' => 'num',
+                                            '0' => {
+                                                     'name' => 'reset'
+                                                   },
+                                            'reset' => {},
+                                            'value' => 1
+                                          },
+                               'clk' => {
+                                          'type' => 'num',
+                                          '0' => {
+                                                   'name' => 'clk'
+                                                 },
+                                          'value' => 1,
+                                          'clk' => {}
+                                        }
+                             },
+                  'description' => 'A simple, general purpose, Wishbone bus-based, 32-bit timer.',
+                  'gui_status' => {
+                                    'timeout' => 0,
+                                    'status' => 'ideal'
+                                  },
+                  'category' => 'Timer',
+                  'ip_name' => 'timer',
                   'system_h' => '#define ${IP}_TCSR	   			(*((volatile unsigned int *) ($BASE	)))
 		
 /*
@@ -28,7 +71,7 @@ PRESCALER WIDTH+3:4	:	clk_dev_ctrl
 	#define ${IP}_INT_EN				(1 << 1)
 	#define ${IP}_RST_ON_CMP			(1 << 2)
 //Initialize the timer. Enable the timer, reset on compare value, and interrupt
-	void ${IP}_int_init ( unsigned int compare ){
+	inline void ${IP}_int_init ( unsigned int compare ){
 		${IP}_TCMR	=	compare;
 		${IP}_TCSR   =	( ${IP}_EN | ${IP}_INT_EN | ${IP}_RST_ON_CMP);
 	}
@@ -37,70 +80,162 @@ PRESCALER WIDTH+3:4	:	clk_dev_ctrl
 #define ${IP}_stop()  ${IP}_TCSR&=~${IP}_EN
 #define ${IP}_reset() ${IP}_TLR=0
 #define ${IP}_read() ${IP}_TLR',
-                  'gui_status' => {
-                                    'timeout' => 0,
-                                    'status' => 'ideal'
-                                  },
+                  'modules' => {
+                                 'timer' => {}
+                               },
+                  'description_pdf' => '/mpsoc/src_peripheral/timer/timer.pdf',
+                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/timer/timer.v',
+                  'unused' => {
+                                'plug:wb_slave[0]' => [
+                                                        'bte_i',
+                                                        'cti_i'
+                                                      ]
+                              },
+                  'version' => 10,
                   'parameters' => {
-                                    'CNTw' => {
-                                                'default' => '32     ',
-                                                'type' => 'Fixed',
-                                                'global_param' => 'Localparam',
-                                                'content' => '',
-                                                'info' => undef,
-                                                'redefine_param' => 1
-                                              },
                                     'Dw' => {
                                               'default' => '32',
-                                              'type' => 'Fixed',
-                                              'content' => '',
                                               'global_param' => 'Localparam',
+                                              'redefine_param' => 1,
                                               'info' => undef,
-                                              'redefine_param' => 1
+                                              'type' => 'Fixed',
+                                              'content' => ''
                                             },
+                                    'Aw' => {
+                                              'redefine_param' => 1,
+                                              'info' => undef,
+                                              'content' => '',
+                                              'type' => 'Fixed',
+                                              'default' => '3',
+                                              'global_param' => 'Localparam'
+                                            },
+                                    'TAGw' => {
+                                                'info' => undef,
+                                                'redefine_param' => 1,
+                                                'type' => 'Fixed',
+                                                'content' => '',
+                                                'default' => '3',
+                                                'global_param' => 'Localparam'
+                                              },
                                     'SELw' => {
                                                 'content' => '',
-                                                'global_param' => 'Localparam',
-                                                'redefine_param' => 1,
-                                                'info' => undef,
                                                 'type' => 'Fixed',
+                                                'info' => undef,
+                                                'redefine_param' => 1,
+                                                'global_param' => 'Localparam',
                                                 'default' => '4'
                                               },
-                                    'TAGw' => {
-                                                'redefine_param' => 1,
-                                                'info' => undef,
-                                                'global_param' => 'Localparam',
-                                                'content' => '',
-                                                'type' => 'Fixed',
-                                                'default' => '3'
-                                              },
                                     'PRESCALER_WIDTH' => {
-                                                           'type' => 'Spin-button',
+                                                           'global_param' => 'Parameter',
                                                            'default' => '8',
+                                                           'type' => 'Spin-button',
+                                                           'content' => '1,32,1',
                                                            'redefine_param' => 1,
                                                            'info' => ' The prescaler  timer width. The prescaler takes the basic timer clock frequency and divides it by some value before feeding it to the timer, according to how the prescaler register(s) are configured. 
 
 
-',
-                                                           'global_param' => 'Parameter',
-                                                           'content' => '1,32,1'
+'
                                                          },
-                                    'Aw' => {
-                                              'global_param' => 'Localparam',
-                                              'content' => '',
-                                              'redefine_param' => 1,
-                                              'info' => undef,
-                                              'type' => 'Fixed',
-                                              'default' => '3'
-                                            }
+                                    'CNTw' => {
+                                                'default' => '32     ',
+                                                'global_param' => 'Localparam',
+                                                'redefine_param' => 1,
+                                                'info' => undef,
+                                                'content' => '',
+                                                'type' => 'Fixed'
+                                              }
                                   },
-                  'module_name' => 'timer',
-                  'description' => 'A simple, general purpose, Wishbone bus-based, 32-bit timer.',
-                  'sockets' => {},
+                  'ports' => {
+                               'sa_stb_i' => {
+                                               'range' => '',
+                                               'intfc_name' => 'plug:wb_slave[0]',
+                                               'type' => 'input',
+                                               'intfc_port' => 'stb_i'
+                                             },
+                               'sa_dat_i' => {
+                                               'intfc_port' => 'dat_i',
+                                               'type' => 'input',
+                                               'range' => 'Dw-1       :   0',
+                                               'intfc_name' => 'plug:wb_slave[0]'
+                                             },
+                               'sa_tag_i' => {
+                                               'intfc_name' => 'plug:wb_slave[0]',
+                                               'range' => 'TAGw-1     :   0',
+                                               'type' => 'input',
+                                               'intfc_port' => 'tag_i'
+                                             },
+                               'sa_cyc_i' => {
+                                               'intfc_port' => 'cyc_i',
+                                               'type' => 'input',
+                                               'range' => '',
+                                               'intfc_name' => 'plug:wb_slave[0]'
+                                             },
+                               'clk' => {
+                                          'intfc_port' => 'clk_i',
+                                          'type' => 'input',
+                                          'intfc_name' => 'plug:clk[0]',
+                                          'range' => ''
+                                        },
+                               'sa_we_i' => {
+                                              'intfc_port' => 'we_i',
+                                              'range' => '',
+                                              'type' => 'input',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               'sa_rty_o' => {
+                                               'intfc_port' => 'rty_o',
+                                               'intfc_name' => 'plug:wb_slave[0]',
+                                               'range' => '',
+                                               'type' => 'output'
+                                             },
+                               'sa_sel_i' => {
+                                               'intfc_name' => 'plug:wb_slave[0]',
+                                               'type' => 'input',
+                                               'range' => 'SELw-1     :   0',
+                                               'intfc_port' => 'sel_i'
+                                             },
+                               'sa_ack_o' => {
+                                               'intfc_port' => 'ack_o',
+                                               'range' => '',
+                                               'type' => 'output',
+                                               'intfc_name' => 'plug:wb_slave[0]'
+                                             },
+                               'irq' => {
+                                          'intfc_port' => 'int_o',
+                                          'range' => '',
+                                          'type' => 'output',
+                                          'intfc_name' => 'plug:interrupt_peripheral[0]'
+                                        },
+                               'sa_dat_o' => {
+                                               'type' => 'output',
+                                               'range' => 'Dw-1       :   0',
+                                               'intfc_name' => 'plug:wb_slave[0]',
+                                               'intfc_port' => 'dat_o'
+                                             },
+                               'sa_err_o' => {
+                                               'intfc_name' => 'plug:wb_slave[0]',
+                                               'type' => 'output',
+                                               'range' => '',
+                                               'intfc_port' => 'err_o'
+                                             },
+                               'reset' => {
+                                            'type' => 'input',
+                                            'range' => '',
+                                            'intfc_name' => 'plug:reset[0]',
+                                            'intfc_port' => 'reset_i'
+                                          },
+                               'sa_addr_i' => {
+                                                'intfc_name' => 'plug:wb_slave[0]',
+                                                'range' => 'Aw-1       :   0',
+                                                'type' => 'input',
+                                                'intfc_port' => 'adr_i'
+                                              }
+                             },
                   'hdl_files' => [
                                    '/mpsoc/src_peripheral/timer/timer.v'
                                  ],
-                  'category' => 'Timer',
+                  'module_name' => 'timer',
+                  'sockets' => {},
                   'parameters_order' => [
                                           'CNTw',
                                           'Dw',
@@ -108,140 +243,5 @@ PRESCALER WIDTH+3:4	:	clk_dev_ctrl
                                           'TAGw',
                                           'SELw',
                                           'PRESCALER_WIDTH'
-                                        ],
-                  'plugs' => {
-                               'interrupt_peripheral' => {
-                                                           'type' => 'num',
-                                                           'interrupt_peripheral' => {},
-                                                           'value' => 1,
-                                                           '0' => {
-                                                                    'name' => 'intrp'
-                                                                  }
-                                                         },
-                               'wb_slave' => {
-                                               'type' => 'num',
-                                               'wb_slave' => {},
-                                               '0' => {
-                                                        'addr' => '0x9600_0000	0x96ff_ffff		PWM/Timer/Counter Ctrl',
-                                                        'width' => 5,
-                                                        'name' => 'wb'
-                                                      },
-                                               'value' => 1
-                                             },
-                               'reset' => {
-                                            'reset' => {},
-                                            'value' => 1,
-                                            '0' => {
-                                                     'name' => 'reset'
-                                                   },
-                                            'type' => 'num'
-                                          },
-                               'clk' => {
-                                          'clk' => {},
-                                          'type' => 'num',
-                                          '0' => {
-                                                   'name' => 'clk'
-                                                 },
-                                          'value' => 1
-                                        }
-                             },
-                  'unused' => {
-                                'plug:wb_slave[0]' => [
-                                                        'cti_i',
-                                                        'bte_i'
-                                                      ]
-                              },
-                  'ports' => {
-                               'sa_we_i' => {
-                                              'intfc_name' => 'plug:wb_slave[0]',
-                                              'intfc_port' => 'we_i',
-                                              'type' => 'input',
-                                              'range' => ''
-                                            },
-                               'sa_tag_i' => {
-                                               'intfc_port' => 'tag_i',
-                                               'range' => 'TAGw-1     :   0',
-                                               'type' => 'input',
-                                               'intfc_name' => 'plug:wb_slave[0]'
-                                             },
-                               'sa_stb_i' => {
-                                               'range' => '',
-                                               'type' => 'input',
-                                               'intfc_port' => 'stb_i',
-                                               'intfc_name' => 'plug:wb_slave[0]'
-                                             },
-                               'sa_addr_i' => {
-                                                'intfc_name' => 'plug:wb_slave[0]',
-                                                'intfc_port' => 'adr_i',
-                                                'type' => 'input',
-                                                'range' => 'Aw-1       :   0'
-                                              },
-                               'irq' => {
-                                          'intfc_name' => 'plug:interrupt_peripheral[0]',
-                                          'range' => '',
-                                          'type' => 'output',
-                                          'intfc_port' => 'int_o'
-                                        },
-                               'reset' => {
-                                            'intfc_name' => 'plug:reset[0]',
-                                            'type' => 'input',
-                                            'range' => '',
-                                            'intfc_port' => 'reset_i'
-                                          },
-                               'sa_err_o' => {
-                                               'intfc_name' => 'plug:wb_slave[0]',
-                                               'range' => '',
-                                               'type' => 'output',
-                                               'intfc_port' => 'err_o'
-                                             },
-                               'sa_sel_i' => {
-                                               'range' => 'SELw-1     :   0',
-                                               'type' => 'input',
-                                               'intfc_port' => 'sel_i',
-                                               'intfc_name' => 'plug:wb_slave[0]'
-                                             },
-                               'sa_rty_o' => {
-                                               'intfc_name' => 'plug:wb_slave[0]',
-                                               'type' => 'output',
-                                               'range' => '',
-                                               'intfc_port' => 'rty_o'
-                                             },
-                               'sa_dat_i' => {
-                                               'intfc_name' => 'plug:wb_slave[0]',
-                                               'type' => 'input',
-                                               'range' => 'Dw-1       :   0',
-                                               'intfc_port' => 'dat_i'
-                                             },
-                               'sa_cyc_i' => {
-                                               'intfc_name' => 'plug:wb_slave[0]',
-                                               'intfc_port' => 'cyc_i',
-                                               'type' => 'input',
-                                               'range' => ''
-                                             },
-                               'clk' => {
-                                          'intfc_port' => 'clk_i',
-                                          'range' => '',
-                                          'type' => 'input',
-                                          'intfc_name' => 'plug:clk[0]'
-                                        },
-                               'sa_dat_o' => {
-                                               'intfc_name' => 'plug:wb_slave[0]',
-                                               'range' => 'Dw-1       :   0',
-                                               'type' => 'output',
-                                               'intfc_port' => 'dat_o'
-                                             },
-                               'sa_ack_o' => {
-                                               'intfc_name' => 'plug:wb_slave[0]',
-                                               'type' => 'output',
-                                               'range' => '',
-                                               'intfc_port' => 'ack_o'
-                                             }
-                             },
-                  'modules' => {
-                                 'timer' => {}
-                               },
-                  'version' => 9,
-                  'ip_name' => 'timer',
-                  'description_pdf' => '/mpsoc/src_peripheral/timer/timer.pdf',
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/timer/timer.v'
+                                        ]
                 }, 'ip_gen' );

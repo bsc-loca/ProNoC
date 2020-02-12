@@ -12,7 +12,7 @@ use String::Scanf; # imports sscanf()
 
 sub select_orcc_generated_srcs {
 	my ($self)=@_;
-	my $window = def_popwin_size(80,80,"Generate software using ORCC compiler",'percent');	
+	#my $window = def_popwin_size(80,80,"Generate software using ORCC compiler",'percent');	
 	#my $table = def_table(10, 10, FALSE);
 	#$table->attach_defaults($infobox,0,20,$row,$row+1);
 	
@@ -43,12 +43,12 @@ sub select_orcc_generated_srcs {
         
     
     			
-	my $trace_gen= trace_gen_main('orcc',\%p,$window);	
+	my $trace_gen= trace_gen_main('orcc',\%p);#,$window);	
 
-	$window->add ($trace_gen);
-	$window->show_all();
+	#$window->add ($trace_gen);
+	#$window->show_all();
 	
-	return;
+	return $trace_gen;
 	my $table;
 	
 	
@@ -118,7 +118,7 @@ sub select_orcc_generated_srcs {
 
         	if ( "ok" eq $dialog->run ) {
             		$file = $dialog->get_filename;
-					load_orcc_csv($self,$file,\$info);
+					load_orcc_csv($self,$file,$info);
             }
        		$dialog->destroy;	
 	});
@@ -150,7 +150,7 @@ sub load_orcc_file{
 
         	if ( "ok" eq $dialog->run ) {
             		$file = $dialog->get_filename;
-					load_orcc_csv($self,$file,\$tview);
+					load_orcc_csv($self,$file,$tview);
             }
        		$dialog->destroy;	
 }
@@ -248,7 +248,7 @@ sub update_merge_actor_list{
 	
 		
 	
-	 #delete old mapping objects
+	#delete old merge objects
     remove_all_traces ($self,'merge');
 	
 	#add not mereged traces 
@@ -260,10 +260,12 @@ sub update_merge_actor_list{
 		foreach my $inject (@injectors) {
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
 			)=get_trace($self,'raw',$inject);
-			my ($snet,$snum,$sname)=split(':',$src);
-			my ($dnet,$dnum,$dname)=split(':',$dst);
-			
-			add_trace($self, "$file_id",'merge',$t_id, $sname,$dname, 1,$file_name, $src_port,$dst_port,$buff_size,$channel);
+			my $tdst=$self->get_item_group_name('grouping',$dst);
+			if($tdst ne $dst){					
+					$dst_port="${dst}_$dst_port";
+			}
+								
+			add_trace($self, "$file_id",'merge',$t_id, $src,$tdst, 1,$file_name, $src_port,$dst_port,$buff_size,$channel);
 			#print "add_trace(\$self, \"$file_id\",merge,$t_id, $src,$dst, 1,$file_name, $src_port,$dst_port,$buff_size,$channel);\n";
 			$t_id++;
 		}		
@@ -285,19 +287,11 @@ sub update_merge_actor_list{
 		my $tile =get_task_give_tile($self,$merged_actor);
 		my $tile_id=get_tile_id($self,$merged_actor);
 		add_info($tview,"Generating $merged_actor.c grouped actor file from: @grouped  actors on $tile\n");
-		   
-		#my $r;
+	 
+	
 		my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
 		my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
-		#my $target_orccdir =  "$target_dir/sw/tile${tile_id}/orcc";
-		#my $target_actor_file = "$target_orccdir/$merged_actor.c";;
-			
-		#	open my $fc, ">$target_actor_file" or $r = "$!\n";
-		#	if(defined $r) {
-		#    	add_colored_info($tview,"Could not open $target_actor_file to write: $r",'red');
-		#		return;
-		#	} 
-			
+		
 		#setp 1 : find local commiunication ports in merged actor
 		foreach my $actor (@grouped) {
 			my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
@@ -311,24 +305,47 @@ sub update_merge_actor_list{
 				}
 				else
 				{
-					my ($net,$num,$name)=split(':',$src);
-					my $merge_src="$net:$num:$actor";
-					my $merge_src_port="${actor}_src_port";
-					my $tdst= get_item_group_name($dst);
-					my $merge_dst=$dst;
+					#my ($net,$num,$name)=split(':',$src);
+					my $merge_src="$merged_actor";
+					$src_port="${src}_$src_port";
+								
 					my $file="$target_dir/sw/$actor.c";
+										
+					my $tdst=$self->get_item_group_name('grouping',$dst);
+				#	($dnet,$dnum,$dname)=split(':',$tdst);
 					if($tdst ne $dst){
-						$dst="$net:$num:$tdst";
-						$dst_port="${actor}_$dst_port";
-					}		
+							#my ($dnet,$dnum,$dname)=split(':',$dst);
+							$dst_port="${tdst}_$dst_port";
+					}					
 						
-					add_trace($self, "$file_id",'merge',$t_id, $merge_src,$dst, 1,$file, $src_port,$dst_port,$buff_size,$channel);
+					add_trace($self, "$file_id",'merge',$t_id, $merge_src,$tdst, 1,$file, $src_port,$dst_port,$buff_size,$channel);
 					$t_id++;	
 				}#else
 			}#$ink=ject
 		}#actor	
 	}		
 }
+
+
+
+sub get_port_num{
+	my ($self,$hash_ref,$actor,$port_name,$channel) =@_;
+    return undef if(!defined $hash_ref);
+    my %hash = %{$hash_ref};
+    
+    my $port_num =(defined $channel)?  $hash{$actor}{$port_name}{$channel} :  $hash{$actor}{$port_name};			
+	if(!defined $port_num){
+		#its a merged actor
+		my $merge_actor=$self->get_item_group_name('grouping',$actor);
+		#my($net,$num,$name)=split(':',$merge_actor);
+		my $merge_port="${actor}_$port_name";
+		return $hash{$merge_actor}{$merge_port}{$channel} if(defined  $channel);
+		return $hash{$merge_actor}{$merge_port};		
+	}	  
+	return $port_num;  
+}
+
+
 
 sub genereate_output_orcc{
 	my ($self,$tview,$window)=@_;
@@ -347,244 +364,254 @@ sub genereate_output_orcc{
 	my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
     my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
 	
-	#remove old orcc lib folder
+    update_merge_actor_list ($self,$tview);
+	my %srcp_number=get_srcport_constant_list($self,'merge');
+	my %dstp_number=get_destport_constant_list($self,'merge');  
+	add_info($tview,"Generating source files\n");
+	
+	my $ungrouped_ref= $self->object_get_attribute("grouping",'ungrouped');
+	my @ungrouped = (defined $ungrouped_ref)? @{$ungrouped_ref}:[];		
+	
+	
 	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);	
     for (my $tile_num=0;$tile_num<$NE;$tile_num++){	
 		my $target_orccdir= "$target_dir/sw/tile${tile_num}/orcc";
-   		rmtree("$target_orccdir");
-   		mkpath("$target_orccdir",1,0755);
-    }
-    
-   update_merge_actor_list ($self,$tview);
-	
-	
-	
-	
-	my %srcp_number=get_srcport_constant_list($self,'merge');
-	my %dstp_number=get_destport_constant_list($self,'merge');  
-	
-	add_info($tview,"Generating source files\n");
-	my @actors= get_all_tasks($self,'merge');
-	foreach my $actor (@actors){
-		my ($net,$num,$name)=split(':',$actor);
-		
-		#my $actor_tile = $self->object_get_attribute("MAP_TILE",$actor);
-		my $actor_tile =get_task_give_tile($self,$actor);
-		my $actor_tile_id=get_tile_id($self,$actor);
-		
-		my $soc_name=$soc_names{$actor_tile_id};
+   		my $actor_tile ="tile($tile_num)";     			
+   		my $actor_tile_id=$tile_num;
+   		my $src_lib_file="$target_dir/sw/tile${actor_tile_id}/SOURCE_LIB"; 	
+   		my $actor=get_task_assigned_to_tile($self,$tile_num); 
+        my $soc_name=$soc_names{$actor_tile_id};
 		my $ni_name=$ni_names{$actor_tile_id};
+        
+        #remove old orcc lib folder
+   		rmtree("$target_orccdir");
+              
+        #generate main.c  
+		my $r;
+		my @actors_file_names;
+   		my $main_c = "$target_dir/sw/tile${actor_tile_id}/main.c";
+   		unlink $main_c; #delete old main.c file 	
+		open my $fd, ">$main_c" or $r = "$!\n";
+   		if(defined $r) {
+    		add_colored_info($tview,"Could not open $main_c to write: $r",'red');
+			return;
+   		} 
+   		
+   		#generate source_lib file
+   		my $src_lib="SOURCE_LIB += $soc_name.c ";
+   		                  		
+   		
+   		if (!defined $actor){
+   			print $fd main_c_template($soc_name);   			
+   			close($fd);
+   			#write makefile source lib list file
+			save_file($src_lib_file,$src_lib);	
+   			next;
+   		}
+   	
+   	
+   		   		
+   		mkpath("$target_orccdir",1,0755);
+   	
+	   	print $fd autogen_warning();
+	   	print $fd get_license_header($main_c);  
+		
+		my $ref = $self->get_items_in_a_group("grouping",$actor);
+		my @merge_actors = (defined $ref)? @{$ref} : ($actor);
+		
+		my $main_include = "#include <stddef.h>
+#include \"$soc_name.h\"
+#include \"orcc/orcc_lib.h\"
+";
+	
 		
 		
-		my $schedul='';
-		my $Hw_fifo_define='
-static unsigned int credit_send_buff=0;
-		' ;
-		my $transfer_str='';
-		my $sink_str='';
-		my $crdit_update='';
-		my %fifos;
-
-		my $fifo_num=0;
+		my $main_def=""; 
+		my $all_got_packet_funtion="";	
+		my $all_sent_packet_done_funtion="";	
+		my $all_check_packet_funtion="";
+		my $all_update_credit=""; 
+		my $all_init_actor="";
+		my $all_run_actor="";
 		my $actors_str='';
+	
+		my $fifo_num=0;
+		foreach my $actor (@merge_actors){
+			my $actor_file= get_actr_file_name($self,$actor,'raw');
+			my ($fname,$fpath,$fsuffix) = fileparse("$actor_file",qr"\..[^.]*$");
+   			my $target_actor_file="$target_orccdir/$fname.c";
+   			my $target_actor_header="$target_orccdir/$fname.h";
+			open my $fc, ">$target_actor_file" or $r = "$!\n";
+			if(defined $r) {
+		    	add_colored_info($tview,"Could not open $target_actor_file to write: $r",'red');
+				return;
+			} 
+		    
+		    my $LH=uc "${fname}";
+			my $actor_h="#ifndef\t ${LH}_H\n\t#define\t${LH}_H\n\n"; 
+			my $schedul='';
+			my $Hw_fifo_define='' ;
+			my $transfer_str='';
+			my $sink_str='';
+			my $crdit_update='';
+			my %fifos;
 		
-		my $actor_got_pck_func= "
-char ${name}_got_packet_funtion( unsigned char iport, unsigned int v){	
+		
+	
+		
+			my $actor_got_pck_func= "
+char ${actor}_got_packet_funtion( unsigned char iport, unsigned int v){	
 ";
-		my $actor_update_credit= "
-char ${name}_update_credit (unsigned int credit_port,unsigned int credit_value){
+			my $actor_update_credit= "
+char ${actor}_update_credit (unsigned int credit_port,unsigned int credit_value){
 ";
 
-		my $actor_check_pck_func= "
-char ${name}_check_packet_funtion (unsigned char iport,unsigned int size){
+			my $actor_check_pck_func= "
+char ${actor}_check_packet_funtion (unsigned char iport,unsigned int size){
 ";	
 
-		my $actor_sent_pck_done_func= "
-char ${name}_sent_packet_done_funtion (unsigned char oport){
+			my $actor_sent_pck_done_func= "
+char ${actor}_sent_packet_done_funtion (unsigned char oport){
 ";	
 
-		my $actor_init="
-void ${name}_init_actor (void) { 
+			my $actor_init="
+void ${actor}_init_actor (void) { 
 ";
 	
-		my $got_pck_func= "
-unsigned char iport_array[${ni_name}_NUM_VCs];
-unsigned char oport_array[${ni_name}_NUM_VCs];
-unsigned int credit_buff[${ni_name}_NUM_VCs];
-	
-void got_packet_funtion(void){
-	unsigned int i ;
-	unsigned char iport;
-	for (i=0;i<${ni_name}_NUM_VCs;i++){
-		if(${ni_name}_got_packet(i)) {
-			iport =${ni_name}_RECEIVE_PRECAP_DATA_REG(i); 	
-			if(iport==0){ //a credit update packet is recived;
-				${ni_name}_receive (i, (unsigned int)& credit_buff[i] , 4, 0);	
-			}else{
-				${name}_got_packet_funtion(iport,i);
-			}
-			iport_array[i]=iport;
-			${ni_name}_ack_got_pck_isr(i); 
-		}//If ${ni_name} got packet
-	}//for	
-}// got_packet_funtion
-";	
 		
-		my $check_pck_func ="		
-void check_packet_funtion (void){
-	unsigned char iport;
-	unsigned int i ,size ;
-	unsigned int credit_value,credit_port;
-	//struct SRC_INFOS  src_info;
-	for (i=0;i<${ni_name}_NUM_VCs;i++){
-		if(${ni_name}_packet_is_saved(i)) {
-			//src_info=get_src_info(i);
-			size=${ni_name}_RECEIVE_DATA_SIZE_REG(i); //size in byte
-			iport= iport_array[i];
-			if(iport==0){ // a credit update packet has been recived
-				credit_port  = credit_buff[i] >> 16; //output port num
-				credit_value = (credit_buff[i] & 0xFFFF); // credit value in word
-				${name}_update_credit(credit_port,credit_value);
-			}else{	
-				${name}_check_packet_funtion(iport,size);
-			}
-			${ni_name}_ack_save_done_isr(i); 
-		}//If ${ni_name}_packet_is_saved
-	}//for	
-}// check_packet_funtion
-				
-";	
-
-
-	my $sent_packet_done_funtion = "
-void sent_packet_done_funtion (void){
-	unsigned char oport;
-	unsigned int i;
-	for (i=0;i<${ni_name}_NUM_VCs;i++){
-		if(${ni_name}_packet_is_sent(i)) {
-			oport= oport_array[i];
-			if(oport==0){ // a credit update packet has sentout
-				
-			}else{	
-				${name}_sent_packet_done_funtion(oport);
-			}
-			${ni_name}_ack_send_done_isr(i); 			
-		}//If ${ni_name}_packet_is_sent
-	}//for		
-}//sent_packet_done_funtion		
-";
 
 
 			
-		#schedular function 
+			#schedular function 
 		
-	    $schedul ="
-			${name}_scheduler(&${name}.sched_func);"; 
+	    	$schedul ="
+			${actor}_scheduler(si);"; 
 		
-		#each actor is mapped to one tile. we need to find all the the traces going in and out to this tile 
-		#1- get the actor generated C file name:
-		my $actor_file= get_actr_file_name($self,$actor,'merge');	   
-		#2- where it mapped?
-#		my $actor_tile = $self->object_get_attribute("MAP_TILE",$actor);
-#		my $actor_tile_id=get_tile_id($self,$actor);
-		#3- How many traces it transfers?
-		my @injectors= get_all_source_traces_of_actr($self,$actor,'merge');
+			#For each actor which is mapped to this tile, we need to find all the the traces going in and out to this tile 
+			#1- get the actor generated C file name:
+			
+			#push(@actors_file_names,      $actor_file);	   
+			#2- where it mapped?
+			#		my $actor_tile = $self->object_get_attribute("MAP_TILE",$actor);
+			#		my $actor_tile_id=get_tile_id($self,$actor);
+			#3- How many traces it transfers?
+		
+			my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
 				
 		
-		#4- Where does it transffer?
-		foreach my $inject (@injectors) {
+			#4- Where does it transffer?
+			foreach my $inject (@injectors) {
 				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
-				)=get_trace($self,'merge',$inject);
-				my $dst_actor=$dst;
+				)=get_trace($self,'raw',$inject);				
+				
+				
 				#my $dst_tile = $self->object_get_attribute("MAP_TILE",$dst_actor);
+				my $dst_actor=$self->get_item_group_name('grouping',$dst);
 				my $dst_tile = get_task_give_tile($self,$dst_actor);
-				my $dst_tile_id=get_tile_id($self,$dst_actor);
+				my $dst_tile_id=get_tile_id($self,$dst_actor);				
+				
+				my $hw_connection=1;
+				if($dst_tile eq $actor_tile){
+					$hw_connection=0; # this trace is connected locally in one tile
+					print "***********************not supported loal yet\n";
+					exit();					
+				}
+				
 				#5-Now generate all transfer functions (add inject ports) 	
-				my ($net,$num,$name)=split(':',$actor);	
+				#my ($net,$num,$name)=split(':',$actor);	
 				
 				#print "dstp_number{$dst}{$dst_port}= $dstp_number{$dst}{$dst_port};\n";
 				
-	$fifos{"${name}_${src_port}"}{'size'}=$buff_size;	
-	$fifos{"$name"}{'file'}="$file_name";
-	#print  "\$fifos{\"$name\"}{'file'}=$file_name\n";
-    #print "\$fifos (${name}_${src_port}'size'=${buff_size};\n";		
+				$fifos{"${actor}_${src_port}"}{'size'}=$buff_size;	
+				$fifos{"$actor"}{'file'}="$file_name";
+		
+				my $srcportnum =  get_port_num($self,\%srcp_number,$src,$src_port,$channel);
+				my $dstportnum =  get_port_num($self,\%dstp_number,$dst,$dst_port); 
 	
-	if($channel==0){			
-		$Hw_fifo_define=$Hw_fifo_define."	
+				if($channel==0){			
+					$Hw_fifo_define=$Hw_fifo_define."	
 //	transfer ${src_port} port definitions:		
 #define ${src_port}_w  1
 #define ${src_port}_v  0				
 #define ${src_port}_class_num  0
-#define ${src_port}_dest_port_num  $dstp_number{$dst}{$dst_port}
+#define ${src_port}_dest_port_num $dstportnum  
 	
 #define ${src_port}_queue_pointer (unsigned int)&tokens_${src_port}[0]
-#define ${src_port}_queue_size_in_byte  (SIZE_${src_port} << ${name}_${src_port}_size_shift)	
+#define ${src_port}_queue_size_in_byte  (SIZE_${src_port} << ${actor}_${src_port}_size_shift)	
 #define ${src_port}_end_index   index_${src_port} 
-#define ${src_port}_end_index_in_byte   (${src_port}_end_index << ${name}_${src_port}_size_shift)
+#define ${src_port}_end_index_in_byte   (${src_port}_end_index << ${actor}_${src_port}_size_shift)
 #define ${src_port}_dest_phy_addr PHY_ADDR_ENDP_${dst_tile_id}
 
 ";
-	}
+				}
 	
-	$Hw_fifo_define=$Hw_fifo_define."
+				$Hw_fifo_define=$Hw_fifo_define."
 // ${src_port} read channel ${channel}	definition
-#define ${src_port}_ch${channel}_src_port_num   $srcp_number{$src}{$src_port}{$channel}
-#define ${src_port}_ch${channel}_start_index ${name}_${src_port}->read_inds[$channel]
-#define ${src_port}_ch${channel}_start_index_in_byte (${src_port}_ch${channel}_start_index << ${name}_${src_port}_size_shift)
+#define ${src_port}_ch${channel}_src_port_num   $srcportnum
+#define ${src_port}_ch${channel}_start_index ${actor}_${src_port}->read_inds[$channel]
+#define ${src_port}_ch${channel}_start_index_in_byte (${src_port}_ch${channel}_start_index << ${actor}_${src_port}_size_shift)
 #define ${src_port}_ch${channel}_has_data_to_send    (${src_port}_end_index > ${src_port}_ch${channel}_start_index)	
 static unsigned int ${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in_byte;	
-static int send_data_${src_port};
+static unsigned int send_data_${src_port};
 ";
 				
 				
 				
-	$transfer_str=$transfer_str."		
-	// if the sent vc is not busy and the sent_done_isr is not asserted sent a new packet
-	if((	${ni_name}_send_is_busy(${src_port}_v)==0) && (${ni_name}_packet_is_sent(${src_port}_v)==0))        {	
-		if(${src_port}_ch${channel}_has_data_to_send){
+				$transfer_str=$transfer_str."		
+	if(${src_port}_ch${channel}_has_data_to_send){
+		// if the sent vc is not busy and the sent_done_isr is not asserted sent a new packet
+		if((	${ni_name}_send_is_busy(${src_port}_v)==0) &&     (oport_array[${src_port}_v]==255) ){  //(${ni_name}_packet_is_sent(${src_port}_v)==0))        {	
+		
 			//ask NI to transfer the data   
-			oport_array[${src_port}_v]= ${src_port}_ch${channel}_src_port_num;
-			send_data_${src_port} = transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
-			${src_port}_ch${channel}_start_index_in_byte, ${src_port}_end_index_in_byte, ${src_port}_dest_phy_addr, ${src_port}_ch${channel}_credit );
+			transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
+			${src_port}_ch${channel}_start_index_in_byte, ${src_port}_end_index_in_byte, ${src_port}_dest_phy_addr, ${src_port}_ch${channel}_credit,${src_port}_ch${channel}_src_port_num, & send_data_${src_port}, & ${src_port}_ch${channel}_credit );
+				
 		}//has data					 
 	}//not busy
 	";
 	
-	$actor_sent_pck_done_func=$actor_sent_pck_done_func."
+				$actor_sent_pck_done_func=$actor_sent_pck_done_func."
 	
 	if(oport == ${src_port}_ch${channel}_src_port_num){ 
-		${src_port}_ch${channel}_start_index= ${src_port}_ch${channel}_start_index+ (send_data_${src_port}>>${name}_${src_port}_size_shift);	
-		${src_port}_ch${channel}_credit-=send_data_${src_port};			
+		${src_port}_ch${channel}_start_index= ${src_port}_ch${channel}_start_index+ (send_data_${src_port}>>${actor}_${src_port}_size_shift);			
+		//${src_port}_ch${channel}_credit-=send_data_${src_port};
 		return 1;
 	}	
 	
 	";
 	
-	$actor_update_credit =$actor_update_credit."	
+				$actor_update_credit =$actor_update_credit."	
 	if( credit_port  == ${src_port}_ch${channel}_src_port_num){
-		${src_port}_ch${channel}_credit = credit_value << ${name}_${src_port}_size_shift; //credit value in byte
+		${src_port}_ch${channel}_credit = credit_value << ${actor}_${src_port}_size_shift; //credit value in byte
 		return 1;
 	}	
 ";
 
-
-
-	
-	
-	
-		}# end inject
+			}# end inject
 		
 		
 		
 		
 		#6-Where the packet come from? we need to update the sender with the remaining credit 
-		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor,'merge');
+		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor,'raw');
 		foreach my $sink (@sinkers){
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
-				)=get_trace($self,'merge',$sink);
+				)=get_trace($self,'raw',$sink);
 				
-			my $src_tile_id=get_tile_id($self,$src);
-			my $srcportnum = $srcp_number{$src}{$src_port}{$channel};					
+			my $src_tile_id=get_tile_id($self,$src);			
+			my $srcportnum =  get_port_num($self,\%srcp_number,$src,$src_port,$channel); 
+			
+									
+			if(!defined $srcportnum){
+				   
+				    
+				    print Dumper (\$self);
+					print Dumper (\%srcp_number);
+					print "my $srcportnum = get_port_num($self,\%srcp_number,$src,$src_port,$channel);\n";
+					print "***********************fix me**********\n";
+					exit();					
+			}
+								
 				#7 We need to add sink ports 
 			
 				
@@ -593,6 +620,7 @@ static int send_data_${src_port};
 			index_${dst_port}_sender=index_$dst_port;			
 ";
 		
+	my $dstportnum = get_port_num($self,\%dstp_number,$dst,$dst_port); 
 	
 			
 	$Hw_fifo_define=$Hw_fifo_define."
@@ -610,19 +638,20 @@ static unsigned int index_${dst_port}_sender;
 #define ${dst_port}_credit_dest_phy_addr PHY_ADDR_ENDP_${src_tile_id}
 #define ${dst_port}_has_credit_to_send    (index_$dst_port > index_${dst_port}_sender)
 #define ${dst_port}_src_port_num  $srcportnum
-#define ${dst_port}_dst_port_num  $dstp_number{$dst}{$dst_port}
+#define ${dst_port}_dst_port_num  $dstportnum
 #define ${dst_port}_queu_pointer (unsigned int)&tokens_${dst_port}[0]
-#define ${dst_port}_queue_size_in_byte  (SIZE_${dst_port} << ${name}_${dst_port}_size_shift)	
-#define ${dst_port}_start_index_in_byte	((${name}_${dst_port}->write_ind % SIZE_${dst_port})<< ${name}_${dst_port}_size_shift)
+#define ${dst_port}_queue_size_in_byte  (SIZE_${dst_port} << ${actor}_${dst_port}_size_shift)	
+#define ${dst_port}_start_index_in_byte	((${actor}_${dst_port}->write_ind % SIZE_${dst_port})<< ${actor}_${dst_port}_size_shift)
 ";
 			
 			
 	$crdit_update=$crdit_update."
-	if((${ni_name}_send_is_busy(${dst_port}_credit_v)==0) && (${ni_name}_packet_is_sent(${dst_port}_credit_v)==0)){
-		if( ${dst_port}_has_credit_to_send){
+	if( ${dst_port}_has_credit_to_send){
+		if((${ni_name}_send_is_busy(${dst_port}_credit_v)==0) && (oport_array[${dst_port}_credit_v]==255) ){  // (${ni_name}_packet_is_sent(${dst_port}_credit_v)==0)){
+		
 			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit in word 
-			oport_array[${dst_port}_credit_v]= ${dst_port}_credit_dest_port;
-			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index_in_byte, ${dst_port}_credit_dest_phy_addr, 5 ) ){
+			
+			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index_in_byte, ${dst_port}_credit_dest_phy_addr, 5,${dst_port}_credit_dest_port, &tmp1,&tmp2 ) ){
 				index_${dst_port}_sender=index_${dst_port};					
 			}		 
 		} 
@@ -638,7 +667,7 @@ static unsigned int index_${dst_port}_sender;
 	
 	$actor_check_pck_func =$actor_check_pck_func."	
 	if(iport==${dst_port}_dst_port_num){
-		${name}_${dst_port}->write_ind = ${name}_${dst_port}->write_ind + (size >> ${name}_${dst_port}_size_shift);								
+		${actor}_${dst_port}->write_ind = ${actor}_${dst_port}->write_ind + (size >> ${actor}_${dst_port}_size_shift);								
 		return 1; 		
 	}						
 	";
@@ -647,8 +676,8 @@ static unsigned int index_${dst_port}_sender;
 	
 	
 	
-	$fifos{"${name}_${dst_port}"}{'size'}=$buff_size;	
-	$fifos{"$name"}{'file'}="$file_name";		
+	$fifos{"${actor}_${dst_port}"}{'size'}=$buff_size;	
+	$fifos{"$actor"}{'file'}="$file_name";		
 	#print  "\$fifos{\"$name\"}{'file'}=$file_name\n";
 	#print "\$fifos ${name}_${dst_port}'size'=$buff_size;\n";	
 	
@@ -656,155 +685,53 @@ static unsigned int index_${dst_port}_sender;
 			
 		} #sink
 		
+		
+$actor_h=$actor_h."void ${actor}_initialize(schedinfo_t *);\n";
+$actor_h=$actor_h."void ${actor}_scheduler(schedinfo_t *);\n";		
+		
+$actor_h=$actor_h."char ${actor}_got_packet_funtion(unsigned char , unsigned int);\n";		
+$all_got_packet_funtion=$all_got_packet_funtion."\t\t\t\t${actor}_got_packet_funtion(iport,i);\n";		
 $actor_got_pck_func=$actor_got_pck_func."
 	return 0;
 }	
 ";
 
+$actor_h=$actor_h."char ${actor}_check_packet_funtion(unsigned char,unsigned int);\n";
+$all_check_packet_funtion = $all_check_packet_funtion."\t\t\t\t${actor}_check_packet_funtion(iport,size);\n";
 $actor_check_pck_func=$actor_check_pck_func."
 	return 0;
 }	
 ";
-
+$actor_h=$actor_h."char ${actor}_sent_packet_done_funtion(unsigned char);\n";
+$all_sent_packet_done_funtion = $all_sent_packet_done_funtion."\t\t\t\t${actor}_sent_packet_done_funtion(oport);\n";
 $actor_sent_pck_done_func=$actor_sent_pck_done_func."
 	return 0;
 }
 ";
-
+$actor_h=$actor_h."char ${actor}_update_credit(unsigned int, unsigned int);\n";
+$all_update_credit=$all_update_credit."\t\t\t\t${actor}_update_credit(credit_port,credit_value);\n";
 $actor_update_credit =$actor_update_credit."	
 	return 0;
 }
 ";		
-	
+$actor_h=$actor_h."void ${actor}_init_actor(void);\n";	
+$all_init_actor=$all_init_actor."\t\t${actor}_init_actor();\n";	
 $actor_init=$actor_init."
 }
 ";	
-	my $ni_isr='
-	
-/*
-transfer_manage
-	w: initial weight
-	v: Virtual channel number
-	class_num: message class number
-	dest_port: destination queue number
-	queue_pointer: address in byte
-	queue_size: queue size in byte
-	start_index: start index byte number
-	end_index:  end index byte number
-	dest_phy_addr
-	credit: Number of byte available in destination queue
-*/
 
-
-
-unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned int class_num, unsigned char dest_port, unsigned int queue_pointer,unsigned int queue_size, unsigned int start_index,  unsigned int end_index, unsigned int dest_phy_addr,unsigned int credit){
-    
-//printf ( "core:%u transfer_manage (w=%u, v=%u, c=%u, dest_port=%u, queue_pointer=%u, queue_size=%u,  start_index=%u, end_index=%u,dest_phy_addr=%u, credit=%u", COREID,
-// w,  v,  class_num,  dest_port,  queue_pointer, queue_size,  start_index,  end_index,  dest_phy_addr, credit);
-   
-
-	unsigned int start_addr_pointer;
-	unsigned int data_size;
-';
+$actor_h=$actor_h."void ${actor}_run_actor(schedinfo_t * si);\n";	
+$all_run_actor=$all_run_actor."\t\t${actor}_run_actor(&si);\n";		
+my $actor_run="
+void ${actor}_run_actor (schedinfo_t * si) { 
 	
-$ni_isr=$ni_isr."
-    if (${ni_name}_send_is_busy(v)) return 0 ; // if VC is busy sending previous packet do nothing
-    if(credit==0) return 0;
-";
-
-$ni_isr=$ni_isr.'
-    unsigned int start_addr_in_Q = start_index % queue_size;
-    start_addr_pointer = queue_pointer + start_addr_in_Q;
-
-// printf("start_addr_pointer(%u) = queue_pointer(%u) + start_addr_in_Q(%u)\n)", start_addr_pointer , queue_pointer , start_addr_in_Q);
-
-    data_size =  end_index-start_index;
-
-    if(data_size> credit) data_size =  credit; // we dont want to send more data than the receiver credit
-
-    if((start_addr_in_Q + data_size)> queue_size) data_size =  queue_size-start_addr_in_Q; // we only send data until end of the queque. The rest will be sent in next round starting from begining of the queue   
-';
-
-$ni_isr=$ni_isr."
-	if(data_size==0) return 0;
-	${ni_name}_transfer (w, v, class_num, dest_port , start_addr_pointer, data_size, dest_phy_addr);
-    return data_size;   
-}	
+	unsigned int credit_send_buff;
 	
-	
-	
-	
-
-	
-	
-void error_handelling_function(){
-	unsigned int i;
-	for (i=0;i<${ni_name}_NUM_VCs;i++){
-		if(${ni_name}_got_buff_ovf(i)) {
-			printf (\"VC%u:The receiver allocated buffer size is smaller than the received packet size in core\%u\\n\",i,COREID);
-			${ni_name}_ack_buff_ovf_isr(i);
-		}
-		if(${ni_name}_got_send_dsize_err(i)) {
-			 printf (\"VC%u:The send data size is not set in core\%u\\n\",i,COREID);
-			 ${ni_name}_ack_send_dsize_err_isr(i); 
-		}
-		if(${ni_name}_got_burst_size_err(i)){
- 			 printf (\"VC%u:The burst size is not set in core\%u\\n\",i,COREID);
-			 ${ni_name}_ack_burst_size_err_isr(i);
-		}
-		if(${ni_name}_got_invalid_send_req(i)){
-			 printf( \"VC%u:A new send request is received while the DMA is still busy sending previous packet in core\%u\\n\",i,COREID);
-			 ${ni_name}_ack_invalid_send_req_isr(i);
-		}
-		if(${ni_name}_got_crc_mismatch(i)){
-			printf( \"VC%u:CRC miss-matched in core\%u\\n\",i,COREID);
-			${ni_name}_ack_crc_mismatch_isr(i);
-		}		  
-	}//for
-}//error_handle		
-	
-	
-	
-	
-     
-     
-      
-         
-	
-	
-void ${ni_name}_isr(void){
-	//place your interrupt code here
-
-	if(${ni_name}_any_err_isr_is_asserted()  ){
-		// An error ocure 
-		error_handelling_function();	
-	}
-	
-	if( ${ni_name}_any_sent_done_isr_is_asserted()  ){
-		//check which VC has finished sending the packet. 
-		sent_packet_done_funtion();		
-	}
-
-	if( ${ni_name}_any_save_done_isr_is_asserted()){
-		//check which VC has finished saving the packet. This function must be called before got_packet_funtion
-		check_packet_funtion();		
-	}
-
-	if(${ni_name}_any_got_pck_isr_is_asserted() ){
-		//check which VC got packet
-		got_packet_funtion();		
-	}
-	return;
-}
-	
-	";
-	
-	my $actor_run="
-void ${name}_run_actor (void) { 
 	//run schedular
-	$schedul
+$schedul
 		
 	//check if input ports have credit update to send
+	unsigned int tmp1,tmp2;
 	$crdit_update  
 		
 	//check if output port has data to send
@@ -814,25 +741,7 @@ void ${name}_run_actor (void) {
 
 
 	
-	my $main="	
-int main(){
-	general_int_init();
-	general_int_add(${ni_name}_INT_PIN, ${ni_name}_isr, 0); //${ni_name}_INT_PIN
-	// Enable ${ni_name} interrupt (its connected to inttruupt pin 0)
-	general_int_enable(${ni_name}_INT_PIN);
-	general_cpu_int_en();
-	// hw interrupt enable function:
-	// ${ni_name}_initial (burst_size,  errors_int_en,  send_int_en,  save_int_en,  got_pck_int_en)
-	${ni_name}_initial (16,1,1,1,1); //enable the intrrupt when a packet is recived, saved or got any error
 	
-	${name}_init_actor();	
-	while(1){
-		${name}_run_actor();
-	}	
-	return 0;
-}		
-			
-";	
 
    my $r;
   
@@ -841,7 +750,7 @@ int main(){
    
   
    #copy orcc lib files
-   my $target_orccdir= "$target_dir/sw/tile${actor_tile_id}/orcc";
+  
    my $orcc_lib_dir = get_project_dir()."/mpsoc/src_c/orcc/lib";
    opendir(DIR,"$orcc_lib_dir") or $r= "$!\n";
    if(defined $r) {
@@ -854,46 +763,37 @@ int main(){
    	  copy ("$orcc_lib_dir/$name","$target_orccdir/");    
    }
    
-   #generate main.c  
-   my $main_c = "$target_dir/sw/tile${actor_tile_id}/main.c";
-   unlink $main_c; #delete old main.c file 
-   
-   my ($fname,$fpath,$fsuffix) = fileparse("$actor_file",qr"\..[^.]*$");
-   my $target_actor_file="$target_orccdir/$fname.c";
-   open my $fc, ">$target_actor_file" or $r = "$!\n";
-   if(defined $r) {
-    	add_colored_info($tview,"Could not open $target_actor_file to write: $r",'red');
-		return;
-   } 
    
    
-   open my $fd, ">$main_c" or $r = "$!\n";
-   if(defined $r) {
-    	add_colored_info($tview,"Could not open $main_c to write: $r",'red');
-		return;
-   } 
-   print $fd autogen_warning();
-   print $fd get_license_header($main_c);   
+  
+   
+  
+   
+  #print $fe "orcc/$fname.c ";
+  #$main_include=$main_include."#include \"orcc/$fname.c\"\n";
+   $main_include=$main_include."#include \"orcc/$fname.h\"\n";
+  
+  $src_lib="$src_lib orcc/$fname.c";
+   
    print $fc " // Generated from $actor_file\n";
   
    
-   print $fc "   
-#include \"../$soc_name.h\"
+   print $fc "  
+#include <stddef.h>    
+#include \"../mor1k_tile.h\"   
 #include \"orcc_lib.h\"
+#include \"../../phy_addr.h\"
 
-extern unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned int class_num, unsigned char dest_port, unsigned int queue_pointer,unsigned int queue_size, unsigned int start_index,  unsigned int end_index, unsigned int dest_phy_addr,unsigned int credit);
-extern unsigned char oport_array[${ni_name}_NUM_VCs];    
+extern unsigned int  transfer_manage (unsigned int, unsigned int, unsigned int, unsigned char, unsigned int, unsigned int, unsigned int,  unsigned int, unsigned int, unsigned int, unsigned char, unsigned int *, unsigned int *);
+extern unsigned char oport_array [${ni_name}_NUM_VCs];
 
 ";
   
-   print $fd "   
-#include \"$soc_name.h\"
-#include \"orcc/orcc_lib.h\"
-#include \"orcc/$fname.c\"
-";
+
+   
   my $origen_def="";
   my $origen_fuctions=""; 
-   
+  
    
 	#read actor file name and remove unnesserly codes. comment every files start with #include and extern
 	open my $fh, "<", $actor_file or $r = "$!\n";
@@ -920,11 +820,13 @@ extern unsigned char oport_array[${ni_name}_NUM_VCs];
 	    	 		my $size = $fifos{$fifo_name}{'size'};
 	    	 		if(!defined $size ){
 	    	 			$size = "$fifo_name";
-	    	 			$size=~ s/^\s*${name}_//g;
+	    	 			$size=~ s/^\s*${actor}_//g;
 	    	 			$size = "SIZE_$size";
 	    	 		}
-	    	 		$origen_fuctions= $origen_fuctions . " DECLARE_FIFO(${type}, $size, $fifo_num, 1);\n";
-	    	 		$origen_fuctions= $origen_fuctions . " fifo_${type}_t *$fifo_name = &fifo_$fifo_num;\n  ";
+	    	 		
+	    	 		$main_def=$main_def . " DECLARE_FIFO(${type}, $size, $fifo_num, 1);\n";
+	    	 		$main_def=$main_def . " fifo_${type}_t *$fifo_name = &fifo_$fifo_num;\n"; 
+	    	 		$origen_fuctions= $origen_fuctions . "$line \n";
 	    	 		
 	    	 		  	 		
 	    	 		
@@ -949,7 +851,8 @@ extern unsigned char oport_array[${ni_name}_NUM_VCs];
 	    	 my  ($connect_name) = sscanf("extern connection_t %s;",$line);
 	    	 if(defined $connect_name ){
 	    	   $extern=1;
-	    	   $origen_fuctions=$origen_fuctions. " connection_t $connect_name = {0, 0, 0, 0};// We dont need connection as they are done in hardware. just define to prevent error\n";
+	    	   $main_def=$main_def . " connection_t $connect_name = {0, 0, 0, 0};// We dont need connection as they are done in hardware. just define to prevent error\n";
+	    	   $origen_fuctions= $origen_fuctions . "$line \n";	
 	    	 }
 	    	 
 	    	 
@@ -971,6 +874,7 @@ extern unsigned char oport_array[${ni_name}_NUM_VCs];
 	    	 	    	#print $fd "void ${actor_name}_initialize(schedinfo_t *);\n";
 						#print $fd "void ${actor_name}_scheduler (schedinfo_t *);\n";	    	 	    	
 	    	 	    	#print $fd "$lines[0]\n";
+	    	 	    	$origen_fuctions= $origen_fuctions . "$line \n";	
 	    	 	    	$actors_str=$actors_str."$lines[0]\n";
 	    	 	    }
 	    	 	     	
@@ -1009,7 +913,7 @@ $actor_check_pck_func
 
 $actor_sent_pck_done_func
 	
-$actors_str
+
 
 $actor_run
 
@@ -1018,10 +922,284 @@ $actor_init
 ";		
 		
 
-print $fd "	
+			close($fc);
 
-$got_pck_func      
-		  
+
+			$actor_h = $actor_h."#endif";
+			open my $fp, ">$target_actor_header" or $r = "$!\n";
+			if(defined $r) {
+		    	add_colored_info($tview,"Could not open $target_actor_header to write: $r",'red');
+				return;
+			}
+			print $fp $actor_h;
+			close($fp);
+			 
+
+
+	}  
+	
+	
+	
+	
+	
+	my $got_pck_func= "
+/*	
+unsigned char ni_send_is_busy_func (unsigned char v){
+	unsigned char r = ni_send_is_busy(v);
+	return  r;
+ }
+ 
+ unsigned char ni_packet_is_sent_func (unsigned char v){
+	unsigned char r =  ni_packet_is_sent(v);
+	return  r;
+ }	
+*/
+	
+unsigned char iport_array[${ni_name}_NUM_VCs];
+unsigned char oport_array[${ni_name}_NUM_VCs];
+unsigned int credit_buff[${ni_name}_NUM_VCs];
+	
+void got_packet_funtion(void){
+	unsigned int i ;
+	unsigned char iport;
+	for (i=0;i<${ni_name}_NUM_VCs;i++){
+		if(${ni_name}_got_packet(i)) {
+			iport =${ni_name}_RECEIVE_PRECAP_DATA_REG(i); 
+			iport_array[i]=iport;	
+			if(iport==0){ //a credit update packet is recived;
+				${ni_name}_receive (i, (unsigned int)& credit_buff[i] , 4, 0);	
+			}else{
+$all_got_packet_funtion
+			}			
+			${ni_name}_ack_got_pck_isr(i); 
+		}//If ${ni_name} got packet
+	}//for	
+}// got_packet_funtion
+";	
+		
+		
+
+
+	my $sent_packet_done_funtion = "
+void sent_packet_done_funtion (void){
+	unsigned char oport;
+	unsigned int i;
+	for (i=0;i<${ni_name}_NUM_VCs;i++){
+		if(${ni_name}_packet_is_sent(i)) {
+			oport= oport_array[i];
+			if(oport==0){ // a credit update packet has sentout
+				
+			}else{	
+$all_sent_packet_done_funtion
+			}
+			oport_array[i]=255;
+			${ni_name}_ack_send_done_isr(i); 			
+		}//If ${ni_name}_packet_is_sent
+	}//for		
+}//sent_packet_done_funtion		
+";
+
+
+	
+	my $check_pck_func ="		
+void check_packet_funtion (void){
+	unsigned char iport;
+	unsigned int i ,size ;
+	unsigned int credit_value,credit_port;
+	struct SRC_INFOS  src_info;
+	for (i=0;i<${ni_name}_NUM_VCs;i++){
+		if(${ni_name}_packet_is_saved(i)) {
+			src_info=get_src_info(i);
+			size=${ni_name}_RECEIVE_DATA_SIZE_REG(i); //size in byte
+			//iport= iport_array[i];
+			iport= src_info.r;
+			if(iport==0){ // a credit update packet has been recived
+				credit_port  = credit_buff[i] >> 16; //output port num
+				credit_value = (credit_buff[i] & 0xFFFF); // credit value in word
+$all_update_credit
+			}else{	
+$all_check_packet_funtion
+			}
+			${ni_name}_ack_save_done_isr(i); 
+		}//If ${ni_name}_packet_is_saved
+	}//for	
+}// check_packet_funtion
+				
+";	
+	
+my $ni_isr='
+	
+/*
+transfer_manage
+	w: initial weight
+	v: Virtual channel number
+	class_num: message class number
+	dest_port: destination queue number
+	queue_pointer: address in byte
+	queue_size: queue size in byte
+	start_index: start index byte number
+	end_index:  end index byte number
+	dest_phy_addr
+	credit: Number of byte available in destination queue
+*/
+
+
+
+unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned int class_num, unsigned char dest_port, unsigned int queue_pointer,unsigned int queue_size,
+ unsigned int start_index,  unsigned int end_index, unsigned int dest_phy_addr,unsigned int credit, unsigned char port_num, unsigned int * sent_dat_size, unsigned int * dest_credit_size){
+    
+//printf ( "core:%u transfer_manage (w=%u, v=%u, c=%u, dest_port=%u, queue_pointer=%u, queue_size=%u,  start_index=%u, end_index=%u,dest_phy_addr=%u, credit=%u", COREID,
+// w,  v,  class_num,  dest_port,  queue_pointer, queue_size,  start_index,  end_index,  dest_phy_addr, credit);
+   
+
+	unsigned int start_addr_pointer;
+	unsigned int data_size;
+';
+	
+$ni_isr=$ni_isr."
+    if (${ni_name}_send_is_busy(v)) return 0 ; // if VC is busy sending previous packet do nothing
+    if(credit==0) return 0;
+";
+
+$ni_isr=$ni_isr.'
+    unsigned int start_addr_in_Q = start_index % queue_size;
+    start_addr_pointer = queue_pointer + start_addr_in_Q;
+
+// printf("start_addr_pointer(%u) = queue_pointer(%u) + start_addr_in_Q(%u)\n)", start_addr_pointer , queue_pointer , start_addr_in_Q);
+
+    data_size =  end_index-start_index;
+
+    if(data_size> credit) data_size =  credit; // we dont want to send more data than the receiver credit
+
+    if((start_addr_in_Q + data_size)> queue_size) data_size =  queue_size-start_addr_in_Q; // we only send data until end of the queque. The rest will be sent in next round starting from begining of the queue   
+';
+
+$ni_isr=$ni_isr."
+	if(data_size==0) return 0;
+	oport_array[v]=  port_num; // port_num and data size should be saved before calling transfer function.
+	* sent_dat_size =  data_size;
+	* dest_credit_size -= data_size;
+	${ni_name}_transfer (w, v, class_num, dest_port , start_addr_pointer, data_size, dest_phy_addr);
+    return 1;   
+}	
+	
+	
+	
+	
+
+	
+	
+void error_handelling_function(){
+	unsigned int i;
+	for (i=0;i<${ni_name}_NUM_VCs;i++){
+		if(${ni_name}_got_buff_ovf(i)) {
+			printf (\"VC%u:The receiver allocated buffer size is smaller than the received packet size in core\%u\\n\",i,COREID);
+			${ni_name}_ack_buff_ovf_isr(i);
+		}
+		if(${ni_name}_got_send_dsize_err(i)) {
+			 printf (\"VC%u:The send data size is not set in core\%u\\n\",i,COREID);
+			 ${ni_name}_ack_send_dsize_err_isr(i); 
+		}
+		if(${ni_name}_got_burst_size_err(i)){
+ 			 printf (\"VC%u:The burst size is not set in core\%u\\n\",i,COREID);
+			 ${ni_name}_ack_burst_size_err_isr(i);
+		}
+		if(${ni_name}_got_invalid_send_req(i)){
+			 printf( \"VC%u:A new send request is received while the DMA is still busy sending previous packet in core\%u\\n\",i,COREID);
+			 ${ni_name}_ack_invalid_send_req_isr(i);
+		}
+		if(${ni_name}_got_crc_mismatch(i)){
+			printf( \"VC%u:CRC miss-matched in core\%u\\n\",i,COREID);
+			${ni_name}_ack_crc_mismatch_isr(i);
+		}		  
+	}//for
+}//error_handle		
+	
+
+         
+	
+	
+void ${ni_name}_isr(void){
+	//place your interrupt code here
+
+	if(${ni_name}_any_err_isr_is_asserted()  ){
+		// An error ocure 
+		error_handelling_function();	
+	}
+	
+	if( ${ni_name}_any_sent_done_isr_is_asserted()  ){
+		//check which VC has finished sending the packet. 
+		sent_packet_done_funtion();		
+	}
+
+	if( ${ni_name}_any_save_done_isr_is_asserted()){
+		//check which VC has finished saving the packet. This function must be called before got_packet_funtion
+		check_packet_funtion();		
+	}
+
+	if(${ni_name}_any_got_pck_isr_is_asserted() ){
+		//check which VC got packet
+		got_packet_funtion();		
+	}
+	return;
+}
+	
+	";	
+	
+	
+my $v_val= $self->object_get_attribute('noc_param','V');		
+my $opr ='';
+for (my $i=0;$i<$v_val; $i++){
+	$opr = $opr."\toport_array[$i]=255;\n"; 
+}	
+	
+my $main="	
+int main(){
+	schedinfo_t si;
+$all_init_actor	
+	general_int_init();
+	general_int_add(${ni_name}_INT_PIN, ${ni_name}_isr, 0); //${ni_name}_INT_PIN
+	// Enable ${ni_name} interrupt (its connected to inttruupt pin 0)
+	general_int_enable(${ni_name}_INT_PIN);
+	general_cpu_int_en();
+	// hw interrupt enable function:
+	// ${ni_name}_initial (burst_size,  errors_int_en,  send_int_en,  save_int_en,  got_pck_int_en)
+	${ni_name}_initial (16,1,1,1,1); //enable the intrrupt when a packet is recived, saved or got any error
+	$opr
+	//delay(100);
+	while(1){
+$all_run_actor
+	}	
+	return 0;
+}		
+			
+";		
+	
+	
+	
+print $fd "	
+$main_include
+
+
+// a simple delay function
+
+void delay ( unsigned int num ){
+	
+	while (num>0){ 
+		num--;
+		nop(); // asm volatile (\"nop\");
+	}
+	return;
+
+}
+
+
+$actors_str
+
+$main_def
+
+$got_pck_func 
+
 $check_pck_func  
 
 $sent_packet_done_funtion     
@@ -1029,31 +1207,28 @@ $sent_packet_done_funtion
 $ni_isr
 
 $main
-		
+
 ";
-
-  close($fc);
+ 
+  
+  
+  
   close($fd);
+  
+ 
+  
+save_file($src_lib_file,$src_lib);
 
- add_colored_info($tview,"$main_c file has been created successfully from $actor_file file \n",'blue');	
+
+
+
+ add_colored_info($tview,"$main_c file has been created successfully from @actors_file_names file \n",'blue');	
 		
 	}	#actor
 	
 	
-	#done ask the user if he wants to close the auto generator window
-	my $dialog = Gtk2::MessageDialog->new (my $w,
-                                      'destroy-with-parent',
-                                      'question', # message type
-                                      'yes-no', # which set of buttons?
-                                      "The source files have been generated successfully. Do you want to close the current window?");
-  		my $response = $dialog->run;
-  		if ($response eq 'yes') {
-      			$window->destroy;
-  		}
-  		$dialog->destroy;
-	
-	
-
+	#done 
+	message_dialog("The source files have been generated successfully");
 		
 } #end sub
 
@@ -1112,6 +1287,7 @@ sub get_srcport_constant_list{
 	my %srcport_const;
 	#1- Get list of all actors
 	my @actors= get_all_tasks($self,$category);
+	print "@actors\n**************************************************";
 	foreach my $actor (@actors){
 	
 		my $i=1;
@@ -1123,8 +1299,7 @@ sub get_srcport_constant_list{
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
 				)=get_trace($self,$category,$inject);
 			
-			$srcport_const{$actor}{$src_port}{$channel}= $i;
-			#print "destport_const{$actor}{$dst_port}= $i;\n";
+			$srcport_const{$actor}{$src_port}{$channel}= $i;					
 			$i++;
 		}
 	}	
@@ -1165,8 +1340,8 @@ sub get_actr_file_name {
 		if($src eq $actor || $dst eq $actor){
 			#the actor supposed to be located next to CSV file and have the same file name as actor name
 			my ($fname,$path,$suffix) = fileparse("$file_name",qr"\..[^.]*$");	
-			my ($net,$num,$name)=split(':',$actor);
-			return "$path/$name.c"; 
+			#my ($net,$num,$name)=split(':',$actor);
+			return "$path/${actor}.c"; 
 		}
 	}
 	return undef;

@@ -127,77 +127,74 @@ module  altera_simulator_UART #(
         buff_en=0;
         RxD_rd_en=1'b0;
         s_dat_o = 32'hFFFF0000;
-
        
-        if ( counter >= WAIT_COUNT || ptr >= BUFFER_SIZE) begin
-	   counter_next = 0;  
-           ptr_next =0;
-           print_en =1;
+        if ( counter >= WAIT_COUNT || ptr >= BUFFER_SIZE || buffer[ptr] == "\n") begin
+            counter_next = 0;  
+            ptr_next =0;
+            print_en =1;
         end  
-	else if (ptr > 0 ) counter_next = counter + 1'b1;
+        else if (ptr > 0 ) counter_next = counter + 1'b1;
 
-
-	//write      
+        //write      
         if( s_stb_i &  s_cyc_i &  s_we_i & s_ack_o  )begin 
            buff_en=1;
            if( ptr < BUFFER_SIZE)begin 
                 ptr_next  =  ptr+1;
            end              
         end  
-	//read
-	if( s_stb_i &  s_cyc_i &  ~s_we_i & s_ack_o  )begin 
-	   RxD_rd_en=(RxD_empty)? 1'b0 : 1'b1;  
-	   s_dat_o={16'hFFFF,~RxD_empty,7'b0,RxD_dout};
-
-	end
+        
+        //read
+        if( s_stb_i &  s_cyc_i &  ~s_we_i & s_ack_o  )begin 
+            RxD_rd_en=(RxD_empty)? 1'b0 : 1'b1;  
+            s_dat_o={16'hFFFF,~RxD_empty,7'b0,RxD_dout};
+        end
 
     end
   
  
   
- RxD_fifo #(
-  	.Dw(8),
-  	.B(BUFFER_SIZE)
-  ) 
-  the_RxD_fifo
-  (
-  	.din(RxD_din),
-  	.wr_en(RxD_wr_en),  	
-  	.rd_en(RxD_rd_en),
-  	.dout(RxD_dout),
-  	.full(RxD_full),
-  	.nearly_full(RxD_nearly_full),
-  	.empty(RxD_empty),
-  	.reset(reset),
-  	.clk(clk)
-  );
+    RxD_fifo #(
+      	.Dw(8),
+      	.B(BUFFER_SIZE)
+    ) 
+    the_RxD_fifo
+    (
+      	.din(RxD_din),
+      	.wr_en(RxD_wr_en),  	
+      	.rd_en(RxD_rd_en),
+      	.dout(RxD_dout),
+      	.full(RxD_full),
+      	.nearly_full(RxD_nearly_full),
+      	.empty(RxD_empty),
+      	.reset(reset),
+      	.clk(clk)
+    );
   
   
   
-  integer i;
-  always @(posedge clk)begin 
-    if(reset) begin 
-        counter<=0;
-        ptr<=0;
-        for(i=0;i<BUFFER_SIZE;i=i+1) buffer[i]=0; 
-    end else begin
-       counter<=counter_next;
-       ptr <= ptr_next;
-       if( buff_en )begin 
-	  buffer[ptr]=s_dat_i[7:0];
-          if(ptr<BUFFER_SIZE-1) buffer[ptr+1]=0;
-         
-	end
-     if (print_en)  for(i=0;i<  ptr;i=i+1) $write("%c",buffer[i]); 
+    integer i;
+    always @(posedge clk)begin 
+        if(reset) begin 
+            counter<=0;
+            ptr<=0;
+            for(i=0;i<BUFFER_SIZE;i=i+1) buffer[i]<=0; 
+        end else begin
+            counter<=counter_next;
+            ptr <= ptr_next;
+            if( buff_en )begin 
+                buffer[ptr]<=s_dat_i[7:0];
+                if(ptr<BUFFER_SIZE-1) buffer[ptr+1]<=0;         
+            end
+            if (print_en)  for(i=0;i<  ptr;i=i+1) $write("%c",buffer[i]); 
  /*    
   if (print_en)begin 
 	$write("%s",string_wire);  
         for(i=0;i< BUFFER_SIZE ;i=i+1) buffer[i]=0; 
       end    
 */
-    end
+        end
 
-  end
+    end
 
 
 

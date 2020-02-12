@@ -30,7 +30,7 @@
 
 
 
-void ${IP}_wait(unsigned int volatile num){
+inline void ${IP}_wait(unsigned int volatile num){
 	while (num>0){ 
 		num--;
 		asm volatile ("nop");

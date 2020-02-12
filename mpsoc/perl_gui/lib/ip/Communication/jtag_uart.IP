@@ -1,63 +1,26 @@
 #######################################################################
 ##	File: jtag_uart.IP
 ##    
-##	Copyright (C) 2014-2016  Alireza Monemi
+##	Copyright (C) 2014-2019  Alireza Monemi
 ##    
-##	This file is part of ProNoC 1.8.0 
+##	This file is part of ProNoC 1.9.1 
 ##
 ## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
 ##	MAY CAUSE UNEXPECTED BEHAIVOR.
 ################################################################################
 
 $ipgen = bless( {
-                  'plugs' => {
-                               'reset' => {
-                                            'value' => 1,
-                                            '0' => {
-                                                     'name' => 'reset'
-                                                   },
-                                            'type' => 'num'
-                                          },
-                               'interrupt_peripheral' => {
-                                                           '0' => {
-                                                                    'name' => 'interrupt_peripheral'
-                                                                  },
-                                                           'type' => 'num',
-                                                           'value' => 1
-                                                         },
-                               'wb_slave' => {
-                                               'value' => 1,
-                                               '0' => {
-                                                        'name' => 'wb_slave',
-                                                        'width' => 5,
-                                                        'addr' => '0x9000_0000	0x90ff_ffff		UART16550 Controller'
-                                                      },
-                                               'type' => 'num'
-                                             },
-                               'clk' => {
-                                          'value' => 1,
-                                          'type' => 'num',
-                                          '0' => {
-                                                   'name' => 'clk'
-                                                 }
-                                        }
-                             },
-                  'hdl_files' => [
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_jtag_uart_wb.v',
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/jtag_uart_wb.v',
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_simulator_UART.v'
-                                 ],
-                  'gui_status' => {
-                                    'timeout' => 0,
-                                    'status' => 'ideal'
-                                  },
                   'parameters_order' => [
                                           'FPGA_VENDOR',
                                           'SIM_BUFFER_SIZE',
-                                          'SIM_WAIT_COUNT'
+                                          'SIM_WAIT_COUNT',
+                                          'INCLUDE_SIM_PRINTF'
                                         ],
-                  'description' => 'The Altera JTAG UART core with Wishbone bus interface.',
-                  'system_h' => '#include "define_printf.h" // This file must be available in processor folder which define the printf function
+                  'ip_name' => 'jtag_uart',
+                  'modules' => {
+                                 'jtag_uart_wb' => {}
+                               },
+                  'system_h' => '
 
 #define ${IP}_DATA_REG					(*((volatile unsigned int *) ($BASE)))
 #define ${IP}_CONTROL_REG				(*((volatile unsigned int *) ($BASE+4)))
@@ -68,7 +31,128 @@ $ipgen = bless( {
 //////////////////////////////*basic function for jtag_uart*////////////////////////////////////////
 void jtag_putchar(char ch);
 char jtag_getchar(void);
+void outbyte(char c); //called in printf();
+char inbyte(void);
+void jtag_putchar(char ch);
+char jtag_getchar(void);
+int jtag_scanstr(char* buf);
+int jtag_scanint(int *num);
+/////////////////////////////*END: basic function for jtag_uart*////////////////////////////////////
+
+#define INCLUDE_${INCLUDE_SIM_PRINTF}
+
+#ifdef INCLUDE_SIMPLE_PRINTF
+	#include "simple-printf/printf.h" 
+#endif
+
+#ifdef INCLUDE_SIMPLE_PRINTF_LONG
+	#include "simple-printf/printf.h" 
+#endif',
+                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/jtag/jtag_uart/jtag_uart_wb.v',
+                  'module_name' => 'jtag_uart_wb',
+                  'ports' => {
+                               's_cyc_i' => {
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'range' => '',
+                                              'type' => 'input',
+                                              'intfc_port' => 'cyc_i'
+                                            },
+                               's_cti_i' => {
+                                              'range' => '2    :   0',
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'intfc_port' => 'cti_i',
+                                              'type' => 'input'
+                                            },
+                               's_dat_i' => {
+                                              'intfc_port' => 'dat_i',
+                                              'type' => 'input',
+                                              'range' => '31       :   0',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               'RxD_wr_sim' => {
+                                                 'intfc_port' => 'RxD_wr_sim',
+                                                 'type' => 'input',
+                                                 'range' => '',
+                                                 'intfc_name' => 'socket:RxD_sim[0]'
+                                               },
+                               's_we_i' => {
+                                             'intfc_port' => 'we_i',
+                                             'type' => 'input',
+                                             'range' => '',
+                                             'intfc_name' => 'plug:wb_slave[0]'
+                                           },
+                               'RxD_din_sim' => {
+                                                  'intfc_port' => 'RxD_din_sim',
+                                                  'type' => 'input',
+                                                  'range' => '7:0 ',
+                                                  'intfc_name' => 'socket:RxD_sim[0]'
+                                                },
+                               'clk' => {
+                                          'intfc_port' => 'clk_i',
+                                          'type' => 'input',
+                                          'range' => '',
+                                          'intfc_name' => 'plug:clk[0]'
+                                        },
+                               's_stb_i' => {
+                                              'intfc_port' => 'stb_i',
+                                              'type' => 'input',
+                                              'range' => '',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               'reset' => {
+                                            'intfc_port' => 'reset_i',
+                                            'type' => 'input',
+                                            'range' => '',
+                                            'intfc_name' => 'plug:reset[0]'
+                                          },
+                               's_addr_i' => {
+                                               'range' => '',
+                                               'intfc_name' => 'plug:wb_slave[0]',
+                                               'intfc_port' => 'adr_i',
+                                               'type' => 'input'
+                                             },
+                               'irq' => {
+                                          'range' => '',
+                                          'intfc_name' => 'plug:interrupt_peripheral[0]',
+                                          'intfc_port' => 'int_o',
+                                          'type' => 'output'
+                                        },
+                               's_dat_o' => {
+                                              'range' => '31      :   0',
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'intfc_port' => 'dat_o',
+                                              'type' => 'output'
+                                            },
+                               'RxD_ready_sim' => {
+                                                    'type' => 'output',
+                                                    'intfc_port' => 'RxD_ready_sim',
+                                                    'intfc_name' => 'socket:RxD_sim[0]',
+                                                    'range' => ''
+                                                  },
+                               's_sel_i' => {
+                                              'intfc_port' => 'sel_i',
+                                              'type' => 'input',
+                                              'range' => '3    :   0',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               's_ack_o' => {
+                                              'range' => '',
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'intfc_port' => 'ack_o',
+                                              'type' => 'output'
+                                            }
+                             },
+                  'sw_files' => [
+                                  '/mpsoc/src_processor/src_lib/simple-printf'
+                                ],
+                  'gui_status' => {
+                                    'timeout' => 0,
+                                    'status' => 'ideal'
+                                  },
+                  'system_c' => '
+
 void outbyte(char c){jtag_putchar(c);} //called in printf();
+
 char inbyte(){return jtag_getchar();}
 
 void jtag_putchar(char ch){ //print one char from jtag_uart
@@ -109,45 +193,56 @@ int jtag_scanint(int *num){ //return the scanned integer
 	return 0;
 }
 
+#ifdef INCLUDE_SIMPLE_PRINTF
+	#include "simple-printf/printf.c" 
+#endif
+
+#ifdef INCLUDE_SIMPLE_PRINTF_LONG
+	#include "simple-printf/prinf_long.c" 
+#endif
 
 
-/////////////////////////////*END: basic function for jtag_uart*////////////////////////////////////',
-                  'unused' => {
-                                'plug:wb_slave[0]' => [
-                                                        'rty_o',
-                                                        'bte_i',
-                                                        'err_o',
-                                                        'tag_i'
-                                                      ]
-                              },
-                  'version' => 14,
+',
+                  'category' => 'Communication',
                   'parameters' => {
                                     'SIM_WAIT_COUNT' => {
                                                           'global_param' => 'Localparam',
-                                                          'type' => 'Spin-button',
-                                                          'redefine_param' => 1,
-                                                          'content' => '2,100000,1',
-                                                          'default' => '1000',
                                                           'info' => 'This parameter is valid only in simulation. 
-If internal buffer has a data, the internal timer incremented by one in each clock cycle. If the timer reaches the WAIT_COUNT value, it writes the buffer value on the simulator terminal.'
+If internal buffer has a data, the internal timer incremented by one in each clock cycle. If the timer reaches the WAIT_COUNT value, it writes the buffer value on the simulator terminal.',
+                                                          'content' => '2,100000,1',
+                                                          'redefine_param' => 1,
+                                                          'default' => '1000',
+                                                          'type' => 'Spin-button'
                                                         },
                                     'SIM_BUFFER_SIZE' => {
-                                                           'global_param' => 'Localparam',
-                                                           'type' => 'Spin-button',
-                                                           'redefine_param' => 1,
-                                                           'content' => '10,10000,1',
                                                            'info' => 'Internal buffer size. 
 This parameter is valid only in simulation. 
 If internal buffer overflows, the buffer content are displayed on simulator terminal.',
-                                                           'default' => '100'
+                                                           'content' => '10,10000,1',
+                                                           'global_param' => 'Localparam',
+                                                           'type' => 'Spin-button',
+                                                           'default' => '100',
+                                                           'redefine_param' => 1
                                                          },
+                                    'INCLUDE_SIM_PRINTF' => {
+                                                              'info' => 'Select source code for printf command:
+    "NONE":  Do not include simple_printf source code. Select "NONE" In case printf command is supported in <stdio.h>, or it is not needed in the software code. 
+    "SIMPLE_PRINTF" Include a source code of printf command which supports a subset of formatted data: %%d, %%i, %%u, %%x, %%c, and %%s. long and floating formats are not supported.
+    "SIMPLE_PRINTF_LONG" Include a source code of printf command which supports a subset of formatted data: %%d, %%i, %%u, %%x, %%c, %%l, and %%s.  floating format is not supported.
+	',
+                                                              'content' => 'NONE,SIMPLE_PRINTF,SIMPLE_PRINTF_LONG',
+                                                              'global_param' => 'Don\'t include',
+                                                              'redefine_param' => 0,
+                                                              'default' => 'NONE',
+                                                              'type' => 'Combo-box'
+                                                            },
                                     'FPGA_VENDOR' => {
-                                                       'default' => ' "ALTERA"',
-                                                       'info' => 'FPGA VENDOR name. Only Altera FPGA is supported. Currently the Generic serial port is not supported. ',
                                                        'content' => ' "ALTERA"',
-                                                       'redefine_param' => 1,
+                                                       'info' => 'FPGA VENDOR name. Only Altera FPGA is supported. Currently the Generic serial port is not supported. ',
+                                                       'global_param' => 'Localparam',
                                                        'type' => 'Combo-box',
-                                                       'global_param' => 'Localparam'
+                                                       'default' => ' "ALTERA"',
+                                                       'redefine_param' => 1
                                                      }
                                   },
                   'ports_order' => [
@@ -167,113 +262,61 @@ If internal buffer overflows, the buffer content are displayed on simulator term
                                      'RxD_wr_sim',
                                      'RxD_ready_sim'
                                    ],
-                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/jtag/jtag_uart/jtag_uart_wb.v',
-                  'category' => 'Communication',
-                  'module_name' => 'jtag_uart_wb',
-                  'modules' => {
-                                 'jtag_uart_wb' => {}
-                               },
-                  'ip_name' => 'jtag_uart',
-                  'ports' => {
-                               's_dat_i' => {
-                                              'range' => '31       :   0',
-                                              'intfc_port' => 'dat_i',
-                                              'intfc_name' => 'plug:wb_slave[0]',
-                                              'type' => 'input'
-                                            },
-                               'RxD_din_sim' => {
-                                                  'type' => 'input',
-                                                  'range' => '7:0 ',
-                                                  'intfc_port' => 'RxD_din_sim',
-                                                  'intfc_name' => 'socket:RxD_sim[0]'
-                                                },
-                               's_stb_i' => {
-                                              'type' => 'input',
-                                              'range' => '',
-                                              'intfc_port' => 'stb_i',
-                                              'intfc_name' => 'plug:wb_slave[0]'
-                                            },
-                               's_addr_i' => {
-                                               'type' => 'input',
-                                               'intfc_name' => 'plug:wb_slave[0]',
-                                               'range' => '',
-                                               'intfc_port' => 'adr_i'
-                                             },
-                               's_cti_i' => {
-                                              'type' => 'input',
-                                              'range' => '2    :   0',
-                                              'intfc_port' => 'cti_i',
-                                              'intfc_name' => 'plug:wb_slave[0]'
-                                            },
-                               'irq' => {
-                                          'type' => 'output',
-                                          'intfc_name' => 'plug:interrupt_peripheral[0]',
-                                          'intfc_port' => 'int_o',
-                                          'range' => ''
-                                        },
-                               'RxD_ready_sim' => {
-                                                    'type' => 'output',
-                                                    'intfc_name' => 'socket:RxD_sim[0]',
-                                                    'intfc_port' => 'RxD_ready_sim',
-                                                    'range' => ''
-                                                  },
-                               's_cyc_i' => {
-                                              'intfc_name' => 'plug:wb_slave[0]',
-                                              'range' => '',
-                                              'intfc_port' => 'cyc_i',
-                                              'type' => 'input'
-                                            },
-                               's_dat_o' => {
-                                              'type' => 'output',
-                                              'range' => '31      :   0',
-                                              'intfc_port' => 'dat_o',
-                                              'intfc_name' => 'plug:wb_slave[0]'
-                                            },
-                               'clk' => {
-                                          'intfc_name' => 'plug:clk[0]',
-                                          'range' => '',
-                                          'intfc_port' => 'clk_i',
-                                          'type' => 'input'
-                                        },
-                               'RxD_wr_sim' => {
-                                                 'type' => 'input',
-                                                 'intfc_port' => 'RxD_wr_sim',
-                                                 'range' => '',
-                                                 'intfc_name' => 'socket:RxD_sim[0]'
-                                               },
-                               's_ack_o' => {
-                                              'type' => 'output',
-                                              'range' => '',
-                                              'intfc_port' => 'ack_o',
-                                              'intfc_name' => 'plug:wb_slave[0]'
-                                            },
-                               's_sel_i' => {
-                                              'range' => '3    :   0',
-                                              'intfc_port' => 'sel_i',
-                                              'intfc_name' => 'plug:wb_slave[0]',
-                                              'type' => 'input'
-                                            },
-                               's_we_i' => {
-                                             'type' => 'input',
-                                             'range' => '',
-                                             'intfc_port' => 'we_i',
-                                             'intfc_name' => 'plug:wb_slave[0]'
-                                           },
-                               'reset' => {
-                                            'intfc_name' => 'plug:reset[0]',
-                                            'intfc_port' => 'reset_i',
-                                            'range' => '',
-                                            'type' => 'input'
-                                          }
-                             },
+                  'description' => 'The Altera JTAG UART core with Wishbone bus interface.',
+                  'version' => 20,
+                  'unused' => {
+                                'plug:wb_slave[0]' => [
+                                                        'tag_i',
+                                                        'bte_i',
+                                                        'rty_o',
+                                                        'err_o'
+                                                      ]
+                              },
                   'sockets' => {
                                  'RxD_sim' => {
+                                                'connection_num' => 'single connection',
+                                                'value' => 1,
+                                                'type' => 'num',
                                                 '0' => {
                                                          'name' => 'RxD_sim'
-                                                       },
-                                                'type' => 'num',
-                                                'value' => 1,
-                                                'connection_num' => 'single connection'
+                                                       }
                                               }
-                               }
+                               },
+                  'plugs' => {
+                               'interrupt_peripheral' => {
+                                                           'value' => 1,
+                                                           'type' => 'num',
+                                                           '0' => {
+                                                                    'name' => 'interrupt_peripheral'
+                                                                  }
+                                                         },
+                               'reset' => {
+                                            'value' => 1,
+                                            'type' => 'num',
+                                            '0' => {
+                                                     'name' => 'reset'
+                                                   }
+                                          },
+                               'clk' => {
+                                          'value' => 1,
+                                          'type' => 'num',
+                                          '0' => {
+                                                   'name' => 'clk'
+                                                 }
+                                        },
+                               'wb_slave' => {
+                                               'value' => 1,
+                                               'type' => 'num',
+                                               '0' => {
+                                                        'addr' => '0x9000_0000	0x90ff_ffff		UART16550 Controller',
+                                                        'width' => 5,
+                                                        'name' => 'wb_slave'
+                                                      }
+                                             }
+                             },
+                  'hdl_files' => [
+                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_jtag_uart_wb.v',
+                                   '/mpsoc/src_peripheral/jtag/jtag_uart/jtag_uart_wb.v',
+                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_simulator_UART.v'
+                                 ]
                 }, 'ip_gen' );

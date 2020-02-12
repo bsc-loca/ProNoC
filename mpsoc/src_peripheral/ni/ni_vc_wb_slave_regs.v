@@ -29,6 +29,11 @@
 // synthesis translate_off
 `timescale 1ns / 1ps
 // synthesis translate_on
+
+
+
+
+
  
 module ni_vc_wb_slave_regs #(
     parameter MAX_TRANSACTION_WIDTH =10,      
@@ -110,6 +115,21 @@ module ni_vc_wb_slave_regs #(
          end       
       end   
     endfunction // log2  
+    
+ 
+    
+   task warning;
+   input [S_Aw-1:0] addr;
+   begin
+//synthesis translate_off
+//synopsys  translate_off    
+         $display("%t: warning: write on %u is not accepted as fsm was not free!",$time,addr);
+//synopsys  translate_on     
+//synthesis translate_on
+    
+   end
+   endtask
+    
   
 /*
  s_dat_i : 
@@ -194,8 +214,9 @@ module ni_vc_wb_slave_regs #(
 //synthesis translate_off
 //synopsys  translate_off    
     input   [EAw-1   :   0]  current_e_addr;
+//synopsys  translate_on     
 //synthesis translate_on
-//synopsys  translate_on   
+  
    
 //wishbone slave interface signals
     input   [Dw-1       :   0]      s_dat_i;
@@ -352,13 +373,20 @@ module ni_vc_wb_slave_regs #(
                          if (send_fsm_is_ideal) begin 
                             send_pointer_addr_next={{OFFSETw{1'b0}},s_dat_i [Dw-1    : OFFSETw]};
                             send_pointer_addr_byte_offset_next = s_dat_i[OFFSETw-1: 0];
-                         end
+                         end     else warning(s_addr_i); 
+
+
+   
+
+                         
+                         
                     end //SEND_POINTER_WB_ADDR
                     SEND_DATA_SIZE_WB_ADDR: begin 
                         if (send_fsm_is_ideal) begin 
                             send_data_size_next=s_dat_i [MAX_TRANSACTION_WIDTH + OFFSETw -1 :    OFFSETw];
                             send_data_size_byte_offset_next = s_dat_i[OFFSETw-1: 0];
-                        end
+                        end  else warning(s_addr_i); 
+               
                     end //DATA_SIZE_WB_ADDR
                     SEND_DEST_WB_ADDR: begin 
                         if (send_fsm_is_ideal) begin 
@@ -371,24 +399,28 @@ module ni_vc_wb_slave_regs #(
 					$display("%t: err: source destination address are identical in: %m",$time);
 				end
 			end
+//synopsys  translate_on 
 //synthesis translate_on
-//synopsys  translate_on                                        
+                                       
                             pck_class_next= s_dat_i[CLASS_LSB+Cw-1      :  CLASS_LSB];
                             weight_next = s_dat_i[ WEIGHT_LSB+WEIGHTw-1 :  WEIGHT_LSB]; 
                             send_start_next = 1'b1;
-                           end
+                           end   else warning(s_addr_i); 
+                             
                     end //SEND_DEST_WB_ADDR
                     
                     SEND_HDR_DATA_WB_ADDR: begin
                         if (send_fsm_is_ideal) hdr_data_next = s_dat_i [HDw-1 : 0];
-                    end    //  SEND_HDR_DATA_WB_ADDR
-                    
+                        else warning(s_addr_i); 
+                    end
                     RECEIVE_MAX_BUFF_SIZ: begin 
                         if (receive_fsm_is_ideal) receive_max_buff_siz_next = s_dat_i [MAX_TRANSACTION_WIDTH+ OFFSETw -1 :    OFFSETw]; 
+                        else warning(s_addr_i); 
                     end                    
                     
                     RECEIVE_POINTER_WB_ADDR: begin 
                         if (receive_fsm_is_ideal) receive_pointer_addr_next= {{OFFSETw{1'b0}},s_dat_i [Dw-1 :   OFFSETw]};
+                        else warning(s_addr_i); 
                     end //RECEIVE_POINTER_WB_ADDR
                     
                     RECEIVE_START_INDEX_WB_ADDR:begin 
@@ -396,6 +428,7 @@ module ni_vc_wb_slave_regs #(
                             receive_start_index_next= s_dat_i [MAX_TRANSACTION_WIDTH+ OFFSETw -1 :    OFFSETw];
                             receive_start_index_offset_next= s_dat_i [OFFSETw-1 : 0];
                         end
+                        else warning(s_addr_i); 
                     end
                     
                     
@@ -404,7 +437,7 @@ module ni_vc_wb_slave_regs #(
                         if (receive_fsm_is_ideal) begin 
                        	 	receive_en_next=1'b1;
                          
-                        end                 
+                        end else warning(s_addr_i); 
                     end                 
                     
                     default :begin 

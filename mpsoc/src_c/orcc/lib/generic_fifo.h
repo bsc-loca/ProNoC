@@ -32,6 +32,9 @@
  * Lock-free and cache-efficient implementation
  * Supports 1 producer - N consumers
  */
+
+#define UNUSED_VAR     __attribute__ ((unused))
+
 typedef struct {
     volatile char padding0[CACHELINE_SIZE]; /** Memory padding */
     unsigned int* read_inds;                /** Current reading positions */
@@ -41,11 +44,11 @@ typedef struct {
     T *contents;                            /** Buffer containing the FIFO's elements */
 } FIFO_T(T);
 
-static int FIFO_GET_NUM_TOKENS(T)(FIFO_T(T) *fifo, int reader_id) {
+UNUSED_VAR static int FIFO_GET_NUM_TOKENS(T)(FIFO_T(T) *fifo, int reader_id) {
     return fifo->write_ind - fifo->read_inds[reader_id];
 }
 
-static int FIFO_GET_ROOM(T)(FIFO_T(T) *fifo, int nb_readers, int size) {
+UNUSED_VAR static int FIFO_GET_ROOM(T)(FIFO_T(T) *fifo, int nb_readers, int size) {
     int i;
     int num_tokens, max_num_tokens = 0;
 

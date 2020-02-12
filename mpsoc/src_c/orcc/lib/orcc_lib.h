@@ -294,10 +294,11 @@ struct local_scheduler_s {
 
 
 
-
+/*
 
 
 // a simple delay function
+
 void delay ( unsigned int num ){
 	
 	while (num>0){ 
@@ -307,7 +308,6 @@ void delay ( unsigned int num ){
 	return;
 
 }
-
 
 #ifndef RANDOM_H
 	#define RANDOM_H
@@ -335,7 +335,7 @@ void srand(unsigned int seed){
 	x^=seed; y+=seed; z^=seed; w-=seed;
 }
 
-
-
 #endif
+*/
+
 #endif

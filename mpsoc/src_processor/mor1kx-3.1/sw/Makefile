@@ -1,3 +1,6 @@
+SOURCE_LIB =
+include SOURCE_LIB
+
 HDR_SOURCE_DIR=mor1kx
 
 TOOLCHAIN=$(PRONOC_WORK)/toolchain/or1k-elf
@@ -26,7 +29,7 @@ LDFLAGS ?=    -Tlink.ld  -e 256
 #RAMSIZE=3FFF
 
 # Sources to go into the liborpsoc.a support library
-COMPILE_SRCS=$(HDR_SOURCE_DIR)/exceptions.c $(HDR_SOURCE_DIR)/int.c  $(HDR_SOURCE_DIR)/mmu.S  $(HDR_SOURCE_DIR)/$(HDR_SOURCE_DIR)-utils.c $(HDR_SOURCE_DIR)/cache.S
+COMPILE_SRCS=$(HDR_SOURCE_DIR)/exceptions.c $(HDR_SOURCE_DIR)/int.c  $(HDR_SOURCE_DIR)/mmu.S  $(HDR_SOURCE_DIR)/$(HDR_SOURCE_DIR)-utils.c $(HDR_SOURCE_DIR)/cache.S $(SOURCE_LIB)
 
 
 all: image.ihex

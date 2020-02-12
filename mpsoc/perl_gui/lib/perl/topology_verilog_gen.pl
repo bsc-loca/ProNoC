@@ -160,7 +160,7 @@ module   ${name}_noc #(
              
 endmodule
 ";
-	add_info(\$info,"$top file is created\n  ");
+	add_info($info,"$top file is created\n  ");
 	close $fd;
 	
 	
@@ -518,7 +518,7 @@ endmodule
 ";
 	
 	close $fd;
-	add_info(\$info,"$top file is created\n  ");
+	add_info($info,"$top file is created\n  ");
 	
 }
 
@@ -758,7 +758,7 @@ endmodule
     
 ";
 close($fd);
-add_info(\$info,"$top file is created\n  ");
+add_info($info,"$top file is created\n  ");
 
 ##################
 #   look_ahead_routing
@@ -924,7 +924,7 @@ endmodule
 ";
 
 close($fd);
-add_info(\$info,"$top file is created\n  ");
+add_info($info,"$top file is created\n  ");
 
 #########################	
 #  ni_conventional_routing_genvar
@@ -1002,7 +1002,7 @@ endmodule
     
 ";
 close($fd);
-add_info(\$info,"$top file is created\n  ");
+add_info($info,"$top file is created\n  ");
 
 ##################
 #   look_ahead_routing_genvar
@@ -1163,7 +1163,7 @@ endmodule
 
 
 close($fd);
-add_info(\$info,"$top file is created\n  ");
+add_info($info,"$top file is created\n  ");
 
 }
 
@@ -1398,7 +1398,7 @@ $assign
 endmodule
 ";
 	
-	add_info(\$info,"$top file is created\n  ");
+	add_info($info,"$top file is created\n  ");
 	close $fd;
 	
 				
@@ -1442,18 +1442,18 @@ sub add_routing_instance_v{
 	my $file = "$dir/../common/custom_ni_routing.v";	
 	#check if ***$name**** exist in the file
 	unless (-f $file){
-		add_colored_info(\$info,"$file dose not exist\n",'red');
+		add_colored_info($info,"$file dose not exist\n",'red');
 		return; 
 	}	
 	my $r = check_file_has_string($file, "===${Vname}==="); 
 	if ($r==1){
-		add_info(\$info,"The instance  ${Vname}_ni_conventional_routing exists in $file. This file is not modified\n  ",'blue');
+		add_info($info,"The instance  ${Vname}_ni_conventional_routing exists in $file. This file is not modified\n  ",'blue');
 	
 	}else{
 		my $text = read_file_cntent($file,' ');
         my @a = split('endgenerate',$text);
         save_file($file,"$a[0] $str $a[1]");
-        add_info(\$info,"$file has been modified. The  ${Vname}_ni_conventional_routing has been added to the file\n  ",'blue');
+        add_info($info,"$file has been modified. The  ${Vname}_ni_conventional_routing has been added to the file\n  ",'blue');
 			
 	}
 	
@@ -1490,18 +1490,18 @@ sub add_routing_instance_v{
 	$file = "$dir/../common/custom_lkh_routing.v";	
 
 	unless (-f $file){
-		add_colored_info(\$info,"$file dose not exist\n",'red');
+		add_colored_info($info,"$file dose not exist\n",'red');
 		return; 
 	}	
 	$r = check_file_has_string($file, "===${Vname}==="); 
 	if ($r==1){
-		add_info(\$info,"The instance ${Vname}_look_ahead_routing exist in $file. This file is not modified\n  ",'blue');
+		add_info($info,"The instance ${Vname}_look_ahead_routing exist in $file. This file is not modified\n  ",'blue');
 	
 	}else{
 		my $text = read_file_cntent($file,' ');
         my @a = split('endgenerate',$text);
         save_file($file,"$a[0] $str $a[1]");	
-        add_info(\$info,"$file has been modified. The  ${Vname}_look_ahead_routing has been added to the file\n  ",'blue');
+        add_info($info,"$file has been modified. The  ${Vname}_look_ahead_routing has been added to the file\n  ",'blue');
 				
 	}
 	
@@ -1552,18 +1552,18 @@ $ports
 	my $file = "$dir/../common/custom_noc_connection.sv";	
 	#check if ***$name**** exist in the file
 	unless (-f $file){
-		add_colored_info(\$info,"$file dose not exist\n",'red');
+		add_colored_info($info,"$file dose not exist\n",'red');
 		return; 
 	}	
 	my $r = check_file_has_string($file, "===${name}==="); 
 	if ($r==1){
-		add_info(\$info,"The instance  ${name}_connection exists in $file. This file is not modified\n  ",'blue');
+		add_info($info,"The instance  ${name}_connection exists in $file. This file is not modified\n  ",'blue');
 	
 	}else{
 		my $text = read_file_cntent($file,' ');
         my @a = split('endgenerate',$text);
         save_file($file,"$a[0] $str $a[1]");
-        add_info(\$info,"$file has been modified. The  ${name}_connection has been added to the file\n  ",'blue');
+        add_info($info,"$file has been modified. The  ${name}_connection has been added to the file\n  ",'blue');
 			
 	}
 	
@@ -1615,18 +1615,18 @@ $ports
 	$file = "$dir/../common/custom_noc.v";	
 	#check if ***$name**** exist in the file
 	unless (-f $file){
-		add_colored_info(\$info,"$file dose not exist\n",'red');
+		add_colored_info($info,"$file dose not exist\n",'red');
 		return; 
 	}	
 	 $r = check_file_has_string($file, "===${name}==="); 
 	if ($r==1){
-		add_info(\$info,"The instance  ${name}_noc exists in $file. This file is not modified\n  ",'blue');
+		add_info($info,"The instance  ${name}_noc exists in $file. This file is not modified\n  ",'blue');
 	
 	}else{
 		my $text = read_file_cntent($file,' ');
         my @a = split('endgenerate',$text);
         save_file($file,"$a[0] $str $a[1]");
-        add_info(\$info,"$file has been modified. The  ${name}_noc has been added to the file\n  ",'blue');			
+        add_info($info,"$file has been modified. The  ${name}_noc has been added to the file\n  ",'blue');			
 	}
 	
 	

@@ -383,7 +383,7 @@ sub gen_emulation_column {
 			 	my $pattern=get_synthetic_traffic_pattern($emulate, $sample);
 			 	my $window = def_popwin_size(40,40,"Traffic pattern",'percent');
 			 	my ($outbox,$tview)= create_text();
-			 	show_info(\$tview,"$pattern");
+			 	show_info($tview,"$pattern");
 			 	$window->add ($outbox);
 				$window->show_all();	 
 			 	
@@ -1269,7 +1269,7 @@ sub emulator_main{
   		{ type=>"2D_line", page_num=>3, graph_name=> "-", result_name => "exe_time_result",X_Title=>'Desired Avg. Injected Load Per Router (flits/clock (%))' , Y_Title=>'Total Emulation Time (clk)', Z_Title=>undef},
   	);
 		
-	my ($conf_box,$set_win)=process_notebook_gen($emulate,\$info,"emulate", @charts);
+	my ($conf_box,$set_win)=process_notebook_gen($emulate,$info,"emulate", @charts);
 	my $chart   =gen_multiple_charts ($emulate,\@pages,\@charts,.4);
     
 	$main_table->set_row_spacings (4);
@@ -1327,7 +1327,7 @@ sub emulator_main{
 		$chart->destroy();
 		$image->destroy(); 
 		$image = get_status_gif($emulate);
-		($conf_box,$set_win)=process_notebook_gen($emulate,\$info,"emulate", @charts);
+		($conf_box,$set_win)=process_notebook_gen($emulate,$info,"emulate", @charts);
 		$chart   =gen_multiple_charts  ($emulate,\@pages,\@charts,.4);
 		$v1 -> pack1($conf_box, TRUE, TRUE); 	
 		$v1 -> pack2($image, TRUE, TRUE); 
@@ -1349,12 +1349,12 @@ sub emulator_main{
 		foreach my $sample (@samples){
 			$emulate->object_add_attribute ($sample,"status","run");	
 		}
-		run_emulator($emulate,\$info);
+		run_emulator($emulate,$info);
 	});
 
 
 	$open-> signal_connect("clicked" => sub{ 
-		load_emulation($emulate,\$info);
+		load_emulation($emulate,$info);
 		set_gui_status($emulate,"ref",5);
 	});	
 

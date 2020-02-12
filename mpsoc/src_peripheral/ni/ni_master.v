@@ -1,4 +1,6 @@
 //`define MONITOR_HDR_FLITS 
+//`define MONITOR_DAT_FLITS 
+
 /**********************************************************************
 **	File:  ni_master.v 
 **	Date:2017-06-04
@@ -304,9 +306,11 @@ module  ni_master #(
     wire [Cw-1   :   0] received_class_next;
     wire [EAw-1   :   0] received_src_e_addr_next;
     wire [BEw-1 : 0 ] received_be_next;
+    wire [HDw-1 : 0 ] received_hdr_dat_next;
     wire [Fpay-1    :   0] tail_flit_out;   
-    reg [Cw-1   :   0] class_in [V-1    :   0];
-    reg [EAw-1   :   0] src_e_addr [V-1    :   0];
+    reg [Cw-1  : 0] class_in [V-1    :   0];
+    reg [EAw-1 : 0] src_e_addr [V-1    :   0];
+    reg [HDw-1 : 0] rsv_hdr_dat [V-1 : 0];
     reg [BEw-1 : 0] receive_vc_be [V-1 : 0];
     wire [CTRL_FLGw-1 : 0] vc_ctrl_flags [V-1 : 0];
     reg [V-1    :   0] crc_miss_match;    
@@ -367,9 +371,11 @@ module  ni_master #(
              s_dat_o[CTRL_FLGw-1     : 0] = vc_ctrl_flags[vc_addr];           
         end  
       
-        RECEIVE_SRC_WB_ADDR: begin            
-            s_dat_o[EAw-1: 0]   =   src_e_addr[vc_addr];   // first&second byte
-            s_dat_o[Cw+15: 16]  =   class_in[vc_addr];  //third byte           
+        RECEIVE_SRC_WB_ADDR: begin 
+            
+            s_dat_o[EAw-1: 0]   =   src_e_addr[vc_addr];   // first&second bytes
+            s_dat_o[Cw+15: 16]  =   class_in[vc_addr];  //third byte  
+            s_dat_o[HDw+23: 24] =   rsv_hdr_dat [vc_addr];   // 4th byte
         end 
         
         RECEIVE_DATA_SIZE_WB_ADDR: begin        
@@ -380,7 +386,7 @@ module  ni_master #(
             s_dat_o[PRE_Dw-1 : 0 ] =  (HDATA_PRECAPw>0)? recive_vc_precap_data[vc_addr]: {{(Dw-STATUS1w){1'b0}}, status1};        
         end
         default: begin 
-             s_dat_o = {{(Dw-STATUS1w){1'b0}}, status1};        
+             s_dat_o ={Dw{1'b0}};
         end       
         endcase      
     end      
@@ -506,6 +512,15 @@ always @(posedge clk) begin
     
 end
 `endif
+
+`ifdef MONITOR_HDR_FLITS 
+    always @(posedge clk) begin
+        if(flit_out_wr & ~send_hdr) begin 
+            $display("%t: endp %u V %u sends %h",$time,current_e_addr,  flit_out [Fpay+V-1 : Fpay],  flit_out [Fpay-1 : 0 ]);    
+        end
+    end
+`endif
+
 //synopsys  translate_on 
 //synthesis translate_on
         
@@ -570,8 +585,8 @@ end
 //synthesis translate_off
 //synopsys  translate_off    
             .current_e_addr(current_e_addr),
-//synthesis translate_on
 //synopsys  translate_on   
+//synthesis translate_on
             .clk(clk),
             .reset(reset),
             .state_reg_enable(vc_state_reg_enable[i]),
@@ -704,10 +719,12 @@ end
             if(reset) begin 
                 class_in[i]<= {Cw{1'b0}};
                 src_e_addr[i]<= {EAw{1'b0}};
+                rsv_hdr_dat[i]<={HDw{1'b0}};
                 receive_vc_be[i] <= {BEw{1'b0}};
             end else if(save_hdr_info[i])begin 
                 class_in[i]<= received_class_next;
                 src_e_addr[i]<= received_src_e_addr_next;
+                rsv_hdr_dat[i]<=received_hdr_dat_next;
                 receive_vc_be[i]<= received_be_next;
             end
         end//always
@@ -963,7 +980,7 @@ end
         .DSTPw(DSTPw),
         .C(C),
         .Fpay(Fpay),
-        .DATA_w (0),
+        .DATA_w (HDw),
         .BYTE_EN(BYTE_EN)
     )
     extractor
@@ -980,7 +997,7 @@ end
         .tail_flg_o( ),
         .weight_o(),
         .be_o(received_be_next),
-        .data_o()
+        .data_o(received_hdr_dat_next)
     );  
   
   

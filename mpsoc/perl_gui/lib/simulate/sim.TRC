@@ -1,0 +1,155 @@
+#######################################################################
+##	File: sim.TRC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$Trace = bless( {
+                  'gui_status' => {
+                                    'timeout' => 0,
+                                    'status' => 'ideal'
+                                  },
+                  'process_notebook' => {
+                                          'currentpage' => 2
+                                        },
+                  'ni_name' => {
+                                 '0' => 'ni',
+                                 '4' => 'ni',
+                                 '3' => 'ni',
+                                 '5' => 'ni',
+                                 '1' => 'ni',
+                                 '2' => 'ni'
+                               },
+                  'file_id' => 'b',
+                  'parameters_order' => {
+                                          'map_param' => [
+                                                           'Map_Algrm'
+                                                         ]
+                                        },
+                  'mapping' => {
+                                 'tile(1)_name' => 'tile(1)',
+                                 'tile(2)_name' => 'tile(2)',
+                                 'map_limit' => 1,
+                                 'tile(3)_name' => 'tile(3)',
+                                 'group_num' => 6,
+                                 'tile(4)_name' => 'tile(4)',
+                                 'trace_icon' => 'icons/cd2.png',
+                                 'group_name_editble' => 'NO',
+                                 'ungrouped_name' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'ungrouped' => [],
+                                 'lable' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'group_name_root' => 'tile',
+                                 'tile(1)' => [
+                                                'top:a:src'
+                                              ],
+                                 'tile(5)_name' => 'tile(5)',
+                                 'tile(0)_name' => 'tile(0)',
+                                 'tile(0)' => [
+                                                'top:a:sink'
+                                              ]
+                               },
+                  'save_as' => 'sim',
+                  'Auto' => {
+                              'Auto_inject' => '1\'b0'
+                            },
+                  'out_name' => undef,
+                  'raw_traces' => {
+                                    '0' => 1
+                                  },
+                  'raw_0' => {
+                               'selected' => 0,
+                               'dst_port' => 'result',
+                               'file_name' => '/home/alireza/eclipse-workspace/sim/src/sim/src/top.csv',
+                               'scr_port' => 'Output1',
+                               'source' => 'top:a:src',
+                               'init_weight' => 1,
+                               'buff_size' => '32',
+                               'channel' => 0,
+                               'file' => 'top:a:',
+                               'Mbytes' => 1,
+                               'destination' => 'top:a:sink'
+                             },
+                  'map_info' => {
+                                  'va' => '0',
+                                  'ha' => '0'
+                                },
+                  'trace_pad' => {
+                                   'va' => '0',
+                                   'ha' => '0'
+                                 },
+                  'merge_traces' => {},
+                  'map_param' => {
+                                   'Map_Algrm' => 'Random'
+                                 },
+                  'grouping' => {
+                                  'trace_icon' => 'icons/cd.png',
+                                  'group(3)_name' => 'group(3)',
+                                  'group(4)_name' => 'group(4)',
+                                  'group_num' => 6,
+                                  'ungrouped_name' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'lable' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'ungrouped' => [
+                                                   'top:a:sink',
+                                                   'top:a:src'
+                                                 ],
+                                  'group_name_editble' => 'YES',
+                                  'map_limit' => 6,
+                                  'group(2)_name' => 'group(2)',
+                                  'group(5)_name' => 'group(5)',
+                                  'group(1)_name' => 'group(1)',
+                                  'group(0)_name' => 'group(0)',
+                                  'group_name_root' => 'group'
+                                },
+                  'trace_id' => 1,
+                  'select_multiple' => {
+                                         'action' => 'Select'
+                                       },
+                  'mpsoc_name' => 'newAdder',
+                  'trace_0' => {
+                                 'selected' => 0,
+                                 'injct_rate_var' => 20,
+                                 'min_pck_size' => 5,
+                                 'injct_rate' => 10,
+                                 'burst_size' => 1,
+                                 'init_weight' => 1,
+                                 'max_pck_size' => 5
+                               },
+                  'soc_name' => {
+                                  '4' => 'mor1k_tile',
+                                  '0' => 'mor1k_tile',
+                                  '2' => 'mor1k_tile',
+                                  '5' => 'mor1k_tile',
+                                  '1' => 'mor1k_tile',
+                                  '3' => 'mor1k_tile'
+                                },
+                  'noc_param' => {
+                                   'T3' => '1',
+                                   'T1' => '3',
+                                   'MUX_TYPE' => '"BINARY"',
+                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                   'AVC_ATOMIC_EN' => 0,
+                                   'B' => '4',
+                                   'BYTE_EN' => '1',
+                                   'ESCAP_VC_MASK' => '2\'b01',
+                                   'CONGESTION_INDEX' => 3,
+                                   'MIN_PCK_SIZE' => '2',
+                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                   'T2' => 2,
+                                   'V' => '2',
+                                   'C' => 2,
+                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                   'SSA_EN' => '"NO"',
+                                   'WEIGHTw' => '4',
+                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                   'TOPOLOGY' => '"MESH"',
+                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                   'DEBUG_EN' => '1',
+                                   'ROUTE_NAME' => '"XY"',
+                                   'Fpay' => '32'
+                                 }
+                }, 'ProNOC' );

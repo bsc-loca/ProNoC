@@ -532,7 +532,7 @@ sub remove_connected_port{
    	   		if(defined $self->{$p}{'PCONNECT'}{$src_port}){ if ($self->{$p}{'PCONNECT'}{$src_port} eq "$node,$port"){
    	   			delete $self->{$p}{'PCONNECT'}{$src_port};
    	   			my $con_inst=$self->object_get_attribute("$node",'NAME');
-   	   			add_info(\$info,"** $inst  $src_port is disconnected from $con_inst $port \n") if (defined $info);
+   	   			add_info($info,"** $inst  $src_port is disconnected from $con_inst $port \n") if (defined $info);
    	   		
    	   		}}
    	   	} 
@@ -659,7 +659,7 @@ sub connect_nodes {
 	
 		
 		
-	#add_colored_info(\$info,"$node1,$src_port1,$node2,$src_port2;\n","red") if (defined $info);	
+	#add_colored_info($info,"$node1,$src_port1,$node2,$src_port2;\n","red") if (defined $info);	
 	
 	#check if the selected port has been connected to another port before and remove the connection
 	remove_connected_port($self,$node1,$src_port1,$info);
@@ -871,11 +871,11 @@ my $node1=$nodes_name{$s1.$n1};
 my $node2=$nodes_name{$s2.$n2};
 
 if(!defined $node1 ){
-		add_colored_info(\$info,"No instance is named as \"$s1$n1\";\n","red") if (defined $info);
+		add_colored_info($info,"No instance is named as \"$s1$n1\";\n","red") if (defined $info);
 		return;
 	}
 	if( !defined $node2 ){
-		add_colored_info(\$info,"No instance is named as \"$s2$n2\";\n","red") if (defined $info);
+		add_colored_info($info,"No instance is named as \"$s2$n2\";\n","red") if (defined $info);
 		return;
 	}	
 
@@ -883,7 +883,7 @@ if(!defined $node1 ){
  connect_nodes ($self,$node1,"Port[$p1]",$node2,"Port[$p2]",$info);
 
 
-add_info(\$info,"$string") if (defined $info);
+add_info($info,"$string") if (defined $info);
 
 		
 }	
@@ -1249,7 +1249,7 @@ sub show_paths_between_two_endps{
 		my $s= $self->object_get_attribute("$src","NAME");
 		my $d= $self->object_get_attribute("$dst","NAME");		
 		$table->attach (def_label("Select path between $s to $d" ),$col,$col+10,$row,$row+1,'fill','shrink',2,2);
-		add_info(\$info,"get list of all paths between $s to $d \n") if (defined $info);
+		add_info($info,"get list of all paths between $s to $d \n") if (defined $info);
 		$row=1;
 		my ($ref1,$ref2)= get_all_paths_between_two_endps($self,$src, $dst);
 		my @paths = @{$ref1};
@@ -1366,7 +1366,7 @@ sub load_net_maker{
         if($suffix eq '.NWM'){
             my ($pp,$r,$err) = regen_object($file );
             if ($r){        
-                add_info(\$info,"**Error: cannot open $file file: $err\n");
+                add_info($info,"**Error: cannot open $file file: $err\n");
                  $dialog->destroy;
                 return;
             } 
@@ -1475,7 +1475,7 @@ sub get_turn_involved_routrs{
 	my ($s1,$s2,$info)=@_;
 	my ($r1,$ra2) = split /::/, $s1;
 	my ($rb2,$r3) = split /::/, $s2;
-	add_colored_info(\$info,"Error in turn format. $s1 -> $s2 : $ra2 should be equal with $rb2 ",'red') if($ra2 ne $rb2);
+	add_colored_info($info,"Error in turn format. $s1 -> $s2 : $ra2 should be equal with $rb2 ",'red') if($ra2 ne $rb2);
 	return ($r1,$ra2,$r3);	
 }
 
@@ -1504,7 +1504,7 @@ sub get_forbiden_turns {
 	
 	my ($self,$info)=@_;
 	my @forbiden_turn;
-	add_info(\$info,"Calculate forbiden turns to avoid deadlock \n");
+	add_info($info,"Calculate forbiden turns to avoid deadlock \n");
 	#step 1: get the list of all  minimal paths between all source and destination pairs
 	my $graph='';
 	my $graph_coded='';
@@ -1549,9 +1549,9 @@ sub get_forbiden_turns {
 	
 	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
 	if(length $stderr>1){			
-		add_colored_info(\$info,"$stderr\n",'red');
+		add_colored_info($info,"$stderr\n",'red');
 	}else {
-		add_info(\$info,"$stdout\n");
+		add_info($info,"$stdout\n");
 	}	
 	# find the files with the list edges removal
 	@files = File::Find::Rule->file()
@@ -1577,10 +1577,10 @@ sub get_forbiden_turns {
 			
 	# check if the output file is generated 
 	if (-f $out ){
-		add_colored_info(\$info,"$out file has been selected as it has the minimum number of edfge removal of $line_num \n",'blue');
+		add_colored_info($info,"$out file has been selected as it has the minimum number of edfge removal of $line_num \n",'blue');
 		
 	} else {
-		add_colored_info(\$info,"could not find a paths_graph_coded_removed*.edges file.  Please make sure $cmd has been run successfully\n",'red');
+		add_colored_info($info,"could not find a paths_graph_coded_removed*.edges file.  Please make sure $cmd has been run successfully\n",'red');
 		return;
 		
 	}
@@ -1591,11 +1591,11 @@ sub get_forbiden_turns {
 	my $r;
 	open my $fh, "<", $out or $r = "$!\n";
     if(defined $r) {
-    	add_colored_info(\$info,"Could not open $out: $r",'red');
+    	add_colored_info($info,"Could not open $out: $r",'red');
 		return;
     } 
     
-    add_colored_info(\$info,"List of forbidden turns: \n",'blue');
+    add_colored_info($info,"List of forbidden turns: \n",'blue');
     
 	while (my $line = <$fh>) {
     	chomp $line;
@@ -1606,7 +1606,7 @@ sub get_forbiden_turns {
   		my $str = get_path_instance_string($self,\@turn);
   		my $string=join('->',@turn);
   		push (@forbiden_turn, $string);
-  		add_info(\$info,"$str\n");  
+  		add_info($info,"$str\n");  
 
   }
   return @forbiden_turn;
@@ -1652,7 +1652,7 @@ sub remove_cycle_paths {
 		push (@free_paths,$path) if($remove == 0);
 		if($remove == 1){
 			my @ft = split /->/, $turn; 
-			add_info(\$info,"path ".get_path_instance_string($self,$path)." is removed due to turn ".get_path_instance_string($self,\@ft)."\n") 
+			add_info($info,"path ".get_path_instance_string($self,$path)." is removed due to turn ".get_path_instance_string($self,\@ft)."\n") 
 		}
 	}	
 	return @free_paths;	
@@ -1672,7 +1672,7 @@ sub auto_route {
 	my @forbiden_turn =get_forbiden_turns ($self,$info);
 	
 	#step 1: calculate all minimal paths between all source and destination pairs
-	add_info(\$info,"Calculate all minimal paths between all source and destination pairs\n");
+	add_info($info,"Calculate all minimal paths between all source and destination pairs\n");
 	my @all_endpoints=get_list_of_all_endpoints($self);
 	foreach  my $src  (@all_endpoints ){	
 		foreach  my $dst  (@all_endpoints ){
@@ -1714,7 +1714,7 @@ sub auto_route {
         }
         if(!defined $path){
         	set_gui_status($self,"ref",1);
-        	add_colored_info(\$info,"Failed to find an acyclic routing paths for all nodes!\n",'red');
+        	add_colored_info($info,"Failed to find an acyclic routing paths for all nodes!\n",'red');
         	return FALSE ;
         	
         }
@@ -1724,7 +1724,7 @@ sub auto_route {
 	}
 	
 	set_gui_status($self,"ref",1);
-	add_colored_info(\$info,"The routeing function table is generated successfully!\n",'blue');
+	add_colored_info($info,"The routeing function table is generated successfully!\n",'blue');
 	return TRUE;
 }	
 
@@ -1740,7 +1740,7 @@ sub clean_route {
 	}}
 	
 	set_gui_status($self,"ref",1);
-	add_colored_info(\$info,"The Routing function table is cleared!\n",'blue');
+	add_colored_info($info,"The Routing function table is cleared!\n",'blue');
 	return TRUE;
 }	
 
@@ -1881,7 +1881,7 @@ sub generate_topology{
     if ( defined $error ){
         #message_dialog("The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
         my $message = "The \"$name\" is given with an unacceptable formatting. The topology name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
-        add_colored_info(\$info, $message,'red' );
+        add_colored_info($info, $message,'red' );
         return 0;
     }
     my $rname=$self->object_get_attribute('routing_name');
@@ -1890,7 +1890,7 @@ sub generate_topology{
         #message_dialog("The \"$rname\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
         $rname='Undefined' if(!defined $rname);
         my $message = "The \"$name\" is given with an unacceptable formatting. The routing name will be used as routing verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
-        add_colored_info(\$info, $message,'red' );
+        add_colored_info($info, $message,'red' );
         return 0;
     }
     
@@ -1934,7 +1934,7 @@ sub save_topology_parameter_object_file{
 	if(-f $file){
 		 my ($pp,$r,$err) = regen_object($file );
             if ($r){        
-                add_info(\$info,"**Error: cannot open $file file: $err\n");
+                add_info($info,"**Error: cannot open $file file: $err\n");
                 return;
             } 
 		
@@ -2004,7 +2004,7 @@ sub build_network_maker_gui {
 	set_gui_status($self,"ideal",0);
 	$self->object_add_attribute ("process_notebook","currentpage",0);
 	my $main_table= def_table(2,10,FALSE);
-	my ($scwin_info)= create_text();	
+	#my ($scwin_info)= create_text();	
 	# The box which holds the info, warning, error ...  mesages
     my ($infobox,$info)= create_text();
 	my $notebook = topology_maker_notebook($self,$info);

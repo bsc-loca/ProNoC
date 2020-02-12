@@ -790,8 +790,8 @@ sub create_text {
   $tview->set_wrap_mode ('word');
   $tview->set_pixels_above_lines (2);
   $tview->set_pixels_below_lines (2);
- # $scrolled_window->set_placement('bottom_left' );
- add_colors_to_textview($tview);	
+  # $scrolled_window->set_placement('bottom_left' );
+  add_colors_to_textview($tview);	
   return ($scrolled_window,$tview);
 }
 
@@ -830,13 +830,15 @@ sub attach_widget_to_table {
 ##################
 sub show_info{
 	my ($textview_ref,$info)=@_;
-	my $buffer = $$textview_ref->get_buffer();
+	#return;# if(!defined $textview_ref);
+	#print "$textview_ref\n";
+	my $buffer = $textview_ref->get_buffer();
   	$buffer->set_text($info);
 }
 
 sub add_info{
 	my ($textview_ref,$info)=@_;
-	my $buffer = $$textview_ref->get_buffer();
+	my $buffer = $textview_ref->get_buffer();
 	my $textiter = $buffer->get_end_iter();
 	#Insert some text into the buffer
 	$buffer->insert($textiter,$info);
@@ -863,7 +865,7 @@ sub append_to_textview{
 
 sub show_colored_info{
 	my ($textview_ref,$info,$color)=@_;
-	my $buffer = $$textview_ref->get_buffer();
+	my $buffer = $textview_ref->get_buffer();
   	#$buffer->set_text($info);
 	my $textiter = $buffer->get_start_iter();
 	$buffer->insert_with_tags_by_name ($textiter, "$info", "${color}_tag");
@@ -871,7 +873,7 @@ sub show_colored_info{
 
 sub add_colored_info{
 	my ($textview_ref,$info,$color)=@_;
-	my $buffer = $$textview_ref->get_buffer();
+	my $buffer = $textview_ref->get_buffer();
 	my $textiter = $buffer->get_end_iter();
 	#Insert some text into the buffer
 	#$buffer->insert($textiter,$info);

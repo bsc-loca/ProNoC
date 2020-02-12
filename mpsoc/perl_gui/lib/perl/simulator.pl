@@ -972,7 +972,7 @@ my @charts = (
 	);
 	
 	
-	my ($conf_box,$set_win)=process_notebook_gen($simulate,\$info,"simulate",@charts);
+	my ($conf_box,$set_win)=process_notebook_gen($simulate,$info,"simulate",@charts);
 	my $chart   =gen_multiple_charts  ($simulate,\@pages,\@charts,0.4);
     
 
@@ -1053,7 +1053,7 @@ my @charts = (
 		$chart->destroy();
 		$image->destroy(); 
 		$image = get_status_gif($simulate);
-		($conf_box,$set_win)=process_notebook_gen($simulate,\$info,"simulate",@charts);				
+		($conf_box,$set_win)=process_notebook_gen($simulate,$info,"simulate",@charts);				
 		$chart = gen_multiple_charts  ($simulate,\@pages,\@charts,0.4);
 		$v1 -> pack1($conf_box, TRUE, TRUE); 	
 		$v1 -> pack2($image, TRUE, TRUE); 		
@@ -1074,7 +1074,7 @@ my @charts = (
 		foreach my $sample (@samples){
 			$simulate->object_add_attribute ("$sample","status","run");	
 		}
-		run_simulator($simulate,\$info);
+		run_simulator($simulate,$info);
 		#set_gui_status($emulate,"ideal",2);
 
 	});
@@ -1086,7 +1086,7 @@ my @charts = (
 
 	$open-> signal_connect("clicked" => sub{ 
 		
-		load_simulation($simulate,\$info);
+		load_simulation($simulate,$info);
 		#print Dumper($simulate);
 		set_gui_status($simulate,"ref",5);
 	

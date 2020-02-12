@@ -265,7 +265,7 @@ sub trace_map_ctrl{
 	
 	$run_map->signal_connect( 'clicked'=> sub{
 		my $alg=$self->object_get_attribute('map_param','Map_Algrm');
-		
+		update_merge_actor_list($self,$tview);
 		$self->random_map() if ($alg eq 'Random');
 		$self->worst_map_algorithm() if ($alg eq 'Reverse-NMAP');		
 		$self->nmap_algorithm() if ($alg eq 'Nmap');
@@ -881,6 +881,7 @@ sub get_tile_id{
 	my ($self,$task)=@_;
 	my $nx=$self->object_get_attribute('noc_param','T1');
 	#my $tile=$self->object_get_attribute("MAP_TILE",$task);
+	$task=$self->get_item_group_name('grouping',$task);
 	my $tile= get_task_give_tile($self,$task);
 	my ($x, $y) =  $tile =~ /(\d+)/g;  
 	$y=0 if(!defined $y);
@@ -940,8 +941,8 @@ sub object_remove_attribute{
 sub add_trace{
 	my ($self, $file_id,$category,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size,$channel)=@_;	
 	$self->object_add_attribute("${category}_$trace_id",'file',$file_id);
-	$self->object_add_attribute("${category}_$trace_id",'source',"${file_id}${source}");
-	$self->object_add_attribute("${category}_$trace_id",'destination',"${file_id}${dest}");
+	$self->object_add_attribute("${category}_$trace_id",'source',"${source}");
+	$self->object_add_attribute("${category}_$trace_id",'destination',"${dest}");
 	$self->object_add_attribute("${category}_$trace_id",'Mbytes', $Mbytes);
 	$self->object_add_attribute("${category}_$trace_id",'file_name', $file_name);  
 	$self->object_add_attribute("${category}_$trace_id",'selected', 0); 
@@ -1691,9 +1692,10 @@ sub worst_map_algorithm{
 sub get_task_assigned_to_tile {
 	my ($self,$i)=@_;
 	#my $p= $self->object_get_attribute("MAP_TASK","tile($i)");
-	my @l=@{$self->object_get_attribute("mapping","tile($i)")}; 
+	my $r=$self->object_get_attribute("mapping","tile($i)");
+	return undef if(!defined $r);
+	my @l=@{$r}; 
 	return $l[0]; 	
-	#return $p; 	
 }
 
 
@@ -1863,7 +1865,7 @@ sub trace_maker_notebook{
 	# check task names to be uniq 
 	my @r= return_not_unique_names_in_array(@merged_tasks);
     foreach my $p (@r){
-    	add_colored_info(\$tview,"$lb name $p is not unique!\n",'red');
+    	add_colored_info($tview,"$lb name $p is not unique!\n",'red');
     }
 	
 	
@@ -2034,7 +2036,7 @@ sub build_trace_gui {
 	
 	$generate->signal_connect("clicked" => sub{ 
 		genereate_output_tasks($self) if ($mode eq 'task');
-		genereate_output_orcc ($self,\$tview,$w) if ($mode eq 'orcc');
+		genereate_output_orcc ($self,$tview,$w) if ($mode eq 'orcc');
 	
 	});	
 	

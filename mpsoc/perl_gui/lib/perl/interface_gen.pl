@@ -25,11 +25,11 @@ sub read_file_modules{
 		$intfc_gen->intfc_add_module_list(@modules);
 		
 		set_gui_status($intfc_gen,"file_selected",1);
-		show_info(\$info,"Select the module which contain the interface ports\n ");	
+		show_info($info,"Select the module which contain the interface ports\n ");	
 	    
 	}
 	else { 
-		show_info(\$info,"File $file doese not exsit!\n ");	
+		show_info($info,"File $file doese not exsit!\n ");	
 		
 	}	
 }	
@@ -71,7 +71,7 @@ sub file_box {
 	});	
 	
 	if(defined $file){$entry->set_text($file);}
-	show_info(\$info,"Please select the verilog file containig the interface\n");
+	show_info($info,"Please select the verilog file containig the interface\n");
 	$browse->signal_connect("clicked"=> sub{
 		my $entry_ref=$_[1];
  		my $file;
@@ -117,7 +117,7 @@ sub file_box {
 	});
 		
 	$entry->signal_connect("changed"=>sub{
-		show_info(\$info,"Please select the verilog file containig the interface\n");
+		show_info($info,"Please select the verilog file containig the interface\n");
 	});
 	
 	my $row=0;
@@ -180,9 +180,9 @@ sub get_interface_ports {
 	my $window=def_popwin_size(60,60,"Import Ports",'percent');
 
 	my $file=$intfc_gen->intfc_get_interface_file();
-	if (!defined $file){show_info(\$info,"File name has not been defined yet!");  return;}
+	if (!defined $file){show_info($info,"File name has not been defined yet!");  return;}
 	my $module=$intfc_gen->intfc_get_module_name();
-	if (!defined $module){  show_info(\$info,"Module name has not been selected yet!");  return;}
+	if (!defined $module){  show_info($info,"Module name has not been selected yet!");  return;}
 	my $vdb=read_verilog_file($file);
 	my %port_type=get_ports_type($vdb,$module);
 	my %port_range=get_ports_rang($vdb,$module);
@@ -769,7 +769,7 @@ Glib::Timeout->add (100, sub{
 			my $file=$intfc_gen->intfc_get_interface_file();
 			my ($pp,$r,$err) = regen_object($file);
 			if ($r){		
-				add_info(\$info,"**Error reading  $file file: $err\n");
+				add_info($info,"**Error reading  $file file: $err\n");
 				return;
 			} 			
 			clone_obj($intfc_gen,$pp);			

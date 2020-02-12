@@ -78,7 +78,7 @@ sub get_soc_list {
        my ($soc,$r,$err) = regen_object($p);
         # Read       
          if ($r){        
-            add_info(\$info,"**Error reading  $p file: $err\n");
+            add_info($info,"**Error reading  $p file: $err\n");
                  next; 
         } 
         my $top=$soc->soc_get_top();
@@ -1127,7 +1127,7 @@ sub gen_all_tiles{
         my $p = "$path/$soc_name.SOC";
 	    my ($soc,$r,$err) = regen_object($p);
         if ($r){        
-            show_info(\$info,"**Error reading  $p file: $err\n");
+            show_info($info,"**Error reading  $p file: $err\n");
             next; 
         } 
         
@@ -1212,7 +1212,7 @@ sub generate_soc_files{
                 
             
     }
-    show_info(\$info,$warnings)             if(defined $warnings);  
+    show_info($info,$warnings)             if(defined $warnings);  
     
     #save project hdl file/folder list
     my @new_file_ref;
@@ -1288,7 +1288,7 @@ sub generate_mpsoc{
     if ( defined $error ){
         #message_dialog("The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
         my $message = "The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
-        add_colored_info(\$info, $message,'red' );
+        add_colored_info($info, $message,'red' );
         return 0;
     }
     my $size= (defined $name)? length($name) :0;
@@ -1400,15 +1400,13 @@ return 1;
 }    
 
 sub mpsoc_sw_make {
-     my $make="SUBDIRS := \$(wildcard */.)
-all: \$(SUBDIRS)
+     my $make="TOPTARGETS := all clean
+SUBDIRS := \$(wildcard */.)
+\$(TOPTARGETS): \$(SUBDIRS)
 \$(SUBDIRS):
-\t\$(MAKE) -C \$@
+\t\$(MAKE) -C \$@ \$(MAKECMDGOALS)
 
-.PHONY: all \$(SUBDIRS) 
-    
-clean:
-\t\$(MAKE) -C \$(CODE_DIR) clean    
+.PHONY: \$(TOPTARGETS) \$(SUBDIRS)    
 ";
 return $make;
     
@@ -1651,21 +1649,26 @@ sub software_edit_mpsoc {
     }
     my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$name";
     my $sw     = "$target_dir/sw";
-    my ($app,$table,$tview) = software_main($sw);
+    
+    my $orcc_page=select_orcc_generated_srcs($self);
+    my $orcc_lable=def_image_label('icons/orcc.png','Autogenrate Software with ORCC');
+    my @pages=($orcc_page);
+    my @pages_lables=($orcc_lable);
+    my ($app,$table,$tview) = software_main($sw,undef,\@pages,\@pages_lables);
 
     
     
-	my $prog = def_image_button('icons/refresh.png','Regenerate main.c');
+	my $prog= def_image_button('icons/write.png','Program the memory');
     my $make = def_image_button('icons/gen.png','_Compile',FALSE,1);
-    my $orcc = def_image_button('icons/orcc.png','Autogenrate Software with ORCC');
+   # my $orcc = def_image_button('icons/orcc.png','Autogenrate Software with ORCC');
             
-    $table->attach ($orcc,0, 1, 1,2,'shrink','shrink',0,0);
+  #  $table->attach ($orcc,0, 1, 1,2,'shrink','shrink',0,0);
     $table->attach ($make,5, 6, 1,2,'shrink','shrink',0,0);
     $table->attach ($prog,9, 10, 1,2,'shrink','shrink',0,0); 
     
-	$orcc -> signal_connect("clicked" => sub{
-		select_orcc_generated_srcs($self);
-	});
+#	$orcc -> signal_connect("clicked" => sub{
+		#select_orcc_generated_srcs($self);
+#	});
 	 
 	 
     $make -> signal_connect("clicked" => sub{
@@ -1674,6 +1677,7 @@ sub software_edit_mpsoc {
         $load->show_all; 
         $app->do_save();
         append_to_textview($tview,' ');
+        run_make_file($sw,$tview,'clean');
         run_make_file($sw,$tview);
         $load->destroy;    
 
@@ -1685,33 +1689,33 @@ sub software_edit_mpsoc {
         my $bash_file="$sw/program.sh";
         my $jtag_intfc="$sw/jtag_intfc.sh";
         
-        add_info(\$tview,"Programe the board using quartus_pgm and $bash_file file\n");
+        add_info($tview,"Programe the board using quartus_pgm and $bash_file file\n");
         #check if the programming file exists
         unless (-f $bash_file) {
-            add_colored_info(\$tview,"\tThe $bash_file does not exists! \n", 'red');
+            add_colored_info($tview,"\tThe $bash_file does not exists! \n", 'red');
             $error=1;
         }
         #check if the jtag_intfc.sh file exists
         unless (-f $jtag_intfc) {
-            add_colored_info(\$tview,"\tThe $jtag_intfc does not exists!. Press the compile button and select your FPGA board first to generate $jtag_intfc file\n", 'red');
+            add_colored_info($tview,"\tThe $jtag_intfc does not exists!. Press the compile button and select your FPGA board first to generate $jtag_intfc file\n", 'red');
             $error=1;
         }
         
         return if($error);
         my $command = "cd $sw; bash program.sh";
-        add_info(\$tview,"$command\n");
+        add_info($tview,"$command\n");
         my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
         if(length $stderr>1){            
-            add_colored_info(\$tview,"$stderr\n",'red');
-            add_colored_info(\$tview,"Memory was not programed successfully!\n",'red');
+            add_colored_info($tview,"$stderr\n",'red');
+            add_colored_info($tview,"Memory was not programed successfully!\n",'red');
         }else {
 
             if($exit){
-                add_colored_info(\$tview,"$stdout\n",'red');
-                add_colored_info(\$tview,"Memory was not programed successfully!\n",'red');
+                add_colored_info($tview,"$stdout\n",'red');
+                add_colored_info($tview,"Memory was not programed successfully!\n",'red');
             }else{
-                add_info(\$tview,"$stdout\n");
-                add_colored_info(\$tview,"Memory is programed successfully!\n",'blue');
+                add_info($tview,"$stdout\n");
+                add_colored_info($tview,"Memory is programed successfully!\n",'blue');
 
             }
             
@@ -1743,14 +1747,14 @@ sub load_mpsoc{
         my $dir = Cwd::getcwd();
     $dialog->set_current_folder ("$dir/lib/mpsoc")    ;
     my @newsocs=$mpsoc->mpsoc_get_soc_list();
-    add_info(\$info,'');
+    add_info($info,'');
     if ( "ok" eq $dialog->run ) {
         $file = $dialog->get_filename;
         my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
         if($suffix eq '.MPSOC'){
             my ($pp,$r,$err) = regen_object($file );
             if ($r){        
-                add_info(\$info,"**Error: cannot open $file file: $err\n");
+                add_info($info,"**Error: cannot open $file file: $err\n");
                  $dialog->destroy;
                 return;
             } 
@@ -1775,7 +1779,7 @@ sub load_mpsoc{
 
             }
             @newsocs=get_soc_list($mpsoc,$info); # add all existing socs
-            add_info(\$info,"**Error:  \n $error\n") if(defined $error);
+            add_info($info,"**Error:  \n $error\n") if(defined $error);
 
             set_gui_status($mpsoc,"load_file",0);
                     

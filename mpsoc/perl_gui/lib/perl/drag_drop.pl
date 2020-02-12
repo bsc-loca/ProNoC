@@ -56,7 +56,9 @@ return $vbox;
 }
 
 sub get_item_group_name{
-	my ($self,$group_num,$name,$item)=@_;
+	my ($self,$name,$item)=@_;
+	#print "($self,$name,$item)\n";
+	my $group_num=$self->object_get_attribute("$name",'group_num');
 	my $gname=$self->object_get_attribute("$name",'group_name_root');
 	for(my $i=0;$i<$group_num;$i=$i+1){
 		my $gref = $self->object_get_attribute("$name","$gname($i)");
@@ -64,6 +66,17 @@ sub get_item_group_name{
 		return $self->object_get_attribute("$name","$gname($i)".'_name') if( check_scolar_exist_in_array($item,$gref ));
 	}	
 	return $item;
+}
+
+sub get_items_in_a_group{
+	my ($self,$name,$group_name)=@_;
+	my $group_num=$self->object_get_attribute("$name",'group_num');
+	my $gname=$self->object_get_attribute("$name",'group_name_root');
+	for(my $i=0;$i<$group_num;$i=$i+1){
+		my $current_name= $self->object_get_attribute("$name","$gname($i)".'_name');
+		return  $self->object_get_attribute("$name","$gname($i)") if($current_name eq $group_name );
+	}	
+	return undef;	
 }
 
 

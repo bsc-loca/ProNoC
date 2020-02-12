@@ -32,25 +32,25 @@ exit main() unless caller;
 
 
 sub software_main {
-	my ($sw,$file) = @_;
+	my ($sw,$file,$pages_ref,$lable_ref) = @_;
 
 	
 
 	my $app = __PACKAGE__->new();
-	my ($table,$tview,$window)=$app->build_gui($sw);
+	my ($table,$tview,$widget)=$app->build_gui($sw,$pages_ref,$lable_ref);
 	my $main_c=(defined $file)? "$sw/$file" : "$sw/main.c";
 	$app->load_source($main_c) if (-f $main_c );
 
 	#Gtk2->main();
 
-	return ($app,$table,$tview,$window);
+	return ($app,$table,$tview,$widget);
 }
 
 
 sub build_gui {
-	my ($self,$sw) = @_;
+	my ($self,$sw,$pages_ref,$lable_ref) = @_;
 
-	my $window = def_popwin_size (75,75,'Source Editor','percent');
+	
 	my $table= def_table(2,10,FALSE);
 	
 
@@ -59,15 +59,7 @@ sub build_gui {
 	my $hpaned = Gtk2::HPaned -> new;
 	my $vpaned = Gtk2::VPaned -> new;
 	$table->attach_defaults ($vpaned,0, 10, 0,1);
-	#my $make = def_image_button('icons/run.png','Compile');
-	#$table->attach ($make,9, 10, 1,2,'shrink','shrink',0,0);
-	#$make -> signal_connect("clicked" => sub{
-		#$self->do_save();
-		#run_make_file($sw,$tview);	
-
-	#});
-
-	$window -> add ( $table);
+	  
 
 	my($width,$hight)=max_win_size();
 	
@@ -88,27 +80,48 @@ sub build_gui {
 	$vpaned-> pack2 ($scwin_info, TRUE, TRUE);
 
 
-my ($tree_view,$tree_store) =$self->build_tree_view($sw);
-
-
-
-
-$scwin_dirs -> add($tree_view);
+	my ($tree_view,$tree_store) =$self->build_tree_view($sw);
+	$scwin_dirs -> add($tree_view);
 
 
 
 
 #print "$sw/\n";
 
-	#my $window = Gtk2::Window->new();
-	#$window->set_size_request(480, 360);
-	#$window->set_title($NAME);
+	
+	my $window = def_popwin_size (80,80,'Source Editor','percent');
+	
+	
+	if (defined $pages_ref){
+		#first page is software editor
+		my $notebook = Gtk2::Notebook->new;
+		
+		my $lable1=def_image_label("icons/binary.png","Software Editor",1);
+		$notebook->append_page ($table,$lable1);
+		$lable1->show_all;
+		
+		
+		my @pages=@{$pages_ref};
+		my @lables=@{$lable_ref};
+		my $i=0;
+		foreach my $page (@pages){
+			my $lable=$lables[$i];
+			$notebook->append_page ($page,$lable);
+			$lable->show_all;
+			$i++;	
+		}
+		$notebook->show_all;
+		$window -> add ( $notebook);
+	}else {
+		$window -> add ( $table);
+	}
+	
 	$self->window($window);
 
 	my $vbox = Gtk2::VBox->new(FALSE, 0);
 	$scwin_text->add_with_viewport($vbox);
 
-	$vbox->pack_start($self->build_menu("$sw/",$window,$tree_view,$tree_store,$scwin_dirs), FALSE, FALSE, 0);
+	$vbox->pack_start($self->build_menu("$sw/",$table,$tree_view,$tree_store,$scwin_dirs), FALSE, FALSE, 0);
 	$vbox->pack_start($self->build_search_box, FALSE, FALSE, 0);
 
 	my $scroll = Gtk2::ScrolledWindow->new();
@@ -767,7 +780,7 @@ sub run_make_file {
 	my ($dir,$outtext, $args)=@_;
 	my $cmd =	(defined $args) ? "cd \"$dir/\" \n  make $args" :  "cd \"$dir/\" \n  make ";
 	my $error=0;		
-	add_info(\$outtext,"$cmd\n");
+	add_info($outtext,"$cmd\n");
 	
 	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout( $cmd);
 	#($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout( $cmd);
@@ -776,27 +789,27 @@ sub run_make_file {
 	if($exit){
 		if($stderr){
 			$stderr=~ s/[‘,’]//g;
-			add_info(\$outtext,"$stdout\n"); 
-			add_colored_info(\$outtext,"$stderr\n","red"); 
+			add_info($outtext,"$stdout\n"); 
+			add_colored_info($outtext,"$stderr\n","red"); 
 		}
-		add_colored_info(\$outtext,"Compilation failed.\n",'red');
+		add_colored_info($outtext,"Compilation failed.\n",'red');
 		print " failed!\n";   
 		return 0;
 
 	}else{
-		add_info(\$outtext,"$stdout\n"); 
+		add_info($outtext,"$stdout\n"); 
 		if($stderr){ #probebly had warning
 			$stderr=~ s/[‘,’]//g;
-			#add_info(\$outtext,"$stdout\n"); 
-			add_colored_info(\$outtext,"$stderr\n","green"); 
+			#add_info($outtext,"$stdout\n"); 
+			add_colored_info($outtext,"$stderr\n","green"); 
 		}
 		
-		add_colored_info(\$outtext,"Compilation finished successfully.\n",'blue');
+		add_colored_info($outtext,"Compilation finished successfully.\n",'blue');
 		print " successfull!\n";  
 		return 1;
 	}
 			
-	#add_info(\$outtext,"**********Quartus compilation is done successfully in $target_dir!*************\n") if($error==0);
+	#add_info($outtext,"**********Quartus compilation is done successfully in $target_dir!*************\n") if($error==0);
 
 
 

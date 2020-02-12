@@ -316,7 +316,7 @@ sub remove_all_white_spaces($)
 sub check_scolar_exist_in_array{
 	my ($value,$ref)=@_;
 	my @array= @{$ref};
-	if ( grep( /^$value$/, @array ) ) {
+	if ( grep( /^\Q$value\E$/, @array ) ) {
 	  return 1;
 	}
 	return 0

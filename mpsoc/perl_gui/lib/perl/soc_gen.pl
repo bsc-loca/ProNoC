@@ -611,7 +611,7 @@ sub gen_instance{
 							#%pp{$instance_id}=$plug
 							$soc->soc_add_instance_plug_conection($p,$connected_plugs{$p},$connected_plug_nums{$p},'IO');
 							my $info_text="$id\:$socket\[$num\] support only single connection.  The previouse connection to $p:$connected_plugs{$p}\[$connected_plug_nums{$p}] has been removed.";
-							show_info(\$info, $info_text);
+							show_info($info, $info_text);
 						}
 						
 					}
@@ -844,7 +844,7 @@ sub create_tree {
                                         'style_set' => ITALIC_COLUMN);
 
   $tree_view->append_column ($column);
-  my @ll=($model,\$info);
+  my @ll=($model,$info);
 #row selected
   $selection->signal_connect (changed =>sub {
 	my ($selection, $ref) = @_;
@@ -877,7 +877,7 @@ sub create_tree {
 
 	if($module){ 
 		#print "$module  is selected via row activaton!\n";
-		add_module_to_soc($soc,$ip,$category,$module,\$info);
+		add_module_to_soc($soc,$ip,$category,$module,$info);
 		set_gui_status($soc,"refresh_soc",0);	
 	}
 		
@@ -1036,7 +1036,7 @@ sub generate_soc{
 			#copy hdl codes in src_verilog			
 			my ($file_ref,$warnings)= get_all_files_list($soc,"hdl_files");		
 			copy_file_and_folders($file_ref,$project_dir,$hw_lib);
-			show_info(\$info,$warnings)     		if(defined $warnings);			
+			show_info($info,$warnings)     		if(defined $warnings);			
 			add_to_project_file_list($file_ref,$hw_lib,$hw_path);
 			    
     		
@@ -1088,6 +1088,12 @@ sub generate_soc{
 			open(FILE,  ">$n") || die "Can not open: $!";
 			print FILE main_c_template($name);
 			close(FILE) || die "Error closing file: $!";
+			
+			#write makefile source lib list file
+			open(FILE,  ">$sw_path/SOURCE_LIB") || die "Can not open: $!";
+			print FILE "SOURCE_LIB += $name.c ";
+			close(FILE) || die "Error closing file: $!";		
+			
 			
 		}
 			
@@ -1574,7 +1580,7 @@ sub load_soc{
 		if($suffix eq '.SOC'){
 			my ($pp,$r,$err) = regen_object($file);
 			if ($r || !defined $pp){		
-				show_info(\$info,"**Error reading  $file file: $err\n");
+				show_info($info,"**Error reading  $file file: $err\n");
 				 $dialog->destroy;
 				return;
 			} 
@@ -1725,33 +1731,33 @@ sub software_edit_soc {
 		my $bash_file="$target_dir/sw/program.sh";
 		my $jtag_intfc="$sw/jtag_intfc.sh";
 
-		add_info(\$tview,"Programe the board using quartus_pgm and $bash_file file\n");
+		add_info($tview,"Programe the board using quartus_pgm and $bash_file file\n");
 		#check if the programming file exists
 		unless (-f $bash_file) {
-			add_colored_info(\$tview,"\tThe $bash_file does not exists! \n", 'red');
+			add_colored_info($tview,"\tThe $bash_file does not exists! \n", 'red');
 			$error=1;
 		}
 		#check if the jtag_intfc.sh file exists
 		unless (-f $jtag_intfc) {
-			add_colored_info(\$tview,"\tThe $jtag_intfc does not exists!. Press the compile button and select your FPGA board first to generate $jtag_intfc file\n", 'red');
+			add_colored_info($tview,"\tThe $jtag_intfc does not exists!. Press the compile button and select your FPGA board first to generate $jtag_intfc file\n", 'red');
 			$error=1;
 		}
 		
 		return if($error);
 		my $command = "cd $target_dir/sw; bash program.sh";
-		add_info(\$tview,"$command\n");
+		add_info($tview,"$command\n");
 		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
 		if(length $stderr>1){			
-			add_colored_info(\$tview,"$stderr\n",'red');
-			add_colored_info(\$tview,"Memory was not programed successfully!\n",'red');
+			add_colored_info($tview,"$stderr\n",'red');
+			add_colored_info($tview,"Memory was not programed successfully!\n",'red');
 		}else {
 
 			if($exit){
-				add_colored_info(\$tview,"$stdout\n",'red');
-				add_colored_info(\$tview,"Memory was not programed successfully!\n",'red');
+				add_colored_info($tview,"$stdout\n",'red');
+				add_colored_info($tview,"Memory was not programed successfully!\n",'red');
 			}else{
-				add_info(\$tview,"$stdout\n");
-				add_colored_info(\$tview,"Memory is programed successfully!\n",'blue');
+				add_info($tview,"$stdout\n");
+				add_colored_info($tview,"Memory is programed successfully!\n",'blue');
 
 			}
 			

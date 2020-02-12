@@ -70,11 +70,11 @@ sub read_all_module{
 		
 		
 		set_gui_status($ipgen,"file_selected",1);
-		show_info(\$info,"Select the module which contain the interface ports\n ");	
+		show_info($info,"Select the module which contain the interface ports\n ");	
 	    
 	}
 	else { 
-		show_info(\$info,"File $file doese not exsit!\n ");	
+		show_info($info,"File $file doese not exsit!\n ");	
 		
 	}	
 }	
@@ -136,7 +136,7 @@ sub create_interface_tree {
                                         'style_set' => ITAL_COLUMN);
 
   $tree_view->append_column ($column);
-  my @ll=($model,\$info);
+  my @ll=($model,$info);
 #row selected
 
   $selection->signal_connect (changed =>sub {
@@ -171,7 +171,7 @@ sub create_interface_tree {
 
 	if($name){ 
 		#print "$infc_name-$infc_type  is selected via row activaton!\n";
-		add_intfc_to_ip($intfc,$ipgen,$name,'plug',\$info);
+		add_intfc_to_ip($intfc,$ipgen,$name,'plug',$info);
 	
 	}
 
@@ -233,7 +233,7 @@ sub ip_file_box {
 
 
 
-	show_info(\$info,"Please select the verilog file containig the ip module\n");
+	show_info($info,"Please select the verilog file containig the ip module\n");
 	$browse->signal_connect("clicked"=> sub{
 		my $entry_ref=$_[1];
  		my $file;
@@ -274,7 +274,7 @@ sub ip_file_box {
 	});
 		
 	$entry->signal_connect("changed"=>sub{
-		show_info(\$info,"Please select the verilog file containig the interface\n");
+		show_info($info,"Please select the verilog file containig the interface\n");
 	});
 	
 	$table->attach_defaults ($label, 0, 1 , $row, $row+1);
@@ -363,7 +363,7 @@ sub select_module{
 		my %page_info;
 		my $help1="The files and folder that selected here will be copied in genertated processing tile SW folder.";
 		my $help2="The file listed here can contain some variable with \${var_name} format. The file genertor will replace them with their values during file generation. The variable can be selected from above listed global vairables";
-		my $help3='Define the header file for this peripheral device. You can use global vriables listed at the top.  
+		my $help3='Define the header file for this peripheral device. You can use global variables listed at the top.  This file contains peripheral device functions\' deceleration, memory-mapped register address definition,  definitions of data types, and  C preprocessor commands. Do not put function definitions in the header file. Functions should be defined in add to tile.c section. 
   		
 header file example 
    
@@ -374,6 +374,10 @@ header file example
  #define ${IP}_WRITE_REG1(value)  ${IP}_REG_1=value	
  #define ${IP}_READ_REG1()  	${IP}_REG_1	    
   ';	
+  
+  my $help4='Define peripheral device\'s functions in this file. You can use global vriables listed at the top.  
+';	
+  
 
 		$page_info{0}{page_name} = "_Add exsiting file/folder";
 		$page_info{0}{filed_name}= "sw_files";
@@ -395,6 +399,17 @@ header file example
 		$page_info{2}{rename_file}=undef; 
 		$page_info{2}{folder_en}=0;
 		$page_info{2}{help}=$help3;
+		
+		
+		$page_info{3}{page_name} = "_Add to tile.c";
+		$page_info{3}{filed_name}= "system_c";
+		$page_info{3}{filed_type}= "file_content";
+		$page_info{3}{rename_file}=undef; 
+		$page_info{3}{folder_en}=0;
+		$page_info{3}{help}=$help4;
+		
+		
+		
 
 
 		get_source_file($ipgen,$info,0,"Add software file(s)","SW",\%page_info);
@@ -2109,7 +2124,7 @@ Glib::Timeout->add (100, sub{
 			my $file=$ipgen->ipgen_get("file_name");
 			my ($pp,$r,$err) = regen_object($file);
 			if ($r){		
-				add_info(\$info,"**Error reading  $file file: $err\n");
+				add_info($info,"**Error reading  $file file: $err\n");
 				
 				return;
 			} 			

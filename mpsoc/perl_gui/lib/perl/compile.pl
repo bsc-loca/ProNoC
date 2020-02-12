@@ -420,8 +420,8 @@ sub add_new_fpga_board{
 			$window->destroy;
 			
 		}else {
-			show_info(\$tview," ");
-			show_colored_info(\$tview,$result,'red');			
+			show_info($tview," ");
+			show_colored_info($tview,$result,'red');			
 			
 		}
 	
@@ -435,28 +435,28 @@ sub add_new_fpga_board{
 		my $dir = Cwd::getcwd();
 		my $project_dir	  = abs_path("$dir/../../"); #mpsoc directory address		
 		my $command=  "$project_dir/mpsoc/src_c/jtag/jtag_libusb/list_usb_dev";
-		add_info(\$tview,"$command\n");
+		add_info($tview,"$command\n");
 		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
 		if(length $stderr>1){			
-			add_colored_info(\$tview,"$stderr\n",'red');
-			add_colored_info(\$tview,"$command was not run successfully!\n",'red');
+			add_colored_info($tview,"$stderr\n",'red');
+			add_colored_info($tview,"$command was not run successfully!\n",'red');
 		}else {
 
 			if($exit){
-				add_colored_info(\$tview,"$stdout\n",'red');
-				add_colored_info(\$tview,"$command was not run successfully!\n",'red');
+				add_colored_info($tview,"$stdout\n",'red');
+				add_colored_info($tview,"$command was not run successfully!\n",'red');
 			}else{
-				add_info(\$tview,"$stdout\n");
+				add_info($tview,"$stdout\n");
 				my @a=split /vid=9fb/, $stdout; 
 				if(defined $a[1]){
 					my @b=split /pid=/, $a[1]; 
 					my @c=split /\n/, $b[1]; 
 					$pid=$c[0]; 
 					$self->object_add_attribute('compile','quartus_pid',$pid);
-					add_colored_info(\$tview,"Detected PID: $pid\n",'blue');
+					add_colored_info($tview,"Detected PID: $pid\n",'blue');
 					
 				}else{
-					add_colored_info(\$tview,"The Altera vendor ID of 9fb is not detected. Make sure You have connected your Altera board to your USB port\n",'red');
+					add_colored_info($tview,"The Altera vendor ID of 9fb is not detected. Make sure You have connected your Altera board to your USB port\n",'red');
 					return;
 				}
 			}
@@ -464,39 +464,39 @@ sub add_new_fpga_board{
 		
 		
 		$command=  "$ENV{QUARTUS_BIN}/jtagconfig";
-		add_info(\$tview,"$command\n");
+		add_info($tview,"$command\n");
 		($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
 		if(length $stderr>1){			
-			add_colored_info(\$tview,"$stderr\n",'red');
-			add_colored_info(\$tview,"$command was not run successfully!\n",'red');
+			add_colored_info($tview,"$stderr\n",'red');
+			add_colored_info($tview,"$command was not run successfully!\n",'red');
 		}else {
 
 			if($exit){
-				add_colored_info(\$tview,"$stdout\n",'red');
-				add_colored_info(\$tview,"$command was not run successfully!\n",'red');
+				add_colored_info($tview,"$stdout\n",'red');
+				add_colored_info($tview,"$command was not run successfully!\n",'red');
 			}else{
-				add_info(\$tview,"$stdout\n");
+				add_info($tview,"$stdout\n");
 				my @a=split /1\)\s+/, $stdout; 
 				if(defined $a[1]){
 					my @b=split /\s+/, $a[1]; 
 					$hw=$b[0];
 					$self->object_add_attribute('compile','quartus_hardware',$hw);
-					add_colored_info(\$tview,"Detected Hardware: $hw\n",'blue');
+					add_colored_info($tview,"Detected Hardware: $hw\n",'blue');
 					my $qsf=$self->object_get_attribute('compile','quartus_qsf');	
 					if(!defined $qsf ){
-						add_colored_info (\$tview,"Cannot detect devce location in JTAG chin. Please enter the QSF file or fill in manually \n",'red'); 
+						add_colored_info ($tview,"Cannot detect devce location in JTAG chin. Please enter the QSF file or fill in manually \n",'red'); 
 										
 					}else{
 						#search for device nam ein qsf file
 						$qsf=add_project_dir_to_addr($qsf);
 						if (!(-f $qsf)){
-							add_colored_info (\$tview, "Error Could not find $qsf file!\n");
+							add_colored_info($tview, "Error Could not find $qsf file!\n");
 							return;
 						}
 						my $str=load_file($qsf);
 						my $dw= capture_string_between(' DEVICE ',$str,"\n");
 						if(defined $dw){
-					    	add_colored_info(\$tview,"Device name in qsf file is: $dw\n",'blue');
+					    	add_colored_info($tview,"Device name in qsf file is: $dw\n",'blue');
 					    	@b=split /\n/, $a[1];
 					    	
 					    	#capture device name in JTAG chain
@@ -508,18 +508,18 @@ sub add_new_fpga_board{
 							
 							my $pos=find_the_most_similar_position($dw ,@f);
 							$self->object_add_attribute('compile','quartus_device',$pos);
-					    	add_colored_info(\$tview,"$dw has the most similarity with $f[$pos] in JTAG chain\n",'blue');
+					    	add_colored_info($tview,"$dw has the most similarity with $f[$pos] in JTAG chain\n",'blue');
 	
 						
 					    }else{
-					    	add_colored_info (\$tview, "Could not find device name in the $qsf file!\n");
+					    	add_colored_info ($tview, "Could not find device name in the $qsf file!\n");
 					    }
 						
 					}
 					
 					
 				}else{
-					#add_colored_info(\$tview,"The Altera vendor ID of 9fb is not detected. Make sure You have connected your Altera board to your USB port\n",'red');
+					#add_colored_info($tview,"The Altera vendor ID of 9fb is not detected. Make sure You have connected your Altera board to your USB port\n",'red');
 				
 				}
 				
@@ -961,10 +961,10 @@ sub quartus_compilation{
 		set_gui_status($self,'save_project',1);
 		$app->do_save();
 		my $error = 0;
-		add_info(\$tview,"CREATE: start creating Quartus project in $target_dir\n");
+		add_info($tview,"CREATE: start creating Quartus project in $target_dir\n");
 
 		#get list of source file
-		add_info(\$tview,"        Read the list of all source files $target_dir/src_verilog\n");
+		add_info($tview,"        Read the list of all source files $target_dir/src_verilog\n");
 		my @files = File::Find::Rule->file()
                             ->name( '*.v','*.V','*.sv' )
                             ->in( "$target_dir/src_verilog" );
@@ -975,7 +975,7 @@ sub quartus_compilation{
 			push (@sources,$p)	if(check_file_has_string($p,'module')); 
 		}
 		my $files = join ("\n",@sources);
-		add_info(\$tview,"$files\n");
+		add_info($tview,"$files\n");
 
 		#creat project qsf file
 		my $qsf_file="$target_dir/${name}.qsf";
@@ -1006,11 +1006,11 @@ sub quartus_compilation{
 			
 		}
 		append_text_to_file($qsf_file,$s);
-		add_info(\$tview,"\n Qsf file has been created\n");
+		add_info($tview,"\n Qsf file has been created\n");
 
 		#start compilation
 		my $Quartus_bin= $self->object_get_attribute('compile','quartus_bin');;
-		add_info(\$tview, "Start Quartus compilation.....\n");
+		add_info($tview, "Start Quartus compilation.....\n");
 		my @compilation_command =(
 			"cd \"$target_dir/\" \n xterm -e bash -c '$Quartus_bin/quartus_map --64bit $name --read_settings_files=on; echo \$? > status' ",
 			"cd \"$target_dir/\" \n xterm -e bash -c '$Quartus_bin/quartus_fit --64bit $name --read_settings_files=on; echo \$? > status' ",
@@ -1018,7 +1018,7 @@ sub quartus_compilation{
 			"cd \"$target_dir/\" \n xterm -e bash -c '$Quartus_bin/quartus_sta --64bit $name;echo \$? > status' ");
 		
 		foreach my $cmd (@compilation_command){
-			add_info(\$tview,"$cmd\n");
+			add_info($tview,"$cmd\n");
 			unlink "$target_dir/status";
 			my ($stdout,$exit)=run_cmd_in_back_ground_get_stdout( $cmd);
 			open(my $fh,  "<$target_dir/status") || die "Can not open: $!";
@@ -1026,12 +1026,12 @@ sub quartus_compilation{
 			close($fh);
 			if("$status" != "0"){			
 				($stdout,$exit)=run_cmd_in_back_ground_get_stdout("cd \"$target_dir/output_files/\" \n grep -h \"Error (\" *");
-				add_colored_info(\$tview,"$stdout\n Quartus compilation failed !\n",'red');
+				add_colored_info($tview,"$stdout\n Quartus compilation failed !\n",'red');
 				$error=1;
 				last;
 			}			
 		}
-		add_colored_info(\$tview,"Quartus compilation is done successfully in $target_dir!\n", 'blue') if($error==0);
+		add_colored_info($tview,"Quartus compilation is done successfully in $target_dir!\n", 'blue') if($error==0);
 		if (defined $end_func){
 			if ($error==0){
 				$end_func->($self);
@@ -1051,32 +1051,32 @@ sub quartus_compilation{
 		my $sof_file="$target_dir/output_files/${name}.sof";
 		my $bash_file="$target_dir/program_device.sh";
 
-		add_info(\$tview,"Programe the board using quartus_pgm and $sof_file file\n");
+		add_info($tview,"Programe the board using quartus_pgm and $sof_file file\n");
 		#check if the programming file exists
 		unless (-f $sof_file) {
-			add_colored_info(\$tview,"\tThe $sof_file does not exists! Make sure you have compiled the code successfully.\n", 'red');
+			add_colored_info($tview,"\tThe $sof_file does not exists! Make sure you have compiled the code successfully.\n", 'red');
 			$error=1;
 		}
 		#check if the program_device.sh file exists
 		unless (-f $bash_file) {
-			add_colored_info(\$tview,"\tThe $bash_file does not exists! This file veries depend on your target board and must be available inside mpsoc/boards/[board_name].\n", 'red');
+			add_colored_info($tview,"\tThe $bash_file does not exists! This file veries depend on your target board and must be available inside mpsoc/boards/[board_name].\n", 'red');
 			$error=1;
 		}
 		return if($error);
 		my $command = "bash $bash_file $sof_file";
-		add_info(\$tview,"$command\n");
+		add_info($tview,"$command\n");
 		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
 		if(length $stderr>1){			
-			add_colored_info(\$tview,"$stderr\n",'red');
-			add_colored_info(\$tview,"Board was not programed successfully!\n",'red');
+			add_colored_info($tview,"$stderr\n",'red');
+			add_colored_info($tview,"Board was not programed successfully!\n",'red');
 		}else {
 
 			if($exit){
-				add_colored_info(\$tview,"$stdout\n",'red');
-				add_colored_info(\$tview,"Board was not programed successfully!\n",'red');
+				add_colored_info($tview,"$stdout\n",'red');
+				add_colored_info($tview,"Board was not programed successfully!\n",'red');
 			}else{
-				add_info(\$tview,"$stdout\n");
-				add_colored_info(\$tview,"Board is programed successfully!\n",'blue');
+				add_info($tview,"$stdout\n");
+				add_colored_info($tview,"Board is programed successfully!\n",'blue');
 
 			}
 			
@@ -1134,7 +1134,7 @@ sub modelsim_compilation{
 	
 
 	#creat modelsim dir
-	add_info(\$tview,"creat Modelsim dir in $target_dir\n");
+	add_info($tview,"creat Modelsim dir in $target_dir\n");
 	my $model="$target_dir/Modelsim";
 	rmtree("$model");
 	rmtree("$target_dir/rtl_work");
@@ -1153,7 +1153,7 @@ vmap work rtl_work
 ";
 
 #Get the list of  all verilog files in src_verilog folder
-	add_info(\$tview,"Get the list of all verilog files in src_verilog folder\n");
+	add_info($tview,"Get the list of all verilog files in src_verilog folder\n");
 	my @files = File::Find::Rule->file()
         	->name( '*.v','*.V','*.sv' )
                 ->in( "$target_dir/src_verilog" );
@@ -1175,7 +1175,7 @@ view structure
 view signals
 run -all
 ";
-	add_info(\$tview,"Create run.tcl file\n");
+	add_info($tview,"Create run.tcl file\n");
 	save_file ("$model/run.tcl",$tcl);
 	$run -> signal_connect("clicked" => sub{
 		set_gui_status($self,'save_project',1);
@@ -1183,13 +1183,13 @@ run -all
 		my $modelsim_bin= $self->object_get_attribute('compile','modelsim_bin');		
 		my $cmd="cd $target_dir; $modelsim_bin/vsim -do $model/run.tcl";
 		
-		add_info(\$tview,"$cmd\n");
+		add_info($tview,"$cmd\n");
 		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
 		if(length $stderr>1){	
-			add_colored_info(\$tview,"$stderr\n","red"); 		
+			add_colored_info($tview,"$stderr\n","red"); 		
 			
 		}else {
-			add_info(\$tview,"$stdout\n");
+			add_info($tview,"$stdout\n");
 		}			
 
 	});
@@ -1206,7 +1206,7 @@ sub verilator_compilation {
 	
 	my %tops = %{$top_ref};
 	#creat verilator dir
-	add_info(\$outtext,"creat verilator dir in $target_dir\n");
+	add_info($outtext,"creat verilator dir in $target_dir\n");
 	my $verilator="$target_dir/verilator";
 	rmtree("$verilator/rtl_work");
 	rmtree("$verilator/processed_rtl");
@@ -1219,7 +1219,7 @@ sub verilator_compilation {
 	
 	
 	#copy all verilog files in rtl_work folder
-	add_info(\$outtext,"Copy all verilog files in rtl_work folder\n");
+	add_info($outtext,"Copy all verilog files in rtl_work folder\n");
 	my @files = File::Find::Rule->file()
         	->name( '*.v','*.V','*.sv','*.vh')
                 ->in( @ff );
@@ -1240,7 +1240,7 @@ sub verilator_compilation {
 	
 
 	#"split all verilog modules in separate  files"
-	add_info(\$outtext,"split all verilog modules in separate files\n");
+	add_info($outtext,"split all verilog modules in separate files\n");
    	my $split = Verilog::EditFiles->new
        	(outdir => "$verilator/processed_rtl",
         translate_synthesis => 0,
@@ -1255,14 +1255,14 @@ sub verilator_compilation {
 	#run verilator
 	#my $cmd= "cd \"$verilator/processed_rtl\" \n xterm -e bash -c ' verilator  --cc $name.v --profile-cfuncs --prefix \"Vtop\" -O3  -CFLAGS -O3'";
 	foreach my $top (sort keys %tops) {
-		add_colored_info(\$outtext,"Generate $top Verilator model from $tops{$top} file\n",'green');
+		add_colored_info($outtext,"Generate $top Verilator model from $tops{$top} file\n",'green');
 		my $cmd= "cd \"$verilator/processed_rtl\" \n  verilator  --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3";
-		add_info(\$outtext,"$cmd\n");	
+		add_info($outtext,"$cmd\n");	
 		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
 		if(length $stderr>1){			
-			add_info(\$outtext,"$stderr\n");
+			add_info($outtext,"$stderr\n");
 		}else {
-			add_info(\$outtext,"$stdout\n");
+			add_info($outtext,"$stdout\n");
 		}			
 	}
 	
@@ -1395,11 +1395,11 @@ sub verilator_compilation_win {
 	
 	#check if verilator model has been generated 
 	if ($result){
-		add_colored_info(\$outtext,"Veriator model has been generated successfully!",'blue');
+		add_colored_info($outtext,"Veriator model has been generated successfully!",'blue');
 		$load->destroy();
 		$mtable->attach($next,8,9,9,10,'shrink','shrink',2,2);
 	}else {
-		add_colored_info(\$outtext,"Verilator compilation failed!\n","red"); 
+		add_colored_info($outtext,"Verilator compilation failed!\n","red"); 
 		$load->destroy();
 		$next->destroy();
 	}			
@@ -1617,7 +1617,7 @@ sub eval_soc{
   	my $p = "$path/$soc_name.SOC";
 	my ($soc,$r,$err) = regen_object($p);
 	if ($r){		
-		show_info(\$outtext,"**Error reading  $p file: $err\n");
+		show_info($outtext,"**Error reading  $p file: $err\n");
 	       next; 
 	} 
 	return $soc;	
@@ -2193,16 +2193,16 @@ sub verilator_testbench{
 		my $bin="$verilator/processed_rtl/obj_dir/testbench";
 		if (-f $bin){
 			my $cmd= "cd \"$verilator/processed_rtl/obj_dir/\" \n xterm -e bash -c $bin";
-			add_info(\$tview,"$cmd\n");	
+			add_info($tview,"$cmd\n");	
 			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
 			if(length $stderr>1){			
-				add_colored_info(\$tview,"$stderr\n",'red');
+				add_colored_info($tview,"$stderr\n",'red');
 			}else {
-				add_info(\$tview,"$stdout\n");
+				add_info($tview,"$stdout\n");
 			}			
 
 		}else{
-			add_colored_info(\$tview,"Cannot find $bin executable binary file! make sure you have compiled the testbench successfully\n", 'red')
+			add_colored_info($tview,"Cannot find $bin executable binary file! make sure you have compiled the testbench successfully\n", 'red')
 		}	
 	
 		});
