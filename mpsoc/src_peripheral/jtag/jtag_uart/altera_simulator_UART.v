@@ -177,7 +177,7 @@ module  altera_simulator_UART #(
         if(reset) begin 
             counter<=0;
             ptr<=0;
-            for(i=0;i<BUFFER_SIZE;i=i+1) buffer[i]<=0; 
+            buffer[0]<=0; 
         end else begin
             counter<=counter_next;
             ptr <= ptr_next;

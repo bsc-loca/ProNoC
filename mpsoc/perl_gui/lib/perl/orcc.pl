@@ -302,6 +302,7 @@ sub update_merge_actor_list{
 				my $dst_actor=$dst;
 				if (check_scolar_exist_in_array($dst,\@grouped)){
 					print "$src $src_port is locally connected to $dst $dst_port\n";
+					 $self->object_add_attribute("locally_connected","${dst}_${dst_port}","${src}_${src_port}");
 				}
 				else
 				{
@@ -315,7 +316,7 @@ sub update_merge_actor_list{
 				#	($dnet,$dnum,$dname)=split(':',$tdst);
 					if($tdst ne $dst){
 							#my ($dnet,$dnum,$dname)=split(':',$dst);
-							$dst_port="${tdst}_$dst_port";
+							$dst_port="${dst}_$dst_port";
 					}					
 						
 					add_trace($self, "$file_id",'merge',$t_id, $merge_src,$tdst, 1,$file, $src_port,$dst_port,$buff_size,$channel);
@@ -343,6 +344,57 @@ sub get_port_num{
 		return $hash{$merge_actor}{$merge_port};		
 	}	  
 	return $port_num;  
+}
+
+
+
+
+
+
+
+sub get_fifo_list{
+	my ($self,$ref)=@_;
+	my %fifos;
+	my $fifo_num=0;
+	my @merge_actors=@{$ref};
+	
+	foreach my $actor (@merge_actors){
+		my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
+		foreach my $inject (@injectors) {
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
+			)=get_trace($self,'raw',$inject);				
+				
+			$fifos{"${actor}_${src_port}"}{'size'}=$buff_size;	
+			$fifos{"$actor"}{'file'}="$file_name";
+			$fifos{"${actor}_${src_port}"}{'fifo_num'}=$fifo_num;
+	   	 	$fifo_num++;
+		}
+	}
+	foreach my $actor (@merge_actors){		
+		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor,'raw');
+			foreach my $sink (@sinkers){
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
+				)=get_trace($self,'raw',$sink);
+			
+			
+				$fifos{"${actor}_${dst_port}"}{'size'}=$buff_size;	
+				$fifos{"$actor"}{'file'}="$file_name";
+			
+				my $src_fifo_name= $self->object_get_attribute("locally_connected","${actor}_${dst_port}");
+	    		if (defined $src_fifo_name){
+	    		#its localy connected.  src fifo num and dst fifo num are identical 
+	    			$fifos{"${actor}_${dst_port}"}{'fifo_num'}=$fifos{"$src_fifo_name"}{'fifo_num'};
+	    			print "\$fifos{\"${actor}_${dst_port}\"}{'fifo_num'}=\$fifos{\"$src_fifo_name\"}{'fifo_num'}=$fifos{$src_fifo_name}{'fifo_num'};\n";
+	    		}else{
+	    			$fifos{"${actor}_${dst_port}"}{'fifo_num'}=$fifo_num;
+	    	 		$fifo_num++;
+	    		}			
+			
+			}
+		}	
+		
+			print Dumper (\%fifos);
+	return %fifos;
 }
 
 
@@ -427,6 +479,9 @@ sub genereate_output_orcc{
 		
 		
 		my $main_def=""; 
+		my $main_fifo_def="";
+		my $main_fifo_assign="";
+		
 		my $all_got_packet_funtion="";	
 		my $all_sent_packet_done_funtion="";	
 		my $all_check_packet_funtion="";
@@ -435,7 +490,14 @@ sub genereate_output_orcc{
 		my $all_run_actor="";
 		my $actors_str='';
 	
-		my $fifo_num=0;
+	
+		my %fifos=get_fifo_list($self,\@merge_actors);
+	
+		
+		
+		#start generation
+		
+		
 		foreach my $actor (@merge_actors){
 			my $actor_file= get_actr_file_name($self,$actor,'raw');
 			my ($fname,$fpath,$fsuffix) = fileparse("$actor_file",qr"\..[^.]*$");
@@ -454,7 +516,7 @@ sub genereate_output_orcc{
 			my $transfer_str='';
 			my $sink_str='';
 			my $crdit_update='';
-			my %fifos;
+			
 		
 		
 	
@@ -478,8 +540,6 @@ char ${actor}_sent_packet_done_funtion (unsigned char oport){
 void ${actor}_init_actor (void) { 
 ";
 	
-		
-
 
 			
 			#schedular function 
@@ -497,13 +557,12 @@ void ${actor}_init_actor (void) {
 			#3- How many traces it transfers?
 		
 			my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
-				
 		
 			#4- Where does it transffer?
 			foreach my $inject (@injectors) {
 				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
 				)=get_trace($self,'raw',$inject);				
-				
+						
 				
 				#my $dst_tile = $self->object_get_attribute("MAP_TILE",$dst_actor);
 				my $dst_actor=$self->get_item_group_name('grouping',$dst);
@@ -511,10 +570,11 @@ void ${actor}_init_actor (void) {
 				my $dst_tile_id=get_tile_id($self,$dst_actor);				
 				
 				my $hw_connection=1;
+				
 				if($dst_tile eq $actor_tile){
 					$hw_connection=0; # this trace is connected locally in one tile
 					print "***********************not supported loal yet\n";
-					exit();					
+					next;					
 				}
 				
 				#5-Now generate all transfer functions (add inject ports) 	
@@ -522,11 +582,22 @@ void ${actor}_init_actor (void) {
 				
 				#print "dstp_number{$dst}{$dst_port}= $dstp_number{$dst}{$dst_port};\n";
 				
-				$fifos{"${actor}_${src_port}"}{'size'}=$buff_size;	
-				$fifos{"$actor"}{'file'}="$file_name";
+				
 		
 				my $srcportnum =  get_port_num($self,\%srcp_number,$src,$src_port,$channel);
 				my $dstportnum =  get_port_num($self,\%dstp_number,$dst,$dst_port); 
+		
+		if(!defined $dstportnum){
+				   
+				    
+				    print Dumper (\$self);
+					print Dumper (\%dstp_number);
+					print "my $dstportnum = get_port_num($self,\%dstp_number,$dst,$dst_port);\n"; 
+					print "***********************fix me**********\n";
+					exit();					
+			}
+		
+		
 	
 				if($channel==0){			
 					$Hw_fifo_define=$Hw_fifo_define."	
@@ -597,9 +668,22 @@ static unsigned int send_data_${src_port};
 		foreach my $sink (@sinkers){
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel
 				)=get_trace($self,'raw',$sink);
+			
+			
+			
 				
 			my $src_tile_id=get_tile_id($self,$src);			
 			my $srcportnum =  get_port_num($self,\%srcp_number,$src,$src_port,$channel); 
+			my $src_actor=$self->get_item_group_name('grouping',$src);
+			my $src_tile = get_task_give_tile($self,$src_actor);
+			my $hw_connection=1;
+				
+				if($src_tile eq $actor_tile){
+					$hw_connection=0; # this trace is connected locally in one tile
+					print "***********************not supported loal yet\n";
+					next;					
+				}
+			
 			
 									
 			if(!defined $srcportnum){
@@ -676,8 +760,7 @@ static unsigned int index_${dst_port}_sender;
 	
 	
 	
-	$fifos{"${actor}_${dst_port}"}{'size'}=$buff_size;	
-	$fifos{"$actor"}{'file'}="$file_name";		
+	
 	#print  "\$fifos{\"$name\"}{'file'}=$file_name\n";
 	#print "\$fifos ${name}_${dst_port}'size'=$buff_size;\n";	
 	
@@ -824,8 +907,15 @@ extern unsigned char oport_array [${ni_name}_NUM_VCs];
 	    	 			$size = "SIZE_$size";
 	    	 		}
 	    	 		
-	    	 		$main_def=$main_def . " DECLARE_FIFO(${type}, $size, $fifo_num, 1);\n";
-	    	 		$main_def=$main_def . " fifo_${type}_t *$fifo_name = &fifo_$fifo_num;\n"; 
+	    	 		my $fnum= $fifos{"$fifo_name"}{'fifo_num'};
+	    	 		
+	    	 		
+	    	 		
+	    	 		my $src_fifo_name= $self->object_get_attribute("locally_connected","$fifo_name");
+	    	 		unless (defined $src_fifo_name){#check if destintion port is not localy connected 
+	    	 			$main_fifo_def=$main_fifo_def . "DECLARE_FIFO(${type}, $size, $fnum, 1);\n";	    	 			
+	    	 		}
+	    	 		$main_fifo_assign=$main_fifo_assign . "fifo_${type}_t *$fifo_name = &fifo_$fnum;\n"; 
 	    	 		$origen_fuctions= $origen_fuctions . "$line \n";
 	    	 		
 	    	 		  	 		
@@ -839,9 +929,9 @@ extern unsigned char oport_array [${ni_name}_NUM_VCs];
 	    	 		$origen_def=$origen_def. "#define ${fifo_name}_size_shift  $shift \n";
 	    	 		
 	    	 		
-	    	 		$fifo_num++;
+	    	 		
 	    	 	}else{
-	    	 		#print Dumper(\%fifos);
+	    	 		print Dumper(\%fifos);
 	    	 		add_colored_info($tview,"Could not find $fifo_name in csv file\n",'red');	 	 		
 	    	 			return;
 	    	 	}		    	 	
@@ -875,7 +965,7 @@ extern unsigned char oport_array [${ni_name}_NUM_VCs];
 						#print $fd "void ${actor_name}_scheduler (schedinfo_t *);\n";	    	 	    	
 	    	 	    	#print $fd "$lines[0]\n";
 	    	 	    	$origen_fuctions= $origen_fuctions . "$line \n";	
-	    	 	    	$actors_str=$actors_str."$lines[0]\n";
+	    	 	    	$actors_str=$actors_str."$lines[0]\n"  if($actor_name eq $actor);
 	    	 	    }
 	    	 	     	
 	    	 	}
@@ -943,18 +1033,6 @@ $actor_init
 	
 	
 	my $got_pck_func= "
-/*	
-unsigned char ni_send_is_busy_func (unsigned char v){
-	unsigned char r = ni_send_is_busy(v);
-	return  r;
- }
- 
- unsigned char ni_packet_is_sent_func (unsigned char v){
-	unsigned char r =  ni_packet_is_sent(v);
-	return  r;
- }	
-*/
-	
 unsigned char iport_array[${ni_name}_NUM_VCs];
 unsigned char oport_array[${ni_name}_NUM_VCs];
 unsigned int credit_buff[${ni_name}_NUM_VCs];
@@ -1196,7 +1274,14 @@ void delay ( unsigned int num ){
 
 $actors_str
 
+$main_fifo_def
+
+$main_fifo_assign
+
 $main_def
+
+
+
 
 $got_pck_func 
 

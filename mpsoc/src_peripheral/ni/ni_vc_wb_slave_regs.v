@@ -123,7 +123,7 @@ module ni_vc_wb_slave_regs #(
    begin
 //synthesis translate_off
 //synopsys  translate_off    
-         $display("%t: warning: write on %u is not accepted as fsm was not free!",$time,addr);
+         $display("%t: warning: write on %d is not accepted as fsm was not free!",$time,addr);
 //synopsys  translate_on     
 //synthesis translate_on
     

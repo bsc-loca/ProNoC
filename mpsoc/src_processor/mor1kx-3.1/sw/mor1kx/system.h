@@ -84,7 +84,10 @@ void cpu_sleep_10ms(void);
 
 #define  general_int_init int_init
 
-#define  general_int_add   int_add
+//#define  general_int_add   int_add
+inline int general_int_add(unsigned long vect, void (* handler), void *arg){
+	return  int_add(vect,  handler,arg);
+}
 
 #define  general_int_enable int_enable
 
