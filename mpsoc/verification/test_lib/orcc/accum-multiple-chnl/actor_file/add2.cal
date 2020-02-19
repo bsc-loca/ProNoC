@@ -1,0 +1,10 @@
+package accum;
+ 
+actor add2 () int(size=32) Input1, int(size=32) Input2 ==> int(size=32) Output:
+  int (size=32) temp :=0;
+  add: action Input1: [a], Input2: [b] ==>  Output: [temp]
+  do	
+  // println( a + "+" + b );
+   temp := temp + a + b ;
+  end
+end

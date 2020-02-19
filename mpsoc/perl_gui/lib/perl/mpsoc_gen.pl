@@ -1670,16 +1670,34 @@ sub software_edit_mpsoc {
 		#select_orcc_generated_srcs($self);
 #	});
 	 
+	  my $load;
 	 
     $make -> signal_connect("clicked" => sub{
-        my $load= show_gif("icons/load.gif");
+        $load->destroy   if(defined $load);
+        $load= show_gif("icons/load.gif");
         $table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 
         $load->show_all; 
         $app->do_save();
         append_to_textview($tview,' ');
-        run_make_file($sw,$tview,'clean');
-        run_make_file($sw,$tview);
-        $load->destroy;    
+        unless (run_make_file($sw,$tview,'clean')){
+        	$load->destroy;    
+        	$load=def_icon("icons/cancel.png");
+        	$table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 
+        	$load->show_all; 
+        	return;
+        };
+         unless (run_make_file($sw,$tview)){
+         	$load->destroy;    
+         	$load=def_icon("icons/cancel.png");
+         	$table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 
+         	$load->show_all; 
+         	return;
+         }
+        $load->destroy; 
+        $load=def_icon("icons/button_ok.png");
+        $table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 
+        $load->show_all; 
+        
 
     });
     

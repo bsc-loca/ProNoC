@@ -1,0 +1,16 @@
+package accum;
+ 
+ actor print1 () int(size=32) result ==> :
+ 
+  int (size=32) temp :=0;
+  action result:[a] ==>
+  do
+     temp := temp + 1 ;
+     if temp  = 60
+		 then
+		   println("The result printer1 is " + a);
+	     else
+		//    println("P1: " + temp );
+	     end         
+     end
+ end

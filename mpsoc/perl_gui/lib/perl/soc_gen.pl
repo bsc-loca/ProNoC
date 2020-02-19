@@ -1715,14 +1715,25 @@ sub software_edit_soc {
 		$dialog->destroy;
 
 	});
-
+    
+    my $load;
 	$make -> signal_connect("clicked" => sub{
+		$load->destroy   if(defined $load);
 		$app->do_save();
-		my $load= show_gif("icons/load.gif");
+		$load= show_gif("icons/load.gif");
         $table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0);
         $load->show_all; 
-		run_make_file($sw,$tview);	
+		unless (run_make_file($sw,$tview)){
+			$load->destroy;    
+        	$load=def_icon("icons/cancel.png");
+        	$table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 
+        	$load->show_all; 
+        	return;			
+		}
 		$load->destroy;
+		$load=def_icon("icons/button_ok.png");
+        $table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 
+        $load->show_all; 
 	});
 
 	#Programe the board 

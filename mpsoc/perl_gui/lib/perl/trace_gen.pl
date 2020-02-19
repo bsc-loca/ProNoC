@@ -122,7 +122,16 @@ sub trace_pad_ctrl{
 	);
 	}
 	if($mode eq "orcc"){
-	 @selectedinfo = ({ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef});
+		my $v_val= $self->object_get_attribute('noc_param','V');
+		my $v_max=$v_val-1;	
+		my $c_val= $self->object_get_attribute('noc_param','C');
+		my $c_max=$c_val-1;	
+	
+	 	@selectedinfo = (
+	 	{ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
+	 	{ label=>" Virtual channel#", param_name=>'vc', type=>'Spin-button', default_val=>0, content=>"0,$v_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
+	 	{ label=>" Message class# ", param_name=>'class', type=>'Spin-button', default_val=>0, content=>"0,$c_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef}
+	 	);
 		
 	}
 	
@@ -131,7 +140,7 @@ sub trace_pad_ctrl{
 	my $any_selected=0;
 	foreach my $p (@traces) {	
 		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'raw',$p);
-		$any_selected=1 if($self->object_get_attribute("trace_$p",'selected')==1); 
+		$any_selected=1 if($self->object_get_attribute("raw_$p",'selected')==1); 
 	
 	}	
 	
@@ -227,40 +236,31 @@ sub trace_map_ctrl{
 	my $auto = def_image_button('icons/refresh.png');
 	set_tip($auto,'Automatically set the network dimentions according to the task number');	
 	my $clean = def_image_button('icons/clear.png');
-	set_tip($clean,'Remove mapping');
-	
-	
+	set_tip($clean,'Remove mapping');	
 	
 	my $box;
 	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$clean,$auto) if($mode eq 'task');
-	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$clean,$auto) if($mode eq 'orcc');
-	
-	
+	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$clean) if($mode eq 'orcc');	
 	
 	my $col=0;
 	my $row=0;
-	$table->attach ($box,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);$row++;
-	
-	
+	$table->attach ($box,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);$row++;	
 	
 	my @info = ($mode eq 'task')? (
   	{ label=>'Routers per Row', param_name=>'T1', type=>"Spin-button", default_val=>2, content=>"2,64,1", info=>undef, param_parent=>'noc_param', ref_delay=>1,placement=>'vertical'},
 	{ label=>"Routers per Column", param_name=>"T2", type=>"Spin-button", default_val=>2, content=>"1,64,1", info=>undef, param_parent=>'noc_param',ref_delay=>1, placement=>'vertical'},
 	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizental'},
-	
 	) :
 	
 	(	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizental'},
 	);
-	
 	
 	foreach my $d (@info) {
 		($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},'ref',$d->{placement});
 		if($d->{param_name} eq "Map_Algrm"){$table->attach  ($run_map , $col, $col+1,  $row,$row+1,'shrink','shrink',2,2);$row++;$col=0;}
 		
 	}
-	
-		
+
 	
 	
 	$run_map->signal_connect( 'clicked'=> sub{
@@ -293,6 +293,46 @@ sub trace_map_ctrl{
 		set_gui_status($self,"ref",1);	
 	});
 	
+	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
+	$sc_win->set_policy( "automatic", "automatic" );
+	$sc_win->add_with_viewport($table);
+	
+	return $sc_win;
+}
+
+
+######
+# map_ctr
+######		
+sub trace_group_ctrl{
+	
+	my ($self,$tview,$mode,$NE)=@_;
+	my $table= def_table(2,10,FALSE);
+	
+	
+	
+		
+	my $clean = def_image_button('icons/clear.png');
+	set_tip($clean,'Ungroup all actors');	
+	
+	my $box;
+	$box=def_pack_hbox(FALSE,FALSE,$clean);	
+	
+	my $col=0;
+	my $row=0;
+	$table->attach ($box,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);$row++;	
+		
+	
+	
+	$clean->signal_connect ( 'clicked'=> sub{
+		my $group_num=$self->object_get_attribute('grouping','group_num');
+		my $gname=$self->object_get_attribute('grouping','group_name_root');
+		for(my $i=0;$i<$group_num;$i=$i+1){
+			$self->object_add_attribute('grouping',"$gname($i)",\());		
+		}			
+		set_gui_status($self,"ref",1);	
+	});
+	
 	
 	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
 	$sc_win->set_policy( "automatic", "automatic" );
@@ -301,6 +341,14 @@ sub trace_map_ctrl{
 	
 	return $sc_win;
 }
+
+
+
+
+
+
+
+
 	
 #########
 # trace
@@ -323,12 +371,20 @@ sub trace_pad{
 	    { label=>" Inject rate variation (%) ", param_name=>'injct_rate_var', type=>'Spin-button', default_val=>20, content=>"0,100,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
 	);
 	
+	my $v_val= $self->object_get_attribute('noc_param','V');
+	my $v_max=$v_val-1;	
+	
+	my $c_val= $self->object_get_attribute('noc_param','C');
+	my $c_max=$c_val-1;	
 	
 	
 	if($mode eq "orcc"){
 		
-	@selectedinfo = (
-		{ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef});
+		@selectedinfo = (
+			{ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
+			{ label=>" Virtual channel# ", param_name=>'vc', type=>'Spin-button', default_val=>0, content=>"0,$v_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
+			{ label=>" Message class# ", param_name=>'class', type=>'Spin-button', default_val=>0, content=>"0,$c_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef}
+		);
 	}
 	
 	
@@ -341,15 +397,15 @@ sub trace_pad{
 	foreach my $p (@traces) {	
 		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'raw',$p);
 		$f{$file_id}=$file_id.'*';
-		$self->object_add_attribute("trace_$p",'selected', 1 ) if ($sel eq  'All');
-		$self->object_add_attribute("trace_$p",'selected', 0 ) if ($sel eq  'None');
-		$self->object_add_attribute("trace_$p",'selected', 1 ) if ($sel eq  "All-$file_id*");
-		$self->object_add_attribute("trace_$p",'selected', 0 ) if ($sel eq  "None-$file_id*");
+		$self->object_add_attribute("raw_$p",'selected', 1 ) if ($sel eq  'All');
+		$self->object_add_attribute("raw_$p",'selected', 0 ) if ($sel eq  'None');
+		$self->object_add_attribute("raw_$p",'selected', 1 ) if ($sel eq  "All-$file_id*");
+		$self->object_add_attribute("raw_$p",'selected', 0 ) if ($sel eq  "None-$file_id*");
 		
-		my $seleceted =$self->object_get_attribute("trace_$p",'selected');
+		my $seleceted =$self->object_get_attribute("raw_$p",'selected');
 		foreach my $d (@selectedinfo) {
 			my $val=$self->object_get_attribute($d->{param_parent},$d->{param_name}) if ($sel eq  $d->{param_name} && $seleceted);	
-			$self->object_add_attribute("trace_$p",$d->{param_name}, $val ) if ($sel eq  $d->{param_name}&& $seleceted);	
+			$self->object_add_attribute("raw_$p",$d->{param_name}, $val ) if ($sel eq  $d->{param_name}&& $seleceted);	
 			
 		}
 	}	
@@ -374,7 +430,7 @@ sub trace_pad{
 	("Load a task graph");
 	}
 	else{
-		@titles = (scalar @traces ) ? (" # "," Source "," Destination "," Bandwidth(MB) ", " Initial weight "):
+		@titles = (scalar @traces ) ? (" # "," Source "," Destination "," Bandwidth(MB) ", " Initial weight#", "Virtul channel#", "Message class#"):
 	("Load an ORCC file");
 	}
 	
@@ -395,18 +451,20 @@ sub trace_pad{
 		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'raw',$p);
 		
 				
-		my $check = gen_check_box_object ($self,"trace_$p",'selected',0,'ref',0);
-		my $weight= gen_spin_object ($self,"trace_$p",'init_weight',"1,16,1", 1,undef,undef);
+		my $check = gen_check_box_object ($self,"raw_$p",'selected',0,'ref',0);
+		my $weight= gen_spin_object ($self,"raw_$p",'init_weight',"1,16,1", 1,undef,undef);
+		my $vc= gen_spin_object ($self,"raw_$p",'vc',"0,$v_max,1", 0,undef,undef);
+		my $class= gen_spin_object ($self,"raw_$p",'class',"0,$c_max,1", 0,undef,undef);
 		
-		my $min=$self->object_get_attribute("trace_$p",'min_pck_size');
-		my $max=$self->object_get_attribute("trace_$p",'max_pck_size');
+		my $min=$self->object_get_attribute("raw_$p",'min_pck_size');
+		my $max=$self->object_get_attribute("raw_$p",'max_pck_size');
 		$min=$max=5 if(!defined $min);
-		my $min_pck_size= gen_spin_object ($self,"trace_$p",'min_pck_size',"2,$max,1", 5,'ref',10);
-		my $max_pck_size= gen_spin_object ($self,"trace_$p",'max_pck_size',"$min,1024,1", 5,'ref',10);
+		my $min_pck_size= gen_spin_object ($self,"raw_$p",'min_pck_size',"2,$max,1", 5,'ref',10);
+		my $max_pck_size= gen_spin_object ($self,"raw_$p",'max_pck_size',"$min,1024,1", 5,'ref',10);
 		
-		my $burst_size	= gen_spin_object ($self,"trace_$p",'burst_size',"1,1024,1", 1,undef,undef);
-		my $injct_rate  = gen_spin_object ($self,"trace_$p",'injct_rate',"1,100,1", 10,undef,undef);
-		my $injct_rate_var  = gen_spin_object ($self,"trace_$p",'injct_rate_var',"0,100,1", 20,undef,undef);
+		my $burst_size	= gen_spin_object ($self,"raw_$p",'burst_size',"1,1024,1", 1,undef,undef);
+		my $injct_rate  = gen_spin_object ($self,"raw_$p",'injct_rate',"1,100,1", 10,undef,undef);
+		my $injct_rate_var  = gen_spin_object ($self,"raw_$p",'injct_rate_var',"0,100,1", 20,undef,undef);
 		
 		#my $weight=  trace_$trace_id",'init_weight'
 		
@@ -425,6 +483,9 @@ sub trace_pad{
 				$table-> attach ($injct_rate ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
 				$table-> attach ($injct_rate_var ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;		
 		    }
+		}else{
+			$table-> attach ($vc ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
+			$table-> attach ($class ,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);  $col++;
 		}
 		
 		$row++;	
@@ -939,7 +1000,7 @@ sub object_remove_attribute{
 }
 
 sub add_trace{
-	my ($self, $file_id,$category,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size,$channel)=@_;	
+	my ($self, $file_id,$category,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size,$channel,$vc,$class)=@_;	
 	$self->object_add_attribute("${category}_$trace_id",'file',$file_id);
 	$self->object_add_attribute("${category}_$trace_id",'source',"${source}");
 	$self->object_add_attribute("${category}_$trace_id",'destination',"${dest}");
@@ -950,7 +1011,9 @@ sub add_trace{
 	$self->object_add_attribute("${category}_$trace_id",'scr_port',$src_port);
 	$self->object_add_attribute("${category}_$trace_id",'dst_port',$dst_port);	
 	$self->object_add_attribute("${category}_$trace_id",'buff_size',$buff_size);	
-	$self->object_add_attribute("${category}_$trace_id",'channel',$channel);		
+	$self->object_add_attribute("${category}_$trace_id",'channel',$channel);
+	$self->object_add_attribute("${category}_$trace_id",'vc',$vc);
+	$self->object_add_attribute("${category}_$trace_id",'class',$class);					
 	$self->{"${category}_traces"}{$trace_id}=1;
 	
 }
@@ -993,8 +1056,9 @@ sub get_trace{
 	my $dst_port = $self->object_get_attribute("${category}_$trace_id",'dst_port');
 	my $buff_size= $self->object_get_attribute("${category}_$trace_id",'buff_size');
 	my $channel = $self->object_get_attribute("${category}_$trace_id",'channel');
-	  
-	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port,$buff_size,$channel);	
+	my $vc= $self->object_get_attribute("${category}_$trace_id",'vc');	
+	my $class= $self->object_get_attribute("${category}_$trace_id",'class');	  
+	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port,$buff_size,$channel,$vc,$class);	
 }
 
 sub get_all_tasks{
@@ -1280,8 +1344,8 @@ sub get_communication_task{
 		
 		
 		
-		my $minpck = $self->object_get_attribute("trace_$p",'min_pck_size');
-		my $maxpck = $self->object_get_attribute("trace_$p",'max_pck_size');
+		my $minpck = $self->object_get_attribute("raw_$p",'min_pck_size');
+		my $maxpck = $self->object_get_attribute("raw_$p",'max_pck_size');
 		my $avg_pck_size =($minpck+ $maxpck)/2;
 		my $pck_num = ($Mbytes*8) /($avg_pck_size*64);
 		$pck_num= 1 if($pck_num==0); 		
@@ -1347,20 +1411,14 @@ sub find_min_neighbor_tile	{
 
 
 sub nmap_algorithm{
-
-	my $self=shift;
-	
-	
+	my $self=shift;	
 	my $nx=$self->object_get_attribute('noc_param','T1');
 	my $ny=$self->object_get_attribute('noc_param','T2');
 	my $nc= $nx * $ny;
 	
 	my @tasks=get_all_merged_tasks($self);
-	my @tiles= get_tiles_name($self);
-	
+	my @tiles= get_tiles_name($self);	
 	my $n_tasks = scalar  @tasks;
-	
-	
 	
 	
 	my @unmapped_tasks_set=@tasks; # unmapped set of tasks
@@ -1417,10 +1475,6 @@ sub nmap_algorithm{
 		@unmapped_tasks_set=remove_scolar_from_array(\@unmapped_tasks_set,$max_com_task);
 		@unallocated_tiles_set=remove_scolar_from_array(\@unallocated_tiles_set,$max_neighbors_tile_id);
 	}
-
-
-
-
 
 
 
@@ -1504,8 +1558,9 @@ sub nmap_algorithm{
 			#print "$mapped_tile=\$map{$mapped_task};\n";
 			#$self->object_add_attribute('MAP_TILE',"$mapped_task", $mapped_tile) if(defined $mapped_tile);
 			$self->object_add_attribute('MAP_TASK',"$mapped_tile",$mapped_task) if(defined $mapped_tile);
-			my @l = ($mapped_tile);
+			my @l = ($mapped_task);
 			$self->object_add_attribute('mapping',"$mapped_tile",\@l) if(defined $mapped_tile);		
+			#print "\$self->object_add_attribute('mapping',$mapped_tile,@l) if(defined $mapped_tile);\n";
 	}
 	set_gui_status($self,"ref",1);
 		
@@ -1753,18 +1808,18 @@ sub auto_generate_injtratio{
 		my $max= $com_tasks{$file_id}{'maxsent'};
 		my $sent= $com_tasks{$src}{'sent'};
 		my $ratio = ($sent*100)/$max;
-		$self->object_add_attribute("trace_$p",'injct_rate',$ratio);
+		$self->object_add_attribute("raw_$p",'injct_rate',$ratio);
 		
-		my $minpck = $self->object_get_attribute("trace_$p",'min_pck_size');
-		my $maxpck = $self->object_get_attribute("trace_$p",'max_pck_size' );
+		my $minpck = $self->object_get_attribute("raw_$p",'min_pck_size');
+		my $maxpck = $self->object_get_attribute("raw_$p",'max_pck_size' );
 		my $avg_pck_size =($minpck+ $maxpck)/2;
 		my $pck_num = ($Mbytes*8) /($avg_pck_size*64);
 		
 				
 		my $burst =$pck_num/ $com_tasks{$src}{'min_pck_num'} ;
-		$self->object_add_attribute("trace_$p",'burst_size',ceil($burst));
+		$self->object_add_attribute("raw_$p",'burst_size',ceil($burst));
 		
-		#my $burst_size	= gen_spin_object ($self,"trace_$p",'burst_size',"1,1024,1", 1,undef,undef);
+		#my $burst_size	= gen_spin_object ($self,"raw_$p",'burst_size',"1,1024,1", 1,undef,undef);
 		
 		
 		
@@ -1843,11 +1898,11 @@ sub trace_maker_notebook{
 	$self->object_add_attribute('grouping','trace_icon','icons/cd.png');
 	$self->object_add_attribute('grouping','group_num',$NE);
 	$self->object_add_attribute('grouping','map_limit',$NE);
-	$self->object_add_attribute('grouping','lable',"${lb}s: Drag and drop ${lb}s to bottom group list");
-	
+	$self->object_add_attribute('grouping','lable',"${lb}s: Drag and drop ${lb}s to bottom group list");	
+	my $group_ctrl =gen_group_ctrl_box($self,$tview,$mode);
 		
 	my @tasks=get_all_tasks($self,'raw');
-	my $page2=drag_and_drop_page($self,$tview,'grouping',\@tasks);
+	my $page2=drag_and_drop_page($self,$tview,'grouping',\@tasks,$group_ctrl);
 	$notebook->append_page ($page2,Gtk2::Label->new  ("2-Groap ${lb}s   "));
 	
 	#map tasks	
@@ -1929,6 +1984,17 @@ sub gen_mapping_ctrl_box{
 	my $v_paned=gen_vpaned($map_ctrl,.5,$map_info);
 	return $v_paned; 
 }
+
+sub gen_group_ctrl_box{
+	my ($self,$tview,$mode)=@_;
+	my $group_ctrl= trace_group_ctrl($self,$tview,$mode);
+	#my $map_info=map_info($self);
+	#my $v_paned=gen_vpaned($map_ctrl,.5,$map_info);
+	#return $v_paned; 
+	return $group_ctrl;
+}
+
+
 
 
 

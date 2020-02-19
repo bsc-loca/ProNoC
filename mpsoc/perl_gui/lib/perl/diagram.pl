@@ -268,7 +268,16 @@ sub show_topology_diagram {
 }
 
 
-
+sub get_dot_file_text {
+	my ($self,$type)=@_;
+	my $dotfile;
+	$dotfile=   get_dot_file($self) if ($type eq 'tile');
+	$dotfile=   get_topology_dot_file($self) if ($type eq 'topology');
+	$dotfile=   generate_custom_topology_dot_file($self) if ($type eq 'custom_topology');	
+	$dotfile=   generate_trace_dot_file($self) if ($type eq 'trace');	
+	$dotfile=   generate_map_dot_file($self) if ($type eq 'map');
+	return $dotfile;	
+}
 
 
 sub gen_diagram {
@@ -290,12 +299,7 @@ sub gen_diagram {
 	
 	
 	
-	my $dotfile;
-	$dotfile=   get_dot_file($self) if ($type eq 'tile');
-	$dotfile=   get_topology_dot_file($self) if ($type eq 'topology');
-	$dotfile=   generate_custom_topology_dot_file($self) if ($type eq 'custom_topology');	
-	$dotfile=   generate_trace_dot_file($self) if ($type eq 'trace');	
-	$dotfile=   generate_map_dot_file($self) if ($type eq 'map');										
+	my $dotfile = get_dot_file_text(@_);									
 	
 	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
 	#mkpath("$tmp_dir/",1,01777);
@@ -339,6 +343,17 @@ sub show_diagram {
 	$scrolled_win->show_all();	
 		
 }
+
+sub show_text_in_scrolled_win {
+	my ($self,$scrolled_win,$table, $text)=@_;
+	$scrolled_win->destroy;			
+ 	my $tview;
+	($scrolled_win,$tview)=create_text();
+	$table->attach_defaults ($scrolled_win, 0, 20, 1, 20); 
+	show_info($tview, $text);
+	$scrolled_win->show_all();		
+}
+
 
 
 
@@ -478,18 +493,11 @@ sub generate_map_dot_file{
 	
 	";
 	
-
-	
-#add nodes
-	
+#add nodes	
 	my @tasks=get_all_tasks($self,"merge");
-	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($self);
-	
-	my %pos=get_endp_pos($self);
-	
-	my @mappedtasks;
-
-	
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($self);	
+	my %pos=get_endp_pos($self);	
+	my @mappedtasks;	
 	for(my $i=0; $i<$NE; $i++){ 
 					my $task=get_task_assigned_to_tile($self,$i);
 					push(@mappedtasks,$task) if (defined $task); 
@@ -505,46 +513,24 @@ $node\[
 	label = $label
     pos = $pos{$i}
 ];";					
-					
-					
-									
-				
-				
+		
 	}					
-	
-
 	$dotfile=$dotfile."\n\n";
-	
 	#add connections
 	my @traces= get_trace_list($self,'merge');
+	my %src_dst;
+	
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'merge',$p);
-				
-	#	my $src_tile= $self->object_get_attribute("MAP_TILE","$src");
-	#	my $dst_tile= $self->object_get_attribute("MAP_TILE","$dst");
-		
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'merge',$p);		
 		my $src_tile=get_task_give_tile($self,"$src");
-		my $dst_tile=get_task_give_tile($self,"$dst");
-		
-		next if ( $src_tile eq "-" ||  $dst_tile eq "-" ) ;
-		
-		
-		
-		$dotfile=$dotfile." \"$src_tile\" :  \"S$src\" ->  \"$dst_tile\" : \"R$dst\"  ;\n";
-	
-	  
-	
+		my $dst_tile=get_task_give_tile($self,"$dst");		
+		next if ($src_dst{"${src_tile}_$dst_tile"}); #make sure there will be only one arow betwenn each source destination tile
+		next if ( $src_tile eq "-" ||  $dst_tile eq "-" );			
+		$dotfile=$dotfile." \"$src_tile\" :  \"S$src\" ->  \"$dst_tile\" : \"R$dst\"  ;\n" if((defined $src_tile )&& (defined $dst_tile));
+		$src_dst{"${src_tile}_$dst_tile"}=1;
 	}
-
-
-  
-	
 	$dotfile=$dotfile."\n}\n";
-	
-	# print $dotfile;
-	
 	return $dotfile;
-	
 }
 
 
@@ -565,6 +551,10 @@ sub show_trace_diagram {
 	my $plus = def_image_button('icons/plus.png',undef,TRUE);
 	my $minues = def_image_button('icons/minus.png',undef,TRUE);
 	my $save = def_image_button('icons/save.png',undef,TRUE);
+	my $dot_file = def_image_button('icons/add-notes.png',undef,TRUE);
+	
+	set_tip($dot_file, "Show dot file.");
+	
 	
 
 	my $scale=$self->object_get_attribute("${type}_diagram","scale");
@@ -577,11 +567,9 @@ sub show_trace_diagram {
 	$table->attach ($plus ,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach ($minues,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach ($save,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
+	$table->attach ($dot_file,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	
-	while ($col<20){
-		
-
-		
+	while ($col<20){	
 		my $tmp=gen_label_in_left('');
 		$table->attach_defaults ($tmp, $col,  $col+1,0,1);$col++;
 	}
@@ -600,7 +588,10 @@ sub show_trace_diagram {
 			save_diagram_as ($self);
 		});	
 	
-
+	$dot_file-> signal_connect("clicked" => sub{ 
+			my $dot_file=get_dot_file_text($self,$type);
+			show_text_in_scrolled_win($self,$scrolled_win,$table, $dot_file);			
+	});
 
 
 	if(gen_diagram($self,$type)){

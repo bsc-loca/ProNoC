@@ -375,7 +375,7 @@ module  ni_master #(
             
             s_dat_o[EAw-1: 0]   =   src_e_addr[vc_addr];   // first&second bytes
             s_dat_o[Cw+15: 16]  =   class_in[vc_addr];  //third byte  
-            s_dat_o[HDw+23: 24] =   rsv_hdr_dat [vc_addr];   // 4th byte
+            s_dat_o[31: 24] =   rsv_hdr_dat [vc_addr];   // 4th byte
         end 
         
         RECEIVE_DATA_SIZE_WB_ADDR: begin        
@@ -513,7 +513,7 @@ always @(posedge clk) begin
 end
 `endif
 
-`ifdef MONITOR_HDR_FLITS 
+`ifdef MONITOR_DAT_FLITS 
     always @(posedge clk) begin
         if(flit_out_wr & ~send_hdr) begin 
             $display("%t: endp %u V %u sends %h",$time,current_e_addr,  flit_out [Fpay+V-1 : Fpay],  flit_out [Fpay-1 : 0 ]);    
