@@ -1,5 +1,11 @@
 #!/bin/bash
-/home/alireza/intelFPGA_lite/17.1/modelsim_ase/bin/vsim  -do model.tcl
+#/home/alireza/intelFPGA_lite/17.1/modelsim_ase/bin/vsim  -do model.tcl
 #/home/alireza/altera/13.0sp1/modelsim_ase/bin/vsim  -do model.tcl
 #/home/alireza/altera/modeltech/bin/vsim  -do model.tcl
+
+export LM_LICENSE_FILE="1900@bsc-caos-gw.bsc.es"
+
+#questasim
+/home/alireza/intelFPGA_lite/questa/questasim/bin/vsim  -do model.tcl
+
 

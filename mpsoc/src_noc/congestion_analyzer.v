@@ -216,7 +216,7 @@ module  port_presel_based_dst_ports_credit #(
         end//for
       
    
-        for(i=0;   i<P; i=i+1'b1) begin 
+        for(i=0;   i<P; i=i+1'b1) begin :blk1
      always @(*) begin
             credit_per_port_next[i]  =   credit_per_port[i];
             if(credit_increased_per_port[i]  & ~credit_decreased_per_port[i]) begin 
@@ -227,7 +227,7 @@ module  port_presel_based_dst_ports_credit #(
         end//for
     end//always
     
-  for(i=0;    i<P_1; i=i+1'b1) begin 
+  for(i=0;    i<P_1; i=i+1'b1) begin :blk2
     always @(posedge clk or posedge reset) begin
       
             if(reset) begin 

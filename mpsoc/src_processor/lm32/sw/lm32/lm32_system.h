@@ -15,49 +15,16 @@
 
 
 
-
-
-
 typedef void(*isr_ptr_t)(void);
 void     halt();
 void     jump(uint32_t addr);
 
 
-isr_ptr_t isr_table[32];
-
-
-
-void isr_null()
-{
-
-}
-
-void irq_handler(uint32_t pending)
-{
-	int i;
-
-	for(i=0; i<32; i++) {
-		if (pending & 0x01) (*isr_table[i])();
-		pending >>= 1;
-	}
-}
-
-void isr_init()
-{
-	int i;
-	for(i=0; i<32; i++)
-		isr_table[i] = &isr_null;
-}
-
-void isr_register(int irq, isr_ptr_t isr)
-{
-	isr_table[irq] = isr;
-}
-
-void isr_unregister(int irq)
-{
-	isr_table[irq] = &isr_null;
-}
+void isr_null(void);
+void irq_handler(uint32_t pending);
+void isr_init(void);
+void isr_register(int irq, isr_ptr_t isr);
+void isr_unregister(int irq);
 
 
 
@@ -73,20 +40,8 @@ extern void irq_enable (void);
 
 #define general_int_init isr_init
 
-
-int general_int_add(unsigned long irq, isr_ptr_t handler, void *arg)
-{
-	
-	isr_register(irq, handler);
-        return 0;
-}
-
-
-
-void general_int_enable(unsigned long irq){
-	irq_set_mask( (0x00000001L << irq)| irq_get_mask() );
-	
-}
+int general_int_add(unsigned long irq, isr_ptr_t handler, void *arg);
+void general_int_enable(unsigned long irq);
 
 #define  general_cpu_int_en	irq_enable
 

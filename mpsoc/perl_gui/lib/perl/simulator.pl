@@ -9,10 +9,7 @@ use Gtk2;
 use Gtk2::Ex::Graph::GD;
 use GD::Graph::Data;
 use emulator;
-use IO::CaptureOutput qw(capture qxx qxy);
 use GD::Graph::colour qw/:colours/;
-use Proc::Background;
-use Time::HiRes qw( usleep ualarm gettimeofday tv_interval nanosleep  clock_gettime clock_getres clock_nanosleep clock stat );
 
 use File::Basename;
 use File::Path qw/make_path/;

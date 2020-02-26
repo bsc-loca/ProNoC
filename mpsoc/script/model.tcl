@@ -82,7 +82,8 @@ set last_compile_time 0
 foreach f $file_list {
        
 		if { $last_compile_time < [file mtime $f] } {
-			vlog -work  $work_path  +incdir+$src_noc_path  $f
+			vlog -work  $work_path  +acc=rn +incdir+$src_noc_path  $f
+
 			 set last_compile_time 0
         	} else {
 			 puts "$f is uptodate"
@@ -92,7 +93,7 @@ foreach f $file_list {
 foreach f $modelsim_file_list {
        
 		if { $last_compile_time < [file mtime $f] } {
-			vlog -work  $work_path  +incdir+$src_modelsim_path  $f
+			vlog -work  $work_path +acc=rn +incdir+$src_modelsim_path  $f
 			 set last_compile_time 0
         	} else {
 			 puts "$f is uptodate"

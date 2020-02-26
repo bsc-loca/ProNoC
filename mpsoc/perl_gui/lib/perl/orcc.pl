@@ -909,6 +909,18 @@ extern unsigned char oport_array [${ni_name}_NUM_VCs];
     } 
 	while (my $line = <$fh>) {
 	    chomp $line;
+	    #search for fifo size inside the file	    
+	    if( $line =~ /^\s*#define\s+SIZE_\w+/){
+	    	 #example: #define SIZE_operand_1 32
+	    	 my $text = $line;
+	    	 $text =~ s/\s+/ /g; # remove extra spaces
+	    	 $text =~ s/^\s+//; #ltrim
+	    	 my  ($fifo_name,$size) = sscanf("#define SIZE_%s %u",$text);
+	    	 $actor_h = $actor_h."#define SIZE_${actor}_$fifo_name $size\n";
+	    	 $fifos{"${actor}_$fifo_name"}{'size'}=$size;
+	    }	
+	    
+	    
 	    $line = '//'.$line if( $line =~ /^\s*#include/); # comment every line start with #include
 	    if( $line =~ /^\s*extern\s+/){
 	    	 my $extern=0;
@@ -926,7 +938,7 @@ extern unsigned char oport_array [${ni_name}_NUM_VCs];
 	    	 		my $size = $fifos{$fifo_name}{'size'};
 	    	 		if(!defined $size ){
 	    	 			$size = "$fifo_name";
-	    	 			$size=~ s/^\s*${actor}_//g;
+	    	 			#$size=~ s/^\s*${actor}_//g;
 	    	 			$size = "SIZE_$size";
 	    	 		}
 	    	 		

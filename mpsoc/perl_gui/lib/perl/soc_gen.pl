@@ -1692,12 +1692,13 @@ sub software_edit_soc {
 
 	
 
-
+    my $ram = def_image_button('icons/info.png',"Reqired BRAMs\' size",FALSE,1);
 	my $make = def_image_button('icons/gen.png','Compile');
 	my $regen= def_image_button('icons/refresh.png','Regenerate main.c');
 	my $prog= def_image_button('icons/write.png','Program the memory');
 
-	$table->attach ($regen,0, 1, 1,2,'shrink','shrink',0,0);	
+	$table->attach ($ram,0, 1, 1,2,'shrink','shrink',0,0);	
+	$table->attach ($regen,1, 2, 1,2,'shrink','shrink',0,0);	
 	$table->attach ($make,5, 6, 1,2,'shrink','shrink',0,0);
 	$table->attach ($prog,9, 10, 1,2,'shrink','shrink',0,0); 
 	$regen -> signal_connect ("clicked" => sub{
@@ -1774,6 +1775,11 @@ sub software_edit_soc {
 			
 		}		
 	});
+	
+	$ram -> signal_connect("clicked" => sub{
+		show_reqired_brams($soc,$tview);
+	});
+	
 
 }
 

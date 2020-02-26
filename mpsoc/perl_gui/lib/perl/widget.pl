@@ -1495,7 +1495,71 @@ sub about {
 
 
 
+############
+#  list_store
+###########
 
+sub gen_list_store {
+	my ($self,$dref,$clmn_type_ref, $clmn_lables_ref)=@_;
+	
+	
+#		my @data = (
+#  {0 => "Average distance",  1 =>"$avg"}, 
+#  {0 => "Max distance",  1 =>"$max" },  
+#  {0 => "Min distance",1 => "$min"},    
+#  {0 => "Normlized data per hop", 1 =>"$norm" }
+#  );
+
+# my @clmn_type = (#'Glib::Boolean', # => G_TYPE_BOOLEAN
+#                                    #'Glib::Uint',    # => G_TYPE_UINT
+#                                    'Glib::String',  # => G_TYPE_STRING
+#                                  'Glib::String'); # you get the idea
+
+	
+	my @data = @{$dref};	
+	my @clmn_type = @{$clmn_type_ref}; 	
+	my @clmn_lables= @{$clmn_lables_ref};
+	
+   
+    # create list store
+    my $store = Gtk2::ListStore->new ( @clmn_type);
+   
+
+	# add data to the list store
+	foreach my $d (@data) {
+		my $iter = $store->append;
+		my @clmns = sort keys %{$d};
+		my @a=($iter);
+	  	foreach my $c (@clmns){
+	  		push (@a,($c,$d->{$c}));	
+	  	}
+     	$store->set (@a);   
+     	
+ 	}
+  
+
+    my $treeview = Gtk2::TreeView->new ($store);
+    $treeview->set_rules_hint (TRUE);
+	$treeview->set_search_column (1);
+    my $renderer = Gtk2::CellRendererToggle->new;
+    $renderer->signal_connect (toggled => \&fixed_toggled, $store);
+
+
+	# column for severities
+	my $c=0;
+	foreach my $l (@clmn_lables){
+		$renderer = Gtk2::CellRendererText->new;
+		my $column = Gtk2::TreeViewColumn->new_with_attributes ("$l",
+							       $renderer,
+							       text => $c );
+		$column->set_sort_column_id ($c );
+		$treeview->append_column ($column);
+		$c++;
+	}
+ 
+	
+	return $treeview;
+}
 
 
 

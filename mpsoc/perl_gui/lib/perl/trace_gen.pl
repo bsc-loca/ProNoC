@@ -668,7 +668,7 @@ sub map_info {
       );
   }
 
- my $treeview = Gtk2::TreeView->new ($store);
+	my $treeview = Gtk2::TreeView->new ($store);
     $treeview->set_rules_hint (TRUE);
  
 

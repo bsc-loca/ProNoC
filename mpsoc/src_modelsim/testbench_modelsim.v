@@ -78,10 +78,10 @@ endmodule
 
 
 module testbench_sub #(
-    parameter V=1,
+    parameter V=2,
     parameter B=4,
-    parameter T1=2,
-    parameter T2=2,
+    parameter T1=4,
+    parameter T2=4,
     parameter T3=2,
     parameter C=1,
     parameter Fpay=32,
@@ -91,12 +91,12 @@ module testbench_sub #(
     parameter FIRST_ARBITER_EXT_P_EN=1,
    // parameter TOPOLOGY="LINE",
   //  parameter TOPOLOGY="FATTREE",
- parameter TOPOLOGY="TREE",
-    // parameter TOPOLOGY="MESH",
-   //  parameter ROUTE_NAME="XY",
+ //parameter TOPOLOGY="TREE",
+     parameter TOPOLOGY="MESH",
+     parameter ROUTE_NAME="XY",
 // parameter ROUTE_NAME="DUATO",
     // parameter  ROUTE_NAME= "NCA_RND_UP",
-    parameter  ROUTE_NAME= "NCA_STRAIGHT_UP",
+  //  parameter  ROUTE_NAME= "NCA_STRAIGHT_UP",
     parameter CONGESTION_INDEX=7,
     
     parameter AVC_ATOMIC_EN= 0,
@@ -105,7 +105,7 @@ module testbench_sub #(
     parameter [CVw-1:   0] CLASS_SETTING = 4'b1111, // shows how each class can use VCs   
     parameter [V-1  :   0] ESCAP_VC_MASK = 2'b10,  // mask scape vc, valid only for full adaptive 
     parameter SSA_EN=  "NO",//"YES", // "YES" , "NO"    
-    parameter SWA_ARBITER_TYPE = "WRRA",//"RRA","WRRA". SWA: Switch Allocator.  RRA: Round Robin Arbiter. WRRA Weighted Round Robin Arbiter          
+    parameter SWA_ARBITER_TYPE = "RRA",//"RRA","WRRA". SWA: Switch Allocator.  RRA: Round Robin Arbiter. WRRA Weighted Round Robin Arbiter          
     parameter WEIGHTw=7, // WRRA weights' max width
     //hardware minimum packet size support
     parameter MIN_PCK_SIZE=2, 

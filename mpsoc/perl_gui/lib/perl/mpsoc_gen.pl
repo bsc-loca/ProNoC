@@ -19,6 +19,10 @@ use Cwd 'abs_path';
 use Gtk2;
 use Gtk2::Pango;
 
+
+
+
+
 require "widget.pl"; 
 require "mpsoc_verilog_gen.pl";
 require "hdr_file_gen.pl";
@@ -1635,7 +1639,110 @@ sub gen_tiles{
     return $table;
 }
 
+sub get_elf_file_addr_range {
+	my ($file,$tview)=@_;	
+	#my $command=  "size  -A $file";
+	my $command=  "nm  $file";
+	#add_info($tview,"$command\n");
+	my	($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
+	if(length $stderr>1){			
+		add_colored_info($tview,"$stderr\n",'red');
+		add_colored_info($tview,"$command was not run successfully!\n",'red');
+		return ("Err","Err");
+	}	
+	if($exit){
+		add_colored_info($tview,"$stdout\n",'red');
+		add_colored_info($tview,"$command was not run successfully!\n",'red');
+		return ("Err","Err");
+	}
+							
+	my @lines = split ("\n" ,$stdout);
+	my $max_addr=0;
+	my $sec_name;	
 
+	foreach my $p (@lines ){
+		$p =~ s/\s+/ /g; # remove extra spaces
+	    $p =~ s/^\s+//; #ltrim
+		my ($addr,$type,$name)= sscanf("%x %s %s","$p");
+		if(defined $addr && defined $name){
+			if($max_addr < $addr) {
+				$max_addr = $addr;
+				$sec_name = $name;		
+			}
+		} 
+	}
+	return ($max_addr,$sec_name);	
+}
+
+
+sub show_reqired_brams{
+	my ($self,$tview)=@_;
+	my $win=def_popwin_size (50,50,"BRAM info", 'percent');
+	my $sc_win = gen_scr_win_with_adjst($self,'liststore');
+	my $table= def_table(10,10,FALSE);
+	$sc_win->add_with_viewport($table);	
+	my $row=0;
+	my $col=0;		
+	
+	my  @clmns =('Tile#', 'Section located in Upper Bound Address (UBA) ','UBA in Bytes','UBA in Words','Minimum Memory Address Width');	
+	my $target_dir;
+	my @data;
+    
+    my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+	if(defined $mpsoc_name){#it is an soc
+
+		my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);	
+   
+	    $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name"; 	  
+	   
+	    for (my $tile_num=0;$tile_num<$NE;$tile_num++){           
+			my $ram_file     = "$target_dir/sw/tile$tile_num/image";	        
+	        my ($size,$sec) = get_elf_file_addr_range($ram_file,$tview);
+	        my %clmn;
+	        $clmn{0}="tile$tile_num";
+	        $clmn{1}= "$sec";
+	        $clmn{2}="$size";
+	        my $w=$size/4;
+	        $clmn{3}="$w";
+	        $clmn{4}=ceil(log($w)/log(2));
+	        push(@data,\%clmn);
+	        
+	    }#$tile_num	
+	} 
+	else 
+	{
+		my $soc_name=$self->object_get_attribute('soc_name');
+		$target_dir  = "$ENV{'PRONOC_WORK'}/SOC/$soc_name";
+		my $ram_file     = "$target_dir/sw/image";	    	        
+	    my ($size,$sec) = get_elf_file_addr_range($ram_file,$tview);	        
+	    my %clmn;
+	    $clmn{0}="$soc_name";
+	    $clmn{1}= "$sec";
+	    $clmn{2}="$size";
+	    my $w=$size/4;
+	    $clmn{3}="$w";
+	    $clmn{4}=ceil(log($w)/log(2));
+	    push(@data,\%clmn);		
+	}	
+
+	my @clmn_type = (#'Glib::Boolean', # => G_TYPE_BOOLEAN
+                                    #'Glib::Uint',    # => G_TYPE_UINT
+                                    'Glib::String',  # => G_TYPE_STRING
+                                  'Glib::String',
+                                   'Glib::String',
+                                   'Glib::String',
+                                   'Glib::String'); # you get the idea
+
+	
+	
+	my $list=	gen_list_store ($self,\@data,\@clmn_type,\@clmns);
+	$table-> attach  ($list, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
+	
+	$win->add($sc_win);
+	$win->show_all();
+	
+	
+}
 
 
 
@@ -1654,21 +1761,19 @@ sub software_edit_mpsoc {
     my $orcc_lable=def_image_label('icons/orcc.png','Autogenrate Software with ORCC');
     my @pages=($orcc_page);
     my @pages_lables=($orcc_lable);
-    my ($app,$table,$tview) = software_main($sw,undef,\@pages,\@pages_lables);
-
+    my ($app,$table,$tview) = software_main($sw,undef,\@pages,\@pages_lables);    
     
-    
-	my $prog= def_image_button('icons/write.png','Program the memory');
+	my $prog= def_image_button('icons/write.png','Program FPGA\'s BRAMs');
     my $make = def_image_button('icons/gen.png','_Compile',FALSE,1);
-   # my $orcc = def_image_button('icons/orcc.png','Autogenrate Software with ORCC');
+    my $ram = def_image_button('icons/info.png',"Reqired BRAMs\' size",FALSE,1);
             
-  #  $table->attach ($orcc,0, 1, 1,2,'shrink','shrink',0,0);
+    $table->attach ($ram,0, 1, 1,2,'shrink','shrink',0,0);
     $table->attach ($make,5, 6, 1,2,'shrink','shrink',0,0);
     $table->attach ($prog,9, 10, 1,2,'shrink','shrink',0,0); 
     
-#	$orcc -> signal_connect("clicked" => sub{
-		#select_orcc_generated_srcs($self);
-#	});
+	$ram -> signal_connect("clicked" => sub{
+		show_reqired_brams($self,$tview);
+	});
 	 
 	  my $load;
 	 
