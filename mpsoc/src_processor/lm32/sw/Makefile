@@ -27,7 +27,7 @@ LDFLAGS=-nostdlib -nodefaultlibs -Tlinker.ld
 
 
 # Sources to go into the liborpsoc.a support library
-COMPILE_SRCS= $(HDR_SOURCE_DIR)/crt0ram.S  $(SOURCE_LIB)
+COMPILE_SRCS=   $(SOURCE_LIB)
 
 CPU_FLAGS=-mbarrel-shift-enabled -mmultiply-enabled 
 
@@ -39,6 +39,7 @@ all: image.ihex
 
 lib:
 #compile all source code
+	$(LM32_CC) -Wall $(CFLAGS) -c $(HDR_SOURCE_DIR)/crt0ram.S  -o crt0ram.o
 	$(LM32_CC) -Wall $(CFLAGS) -c $(COMPILE_SRCS) 
 #add them to liborlib.a
 	$(LM32_AR) -cvq liborlib.a *.o
@@ -48,8 +49,7 @@ main.o: lib main.c
 	$(LM32_CC) -Wall $(CFLAGS) -c main.c  -o main.o
 	
 image: main.o  linker.ld Makefile 
-	$(LM32_LD) $(LDFLAGS) -Map image.map -N -o image  $(LIBRARIES) main.o
-
+	$(LM32_LD) $(LDFLAGS) -Map image.map -N -o image crt0ram.o  main.o $(LIBRARIES)
 
 image.lst: image
 	$(LM32_OBJDUMP) -h -S $< > $@

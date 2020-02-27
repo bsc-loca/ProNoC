@@ -203,12 +203,13 @@ rnf #(
 	.DAT_FLIT_SIZE(DAT_FLIT_SIZE),
 	.RSP_FLIT_SIZE(RSP_FLIT_SIZE),
 	.SNP_FLIT_SIZE(SNP_FLIT_SIZE),
-	.LOCAL_ID(0),
+	//.src_id(0),
 	.EAw(EAw),
 	.B(B)
 )
 rnf
 (
+	.src_id(0),
 	.clk(clk),
 	.reset(reset),
 	.Readshared(Readshared),
@@ -262,11 +263,12 @@ hnf #(
     .DAT_FLIT_SIZE(DAT_FLIT_SIZE),
     .RSP_FLIT_SIZE(RSP_FLIT_SIZE),
     .SNP_FLIT_SIZE(SNP_FLIT_SIZE),
-    .LOCAL_ID(1),
+  //  .src_id(1),
     .EAw(EAw)
 )
 hnf
 (
+    .src_id(1),
     .clk(clk),
     .reset(reset),
     .chi_noc_txreqflitpend(chi_noc_txreqflitpend_all[1]),
