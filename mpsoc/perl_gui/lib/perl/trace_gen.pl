@@ -2007,7 +2007,8 @@ sub build_trace_gui {
 		$self->object_add_attribute('noc_param','T2',2);
 		$self->object_add_attribute('noc_param','T3',1);
 		$self->object_add_attribute('noc_param','Fpay',32);
-		$self->object_add_attribute('noc_param','V',1);		
+		$self->object_add_attribute('noc_param','V',1);	
+		$self->object_add_attribute('noc_param','C',1);		
 		$self->object_add_attribute('noc_param','TOPOLOGY','"MESH"');		
 	}
 	

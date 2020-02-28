@@ -108,7 +108,7 @@ sub generate_sim_bin_file {
 
 	#generate routers with different port num		
 	
-	my $result = verilator_compilation (\%tops,$target_dir,$$info_text);
+	my $result = verilator_compilation (\%tops,$target_dir,$info_text);
 	
 	if ($result){
 		add_colored_info($info_text,"Veriator model has been generated successfully!\n",'blue');
@@ -140,7 +140,7 @@ sub generate_sim_bin_file {
 	
 	
 	
-	$result = run_make_file("$obj_dir/",$$info_text,'lib');	
+	$result = run_make_file("$obj_dir/",$info_text,'lib');	
 	
 	if ($result ==0){
 		$simulate->object_add_attribute('status',undef,'programer_failed');
@@ -149,7 +149,7 @@ sub generate_sim_bin_file {
 		return;
 	}		
 	
-	run_make_file("$obj_dir/",$$info_text);	
+	run_make_file("$obj_dir/",$info_text);	
 	if ($result ==0){
 		$simulate->object_add_attribute('status',undef,'programer_failed');
 		set_gui_status($simulate,"ref",1);
