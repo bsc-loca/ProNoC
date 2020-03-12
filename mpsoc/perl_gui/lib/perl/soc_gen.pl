@@ -172,7 +172,7 @@ sub get_module_parameter{
 			$entry-> signal_connect("changed" => sub{$new_param_value{$p}=$entry->get_text();});
 		}
 		elsif ($type eq "Combo-box"){
-			my @combo_list=split(",",$content);
+			my @combo_list=split(/\s*,\s*/,$content);
 			my $pos=get_item_pos($value, @combo_list);
 			my $combo=gen_combo(\@combo_list, $pos);
 			$table->attach ($combo, 3, 6, $row, $row+1,$at0,$at1,2,2);
@@ -180,7 +180,7 @@ sub get_module_parameter{
 			
 		}
 		elsif 	($type eq "Spin-button"){ 
-		  my ($min,$max,$step)=split(",",$content);
+		  my ($min,$max,$step)=split(/\s*,\s*/,$content);
 		  $value=~ s/\D//g;
 		  $min=~ s/\D//g;
 		  $max=~ s/\D//g;
@@ -298,13 +298,13 @@ sub get_item_pos{#if not in return 0
 		
 	 }
 	 elsif ($type eq "Combo-box"){
-		 my @combo_list=split(",",$content);
+		 my @combo_list=split(/\s*,\s*/,$content);
 		 my $pos=get_item_pos($default, @combo_list);
 		 my $combo=gen_combo(\@combo_list, $pos);
 		 $box->pack_start($combo,FALSE,FALSE,3);
 	 }
 	 elsif 	($type eq "Spin-button"){ 
-		  my ($min,$max,$step)=split(",",$content);
+		  my ($min,$max,$step)=split(/\s*,\s*/,$content);
 		  $default=~ s/\D//g;
 		  $min=~ s/\D//g;
 		  $max=~ s/\D//g;
@@ -977,7 +977,7 @@ sub generate_soc{
 		my $name=$soc->object_get_attribute('soc_name');
 	    $oldfiles = "remove" if(!defined $oldfiles);
 		
-		my ($file_v,$top_v,$readme,$prog)=soc_generate_verilog($soc,$sw_path);
+		my ($file_v,$top_v,$readme,$prog)=soc_generate_verilog($soc,$sw_path,$info);
 			
 		# Write object file
 		open(FILE,  ">lib/soc/$name.SOC") || die "Can not open: $!";
@@ -1207,7 +1207,7 @@ sub set_unset_infc{
 		foreach my $port (@ports){
 			my ($type,$range,$intfc_name,$i_port)=$ip->ip_get_port($category,$module,$port);
 			my($i_type,$i_name,$i_num) =split("[:\[ \\]]", $intfc_name);
-			if($i_type eq 'socket' && $i_name ne'wb_addr_map' ){ 				
+			if($i_type eq 'socket' && $i_name ne'wb_addr_map' && $i_name ne'jtag_to_wb'){ 				
 				my ($ref1,$ref2)= $soc->soc_get_modules_plug_connected_to_socket($id,$i_name,$i_num);
 				my %connected_plugs=%$ref1;
 				my %connected_plug_nums=%$ref2;
@@ -1988,7 +1988,7 @@ sub socgen_main{
 
 	
 	$compile -> signal_connect("clicked" => sub{ 
-		$soc->object_add_attribute('compile','compilers',"QuartusII,Verilator,Modelsim");
+		$soc->object_add_attribute('compile','compilers',"QuartusII,Vivado,Verilator,Modelsim");
 		my $name=$soc->object_get_attribute('soc_name');
 		if (length($name)==0){
 			message_dialog("Please define the Tile name!");

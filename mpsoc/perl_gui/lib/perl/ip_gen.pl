@@ -745,7 +745,7 @@ For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
 				$ipgen->ipgen_add_parameter($p,$default,$type,$content,$saved_info,$vfile_param_type,$redefine_param);
 				
 				if 	($type eq "Spin-button"){ 
-					my @d=split(",",$content);
+					my @d=split(/\s*,\s*/,$content);
 					 if( scalar @d != 3){
 						$error=$error."wrong content setting for parameter $p\n" ;
 						print "$error";

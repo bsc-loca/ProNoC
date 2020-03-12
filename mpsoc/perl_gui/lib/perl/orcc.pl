@@ -195,15 +195,15 @@ sub load_orcc_csv{
     		next;	
     	}
     	if($sect==1){
-    		my @fileds=split(',',$line);
+    		my @fileds=split(/\s*,\s*/,$line);
     		if(defined $fileds[0]){$net=$fileds[0] if($fileds[0]=~/^\w/);}
     	}
     	if($sect==2){
-			my @fileds=split(',',$line);
+			my @fileds=split(/\s*,\s*/,$line);
 			if(defined $fileds[0]){ push(@actors,$fileds[0]) if($fileds[0]=~/^\w/);}
     	}
     	if($sect==3){
-    		my @fileds=split(',',$line);
+    		my @fileds=split(/\s*,\s*/,$line);
     		if(defined $fileds[0]){
     			my $src=$fileds[0];
     			my $src_port=$fileds[1];

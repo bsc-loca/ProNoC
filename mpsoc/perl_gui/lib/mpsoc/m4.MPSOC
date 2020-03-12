@@ -666,7 +666,7 @@ The NI releases the wishbone bus  each time one burst is completed or when the V
                                                                                                                                                 'default' => '"DISABLED"',
                                                                                                                                                 'info' => 'JTAG_CONNECT:
 if it is not disabled then the actual memory is implemented as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb. This allows that the memory content can be read/written using JTAG.   ',
-                                                                                                                                                'content' => '"DISABLED", "JTAG_WB" , "ALTERA_IMCE"'
+                                                                                                                                                'content' => '"DISABLED", "ALTERA_JTAG_WB" , "ALTERA_IMCE"'
                                                                                                                                               },
                                                                                                                         'ram_MEM_CONTENT_FILE_NAME' => {
                                                                                                                                                          'global_param' => 'Localparam',
@@ -680,7 +680,7 @@ For bus-based SoC the file path is {ProNoC_work}/SOC/{soc_name}/sw/RAM/{file_typ
 For NoC-based MPSoC the file path is {ProNoC_work}/MPSOC/{mpsoc_name}/sw/tile{tile_num}/RAM/{file_type}/{MEM_FILE_NAME} 
 
 file_type: 
-bin: raw binary format . It will be used by JTAG_WB to change the memory content at runtime.
+bin: raw binary format . It will be used by ALTERA_JTAG_WB to change the memory content at runtime.
 memh: hexadecimal-string format . It will be used for initialing the Generic RAM using $readmemh command.
 mif: memory initialization file format. This file can be used to initialize Altera FPGA memory. Also if the JTAG_CONECT is selected as ALTERA_IEMC it can be used for changing memory content at run time . ',
                                                                                                                                                          'type' => 'Entry',
@@ -903,7 +903,7 @@ mif: memory initialization file format. This file can be used to initialize Alte
                                                                                                                                                         'global_param' => 'Localparam',
                                                                                                                                                         'info' => 'JTAG_CONNECT:
 if it is not disabled then the actual memory is implemented as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb. This allows that the memory content can be read/written using JTAG.   ',
-                                                                                                                                                        'content' => '"DISABLED", "JTAG_WB" , "ALTERA_IMCE"',
+                                                                                                                                                        'content' => '"DISABLED", "ALTERA_JTAG_WB" , "ALTERA_IMCE"',
                                                                                                                                                         'type' => 'Combo-box',
                                                                                                                                                         'redefine_param' => 1
                                                                                                                                                       },
@@ -934,7 +934,7 @@ For bus-based SoC the file path is {ProNoC_work}/SOC/{soc_name}/sw/RAM/{file_typ
 For NoC-based MPSoC the file path is {ProNoC_work}/MPSOC/{mpsoc_name}/sw/tile{tile_num}/RAM/{file_type}/{MEM_FILE_NAME} 
 
 file_type: 
-bin: raw binary format . It will be used by JTAG_WB to change the memory content at runtime.
+bin: raw binary format . It will be used by ALTERA_JTAG_WB to change the memory content at runtime.
 memh: hexadecimal-string format . It will be used for initialing the Generic RAM using $readmemh command.
 mif: memory initialization file format. This file can be used to initialize Altera FPGA memory. Also if the JTAG_CONECT is selected as ALTERA_IEMC it can be used for changing memory content at run time . ',
                                                                                                                                                                  'content' => '',
@@ -2297,7 +2297,7 @@ If internal buffer has a data, the internal timer incremented by one in each clo
                                                                                                                                                        'type' => 'Combo-box',
                                                                                                                                                        'info' => 'JTAG_CONNECT:
 if it is not disabled then the actual memory is implemented as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb. This allows that the memory content can be read/written using JTAG.   ',
-                                                                                                                                                       'content' => '"DISABLED", "JTAG_WB" , "ALTERA_IMCE"',
+                                                                                                                                                       'content' => '"DISABLED", "ALTERA_JTAG_WB" , "ALTERA_IMCE"',
                                                                                                                                                        'global_param' => 'Localparam',
                                                                                                                                                        'default' => '"DISABLED"'
                                                                                                                                                      },
@@ -2323,7 +2323,7 @@ For bus-based SoC the file path is {ProNoC_work}/SOC/{soc_name}/sw/RAM/{file_typ
 For NoC-based MPSoC the file path is {ProNoC_work}/MPSOC/{mpsoc_name}/sw/tile{tile_num}/RAM/{file_type}/{MEM_FILE_NAME} 
 
 file_type: 
-bin: raw binary format . It will be used by JTAG_WB to change the memory content at runtime.
+bin: raw binary format . It will be used by ALTERA_JTAG_WB to change the memory content at runtime.
 memh: hexadecimal-string format . It will be used for initialing the Generic RAM using $readmemh command.
 mif: memory initialization file format. This file can be used to initialize Altera FPGA memory. Also if the JTAG_CONECT is selected as ALTERA_IEMC it can be used for changing memory content at run time . '
                                                                                                                                                               }
@@ -2727,7 +2727,7 @@ For bus-based SoC the file path is {ProNoC_work}/SOC/{soc_name}/sw/RAM/{file_typ
 For NoC-based MPSoC the file path is {ProNoC_work}/MPSOC/{mpsoc_name}/sw/tile{tile_num}/RAM/{file_type}/{MEM_FILE_NAME} 
 
 file_type: 
-bin: raw binary format . It will be used by JTAG_WB to change the memory content at runtime.
+bin: raw binary format . It will be used by ALTERA_JTAG_WB to change the memory content at runtime.
 memh: hexadecimal-string format . It will be used for initialing the Generic RAM using $readmemh command.
 mif: memory initialization file format. This file can be used to initialize Altera FPGA memory. Also if the JTAG_CONECT is selected as ALTERA_IEMC it can be used for changing memory content at run time . ',
                                                                                                                                                            'global_param' => 'Localparam',
@@ -2735,10 +2735,10 @@ mif: memory initialization file format. This file can be used to initialize Alte
                                                                                                                                                          },
                                                                                                                           'ram_JTAG_CONNECT' => {
                                                                                                                                                   'global_param' => 'Localparam',
-                                                                                                                                                  'default' => ' "JTAG_WB" ',
+                                                                                                                                                  'default' => ' "ALTERA_JTAG_WB" ',
                                                                                                                                                   'info' => 'JTAG_CONNECT:
 if it is not disabled then the actual memory is implemented as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb. This allows that the memory content can be read/written using JTAG.   ',
-                                                                                                                                                  'content' => '"DISABLED", "JTAG_WB" , "ALTERA_IMCE"',
+                                                                                                                                                  'content' => '"DISABLED", "ALTERA_JTAG_WB" , "ALTERA_IMCE"',
                                                                                                                                                   'type' => 'Combo-box',
                                                                                                                                                   'redefine_param' => 1
                                                                                                                                                 },

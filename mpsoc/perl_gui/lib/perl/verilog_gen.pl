@@ -24,7 +24,7 @@ use Cwd;
 #####################
 
 sub soc_generate_verilog{ 
-	my ($soc,$sw_path)= @_;
+	my ($soc,$sw_path,$txview)= @_;
 	my $soc_name=$soc->object_get_attribute('soc_name');
 	#my $top_ip=ip_gen->ip_gen_new();
 	my $top_ip=ip_gen->top_gen_new();
@@ -102,7 +102,7 @@ sub soc_generate_verilog{
 	#generate topmodule
 	
 	my $top_v = (defined $param_as_in_v )? "module ${soc_name}_top #(\n $param_as_in_v\n)(\n$io_top_sim_v\n);\n": "module ${soc_name}_top (\n $io_top_sim_v\n);\n";
-	my $ins= gen_soc_instance_v($soc,$soc_name,$param_pass_v);
+	my $ins= gen_soc_instance_v($soc,$soc_name,$param_pass_v,$txview);
 	add_text_to_string(\$top_v,$functions_all);	
 	add_text_to_string(\$top_v,$local_param_v_all."\n".$io_top_full_v_all);
 	add_text_to_string(\$top_v,$ins);
@@ -189,16 +189,17 @@ sub gen_module_inst {
 			
 		}
 		elsif($IO eq 'yes' || !defined $i_type || !defined $i_name || !defined $i_num){ #its an IO port
-			if($i_port eq 'NC'){
+			if($i_port eq 'NC' ){
 				$NC='yes';
 			}else {
+				 $i_name ='IO' if( !defined $i_name);
 				 $assigned_port="$inst\_$port";
 				 $$io_sim_v= (!defined $$io_sim_v)? "\t$assigned_port" : "$$io_sim_v, \n\t$assigned_port";
-				 $$io_top_sim_v= (!defined $$io_top_sim_v)? "\t$assigned_port" : "$$io_top_sim_v, \n\t$assigned_port" if ($i_name ne 'RxD_sim');
+				 $$io_top_sim_v= (!defined $$io_top_sim_v)? "\t$assigned_port" : "$$io_top_sim_v, \n\t$assigned_port" if ($i_name ne 'RxD_sim' && $i_name ne 'jtag_to_wb' );
 				 my $new_range = add_instantc_name_to_parameters(\%params,$inst,$range);
 				 my $port_def=(length ($range)>1 )? 	"\t$type\t [ $new_range    ] $assigned_port;\n": "\t$type\t\t\t$assigned_port;\n";			 
 				 add_text_to_string(\$io_full_v,$port_def);
-				 add_text_to_string(\$io_top_full_v,$port_def) if ($i_name ne 'RxD_sim');
+				 add_text_to_string(\$io_top_full_v,$port_def) if ($i_name ne 'RxD_sim' && $i_name ne 'jtag_to_wb');
 				# $top_ip->ipgen_add_port($assigned_port, $new_range, $type ,$intfc_name,$i_port);
 				$top_ip->top_add_port($id,$assigned_port, $new_range, $type ,$intfc_name,$i_port);
 			}
@@ -550,47 +551,29 @@ sub assign_unconnected_wires{
 
 
 sub gen_soc_instance_v{
-	my ($soc,$soc_name,$param_pass_v)=@_;
-	my $soc_v;
+	my ($soc,$soc_name,$param_pass_v,$txview)=@_;
+	
 	my $processor_en=0;
-	
-	add_text_to_string(\$soc_v,"
-
-// Allow software to remote reset/enable the cpu via jtag
-
+	my $altera_jtag_ctrl=0;
+	my $xilinx_jtag_ctrl=0; #if it becomes larger than 0 then add jtag to wb module 
+	my $jtag_insts="";
+	my $xilinx_jtag_ctrl_in;
+	my $xilinx_jtag_ctrl_out;
+	my $rpin = "1\'b0";
+	my $clkpin;
+	my $soc_v="
+	// Allow software to remote reset/enable the cpu via jtag
 	wire jtag_cpu_en, jtag_system_reset;
-
-	jtag_system_en jtag_en (
-		.cpu_en(jtag_cpu_en),
-		.system_reset(jtag_system_reset)
-	
-	);
-	
-	
-
-
-
-
-
-");	
-
+";
 
 	my $mm="$soc_name #(\n $param_pass_v \n\t)the_${soc_name}(\n";
-
 	my $top=$soc->soc_get_top();
 	my @intfcs=$top->top_get_intfc_list();
-	
-	my $i=0;
-
-	
-	
-	
+	my $i=0;	
 	my $ss="";
 	my $ww="";
 	
-foreach my $intfc (@intfcs){
-		
-		
+	foreach my $intfc (@intfcs){	
 		
 		#reset
 		if( $intfc eq 'plug:reset[0]'){
@@ -601,13 +584,12 @@ foreach my $intfc (@intfcs){
 				$mm="$mm\n\t\t.$p(${p}_ored_jtag)";
 				$ss="$ss\tassign ${p}_ored_jtag = (jtag_system_reset | $p);\n";
 				$ww="$ww\twire ${p}_ored_jtag;\n";
+				$rpin = $p;
 				$i=1;		
 				
 			}			
-			
-			
-			
 		}
+		
 		#enable
 		elsif( $intfc eq 'plug:enable[0]'){
 			my @ports=$top->top_get_intfc_ports_list($intfc);
@@ -621,48 +603,127 @@ foreach my $intfc (@intfcs){
 				$i=1;		
 				
 			}		
-		
-		
 		}
+		
 		#RxD_sim
 		elsif( $intfc eq 'socket:RxD_sim[0]'){
-			#This interface is for simulation only donot include it in top module
+			#This interface is for simulation only donot include it in top module			
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
 				$mm="$mm," if ($i);		
 				$mm="$mm\n\t\t.$p( )";
 				$i=1;
+			}			
+		}
+		
+		
+		#jtag_to_wb	
+		elsif( $intfc eq 'socket:jtag_to_wb[0]'){ #check JTAG connect parameter. if it is XILINX then connect it to jtag tap
+			my @ports=$top->top_get_intfc_ports_list($intfc);
+			foreach my $p (@ports){
+				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
+				my $JTAG_CONNECT=$soc->soc_get_module_param_value ($inst,'JTAG_CONNECT');
+				
+				#print "$inst,$range,$type,$intfc_name,$intfc_port-> $JTAG_CONNECT;";
+				if($JTAG_CONNECT eq '"XILINX_JTAG_WB"'){
+					
+					my %params	= $soc->soc_get_module_param($inst);
+					my $new_range = add_instantc_name_to_parameters(\%params,$inst,$range);
+					$ww="$ww\twire [ $new_range ] ${p};\n";
+					
+					$mm="$mm," if ($i);		
+					$mm="$mm\n\t\t.$p($p)";	
+					if($type eq 'input'){
+						$jtag_insts=$jtag_insts."$inst XILINX JTAG,";
+						$xilinx_jtag_ctrl++;
+						$xilinx_jtag_ctrl_in=(defined $xilinx_jtag_ctrl_in)? "$xilinx_jtag_ctrl_in,$p" : "$p";
+					}else {
+						$xilinx_jtag_ctrl_out=(defined $xilinx_jtag_ctrl_out)? "$xilinx_jtag_ctrl_out,$p" : "$p";
+					}
+					
+					
+				}else{#Dont not connect 
+					$mm="$mm," if ($i);		
+					$mm="$mm\n\t\t.$p( )";
+				}
+			
+				if($JTAG_CONNECT eq '"ALTERA_JTAG_WB"'){
+					
+					if($type eq 'input'){
+						$jtag_insts=$jtag_insts."$inst ALTERA JTAG,";
+						$altera_jtag_ctrl++;
+										
+					}
+				}	
+				$i=1;	
 			}		
 		
 		}
+		
+		
+		
 		else {
 		#other interface
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
-			my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);			
+			my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);	
+			$clkpin=$p if( $intfc eq 'plug:clk[0]');		
 			$mm="$mm," if ($i);		
 			$mm="$mm\n\t\t.$p($p)";	
 			$i=1;	
 				
-			}		
-			
-			
-		}	
-		
+			}				
+		}			
 		
 	}
 	$mm="$mm\n\t);";
 	add_text_to_string(\$soc_v,"$ww\n");
 	add_text_to_string(\$soc_v,"$mm\n");
 	add_text_to_string(\$soc_v,"$ss\n");
-	add_text_to_string(\$soc_v,"\n endmodule\n");	
+
+	
+	if($altera_jtag_ctrl>0 && $xilinx_jtag_ctrl>0 ){
+		add_colored_info($txview,"Found JTAG comminication ports from differnt FPGA vendors:$jtag_insts. ",'red');			
+		
+	}elsif ($xilinx_jtag_ctrl>0){
+		$xilinx_jtag_ctrl_in  ="{$xilinx_jtag_ctrl_in}"  if($xilinx_jtag_ctrl != 1); 
+		$xilinx_jtag_ctrl_out ="{$xilinx_jtag_ctrl_out}" if($xilinx_jtag_ctrl != 1); 
+		
+		$soc_v = $soc_v."
+	xilinx_jtag_to_wb  #(
+		.JWB_NUM($xilinx_jtag_ctrl)
+	)jwb(
+		.clk($clkpin),
+		.reset($rpin),
+		.cpu_en(jtag_cpu_en),
+		.system_reset(jtag_system_reset)
+		.wb_to_jtag_all($xilinx_jtag_ctrl_in),
+		.jtag_to_wb_all($xilinx_jtag_ctrl_out)
+	);		
+		
+";
+		
+	}elsif($altera_jtag_ctrl>0) {
+$soc_v = $soc_v."		
+	jtag_system_en jtag_en (
+		.cpu_en(jtag_cpu_en),
+		.system_reset(jtag_system_reset)
+	
+	);	
+";		
+		
+	}else{
+$soc_v = $soc_v."
+    //No jtag connection has found in the design	
+	assign jtag_cpu_en=1\'b0;
+	assign jtag_system_reset=1'b0;	
+";
+	}
 	
 	
 	
 	
-	
-	
-	
+	$soc_v=$soc_v."\n endmodule\n";	
 	return $soc_v;
 
 }
@@ -816,7 +877,7 @@ source ./jtag_intfc.sh
 			my $OFSSET="0x00000000";
 			my $end=((1 << $aw)*($dw/8))-1;
 			my $BOUNDRY=sprintf("0x%08x", $end);			
-			if($jtag_connect =~ /JTAG_WB/){
+			if($jtag_connect =~ /ALTERA_JTAG_WB/){
 				$prog= "$prog \$JTAG_INTFC -n $JTAG_INDEX -s \"$OFSSET\" -e \"$BOUNDRY\" -i  \"$BINFILE\" -c";
 				#print "prog= $prog\n";
 				

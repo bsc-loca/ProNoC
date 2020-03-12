@@ -252,8 +252,13 @@ module ram_test #(
 		.sa_sel_i(ram_plug_wb_slave_0_sel_i),
 		.sa_stb_i(ram_plug_wb_slave_0_stb_i),
 		.sa_tag_i(ram_plug_wb_slave_0_tag_i),
-		.sa_we_i(ram_plug_wb_slave_0_we_i)
+		.sa_we_i(ram_plug_wb_slave_0_we_i),
+		.jtag_to_wb ( ), 
+        .wb_to_jtag ( ) 
+		
 	);
+	
+	
  wishbone_bus #(
  		.M(bus_M),
 		.S(bus_S),
@@ -293,7 +298,9 @@ module ram_test #(
 		.s_sel_one_hot(bus_socket_wb_addr_map_0_sel_one_hot),
 		.s_stb_o_all(bus_socket_wb_slave_array_stb_o),
 		.s_tag_o_all(bus_socket_wb_slave_array_tag_o),
-		.s_we_o_all(bus_socket_wb_slave_array_we_o)
+		.s_we_o_all(bus_socket_wb_slave_array_we_o),
+		.snoop_adr_o(),
+        .snoop_en_o()
 	);
  
 

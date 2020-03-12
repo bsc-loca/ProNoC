@@ -199,7 +199,7 @@ sub check_inserted_ip_nums{
     $str= remove_all_white_spaces ($str);
     
     if($str !~ /^[0-9.:,]+$/){ message_dialog ("The Ip numbers contains invalid character" ); return; }
-    my @chunks=split(',',$str);
+    my @chunks=split(/\s*,\s*/,$str);
     foreach my $p (@chunks){
         my @range=split(':',$p);
         my $size= scalar @range;
@@ -295,7 +295,7 @@ sub get_soc_parameter_setting{
                 $entry-> signal_connect("changed" => sub{$param_value{$p}=$entry->get_text();});
             }
             elsif ($type eq "Combo-box"){
-                my @combo_list=split(",",$content);
+                my @combo_list=split(/\s*,\s*/,$content);
                 my $pos=get_item_pos($param_value{$p}, @combo_list) if(defined $param_value{$p});
                 my $combo=gen_combo(\@combo_list, $pos);
                 $table->attach_defaults ($combo, 3, 6, $row, $row+1);
@@ -303,7 +303,7 @@ sub get_soc_parameter_setting{
                 
             }
             elsif     ($type eq "Spin-button"){ 
-                  my ($min,$max,$step)=split(",",$content);
+                  my ($min,$max,$step)=split(/\s*,\s*/,$content);
                   $param_value{$p}=~ s/\D//g;
                   $min=~ s/\D//g;
                   $max=~ s/\D//g;    
@@ -1034,7 +1034,7 @@ my $coltmp=0;
     $param="ROUTE_NAME";
     $type="Combo-box";
     $content=$param{$topology_name}{'ROUTE_NAME'};    		 
-    my @rr=split(',',$content);
+    my @rr=split(/\s*,\s*/,$content);
     $default=$rr[0];
     $info="Select the routing algorithm";
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,1,'noc_param',1);
@@ -1183,7 +1183,7 @@ sub generate_soc_files{
     mkpath("$target_dir/src_verilog/tiles/",1,0755);
     mkpath("$target_dir/sw",1,0755);
 
-    my ($file_v,$tmp)=soc_generate_verilog($soc,"$target_dir/sw");
+    my ($file_v,$tmp)=soc_generate_verilog($soc,"$target_dir/sw",$info);
         
     # Write object file
     open(FILE,  ">lib/soc/$soc_name.SOC") || die "Can not open: $!";
@@ -1334,7 +1334,7 @@ sub generate_mpsoc{
     my @files = glob( "$dir/../src_noc/*.v" );
     copy_file_and_folders(\@files,$dir,"$hw_dir/lib/");  
     add_to_project_file_list(\@files,"$hw_dir/lib/",$hw_dir);
-    my ($file_v,$top_v)=mpsoc_generate_verilog($mpsoc,$sw_dir);
+    my ($file_v,$top_v)=mpsoc_generate_verilog($mpsoc,$sw_dir,$info);
     
     #if Topology is custom copy custom topology files
     my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
@@ -2020,7 +2020,7 @@ sub mpsocgen_main{
 
 
     $compile -> signal_connect("clicked" => sub{ 
-        $mpsoc->object_add_attribute('compile','compilers',"QuartusII,Verilator,Modelsim");
+        $mpsoc->object_add_attribute('compile','compilers',"QuartusII,Vivado,Verilator,Modelsim");
         my $name=$mpsoc->object_get_attribute('mpsoc_name');
         if (length($name)==0){
             message_dialog("Please define the MPSoC name!");

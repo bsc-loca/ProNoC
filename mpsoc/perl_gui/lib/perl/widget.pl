@@ -1049,7 +1049,7 @@ sub gen_entry_object {
 
 sub gen_combobox_object {
  	my ($object,$attribute1,$attribute2,$content,$default,$status,$timeout)=@_;
-	my @combo_list=split(",",$content);
+	my @combo_list=split(/\s*,\s*/,$content);
 	my $value=$object->object_get_attribute($attribute1,$attribute2);
 	my $pos;
 	$pos=get_pos($value, @combo_list) if (defined $value);
@@ -1072,7 +1072,7 @@ sub gen_combobox_object {
 
 sub gen_comboentry_object {
  	my ($object,$attribute1,$attribute2,$content,$default,$status,$timeout)=@_;
-	my @combo_list=split(",",$content);
+	my @combo_list=split(/\s*,\s*/,$content);
 	my $value=$object->object_get_attribute($attribute1,$attribute2);
 	my $pos;
 	$pos=get_pos($value, @combo_list) if (defined $value);
@@ -1097,7 +1097,7 @@ sub gen_comboentry_object {
 sub gen_spin_object {
 	my ($object,$attribute1,$attribute2,$content, $default,$status,$timeout)=@_;
 	my $value=$object->object_get_attribute($attribute1,$attribute2);
-	my ($min,$max,$step)=split(",",$content);
+	my ($min,$max,$step)=split(/\s*,\s*/,$content);
 	if(!defined $value){
 		$value=$default;
 		$object->object_add_attribute($attribute1,$attribute2,$value);
@@ -1300,7 +1300,7 @@ sub add_param_widget {
 		});		
 	 }
 	 elsif ($type eq "Combo-box"){
-		 my @combo_list=split(",",$content);
+		 my @combo_list=split(/\s*,\s*/,$content);
 		 my $pos=get_pos($value, @combo_list) if(defined $value);
 		 if(!defined $pos){
 		 	$self->object_add_attribute($attribut1,$param,$default);	
@@ -1317,7 +1317,7 @@ sub add_param_widget {
 		 
 	 }
 	 elsif 	($type eq "Spin-button"){ 
-		  my ($min,$max,$step)=split(",",$content);
+		  my ($min,$max,$step)=split(/\s*,\s*/,$content);
 		  $value=~ s/\D//g;
 		  $min=~ s/\D//g;
 		  $max=~ s/\D//g;

@@ -205,19 +205,15 @@ endmodule
 sub select_compiler {
 	my ($self,$name,$top,$target_dir,$end_func)=@_;
 	my $window = def_popwin_size(40,40,"Step 1: Select Compiler",'percent');
-	#get the list of boards located in "boards/*" folder
-	my @dirs = grep {-d} glob("../boards/*");
-	my ($fpgas,$init);
-	foreach my $dir (@dirs) {
-		my ($name,$path,$suffix) = fileparse("$dir",qr"\..[^.]*$");
-		$init=$name;
-		$fpgas= (defined $fpgas)? "$fpgas,$name" : "$name";		
-	}
+	
+	
+	
+	
 	my $table = def_table(2, 2, FALSE);
 	my $col=0;
 	my $row=0;
 
-	my $compilers=$self->object_get_attribute('compile','compilers');#"QuartusII,Verilator,Modelsim"
+	my $compilers=$self->object_get_attribute('compile','compilers');#"QuartusII,Vivado,Verilator,Modelsim"
 	
 	my $compiler=gen_combobox_object ($self,'compile','type',$compilers,"QuartusII",undef,undef);
 	$table->attach(gen_label_in_center("Compiler tool"),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
@@ -228,9 +224,26 @@ sub select_compiler {
 	
 	my $old_board_name=$self->object_get_attribute('compile','board');
 	my $old_compiler=$self->object_get_attribute('compile','type');
-	my $compiler_options = ($old_compiler eq "QuartusII")? select_board  ($self,$name,$top,$target_dir): 
-			       ($old_compiler eq "Modelsim")?  select_model_path  ($self,$name,$top,$target_dir): 
-								gen_label_in_center(" ");
+	
+	my $vendor= ($old_compiler eq "QuartusII")? 'Altera' : 'Xilinx';
+	
+	#get the list of boards located in "boards/*" folder
+	my @dirs = grep {-d} glob("../boards/$vendor/*");
+	my ($fpgas,$init);
+	foreach my $dir (@dirs) {
+		my ($name,$path,$suffix) = fileparse("$dir",qr"\..[^.]*$");
+		$init=$name;
+		$fpgas= (defined $fpgas)? "$fpgas,$name" : "$name";		
+	}
+	
+	
+	
+	my $compiler_options =
+		($old_compiler eq "QuartusII")? select_board  ($self,$name,$top,$target_dir,$vendor): 
+		($old_compiler eq "Vivado")? select_board  ($self,$name,$top,$target_dir,$vendor): 
+		($old_compiler eq "Modelsim")?  select_model_path  ($self,$name,$top,$target_dir): 
+		gen_label_in_center(" ");
+	
 	$table->attach($compiler_options,$col,$col+2,$row,$row+1,'fill','shrink',2,2); $row++;
 
 	$col=1;
@@ -248,8 +261,9 @@ sub select_compiler {
 	my $next=def_image_button('icons/right.png','_Next',FALSE,1);
 	$table->attach($next,$col,$col+1,$row,$row+1,'shrink','shrink',2,2);$col++;
 	$next-> signal_connect("clicked" => sub{
-		my $compiler_type=$self->object_get_attribute('compile','type');
-		if($compiler_type eq "QuartusII"){
+		my $compiler_type=$self->object_get_attribute('compile','type');		
+		if($compiler_type eq "QuartusII" || $compiler_type eq "Vivado"){
+			$vendor= ($compiler_type eq "QuartusII")? 'Altera' : 'Xilinx';
 			my $new_board_name=$self->object_get_attribute('compile','board');
 			if(defined $old_board_name) {
 				if ($old_board_name ne $new_board_name){
@@ -267,13 +281,20 @@ sub select_compiler {
 
 
 			}
-			if($new_board_name eq "Add New Board") {add_new_fpga_board($self,$name,$top,$target_dir,$end_func);}
-			else {get_pin_assignment($self,$name,$top,$target_dir,$end_func);}
-		}elsif($compiler_type eq "Modelsim"){
-			modelsim_compilation($self,$name,$top,$target_dir);
+			if($new_board_name eq "Add New Board") {add_new_fpga_board($self,$name,$top,$target_dir,$end_func,$vendor);}
+			else {get_pin_assignment($self,$name,$top,$target_dir,$end_func,$vendor);}
+		}
+		
+		
+		
+		
+		
+		
+		elsif($compiler_type eq "Modelsim"){
+			modelsim_compilation($self,$name,$top,$target_dir,$vendor);
 
 		}else{#verilator
-			verilator_compilation_win($self,$name,$top,$target_dir);
+			verilator_compilation_win($self,$name,$top,$target_dir,$vendor);
 
 		}
 
@@ -284,9 +305,11 @@ sub select_compiler {
 	$compiler->signal_connect("changed" => sub{
 		$compiler_options->destroy;
 		my $new_board_name=$self->object_get_attribute('compile','type');
-		$compiler_options = ($new_board_name eq "QuartusII")? select_board  ($self,$name,$top,$target_dir):
-				    ($new_board_name eq "Modelsim")?  select_model_path  ($self,$name,$top,$target_dir):
-				 gen_label_in_center(" ");
+		$compiler_options =
+			($new_board_name eq "QuartusII")? select_board  ($self,$name,$top,$target_dir,"Altera"):
+			($new_board_name eq "Vivado")? select_board  ($self,$name,$top,$target_dir,"Xilinx"):
+			($new_board_name eq "Modelsim")?  select_model_path  ($self,$name,$top,$target_dir):
+			gen_label_in_center(" ");
 		$table->attach($compiler_options,0,2,1,2,'fill','shrink',2,2); 	
 		$table->show_all;
 
@@ -299,10 +322,10 @@ sub select_compiler {
 
 
 sub select_board {
-	my ($self,$name,$top,$target_dir)=@_;
+	my ($self,$name,$top,$target_dir,$vendor)=@_;
 	
 	#get the list of boards located in "boards/*" folder
-	my @dirs = grep {-d} glob("../boards/*");
+	my @dirs = grep {-d} glob("../boards/$vendor/*");
 	my ($fpgas,$init);
 	$fpgas="Add New Board";
 	
@@ -318,16 +341,21 @@ sub select_board {
 
 	
 	my $old_board_name=$self->object_get_attribute('compile','board');
-	$table->attach(gen_label_help("The list of supported boards are obtained from \"mpsoc/boards/\" path. You can add your boards by adding its required files in aformentioned path. Note that currently only Altera FPGAs are supported. For boards from other vendors, you need to directly use their own compiler and call $name.v file in your top level module.",'Targeted Board:'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
+	$table->attach(gen_label_help("The list of supported boards are obtained from \"mpsoc/boards/$vendor\" path. You can add your boards by adding its required files in aformentioned path. Note that currently Altera and Xilinx FPGAs are supported. For boards from other vendors, you need to directly use their own compiler and call $name.v file in your top level module.",'Targeted Board:'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
 	$table->attach(gen_combobox_object ($self,'compile','board',$fpgas,$init,undef,undef),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$row++;
 	
-	my $bin = $self->object_get_attribute('compile','quartus_bin');
-	my $Quartus_bin=  $ENV{QUARTUS_BIN};
+	my $bin_name = ($vendor eq "Altera")? 'quartus_bin' : 'vivado_bin';
+	my $env = ($vendor eq "Altera")? "QUARTUS_BIN" : "VIVADO_BIN";
+	my $Fpga_bin=   $ENV{$env};
+	
+	
+	my $bin =  $self->object_get_attribute('compile',$bin_name);
+	
 	$col=0;
-	$self->object_add_attribute('compile','quartus_bin',$ENV{QUARTUS_BIN}) if (!defined $bin && defined $Quartus_bin);
-	$table->attach(gen_label_help("Path to quartus/bin directory. You can set a default path as QUARTUS_BIN envirement variable in ~/.bashrc file.
-e.g:  export QUARTUS_BIN=/home/alireza/altera/13.0sp1/quartus/bin",'Quartus  bin:'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
-	$table->attach(get_dir_in_object ($self,'compile','quartus_bin',undef,undef,undef),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$row++;
+	$self->object_add_attribute('compile',$bin_name,$Fpga_bin) if (!defined $bin && defined $Fpga_bin);
+	$table->attach(gen_label_help("Path to quartus(or vivado)/bin directory. You can set a default path as $env envirement variable in ~/.bashrc file.
+e.g:  export QUARTUS_BIN=/home/alireza/altera/13.0sp1/quartus/bin","$env:"),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
+	$table->attach(get_dir_in_object ($self,'compile',$bin_name,undef,undef,undef),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$row++;
 	
 	return $table;
 	
@@ -368,11 +396,11 @@ sub remove_pin_assignment{
 
 
 
-
-
 sub add_new_fpga_board{
-	my ($self,$name,$top,$target_dir,$end_func)=@_;	
-	my $window = def_popwin_size(50,80,"Add New FPGA Board",'percent');
+	
+	my ($self,$name,$top,$target_dir,$end_func,$vendor)=@_;	
+	
+	my $window = def_popwin_size(50,80,"Add New $vendor FPGA Board",'percent');
 	my $table = def_table(2, 2, FALSE);
 	my $scrolled_win=add_widget_to_scrolled_win($table);
 
@@ -381,18 +409,17 @@ sub add_new_fpga_board{
 	
 	my $next=def_image_button('icons/plus.png','Add');
 	my $back=def_image_button('icons/left.png','Previous');	
-    my $auto=def_image_button('icons/advance.png','Auto-fill');	
-
 	$mtable->attach_defaults($scrolled_win,0,10,0,9);
-	$mtable->attach($back,2,3,9,10,'shrink','shrink',2,2);
-	$mtable->attach($auto,5,6,9,10,'shrink','shrink',2,2);
+	$mtable->attach($back,2,3,9,10,'shrink','shrink',2,2);	
 	$mtable->attach($next,8,9,9,10,'shrink','shrink',2,2);
 	
-	set_tip($auto, "Auto-fill JTAG configuration. The board must be powered on and be connecred to the PC.");
 	
 	
 	
-	my $widgets= add_new_fpga_board_widgets($self,$name,$top,$target_dir,$end_func);
+	
+	my $widgets=
+		($vendor eq 'Altera')? add_new_altera_fpga_board_widgets($self,$name,$top,$target_dir,$end_func,$vendor):
+		add_new_xilinx_fpga_board_widgets($self,$name,$top,$target_dir,$end_func,$vendor);
 	my ($Twin,$tview)=create_text();
 	
 
@@ -412,7 +439,10 @@ sub add_new_fpga_board{
 	});
 	
 	$next-> signal_connect("clicked" => sub{ 
-		my $result = add_new_fpga_board_files($self);
+		my $result = ($vendor eq 'Altera')? 
+			add_new_altera_fpga_board_files($self,$vendor):
+			add_new_xilinx_fpga_board_files($self,$vendor); 
+			
 		if(! defined $result ){
 			select_compiler($self,$name,$top,$target_dir,$end_func);
 			message_dialog("The new board has been added successfully!");
@@ -429,121 +459,160 @@ sub add_new_fpga_board{
 		
 	});
 	
-	$auto-> signal_connect("clicked" => sub{ 
-		my $pid;
-		my $hw;
-		my $dir = Cwd::getcwd();
-		my $project_dir	  = abs_path("$dir/../../"); #mpsoc directory address		
-		my $command=  "$project_dir/mpsoc/src_c/jtag/jtag_libusb/list_usb_dev";
-		add_info($tview,"$command\n");
-		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
-		if(length $stderr>1){			
-			add_colored_info($tview,"$stderr\n",'red');
-			add_colored_info($tview,"$command was not run successfully!\n",'red');
-		}else {
-
-			if($exit){
-				add_colored_info($tview,"$stdout\n",'red');
+	
+	
+	
+	
+	
+	
+	if($vendor eq 'Altera'){
+	    my $auto=def_image_button('icons/advance.png','Auto-fill'); 
+	    set_tip($auto, "Auto-fill JTAG configuration. The board must be powered on and be connecred to the PC."); 
+		$mtable->attach($auto,5,6,9,10,'shrink','shrink',2,2);
+		$auto-> signal_connect("clicked" => sub{ 
+			my $pid;
+			my $hw;
+			my $dir = Cwd::getcwd();
+			my $project_dir	  = abs_path("$dir/../../"); #mpsoc directory address		
+			my $command=  "$project_dir/mpsoc/src_c/jtag/jtag_libusb/list_usb_dev";
+			add_info($tview,"$command\n");
+			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
+			if(length $stderr>1){			
+				add_colored_info($tview,"$stderr\n",'red');
 				add_colored_info($tview,"$command was not run successfully!\n",'red');
-			}else{
-				add_info($tview,"$stdout\n");
-				my @a=split /vid=9fb/, $stdout; 
-				if(defined $a[1]){
-					my @b=split /pid=/, $a[1]; 
-					my @c=split /\n/, $b[1]; 
-					$pid=$c[0]; 
-					$self->object_add_attribute('compile','quartus_pid',$pid);
-					add_colored_info($tview,"Detected PID: $pid\n",'blue');
-					
+			}else {
+	
+				if($exit){
+					add_colored_info($tview,"$stdout\n",'red');
+					add_colored_info($tview,"$command was not run successfully!\n",'red');
 				}else{
-					add_colored_info($tview,"The Altera vendor ID of 9fb is not detected. Make sure You have connected your Altera board to your USB port\n",'red');
-					return;
+					add_info($tview,"$stdout\n");
+					my @a=split /vid=9fb/, $stdout; 
+					if(defined $a[1]){
+						my @b=split /pid=/, $a[1]; 
+						my @c=split /\n/, $b[1]; 
+						$pid=$c[0]; 
+						$self->object_add_attribute('compile','quartus_pid',$pid);
+						add_colored_info($tview,"Detected PID: $pid\n",'blue');
+						
+					}else{
+						add_colored_info($tview,"The Altera vendor ID of 9fb is not detected. Make sure You have connected your Altera board to your USB port\n",'red');
+						return;
+					}
 				}
 			}
-		}
-		
-		
-		$command=  "$ENV{QUARTUS_BIN}/jtagconfig";
-		add_info($tview,"$command\n");
-		($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
-		if(length $stderr>1){			
-			add_colored_info($tview,"$stderr\n",'red');
-			add_colored_info($tview,"$command was not run successfully!\n",'red');
-		}else {
-
-			if($exit){
-				add_colored_info($tview,"$stdout\n",'red');
+			
+			
+			$command=  "$ENV{QUARTUS_BIN}/jtagconfig";
+			add_info($tview,"$command\n");
+			($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
+			if(length $stderr>1){			
+				add_colored_info($tview,"$stderr\n",'red');
 				add_colored_info($tview,"$command was not run successfully!\n",'red');
-			}else{
-				add_info($tview,"$stdout\n");
-				my @a=split /1\)\s+/, $stdout; 
-				if(defined $a[1]){
-					my @b=split /\s+/, $a[1]; 
-					$hw=$b[0];
-					$self->object_add_attribute('compile','quartus_hardware',$hw);
-					add_colored_info($tview,"Detected Hardware: $hw\n",'blue');
-					my $qsf=$self->object_get_attribute('compile','quartus_qsf');	
-					if(!defined $qsf ){
-						add_colored_info ($tview,"Cannot detect devce location in JTAG chin. Please enter the QSF file or fill in manually \n",'red'); 
-										
-					}else{
-						#search for device nam ein qsf file
-						$qsf=add_project_dir_to_addr($qsf);
-						if (!(-f $qsf)){
-							add_colored_info($tview, "Error Could not find $qsf file!\n");
-							return;
-						}
-						my $str=load_file($qsf);
-						my $dw= capture_string_between(' DEVICE ',$str,"\n");
-						if(defined $dw){
-					    	add_colored_info($tview,"Device name in qsf file is: $dw\n",'blue');
-					    	@b=split /\n/, $a[1];
-					    	
-					    	#capture device name in JTAG chain
-							my @f=(0);
-							foreach my $c (@b){
-								my @e=split /\s+/, $c;
-								push(@f,$e[2]) if(defined $e[2]);
-							} 
-							
-							my $pos=find_the_most_similar_position($dw ,@f);
-							$self->object_add_attribute('compile','quartus_device',$pos);
-					    	add_colored_info($tview,"$dw has the most similarity with $f[$pos] in JTAG chain\n",'blue');
+			}else {
 	
+				if($exit){
+					add_colored_info($tview,"$stdout\n",'red');
+					add_colored_info($tview,"$command was not run successfully!\n",'red');
+				}else{
+					add_info($tview,"$stdout\n");
+					my @a=split /1\)\s+/, $stdout; 
+					if(defined $a[1]){
+						my @b=split /\s+/, $a[1]; 
+						$hw=$b[0];
+						$self->object_add_attribute('compile','quartus_hardware',$hw);
+						add_colored_info($tview,"Detected Hardware: $hw\n",'blue');
+						my $qsf=$self->object_get_attribute('compile','board_confg_file');	
+						if(!defined $qsf ){
+							add_colored_info ($tview,"Cannot detect devce location in JTAG chin. Please enter the QSF file or fill in manually \n",'red'); 
+											
+						}else{
+							#search for device nam ein qsf file
+							$qsf=add_project_dir_to_addr($qsf);
+							if (!(-f $qsf)){
+								add_colored_info($tview, "Error Could not find $qsf file!\n");
+								return;
+							}
+							my $str=load_file($qsf);
+							my $dw= capture_string_between(' DEVICE ',$str,"\n");
+							if(defined $dw){
+						    	add_colored_info($tview,"Device name in qsf file is: $dw\n",'blue');
+						    	@b=split /\n/, $a[1];
+						    	
+						    	#capture device name in JTAG chain
+								my @f=(0);
+								foreach my $c (@b){
+									my @e=split /\s+/, $c;
+									push(@f,$e[2]) if(defined $e[2]);
+								} 
+								
+								my $pos=find_the_most_similar_position($dw ,@f);
+								$self->object_add_attribute('compile','quartus_device',$pos);
+						    	add_colored_info($tview,"$dw has the most similarity with $f[$pos] in JTAG chain\n",'blue');
+		
+							
+						    }else{
+						    	add_colored_info ($tview, "Could not find device name in the $qsf file!\n");
+						    }
+							
+						}
 						
-					    }else{
-					    	add_colored_info ($tview, "Could not find device name in the $qsf file!\n");
-					    }
 						
+					}else{
+						#add_colored_info($tview,"The Altera vendor ID of 9fb is not detected. Make sure You have connected your Altera board to your USB port\n",'red');
+					
 					}
 					
-					
-				}else{
-					#add_colored_info($tview,"The Altera vendor ID of 9fb is not detected. Make sure You have connected your Altera board to your USB port\n",'red');
-				
 				}
-				
 			}
-		}
-		$widgets->destroy();
-		$widgets= add_new_fpga_board_widgets($self,$name,$top,$target_dir,$end_func);
-		$v1-> pack1($widgets, TRUE, TRUE); 	
-		#$table->attach_defaults($widgets,0,3,0,1); 
-		$table->show_all();		
-	 #	my $cmd=" $ENV{'QUARTUS_BIN'}"
+			$widgets->destroy();
+			$widgets= add_new_altera_fpga_board_widgets($self,$name,$top,$target_dir,$end_func,$vendor);
+			$v1-> pack1($widgets, TRUE, TRUE); 	
+			#$table->attach_defaults($widgets,0,3,0,1); 
+			$table->show_all();		
+		 #	my $cmd=" $ENV{'QUARTUS_BIN'}"
 	 	
-	});
+		});
+	
+	
+	}
+	
+	
+	
 		
 	$window->add ($mtable);
 	$window->show_all();
 	
 }
 
+sub add_new_xilinx_fpga_board_widgets{
+	my ($self,$name,$top,$target_dir,$end_func,$vendor)=@_;	
+	my $table = def_table(2, 2, FALSE);
+		
+	my $help1="FPGA Board name. Do not use any space in given name";
+	my $help2="Path to FPGA board qsf file. In your Altra board installation CD or in the Internet search for a QSF file containing your FPGA device name with other necessary global project setting including the pin assignments (e.g DE10_Nano_golden_top.qsf).";
+	
+	my @info = (
+	{ label=>"FPGA Borad name:",                   param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef},
+  	{ label=>'FPGA board xdc file:',    param_name=>'board_confg_file',   type=>"FILE_path", default_val=>undef, content=>"xdc", info=>$help2, param_parent=>'compile', ref_delay=>undef},
+	);
+	
+	
+	my $col=0;
+	my $row=0;
+	foreach my $d (@info) {
+		($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,"vertical");
+	}
+	
+	
+	
+	return ($row, $col, $table);	
+}
+	
 
 
-
-sub add_new_fpga_board_widgets{
-	my ($self,$name,$top,$target_dir,$end_func)=@_;	
+sub add_new_altera_fpga_board_widgets{
+	my ($self,$name,$top,$target_dir,$end_func,$vendor)=@_;	
 	my $table = def_table(2, 2, FALSE);
 		
 	my $help1="FPGA Board name. Do not use any space in given name";
@@ -567,8 +636,8 @@ my $help6="Power on your FPGA board and connect it to your PC. Then press Auto-f
 
 
 	my @info = (
-	{ label=>"FPGA Borad name:",                   param_name=>'quartus_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef},
-  	{ label=>'FPGA board golden top QSF file:',    param_name=>'quartus_qsf',   type=>"FILE_path", default_val=>undef, content=>"qsf", info=>$help2, param_parent=>'compile', ref_delay=>undef},
+	{ label=>"FPGA Borad name:",                   param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef},
+  	{ label=>'FPGA board golden top QSF file:',    param_name=>'board_confg_file',   type=>"FILE_path", default_val=>undef, content=>"qsf", info=>$help2, param_parent=>'compile', ref_delay=>undef},
 	{ label=>"FPGA board golden top verilog file", param_name=>'quartus_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef },
 	);
 	
@@ -598,21 +667,46 @@ my $help6="Power on your FPGA board and connect it to your PC. Then press Auto-f
 }
 
 
-
-
-
-sub add_new_fpga_board_files{
-	my $self=shift;
-	
+sub add_new_xilinx_fpga_board_files{
+	my ($self,$vendor)=@_;	
 	#check the board name
-	my $board_name=$self->object_get_attribute('compile','quartus_board');
+	my $board_name=$self->object_get_attribute('compile','fpga_board');
 	return "Please define the Board Name\n" if(! defined $board_name ); 
 	return "Please define the Board Name\n" if(length($board_name) ==0 ); 
 	my $r=check_verilog_identifier_syntax($board_name);	
 	return "Error in given Board Name: $r\n" if(defined $r ); 
 	
 	#check qsf file 
-	my $qsf=$self->object_get_attribute('compile','quartus_qsf');	
+	my $xdc=$self->object_get_attribute('compile','board_confg_file');	
+	return "Please define the xdc file\n" if(!defined $xdc );
+	
+	#make board directory
+	my $dir = Cwd::getcwd();
+	my $path="$dir/../boards/$vendor/$board_name";
+	mkpath($path,1,01777);
+	return "Error cannot make $path path" if ((-d $path)==0);
+	copy($xdc,$path);
+	
+	
+	$self->object_add_attribute('compile','board',$board_name);		
+	return undef;
+	
+	
+}
+
+
+sub add_new_altera_fpga_board_files{
+	my ($self,$vendor)=@_;
+	
+	#check the board name
+	my $board_name=$self->object_get_attribute('compile','fpga_board');
+	return "Please define the Board Name\n" if(! defined $board_name ); 
+	return "Please define the Board Name\n" if(length($board_name) ==0 ); 
+	my $r=check_verilog_identifier_syntax($board_name);	
+	return "Error in given Board Name: $r\n" if(defined $r ); 
+	
+	#check qsf file 
+	my $qsf=$self->object_get_attribute('compile','board_confg_file');	
 	return "Please define the QSF file\n" if(!defined $qsf );
 	
 	#check v file 
@@ -638,7 +732,7 @@ sub add_new_fpga_board_files{
 	
 	#make board directory
 	my $dir = Cwd::getcwd();
-	my $path="$dir/../boards/$board_name";
+	my $path="$dir/../boards/$vendor/$board_name";
 	mkpath($path,1,01777);
 	return "Error cannot make $path path" if ((-d $path)==0);
 	
@@ -725,7 +819,7 @@ $self->object_add_attribute('compile','board',$board_name);
 }
 
 sub  get_pin_assignment{
-	my ($self,$name,$top,$target_dir,$end_func)=@_;	
+	my ($self,$name,$top,$target_dir,$end_func,$vendor)=@_;	
 	my $window = def_popwin_size(80,80,"Step 2: Pin Assignment",'percent');
 
 	my $table = def_table(2, 2, FALSE);
@@ -748,7 +842,7 @@ sub  get_pin_assignment{
 	
 	#copy board jtag_intfc.sh file 
 	my ($fname,$fpath,$fsuffix) = fileparse("$top",qr"\..[^.]*$");
-	copy("../boards/$board_name/jtag_intfc.sh","${fpath}../sw/jtag_intfc.sh");	
+	copy("../boards/$vendor/$board_name/jtag_intfc.sh","${fpath}../sw/jtag_intfc.sh");	
 	my $m= $self->object_get_attribute('mpsoc_name',undef);
 	if(defined $m){	# we are compiling a complete NoC-based mpsoc						
 		 my ($nr,$ne,$router_p,$ref_tops)= get_noc_verilator_top_modules_info($self);
@@ -756,7 +850,7 @@ sub  get_pin_assignment{
 		    #print "$tile_num\n";
 			my ($soc_name,$num)= $self->mpsoc_get_tile_soc_name($tile_num);
 			next if(!defined $soc_name);
-			copy("../boards/$board_name/jtag_intfc.sh","${fpath}../sw/tile$tile_num/jtag_intfc.sh");
+			copy("../boards/$vendor/$board_name/jtag_intfc.sh","${fpath}../sw/tile$tile_num/jtag_intfc.sh");
 		}
 		
 	}
@@ -764,10 +858,10 @@ sub  get_pin_assignment{
 	
 
 	#copy board program_device.sh file 
-	copy("../boards/$board_name/program_device.sh","${fpath}../program_device.sh");
+	copy("../boards/$vendor/$board_name/program_device.sh","${fpath}../program_device.sh");
 
 	#get boards pin list
-	my $top_v= "../boards/$board_name/$board_name.v";
+	my $top_v= "../boards/$vendor/$board_name/$board_name.v";
 	if(!-f $top_v){
 		message_dialog("Error: Could not load the board pin list. The $top_v does not exist!");
 		$window->destroy;
@@ -885,7 +979,7 @@ sub  get_pin_assignment{
 	$next-> signal_connect("clicked" => sub{ 
 		
 		$window->destroy;
-		quartus_compilation($self,$board,$name,$top,$target_dir,$end_func);
+		fpga_compilation($self,$board,$name,$top,$target_dir,$end_func,$vendor);
 		
 	});
 	$back-> signal_connect("clicked" => sub{ 
@@ -904,8 +998,8 @@ sub  get_pin_assignment{
 
 
 
-sub quartus_compilation{
-	my ($self,$board,$name,$top,$target_dir,$end_func)=@_;
+sub fpga_compilation{
+	my ($self,$board,$name,$top,$target_dir,$end_func,$vendor)=@_;
 	
 	my $run=def_image_button('icons/gate.png','Compile');
 	my $back=def_image_button('icons/left.png','Previous');	
@@ -947,7 +1041,7 @@ sub quartus_compilation{
 	$back-> signal_connect("clicked" => sub{ 
 		
 		$window->destroy;
-		get_pin_assignment($self,$name,$top,$target_dir);
+		get_pin_assignment($self,$name,$top,$target_dir,$vendor);
 		
 	});
 
@@ -983,9 +1077,9 @@ sub quartus_compilation{
 
 		#append global assignets to qsf file
 		my $board_name=$self->object_get_attribute('compile','board');
-		my @qsfs =   glob("../boards/$board_name/*.qsf");
+		my @qsfs =   glob("../boards/$vendor/$board_name/*.qsf");
 		if(!defined $qsfs[0]){
-			message_dialog("Error: ../boards/$board_name folder does not contain the qsf file.!");
+			message_dialog("Error: ../boards/$vendor/$board_name folder does not contain the qsf file.!");
 			$window->destroy;
 		}
 
@@ -1059,7 +1153,7 @@ sub quartus_compilation{
 		}
 		#check if the program_device.sh file exists
 		unless (-f $bash_file) {
-			add_colored_info($tview,"\tThe $bash_file does not exists! This file veries depend on your target board and must be available inside mpsoc/boards/[board_name].\n", 'red');
+			add_colored_info($tview,"\tThe $bash_file does not exists! This file veries depend on your target board and must be available inside mpsoc/boards/$vendor/[board_name].\n", 'red');
 			$error=1;
 		}
 		return if($error);
@@ -1091,7 +1185,7 @@ sub quartus_compilation{
 
 
 sub modelsim_compilation{
-	my ($self,$name,$top,$target_dir)=@_;
+	my ($self,$name,$top,$target_dir,$vendor)=@_;
 	#my $window = def_popwin_size(80,80,"Step 2: Compile",'percent');
 	
 	
@@ -1343,7 +1437,7 @@ save_file ($target_dir,$make);
 
 
 sub verilator_compilation_win {
-	my ($self,$name,$top,$target_dir)=@_;
+	my ($self,$name,$top,$target_dir,$vendor)=@_;
 	my $window = def_popwin_size(80,80,"Step 2: Compile",'percent');
 	my $mtable = def_table(10, 10, FALSE);
 	my ($outbox,$outtext)= create_text();
@@ -1369,7 +1463,7 @@ sub verilator_compilation_win {
 	$next-> signal_connect("clicked" => sub{ 
 		
 		$window->destroy;
-		verilator_testbench($self,$name,$top,$target_dir);
+		verilator_testbench($self,$name,$top,$target_dir,$vendor);
 		
 	});
 
@@ -2101,7 +2195,7 @@ endmodule
 }
 
 sub verilator_testbench{
-	my ($self,$name,$top,$target_dir)=@_;
+	my ($self,$name,$top,$target_dir,$vendor)=@_;
 	my $verilator="$target_dir/verilator";
 	my $dir="$verilator";
 	
@@ -2138,7 +2232,7 @@ sub verilator_testbench{
 	$back-> signal_connect("clicked" => sub{ 
 		
 		$window->destroy;
-		verilator_compilation_win($self,$name,$top,$target_dir);
+		verilator_compilation_win($self,$name,$top,$target_dir,$vendor);
 		
 	});
 

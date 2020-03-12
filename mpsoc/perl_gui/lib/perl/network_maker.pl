@@ -254,7 +254,7 @@ sub generate_custom_topology_dot_file{
 				if ( !defined $pos ){
 				
 				
-				my ($node,$pnode)=split(',',$connect);
+				my ($node,$pnode)=split(/\s*,\s*/,$connect);
 				# check if $node exist
 				if ( defined get_scolar_pos($node, @all_nodes)){
 				 
@@ -287,7 +287,7 @@ sub get_connection_port_num_between_two_nodes{
 	for (my $p1=0; $p1<$PNUM; $p1++){
 		my $connect=$self->{$n1}{"PCONNECT"}{"Port[$p1]"};
 		next if(!defined $connect);
-		my ($node,$pnode)=split(',',$connect);
+		my ($node,$pnode)=split(/\s*,\s*/,$connect);
 		my ($p2)= sscanf("Port[%u]","$pnode");
 		return ($p1,$p2) if($node eq $n2 );		
 	}
@@ -719,7 +719,7 @@ sub connection_page{
 			my $connect = $self->{$p}{'PCONNECT'}{$pname};
 			my $button =  Gtk2::Button->new_from_stock(" -> ");
 			if (defined $connect) { 
-				my ($node,$pnode)=split(',',$connect);
+				my ($node,$pnode)=split(/\s*,\s*/,$connect);
 		    	my $e=$self->object_get_attribute("$node",'NAME');
 				$button = Gtk2::Button->new_from_stock("$e->$pnode") if(defined $e);
 			}
@@ -1426,7 +1426,7 @@ sub get_all_paths_between_two_endps{
 				my $src_port = "Port[${i}]";
 		   	   	my $connect = $self->{$head_node}{'PCONNECT'}{$src_port};	
 				if(defined $connect){
-					my ($node,$pnode)=split(',',$connect);
+					my ($node,$pnode)=split(/\s*,\s*/,$connect);
 					#add connected nodes to head_nodes if they are not in path before
 					if(!defined get_scolar_pos($node,@new_path)){
 						my $size=scalar @new_path;
@@ -1966,7 +1966,7 @@ sub save_topology_parameter_object_file{
 		$param{"\"$name\""}{'ROUTE_NAME'}=$new;
 	}
 	else {	
-		my @r=split(',',$routs);
+		my @r=split(/\s*,\s*/,$routs);
 		unless( grep (/^$new$/,@r)){
 			$param{"\"$name\""}{'ROUTE_NAME'}= $routs.",$new" ;
 		}
@@ -1978,7 +1978,7 @@ sub save_topology_parameter_object_file{
 	my @er_addr;
 	foreach my $end (@ends){
 		my $connect = $self->{$end}{'PCONNECT'}{'Port[0]'};
-		my ($Rname,$Rport)=split(',',$connect);
+		my ($Rname,$Rport)=split(/\s*,\s*/,$connect);
 		my $R = get_scolar_pos($Rname,@routers);
 		push(@er_addr,$R);			
 	}

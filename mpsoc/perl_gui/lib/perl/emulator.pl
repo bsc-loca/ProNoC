@@ -60,7 +60,7 @@ sub check_inserted_ratios {
 		my $str=shift;
 		my @ratios;
 	    	
-	    my @chunks=split(',',$str);
+	    my @chunks=split(/\s*,\s*/,$str);
 	    foreach my $p (@chunks){
 			if($p !~ /^[0-9.:,]+$/){ message_dialog ("$p has invalid character(S)" ); return undef; }
 			my @range=split(':',$p);
@@ -759,7 +759,7 @@ sub get_noc_setting_gui {
 	my $row=noc_config ($emulate,$table,$info_text);
 	    
 	my($label,$param,$default,$content,$type,$info);
-	my @dirs = grep {-d} glob("../boards/*");
+	my @dirs = grep {-d} glob("../boards/Altera/*");
 	my $fpgas;
 	foreach my $dir (@dirs) {
 		my ($name,$path,$suffix) = fileparse("$dir",qr"\..[^.]*$");
@@ -1006,7 +1006,7 @@ sub save_the_sof_file{
 	
 	my $board_name=$self->object_get_attribute('compile','board');
 	#copy board jtag_intfc.sh file 
-	copy("../boards/$board_name/jtag_intfc.sh","$sofdir/$fpga_board/jtag_intfc.sh");
+	copy("../boards/Altera/$board_name/jtag_intfc.sh","$sofdir/$fpga_board/jtag_intfc.sh");
 	#print "../boards/$board_name/jtag_intfc.sh","$sofdir/$fpga_board/jtag_intfc.sh\n";
 	#add argument run to jtag_interface file 
 	my $runarg='
@@ -1022,7 +1022,7 @@ fi
 	
 
 	#copy board program_device.sh file 
-	copy("../boards/$board_name/program_device.sh","$sofdir/$fpga_board/program_device.sh");
+	copy("../boards/Altera/$board_name/program_device.sh","$sofdir/$fpga_board/program_device.sh");
 	
 	
 

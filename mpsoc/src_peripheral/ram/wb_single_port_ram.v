@@ -39,19 +39,20 @@ module wb_single_port_ram #(
     parameter Aw=10, //RAM address width
     parameter BYTE_WR_EN= "YES",//"YES","NO"
     parameter FPGA_VENDOR= "ALTERA",//"ALTERA","GENERIC"
-    parameter JTAG_CONNECT= "JTAG_WB",//"DISABLED", "JTAG_WB" , "ALTERA_IMCE", if not disabled then the actual memory implements as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb  
+    parameter JTAG_CONNECT= "ALTERA_JTAG_WB",//"DISABLED", "ALTERA_JTAG_WB" , "ALTERA_IMCE", if not disabled then the actual memory implements as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb  
     parameter JTAG_INDEX= 0,
     parameter INITIAL_EN= "NO",
     parameter MEM_CONTENT_FILE_NAME= "ram0",// ram initial file name
     parameter INIT_FILE_PATH = "path_to/sw", // The sw folder path. It will be used for finding initial file. The path will be rewriten by the top module. 
     // wishbon bus param
-    parameter   BURST_MODE= "DISABLED", // "DISABLED" , "ENABLED" wisbone bus burst mode 
-    parameter   TAGw   =   3,
-    parameter   SELw   =   Dw/8,
-    parameter   CTIw   =   3,
-    parameter   BTEw   =   2 
-
-
+    parameter BURST_MODE= "DISABLED", // "DISABLED" , "ENABLED" wisbone bus burst mode 
+    parameter TAGw   =   3,
+    parameter SELw   =   Dw/8,
+    parameter CTIw   =   3,
+    parameter BTEw   =   2,    
+    //jtag to wishbobe interface
+    parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+Dw+Aw : 1,
+    parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 8+8+1+Dw  : 1
     )
     (
         clk,
@@ -70,7 +71,11 @@ module wb_single_port_ram #(
         sa_dat_o,
         sa_ack_o,
         sa_err_o,
-        sa_rty_o
+        sa_rty_o,
+        
+        //jtag o wb interface. Valid only for XILINX_JTAG_WB 
+        jtag_to_wb, 
+        wb_to_jtag 
         
     );
 
@@ -98,6 +103,9 @@ module wb_single_port_ram #(
     output                              sa_ack_o;
     output                              sa_err_o;
     output                              sa_rty_o;
+    
+    input  [J2WBw-1 : 0] jtag_to_wb;
+    output [WB2Jw-1: 0] wb_to_jtag;
     
     wire [SELw-1 :   0]  byteena_a;
     wire [Dw-1   :   0]  d;
@@ -139,7 +147,7 @@ module wb_single_port_ram #(
        	.addr(addr),
        	.we(we),
        	.q(q),
-	.byteena_a(byteena_a),
+        .byteena_a(byteena_a),
        	.sa_dat_i(sa_dat_i),
        	.sa_sel_i(sa_sel_i),
        	.sa_addr_i(sa_addr_i),
@@ -165,8 +173,10 @@ module wb_single_port_ram #(
     	.FPGA_VENDOR(FPGA_VENDOR_MDFY),
     	.JTAG_CONNECT(JTAG_CONNECT),
     	.JTAG_INDEX(JTAG_INDEX),
-	.INITIAL_EN(INITIAL_EN),
-	.INIT_FILE(INIT_FILE) 
+        .INITIAL_EN(INITIAL_EN),
+        .INIT_FILE(INIT_FILE),
+        .J2WBw(J2WBw), 
+        .WB2Jw(WB2Jw)
     )
     ram_top
     (
@@ -176,22 +186,13 @@ module wb_single_port_ram #(
     	.addr_a(addr),
     	.we_a(we),
     	.q_a(q),
-    	.byteena_a(byteena_a) 
+    	.byteena_a(byteena_a),
+    	.jtag_to_wb(jtag_to_wb),
+        .wb_to_jtag(wb_to_jtag)
     );
   
 
 endmodule
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -204,11 +205,13 @@ module single_port_ram_top #(
     parameter Aw=10, //RAM address width
     parameter BYTE_WR_EN= "YES",//"YES","NO"
     parameter FPGA_VENDOR= "ALTERA",//"ALTERA","GENERIC"
-    parameter JTAG_CONNECT= "JTAG_WB",//"DISABLED", "JTAG_WB" , "ALTERA_IMCE", if not disabled then the actual memory implements as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb  
+    parameter JTAG_CONNECT= "ALTERA_JTAG_WB",//"DISABLED", "XILINX_JTAG_WB","ALTERA_JTAG_WB" , "ALTERA_IMCE", if not disabled then the actual memory implements as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb  
     parameter JTAG_INDEX= 0,
     parameter INITIAL_EN= "NO",
-    parameter INIT_FILE= "sw/ram/ram0.txt"// ram initial file 
-
+    parameter INIT_FILE= "sw/ram/ram0.txt",// ram initial file 
+     //jtag to wishbobe interface
+    parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+Dw+Aw : 1,
+    parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 8+8+1+Dw  : 1
     )
     (
         reset,
@@ -217,16 +220,25 @@ module single_port_ram_top #(
         addr_a,
         byteena_a,
         we_a, 
-        q_a
+        q_a,
+        //jtag o wb interface. Valid only for XILINX_JTAG_WB 
+        jtag_to_wb,
+        wb_to_jtag
 );
-  localparam  BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
+    localparam  BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
   
-input                           clk,reset;
-input  [Dw-1   :   0]  data_a;
-input  [Aw-1   :   0]  addr_a;
-input                     we_a;
-input  [BYTE_ENw-1   :   0] byteena_a;
-output [Dw-1    :   0]  q_a;
+    input                           clk,reset;
+    input  [Dw-1   :   0]  data_a;
+    input  [Aw-1   :   0]  addr_a;
+    input                     we_a;
+    input  [BYTE_ENw-1   :   0] byteena_a;
+    output [Dw-1    :   0]  q_a;
+    
+    input  [J2WBw-1 : 0] jtag_to_wb;
+    output [WB2Jw-1 : 0] wb_to_jtag;
+    
+    
+    
 
 
 
@@ -249,27 +261,22 @@ output [Dw-1    :   0]  q_a;
         end    
         end   
     endfunction // log2 
-
-  
-    
-       
-    
-    
-wire            [Dw-1   :   0]   data_b;
-wire            [Aw-1   :   0]   addr_b;
-wire                             we_b;
-wire            [Dw-1   :   0]  q_b;
-    
+   
+    wire            [Dw-1   :   0]   data_b;
+    wire            [Aw-1   :   0]   addr_b;
+    wire                             we_b;
+    wire            [Dw-1   :   0]  q_b;
+        
 
 
     
 generate 
 if(FPGA_VENDOR=="ALTERA")begin:altera_fpga
- localparam  RAM_TAG_STRING=i2s(JTAG_INDEX);  
-localparam  RAM_ID =(JTAG_CONNECT== "ALTERA_IMCE") ?  {"ENABLE_RUNTIME_MOD=YES,INSTANCE_NAME=",RAM_TAG_STRING}
-                                    : {"ENABLE_RUNTIME_MOD=NO"};
+    localparam  RAM_TAG_STRING=i2s(JTAG_INDEX);  
+    localparam  RAM_ID =(JTAG_CONNECT== "ALTERA_IMCE") ?  {"ENABLE_RUNTIME_MOD=YES,INSTANCE_NAME=",RAM_TAG_STRING}
+                                        : {"ENABLE_RUNTIME_MOD=NO"};
 
-    if(JTAG_CONNECT== "JTAG_WB")begin:dual_ram
+    if(JTAG_CONNECT== "ALTERA_JTAG_WB")begin:dual_ram
 // aletra dual port ram 
         altsyncram #(
             .operation_mode("BIDIR_DUAL_PORT"),
@@ -355,8 +362,8 @@ localparam  RAM_ID =(JTAG_CONNECT== "ALTERA_IMCE") ?  {"ENABLE_RUNTIME_MOD=YES,I
             .aclr0          (    ),
             .aclr1          (    ),     
             .byteena_b      (    ),
-            .addressstall_a     (    ),
-            .addressstall_b     (    ),
+            .addressstall_a (    ),
+            .addressstall_b (    ),
             .q_b            (    ),
             .eccstatus      (    )
         );
@@ -365,15 +372,15 @@ localparam  RAM_ID =(JTAG_CONNECT== "ALTERA_IMCE") ?  {"ENABLE_RUNTIME_MOD=YES,I
 end
 
 else if(FPGA_VENDOR=="GENERIC")begin:generic_ram
-    if(JTAG_CONNECT== "JTAG_WB")begin:dual_ram
+    if(JTAG_CONNECT== "ALTERA_JTAG_WB")begin:dual_ram
         
 
         generic_dual_port_ram #(
             .Dw(Dw),
             .Aw(Aw),
             .BYTE_WR_EN(BYTE_WR_EN),
-	    .INITIAL_EN(INITIAL_EN),
-	    .INIT_FILE(INIT_FILE) 
+            .INITIAL_EN(INITIAL_EN),
+            .INIT_FILE(INIT_FILE) 
         )
         ram_inst
         (
@@ -400,8 +407,8 @@ else if(FPGA_VENDOR=="GENERIC")begin:generic_ram
             .Dw(Dw),
             .Aw(Aw),
             .BYTE_WR_EN(BYTE_WR_EN),
-	    .INITIAL_EN(INITIAL_EN),
-	    .INIT_FILE(INIT_FILE) 
+            .INITIAL_EN(INITIAL_EN),
+            .INIT_FILE(INIT_FILE) 
         )
         ram_inst
         (
@@ -418,7 +425,7 @@ else if(FPGA_VENDOR=="GENERIC")begin:generic_ram
 end //Generic
 
 
-if(JTAG_CONNECT == "JTAG_WB")begin:jtag_wb
+if(JTAG_CONNECT == "ALTERA_JTAG_WB")begin:altera_jwb
 
     reg jtag_ack;
     wire    jtag_we_o, jtag_stb_o;
@@ -458,7 +465,40 @@ if(JTAG_CONNECT == "JTAG_WB")begin:jtag_wb
     always @(posedge clk )begin 
         jtag_ack<=jtag_stb_o;   
     end
-end//jtag_wb
+    assign wb_to_jtag = 1'bx;
+    
+end//altera_jwb
+else if(JTAG_CONNECT == "XILINX_JTAG_WB")begin: xilinx_jwb 
+    localparam Sw= 8;
+    localparam [Sw-1    :   0] ST = Aw;
+    
+    wire [Sw-1 : 0] wb_to_jtag_status;
+    wire [7    : 0] wb_to_jtag_index;
+    wire [Dw-1 : 0] jtag_to_wb_dat;
+    wire [Aw-1 : 0] jtag_to_wb_addr;
+    wire jtag_to_wb_stb;
+    wire jtag_to_wb_we;
+    wire wb_to_jtag_dat; 
+    wire wb_to_jtag_ack;
+    
+    assign wb_to_jtag = {wb_to_jtag_status,wb_to_jtag_ack,wb_to_jtag_dat,wb_to_jtag_index};
+    assign {jtag_to_wb_stb,jtag_to_wb_we,jtag_to_wb_dat,jtag_to_wb_addr} = jtag_to_wb;
+    
+        
+    reg ack_reg;
+    assign wb_to_jtag_status = ST;
+    assign wb_to_jtag_index = JTAG_INDEX;
+    assign data_b = jtag_to_wb_dat;
+    assign addr_b = jtag_to_wb_addr;
+    assign we_b = jtag_to_wb_stb & jtag_to_wb_we;
+    assign wb_to_jtag_dat = q_b; 
+    assign wb_to_jtag_ack = ack_reg;
+    always @(posedge clk )begin 
+        ack_reg<=jtag_to_wb_stb;   
+    end
+end else begin 
+     assign wb_to_jtag = 1'bx;
+end
 
 endgenerate
 

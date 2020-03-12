@@ -98,7 +98,7 @@ sub generate_topology_top_v {
 		my $pname= "Port[0]";
 		my $connect = $self->{$p}{'PCONNECT'}{$pname};
 		if(defined $connect){
-			my ($cname,$pnode)=split(',',$connect);
+			my ($cname,$pnode)=split(/\s*,\s*/,$connect);
 			my $cinstance= $self->object_get_attribute("$cname","NAME");
 			my ($cp)= sscanf("Port[%u]","$pnode");
 			$assign = $assign."//Connect $instance output ports 0 to  $cinstance input ports $cp\n";
@@ -249,7 +249,7 @@ for (my $i=0;$i<$Pnum; $i++){
 	my $connect = $self->{$rname}{'PCONNECT'}{$pname};
 	my $iplus=$i+1;
 	if(defined $connect){
-		my ($cname,$pnode)=split(',',$connect);
+		my ($cname,$pnode)=split(/\s*,\s*/,$connect);
 		my $cinstance= $self->object_get_attribute("$cname","NAME");
 		my $ctype = $self->object_get_attribute("$cname",'TYPE'); 		
 		my ($cp)= sscanf("Port[%u]","$pnode");
@@ -601,7 +601,7 @@ for (my $i=0;$i<$Pnum; $i++){
 	my $connect = $self->{$rname}{'PCONNECT'}{$pname};
 	my $iplus=$i+1;
 	if(defined $connect){
-		my ($cname,$pnode)=split(',',$connect);
+		my ($cname,$pnode)=split(/\s*,\s*/,$connect);
 		my $cinstance= $self->object_get_attribute("$cname","NAME");
 		my $ctype = $self->object_get_attribute("$cname",'TYPE'); 		
 		my ($cp)= sscanf("Port[%u]","$pnode");
@@ -1305,7 +1305,7 @@ sub generate_connection_v{
 	my $pos=0;
 	foreach my $end (@ends){
 		my $connect = $self->{$end}{'PCONNECT'}{'Port[0]'};
-		my ($Rname,$Rport)=split(',',$connect);
+		my ($Rname,$Rport)=split(/\s*,\s*/,$connect);
 		my $R = get_scolar_pos($Rname,@routers);
 		$assign=$assign."\tassign er_addr [$pos] = $R;\n";  
 		$pos++;   		
