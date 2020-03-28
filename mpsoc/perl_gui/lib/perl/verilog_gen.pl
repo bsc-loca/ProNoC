@@ -573,13 +573,15 @@ sub gen_soc_instance_v{
 	my $ss="";
 	my $ww="";
 	
+	my $jtag_inst_name="";
+	
 	foreach my $intfc (@intfcs){	
 		
 		#reset
 		if( $intfc eq 'plug:reset[0]'){
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
-				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
+				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
 				$mm="$mm," if ($i);	
 				$mm="$mm\n\t\t.$p(${p}_ored_jtag)";
 				$ss="$ss\tassign ${p}_ored_jtag = (jtag_system_reset | $p);\n";
@@ -594,7 +596,7 @@ sub gen_soc_instance_v{
 		elsif( $intfc eq 'plug:enable[0]'){
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
-				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
+				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
 				$mm="$mm," if ($i);		
 				$mm="$mm\n\t\t.$p(${p}_anded_jtag)";
 				$ss="$ss\tassign ${p}_anded_jtag= (jtag_cpu_en & $p);\n";
@@ -621,20 +623,22 @@ sub gen_soc_instance_v{
 		elsif( $intfc eq 'socket:jtag_to_wb[0]'){ #check JTAG connect parameter. if it is XILINX then connect it to jtag tap
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
-				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
-				my $JTAG_CONNECT=$soc->soc_get_module_param_value ($inst,'JTAG_CONNECT');
+				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
+				my $JTAG_CONNECT=$soc->soc_get_module_param_value ($id,'JTAG_CONNECT');
 				
 				#print "$inst,$range,$type,$intfc_name,$intfc_port-> $JTAG_CONNECT;";
 				if($JTAG_CONNECT eq '"XILINX_JTAG_WB"'){
+					$jtag_inst_name= $soc->soc_get_instance_name($id);
+				
 					
-					my %params	= $soc->soc_get_module_param($inst);
-					my $new_range = add_instantc_name_to_parameters(\%params,$inst,$range);
+					my %params	= $soc->soc_get_module_param($id);
+					my $new_range = add_instantc_name_to_parameters(\%params,$id,$range);
 					$ww="$ww\twire [ $new_range ] ${p};\n";
 					
 					$mm="$mm," if ($i);		
 					$mm="$mm\n\t\t.$p($p)";	
 					if($type eq 'input'){
-						$jtag_insts=$jtag_insts."$inst XILINX JTAG,";
+						$jtag_insts=$jtag_insts."$id XILINX JTAG,";
 						$xilinx_jtag_ctrl++;
 						$xilinx_jtag_ctrl_in=(defined $xilinx_jtag_ctrl_in)? "$xilinx_jtag_ctrl_in,$p" : "$p";
 					}else {
@@ -650,7 +654,7 @@ sub gen_soc_instance_v{
 				if($JTAG_CONNECT eq '"ALTERA_JTAG_WB"'){
 					
 					if($type eq 'input'){
-						$jtag_insts=$jtag_insts."$inst ALTERA JTAG,";
+						$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
 						$altera_jtag_ctrl++;
 										
 					}
@@ -690,15 +694,17 @@ sub gen_soc_instance_v{
 		$xilinx_jtag_ctrl_out ="{$xilinx_jtag_ctrl_out}" if($xilinx_jtag_ctrl != 1); 
 		
 		$soc_v = $soc_v."
-	xilinx_jtag_to_wb  #(
-		.JWB_NUM($xilinx_jtag_ctrl)
+	xilinx_jtag_wb  #(
+		.JWB_NUM($xilinx_jtag_ctrl),
+		.JDw(${jtag_inst_name}_JDw),
+    	.JAw(${jtag_inst_name}_JAw)		
 	)jwb(
-		.clk($clkpin),
+		
 		.reset($rpin),
 		.cpu_en(jtag_cpu_en),
-		.system_reset(jtag_system_reset)
-		.wb_to_jtag_all($xilinx_jtag_ctrl_in),
-		.jtag_to_wb_all($xilinx_jtag_ctrl_out)
+		.system_reset(jtag_system_reset),
+		.wb_to_jtag_all($xilinx_jtag_ctrl_out),
+		.jtag_to_wb_all($xilinx_jtag_ctrl_in)
 	);		
 		
 ";

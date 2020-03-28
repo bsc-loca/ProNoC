@@ -98,9 +98,7 @@ module jtag_control_port #(
 	.virtual_state_uir 	( uir )
 	);
 
-	
-	// IR states
-	
+   
 	
 	
 	reg [2:0] ir;

@@ -25,12 +25,6 @@ require "readme_gen.pl";
 
 
 
-use constant DISPLY_COLUMN    => 0;
-use constant CATGR_COLUMN    => 1;
-use constant INTFC_COLUMN     => 2;
-use constant ITAL_COLUMN   => 3;
-use constant NUM_COLUMN     => 4;
-
 ################
 #  check_input_file
 ################
@@ -80,118 +74,6 @@ sub read_all_module{
 }	
 
 
-##############
-#	create_interface_tree 
-##############
-sub create_interface_tree {
-   my ($info,$intfc,$ipgen)=@_;
-   my $model = Gtk2::TreeStore->new ('Glib::String', 'Glib::String', 'Glib::Scalar', 'Glib::Boolean');
-   my $tree_view = Gtk2::TreeView->new;
-   $tree_view->set_model ($model);
-   my $selection = $tree_view->get_selection;
-
-   $selection->set_mode ('browse');
-  # $tree_view->set_size_request (200, -1);
- 
-
-  # my @interface= $intfc->get_interfaces();
-	my @categories= $intfc->get_categories();
-
-
-
-   foreach my $p (@categories)
-   {
-	my @intfc_names=  $intfc->get_intfcs_of_category($p);
-	#my @dev_entry=  @{$tree_entry{$p}}; 	
-	my $iter = $model->append (undef);
-	$model->set ($iter,
-                   DISPLY_COLUMN,    $p,
-                   CATGR_COLUMN, $p || '',
-                   INTFC_COLUMN,     0     || '',
-                   ITAL_COLUMN,   FALSE);
-
-	next unless  @intfc_names;
-	
-	foreach my $v ( @intfc_names){
-		 my $child_iter = $model->append ($iter);
-		 my $entry= '';
-		
-         	$model->set ($child_iter,
-					DISPLY_COLUMN,    $v,
-                   	CATGR_COLUMN, $p|| '',
-                   	INTFC_COLUMN,     $v     || '',
-                   	ITAL_COLUMN,   FALSE);
-      	}	
-	
-
-
-   }
-	
-   my $cell = Gtk2::CellRendererText->new;
-   $cell->set ('style' => 'italic');
-   my $column = Gtk2::TreeViewColumn->new_with_attributes
- 					("Interfaces list",
-                                        $cell,
-                                        'text' => DISPLY_COLUMN,
-                                        'style_set' => ITAL_COLUMN);
-
-  $tree_view->append_column ($column);
-  my @ll=($model,$info);
-#row selected
-
-  $selection->signal_connect (changed =>sub {
-	my ($selection, $ref) = @_;
-	my ($model,$info)=@{$ref};
-	my $iter = $selection->get_selected;
-  	return unless defined $iter;
-
-  	my ($category) = $model->get ($iter, CATGR_COLUMN);
-  	my ($name) = $model->get ($iter,INTFC_COLUMN );
-  	my $describ=$intfc->get_description($category,$name);
-  	
-	if($describ){
-		#print "$entry description is: $describ \n";
-		show_info($info,$describ);
-		
-	}
-
-
-}, \@ll);
-
-#  row_activated 
-  $tree_view->signal_connect (row_activated => sub{
-
-	my ($tree_view, $path, $column) = @_;
-	my $model = $tree_view->get_model;
-	my $iter = $model->get_iter ($path);
-	my ($category) = $model->get ($iter, CATGR_COLUMN);
-	my ($name) = $model->get ($iter,INTFC_COLUMN );
-  	
-   
-
-	if($name){ 
-		#print "$infc_name-$infc_type  is selected via row activaton!\n";
-		add_intfc_to_ip($intfc,$ipgen,$name,'plug',$info);
-	
-	}
-
-}, \@ll);
-
-  #$tree_view->expand_all;
-
-  my $scrolled_window = Gtk2::ScrolledWindow->new;
-  $scrolled_window->set_policy ('automatic', 'automatic');
-  $scrolled_window->set_shadow_type ('in');
-  $scrolled_window->add($tree_view);
-
-  my $hbox = Gtk2::HBox->new (FALSE, 0);
-  $hbox->pack_start ( $scrolled_window, TRUE, TRUE, 0);
-
-  
-
-  return $hbox;
-}
-
 
 
 sub save_ports_all{
@@ -229,7 +111,7 @@ sub ip_file_box {
 
 
 	
-	my $entry2=labele_widget_info(" IP name:",gen_entry_object($ipgen,'ip_name',undef,undef,undef,undef));
+	my $entry2=gen_label_info(" IP name:",gen_entry_object($ipgen,'ip_name',undef,undef,undef,undef));
 
 
 
@@ -297,7 +179,7 @@ sub select_module{
 	my $saved_module=$ipgen->ipgen_get("module_name");
 	my $pos=(defined $saved_module ) ? get_scolar_pos( $saved_module,@modules) : 0;
 	my $combo = gen_combo(\@modules, $pos);
-	my $top_module=labele_widget_info("  Select\n module:",$combo);
+	my $top_module=gen_label_info("  Select\n module:",$combo);
 
 
 
@@ -315,7 +197,7 @@ sub select_module{
 	if(defined $saved_category ){	push(@categories,$saved_category) if(!( grep /^$saved_category$/, @categories ));}
 	my $content=join( ',', @categories);	
 	my $combentry=gen_comboentry_object ($ipgen,'category',undef,$content,$saved_category,undef,undef);
-	my $category=labele_widget_info("  Select\n Category:",$combentry,"Select the IP category form the given list or you can add a new category.");
+	my $category=gen_label_info("  Select\n Category:",$combentry,"Select the IP category form the given list or you can add a new category.");
 
 
 	
@@ -1431,6 +1313,22 @@ sub add_intfc_to_ip{
 }	
 
 
+sub add_plug_interface_from_tree{
+	my ($ipgen,$category,$infc_name,$info)=@_;
+	$ipgen->ipgen_add_plug($infc_name,'num',1);
+	set_gui_status($ipgen,"interface_selected",1);	
+}
+
+sub show_interface_description {
+	my ($soc,$category,$infc_name,$info)=@_;
+	my $intfc=interface->interface_new();
+	my $describ=$intfc->get_description($category,$infc_name);  	
+	if($describ){
+		show_info($info,$describ);		
+	}
+	undef $intfc;
+}
+
 #################
 #	get_list_of_all_interfaces
 ################
@@ -2081,7 +1979,17 @@ sub ipgen_main{
 	
 	
 	# A tree view for holding a library
-	my $tree_box = create_interface_tree  ($info,$intfc,$ipgen);
+	my %tree_text;
+	my @categories= $intfc->get_categories();
+	foreach my $p (@categories)
+   	{
+   		my @intfc_names=  $intfc->get_intfcs_of_category($p);
+   		$tree_text{$p}=\@intfc_names;
+	
+   	}
+	
+	
+	my $tree_box = create_tree  ($ipgen,'Interfaces list',$info,\%tree_text,\&show_interface_description  ,\&add_plug_interface_from_tree);
 
 
 	my $file_info=show_file_info($ipgen,$info,\$refresh_dev_win);

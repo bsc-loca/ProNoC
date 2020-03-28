@@ -1,8 +1,5 @@
-
-
 use strict;
 use warnings;
-
 use FindBin;
 use lib $FindBin::Bin;
 
@@ -14,25 +11,22 @@ use Cwd;
 use rvp;
 
 
-
 sub mpsoc_generate_verilog{
-	my ($mpsoc,$sw_dir)=@_;
+	my ($mpsoc,$sw_dir,$txview)=@_;
 	my $mpsoc_name=$mpsoc->object_get_attribute('mpsoc_name');
 	my $top_ip=ip_gen->top_gen_new();
-	my $io_v="\tclk,\n\treset";
-
+	
 	
                                                                      
 	#$top_ip->top_add_port($inst,$port,$range,$type,$intfc_name,$intfc_port);
 	$top_ip->top_add_port('IO','reset','', 'input' ,'plug:reset[0]','reset_i');
 	$top_ip->top_add_port('IO','clk','', 'input' ,'plug:clk[0]','clk_i');
 	
-	my $io_def_v="
-//IO
-\tinput\tclk,reset;\n";
+	
+	
 	my $param_as_in_v;
 	# generate top 
-	my $top_io="\t\t.clk(clk) ,\n\t\t.reset(reset_ored_jtag)";
+	
 	
 	
 	#generate socs_parameter
@@ -45,50 +39,38 @@ sub mpsoc_generate_verilog{
 	my $noc_v=gen_noc_v($mpsoc,$pass_param);
 	
 	#generate socs
-	my $socs_v=gen_socs_v($mpsoc,\$io_v,\$io_def_v,\$top_io,$top_ip,$sw_dir);
+
+	my ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$jtag_def,
+	$jtag_insts,$altera_jtag_ctrl,$xilinx_jtag_ctrl,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out)=gen_socs_v($mpsoc,$top_ip,$sw_dir,$txview);
+	
+	my $jtag_v=add_jtag_ctrl ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out,$txview);
+	
 	
 	#functions
 	my $functions=get_functions();
 	
-	my $mpsoc_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule $mpsoc_name #(\n $param_as_in_v\n)(\n$io_v\n);\n": "`timescale	 1ns/1ps\nmodule $mpsoc_name (\n$io_v\n);\n";
-	add_text_to_string (\$mpsoc_v,$noc_param);
-	add_text_to_string (\$mpsoc_v,$functions);
-	add_text_to_string (\$mpsoc_v,$socs_param);
-	
-	add_text_to_string (\$mpsoc_v,$io_def_v);
-	add_text_to_string (\$mpsoc_v,$noc_v);
-	add_text_to_string (\$mpsoc_v,$socs_v);
-	add_text_to_string (\$mpsoc_v,"\nendmodule\n");
-	
-	
-	my $top_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule ${mpsoc_name}_top #(\n $param_as_in_v\n)(\n$io_v\n);\n": "`timescale	 1ns/1ps\nmodule ${mpsoc_name}_top (\n $io_v\n);\n";
-	add_text_to_string (\$top_v,$socs_param);
-	add_text_to_string (\$top_v,$io_def_v);
-	add_text_to_string(\$top_v,"
-// Allow software to remote reset/enable the cpu via jtag
-
-	wire jtag_cpu_en, jtag_system_reset;
-
-	jtag_system_en jtag_en (
-		.cpu_en(jtag_cpu_en),
-		.system_reset(jtag_system_reset)
-	
-	);
-	
-	wire reset_ored_jtag = reset | jtag_system_reset;
-	wire processors_en_anded_jtag = processors_en & jtag_cpu_en;
-	
-	${mpsoc_name} the_${mpsoc_name} (
-		
-$top_io
-	
-	
-	);
-
+	my $mpsoc_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule $mpsoc_name #(\n $param_as_in_v\n)(\n$io_short\n);\n": "`timescale	 1ns/1ps\nmodule $mpsoc_name (\n$io_short\n);\n";
+	$mpsoc_v=$mpsoc_v. "
+$noc_param
+$functions
+$socs_param
+$io_full
+$noc_v
+$socs_v
 endmodule
-
-
-");	
+";
+	
+	
+	my $top_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule ${mpsoc_name}_top #(\n $param_as_in_v\n)(\n$top_io_short\n);\n": "`timescale	 1ns/1ps\nmodule ${mpsoc_name}_top (\n $top_io_short\n);\n";
+$top_v=$top_v."
+$socs_param
+$top_io_full
+$jtag_v	
+\t${mpsoc_name} the_${mpsoc_name} (
+$top_io_pass
+\t);
+endmodule
+";	
 	
 	#my $ins= gen_mpsoc_instance_v($mpsoc,$mpsoc_name,$param_pass_v);
 
@@ -97,6 +79,69 @@ endmodule
 	$mpsoc->object_add_attribute('top_ip',undef,$top_ip);
 	return ($mpsoc_v,$top_v);
 }
+
+
+
+sub add_jtag_ctrl {
+	my ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out,$txview)=@_;
+	my $jtag_v=$jtag_def;
+	
+	
+	
+	if($altera_jtag_ctrl>0 && $xilinx_jtag_ctrl>0 ){
+		add_colored_info($txview,"Found JTAG comminication ports from differnt FPGA vendors:$jtag_insts. ",'red');			
+		
+	}elsif ($xilinx_jtag_ctrl>0){
+		$xilinx_jtag_ctrl_in  ="{$xilinx_jtag_ctrl_in}"  if($xilinx_jtag_ctrl != 1); 
+		$xilinx_jtag_ctrl_out ="{$xilinx_jtag_ctrl_out}" if($xilinx_jtag_ctrl != 1); 
+		
+	#	.JDw(${jtag_inst_name}_JDw),
+    #	.JAw(${jtag_inst_name}_JAw)		
+		
+	$jtag_v=$jtag_v."
+	xilinx_jtag_wb  #(
+		.JWB_NUM($xilinx_jtag_ctrl)
+		//.JDw(\${jtag_inst_name}_JDw),
+    	//.JAw(\${jtag_inst_name}_JAw)		
+		
+	)jwb(
+		
+		.reset(reset),
+		.cpu_en(jtag_cpu_en),
+		.system_reset(jtag_system_reset),
+		.wb_to_jtag_all($xilinx_jtag_ctrl_out),
+		.jtag_to_wb_all($xilinx_jtag_ctrl_in)
+	);		
+		
+";
+		
+	}elsif($altera_jtag_ctrl>0) {
+$jtag_v=$jtag_v."	
+	jtag_system_en jtag_en (
+		.cpu_en(jtag_cpu_en),
+		.system_reset(jtag_system_reset)
+	
+	);	
+";		
+		
+	}else{
+$jtag_v=$jtag_v."
+    //No jtag connection has found in the design	
+	assign jtag_cpu_en=1\'b0;
+	assign jtag_system_reset=1'b0;	
+";
+	}
+	
+return $jtag_v;	
+	
+}
+
+
+
+
+
+
+
 
 sub get_functions{
 	my $p='
@@ -133,7 +178,7 @@ sub  gen_socs_param{
 			my ($soc_name,$n,$soc_num)=$mpsoc->mpsoc_get_tile_soc_name($tile);
 			if(defined $soc_name) {
 				my $param=	gen_soc_param($mpsoc,$soc_name,$soc_num,$tile);
-				add_text_to_string(\$socs_param,$param);
+				$socs_param=$socs_param.$param;
 			}	
 	}#$tile
 	$socs_param="$socs_param \n";
@@ -142,18 +187,19 @@ sub  gen_socs_param{
 
 
 sub  gen_soc_param {
-	my ($mpsoc,$soc_name,$soc_num,$tile)=@_;
+	my ($mpsoc,$soc_name,$soc_num,$tile_num)=@_;
 	my $top=$mpsoc->mpsoc_get_soc($soc_name);
-	my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile);
+	my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile_num);
 	my %params;
 	if ($setting eq 'Custom'){
-		 %params= $top->top_get_custom_soc_param($tile);
+		 %params= $top->top_get_custom_soc_param($tile_num);
 	}else{
 		 %params=$top->top_get_default_soc_param();
 	}
-	my $params="\n\t //Parameter setting for $soc_name  located in tile: $tile \n";
+	my $params="\n\t //Parameter setting for $soc_name  located in tile: $tile_num \n";
 	foreach my $p (sort keys %params){
-			$params="$params\t localparam ${soc_name}_${soc_num}_$p=$params{$p};\n";
+			$params{$p}=add_instantc_name_to_parameters(\%params,"T$tile_num",$params{$p});
+			$params="$params\t localparam T${tile_num}_$p=$params{$p};\n";
 	}
 		
 	
@@ -165,15 +211,15 @@ sub  gen_soc_param {
 sub gen_noc_param_v{
 	my $mpsoc=shift;
 	my $param_v="\n\n//NoC parameters\n";
-	my $pass_param;
+	my $pass_param="";
 	my @params=$mpsoc->object_get_attribute_order('noc_param');
 	my $custom_topology = $mpsoc->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
 	foreach my $p (@params){
 		my $val=$mpsoc->object_get_attribute('noc_param',$p);
 		next if($p eq "CUSTOM_TOPOLOGY_NAME");
 		$val=$custom_topology if($p eq "TOPOLOGY" && $val eq "\"CUSTOM\"");
-		add_text_to_string (\$param_v,"\tlocalparam $p=$val;\n");
-		add_text_to_string (\$pass_param,".$p($p),\n");
+		$param_v= $param_v."\tlocalparam $p=$val;\n";
+		$pass_param=$pass_param."\t\t.$p($p),\n";
 		#print "$p:$val\n";
 		
 	}
@@ -183,7 +229,7 @@ sub gen_noc_param_v{
 		for (my $i=0; $i<=$class-1; $i++){
 			my $n="Cn_$i";
 			my $val=$mpsoc->object_get_attribute('class_param',$n);
-			add_text_to_string (\$param_v,"\tlocalparam $n=$val;\n");
+			$param_v=$param_v."\tlocalparam $n=$val;\n";
 		}
 		$str="CLASS_SETTING={";
 		for (my $i=$class-1; $i>=0;$i--){
@@ -192,21 +238,17 @@ sub gen_noc_param_v{
 	}else {
 		$str="CLASS_SETTING={V{1\'b1}};\n";
 	}	
-	add_text_to_string (\$param_v,"\tlocalparam $str");
-	add_text_to_string (\$pass_param,".CLASS_SETTING(CLASS_SETTING),\n");
+	$param_v=$param_v."\tlocalparam $str";
+	$pass_param=$pass_param."\t\t.CLASS_SETTING(CLASS_SETTING),\n";
 	my $v=$mpsoc->object_get_attribute('noc_param',"V")-1;
 	my $escape=$mpsoc->object_get_attribute('noc_param',"ESCAP_VC_MASK");
 	if (! defined $escape){
-		add_text_to_string (\$param_v,"\tlocalparam [$v	:0] ESCAP_VC_MASK=1;\n");
-		add_text_to_string (\$pass_param,".ESCAP_VC_MASK(ESCAP_VC_MASK),\n"); 
+		$param_v=$param_v."\tlocalparam [$v	:0] ESCAP_VC_MASK=1;\n";
+		$pass_param=$pass_param.".\t\tESCAP_VC_MASK(ESCAP_VC_MASK),\n"; 
 	}
-	add_text_to_string (\$param_v," \tlocalparam  CVw=(C==0)? V : C * V;\n");
-	add_text_to_string (\$pass_param,".CVw(CVw)\n");
-	
-	
+	$param_v=$param_v." \tlocalparam  CVw=(C==0)? V : C * V;\n";
+	$pass_param=$pass_param."\t\t.CVw(CVw)\n";	
 	return ($param_v,$pass_param);	
-	
-	
 	
 }
 
@@ -221,7 +263,7 @@ sub gen_noc_param_h{
 		my $val=$mpsoc->object_get_attribute('noc_param',$p);
 		next if($p eq "CUSTOM_TOPOLOGY_NAME");
 		$val=$custom_topology if($p eq "TOPOLOGY" && $val eq "\"CUSTOM\"");
-		add_text_to_string (\$param_h,"\t#define $p\t$val\n");
+		$param_h=$param_h."\t#define $p\t$val\n";
 		
 		#print "$p:$val\n";
 		
@@ -232,7 +274,7 @@ sub gen_noc_param_h{
 		for (my $i=0; $i<=$class-1; $i++){
 			my $n="Cn_$i";
 			my $val=$mpsoc->object_get_attribute('class_param',$n);
-			add_text_to_string (\$param_h,"\t#define $n\t$val\n");
+			$param_h=$param_h."\t#define $n\t$val\n";
 		}
 		$str="CLASS_SETTING  {";
 		for (my $i=$class-1; $i>=0;$i--){
@@ -313,7 +355,7 @@ sub gen_noc_v{
 		$i=1;
 		#add_text_to_string(\$noc_v,$param);			
 	}	
-	add_text_to_string(\$noc_v,"$pass_param\n\t)\n\tthe_noc\n\t(\n");		
+	$noc_v=$noc_v."$pass_param\n\t)\n\tthe_noc\n\t(\n";		
 	
 	my @ports= $noc->get_module_ports_order('noc');
 	$i=0;
@@ -327,23 +369,18 @@ sub gen_noc_v{
 			$port=($i==0)?  "\t\t.$p($p)":",\n\t\t.$p($p)";			
 		}
 		$i=1;
-		add_text_to_string(\$noc_v,$port);			
+		$noc_v=$noc_v.$port;			
 	}	
-	add_text_to_string(\$noc_v,"\n\t);\n\n");		
-
-add_text_to_string(\$noc_v,'	
+	$noc_v=$noc_v.'
+	);
+	
 	clk_source  src 	(
 		.clk_in(clk),
 		.clk_out(noc_clk),
 		.reset_in(reset),
 		.reset_out(noc_reset)
 	);    
-');	
 
-
-
-
-add_text_to_string(\$noc_v,'	
 
 //NoC port assignment
   genvar IP_NUM;
@@ -361,7 +398,7 @@ add_text_to_string(\$noc_v,'
 endgenerate
 
 '
-);
+;
 	return $noc_v;
 	
 }
@@ -370,48 +407,85 @@ endgenerate
 
 
 sub gen_socs_v{
-	my ($mpsoc,$io_v_ref,$io_def_v,$top_io_ref,$top_ip,$sw_dir)=@_;
+	my ($mpsoc,$top_ip,$sw_dir,$txview)=@_;
+	   
+	my $io_short="\tclk,\n\treset";
+	my $top_io_short="\tclk,\n\treset";   
+	my $jtag_def="// Allow software to remote reset/enable the cpu via jtag
+\twire jtag_cpu_en, jtag_system_reset;	
+\twire reset_ored_jtag = reset | jtag_system_reset;
+\twire processors_en_anded_jtag = processors_en & jtag_cpu_en;
 	
-	  
-   
-	my $socs_v; 
+";
+	
+	my $io_full="
+//IO
+\tinput\tclk,reset;\n";
+	my $top_io_full= $io_full;   
+	my $top_io_pass="\t\t.clk(clk) ,\n\t\t.reset(reset_ored_jtag)";
+	 
+	my $altera_jtag_ctrl=0;
+	my $xilinx_jtag_ctrl=0; #if it becomes larger than 0 then add jtag to wb module 
+	my $jtag_insts="";
+	my $xilinx_jtag_ctrl_in="";
+	my $xilinx_jtag_ctrl_out=""; 
+	 
+	   
+	my $socs_v=""; 
 	my ($NE, $NR, $RAw, $EAw, $Fw)= get_topology_info ($mpsoc); 
         
  
 	my $processors_en=0;
-	for (my $id=0;$id<$NE;$id++){
-			my ($soc_name,$n,$soc_num)=$mpsoc->mpsoc_get_tile_soc_name($id);
+	for (my $tile_num=0;$tile_num<$NE;$tile_num++){
+			my ($soc_name,$n,$soc_num)=$mpsoc->mpsoc_get_tile_soc_name($tile_num);
 			
 			if(defined $soc_name) {				
-				my ($soc_v,$en)= gen_soc_v($mpsoc,$soc_name,$id,$soc_num,$io_v_ref,$io_def_v,$top_io_ref,$top_ip,$sw_dir);
-				add_text_to_string(\$socs_v,$soc_v);	
+				my ($soc_v,$en,$io_short1,$io_full1,$top_io_short1,$top_io_full1,$top_io_pass1,$jtag_def1,
+				$jtag_insts1, $altera_jtag_ctrl1,$xilinx_jtag_ctrl1,$xilinx_jtag_ctrl_in1, $xilinx_jtag_ctrl_out1)= 
+				gen_soc_v($mpsoc,$top_ip,$sw_dir,$soc_name,$tile_num,$soc_num,$txview);
+				$socs_v=$socs_v.$soc_v;
+				$io_short    = $io_short    .$io_short1;
+				$io_full     = $io_full     .$io_full1;
+				$top_io_short= $top_io_short.$top_io_short1;
+				$top_io_full = $top_io_full. $top_io_full1;
+				$top_io_pass = $top_io_pass. $top_io_pass1;
+				$jtag_def    = $jtag_def    .$jtag_def1;
+				$jtag_insts=$jtag_insts.$jtag_insts1; 
+				$altera_jtag_ctrl+=$altera_jtag_ctrl1;
+				$xilinx_jtag_ctrl+=$xilinx_jtag_ctrl1;
+				$xilinx_jtag_ctrl_in =(length ($xilinx_jtag_ctrl_in )>2)? "$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_in1"  : $xilinx_jtag_ctrl_in.$xilinx_jtag_ctrl_in1;
+				$xilinx_jtag_ctrl_out=(length ($xilinx_jtag_ctrl_out)>2)? "$xilinx_jtag_ctrl_out,$xilinx_jtag_ctrl_out1" :$xilinx_jtag_ctrl_out.$xilinx_jtag_ctrl_out1;
+					
 				$processors_en|=$en;
 			
 			}else{
 				#this tile is not connected to any ip. the noc input ports will be connected to ground
-				my $soc_v="\n\n // Tile:$id    is not assigned to any ip\n";
+				my $soc_v="\n\n // Tile:$tile_num    is not assigned to any ip\n";
 				$soc_v="$soc_v
 	
-	assign ni_credit_out[$id]={V{1'b0}}; 
-	assign ni_flit_out[$id]={Fw{1'b0}}; 
-	assign ni_flit_out_wr[$id]=1'b0; 
+	assign ni_credit_out[$tile_num]={V{1'b0}}; 
+	assign ni_flit_out[$tile_num]={Fw{1'b0}}; 
+	assign ni_flit_out_wr[$tile_num]=1'b0; 
 	";
-		add_text_to_string(\$socs_v,$soc_v);			
+		$socs_v=$socs_v.$soc_v;			
 				
 			}
 	
 	}
                 
     if($processors_en){
-    	add_text_to_string($io_v_ref,",\n\tprocessors_en");
-    	add_text_to_string($io_def_v,"\t input processors_en;");
-    	add_text_to_string($top_io_ref,",\n\t\t.processors_en(processors_en_anded_jtag)");
-	$top_ip->top_add_port('IO','processors_en','' ,'input','plug:enable[0]','enable_i');
+    	$io_short=$io_short.",\n\tprocessors_en";
+    	$io_full=$io_full."\t input processors_en;";
+    	$top_io_short=$top_io_short.",\n\tprocessors_en";
+    	$top_io_full=$top_io_full."\t input processors_en;";
+    	$top_io_pass=$top_io_pass.",\n\t\t.processors_en(processors_en_anded_jtag)";
+		$top_ip->top_add_port('IO','processors_en','' ,'input','plug:enable[0]','enable_i');
     	
     }            
                 
 
-	return $socs_v;
+	return ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$jtag_def,
+	$jtag_insts,$altera_jtag_ctrl,$xilinx_jtag_ctrl,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out);
 
 }
 
@@ -420,22 +494,36 @@ sub gen_socs_v{
 ##############
 
 
-
+#$mpsoc,$top_ip,$sw_dir,$soc_name,$id,$soc_num,$txview
 sub   gen_soc_v{
-	my ($mpsoc,$soc_name,$tile_num,$soc_num,$io_v_ref,$io_def_v,$top_io_ref,$top_ip,$sw_path)=@_;
-	my $soc_v;
+	my ($mpsoc,$top_ip,$sw_path,$soc_name,$tile_num,$soc_num,$txview)=@_;
+		
+	my $io_short="";
+	my $io_full="";
+	my $top_io_short="";
+	my $top_io_full="";
+	my $top_io_pass="";
+	my $jtag_def="";	
+	
 	my $processor_en=0;
+	my $jtag_insts="";
+	my $altera_jtag_ctrl=0;
+	my $xilinx_jtag_ctrl=0;
+	my $xilinx_jtag_ctrl_in="";
+	my $xilinx_jtag_ctrl_out="";
+	
+	
 	my ($NE, $NR, $RAw, $EAw, $Fw)= get_topology_info ($mpsoc); 
 	my $e_addr=endp_addr_encoder($mpsoc,$tile_num);
 	my $router_num = get_connected_router_id_to_endp($mpsoc,$tile_num);
 	my $r_addr=router_addr_encoder($mpsoc,$router_num);
 	
-		
 	
-	$soc_v="\n\n // Tile:$tile_num ($e_addr)\n   \t$soc_name #(\n";
+	
+	my $soc_v="\n\n // Tile:$tile_num ($e_addr)\n   \t$soc_name #(\n";
 	
 	# Global parameter
-	add_text_to_string(\$soc_v,"\t\t.CORE_ID($tile_num),\n\t\t.SW_LOC(\"$sw_path/tile$tile_num\")");
+	$soc_v=$soc_v."\t\t.CORE_ID($tile_num),\n\t\t.SW_LOC(\"$sw_path/tile$tile_num\")";
 	
 		
 	# ni parameter
@@ -453,16 +541,16 @@ sub   gen_soc_v{
 		my $parm_next = $p;
 		$parm_next =~ s/${inst_name}_//;
 		my $param=  ",\n\t\t.$p($parm_next)"; 
-		add_text_to_string(\$soc_v,$param);		
+		$soc_v=$soc_v.$param;		
 	}
 	foreach my $p (sort keys %params){
-		my $parm_next= "${soc_name}_${soc_num}_$p";
+		my $parm_next= "T${tile_num}_$p";
 		my $param=  ",\n\t\t.$p($parm_next)"; 
-		add_text_to_string(\$soc_v,$param);			
+		$soc_v=$soc_v.$param;			
 		
 	}	
 	
-	add_text_to_string(\$soc_v,"\n\t)the_${soc_name}_$soc_num(\n");
+	$soc_v=$soc_v."\n\t)the_${soc_name}_$soc_num(\n";
 	
 	my @intfcs=$top->top_get_intfc_list();
 	
@@ -489,8 +577,8 @@ sub   gen_soc_v{
 				my $q=	($intfc_port eq "current_e_addr")? "$EAw\'d$e_addr" : 
 						($intfc_port eq "current_r_addr")? "$RAw\'d$r_addr" :						
 						"ni_$intfc_port\[$tile_num\]";
-				add_text_to_string(\$soc_v,',') if ($i);	
-				add_text_to_string(\$soc_v,"\n\t\t.$p($q)");
+				$soc_v=$soc_v.',' if ($i);	
+				$soc_v=$soc_v."\n\t\t.$p($q)";
 				$i=1;
 			
 				
@@ -501,8 +589,8 @@ sub   gen_soc_v{
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
 				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
-				add_text_to_string(\$soc_v,',') if ($i);	
-			    add_text_to_string(\$soc_v,"\n\t\t.$p(clk)");	
+				$soc_v=$soc_v.',' if ($i);	
+				$soc_v=$soc_v."\n\t\t.$p(clk)";	
 			    $i=1;	
 				
 			}	
@@ -512,8 +600,8 @@ sub   gen_soc_v{
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
 				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
-				add_text_to_string(\$soc_v,',') if ($i);	
-			    add_text_to_string(\$soc_v,"\n\t\t.$p(reset)");
+				$soc_v=$soc_v.',' if ($i);	
+				$soc_v=$soc_v."\n\t\t.$p(reset)";
 			    $i=1;		
 				
 			}			
@@ -526,8 +614,8 @@ sub   gen_soc_v{
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
 				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
-				add_text_to_string(\$soc_v,',') if ($i);	
-			    add_text_to_string(\$soc_v,"\n\t\t.$p(processors_en)");
+				$soc_v=$soc_v.',' if ($i);	
+				$soc_v=$soc_v."\n\t\t.$p(processors_en)";
 			    $processor_en=1;
 			    $i=1;		
 				
@@ -540,9 +628,76 @@ sub   gen_soc_v{
 			#This interface is for simulation only donot include it in top module
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
-				add_text_to_string(\$soc_v,',') if ($i);	
-				add_text_to_string(\$soc_v,"\n\t\t.$p( )");
+				$soc_v=$soc_v.',' if ($i);	
+				$soc_v=$soc_v."\n\t\t.$p( )";
 				$i=1;
+			}		
+		
+		}
+		
+		#jtag_to_wb	
+		elsif( $intfc eq 'socket:jtag_to_wb[0]'){ #check JTAG connect parameter. if it is XILINX then connect it to jtag tap
+			my @ports=$top->top_get_intfc_ports_list($intfc);
+			
+			my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile_num);
+			my %topparams;
+			if ($setting eq 'Custom'){
+				 %topparams= $top->top_get_custom_soc_param($tile_num);
+			}else{
+				 %topparams=$top->top_get_default_soc_param();
+			}
+		
+		
+			#my $JTAG_CONNECT=$soc->soc_get_module_param_value ($id,'JTAG_CONNECT');
+			
+			foreach my $p (@ports){
+				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
+				my $inst_name=$top->top_get_def_of_instance($id,'instance');
+				my $JTAG_CONNECT=  $topparams{"${inst_name}_JTAG_CONNECT"};
+				
+				#print Dumper (\%topparams);
+				#print "my $JTAG_CONNECT=  \$topparams{${inst_name}_JTAG_CONNECT}\n"; 
+				
+				#print "$inst,$range,$type,$intfc_name,$intfc_port-> $JTAG_CONNECT;";
+				if($JTAG_CONNECT eq '"XILINX_JTAG_WB"'){
+					
+					my ($io_port,$type,$new_range,$intfc_name,$intfc_port)=	get_top_port_io_info($top,$p,$tile_num,\%params,\%soc_localparam);
+					my $port_def=(length ($new_range)>1 )? 	"\t$type\t [ $new_range    ] $io_port;\n": "\t$type\t\t\t$io_port;\n";			 
+					$top_ip->top_add_port("T${tile_num}" ,$io_port, $new_range ,$type,$intfc_name,$intfc_port);
+					
+					my $wire_def=(length ($new_range)>1 )? 	"\twire\t [ $new_range    ] $io_port;\n": "\twire\t\t\t$io_port;\n";			 
+				#	my $new_range = add_instantc_name_to_parameters(\%params,"${soc_name}_$soc_num",$range);
+					
+					$jtag_def=$jtag_def."$wire_def";
+					
+					$soc_v=$soc_v.',' if ($i);	
+					$soc_v=$soc_v."\n\t\t.$p($io_port)";
+					$i=1;	
+					if($type eq 'input'){
+						
+						$jtag_insts=$jtag_insts."$id XILINX JTAG,";
+						$xilinx_jtag_ctrl++;
+						$xilinx_jtag_ctrl_in=(length ($xilinx_jtag_ctrl_in)>2)? "$xilinx_jtag_ctrl_in,$io_port" : "$io_port";
+					}else {
+						$xilinx_jtag_ctrl_out=(length($xilinx_jtag_ctrl_out)>2)? "$xilinx_jtag_ctrl_out,$io_port" : "$io_port";
+					}
+					$io_short=$io_short.",\n\t$io_port";
+					$io_full=$io_full."$port_def";
+					$top_io_pass=$top_io_pass.",\n\t\t.$io_port($io_port)";
+#					
+				}else{#Dont not connect 
+					$soc_v=$soc_v.',' if ($i);	
+					$soc_v=$soc_v."\n\t\t.$p( )";
+					$i=1;
+				}
+			
+				if($JTAG_CONNECT eq '"ALTERA_JTAG_WB"'){
+					if($type eq 'input'){
+						$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
+						$altera_jtag_ctrl++;
+					}
+				}	
+				
 			}		
 		
 		}
@@ -551,57 +706,60 @@ sub   gen_soc_v{
 		#other interface
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
-			my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
-			my $io_port="${soc_name}_${soc_num}_${p}";
-			#resolve range parameter
-			if (defined $range ){
-				my @a= split (/\b/,$range);			
-				foreach my $l (@a){
-					#if defined in parameter list ignore it
-					next  if(defined $params{$l});
-					($range=$range)=~ s/\b$l\b/$soc_localparam{$l}/g      if(defined $soc_localparam{$l});
-					#else s
-					
-					#print "$l\n";
-				}
-
-			}
-			#io name 
-			add_text_to_string($io_v_ref,",\n\t$io_port");
-			add_text_to_string($top_io_ref,",\n\t\t.$io_port($io_port)");
-			#io definition
-			my $new_range = add_instantc_name_to_parameters(\%params,"${soc_name}_$soc_num",$range);
-			#my $new_range=$range;
-			my $port_def=(length ($range)>1 )? 	"\t$type\t [ $new_range    ] $io_port;\n": "\t$type\t\t\t$io_port;\n";			 
-			$top_ip->top_add_port("${soc_name}_$tile_num" ,$io_port, $new_range ,$type,$intfc_name,$intfc_port);
-			
-			add_text_to_string($io_def_v,"$port_def");
-			add_text_to_string(\$soc_v,',') if ($i);	
-			add_text_to_string(\$soc_v,"\n\t\t.$p($io_port)");	
-			$i=1;	
+				my ($io_port,$type,$new_range,$intfc_name,$intfc_port)=	get_top_port_io_info($top,$p,$tile_num,\%params,\%soc_localparam);
 				
-			}		
-			
-			
-		}	
-		
-		
+				$io_short=$io_short.",\n\t$io_port";
+				$top_io_short=$top_io_short.",\n\t$io_port";
+				$top_io_pass=$top_io_pass.",\n\t\t.$io_port($io_port)";
+				#io definition
+				#my $new_range = add_instantc_name_to_parameters(\%params,"${soc_name}_$soc_num",$range);
+				my $port_def=(length ($new_range)>1 )? 	"\t$type\t [ $new_range    ] $io_port;\n": "\t$type\t\t\t$io_port;\n";			 
+				$top_ip->top_add_port("T${tile_num}" ,$io_port, $new_range ,$type,$intfc_name,$intfc_port);
+				
+				$io_full=$io_full."$port_def";
+				$top_io_full=$top_io_full."$port_def";
+				$soc_v=$soc_v.',' if ($i);	
+				$soc_v=$soc_v."\n\t\t.$p($io_port)";	
+				$i=1;	
+				
+			}			
+		}			
 	}
 	
-	add_text_to_string(\$soc_v,"\n\t);\n");	
+	
+	
+	$soc_v=$soc_v."\n\t);\n";
 	
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	return ($soc_v,$processor_en);
+		
+	return ($soc_v,$processor_en,,$io_short,$io_full,$top_io_short,	$top_io_full,$top_io_pass,$jtag_def,
+	$jtag_insts, $altera_jtag_ctrl,$xilinx_jtag_ctrl,$xilinx_jtag_ctrl_in, $xilinx_jtag_ctrl_out);
 
 }
+
+
+
+sub get_top_port_io_info{
+	my ($top,$port,$tile_num,$params_ref,$local_param_ref)=@_;
+	my %params =%{$params_ref} if(defined $params_ref);
+	my %localparams=%{$local_param_ref} if(defined $local_param_ref);
+	my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($port);
+	my $io_port="T${tile_num}_${port}";
+    #resolve range parameter
+	if (defined $range ){
+			my @a= split (/\b/,$range);			
+			foreach my $l (@a){
+				#if defined in parameter list ignore it
+				next  if(defined $params{$l});
+				($range=$range)=~ s/\b$l\b/$localparams{$l}/g      if(defined $localparams{$l});
+			}
+	}
+	my $new_range = add_instantc_name_to_parameters(\%params,"T${tile_num}",$range);
+	return ($io_port,$type,$new_range,$intfc_name,$intfc_port);
+}
+
 
 
 sub log2{

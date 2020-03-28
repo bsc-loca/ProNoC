@@ -2069,7 +2069,7 @@ sub build_trace_gui {
 	});	
 	
 	my $entry2=gen_entry_object($self,'out_name',undef,undef,undef,undef);
-	my $entrybox2=labele_widget_info(" Output file name:",$entry2);
+	my $entrybox2=gen_label_info(" Output file name:",$entry2);
 	
 	my $save = def_image_button('icons/save.png','Save');
 	$entrybox->pack_end($save,   FALSE, FALSE,0);

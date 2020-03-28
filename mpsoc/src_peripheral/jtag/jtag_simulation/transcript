@@ -1,0 +1,2733 @@
+# do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585154824
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:47:04 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v(51): (vlog-13120) Unterminated block comment.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v(58): Verilog Compiler exiting
+# End time: 17:47:04 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 2, Warnings: 0
+# ** Error: /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+# Error in macro ./model.tcl line 100
+# /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+#     while executing
+# "vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f"
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach f $lib_file_list {
+#        
+# 		if { $last_compile_time < [file mtime $f] } {
+# 			vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f
+# 			
+# 			 s..."
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach a [list $path]  {
+#       puts "$a "
+#       set lib_file_list [glob -directory $a *.v *.sv]
+# 	foreach f $lib_file_list {
+#        
+# 		if { $last_comp..."
+do model.tcl
+# Cannot open macro file: model.tcl
+ls
+# modelsim.ini
+# vsim.wlf
+# wave.do
+# work
+pwd
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585154979
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:49:39 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v(54): (vlog-13120) Unterminated block comment.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v(56): Verilog Compiler exiting
+# End time: 17:49:40 on Mar 25,2020, Elapsed time: 0:00:01
+# Errors: 2, Warnings: 0
+# ** Error: /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+# Error in macro ./model.tcl line 100
+# /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+#     while executing
+# "vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f"
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach f $lib_file_list {
+#        
+# 		if { $last_compile_time < [file mtime $f] } {
+# 			vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f
+# 			
+# 			 s..."
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach a [list $path]  {
+#       puts "$a "
+#       set lib_file_list [glob -directory $a *.v *.sv]
+# 	foreach f $lib_file_list {
+#        
+# 		if { $last_comp..."
+cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585154999
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:49:59 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 17:49:59 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:49:59 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 17:49:59 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:49:59 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 17:49:59 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:49:59 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/vjtag.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 17:49:59 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:49:59 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(217)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(217): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(218)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(218): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(219)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(219): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(241)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(241): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(247)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(247): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(247): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(255)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(255): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(285)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(285): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(308)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(308): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(308): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(321)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(321): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(357)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(357): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(358)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(358): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(359)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(359): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(360)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(360): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(361)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(361): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(362)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(362): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(363)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(363): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# ** Error: ** while parsing macro expansion: 'SLD_NODE_IR_WIDTH_I' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(364)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(364): (vlog-2163) Macro `NUM_SELECTION_BITS is undefined.
+# -- Compiling module jtag_tap_controller
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(466): (vlog-2163) Macro `INIT_ST is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(466): near ";": syntax error, unexpected ';'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(467): (vlog-2163) Macro `TLR_ST is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(467): near ";": syntax error, unexpected ';'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(475): (vlog-2163) Macro `TLR_ST is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(475): near ";": syntax error, unexpected ';'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(485): (vlog-2163) Macro `CIR_ST is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(485): near ")": syntax error, unexpected ')'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(492): (vlog-2163) Macro `SIR_ST is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(499): near "else": syntax error, unexpected else.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(505): (vlog-2163) Macro `UIR_ST is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(507): (vlog-2163) Macro `JTAG_USR1_INSTR is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(529): (vlog-2163) Macro `E1IR_ST is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(541): (vlog-2163) Macro `TLR_ST is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(541): near ":": syntax error, unexpected ':'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(545): (vlog-2163) Macro `RTI_ST is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(546): (vlog-13205) Syntax error found in the scope following 'jtag_reset_i'. Is there a missing '::'?
+# End time: 17:49:59 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 36, Warnings: 0
+# ** Error: /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+# Error in macro ./model.tcl line 100
+# /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+#     while executing
+# "vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f"
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach f $lib_file_list {
+#        
+# 		if { $last_compile_time < [file mtime $f] } {
+# 			vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f
+# 			
+# 			 s..."
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach a [list $path]  {
+#       puts "$a "
+#       set lib_file_list [glob -directory $a *.v *.sv]
+# 	foreach f $lib_file_list {
+#        
+# 		if { $last_comp..."
+cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585155211
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:53:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 17:53:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:53:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 17:53:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:53:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 17:53:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:53:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/vjtag.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 17:53:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:53:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 17:53:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585155211
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 17:53:31 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# ** Error: (vsim-3033) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(136): Instantiation of 'signal_gen' failed. The design unit was not found.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/the_vjtag_sim/sld_virtual_jtag_component File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v
+#         Searched libraries:
+#             /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# Error loading design
+# Error: Error loading design
+#        Pausing macro execution
+# MACRO ./model.tcl PAUSED at line 117
+cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585155317
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:55:17 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 17:55:17 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:55:17 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 17:55:17 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:55:17 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 17:55:17 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:55:17 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/vjtag.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 17:55:17 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:55:17 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# ** Error: ** while parsing macro expansion: 'DEFAULT_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(896)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(896): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) ** while parsing macro expansion: 'DEFAULT_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(896)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(896): near ")": syntax error, unexpected ')'.
+# ** Error: ** while parsing macro expansion: 'TYPE_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(900)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(900): (vlog-2163) Macro `TYPE_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) ** while parsing macro expansion: 'TYPE_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(900)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(900): near ")": syntax error, unexpected ')'.
+# ** Error: ** while parsing macro expansion: 'DEFAULT_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(902)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(902): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) ** while parsing macro expansion: 'DEFAULT_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(902)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(902): near ")": syntax error, unexpected ')'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1149): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1182): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1224): (vlog-2730) Undefined variable: 'scan_length'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1226): (vlog-2730) Undefined variable: 'scan_type'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1227): (vlog-2730) Undefined variable: 'scan_time'.
+# ** Error: ** while parsing macro expansion: 'TYPE_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1233)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1233): (vlog-2163) Macro `TYPE_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) ** while parsing macro expansion: 'TYPE_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1233)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1233): near ")": syntax error, unexpected ')'.
+# ** Error: ** while parsing macro expansion: 'DEFAULT_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1234)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1234): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) ** while parsing macro expansion: 'DEFAULT_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1234)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1234): near ")": syntax error, unexpected ')'.
+# ** Error: ** while parsing macro expansion: 'DEFAULT_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1235)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1235): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) ** while parsing macro expansion: 'DEFAULT_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1235)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1235): near ")": syntax error, unexpected ')'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1349): (vlog-2163) Macro `TYPE_BIT_LENGTH is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1350): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1351): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1352): (vlog-2163) Macro `TIME_BIT_LENGTH is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1360): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1360): near ";": syntax error, unexpected ';'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1361): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1361): near ";": syntax error, unexpected ';'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1362): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1362): near ";": syntax error, unexpected ';'.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1362): near ")": syntax error, unexpected ')', expecting ';'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1370): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1370): near ";": syntax error, unexpected ';'.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1370): near ")": syntax error, unexpected ')', expecting ';'.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1376): near "else": syntax error, unexpected else.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1380): (vlog-2730) Undefined variable: 'tempLength_idx'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1380): (vlog-2163) Macro `DEFAULT_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1380): near ")": syntax error, unexpected ')', expecting ';'.
+# ** Error: (vlog-13069) /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1385): near "end": syntax error, unexpected end.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1394): (vlog-13205) Syntax error found in the scope following 'tempLength_idx'. Is there a missing '::'?
+# End time: 17:55:17 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 37, Warnings: 0
+# ** Error: /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+# Error in macro ./model.tcl line 100
+# /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+#     while executing
+# "vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f"
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach f $lib_file_list {
+#        
+# 		if { $last_compile_time < [file mtime $f] } {
+# 			vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f
+# 			
+# 			 s..."
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach a [list $path]  {
+#       puts "$a "
+#       set lib_file_list [glob -directory $a *.v *.sv]
+# 	foreach f $lib_file_list {
+#        
+# 		if { $last_comp..."
+cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585155369
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:56:09 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 17:56:10 on Mar 25,2020, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:56:10 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 17:56:10 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:56:10 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 17:56:10 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:56:10 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/vjtag.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 17:56:10 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:56:10 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# ** Error: ** while parsing macro expansion: 'TYPE_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(909)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(909): (vlog-2163) Macro `TYPE_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) ** while parsing macro expansion: 'TYPE_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(909)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(909): near ")": syntax error, unexpected ')'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1235): (vlog-2730) Undefined variable: 'scan_type'.
+# ** Error: ** while parsing macro expansion: 'TYPE_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1242)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1242): (vlog-2163) Macro `TYPE_BIT_LENGTH is undefined.
+# ** Error: (vlog-13069) ** while parsing macro expansion: 'TYPE_SCAN_LENGTH' starting at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1242)
+# ** at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1242): near ")": syntax error, unexpected ')'.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1358): (vlog-2163) Macro `TYPE_BIT_LENGTH is undefined.
+# ** Error: /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v(1361): (vlog-2163) Macro `TIME_BIT_LENGTH is undefined.
+# End time: 17:56:10 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 7, Warnings: 0
+# ** Error: /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+# Error in macro ./model.tcl line 100
+# /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+#     while executing
+# "vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f"
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach f $lib_file_list {
+#        
+# 		if { $last_compile_time < [file mtime $f] } {
+# 			vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $f
+# 			
+# 			 s..."
+#     ("foreach" body line 4)
+#     invoked from within
+# "foreach a [list $path]  {
+#       puts "$a "
+#       set lib_file_list [glob -directory $a *.v *.sv]
+# 	foreach f $lib_file_list {
+#        
+# 		if { $last_comp..."
+cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585155552
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:59:12 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 17:59:12 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:59:12 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 17:59:12 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:59:12 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 17:59:12 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:59:12 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/vjtag.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 17:59:12 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 17:59:12 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 17:59:12 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585155552
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 17:53:31 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/the_vjtag_sim/tck
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/the_vjtag_sim/sld_virtual_jtag_component/jtag/cState
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/the_vjtag_sim/sld_virtual_jtag_component/user_input/c_state
+restart
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# Cannot change directory while a simulation is in progress.
+# Use the "quit -sim" command to unload the design first.
+restart
+quit -sim
+# End time: 18:40:55 on Mar 25,2020, Elapsed time: 0:47:24
+# Errors: 2, Warnings: 5
+cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585158067
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:41:07 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 18:41:07 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:41:07 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 18:41:07 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:41:08 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 18:41:08 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:41:08 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 18:41:08 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:41:08 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 18:41:08 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585158067
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 18:41:08 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+# Quit canceled
+do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/the_vjtag_sim/sld_virtual_jtag_component/user_input/two_character
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run -all
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/the_vjtag_sim/sld_virtual_jtag_component/user_input/char_idx
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+quit -sim
+# End time: 18:54:04 on Mar 25,2020, Elapsed time: 0:12:56
+# Errors: 1, Warnings: 6
+cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585158867
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:54:27 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 18:54:27 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:54:27 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 18:54:28 on Mar 25,2020, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:54:28 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 18:54:28 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:54:28 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 18:54:28 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 18:54:28 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 18:54:28 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585158867
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 18:54:28 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run -all
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/the_vjtag_sim/sld_virtual_jtag_component/user_input/char_idx
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 19:01:40 on Mar 25,2020, Elapsed time: 0:07:12
+# Errors: 0, Warnings: 3
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585159300
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:01:40 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 19:01:40 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:01:40 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 19:01:40 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:01:40 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 19:01:41 on Mar 25,2020, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:01:41 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 19:01:41 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:01:41 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 19:01:41 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585159300
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 19:01:41 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+#           8
+#          16
+#          24
+#          32
+#          40
+#          48
+#          56
+#          64
+#          72
+#          80
+#          88
+#          96
+#         104
+#         112
+#         120
+#         128
+#         136
+#         144
+#         152
+#         160
+#         168
+#         176
+#         184
+#         192
+#         200
+#         208
+#         216
+#         224
+#         232
+#         240
+#         248
+#         256
+#         264
+#         272
+#         280
+#         288
+#         296
+#         304
+#         312
+#         320
+#         328
+#         336
+#         344
+#         352
+#         360
+#         368
+#         376
+#         384
+#         392
+#         400
+#         408
+#         416
+#         424
+#         432
+#         440
+#         448
+#         456
+#         464
+#         472
+#         480
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+#           8
+#          16
+#          24
+#          32
+#          40
+#          48
+#          56
+#          64
+#          72
+#          80
+#          88
+#          96
+#         104
+#         112
+#         120
+#         128
+#         136
+#         144
+#         152
+#         160
+#         168
+#         176
+#         184
+#         192
+#         200
+#         208
+#         216
+#         224
+#         232
+#         240
+#         248
+#         256
+#         264
+#         272
+#         280
+#         288
+#         296
+#         304
+#         312
+#         320
+#         328
+#         336
+#         344
+#         352
+#         360
+#         368
+#         376
+#         384
+#         392
+#         400
+#         408
+#         416
+#         424
+#         432
+#         440
+#         448
+#         456
+#         464
+#         472
+#         480
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+#           8
+#          16
+#          24
+#          32
+#          40
+#          48
+#          56
+#          64
+#          72
+#          80
+#          88
+#          96
+#         104
+#         112
+#         120
+#         128
+#         136
+#         144
+#         152
+#         160
+#         168
+#         176
+#         184
+#         192
+#         200
+#         208
+#         216
+#         224
+#         232
+#         240
+#         248
+#         256
+#         264
+#         272
+#         280
+#         288
+#         296
+#         304
+#         312
+#         320
+#         328
+#         336
+#         344
+#         352
+#         360
+#         368
+#         376
+#         384
+#         392
+#         400
+#         408
+#         416
+#         424
+#         432
+#         440
+#         448
+#         456
+#         464
+#         472
+#         480
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+#           8
+#          16
+#          24
+#          32
+#          40
+#          48
+#          56
+#          64
+#          72
+#          80
+#          88
+#          96
+#         104
+#         112
+#         120
+#         128
+#         136
+#         144
+#         152
+#         160
+#         168
+#         176
+#         184
+#         192
+#         200
+#         208
+#         216
+#         224
+#         232
+#         240
+#         248
+#         256
+#         264
+#         272
+#         280
+#         288
+#         296
+#         304
+#         312
+#         320
+#         328
+#         336
+#         344
+#         352
+#         360
+#         368
+#         376
+#         384
+#         392
+#         400
+#         408
+#         416
+#         424
+#         432
+#         440
+#         448
+#         456
+#         464
+#         472
+#         480
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+#           8
+#          16
+#          24
+#          32
+#          40
+#          48
+#          56
+#          64
+#          72
+#          80
+#          88
+#          96
+#         104
+#         112
+#         120
+#         128
+#         136
+#         144
+#         152
+#         160
+#         168
+#         176
+#         184
+#         192
+#         200
+#         208
+#         216
+#         224
+#         232
+#         240
+#         248
+#         256
+#         264
+#         272
+#         280
+#         288
+#         296
+#         304
+#         312
+#         320
+#         328
+#         336
+#         344
+#         352
+#         360
+#         368
+#         376
+#         384
+#         392
+#         400
+#         408
+#         416
+#         424
+#         432
+#         440
+#         448
+#         456
+#         464
+#         472
+#         480
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+#           8
+run
+#          16
+run
+#          24
+restart
+run
+#          32
+add wave -position insertpoint write_scan_idx
+# (vish-4014) No objects found matching 'write_scan_idx'.
+add wave -position insertpoint write_scan_idx
+# (vish-4014) No objects found matching 'write_scan_idx'.
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 19:13:46 on Mar 25,2020, Elapsed time: 0:12:05
+# Errors: 2, Warnings: 6
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585160026
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:13:46 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 19:13:46 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:13:46 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 19:13:46 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:13:46 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 19:13:46 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:13:46 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 19:13:46 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:13:46 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 19:13:47 on Mar 25,2020, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# 1585160026
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 19:13:47 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+#           8
+#          16
+#          24
+#          32
+#          40
+#          48
+#          56
+#          64
+#          72
+#          80
+#          88
+#          96
+#         104
+#         112
+#         120
+#         128
+#         136
+#         144
+#         152
+#         160
+#         168
+#         176
+#         184
+#         192
+#         200
+#         208
+#         216
+#         224
+#         232
+#         240
+#         248
+#         256
+#         264
+#         272
+#         280
+#         288
+#         296
+#         304
+#         312
+#         320
+#         328
+#         336
+#         344
+#         352
+#         360
+#         368
+#         376
+#         384
+#         392
+#         400
+#         408
+#         416
+#         424
+#         432
+#         440
+#         448
+#         456
+#         464
+#         472
+#         480
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/the_vjtag_sim/sld_virtual_jtag_component/user_input/write_scan_idx
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+#           8
+#          16
+#          24
+#          32
+#          40
+#          48
+#          56
+#          64
+#          72
+#          80
+#          88
+#          96
+#         104
+#         112
+#         120
+#         128
+#         136
+#         144
+#         152
+#         160
+#         168
+#         176
+#         184
+#         192
+#         200
+#         208
+#         216
+#         224
+#         232
+#         240
+#         248
+#         256
+#         264
+#         272
+#         280
+#         288
+#         296
+#         304
+#         312
+#         320
+#         328
+#         336
+#         344
+#         352
+#         360
+#         368
+#         376
+#         384
+#         392
+#         400
+#         408
+#         416
+#         424
+#         432
+#         440
+#         448
+#         456
+#         464
+#         472
+#         480
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/the_vjtag_sim/sld_virtual_jtag_component/user_input/write_scan_idx
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 19:23:31 on Mar 25,2020, Elapsed time: 0:09:44
+# Errors: 0, Warnings: 2
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585160611
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:23:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 19:23:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:23:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 19:23:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:23:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 19:23:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:23:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 19:23:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:23:31 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 19:23:31 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585160611
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 19:23:31 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run -all
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+run
+run
+run
+run
+run
+run
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/CAPTURE
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/DRCK
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/RESET
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/RUNTEST
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/SEL
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/SHIFT
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/TCK
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/TDI
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/TMS
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/UPDATE
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/vjtag_inst/bse2_inst/TDO
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 19:35:24 on Mar 25,2020, Elapsed time: 0:11:53
+# Errors: 0, Warnings: 4
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585161325
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:35:25 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 19:35:25 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:35:25 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 19:35:25 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:35:25 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 19:35:25 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:35:25 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 19:35:25 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:35:25 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 19:35:25 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585161325
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 19:35:25 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/tlr
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+# Break key hit
+# Break in Module xilinx_jtag_mem_ctrl at /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v line 364
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 19:44:10 on Mar 25,2020, Elapsed time: 0:08:45
+# Errors: 0, Warnings: 3
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585161851
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:44:11 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 19:44:11 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:44:11 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 19:44:11 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:44:11 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 19:44:11 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:44:11 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 19:44:11 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:44:11 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 19:44:11 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585161851
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 19:44:11 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+# Invalid scan type
+# Invalid scan type
+# Invalid scan type
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+# Invalid scan type
+# Invalid scan type
+# Invalid scan type
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+# Invalid scan type
+# Invalid scan type
+# Invalid scan type
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 19:46:23 on Mar 25,2020, Elapsed time: 0:02:12
+# Errors: 0, Warnings: 3
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585161983
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:46:23 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 19:46:23 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:46:23 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 19:46:23 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:46:23 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 19:46:24 on Mar 25,2020, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:46:24 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 19:46:24 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:46:24 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 19:46:24 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585161983
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 19:46:24 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+# Invalid scan type
+# Invalid scan type
+# Invalid scan type
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+# Invalid scan type
+# Invalid scan type
+# Invalid scan type
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 19:47:32 on Mar 25,2020, Elapsed time: 0:01:08
+# Errors: 0, Warnings: 2
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585162052
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:47:32 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 19:47:32 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:47:32 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 19:47:32 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:47:32 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 19:47:32 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:47:32 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 19:47:32 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:47:32 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 19:47:32 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585162052
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 19:47:32 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 19:50:34 on Mar 25,2020, Elapsed time: 0:03:02
+# Errors: 0, Warnings: 2
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585162234
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:50:34 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 19:50:34 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:50:34 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 19:50:34 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:50:34 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 19:50:34 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:50:34 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 19:50:34 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:50:34 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 19:50:34 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585162234
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 19:50:34 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/jtag_shift_buffer
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 19:54:44 on Mar 25,2020, Elapsed time: 0:04:10
+# Errors: 0, Warnings: 3
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585162484
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:54:44 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 19:54:44 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:54:44 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 19:54:44 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:54:44 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 19:54:45 on Mar 25,2020, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:54:45 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 19:54:45 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:54:45 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 19:54:45 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585162484
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 19:54:45 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run -continue
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/jtag_shift_buffer
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/update_dat_flag
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/data_out
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/wb_wr_data1
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/wb_wr_data_en
+add wave -position insertpoint /testbench/uut/uut/vjtag_ctrl_inst/data_out
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+restart
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 20:22:21 on Mar 25,2020, Elapsed time: 0:27:36
+# Errors: 0, Warnings: 7
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585164141
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 20:22:21 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 20:22:21 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 20:22:21 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 20:22:21 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 20:22:21 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 20:22:21 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 20:22:21 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 20:22:21 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 20:22:21 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 20:22:21 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585164141
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 20:22:21 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+add wave -position insertpoint /testbench/uut/uut/wb_wr_data
+add wave -position insertpoint /testbench/uut/uut/jtag_to_wb_stb
+add wave -position insertpoint /testbench/uut/uut/wr_mem_en
+add wave -position insertpoint /testbench/uut/uut/rd_mem_en
+add wave -position insertpoint /testbench/uut/uut/jtag_to_wb_we
+add wave -position insertpoint /testbench/uut/uut/jtag_to_wb_dat
+add wave -position insertpoint /testbench/uut/uut/wb_wr_data
+add wave -position insertpoint /testbench/uut/uut/jtag_to_wb_addr
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+run
+add wave -position insertpoint /testbench/uut/uut/ps
+restart
+run
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+run
+run
+run
+run
+run
+run
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation; do model.tcl; do /home/alireza/work/hca_git/mpsoc_work/simulation/wave.do;
+# End time: 22:01:40 on Mar 25,2020, Elapsed time: 1:39:19
+# Errors: 0, Warnings: 4
+# reading /home/alireza/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/../modelsim.ini
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog
+# /home/alireza/work/hca_git/mpsoc_work/simulation
+# /home/alireza/work/hca_git/mpsoc_work/simulation/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/mpsoc_work/simulation/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work /home/alireza/work/hca_git/mpsoc_work/simulation/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1585170100
+# 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 22:01:40 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/jtag_sim_input.v 
+# End time: 22:01:40 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 22:01:40 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 22:01:40 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 22:01:40 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/xilinx_jtag_test.v 
+# -- Compiling module xilinx_jtag_test
+# -- Compiling module xilinx_jtag_to_wb
+# -- Compiling module xilinx_jtag_mem_ctrl
+# -- Compiling module xilinx_jtag_ctrl
+# -- Compiling module xilinx_jtag_bscan
+# -- Compiling module one_hot_to_bin
+# 
+# Top level modules:
+# 	xilinx_jtag_test
+# 	xilinx_jtag_to_wb
+# End time: 22:01:40 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 22:01:40 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/BSCANE2_sim.v 
+# -- Compiling module BSCANE2_sim
+# -- Compiling module vjtag_sim
+# 
+# Top level modules:
+# 	BSCANE2_sim
+# End time: 22:01:40 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 22:01:40 on Mar 25,2020
+# vlog -reportprogress 300 -work /home/alireza/work/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog+/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation" /home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/simulation/verilog/altera.v 
+# -- Compiling module sld_virtual_jtag
+# -- Compiling module dummy_hub
+# -- Compiling module jtag_tap_controller
+# -- Compiling module signal_gen
+# 
+# Top level modules:
+# 	sld_virtual_jtag
+# End time: 22:01:40 on Mar 25,2020, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1585170100
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 22:01:40 on Mar 25,2020
+# Loading work.testbench
+# Loading work.xilinx_jtag_test
+# Loading work.xilinx_jtag_mem_ctrl
+# Loading work.xilinx_jtag_ctrl
+# Loading work.xilinx_jtag_bscan
+# Loading work.BSCANE2_sim
+# Loading work.vjtag_sim
+# Loading work.sld_virtual_jtag
+# Loading work.signal_gen
+# Loading work.jtag_tap_controller
+# Loading work.dummy_hub
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+restart
+run -all
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# Tap Controller State machine output error
+# Time: 0  Instance: testbench.uut.uut.vjtag_ctrl_inst.vjtag_inst.bse2_inst.the_vjtag_sim.sld_virtual_jtag_component.jtag.output_logic
+# End time: 11:39:54 on Mar 26,2020, Elapsed time: 13:38:14
+# Errors: 0, Warnings: 2

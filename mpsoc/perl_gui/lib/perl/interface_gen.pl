@@ -134,45 +134,6 @@ sub file_box {
 
 
 
-sub get_ports_type{
-	my ($vdb,$top_module)=@_;
-	my %ports;
-	
-	foreach my $sig (sort $vdb->get_modules_signals($top_module)) {
-	my ($line,$a_line,$i_line,$type,$file,$posedge,$negedge,
-	 $type2,$s_file,$s_line,$range,$a_file,$i_file,$dims) = 
-	   $vdb->get_module_signal($top_module,$sig);
-
-		if($type eq "input" or $type eq "inout" or $type eq "output" ){
-			$ports{$sig}=$type;
-			
-		}
-	}
-	return %ports;
-}
-
-
-
-sub get_ports_rang{
-	my ($vdb,$top_module)=@_;
-	my %ports;
-	
-	foreach my $sig (sort $vdb->get_modules_signals($top_module)) {
-	my ($line,$a_line,$i_line,$type,$file,$posedge,$negedge,
-	 $type2,$s_file,$s_line,$range,$a_file,$i_file,$dims) = 
-	   $vdb->get_module_signal($top_module,$sig);
-
-		if($type eq "input" or $type eq "inout" or $type eq "output" ){
-		 
-		
-			
-			$ports{$sig}=remove_all_white_spaces($range);
-			
-		}
-	}
-	return %ports;
-}
-
 
 
 sub get_interface_ports {
@@ -290,12 +251,12 @@ sub module_select{
 	
 	my @modules= $intfc_gen->intfc_get_module_list();
 	my $combo=gen_combobox_object($intfc_gen,'module_name',undef,join(',', @modules),undef,'refresh',1);
-	my $modul_name=labele_widget_info(" Select module:",$combo);
+	my $modul_name=gen_label_info(" Select module:",$combo);
 
 
 	my $port= def_image_button("icons/import.png","Import Ports");
 	my $category_entry=gen_entry_object($intfc_gen,'category',undef,undef,undef,undef);
-	my $category=labele_widget_info(" Select Category:",$category_entry,'Define the Interface category:e.g RAM, wishbone,...');
+	my $category=gen_label_info(" Select Category:",$category_entry,'Define the Interface category:e.g RAM, wishbone,...');
 
 	
 	
@@ -326,10 +287,10 @@ sub interface_type_select {
 	my ($intfc_gen,$info,$table,$row)=@_;		
 
 	my $entry=gen_entry_object($intfc_gen,'name',undef,undef,"refresh",50);
-	my $entrybox=labele_widget_info(" Interface name:",$entry);
+	my $entrybox=gen_label_info(" Interface name:",$entry);
 
 	my $combo=gen_combobox_object($intfc_gen,'connection_num',undef,"single connection,multi connection","single connection",'refresh',1);
-	my $combo_box=labele_widget_info(" Select soket type:",$combo,'Define the soket as multi connection if only if all interfaces ports are output oprts and they can feed more than one plug interface. E.g. clk is defined as multi connection');
+	my $combo_box=gen_label_info(" Select soket type:",$combo,'Define the soket as multi connection if only if all interfaces ports are output oprts and they can feed more than one plug interface. E.g. clk is defined as multi connection');
 	
 	$table->attach ($entrybox, 0, 2 , $row, $row+1,'expand','shrink',2,2);
 	$table->attach ($combo_box, 3, 6 , $row, $row+1,'expand','shrink',2,2);

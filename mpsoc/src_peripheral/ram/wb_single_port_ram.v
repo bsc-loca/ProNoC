@@ -44,6 +44,7 @@ module wb_single_port_ram #(
     parameter INITIAL_EN= "NO",
     parameter MEM_CONTENT_FILE_NAME= "ram0",// ram initial file name
     parameter INIT_FILE_PATH = "path_to/sw", // The sw folder path. It will be used for finding initial file. The path will be rewriten by the top module. 
+    parameter CORE_NUM=0,
     // wishbon bus param
     parameter BURST_MODE= "DISABLED", // "DISABLED" , "ENABLED" wisbone bus burst mode 
     parameter TAGw   =   3,
@@ -51,8 +52,12 @@ module wb_single_port_ram #(
     parameter CTIw   =   3,
     parameter BTEw   =   2,    
     //jtag to wishbobe interface
-    parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+Dw+Aw : 1,
-    parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 8+8+1+Dw  : 1
+    parameter JDw =Dw,// should be a fixed value for all IPs coneccting to JTAG
+    parameter JAw=32, // should be a fixed value for all IPs coneccting to JTAG
+    parameter JINDEXw=8,
+    parameter JSTATUSw=8,
+    parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+JDw+JAw : 1,
+    parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw  : 1
     )
     (
         clk,
@@ -124,11 +129,21 @@ module wb_single_port_ram #(
 `endif
 
 
-	localparam MEM_NAME = (FPGA_VENDOR_MDFY== "ALTERA")? {MEM_CONTENT_FILE_NAME,".mif"} : 
-							{MEM_CONTENT_FILE_NAME,".hex"}; //Generic
+	localparam MEM_NAME =
+       (FPGA_VENDOR_MDFY== "ALTERA")? {MEM_CONTENT_FILE_NAME,".mif"} : 
+       (FPGA_VENDOR_MDFY== "XILINX")? {MEM_CONTENT_FILE_NAME,".mem"} : 
+                            {MEM_CONTENT_FILE_NAME,".hex"}; //Generic
 
+    
+    localparam [7:0] N1 = (CORE_NUM%10) + 48;
+    localparam [7:0] N2 = ((CORE_NUM/10)%10) + 48;
+    localparam [7:0] N3 = ((CORE_NUM/100)%10) + 48;
+    localparam NN = (CORE_NUM<10) ? N1 : (CORE_NUM<100)? {N2,N1} : {N3,N2,N1}; 
 
-	localparam INIT_FILE =  {INIT_FILE_PATH,"/RAM/",MEM_NAME};
+    localparam  INIT_FILE = 
+       (FPGA_VENDOR_MDFY== "XILINX")? {"tile",NN,MEM_NAME}:
+       {INIT_FILE_PATH,"/RAM/",MEM_NAME};
+
      
 
     wb_bram_ctrl #(
@@ -175,6 +190,10 @@ module wb_single_port_ram #(
     	.JTAG_INDEX(JTAG_INDEX),
         .INITIAL_EN(INITIAL_EN),
         .INIT_FILE(INIT_FILE),
+        .JDw(JDw),
+        .JAw(JAw),
+        .JINDEXw(JINDEXw),
+        .JSTATUSw(JSTATUSw),
         .J2WBw(J2WBw), 
         .WB2Jw(WB2Jw)
     )
@@ -188,7 +207,7 @@ module wb_single_port_ram #(
     	.q_a(q),
     	.byteena_a(byteena_a),
     	.jtag_to_wb(jtag_to_wb),
-        .wb_to_jtag(wb_to_jtag)
+        .wb_to_jtag(wb_to_jtag)        
     );
   
 
@@ -210,8 +229,12 @@ module single_port_ram_top #(
     parameter INITIAL_EN= "NO",
     parameter INIT_FILE= "sw/ram/ram0.txt",// ram initial file 
      //jtag to wishbobe interface
-    parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+Dw+Aw : 1,
-    parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 8+8+1+Dw  : 1
+    parameter JDw =Dw,// should be a fixed value for all IPs coneccting to JTAG
+    parameter JAw=32, // should be a fixed value for all IPs coneccting to JTAG
+    parameter JSTATUSw=8,
+    parameter JINDEXw =8,
+    parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+JDw+JAw : 1,
+    parameter WB2Jw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw : 1
     )
     (
         reset,
@@ -237,11 +260,6 @@ module single_port_ram_top #(
     input  [J2WBw-1 : 0] jtag_to_wb;
     output [WB2Jw-1 : 0] wb_to_jtag;
     
-    
-    
-
-
-
     function   [15:0]i2s;   
         input   integer c;  integer i;  integer tmp; begin 
         tmp =0; 
@@ -271,6 +289,9 @@ module single_port_ram_top #(
 
     
 generate 
+/***********************
+ *  "ALTERA"
+ * *********************/
 if(FPGA_VENDOR=="ALTERA")begin:altera_fpga
     localparam  RAM_TAG_STRING=i2s(JTAG_INDEX);  
     localparam  RAM_ID =(JTAG_CONNECT== "ALTERA_IMCE") ?  {"ENABLE_RUNTIME_MOD=YES,INSTANCE_NAME=",RAM_TAG_STRING}
@@ -338,7 +359,7 @@ if(FPGA_VENDOR=="ALTERA")begin:altera_fpga
             .read_during_write_mode_mixed_ports("DONT_CARE"),
             .widthad_a(Aw),
             .width_byteena_a(BYTE_ENw),
-	    .init_file(INIT_FILE)   
+            .init_file(INIT_FILE)   
         )
         ram_inst
         (
@@ -368,8 +389,213 @@ if(FPGA_VENDOR=="ALTERA")begin:altera_fpga
             .eccstatus      (    )
         );
 
-    end
-end
+    end// single_ram
+end//altera_fpga 
+/***********************
+ *  "XILINX"
+ * *********************/
+else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
+    localparam MEMORY_SIZE = (2**Aw)*Dw;//total memory array size, in bits
+    wire  [BYTE_ENw-1   :   0] xilinx_we_a = (we_a)? byteena_a : {BYTE_ENw{1'b0}};
+     
+    if(JTAG_CONNECT == "XILINX_JTAG_WB")begin: xilinx_dual
+        wire [BYTE_ENw-1   :   0] xilinx_we_b = (we_b)? {BYTE_ENw{1'b1}} : {BYTE_ENw{1'b0}};
+    // xpm_memory_tdpram: True Dual Port RAM
+   // Xilinx Parameterized Macro, version 2019.1
+
+   xpm_memory_tdpram #(
+      .ADDR_WIDTH_A(Aw),               // DECIMAL
+      .ADDR_WIDTH_B(Aw),               // DECIMAL
+      .AUTO_SLEEP_TIME(0),            // DECIMAL
+      .BYTE_WRITE_WIDTH_A(8),        // DECIMAL
+      .BYTE_WRITE_WIDTH_B(8),        // DECIMAL
+      .CASCADE_HEIGHT(0),             // DECIMAL
+      .CLOCKING_MODE("common_clock"), // String
+      .ECC_MODE("no_ecc"),            // String
+      .MEMORY_INIT_FILE(INIT_FILE),      // String
+      .MEMORY_INIT_PARAM(""),        // String
+      .MEMORY_OPTIMIZATION("true"),   // String
+      .MEMORY_PRIMITIVE("auto"),      // String
+      .MEMORY_SIZE(MEMORY_SIZE),             // DECIMAL
+      .MESSAGE_CONTROL(0),            // DECIMAL
+      .READ_DATA_WIDTH_A(Dw),         // DECIMAL
+      .READ_DATA_WIDTH_B(Dw),         // DECIMAL
+      .READ_LATENCY_A(1),             // DECIMAL
+      .READ_LATENCY_B(1),             // DECIMAL
+      .READ_RESET_VALUE_A("0"),       // String
+      .READ_RESET_VALUE_B("0"),       // String
+      .RST_MODE_A("SYNC"),            // String
+      .RST_MODE_B("SYNC"),            // String
+      .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+      .USE_EMBEDDED_CONSTRAINT(0),    // DECIMAL
+      .USE_MEM_INIT(1),               // DECIMAL
+      .WAKEUP_TIME("disable_sleep"),  // String
+      .WRITE_DATA_WIDTH_A(Dw),        // DECIMAL
+      .WRITE_DATA_WIDTH_B(Dw),        // DECIMAL
+      .WRITE_MODE_A("no_change"),     // String
+      .WRITE_MODE_B("no_change")      // String
+   )
+   xpm_memory_tdpram_inst 
+   (
+      .dbiterra( ),             // 1-bit output: Status signal to indicate double bit error occurrence
+                                       // on the data output of port A.
+
+      .dbiterrb( ),             // 1-bit output: Status signal to indicate double bit error occurrence
+                                       // on the data output of port A.
+
+      .douta(q_a),                   // READ_DATA_WIDTH_A-bit output: Data output for port A read operations.
+      .doutb(q_b),                   // READ_DATA_WIDTH_B-bit output: Data output for port B read operations.
+      .sbiterra( ),             // 1-bit output: Status signal to indicate single bit error occurrence
+                                       // on the data output of port A.
+
+      .sbiterrb( ),             // 1-bit output: Status signal to indicate single bit error occurrence
+                                       // on the data output of port B.
+
+      .addra(addr_a),                   // ADDR_WIDTH_A-bit input: Address for port A write and read operations.
+      .addrb(addr_b),                   // ADDR_WIDTH_B-bit input: Address for port B write and read operations.
+      .clka(clk),                     // 1-bit input: Clock signal for port A. Also clocks port B when
+                                       // parameter CLOCKING_MODE is "common_clock".
+
+      .clkb(clk),                     // 1-bit input: Clock signal for port B when parameter CLOCKING_MODE is
+                                       // "independent_clock". Unused when parameter CLOCKING_MODE is
+                                       // "common_clock".
+
+      .dina(data_a),                     // WRITE_DATA_WIDTH_A-bit input: Data input for port A write operations.
+      .dinb(data_b),                     // WRITE_DATA_WIDTH_B-bit input: Data input for port B write operations.
+      .ena(1'b1),                       // 1-bit input: Memory enable signal for port A. Must be high on clock
+                                       // cycles when read or write operations are initiated. Pipelined
+                                       // internally.
+
+      .enb(1'b1),                       // 1-bit input: Memory enable signal for port B. Must be high on clock
+                                       // cycles when read or write operations are initiated. Pipelined
+                                       // internally.
+
+      .injectdbiterra(1'b0), // 1-bit input: Controls double bit error injection on input data when
+                                       // ECC enabled (Error injection capability is not available in
+                                       // "decode_only" mode).
+
+      .injectdbiterrb(1'b0), // 1-bit input: Controls double bit error injection on input data when
+                                       // ECC enabled (Error injection capability is not available in
+                                       // "decode_only" mode).
+
+      .injectsbiterra(1'b0), // 1-bit input: Controls single bit error injection on input data when
+                                       // ECC enabled (Error injection capability is not available in
+                                       // "decode_only" mode).
+
+      .injectsbiterrb(1'b0), // 1-bit input: Controls single bit error injection on input data when
+                                       // ECC enabled (Error injection capability is not available in
+                                       // "decode_only" mode).
+
+      .regcea(1'b1),                 // 1-bit input: Clock Enable for the last register stage on the output
+                                       // data path.
+
+      .regceb(1'b1),                 // 1-bit input: Clock Enable for the last register stage on the output
+                                       // data path.
+
+      .rsta(reset),                     // 1-bit input: Reset signal for the final port A output register stage.
+                                       // Synchronously resets output port douta to the value specified by
+                                       // parameter READ_RESET_VALUE_A.
+
+      .rstb(reset),                     // 1-bit input: Reset signal for the final port B output register stage.
+                                       // Synchronously resets output port doutb to the value specified by
+                                       // parameter READ_RESET_VALUE_B.
+
+      .sleep(1'b0),                   // 1-bit input: sleep signal to enable the dynamic power saving feature.
+      .wea(xilinx_we_a),                       // WRITE_DATA_WIDTH_A-bit input: Write enable vector for port A input
+                                       // data port dina. 1 bit wide when word-wide writes are used. In
+                                       // byte-wide write configurations, each bit controls the writing one
+                                       // byte of dina to address addra. For example, to synchronously write
+                                       // only bits [15-8] of dina when WRITE_DATA_WIDTH_A is 32, wea would be
+                                       // 4'b0010.
+
+      .web(xilinx_we_b)                        // WRITE_DATA_WIDTH_B-bit input: Write enable vector for port B input
+                                       // data port dinb. 1 bit wide when word-wide writes are used. In
+                                       // byte-wide write configurations, each bit controls the writing one
+                                       // byte of dinb to address addrb. For example, to synchronously write
+                                       // only bits [15-8] of dinb when WRITE_DATA_WIDTH_B is 32, web would be
+                                       // 4'b0010.
+
+   );
+
+    
+    
+    end //   xilinx_dual
+    else begin : xilinx_single
+    
+      
+       
+        xpm_memory_spram #(
+          .ADDR_WIDTH_A(Aw),             // DECIMAL
+          .AUTO_SLEEP_TIME(0),           // DECIMAL
+          .BYTE_WRITE_WIDTH_A(8),        // DECIMAL
+          .CASCADE_HEIGHT(0),            // DECIMAL
+          .ECC_MODE("no_ecc"),           // String
+          .MEMORY_INIT_FILE(INIT_FILE),  // String
+          .MEMORY_INIT_PARAM(""),       // String
+          .MEMORY_OPTIMIZATION("true"),  // String
+          .MEMORY_PRIMITIVE("auto"),     // String
+          .MEMORY_SIZE(MEMORY_SIZE),     // DECIMAL
+          .MESSAGE_CONTROL(0),           // DECIMAL
+          .READ_DATA_WIDTH_A(Dw),        // DECIMAL
+          .READ_LATENCY_A(1),            // DECIMAL
+          .READ_RESET_VALUE_A("0"),      // String
+          .RST_MODE_A("SYNC"),           // String
+          .SIM_ASSERT_CHK(0),            // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+          .USE_MEM_INIT(1),              // DECIMAL
+          .WAKEUP_TIME("disable_sleep"), // String
+          .WRITE_DATA_WIDTH_A(Dw),       // DECIMAL
+          .WRITE_MODE_A("read_first")    // String
+    )
+    xpm_memory_spram_inst 
+    (
+      .dbiterra( ),             // 1-bit output: Status signal to indicate double bit error occurrence
+                                       // on the data output of port A.
+
+      .douta(q_a),                   // READ_DATA_WIDTH_A-bit output: Data output for port A read operations.
+      .sbiterra( ),             // 1-bit output: Status signal to indicate single bit error occurrence
+                                       // on the data output of port A.
+
+      .addra(addr_a),                   // ADDR_WIDTH_A-bit input: Address for port A write and read operations.
+      .clka(clk),                     // 1-bit input: Clock signal for port A.
+      .dina(data_a),                     // WRITE_DATA_WIDTH_A-bit input: Data input for port A write operations.
+      .ena(1'b1),                       // 1-bit input: Memory enable signal for port A. Must be high on clock
+                                       // cycles when read or write operations are initiated. Pipelined
+                                       // internally.
+
+      .injectdbiterra(1'b0 ), // 1-bit input: Controls double bit error injection on input data when
+                                       // ECC enabled (Error injection capability is not available in
+                                       // "decode_only" mode).
+
+      .injectsbiterra(1'b0), // 1-bit input: Controls single bit error injection on input data when
+                                       // ECC enabled (Error injection capability is not available in
+                                       // "decode_only" mode).
+
+      .regcea(1'b1),                 // 1-bit input: Clock Enable for the last register stage on the output
+                                       // data path.
+
+      .rsta(reset),                     // 1-bit input: Reset signal for the final port A output register stage.
+                                       // Synchronously resets output port douta to the value specified by
+                                       // parameter READ_RESET_VALUE_A.
+
+      .sleep(1'b0),                    // 1-bit input: sleep signal to enable the dynamic power saving feature.
+      .wea(xilinx_we_a)                // WRITE_DATA_WIDTH_A-bit input: Write enable vector for port A input
+                                       // data port dina. 1 bit wide when word-wide writes are used. In
+                                       // byte-wide write configurations, each bit controls the writing one
+                                       // byte of dina to address addra. For example, to synchronously write
+                                       // only bits [15-8] of dina when WRITE_DATA_WIDTH_A is 32, wea would be
+                                       // 4'b0010.
+
+   );
+
+    
+    
+    end// xilinx_simgle
+end//xilinx_fpga
+
+
+/***********************
+ *  "GENERIC"
+ * *********************/
 
 else if(FPGA_VENDOR=="GENERIC")begin:generic_ram
     if(JTAG_CONNECT== "ALTERA_JTAG_WB")begin:dual_ram
@@ -414,7 +640,7 @@ else if(FPGA_VENDOR=="GENERIC")begin:generic_ram
         (
             .data     (data_a), 
             .addr     (addr_a),
-            .byteen   (byteena_a ),
+            .byteen   (byteena_a),
             .we       (we_a),
             .clk      (clk),
             .q        (q_a)
@@ -465,31 +691,32 @@ if(JTAG_CONNECT == "ALTERA_JTAG_WB")begin:altera_jwb
     always @(posedge clk )begin 
         jtag_ack<=jtag_stb_o;   
     end
-    assign wb_to_jtag = 1'bx;
+    assign wb_to_jtag = clk;
     
 end//altera_jwb
 else if(JTAG_CONNECT == "XILINX_JTAG_WB")begin: xilinx_jwb 
-    localparam Sw= 8;
-    localparam [Sw-1    :   0] ST = Aw;
+     
     
-    wire [Sw-1 : 0] wb_to_jtag_status;
-    wire [7    : 0] wb_to_jtag_index;
-    wire [Dw-1 : 0] jtag_to_wb_dat;
-    wire [Aw-1 : 0] jtag_to_wb_addr;
+    localparam [JSTATUSw-1    :   0] ST1 = Aw;
+    
+    wire [JSTATUSw-1 : 0] wb_to_jtag_status;
+    wire [JINDEXw-1 : 0] wb_to_jtag_index;
+    wire [JDw-1 : 0] jtag_to_wb_dat;
+    wire [JAw-1 : 0] jtag_to_wb_addr;
     wire jtag_to_wb_stb;
     wire jtag_to_wb_we;
-    wire wb_to_jtag_dat; 
+    wire [JDw-1 : 0] wb_to_jtag_dat; 
     wire wb_to_jtag_ack;
     
-    assign wb_to_jtag = {wb_to_jtag_status,wb_to_jtag_ack,wb_to_jtag_dat,wb_to_jtag_index};
-    assign {jtag_to_wb_stb,jtag_to_wb_we,jtag_to_wb_dat,jtag_to_wb_addr} = jtag_to_wb;
+    assign wb_to_jtag = {wb_to_jtag_status,wb_to_jtag_ack,wb_to_jtag_dat,wb_to_jtag_index,clk};
+    assign {jtag_to_wb_addr,jtag_to_wb_stb,jtag_to_wb_we,jtag_to_wb_dat} = jtag_to_wb;
     
         
     reg ack_reg;
-    assign wb_to_jtag_status = ST;
+    assign wb_to_jtag_status = ST1;
     assign wb_to_jtag_index = JTAG_INDEX;
     assign data_b = jtag_to_wb_dat;
-    assign addr_b = jtag_to_wb_addr;
+    assign addr_b = jtag_to_wb_addr[Aw-1:0];
     assign we_b = jtag_to_wb_stb & jtag_to_wb_we;
     assign wb_to_jtag_dat = q_b; 
     assign wb_to_jtag_ack = ack_reg;
@@ -497,7 +724,7 @@ else if(JTAG_CONNECT == "XILINX_JTAG_WB")begin: xilinx_jwb
         ack_reg<=jtag_to_wb_stb;   
     end
 end else begin 
-     assign wb_to_jtag = 1'bx;
+     assign wb_to_jtag = clk;
 end
 
 endgenerate

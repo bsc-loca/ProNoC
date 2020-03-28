@@ -267,18 +267,18 @@ sub get_soc_parameter_setting{
     my ($mpsoc,$soc_name,$tile)=@_;
     
     my $window = (defined $tile)? def_popwin_size(40,40,"Parameter setting for $soc_name located in tile($tile) ",'percent'):def_popwin_size(40,40,"Default Parameter setting for $soc_name ",'percent');
-    my $table = def_table(10, 7, TRUE);
+    my $table = def_table(10, 7, FALSE);
     
     my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
     $scrolled_win->set_policy( "automatic", "automatic" );
     $scrolled_win->add_with_viewport($table);
     my $row=0;
-    
+    my $column=0;
     my $top=$mpsoc->mpsoc_get_soc($soc_name);
     
     #read soc parameters
     my %param_value=(defined $tile) ? $top->top_get_custom_soc_param($tile)  : $top->top_get_default_soc_param();
-    
+    $mpsoc->object_add_attribute('current_tile_param',undef,\%param_value);
     
     
     my @insts=$top->top_get_all_instances();
@@ -288,48 +288,54 @@ sub get_soc_parameter_setting{
         my @params=$top->top_get_parameter_list($inst);
         foreach my $p (@params){    
             my  ($default,$type,$content,$info,$global_param,$redefine)=$top->top_get_parameter($inst,$p);
+            my $show = ($type ne "Fixed");
+			$default= $param_value{$p} if(defined $param_value{$p});
+			($row,$column)=add_param_widget($mpsoc,$p,$p, $default,$type,$content,$info, $table,$row,$column,$show,'current_tile_param',undef,undef,'vertical');
+		}
             
-            if ($type eq "Entry"){
-                my $entry=gen_entry($param_value{$p});
-                $table->attach_defaults ($entry, 3, 6, $row, $row+1);
-                $entry-> signal_connect("changed" => sub{$param_value{$p}=$entry->get_text();});
-            }
-            elsif ($type eq "Combo-box"){
-                my @combo_list=split(/\s*,\s*/,$content);
-                my $pos=get_item_pos($param_value{$p}, @combo_list) if(defined $param_value{$p});
-                my $combo=gen_combo(\@combo_list, $pos);
-                $table->attach_defaults ($combo, 3, 6, $row, $row+1);
-                $combo-> signal_connect("changed" => sub{$param_value{$p}=$combo->get_active_text();});
-                
-            }
-            elsif     ($type eq "Spin-button"){ 
-                  my ($min,$max,$step)=split(/\s*,\s*/,$content);
-                  $param_value{$p}=~ s/\D//g;
-                  $min=~ s/\D//g;
-                  $max=~ s/\D//g;    
-                  $step=~ s/\D//g;
-                  my $spin=gen_spin($min,$max,$step);
-                  $spin->set_value($param_value{$p});
-                  $table->attach_defaults ($spin, 3, 4, $row, $row+1);
-                  $spin-> signal_connect("value_changed" => sub{$param_value{$p}=$spin->get_value_as_int();});
-         
-         # $box=def_label_spin_help_box ($param,$info, $value,$min,$max,$step, 2);
-            }
-            my $label =gen_label_in_center($p);
-            $table->attach_defaults ($label, 0, 3, $row, $row+1);
-            if (defined $info){
-            my $info_button=def_image_button('icons/help.png');
-            $table->attach_defaults ($info_button, 6, 7, $row, $row+1);    
-            $info_button->signal_connect('clicked'=>sub{
-                message_dialog($info);
-                
-            });
             
-        }       
-        $row++;
-                        
-        
-        }
+            
+  #          if ($type eq "Entry"){
+  #              my $entry=gen_entry($param_value{$p});
+  #              $table->attach_defaults ($entry, 3, 6, $row, $row+1);
+  #              $entry-> signal_connect("changed" => sub{$param_value{$p}=$entry->get_text();});
+  #          }
+  #          elsif ($type eq "Combo-box"){
+  #              my @combo_list=split(/\s*,\s*/,$content);
+  #              my $pos=get_item_pos($param_value{$p}, @combo_list) if(defined $param_value{$p});
+  #              my $combo=gen_combo(\@combo_list, $pos);
+  #              $table->attach_defaults ($combo, 3, 6, $row, $row+1);
+  #              $combo-> signal_connect("changed" => sub{$param_value{$p}=$combo->get_active_text();});
+  #              
+  #          }
+  #          elsif     ($type eq "Spin-button"){ 
+  #                my ($min,$max,$step)=split(/\s*,\s*/,$content);
+  #                $param_value{$p}=~ s/\D//g;
+  #                $min=~ s/\D//g;
+  #                $max=~ s/\D//g;    
+  #                $step=~ s/\D//g;
+  #                my $spin=gen_spin($min,$max,$step);
+  #                $spin->set_value($param_value{$p});
+  #                $table->attach_defaults ($spin, 3, 4, $row, $row+1);
+  #                $spin-> signal_connect("value_changed" => sub{$param_value{$p}=$spin->get_value_as_int();});
+  #       
+  #       # $box=def_label_spin_help_box ($param,$info, $value,$min,$max,$step, 2);
+  #          }
+  #          my $label =gen_label_in_center($p);
+  #          $table->attach_defaults ($label, 0, 3, $row, $row+1);
+  #          if (defined $info){
+  #          my $info_button=def_image_button('icons/help.png');
+  #          $table->attach_defaults ($info_button, 6, 7, $row, $row+1);    
+  #          $info_button->signal_connect('clicked'=>sub{
+  #              message_dialog($info);
+  #              
+  #          });
+  #          
+  #      }       
+  #      $row++;
+  #                      
+  #      
+  #      }
     }
     
     
@@ -351,6 +357,9 @@ sub get_soc_parameter_setting{
     $ok-> signal_connect("clicked" => sub{ 
         $window->destroy;
         #save new values 
+        my $ref=$mpsoc->object_get_attribute('current_tile_param');
+		%param_value=%{$ref};
+             
         if(!defined $tile ) {
             $top->top_add_default_soc_param(\%param_value);
             $mpsoc->object_add_attribute('soc_param',"default",\%param_value);      
@@ -359,23 +368,13 @@ sub get_soc_parameter_setting{
             $top->top_add_custom_soc_param(\%param_value,$tile);
             $mpsoc->object_add_attribute('soc_param',"custom_${soc_name}",\%param_value);            
         }
+        $mpsoc->object_add_attribute('current_tile_param',undef,undef);
         #set_gui_status($mpsoc,"refresh_soc",1);
-        #$$refresh_soc->clicked;
+        #$$refresh_soc->clicked;        
         
-        
-        
-        
-        });
-    
-    
+        });  
     
 }
-    
-
-
-
-
-
 
 ################
 #    tile_set_widget
@@ -1948,7 +1947,7 @@ sub mpsocgen_main{
     my $compile  = def_image_button('icons/gate.png','_Compile RTL',FALSE,1);
     my $software = def_image_button('icons/binary.png','_Software',FALSE,1);
     my $entry=gen_entry_object($mpsoc,'mpsoc_name',undef,undef,undef,undef);
-    my $entrybox=labele_widget_info(" MPSoC name:",$entry);
+    my $entrybox=gen_label_info(" MPSoC name:",$entry);
     my $diagram  = def_image_button('icons/diagram.png','Diagram');
     
     my $h1=gen_hpaned($scr_conf,.3,$scr_tile);

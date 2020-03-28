@@ -1,0 +1,1 @@
+./jtag_xilinx_xsct  -a 3 -b 36 -n 127  -d  "I:1,D:2:3,D:2:2,I:0"

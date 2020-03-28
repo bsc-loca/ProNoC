@@ -10,6 +10,7 @@ use lib $FindBin::Bin;
 
 use ColorButton;
 
+
 use Gtk2::Pango;
 #use Tk::Animation;
 
@@ -86,17 +87,40 @@ sub def_h_labeled_combo_scaled{
 # spin button
 #############
 sub gen_spin{
-	my ($min,$max,$step)= @_;
-	my $spin = Gtk2::SpinButton->new_with_range ($min, $max, $step);
-	return $spin;	
+	my ($min,$max,$step,$digit)= @_;
+	return Gtk2::SpinButton->new_with_range ($min, $max, $step);
+	 if(!defined $digit){
+		my $d1 = get_float_precision($min);
+		my $d2 = get_float_precision($max);
+		my $d3 = get_float_precision($step);
+		$digit = ($d1 >$d2)? $d1 : $d2;
+		$digit = $d3 if($d3>$digit);				
+	}
+	print "($min,$max,$step,$digit)\n";	
+	return Gtk2::SpinButton->new_with_range ($min, $max, $step) if($digit ==0);
+    return gen_spin_float($min,$max,$step,$digit);	
+}
+
+sub get_float_precision{
+	my $num=shift; 
+	my $digit = length(($num =~ /\.(.*)/)[0]);
+	$digit=0 if(!defined $digit);
+	return $digit;
+}
+
+sub gen_spin_float{
+	my ($min,$max,$step,$digit)= @_;
+	#$page_inc = ($max - $min)/ 
+	my $adj = Gtk2::Adjustment->new (0, $min, $max, $step,3.1, 0);	
+	my $spinner = Gtk2::SpinButton->new ($adj, 1.0,$digit);
+	return $spinner; 
 }
 
 
-
 sub gen_spin_help {
-	my ($help, $min,$max,$step)= @_;
+	my ($help, $min,$max,$step,$digit)= @_;
 	my $box = def_hbox(FALSE, 0);
-	my $spin= gen_spin($min,$max,$step);
+	my $spin= gen_spin($min,$max,$step,$digit);
 	my $button=def_image_button("icons/help.png");
 		
 	$button->signal_connect("clicked" => sub {message_dialog($help);});
@@ -885,6 +909,7 @@ sub add_colors_to_textview{
 	my $tview= shift;
 	add_colored_tag($tview,'red');
 	add_colored_tag($tview,'blue');
+	add_colored_tag($tview,'brown');
 	add_colored_tag($tview,'green');
 }
 
@@ -1072,7 +1097,8 @@ sub gen_combobox_object {
 
 sub gen_comboentry_object {
  	my ($object,$attribute1,$attribute2,$content,$default,$status,$timeout)=@_;
-	my @combo_list=split(/\s*,\s*/,$content);
+	my @combo_list;
+	@combo_list=split(/\s*,\s*/,$content) if(defined $content );
 	my $value=$object->object_get_attribute($attribute1,$attribute2);
 	my $pos;
 	$pos=get_pos($value, @combo_list) if (defined $value);
@@ -1097,19 +1123,19 @@ sub gen_comboentry_object {
 sub gen_spin_object {
 	my ($object,$attribute1,$attribute2,$content, $default,$status,$timeout)=@_;
 	my $value=$object->object_get_attribute($attribute1,$attribute2);
-	my ($min,$max,$step)=split(/\s*,\s*/,$content);
+	my ($min,$max,$step,$digit)=split(/\s*,\s*/,$content);
 	if(!defined $value){
 		$value=$default;
 		$object->object_add_attribute($attribute1,$attribute2,$value);
 	}
 	
-	$value=~ s/[^0-9.]//g;
-	$min=~   s/[^0-9.]//g;
-	$max=~   s/[^0-9.]//g;
-	$step=~  s/[^0-9.]//g;
+	$value=~ s/[^0-9.\-]//g;
+	$min=~   s/[^0-9.\-]//g;
+	$max=~   s/[^0-9.\-]//g;
+	$step=~  s/[^0-9.\-]//g;
+	$digit=~ s/[^0-9.\-]//g if (defined $digit);
 	
-	
-	my $widget=gen_spin($min,$max,$step);
+	my $widget=gen_spin($min,$max,$step,$digit);
 	$widget->set_value($value);
 	$widget-> signal_connect("value_changed" => sub{
 		my $new_param_value=$widget->get_value();
@@ -1317,15 +1343,18 @@ sub add_param_widget {
 		 
 	 }
 	 elsif 	($type eq "Spin-button"){ 
-		  my ($min,$max,$step)=split(/\s*,\s*/,$content);
-		  $value=~ s/\D//g;
-		  $min=~ s/\D//g;
-		  $max=~ s/\D//g;
-		  $step=~ s/\D//g;
-		  $widget=gen_spin($min,$max,$step);
+		my ($min,$max,$step,$digit)=split(/\s*,\s*/,$content);
+		
+		$value=~ s/[^0-9.\-]//g;
+		$min=~   s/[^0-9.\-]//g;
+		$max=~   s/[^0-9.\-]//g;
+		$step=~  s/[^0-9.\-]//g;
+		$digit=~ s/[^0-9.\-]//g if (defined $digit);
+	
+		  $widget=gen_spin($min,$max,$step,$digit);
 		  $widget->set_value($value);
 		  $widget-> signal_connect("value_changed" => sub{
-		  my $new_param_value=$widget->get_value_as_int();
+		  my $new_param_value=$widget->get_value();
 		  $self->object_add_attribute($attribut1,$param,$new_param_value);
 		  set_gui_status($self,$new_status,$ref_delay) if(defined $ref_delay);
 	      });
@@ -1382,7 +1411,10 @@ sub add_param_widget {
 			$widget =get_file_name_object ($self,$attribut1,$param,$content,undef);
 			set_gui_status($self,$new_status,$ref_delay) if(defined $ref_delay);
 	}	
-	
+	elsif ( $type eq 'Fixed'){
+		 $self->object_add_attribute($attribut1,$param,$default);
+		 $widget =gen_label_in_left("$default");
+	}
 	else {
 		 $widget =gen_label_in_left("unsuported widget type!");
 	}
@@ -1408,7 +1440,7 @@ sub add_param_widget {
 ################
 
 
-sub labele_widget_info{
+sub gen_label_info{
 	my ($label_name,$widget,$info)=@_;
 	my $box = def_hbox(FALSE,0);
 	#label
@@ -1565,15 +1597,122 @@ sub gen_list_store {
 
 
 
+##############
+#	create tree
+##############
+# clean names for column numbers.
+use constant DISPLAY_COLUMN    => 0;
+use constant CATRGORY_COLUMN    => 1;
+use constant MODULE_COLUMN     => 2;
+use constant ITALIC_COLUMN   => 3;
+use constant NUM_COLUMNS     => 4;
+
+sub create_tree {
+   my ($self,$lable,$info,$tree_ref,$row_selected_func,$row_activated_func)=@_;
+   my %tree_in = %{$tree_ref};
+   my $model = Gtk2::TreeStore->new ('Glib::String', 'Glib::String', 'Glib::Scalar', 'Glib::Boolean');
+   my $tree_view = Gtk2::TreeView->new;
+   $tree_view->set_model ($model);
+   my $selection = $tree_view->get_selection;
+   $selection->set_mode ('browse');   
+ 
+   
+
+   foreach my $p (sort keys %tree_in)
+   {
+  
+	my @modules= @{$tree_in{$p}};
+	#my @dev_entry=  @{$tree_entry{$p}}; 	
+	my $iter = $model->append (undef);
+	$model->set ($iter,
+                   DISPLAY_COLUMN,    $p,
+                   CATRGORY_COLUMN, $p || '',
+                   MODULE_COLUMN,     0     || '',
+                   ITALIC_COLUMN,   FALSE);
+
+	next unless  @modules;
+	
+	foreach my $v ( @modules){
+		 my $child_iter = $model->append ($iter);
+		 my $entry= '';
+		
+         	$model->set ($child_iter,
+			DISPLAY_COLUMN,    $v,
+                   	CATRGORY_COLUMN, $p|| '',
+                   	MODULE_COLUMN,     $v     || '',
+                   	ITALIC_COLUMN,   FALSE);
+      	}	
+	
 
 
+   }
+	
+   my $cell = Gtk2::CellRendererText->new;
+   $cell->set ('style' => 'italic');
+   my $column = Gtk2::TreeViewColumn->new_with_attributes
+ 					("$lable",
+                                        $cell,
+                                        'text' => DISPLAY_COLUMN,
+                                        'style_set' => ITALIC_COLUMN);
+
+	$tree_view->append_column ($column);
+	my @ll=($model,$info);
+   #row selected
+	$selection->signal_connect (changed =>sub {
+	my ($selection, $ref) = @_;
+	my ($model,$info)=@{$ref};
+	my $iter = $selection->get_selected;
+  	return unless defined $iter;
+
+  	my ($category) = $model->get ($iter, CATRGORY_COLUMN);
+  	my ($module) = $model->get ($iter,MODULE_COLUMN );
+  	$row_selected_func->($self,$category,$module,$info) if(defined $row_selected_func);
+  
 
 
+}, \@ll);
+
+#  row_activated 
+  $tree_view->signal_connect (row_activated => sub{
+
+	my ($tree_view, $path, $column) = @_;
+	my $model = $tree_view->get_model;
+	my $iter = $model->get_iter ($path);
+	my ($category) = $model->get ($iter, CATRGORY_COLUMN);
+  	my ($module) = $model->get ($iter,MODULE_COLUMN );
+	
+
+	if($module){ 
+		#print "$module  is selected via row activaton!\n";
+		$row_activated_func->($self,$category,$module,$info) if(defined $row_activated_func);
+		#add_module_to_soc($soc,$ip,$category,$module,$info);
+			
+	}
+
+}, \@ll);
+
+  #$tree_view->expand_all;
+
+  my $scrolled_window = Gtk2::ScrolledWindow->new;
+  $scrolled_window->set_policy ('automatic', 'automatic');
+  $scrolled_window->set_shadow_type ('in');
+  $scrolled_window->add($tree_view);
+
+  my $hbox = Gtk2::HBox->new (FALSE, 0);
+  $hbox->pack_start ( $scrolled_window, TRUE, TRUE, 0); 
+
+  return $hbox;
+}
 
 
+sub row_activated_cb{
+	 my ($tree_view, $path, $column) = @_;
+	 my $model = $tree_view->get_model;
+	 my $iter = $model->get_iter ($path);
+	 my ($category) = $model->get ($iter, DISPLAY_COLUMN);
+  	 my ($module) = $model->get ($iter, CATRGORY_COLUMN);
 
-
-
+}
 
 
 

@@ -51,6 +51,7 @@ $ipgen = bless( {
                                           'Aw',
                                           'BYTE_WR_EN',
                                           'FPGA_VENDOR',
+					  'CORE_NUM',
                                           'TAGw',
                                           'SELw',
                                           'CTIw',
@@ -164,8 +165,17 @@ $ipgen = bless( {
                                                        'redefine_param' => 1,
                                                        'default' => '"GENERIC"',
                                                        'type' => 'Combo-box',
-                                                       'content' => '"ALTERA","GENERIC"'
+                                                       'content' => '"ALTERA","XILINX","GENERIC"'
                                                      },
+					 'CORE_NUM' => {
+                                                'type' => 'Fixed',
+                                                'default' => 'CORE_ID',
+                                                'global_param' => 'Localparam',
+                                                'redefine_param' => 1,
+                                                'content' => '',
+                                                'info' => 'Parameter'
+                                              },
+
                                     'INIT_FILE_PATH' => {
                                                           'global_param' => 'Don\'t include',
                                                           'content' => '',

@@ -22,12 +22,7 @@ use Gtk2::Pango;
 
 
 
-# clean names for column numbers.
-use constant DISPLAY_COLUMN    => 0;
-use constant CATRGORY_COLUMN    => 1;
-use constant MODULE_COLUMN     => 2;
-use constant ITALIC_COLUMN   => 3;
-use constant NUM_COLUMNS     => 4;
+
 
 
 require "widget.pl"; 
@@ -69,7 +64,8 @@ sub get_instance_id{
 #  add_module_to_soc
 ###############
 sub add_module_to_soc{
-	my ($soc,$ip,$category,$module,$info)=@_;
+	my ($soc,$category,$module,$info)=@_;
+	my $ip = ip->lib_new ();
 	my ($instance_id,$id)= get_instance_id($soc,$category,$module);
 	
 	#add module instanance
@@ -99,9 +95,8 @@ sub add_module_to_soc{
 	$soc->soc_add_instance_param_order($instance_id,\@r);
 	
 	get_module_parameter($soc,$ip,$instance_id);
-	
-	
-	
+	undef $ip;
+	set_gui_status($soc,"refresh_soc",0);	
 } 
 ################
 #	remove_instance_from_soc
@@ -131,6 +126,7 @@ sub get_module_parameter{
 	#read soc parameters
 	my %param_value= $soc->soc_get_module_param($instance_id);
 	my %new_param_value=%param_value;
+	
 	#gui
 	my $table_size = ($param_num<10) ? 10 : $param_num;
 	my $window =  def_popwin_size(60,60, "Parameter setting for $module ",'percent');
@@ -140,82 +136,24 @@ sub get_module_parameter{
 	$scrolled_win->set_policy( "automatic", "automatic" );
 	$scrolled_win->add_with_viewport($table);
 	my $row=0;
+	my $column=0;
 	
 	my $ok = def_image_button('icons/select.png','OK');
 	
-	my $at0= 'expand';
+	my $at0= 'shrink';
 	my $at1= 'shrink';
 	
-	$table->attach (gen_label_in_left("Parameter name"),0, 3, $row, $row+1,$at0,$at1,2,2);
-	$table->attach (gen_label_in_left("Value"),3, 6, $row, $row+1,$at0,$at1,2,2);
-	$table->attach (gen_label_in_left("Description"),6, 7, $row, $row+1,$at0,$at1,2,2);
+	$table->attach (gen_label_in_left("Parameter name"),0, 2, $row, $row+1,$at0,$at1,2,2);
+	$table->attach (gen_label_in_left("Value"),2, 3, $row, $row+1,$at0,$at1,2,2);
+
 	$row++;
 	foreach my $p (@parameters){
 		my ($default,$type,$content,$info)= $ip->ip_get_parameter($category,$module,$p);
-		
-		my $value=$param_value{$p};
-		#$value = $default if (!defined $value && defined $default);
-		#print "$value\n";
-		if ($type eq "File_Entry"){
-			my $entry=gen_entry($value);
-			my $brows=get_file_name(undef,undef,$entry,undef,undef,undef,undef,undef);
-			my $box=def_hbox(TRUE,0);
-			$box->pack_start($entry,FALSE,FALSE,3);
-			$box->pack_start($brows,FALSE,FALSE,3);
-			$table->attach ($box, 3, 6, $row, $row+1,$at0,$at1,2,2);
-			$entry-> signal_connect("changed" => sub{$new_param_value{$p}=$entry->get_text();});
-		}
-		
-		elsif ($type eq "Entry"){
-			my $entry=gen_entry($value);
-			$table->attach ($entry, 3, 6, $row, $row+1,$at0,$at1,2,2);
-			$entry-> signal_connect("changed" => sub{$new_param_value{$p}=$entry->get_text();});
-		}
-		elsif ($type eq "Combo-box"){
-			my @combo_list=split(/\s*,\s*/,$content);
-			my $pos=get_item_pos($value, @combo_list);
-			my $combo=gen_combo(\@combo_list, $pos);
-			$table->attach ($combo, 3, 6, $row, $row+1,$at0,$at1,2,2);
-			$combo-> signal_connect("changed" => sub{$new_param_value{$p}=$combo->get_active_text();});
-			
-		}
-		elsif 	($type eq "Spin-button"){ 
-		  my ($min,$max,$step)=split(/\s*,\s*/,$content);
-		  $value=~ s/\D//g;
-		  $min=~ s/\D//g;
-		  $max=~ s/\D//g;
-		  $step=~ s/\D//g;
-		  my $spin=gen_spin($min,$max,$step);
-		  if(defined $value) {$spin->set_value($value);}
-		  else {$spin->set_value($min);}
-		  $table->attach ($spin, 3, 4, $row, $row+1,$at0,$at1,2,2);
-		  $spin-> signal_connect("value_changed" => sub{ $new_param_value{$p}=$spin->get_value_as_int(); });
-		 
-		 # $box=def_label_spin_help_box ($param,$info, $value,$min,$max,$step, 2);
-		}
-		if (defined $info && $type ne "Fixed"){
-			my $info_button=def_image_button('icons/help.png');
-			$table->attach ($info_button, 6, 7, $row, $row+1,$at0,$at1,2,2);	
-			$info_button->signal_connect('clicked'=>sub{
-				message_dialog($info);
-				
-			});
-			
-		}		
-		if ($type ne "Fixed"){
-			#print "$p:val:$value\n";
-			my $label =gen_label_in_left($p);
-			$table->attach ($label, 0, 3, $row, $row+1,$at0,$at1,2,2);
-			$row++;
-		}		 
-		
-		
+		my $show = ($type ne "Fixed");
+		$default= $param_value{$p} if(defined $param_value{$p});
+		($row,$column)=add_param_widget($soc,$p,$p, $default,$type,$content,$info, $table,$row,$column,$show,'current_module_param',undef,undef,'vertical');
 	}
-	#if ($row== 0){
-			#my $label =gen_label_in_left("The $module IP does not have any adjatable parameter");
-		#	$table->attach ($label, 0, 7, $row, $row+1,$at0,'shrink',2,2);
-
-	#}
+	
 	
 	
 	
@@ -230,6 +168,9 @@ sub get_module_parameter{
 	$ok-> signal_connect("clicked" => sub{ 
 		$window->destroy;
 		#save new values 
+		my $ref=$soc->object_get_attribute('current_module_param');
+		%new_param_value=%{$ref};
+		
 		$soc->soc_add_instance_param($instance_id,\%new_param_value);
 		
 		
@@ -258,14 +199,10 @@ sub get_module_parameter{
 				}#plug_num
 			}#if
 		}#plugs
-		
-		
+		$soc->object_add_attribute('current_module_param',undef,undef);
 		set_gui_status($soc,"refresh_soc",0);
-		#$$refresh_soc->clicked;
 		
 		});
-
-
 }
 
 
@@ -763,147 +700,22 @@ sub show_active_dev{
 
 
 
-sub row_activated_cb{
-	 my ($tree_view, $path, $column) = @_;
-	 my $model = $tree_view->get_model;
-	 my $iter = $model->get_iter ($path);
-
-	#my ($selection, $ref) = @_;
-	#my ($model,$textview)=@{$ref};
-	#my $iter = $selection->get_selected;
-  	#return unless defined $iter;
-	my ($category) = $model->get ($iter, DISPLAY_COLUMN);
-  	my ($module) = $model->get ($iter, CATRGORY_COLUMN);
-
-	
-
-	#if($module){print "$module   is selected via row activaton!\n"}
-}
 
 
 
-
-##############
-#	create tree
-##############
-sub create_tree {
-   my ($info,$ip,$soc)=@_;
-   my $model = Gtk2::TreeStore->new ('Glib::String', 'Glib::String', 'Glib::Scalar', 'Glib::Boolean');
-   my $tree_view = Gtk2::TreeView->new;
-   $tree_view->set_model ($model);
-   my $selection = $tree_view->get_selection;
-
-   $selection->set_mode ('browse');
-   #$tree_view->set_size_request (200, -1);
-
-   #
-   # this code only supports 1 level of children. If we
-   # want more we probably have to use a recursing function.
-   #
-   
-
-   my @categories= $ip->ip_get_categories();
- 
-
-
-
-   foreach my $p (@categories)
-   {
-	my @modules= $ip->get_modules($p);
-	#my @dev_entry=  @{$tree_entry{$p}}; 	
-	my $iter = $model->append (undef);
-	$model->set ($iter,
-                   DISPLAY_COLUMN,    $p,
-                   CATRGORY_COLUMN, $p || '',
-                   MODULE_COLUMN,     0     || '',
-                   ITALIC_COLUMN,   FALSE);
-
-	next unless  @modules;
-	
-	foreach my $v ( @modules){
-		 my $child_iter = $model->append ($iter);
-		 my $entry= '';
-		
-         	$model->set ($child_iter,
-			DISPLAY_COLUMN,    $v,
-                   	CATRGORY_COLUMN, $p|| '',
-                   	MODULE_COLUMN,     $v     || '',
-                   	ITALIC_COLUMN,   FALSE);
-      	}	
-	
-
-
-   }
-	
-   my $cell = Gtk2::CellRendererText->new;
-   $cell->set ('style' => 'italic');
-   my $column = Gtk2::TreeViewColumn->new_with_attributes
- 					("IP list",
-                                        $cell,
-                                        'text' => DISPLAY_COLUMN,
-                                        'style_set' => ITALIC_COLUMN);
-
-  $tree_view->append_column ($column);
-  my @ll=($model,$info);
-#row selected
-  $selection->signal_connect (changed =>sub {
-	my ($selection, $ref) = @_;
-	my ($model,$info)=@{$ref};
-	my $iter = $selection->get_selected;
-  	return unless defined $iter;
-
-  	my ($category) = $model->get ($iter, CATRGORY_COLUMN);
-  	my ($module) = $model->get ($iter,MODULE_COLUMN );
+sub show_select_ip_description {
+	my ($soc,$category,$module,$info)=@_;
+	my $ip = ip->lib_new ();
   	my $describ=$ip->ip_get($category,$module,"description");
 	if($describ){
-		#print "$entry describtion is: $describ \n";
 		show_info($info,$describ);
 		
 	}
-
-
-}, \@ll);
-
-#  row_activated 
-  $tree_view->signal_connect (row_activated => sub{
-
-         my ($tree_view, $path, $column) = @_;
-	 my $model = $tree_view->get_model;
-	 my $iter = $model->get_iter ($path);
-        my ($category) = $model->get ($iter, CATRGORY_COLUMN);
-  	my ($module) = $model->get ($iter,MODULE_COLUMN );
-
-	
-
-	if($module){ 
-		#print "$module  is selected via row activaton!\n";
-		add_module_to_soc($soc,$ip,$category,$module,$info);
-		set_gui_status($soc,"refresh_soc",0);	
-	}
-		
-
-
-	
-	
-
-
-
-}, \@ll);
-
-  #$tree_view->expand_all;
-
-  my $scrolled_window = Gtk2::ScrolledWindow->new;
-  $scrolled_window->set_policy ('automatic', 'automatic');
-  $scrolled_window->set_shadow_type ('in');
-  $scrolled_window->add($tree_view);
-
-  my $hbox = Gtk2::HBox->new (FALSE, 0);
-  $hbox->pack_start ( $scrolled_window, TRUE, TRUE, 0);
-
-  
-
-  return $hbox;
+	undef $ip;
 }
+
+
+
 
 
 
@@ -1851,9 +1663,15 @@ sub socgen_main{
 	my $refresh_dev_win = Gtk2::Button->new_from_stock('ref');
 	
 	# A tree view for holding a library
-	my $tree_box = create_tree ($info,$ip,$soc);
-
-
+	my %tree_text;
+	my @categories= $ip->ip_get_categories();
+    foreach my $p (@categories)
+    {
+   		#next if ($p eq 'PLL');
+   		my @modules= $ip->get_modules($p);
+   		$tree_text{$p}=\@modules;	
+    }
+	my $tree_box = create_tree ($soc,'IP list', $info,\%tree_text,\&show_select_ip_description,\&add_module_to_soc);
 
 	$main_table->set_row_spacings (4);
 	$main_table->set_col_spacings (1);
@@ -1867,34 +1685,12 @@ sub socgen_main{
 	my $diagram  = def_image_button('icons/diagram.png','Diagram');
 	my $unset    = def_image_button('icons/intfc.png','Unset Intfc.');
 	
-	my $ram      = def_image_button('icons/RAM.png','Memory');
-	
-
-
-
-
-	
-	my $wb = def_image_button('icons/setting.png','WB addr');
-	
-	
-	
+	my $ram      = def_image_button('icons/RAM.png','Memory');	
+	my $wb = def_image_button('icons/setting.png','WB addr');	
 	my $open = def_image_button('icons/browse.png',"_Load Tile",FALSE,1);
-	
-	
 	my $entry=gen_entry_object($soc,'soc_name',undef,undef,undef,undef);
-	my $entrybox=labele_widget_info(" Tile name:",$entry);
-	
-	
-	#$table->attach_defaults ($event_box, $col, $col+1, $row, $row+1);
-
-
-
-
-	#$main_table->attach_defaults ($tree_box , 0, 2, 0, 17);
-	#$main_table->attach_defaults ($device_win , 2, 12, 0, 17);
-	#$main_table->attach_defaults ($infobox  , 0, 12, 17,19);
-
-
+	my $entrybox=gen_label_info(" Tile name:",$entry);
+		
 	my $h1=gen_hpaned($tree_box,.15,$device_win);
 	my $v2=gen_vpaned($h1,.55,$infobox);
 	$main_table->attach_defaults ($v2  , 0, 12, 0,19);

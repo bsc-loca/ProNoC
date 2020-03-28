@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-use strict;
+#use strict;
 use warnings;
 require "common.pl";
 use FindBin;
@@ -7,35 +7,23 @@ use lib $FindBin::Bin;
 
 use String::Scanf; # imports sscanf()
 
-use Gtk2;
 
-my $file = "/home/alireza/work/hca_git/mpsoc_work/SOC/mor1k_soc/sw/image";
+use Glib qw/TRUE FALSE/;
 
-sub get_elf_file_addr_range {
-	my $file=shift;	
-	my $command=  "size -A $file";
-	#add_info($tview,"$command\n");
-	my	($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
-	return undef if(length $stderr>1);			
-	my @lines = split ("\n" ,$stdout);
-	my $max_addr=0;
-	my $file_size;	
-	foreach my $p (@lines ){
-		$p =~ s/\s+/ /g; # remove extra spaces
-	    	$p =~ s/^\s+//; #ltrim
-		my ($sec,$size,$addr)= sscanf("%s %u %u","$p");
-		if(defined $size && defined $addr){
-			if($max_addr < $addr) {
-				$max_addr = $addr;
-				 $file_size = $addr + $size;			
-			}
-		} 
+my @initial_files=('/home/alireza/work/hca_git/mpsoc_work/SOC/mor1k_soc/sw/RAM/ram0.mif','/home/alireza/work/hca_git/mpsoc_work/MPSOC/newAdder/sw/tile0/RAM/ram0.mif');
+
+
+foreach my $f 	(@initial_files){
+	my @m = split('\/sw\/',$f );
+	#print "m= $m[-1]\n";	
+	my $d = $m[-1];#take the last file path name after /sw/
+	$d=~ s/RAM//g; #remove RAM
+	$d=~ s/\///g; #remove /
+	$d = "tile0".$d unless($m[-1]=~/^tile/); 
+	print "$d\n";	
 	}
-	return $file_size;
-	
-}
 
 
-print get_elf_file_addr_range ($file);
 
-1;
+
+0;

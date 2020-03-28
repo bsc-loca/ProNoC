@@ -28,8 +28,9 @@ sub find_the_most_similar_position{
 
 
 
+
 ####################
-#	 file
+#	 verilog file
 ##################
 
 
@@ -50,11 +51,72 @@ sub read_verilog_file{
 	    }
 	    # die "Warnings parsing files!";
 	}
-
 	return $vdb;
 }
 
 
+sub verilog_file_get_ports_list{
+	my ($vdb,$top_module)=@_;
+	my @ports;
+	
+	foreach my $sig (sort $vdb->get_modules_signals($top_module)) {
+	my ($line,$a_line,$i_line,$type,$file,$posedge,$negedge,
+	 $type2,$s_file,$s_line,$range,$a_file,$i_file,$dims) = 
+	   $vdb->get_module_signal($top_module,$sig);
+
+		if($type eq "input" or $type eq "inout" or $type eq "output" ){
+			push(@ports, $sig);
+			
+		}
+	}
+	return @ports;
+}
+
+
+
+sub get_ports_type{
+	my ($vdb,$top_module)=@_;
+	my %ports;
+	
+	foreach my $sig (sort $vdb->get_modules_signals($top_module)) {
+	my ($line,$a_line,$i_line,$type,$file,$posedge,$negedge,
+	 $type2,$s_file,$s_line,$range,$a_file,$i_file,$dims) = 
+	   $vdb->get_module_signal($top_module,$sig);
+
+		if($type eq "input" or $type eq "inout" or $type eq "output" ){
+			$ports{$sig}=$type;
+			
+		}
+	}
+	return %ports;
+}
+
+
+
+sub get_ports_rang{
+	my ($vdb,$top_module)=@_;
+	my %ports;
+	
+	foreach my $sig (sort $vdb->get_modules_signals($top_module)) {
+	my ($line,$a_line,$i_line,$type,$file,$posedge,$negedge,
+	 $type2,$s_file,$s_line,$range,$a_file,$i_file,$dims) = 
+	   $vdb->get_module_signal($top_module,$sig);
+
+		if($type eq "input" or $type eq "inout" or $type eq "output" ){
+		 
+		
+			
+			$ports{$sig}=remove_all_white_spaces($range);
+			
+		}
+	}
+	return %ports;
+}
+
+
+####################
+#	 file
+##################
 
 
 sub append_text_to_file {

@@ -13,9 +13,9 @@ int mem_width = 32;
 
 void usage (void)
 {
-	printf("Usage: ./ihex2mif  <options>  \n");
+	printf("Usage: ./bin2mif  <options>  \n");
 	printf("\nOptions: \n");
-    printf("         -w <file name>: memory width in bits.\n");
+	printf("         -w <file name>: memory width in bits.\n");
 	printf("         -f <file name>: input bin file name.\n");
 	printf("         -o <file name>: output mif file name.\n");	
 }

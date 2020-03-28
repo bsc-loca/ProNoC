@@ -5,6 +5,8 @@ IHEX2MIF =$(PRONOC_WORK)/toolchain/bin/ihex2mif
 IHEX2BIN =$(PRONOC_WORK)/toolchain/bin/ihex2bin
 BIN2HEX =$(PRONOC_WORK)/toolchain/bin/bin2str
 BIN2MIF=$(PRONOC_WORK)/toolchain/bin/bin2mif
+BIN2MEM=$(PRONOC_WORK)/toolchain/bin/bin2mem
+
 
 
 OR32_TOOL_PREFIX=${TOOLCHAIN}/bin/or1k-elf-
@@ -62,6 +64,7 @@ image.ihex: image image.lst
 #	$(IHEX2MIF) -f image.ihex -o RAM/ram0.mif
 	$(IHEX2BIN) -i image.ihex -o RAM/ram0.bin
 	$(BIN2MIF)  -f RAM/ram0.bin -o RAM/ram0.mif -w 32
+	$(BIN2MEM)  -f RAM/ram0.bin -o RAM/ram0.mem -w 32
 	$(BIN2HEX)  -f RAM/ram0.bin -h   
 	rm *.o
 
