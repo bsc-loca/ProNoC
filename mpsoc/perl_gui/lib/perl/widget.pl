@@ -839,7 +839,7 @@ sub def_table{
 sub attach_widget_to_table {
 	my ($table,$row,$label,$inf_bt,$widget,$column)=@_;
 	$column = 0 if(!defined $column);
-	$column *=4;
+	#$column *=4;
 	#my $tmp=gen_label_in_left(" "); 
 	if(defined $label)  {$table->attach  ($label , $column, $column+1,  $row,$row+1,'fill','shrink',2,2);$column++;}
 	if(defined $inf_bt) {$table->attach  ($inf_bt , $column, $column+1, $row,$row+1,'fill','shrink',2,2);$column++;}
@@ -1426,10 +1426,11 @@ sub add_param_widget {
 			#print "$loc\n";
 			 $row ++;}
 		else {
+			
 			$column+=4;
 		}	 
 	}
-    return ($row,$column);
+    return ($row,$column,$widget);
 }
 
 

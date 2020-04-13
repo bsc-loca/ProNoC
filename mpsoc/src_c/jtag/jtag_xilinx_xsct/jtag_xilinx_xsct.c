@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 void usage(){
 
 	printf ("usage:./jtag_main [-n	index number] [-a jtag_target_number] [-b jtag_shift_reg_size] [-i file_name][-c][-s rd/wr offset address][-d string]\n");
-	printf ("\t-a	the order number of target device in jtag chain. Run jtag targets after \"connect\" command in xsct terminal to se the list\n");  
+	printf ("\t-a	the order number of target device in jtag chain. Run jtag targets after \"connect\" command in xsct terminal to list all availble targets\n");  
 	printf ("\t-b	Jtag shiftreg data width. It should be the target device Data width + 4\n");  
  	printf ("\t-n	index number: the target jtag IP core index number. The default number is 126\n");  
 	printf ("\t-i	file_name:  input binary file name (.bin file)\n");

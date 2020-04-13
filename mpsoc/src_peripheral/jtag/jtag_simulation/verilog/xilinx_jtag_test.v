@@ -36,7 +36,7 @@ module xilinx_jtag_test (
     parameter JSTATUSw=8;
     
     
-   /*
+   
    
     localparam  J2WBw= 1+1+JDw+JAw;
     localparam  WB2Jw=1+JSTATUSw+JINDEXw+1+JDw;
@@ -44,7 +44,7 @@ module xilinx_jtag_test (
     
    
 
- xilinx_jtag_to_wb #(
+ xilinx_jtag_wb #(
     .JWB_NUM(1),
     .JDw(32),
     .JAw(32),
@@ -56,16 +56,16 @@ module xilinx_jtag_test (
 jwb
 (
    // clk, get the clock from wb interface
-    .reset(1'b0),
+    .reset(reset),
     .cpu_en(led[0]),
     .system_reset(led[1]),
     .wb_to_jtag_all({{WB2Jw-1{1'b0}} ,clk}),
     .jtag_to_wb_all()
 );
 
- */
  
  
+ /*
  reg ack;
  wire stb;
  wire we;
@@ -101,10 +101,9 @@ always @(posedge clk)begin
 end   
 
 assign led = dout;
-    
+*/    
     
 endmodule
-
 
 /**********************************************************************
 **  File:  xilinx_jtag_wb.v 
@@ -135,7 +134,11 @@ endmodule
 *******************************************************************/
 
 
-module xilinx_jtag_to_wb #(
+// synthesis translate_off
+`timescale 1ns / 1ps
+// synthesis translate_on
+
+module xilinx_jtag_wb #(
     parameter JWB_NUM=1,
     parameter JDw=32,
     parameter JAw=32,
@@ -172,7 +175,12 @@ module xilinx_jtag_to_wb #(
     
     wire  [J2WBw-1  : 0] jtag_to_wb [JWB_NUM-1 : 0];
     wire  [WB2Jw-1  : 0] wb_to_jtag [JWB_NUM-1 : 0];   
-    wire  [JINDEXw-1 : 0] wb_to_jtag_index[JWB_NUM-1 : 0];
+    wire  [JINDEXw-1 : 0] wb_to_jtag_index_all[JWB_NUM-1 : 0];
+    wire  [JDw-1 : 0] wb_to_jtag_dat_all [JWB_NUM-1 : 0];
+    wire  [JWB_NUM-1 : 0] wb_to_jtag_ack_all;
+    wire  [JWB_NUM-1 : 0] wb_to_jtag_ack_all_latched;
+    wire  [JSTATUSw-1 : 0] wb_to_jtag_status_all [JWB_NUM-1 : 0];
+    
     wire  [JINDEXw-1 : 0] jtag_to_wb_index;
     wire  [JWB_NUM-1: 0] jtag_sel_onehot;
     wire  [WB2Jw-1  : 0] wb_to_jtag_mux;
@@ -186,29 +194,45 @@ module xilinx_jtag_to_wb #(
     wire [JAw-1 : 0] jtag_to_wb_addr;
     wire jtag_to_wb_stb;
     wire jtag_to_wb_we;
-    
     wire [JWB_NUM-1 : 0] wb_to_jtag_clk;
+    
+    wire tclk;//jtag clk
+    wire clk = wb_to_jtag_clk[0];
+    
+    
     
     genvar i;
     generate
         for (i = 0; i < JWB_NUM ; i = i + 1) begin : block
            
             assign  wb_to_jtag[i]  = wb_to_jtag_all [(i+1)*WB2Jw-1 : i*WB2Jw];            
-            assign  {wb_to_jtag_index [i],wb_to_jtag_clk[i]}  = wb_to_jtag[i][JINDEXw:0];
-            
-            assign  jtag_sel_onehot[i] = (wb_to_jtag_index [i] == jtag_to_wb_index);
+            assign  {wb_to_jtag_status_all[i],wb_to_jtag_ack_all[i],wb_to_jtag_dat_all[i],wb_to_jtag_index_all [i],wb_to_jtag_clk[i]}  = wb_to_jtag[i];
+            assign  jtag_sel_onehot[i] = (wb_to_jtag_index_all [i] == jtag_to_wb_index);
             assign  stb_all[i] = jtag_to_wb_stb & jtag_sel_onehot[i];           
             assign  jtag_to_wb_all[(i+1)*J2WBw-1 : i*J2WBw] =jtag_to_wb[i];
             assign  jtag_to_wb[i] = {jtag_to_wb_addr,stb_all[i],jtag_to_wb_we,jtag_to_wb_dat};
+      
+        
+        
+            wb_to_jtag_latch ack_latch 
+                (
+                .clk(clk),
+                .jtag_clk(tclk),
+                .in(wb_to_jtag_ack_all[i]),
+                .out(wb_to_jtag_ack_all_latched[i])
+            );
+        
+        
+        
         end
     endgenerate
     
-    
+  
     localparam BIN_WIDTH     =  (JWB_NUM>1)? log2(JWB_NUM):1;
     wire [BIN_WIDTH-1 : 0] jtag_sel_bin;
 
   
-    one_hot_to_bin #(
+    jtag_one_hot_to_bin #(
         .ONE_HOT_WIDTH(JWB_NUM),
         .BIN_WIDTH()
     )
@@ -217,12 +241,24 @@ module xilinx_jtag_to_wb #(
         .one_hot_code(jtag_sel_onehot),
         .bin_code(jtag_sel_bin)
     );
-    assign wb_to_jtag_mux= wb_to_jtag[jtag_sel_bin];    
-    assign {wb_to_jtag_status,wb_to_jtag_ack,wb_to_jtag_dat} = wb_to_jtag_mux[WB2Jw-1 : JINDEXw+1]; 
+   
+     
+     
+     assign wb_to_jtag_status=wb_to_jtag_status_all[jtag_sel_bin];
+     assign wb_to_jtag_ack =wb_to_jtag_ack_all_latched[jtag_sel_bin];
+     assign wb_to_jtag_dat=wb_to_jtag_dat_all   [jtag_sel_bin];
    
     
-      wire clk = wb_to_jtag_clk[0];
+    //assign {wb_to_jtag_status,wb_to_jtag_ack,wb_to_jtag_dat}
+   
+    
+  
     wire mem_ctrl_jtag_ack;
+    
+   
+    
+    
+    
     xilinx_jtag_mem_ctrl #(
         .Dw(JDw),
         .Aw(JAw),
@@ -230,11 +266,12 @@ module xilinx_jtag_to_wb #(
     )
     mem_ctrl
     (   
-        .clk   (clk    ),
+        .tclk   (tclk    ),
         .wb_to_jtag_status(wb_to_jtag_status ),
         .wb_to_jtag_dat   (wb_to_jtag_dat    ),
         .wb_to_jtag_ack   (mem_ctrl_jtag_ack    ),
                          
+        .jtag_to_wb_ir    ( ),
         .jtag_to_wb_index (jtag_to_wb_index  ),
         .jtag_to_wb_dat   (jtag_to_wb_dat    ),
         .jtag_to_wb_addr  (jtag_to_wb_addr   ),
@@ -248,7 +285,7 @@ module xilinx_jtag_to_wb #(
    
     reg [1:0]ctrl_reg;  
     reg rst_ctrl_ack;
-    always @(posedge clk or posedge reset)begin    
+    always @(posedge tclk or posedge reset)begin    
        if(reset) begin 
         ctrl_reg <=2'b00;
         rst_ctrl_ack<=1'b0;
@@ -262,11 +299,49 @@ module xilinx_jtag_to_wb #(
        end  
     end 
 
-    assign  {cpu_en, system_reset} =ctrl_reg;
+    assign  system_reset =   ctrl_reg[0];
+    assign  cpu_en       = ~ ctrl_reg[1];
+    
     assign  mem_ctrl_jtag_ack =wb_to_jtag_ack | rst_ctrl_ack; 
 endmodule
   
+  
+  
+module wb_to_jtag_latch  (
+    clk,
+    jtag_clk,
+    in,
+    out
+);
 
+   input clk,jtag_clk,in;
+   output out;
+   
+   reg out_latch,reset_out;
+    
+    
+    always @ (posedge clk) begin 
+        if(in) out_latch<=1'b1;
+        else if(reset_out) out_latch<=1'b0;    
+    end
+    
+   always @(posedge jtag_clk)begin 
+        if(out_latch | in) reset_out<=1'b1;
+        else reset_out<=1'b0;
+   
+   end
+    
+    
+    
+    assign out = in | reset_out | out_latch; 
+    
+  
+endmodule
+
+  
+/**************
+ *  xilinx_jtag_mem_ctrl
+ * ************/
 
 
 
@@ -290,7 +365,7 @@ module  xilinx_jtag_mem_ctrl #(
     jtag_to_wb_we,
         
     reset,
-    clk
+    tclk
 );
 
   localparam Iw=3;
@@ -307,7 +382,8 @@ module  xilinx_jtag_mem_ctrl #(
     output jtag_to_wb_stb;
     output jtag_to_wb_we;
 
-    input reset,clk;
+    input reset;
+    output tclk;
 
      localparam 
         STATE_NUM=3,
@@ -341,6 +417,7 @@ module  xilinx_jtag_mem_ctrl #(
     
     assign  data_in    = wb_rd_data;
    
+  
     
     xilinx_jtag_ctrl #(
         .Dw(JDw),
@@ -352,7 +429,7 @@ module  xilinx_jtag_mem_ctrl #(
         .ir(jtag_to_wb_ir  ),
         .status_i(wb_to_jtag_status),
         .index(jtag_to_wb_index),
-        .clk(clk),
+        .tck(tclk),
         .reset(reset),
         .data_out(data_out),
         .data_in(data_in),
@@ -362,10 +439,11 @@ module  xilinx_jtag_mem_ctrl #(
     );
         
     
-    always @(posedge clk or posedge reset) begin 
+    always @(posedge tclk or posedge reset) begin 
         if(reset) begin 
             wb_addr <= {Aw{1'b0}};
             wb_wr_data  <= {Dw{1'b0}};  
+            wb_rd_data  <= {Dw{1'b0}};
             ps <= IDEAL;
         end else begin
             wb_addr <= wb_addr_next;
@@ -409,7 +487,10 @@ module  xilinx_jtag_mem_ctrl #(
                 ns=IDEAL;
                 //wb_addr_inc=1'b1;         
             end     
-        end     
+        end 
+        default begin 
+            ns=IDEAL;
+        end    
         endcase 
     end 
         
@@ -417,18 +498,15 @@ endmodule
 
 
 
-
-
-
-
-
-
+/****************
+ *  xilinx_jtag_ctrl
+ * *************/
 module xilinx_jtag_ctrl #(
     parameter Dw=32,    
     parameter INDEXw=8,
     parameter STw=8
 )(
-    clk,
+    tck,
     reset,
     status_i,
     data_out,
@@ -454,19 +532,21 @@ module xilinx_jtag_ctrl #(
         UPDATE_WB_WR_DATA  = 3'b110,
         UPDATE_WB_RD_DATA  = 3'b101,
         RD_STATUS      =3'b100,
+        UPDATE_CTRL =3'b001,
         BYPASS = 3'b000;//not used
         
         
 
 //IO declaration
-    input reset,clk;
+    input reset;
+    output tck;
     input [STw-1 :0] status_i;
     input [Dw-1 :0] data_in;
-    output wb_wr_addr_en, wb_wr_data_en,    wb_rd_data_en;
+    output reg wb_wr_addr_en, wb_wr_data_en,    wb_rd_data_en;
     
     output  reg [Iw-1:0] ir;
     output  reg [INDEXw-1:0] index;
-    output  reg [Dw-1    :0] data_out;
+    output   reg [Dw-1    :0] data_out;
     
 
     wire      tdo, tck,   tdi;  
@@ -487,32 +567,21 @@ module xilinx_jtag_ctrl #(
     );
       
     // internal registers 
-
    (* KEEP = "TRUE" *)  reg [BUFFw-1   :   0] jtag_shift_buffer,jtag_shift_buffer_next;
- 
-      
   
     assign tdo =  jtag_shift_buffer[0];
    
-   initial begin 
-      jtag_shift_buffer <= 0;
-   end
-   
-   
-   
-    
-    
     always @ (*)begin 
         jtag_shift_buffer_next=jtag_shift_buffer;
         if( sdr ) jtag_shift_buffer_next={tdi,jtag_shift_buffer[BUFFw-1:1]};// shift buffer
         case(ir)
-			RD_STATUS:begin
-				if( cdr ) jtag_shift_buffer_next[STw-1	:	0] = status_i;
-			end
-			default: begin 
-				if( cdr ) jtag_shift_buffer_next = data_in;
-			end
-		endcase        
+            RD_STATUS:begin
+                if( cdr ) jtag_shift_buffer_next[STw-1  :   0] = status_i;
+            end
+            default: begin 
+                if( cdr ) jtag_shift_buffer_next[Dw-1 : 0] = data_in;
+            end
+        endcase        
     end
      
     localparam 
@@ -524,33 +593,19 @@ module xilinx_jtag_ctrl #(
     wire update_ir_flag    = jtag_shift_buffer_next[M1+UPDATE_IR];
     wire update_dat_flag   = jtag_shift_buffer_next[M1+UPDATE_DAT];     
         
-    always @(posedge tck or posedge tlr)    begin
-        if (tlr)begin 
-            // jtag_shift_buffer<={BUFFw{1'b0}};
-            // ir<= {Iw{1'b0}};            
-        end else begin 
-            jtag_shift_buffer<=jtag_shift_buffer_next;  
-           
-        end
-    end   
+   always @(posedge tck )    begin
+           jtag_shift_buffer<=jtag_shift_buffer_next;  
+   end   
 
 
-always @(posedge clk or posedge reset)    begin
-        if (reset)begin 
-            // jtag_shift_buffer<={BUFFw{1'b0}};
-            // ir<= {Iw{1'b0}};            
-        end else begin 
-            
+    always @(posedge tck )    begin                 
             if( udr)begin 
                 if(update_index_flag) index <= jtag_shift_buffer_next[INDEXw-1 : 0];
                 if(update_ir_flag   ) ir    <= jtag_shift_buffer_next[Iw-1 : 0];
                 if(update_dat_flag  ) data_out <= jtag_shift_buffer_next[Dw-1 : 0];
-            end    
-        end
+            end            
     end   
-	
-
-
+   // assign data_out = jtag_shift_buffer[Dw-1 : 0];
     
    /* 
     always @(posedge tck ) begin       
@@ -561,48 +616,28 @@ always @(posedge clk or posedge reset)    begin
     */
     
     
-    reg wb_wr_addr1,    wb_wr_data1,    wb_rd_data1;
+  
     //always @(posedge tck or posedge reset)
-    always @(*)
+    always @(posedge tck)
     begin
         //if( reset )   begin
         //  wb_wr_addr1<=1'b0;
         //  wb_wr_data1<=1'b0;
         //end else begin
-            wb_wr_addr1=(ir== UPDATE_WB_ADDR || ir== UPDATE_WB_RD_DATA) &  udr & update_dat_flag;
-            wb_wr_data1=((ir== UPDATE_WB_WR_DATA) &  udr & update_dat_flag);  
-            wb_rd_data1=((ir== UPDATE_WB_RD_DATA) &  cdr & update_dat_flag);
+            wb_wr_addr_en=(ir== UPDATE_WB_ADDR || ir== UPDATE_WB_RD_DATA) &  udr & update_dat_flag;
+            wb_wr_data_en=((ir== UPDATE_WB_WR_DATA|| ir==UPDATE_CTRL) &  udr & update_dat_flag);  
+            wb_rd_data_en=((ir== UPDATE_WB_RD_DATA) &  cdr );
         //end   
     end
     
-    reg wb_wr_addr2,    wb_wr_data2,    wb_rd_data2;
-    reg wb_wr_addr3,    wb_wr_data3,    wb_rd_data3;
-    
-    always @(posedge clk or posedge reset)
-    begin
-        if( reset ) begin
-            wb_wr_addr2<=1'b0;
-            wb_wr_data2<=1'b0;
-            wb_wr_addr3<=1'b0;
-            wb_wr_data3<=1'b0;
-            wb_rd_data2<=1'b0;
-            wb_rd_data3<=1'b0;
-        end else begin
-            wb_wr_addr2<=wb_wr_addr1;
-            wb_wr_data2<=wb_wr_data1;   
-            wb_wr_addr3<=wb_wr_addr2;
-            wb_wr_data3<=wb_wr_data2;   
-            wb_rd_data2<=wb_rd_data1;
-            wb_rd_data3<=wb_rd_data2;
-        end 
-    end
+   
 
-    assign wb_wr_addr_en =(wb_wr_addr2 & ~wb_wr_addr3);
-    assign wb_wr_data_en =(wb_wr_data2 & ~wb_wr_data3);     
-    assign wb_rd_data_en =(wb_rd_data2 & ~wb_rd_data3);
+   
 endmodule
 
-
+/**************
+ *  xilinx_jtag_bscan
+ * ************/
 
 module xilinx_jtag_bscan (
     tck,
@@ -636,6 +671,14 @@ assign sdr = shift & sel;
 assign udr = update & sel;
 assign cdr = capture & sel;
 
+`ifdef MODEL_TECH 
+    `define RUN_SIM
+`endif
+`ifdef VERILATOR
+    `define RUN_SIM
+`endif
+    
+`ifdef  RUN_SIM
 
     BSCANE2_sim #(
         .JTAG_CHAIN( jtag_chain) // Value for USER command.
@@ -655,10 +698,33 @@ assign cdr = capture & sel;
         .TDO(tdo) // 1-bit input: Test Data Output (TDO) input for USER function.
     );
 
+
+
+`else
+    BSCANE2 #(
+        .JTAG_CHAIN( jtag_chain) // Value for USER command.
+    )
+    bse2_inst
+    (
+        .CAPTURE(capture), // 1-bit output: CAPTURE output from TAP controller.
+        .DRCK( ), // 1-bit output: Gated TCK output. When SEL is asserted, DRCK toggles when CAPTURE or SHIFT are asserted.
+        .RESET(tlr), // 1-bit output: Reset output for TAP controller.
+        .RUNTEST(), // 1-bit output: Output asserted when TAP controller is in Run Test/Idle state.
+        .SEL(sel), // 1-bit output: USER instruction active output.
+        .SHIFT(shift), // 1-bit output: SHIFT output from TAP controller.
+        .TCK(tck), // 1-bit output: Test Clock output. Fabric connection to TAP Clock pin.
+        .TDI(tdi), // 1-bit output: Test Data Input (TDI) output from TAP controller.
+        .TMS( ), // 1-bit output: Test Mode Select output. Fabric connection to TAP.
+        .UPDATE(update), // 1-bit output: UPDATE output from TAP controller
+        .TDO(tdo) // 1-bit input: Test Data Output (TDO) input for USER function.
+    );
+`endif
   
 endmodule
 
-module one_hot_to_bin #(
+
+
+module jtag_one_hot_to_bin #(
     parameter ONE_HOT_WIDTH =   4,
     parameter BIN_WIDTH     =  (ONE_HOT_WIDTH>1)? log2(ONE_HOT_WIDTH):1
 )
@@ -674,7 +740,7 @@ module one_hot_to_bin #(
          log2=(number <=1) ? 1: 0;    
          while(2**log2<number) begin    
             log2=log2+1;    
-         end 	   
+         end       
       end   
     endfunction // log2 
 
@@ -703,7 +769,7 @@ generate
     
         );
      end else begin :els
-        assign  bin_code = one_hot_code;
+        assign  bin_code = 1'b0;
      
      end
 
@@ -711,3 +777,5 @@ endgenerate
 
 endmodule
 
+
+ 

@@ -10,16 +10,6 @@
 ################################################################################
 
 $setting = bless( {
-                    'PATH' => {
-                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
-                                'MODELSIM_BIN' => undef,
-                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
-                                'PRONOC_WORK' => '/home/alireza/work/hca_git/mpsoc_work'
-                              },
-                    'gui_status' => {
-                                      'status' => 'ref',
-                                      'timeout' => 10
-                                    },
                     'parameters_order' => {
                                             'PATH' => [
                                                         'PRONOC_WORK',
@@ -29,7 +19,20 @@ $setting = bless( {
                                                         'MODELSIM_BIN',
                                                         'MODELSIM_BIN',
                                                         'VIVADO_BIN',
+                                                        'MODELSIM_BIN',
+                                                        'SDK_BIN',
                                                         'MODELSIM_BIN'
                                                       ]
-                                          }
+                                          },
+                    'PATH' => {
+                                'PRONOC_WORK' => '/home/alireza/work/hca_git/mpsoc_work',
+                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
+                                'MODELSIM_BIN' => undef,
+                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
+                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin'
+                              },
+                    'gui_status' => {
+                                      'status' => 'ref',
+                                      'timeout' => 10
+                                    }
                   }, 'ProNOC' );

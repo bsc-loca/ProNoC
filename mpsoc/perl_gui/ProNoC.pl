@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
 package ProNOC;
+use Term::ANSIColor qw(:constants);
 
 
 #add home dir in perl 5.6
@@ -60,11 +61,15 @@ sub set_path_env{
 	my $pronoc_work = $paths->object_get_attribute("PATH","PRONOC_WORK");	
 	my $quartus = $paths->object_get_attribute("PATH","QUARTUS_BIN");
 	my $vivado  = $paths->object_get_attribute("PATH","VIVADO_BIN");
+	my $sdk     = $paths->object_get_attribute("PATH","SDK_BIN");
+	
+	
 	my $modelsim = $paths->object_get_attribute("PATH","MODELSIM_BIN");
 
 	$ENV{'PRONOC_WORK'}= $pronoc_work if( defined $pronoc_work);
 	$ENV{'QUARTUS_BIN'}= $quartus if( defined $quartus);
 	$ENV{'VIVADO_BIN'}= $vivado if( defined $vivado);
+	$ENV{'SDK_BIN'}= $vivado if( defined $sdk);
 	$ENV{'MODELSIM_BIN'}= $modelsim if( defined $modelsim);	
 	
 	if( defined $pronoc_work){if(-d $pronoc_work ){
@@ -76,21 +81,34 @@ sub set_path_env{
 	
 	
 	#add quartus_bin to PATH linux envirement if it does not exist in PATH
+	my $add;
 	if( defined $quartus){
 		my @q =split  (/:/,$ENV{'PATH'});
 		my $p=get_scolar_pos ($quartus,@q);
 		$ENV{'PATH'}= $ENV{'PATH'}.":$quartus" unless ( defined $p); 
-		print "$quartus has been added to linux PATH envirement.\n" unless ( defined $p);
+		$add=(defined $add)? $add.":$quartus" : $quartus unless ( defined $p);
+		
 	}
 	
 	if( defined $vivado){
 		my @q =split  (/:/,$ENV{'PATH'});
 		my $p=get_scolar_pos ($vivado,@q);
 		$ENV{'PATH'}= $ENV{'PATH'}.":$vivado" unless ( defined $p); 
-		print "$vivado has been added to linux PATH envirement.\n" unless ( defined $p);
+		$add=(defined $add)? $add.":$vivado" : $vivado unless ( defined $p);
 		
 	}
 	
+	if( defined $sdk){
+		my @q =split  (/:/,$ENV{'PATH'});
+		my $p=get_scolar_pos ($sdk,@q);
+		$ENV{'PATH'}= $ENV{'PATH'}.":$sdk" unless ( defined $p); 
+		$add=(defined $add)? $add.":$sdk" : $sdk unless ( defined $p);
+		   
+	}
+	if(defined $add){
+		print GREEN, "Info: $add",RESET;
+		print " has been added to linux PATH envirement.\n";
+	}
 	
 	
 }
@@ -254,8 +272,9 @@ sub setting{
 	my @paths = (
 	{ label=>"PRONOC_WORK", param_name=>"PRONOC_WORK", type=>"DIR_path", default_val=>"$project_dir/mpsoc_work", content=>undef, info=>"Define the working directory where the projects' files will be created", param_parent=>'PATH',ref_delay=>undef },
 	{ label=>"QUARTUS_BIN", param_name=>"QUARTUS_BIN", type=>"DIR_path", default_val=>undef, content=>undef, info=>"Define the path to QuartusII compiler bin directory.  Setting of this variable is optional and is needed if you are going to use Altera FPGAs for implementation or emulation", param_parent=>'PATH',ref_delay=>undef },
-	{ label=>"VIVADO_BIN", param_name=>"VIVADO_BIN", type=>"DIR_path", default_val=>undef, content=>undef, info=>"Define the path to Vivado compiler bin directory.  Setting of this variable is optional and is needed if you are going to use Xilinx FPGAs for implementation or emulation", param_parent=>'PATH',ref_delay=>undef },
-	{ label=>"MODELSIM_BIN", param_name=>"MODELSIM_BIN", type=>"DIR_path", default_val=>undef, content=>undef, info=>"Define the path to Modelsim simulator bin directory.  Setting of this variable is optional and is needed if you have installed Modelsim simulator and you want ProNoC to auto-generate the
+	{ label=>"VIVADO_BIN", 	param_name=>"VIVADO_BIN", type=>"DIR_path", default_val=>undef, content=>undef, info=>"Define the path to Xilinx/Vivado compiler bin directory.  Setting of this variable is optional and is needed if you are going to use Xilinx FPGAs for implementation or emulation", param_parent=>'PATH',ref_delay=>undef },
+	{ label=>"SDK_BIN"	,	param_name=>"SDK_BIN", type=>"DIR_path", default_val=>undef, content=>undef, info=>"Define the path to Xilinx/SDK/bin directory. Setting of this variable is optional and is needed if you are going to use Xilinx FPGAs for implementation or emulation", param_parent=>'PATH',ref_delay=>undef },
+	{ label=>"MODELSIM_BIN",param_name=>"MODELSIM_BIN", type=>"DIR_path", default_val=>undef, content=>undef, info=>"Define the path to Modelsim simulator bin directory.  Setting of this variable is optional and is needed if you have installed Modelsim simulator and you want ProNoC to auto-generate the
 simulation models using Modelsim software", param_parent=>'PATH',ref_delay=>undef },
 		);	
 

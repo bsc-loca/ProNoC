@@ -495,6 +495,14 @@ sub top_add_port{
 }
 
 
+sub top_get_interface{
+	my($self,$intfc_name,$port)=@_;
+	my $range= $self->{interface}{$intfc_name}{ports}{$port}{range};
+	my $type=  $self->{interface}{$intfc_name}{ports}{$port}{type};
+	my $inst = $self->{interface}{$intfc_name}{ports}{$port}{instance_name};
+	my $intfc_port=$self->{interface}{$intfc_name}{ports}{$port}{intfc_port};
+	return ($range,$type,$inst,$intfc_port);
+}
 
 
 sub top_get_port{

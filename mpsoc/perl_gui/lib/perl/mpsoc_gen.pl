@@ -1195,12 +1195,9 @@ sub generate_soc_files{
     print FILE $file_v;
     close(FILE) || die "Error closing file: $!";
             
+     
             
-            
-            
-    
-            
-    #copy hdl codes in src_verilog
+    #copy hdl codes in src_verilog 
         
     my ($hdl_ref,$warnings)= get_all_files_list($soc,"hdl_files");
     foreach my $f(@{$hdl_ref}){
@@ -1326,12 +1323,25 @@ sub generate_mpsoc{
     #generate/copy all tiles HDL/SW codes
     gen_all_tiles($mpsoc,$info, $hw_dir,$sw_dir );
     
+    
+    #copy clk setting hdl codes in src_verilog
+	my $project_dir	  = abs_path("$dir/../../"); 		 
+    my $sc_soc =get_source_set_top($mpsoc);  
+  	my ($file_ref,$warnings)= get_all_files_list($sc_soc,"hdl_files");		
+	copy_file_and_folders($file_ref,$project_dir,"$hw_dir/lib");
+	show_info($info,$warnings)     		if(defined $warnings);			
+	add_to_project_file_list($file_ref,,"$hw_dir/lib/",$hw_dir);
+    
+    
+    
+    
+    
     #generate header file containig the tiles physical addresses
     gen_tiles_physical_addrsses_header_file($mpsoc,"$sw_dir/phy_addr.h");
         
     #copy all NoC HDL files    
     my @files = glob( "$dir/../src_noc/*.v" );
-    copy_file_and_folders(\@files,$dir,"$hw_dir/lib/");  
+    copy_file_and_folders(\@files,$project_dir,"$hw_dir/lib/");  
     add_to_project_file_list(\@files,"$hw_dir/lib/",$hw_dir);
     my ($file_v,$top_v)=mpsoc_generate_verilog($mpsoc,$sw_dir,$info);
     
@@ -1345,13 +1355,13 @@ sub generate_mpsoc{
 		my @files = File::Find::Rule->file()
                             ->name( '*.v','*.V')
                             ->in( "$dir1" );
-		copy_file_and_folders (\@files,$dir,"$hw_dir/lib/");
+		copy_file_and_folders (\@files,$project_dir,"$hw_dir/lib/");
 		
 		@files = File::Find::Rule->file()
                             ->name( '*.v','*.V')
                             ->in( "$dir2" );
                          
-		copy_file_and_folders (\@files,$dir,"$hw_dir/lib/");	
+		copy_file_and_folders (\@files,$project_dir,"$hw_dir/lib/");	
 	}
      
         
@@ -1359,19 +1369,23 @@ sub generate_mpsoc{
     generate_mpsoc_lib_file($mpsoc,$info);
             
     # Write verilog file
-    open(FILE,  ">lib/verilog/$name.v") || die "Can not open: $!";
+    open(FILE,  ">$target_dir/src_verilog/$name.v") || die "Can not open: $!";
     print FILE $file_v;
     close(FILE) || die "Error closing file: $!";
             
     my $l=autogen_warning().get_license_header("${name}_top.v");
-    open(FILE,  ">lib/verilog/${name}_top.v") || die "Can not open: $!";
+    open(FILE,  ">$target_dir/src_verilog/${name}_top.v") || die "Can not open: $!";
     print FILE "$l\n$top_v";
     close(FILE) || die "Error closing file: $!";        
     
+  #  $l=autogen_warning().get_license_header("${name}_mp.v");
+  #  open(FILE,  ">$target_dir/src_verilog/${name}_mp.v") || die "Can not open: $!";
+  #  print FILE "$l\n$mp_v";
+  #  close(FILE) || die "Error closing file: $!";   
+    
+    
                
-    #gen_socs($mpsoc,$info);
-    move ("$dir/lib/verilog/$name.v","$target_dir/src_verilog/");
-    move ("$dir/lib/verilog/${name}_top.v","$target_dir/src_verilog/");
+   
      
     
     #generate makefile
@@ -1877,7 +1891,7 @@ sub load_mpsoc{
             my ($pp,$r,$err) = regen_object($file );
             if ($r){        
                 add_info($info,"**Error: cannot open $file file: $err\n");
-                 $dialog->destroy;
+                $dialog->destroy;
                 return;
             } 
             
@@ -1910,101 +1924,566 @@ sub load_mpsoc{
      $dialog->destroy;
 }
 
-############
-#    main
-############
-sub mpsocgen_main{
-    
+#######
+#	CLK setting
+#######
+
+sub clk_setting_win1{
+	my ($self,$info,$type)=@_;
+
+	my $window = def_popwin_size(80,80,"CLK setting",'percent');
+   
+    my $next=def_image_button('icons/right.png','Next'); 	
+	my $mtable = def_table(10, 1, FALSE);
+	#get the list of all tiles clk sources
+	
+	my @sources=('clk','reset');
+	
+	my $table = def_table(10, 7, FALSE);
+	my $notebook = Gtk2::Notebook->new;
+	$notebook->set_scrollable(TRUE);
+	$notebook->can_focus(FALSE);
+	$notebook->set_tab_pos ('left'); 
+	
+	
+	
+	my($row,$column)=(0,0);
+	
+	my %all = ($type eq 'mpsoc') ? get_all_tiles_clk_sources_list($self): get_soc_clk_source_list($self) ;
+	foreach my $s (@sources){
+		 my $spin;	
+		 ($row,$column,$spin)=  add_param_widget($self,"$s number","${s}_number", 1,'Spin-button',"1,1024,1","Define total number of ${s} input ports  mpsoc", $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+		 
+		 my $w=get_source_assignment_win($self,$s,$all{$s},$type);
+		 my $box=def_hbox(FALSE,0);
+		 $box->pack_start($w, TRUE, TRUE, 0);
+		 $notebook->append_page ($box,Gtk2::Label->new ($s)); 
+		 $spin->signal_connect("value_changed" => sub{
+		 	$self->object_add_attribute('SOURCE_SET',"REDEFINE_TOP",1);    
+		 	$w->destroy;
+		 	$w=get_source_assignment_win($self,$s,$all{$s},$type);
+		 	$box->pack_start($w, TRUE, TRUE, 0);
+		 	$box->show_all; 
+		 	
+		 });
+		
+	}	
+
+	$mtable->attach_defaults($table,0,1,0,1);
+	$mtable->attach_defaults( $notebook,0,1,1,20);
+	$mtable->attach($next,0,1,20,21,'expand','fill',2,2);	
+	$window->add ($mtable);
+	$window->show_all();	
+	$next-> signal_connect("clicked" => sub{ 			
+		$window->destroy;		
+		clk_setting_win2($self,$info,$type);
+					
+	});	
+
+}
+
+sub get_source_assignment_win{
+	my ($mpsoc,$s,$ports_ref,$type)=@_;
+	my$row=0;
+	my $column=0;
+	my $num = $mpsoc->object_get_attribute('SOURCE_SET',"${s}_number");	
+	my $table1 = def_table(20, 20, FALSE);
+	my $win1=add_widget_to_scrolled_win($table1);
+	my $win2;
+	my $v2;
+	
+	#get source signal names	
+	my $loc =  'vertical';
+	for(my $n=0;$n<$num; $n++ ){
+		my $entry;
+		my $enter= def_image_button("icons/enter.png");
+		my $box=def_hbox(FALSE,0);
+		$box->pack_start( $enter, FALSE, FALSE, 0);	
+
+		($row,$column,$entry)=  add_param_widget($mpsoc,"$n-","${s}_${n}_name", "${s}$n",'Entry',undef,undef, $table1,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+	    $table1->attach  ($box,$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column++;
+	       
+		$enter->signal_connect ("clicked"  => sub{
+			$mpsoc->object_add_attribute('SOURCE_SET',"REDEFINE_TOP",1); 
+			$win2->destroy;
+			$win2= get_source_assignment_win2($mpsoc,$s,$ports_ref,$type);
+			$v2-> pack2($win2, TRUE, TRUE);  
+			$v2->show_all;			
+		});		
+	    
+	    if((($n+1) % 4)==0){
+		  	$column=0;
+		  	$row++;
+		  }		  
+	}	
+     	
+   	#source assigmnmet
+     	
+   	$win2= get_source_assignment_win2($mpsoc,$s,$ports_ref,$type);
+	 $v2=gen_vpaned($win1,.2,$win2);	
+   	
+	
+	return $v2;	
+}
+
+sub get_source_assignment_win2{
+	my ($mpsoc,$s,$ports_ref,$type)=@_;
+	my $num = $mpsoc->object_get_attribute('SOURCE_SET',"${s}_number");
+	my $table2 = def_table(10, 7, FALSE);
+   	my $win2=add_widget_to_scrolled_win($table2);
+   	my %ports = %{$ports_ref} if(defined $ports_ref);   
+   
+	my $contents;
+	for(my $n=0;$n<$num; $n++ ){
+   		my $m=$mpsoc->object_get_attribute('SOURCE_SET',"${s}_${n}_name");
+   		$contents=(defined $contents)? "$contents,$m":$m;   
+	}
+	my $default=$mpsoc->object_get_attribute('SOURCE_SET',"${s}_0_name");	
+	my $n=0;
+	my($row,$column)=(0,0);
+	if($type eq 'mpsoc' ) {
+		add_param_widget($mpsoc,"    NoC $s","NoC_${s}", $default,'Combo-box',$contents,undef, $table2,$row,$column,1,'SOURCE_SET_CONNECT',undef,undef,'horizental');
+		($row,$column)=(1,0);
+	}	
+	
+	
+	
+	foreach my $p (sort keys %ports){
+   		my @array=@{$ports{$p}};
+   		foreach my $q (@array){
+   			my $param="${p}_$q"; 
+   			my $lable="  ${p}_$q";    			  			
+   			($row,$column)=  add_param_widget($mpsoc,$lable,$param, $default,'Combo-box',$contents,undef, $table2,$row,$column,1,'SOURCE_SET_CONNECT',undef,undef,'horizental');
+   			if((($n+1) % 4)==0){$column=0;$row++;}$n++;
+   		}		
+	}
+	return $win2;
+	
+}
+
+
+sub get_all_tiles_clk_sources_list{
+	my $mpsoc=shift;
+	my ($NE, $NR, $RAw, $EAw, $Fw)= get_topology_info ($mpsoc); 
+    my %all_sources;	
+	for (my $tile_num=0;$tile_num<$NE;$tile_num++){
+		my ($soc_name,$n,$soc_num)=$mpsoc->mpsoc_get_tile_soc_name($tile_num);
+		next if(!defined $soc_name); 	
+		my $top=$mpsoc->mpsoc_get_soc($soc_name);
+		my @intfcs=$top->top_get_intfc_list();
+		
+		my @sources=('clk','reset');
+			
+		foreach my $intfc (@intfcs){
+			my($type,$name,$num)= split("[:\[ \\]]", $intfc);
+			foreach my $s (@sources){
+				if ($intfc =~ /plug:$s/){ 
+					my @ports=$top->top_get_intfc_ports_list($intfc);				
+					$all_sources{$s}{"T$tile_num"}=\@ports;
+				}	
+			}
+		
+		}
+	}
+		return  %all_sources;	
+	
+	
+}
+
+
+
+
+sub clk_setting_win2{
+	my ($self,$info,$type)=@_;
+		
+	my $window = def_popwin_size(70,70,"CLK setting",'percent');
+    my $table = def_table(10, 7, FALSE);
+    my $scrolled_win=add_widget_to_scrolled_win($table);
+    my $ok = def_image_button('icons/select.png','OK');	
+    my $back = def_image_button('icons/left.png',undef);
+    my $diagram  = def_image_button('icons/diagram.png','Diagram');	
+    my $ip = ip->lib_new ();
+    my $mpsoc_ip=get_top_ip($self,$type);
+	$ip->add_ip($mpsoc_ip);			
+    my $soc =get_source_set_top($self,$type);    
     my $infc = interface->interface_new(); 
-    my $soc = ip->lib_new ();
-    my $mpsoc= mpsoc->mpsoc_new();
+           
     
-    
-    set_gui_status($mpsoc,"ideal",0);
-    
-    my $main_table = Gtk2::Table->new (25, 12, FALSE);
-    
-    # The box which holds the info, warning, error ...  mesages
-    my ($infobox,$info)= create_text();    
-        
-    my $noc_conf_box=get_config ($mpsoc,$info);
-    my $noc_tiles=gen_tiles($mpsoc);
+    set_gui_status($soc,"ideal",0);
+    # A tree view for holding a library
+	my %tree_text;
+	my @categories= ('Source');
+    foreach my $p (@categories)
+    {
+   		my @modules= $ip->get_modules($p);
+   		$tree_text{$p}=\@modules;	
+    }
+   
+	my $tree_box = create_tree ($soc,'IP list', $info,\%tree_text,\&tmp,\&add_module_to_mpsoc);
+    my  $device_win=show_active_dev($soc,$ip,$infc,$info); 
+    my $h1=gen_hpaned($tree_box,.15,$device_win);
+    $table->attach_defaults ($h1,0, 10, 0, 10);
+	
+     
+     Glib::Timeout->add (110, sub{ 
+     	 	my ($state,$timeout)= get_gui_status($soc);
+	        
+	
+	        if ($timeout>0){
+	            $timeout--;
+	            set_gui_status($soc,$state,$timeout);                        
+	        }
+	        elsif( $state ne "ideal" ){
+	           
+	           #check if top is removed add it
+				my @instances=$soc->soc_get_all_instances();
+				my $redefine =1;
+				foreach my $inst (@instances){
+					$redefine = 0 if ($inst eq 'TOP');
+				}
+				if($redefine == 1){
+					my $ip = ip->lib_new ();
+			    	my $mpsoc_ip=get_top_ip($self,$type);
+					$ip->add_ip($mpsoc_ip);	
+			    	$soc ->object_add_attribute('SOURCE_SET',"IP",$mpsoc_ip);    	
+			    	$self->object_add_attribute('SOURCE_SET',"REDEFINE_TOP",0);  
+			    	add_mpsoc_to_device($soc,$ip); 
+			    	$self->object_add_attribute('SOURCE_SET',"SOC",$soc);					
+				}
+				         
+	           
+	            $device_win->destroy();
+	            $device_win=show_active_dev($soc,$ip,$infc,$info); 
+	            $h1 -> pack2($device_win, TRUE, TRUE);  
+				$h1 -> show_all; 
+	            $table->show_all();	     
+	            $self->object_add_attribute('SOURCE_SET',"SOC",$soc);       
+	            set_gui_status($soc,"ideal",0);
+	             
+	        }    
+	        return TRUE;
+	        
+	    } );
+   
+       
+ 
+ 	my $mtable = def_table(10, 5, FALSE);
 
-    my $scr_conf = new Gtk2::ScrolledWindow (undef, undef);
-    $scr_conf->set_policy( "automatic", "automatic" );
-    $scr_conf->add_with_viewport($noc_conf_box);
-    
-    my $scr_tile = new Gtk2::ScrolledWindow (undef, undef);
-    $scr_tile->set_policy( "automatic", "automatic" );
-    $scr_tile->add_with_viewport($noc_tiles);
+	$mtable->attach_defaults($scrolled_win,0,5,0,9);
+	$mtable->attach($back,0,1,9,10,'expand','fill',2,2) if($type ne 'soc');
+	$mtable->attach($diagram,2,4,9,10,'expand','fill',2,2);
+	$mtable->attach($ok,4,5,9,10,'expand','fill',2,2);
+	
+	$window->add ($mtable);
+	$window->show_all();
+	$self->object_add_attribute('SOURCE_SET',"SOC",$soc);
+	$back-> signal_connect("clicked" => sub{ 			
+		$window->destroy;
+		$self->object_add_attribute('SOURCE_SET',"SOC",$soc);
+		clk_setting_win1($self,$info,$type);				
+	});	
+	
+	$diagram-> signal_connect("clicked" => sub{ 
+		show_tile_diagram ($soc);
+	});
+	
+	$ok-> signal_connect("clicked" => sub{ 			
+		$window->destroy;
+		
+		set_gui_status($self,"ref",1); 				
+	});	
+}
 
-    $main_table->set_row_spacings (4);
-    $main_table->set_col_spacings (1);
-    
-        
-    my $generate = def_image_button('icons/gen.png','_Generate RTL',FALSE,1);
+sub tmp{
+	
+}
+
+sub add_module_to_mpsoc{
+	my ($soc,$category,$module,$info)=@_;
+	my $ip = ip->lib_new ();
+	
+	my ($instance_id,$id)= get_instance_id($soc,$category,$module);
+	
+	#add module instanance
+	my $result=$soc->soc_add_instance($instance_id,$category,$module,$ip);
+	
+	if($result == 0){
+		my $info_text= "Failed to add \"$instance_id\" to SoC. $instance_id is already exist.";	 
+		show_info($info,$info_text); 
+		return;
+	}
+	$soc->soc_add_instance_order($instance_id);
+	# Add IP version 
+	my $v=$ip->ip_get($category,$module,"version"); 
+	$v = 0 if(!defined $v);
+	#print "$v\n";
+	$soc->object_add_attribute($instance_id,"version",$v);
+	# Read default parameter from lib and add them to soc
+	my %param_default= $ip->get_param_default($category,$module);
+	
+	my $rr=$soc->soc_add_instance_param($instance_id,\%param_default);
+	if($rr == 0){
+		my $info_text= "Failed to add defualt parameter to \"$instance_id\".  $instance_id does not exist exist.";	 
+		show_info($info,$info_text); 
+		return;
+	}
+	my @r=$ip->ip_get_param_order($category,$module);
+	$soc->soc_add_instance_param_order($instance_id,\@r);
+	
+	get_module_parameter($soc,$ip,$instance_id);
+	undef $ip;
+	set_gui_status($soc,"refresh_soc",0);	
+} 
+
+
+
+
+#$mpsoc,$top_ip,$sw_dir,$soc_name,$id,$soc_num,$txview
+sub get_top_ip{
+	my ($self,$type)=@_;	
+	
+	my $mpsoc_ip=ip_gen->ip_gen_new();
+	$mpsoc_ip->ipgen_add("module_name",'TOP');
+	$mpsoc_ip->ipgen_add("ip_name",'TOP');
+	$mpsoc_ip->ipgen_add("category",'TOP');
+	$mpsoc_ip->ipgen_add('GUI_REMOVE_SET','DISABLE');
+	if($type eq 'mpsoc'){
+		my @sources=('clk','reset');
+		foreach my $s (@sources){
+			my $num = $self->object_get_attribute('SOURCE_SET',"${s}_number");
+			$num=1 if(!defined $num);
+			$mpsoc_ip->ipgen_add_plug("$s",'num',$num);
+			for (my $n=0; $n<$num; $n++ ){
+				
+				my $name=$self->object_get_attribute('SOURCE_SET',"${s}_${n}_name");
+				$mpsoc_ip->ipgen_set_plug_name($s,$n,$name);			
+				$mpsoc_ip->ipgen_add_port($name,undef,'input',"plug:${s}\[$n\]","${s}_i");	
+								
+			}	
+		}
+	# add_mpsoc_ip_other_interfaces($mpsoc,$mpsoc_ip);	
+	}
+	else{
+		my %sources = get_soc_clk_source_list($self);
+		foreach my $s (sort keys %sources){
+			my @ports = @{$sources{$s}} if (defined $sources{$s});
+			my $num=scalar @ports;
+			$mpsoc_ip->ipgen_add_plug("$s",'num',$num);
+			my $n=0;	
+			foreach my $p (@ports){
+				$mpsoc_ip->ipgen_set_plug_name($s,$n,$p);
+				$mpsoc_ip->ipgen_add_port($p,undef,'input',"plug:${s}\[$n\]","${s}_i");
+				$n++;
+			} 
+			
+			
+		}
+		
+	}
+	
+	return $mpsoc_ip;			
+}
+
+
+sub add_mpsoc_ip_other_interfaces{
+	my ($mpsoc,$mpsoc_ip)=@_;	
+my ($NE, $NR, $RAw, $EAw, $Fw)= get_topology_info ($mpsoc); 
+    my $processors_en=0;
+    my %intfc_num;
+    my @parameters_order;
+	for (my $tile_num=0;$tile_num<$NE;$tile_num++){
+			my ($soc_name,$n,$soc_num)=$mpsoc->mpsoc_get_tile_soc_name($tile_num);	
+	
+	
+			my $top=$mpsoc->mpsoc_get_soc($soc_name);
+			my @nis=get_NI_instance_list($top);
+			my @noc_param=$top->top_get_parameter_list($nis[0]);
+			my $inst_name=$top->top_get_def_of_instance($nis[0],'instance');
+	
+			#other parameters
+			my %params=$top->top_get_default_soc_param();
+	
+			my @intfcs=$top->top_get_intfc_list();
+			
+			my $i=0;
+		
+			my $dir = Cwd::getcwd();
+			my $mpsoc_name=$mpsoc->object_get_attribute('mpsoc_name');
+			my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
+			my $soc_file="$target_dir/src_verilog/tiles/$soc_name.v";
+					
+			my $vdb =read_verilog_file($soc_file);
+				
+			my %soc_localparam = $vdb->get_modules_parameters($soc_name);
+		
+			
+			foreach my $intfc (@intfcs){
+		
+				# Auto connected/not connected interface	
+				if( $intfc eq 'socket:ni[0]' || ($intfc =~ /plug:clk\[/) ||  ( $intfc =~ /plug:reset\[/)|| ($intfc =~ /socket:RxD_sim\[/ )  || $intfc =~ /plug:enable\[/){
+					#do nothing
+				}
+				elsif( $intfc eq 'IO' ){
+					my @ports=$top->top_get_intfc_ports_list($intfc);
+					foreach my $p (@ports){
+						my ($io_port,$type,$new_range,$intfc_name,$intfc_port)=	get_top_port_io_info($top,$p,$tile_num,\%params,\%soc_localparam);
+						$mpsoc_ip->ipgen_add_port($io_port,$new_range,$type,'IO','IO');	
+						
+								
+					}			
+					
+				}
+	
+				else {
+				#other interface
+				    my($if_type,$if_name,$if_num)= split("[:\[ \\]]", $intfc); 
+				    print "my($if_type,$if_name,$if_num)= split(, $intfc); \n";
+				    my $num = (defined $intfc_num{"$if_type:$if_name"})? $intfc_num{"$if_type:$if_name"}+1:0;
+				    $intfc_num{"$if_type:$if_name"}=$num;
+				    $mpsoc_ip->ipgen_add_plug("$if_name",'num',$num) if ($if_type eq 'plug');
+				    $mpsoc_ip->ipgen_add_soket("$if_name",'num',$num) if ($if_type eq 'socket');
+				   				    
+					my @ports=$top->top_get_intfc_ports_list($intfc);
+					foreach my $p (@ports){
+						my ($io_port,$type,$new_range,$intfc_name,$intfc_port)=	get_top_port_io_info($top,$p,$tile_num,\%params,\%soc_localparam);
+						$mpsoc_ip->ipgen_add_port($io_port,$new_range,$type,"$if_type:$if_name\[$num\]",$intfc_port);	
+									
+					}			
+				}			
+			}
+			
+			
+		my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile_num);
+		if ($setting eq 'Custom'){
+			 %params= $top->top_get_custom_soc_param($tile_num);
+		}else{
+			 %params=$top->top_get_default_soc_param();
+		}
+		
+		foreach my $p (sort keys %params){
+			$params{$p}=add_instantc_name_to_parameters(\%params,"T$tile_num",$params{$p});	
+			$params{$p}=add_instantc_name_to_parameters(\%soc_localparam,"T$tile_num",$params{$p});	
+			my $pname="T${tile_num}_$p";
+			$mpsoc_ip->	ipgen_add_parameter ($pname,$params{$p},'Fixed',undef,undef,'Localparam',1);	
+			push (@parameters_order,$pname);
+		
+		}		
+		foreach my $p (sort keys %soc_localparam){
+			$soc_localparam{$p}=add_instantc_name_to_parameters(\%params,"T$tile_num",$soc_localparam{$p});		
+			$soc_localparam{$p}=add_instantc_name_to_parameters(\%soc_localparam,"T$tile_num",$soc_localparam{$p});		
+			my $pname="T${tile_num}_$p";
+			$mpsoc_ip->	ipgen_add_parameter ($pname,$soc_localparam{$p},'Fixed',undef,undef,'Localparam',0);	
+			push (@parameters_order,$pname);
+			
+		}
+			
+	
+	
+	}	
+	#TODO get parameter order
+	$mpsoc_ip->ipgen_add("parameters_order",\@parameters_order); 	
+	
+}
+
+sub get_source_set_top{
+	my ($self,$type)=@_;
+	my $soc =$self->object_get_attribute('SOURCE_SET',"SOC");
+    my $redefine =$self->object_get_attribute('SOURCE_SET',"REDEFINE_TOP");
+    $redefine=1 if(!defined $redefine);
+    if(!defined $soc){
+    	$soc = soc->soc_new();     	
+    	$soc->object_add_attribute('soc_name','TOP'); 
+    	$redefine=1;    	
+    }
+    if($redefine==1){
+    	my $ip = ip->lib_new ();
+    	my $mpsoc_ip=get_top_ip($self,$type);
+		$ip->add_ip($mpsoc_ip);	
+    	$soc ->object_add_attribute('SOURCE_SET',"IP",$mpsoc_ip);    	
+    	$self->object_add_attribute('SOURCE_SET',"REDEFINE_TOP",0);  
+    	add_mpsoc_to_device($soc,$ip); 
+    	$self->object_add_attribute('SOURCE_SET',"SOC",$soc);
+    }		
+	return $soc;	
+}
+
+
+sub add_mpsoc_to_device{
+	my ($soc,$ip)=@_;
+	
+	my $category='TOP';
+	my $module='TOP';
+	my ($instance_id,$id) =('TOP',1);
+	
+	
+	#my ($instance_id,$id)= get_instance_id($soc,$category,$module);
+	
+	remove_instance_from_soc($soc,$instance_id);
+	
+	#add module instanance
+	my $result=$soc->soc_add_instance($instance_id,$category,$module,$ip);
+	
+	if($result == 0){
+		my $info_text= "Failed to add \"$instance_id\" to SoC. $instance_id is already exist.";	 
+	#	show_info($info,$info_text); 
+		return;
+	}
+	$soc->soc_add_instance_order($instance_id);
+	# Add IP version 
+	my $v=$ip->ip_get($category,$module,"version"); 
+	$v = 0 if(!defined $v);
+	#print "$v\n";
+	$soc->object_add_attribute($instance_id,"version",$v);
+	# Read default parameter from lib and add them to soc
+	my %param_default= $ip->get_param_default($category,$module);
+	
+	my $rr=$soc->soc_add_instance_param($instance_id,\%param_default);
+	if($rr == 0){
+		my $info_text= "Failed to add defualt parameter to \"$instance_id\".  $instance_id does not exist.";	 
+	#	show_info($info,$info_text); 
+		return;
+	}
+	my @r=$ip->ip_get_param_order($category,$module);
+	$soc->soc_add_instance_param_order($instance_id,\@r);
+	
+	#get_module_parameter($soc,$ip,$instance_id);
+	undef $ip;
+	set_gui_status($soc,"refresh_soc",0);	
+} 
+
+
+
+
+######
+# ctrl
+######
+
+sub ctrl_box{
+	my ($mpsoc,$info)=@_;
+	my $table = Gtk2::Table->new (1, 12, FALSE);	
+ 
+ 	
+	my $generate = def_image_button('icons/gen.png','_Generate RTL',FALSE,1);
     my $open = def_image_button('icons/browse.png','_Load MPSoC',FALSE,1);
     my $compile  = def_image_button('icons/gate.png','_Compile RTL',FALSE,1);
     my $software = def_image_button('icons/binary.png','_Software',FALSE,1);
     my $entry=gen_entry_object($mpsoc,'mpsoc_name',undef,undef,undef,undef);
     my $entrybox=gen_label_info(" MPSoC name:",$entry);
     my $diagram  = def_image_button('icons/diagram.png','Diagram');
+    my $clk=  def_colored_button('CLK setting',17);	
+	
+	
+	my $row=0;
+    $table->attach ($open,$row, $row+2, 24,25,'expand','shrink',2,2);$row+=2;
+    $table->attach_defaults ($entrybox,$row, $row+2, 24,25);$row+=2;
+    $table->attach ($diagram, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
+    $table->attach ($clk, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
     
-    my $h1=gen_hpaned($scr_conf,.3,$scr_tile);
-    my $v2=gen_vpaned($h1,.55,$infobox);
-
-    $main_table->attach_defaults ($v2  , 0, 12, 0,24);
-    $main_table->attach ($open,0, 3, 24,25,'expand','shrink',2,2);
-    $main_table->attach_defaults ($entrybox,3, 6, 24,25);
-    $main_table->attach ($diagram, 6, 7, 24,25,'expand','shrink',2,2);
-    $main_table->attach ($generate, 8, 9, 24,25,'expand','shrink',2,2);
-    $main_table->attach ($software, 9, 10, 24,25,'expand','shrink',2,2);    
-    $main_table->attach ($compile, 10, 12, 24,25,'expand','shrink',2,2);
-
-    
-
-
-    #check soc status every 0.5 second. referesh device table if there is any changes 
-    Glib::Timeout->add (100, sub{ 
-        my ($state,$timeout)= get_gui_status($mpsoc);
-        
-
-        if ($timeout>0){
-            $timeout--;
-            set_gui_status($mpsoc,$state,$timeout);                        
-        }elsif ($state eq 'save_project'){
-            # Write object file
-            my $name=$mpsoc->object_get_attribute('mpsoc_name');
-            open(FILE,  ">lib/mpsoc/$name.MPSOC") || die "Can not open: $!";
-            print FILE perl_file_header("$name.MPSOC");
-            print FILE Data::Dumper->Dump([\%$mpsoc],[$name]);
-            close(FILE) || die "Error closing file: $!";
-            set_gui_status($mpsoc,"ideal",0);    
-        }
-        elsif( $state ne "ideal" ){
-            $noc_conf_box->destroy();
-            $noc_conf_box=get_config ($mpsoc,$info);
-            $scr_conf->add_with_viewport($noc_conf_box);
-            $noc_tiles->destroy();
-            $noc_tiles=gen_tiles($mpsoc);
-            $scr_tile->add_with_viewport($noc_tiles);
-            $h1 -> pack1($scr_conf, TRUE, TRUE);     
-            $h1 -> pack2($scr_tile, TRUE, TRUE);         
-            $v2-> pack1($h1, TRUE, TRUE);     
-            $h1->show_all;
-            $main_table->show_all();
-            my $saved_name=$mpsoc->object_get_attribute('mpsoc_name');
-            if(defined $saved_name) {$entry->set_text($saved_name);}
-            set_gui_status($mpsoc,"ideal",0);
-            
-            
-        }    
-        return TRUE;
-        
-    } );
-        
-        
-    $generate-> signal_connect("clicked" => sub{ 
+    $table->attach ($generate, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
+    $table->attach ($software, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;    
+    $table->attach ($compile, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
+	
+	 $generate-> signal_connect("clicked" => sub{ 
         generate_mpsoc($mpsoc,$info,1);
         set_gui_status($mpsoc,"refresh_soc",1);
 
@@ -2044,6 +2523,110 @@ sub mpsocgen_main{
     $diagram-> signal_connect("clicked" => sub{ 
         show_topology_diagram ($mpsoc);
     });
+    
+	
+	$clk-> signal_connect("clicked" => sub{ 
+			clk_setting_win1($mpsoc,$info,'mpsoc');	
+	});
+	
+	return $table;
+	
+}
+
+
+
+
+
+
+
+############
+#    main
+############
+sub mpsocgen_main{
+    
+    my $infc = interface->interface_new(); 
+    my $soc = ip->lib_new ();
+    my $mpsoc= mpsoc->mpsoc_new();
+    
+    
+    set_gui_status($mpsoc,"ideal",0);
+    
+    my $main_table = Gtk2::Table->new (25, 12, FALSE);
+    
+    # The box which holds the info, warning, error ...  mesages
+    my ($infobox,$info)= create_text();    
+        
+    my $noc_conf_box=get_config ($mpsoc,$info);
+    my $noc_tiles=gen_tiles($mpsoc);
+
+    my $scr_conf = new Gtk2::ScrolledWindow (undef, undef);
+    $scr_conf->set_policy( "automatic", "automatic" );
+    $scr_conf->add_with_viewport($noc_conf_box);
+    
+    my $scr_tile = new Gtk2::ScrolledWindow (undef, undef);
+    $scr_tile->set_policy( "automatic", "automatic" );
+    $scr_tile->add_with_viewport($noc_tiles);
+
+    $main_table->set_row_spacings (4);
+    $main_table->set_col_spacings (1);
+    
+    my $ctrl=ctrl_box($mpsoc,$info);
+    
+    my $h1=gen_hpaned($scr_conf,.3,$scr_tile);
+    my $v2=gen_vpaned($h1,.55,$infobox);
+	my $row=0;
+    $main_table->attach_defaults ($v2  , 0, 12, 0,24);
+    $main_table->attach_defaults ($ctrl,0, 12, 24,25);
+
+    
+
+
+    #check soc status every 0.5 second. referesh device table if there is any changes 
+    Glib::Timeout->add (100, sub{ 
+        my ($state,$timeout)= get_gui_status($mpsoc);
+        
+
+        if ($timeout>0){
+            $timeout--;
+            set_gui_status($mpsoc,$state,$timeout);                        
+        }elsif ($state eq 'save_project'){
+            # Write object file
+            my $name=$mpsoc->object_get_attribute('mpsoc_name');
+            open(FILE,  ">lib/mpsoc/$name.MPSOC") || die "Can not open: $!";
+            print FILE perl_file_header("$name.MPSOC");
+            print FILE Data::Dumper->Dump([\%$mpsoc],[$name]);
+            close(FILE) || die "Error closing file: $!";
+            set_gui_status($mpsoc,"ideal",0);    
+        }
+        elsif( $state ne "ideal" ){
+            $noc_conf_box->destroy();
+            $noc_conf_box=get_config ($mpsoc,$info);
+            $scr_conf->add_with_viewport($noc_conf_box);
+            $noc_tiles->destroy();
+            $noc_tiles=gen_tiles($mpsoc);
+            $scr_tile->add_with_viewport($noc_tiles);
+            $h1 -> pack1($scr_conf, TRUE, TRUE);     
+            $h1 -> pack2($scr_tile, TRUE, TRUE);         
+            $v2-> pack1($h1, TRUE, TRUE);     
+            $h1->show_all;
+            $ctrl->destroy;
+            $ctrl=ctrl_box($mpsoc,$info);
+            $main_table->attach_defaults ($ctrl,0, 12, 24,25);
+            $main_table->show_all();
+                   
+            
+            set_gui_status($mpsoc,"ideal",0);
+            
+            
+        }    
+        return TRUE;
+        
+    } );
+        
+        
+  
+    
+    
     my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
         $sc_win->set_policy( "automatic", "automatic" );
         $sc_win->add_with_viewport($main_table);    
@@ -2052,11 +2635,5 @@ sub mpsocgen_main{
     
 
 }
-
-
-
-
-
-
 
 

@@ -7,6 +7,8 @@
 ###############################################################################
 use warnings;
 use strict;
+use FindBin;
+use lib $FindBin::Bin;
 use ip_gen;
 use Cwd;
 
@@ -15,6 +17,7 @@ package ip;
 
 
 sub lib_new {
+	
     my $class = ("ARRAY" eq ref $_[0]) ? "ip" : shift;
     my $self;
     $self = {};

@@ -481,7 +481,7 @@ sub get_parameter_setting {
 	my $file= $ipgen->ipgen_get("file_name");
 	if (!defined $file) {
 			message_dialog("The input verilog file is empty");
-			return;
+			#return;
 			
 	}		
 	my $module = $ipgen->ipgen_get("module_name");

@@ -1,4 +1,10 @@
+//synthesis translate_off
+//synopsys  translate_off
+
 `timescale 1 ps / 1 ps
+
+
+
 
 `define IR_REGISTER_WIDTH 10;
 
@@ -1425,3 +1431,6 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
      
 endmodule // signal_gen
 
+
+//synopsys  translate_on
+//synthesis translate_on

@@ -712,7 +712,7 @@ sub connection_page{
    	   	
    	   	
 		my $lable =gen_label_in_left("$inst:");
-		attach_widget_to_table ($table,$row,undef,undef,$lable,$col);  $col++;
+		attach_widget_to_table ($table,$row,undef,undef,$lable,$col);  $col+=4;
 		
 		for (my $i=0;$i<$pnum; $i++){ 
 			my $pname= "Port[${i}]";
@@ -727,7 +727,7 @@ sub connection_page{
 				create_tree_view($self,$p,$pname,$info);
 				
 			});
-			attach_widget_to_table ($table,$row,undef,undef,$button,$col);  $col++;
+			attach_widget_to_table ($table,$row,undef,undef,$button,$col);  $col+=4;
 		}   
 		$col=0;
 			                            
@@ -941,7 +941,7 @@ sub routing_page{
 		   	
 		   	my $color =(scalar @{$paths_to_dst}==0)? 11 :  (defined $select)? 0 : 17;		   		   	
 		   	my $button = ($src_inst ne $dst_inst )?  def_colored_button("${src_inst}->$dst_inst",$color): gen_label_in_center(' - ');	
-		   	attach_widget_to_table ($table,$row,undef,undef,$button,$col);  $col++;	
+		   	attach_widget_to_table ($table,$row,undef,undef,$button,$col);  $col+=4;	
 		   	
 		   	
 		   	

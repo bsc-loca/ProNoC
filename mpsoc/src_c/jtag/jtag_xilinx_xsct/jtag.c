@@ -258,12 +258,14 @@ int jtag_init( ) {
    fprintf(to_xsct, "set jseq [jtag sequence]\n");
    fprintf(to_xsct, "connect\n");
    fprintf(to_xsct, "jtag targets %u\n",jtag_target_number);
+   //fprintf(to_xsct, "jtag frequency 5000000");
    fflush(to_xsct);
 
 #ifdef PRINT_TO_XSCT
    fprintf(to_xsct_file, "set jseq [jtag sequence]\n");
    fprintf(to_xsct_file, "connect\n");
    fprintf(to_xsct_file, "jtag targets %u\n",jtag_target_number);
+  
 #endif
 
 
@@ -385,7 +387,7 @@ void return_dr (unsigned *out) {
 #endif
 	ptr=read_xsct();
 	//printf("saw: '%s'\n", ptr);
-	while(*ptr=='t' || *ptr=='c'  || *ptr=='l' || *ptr=='>' || *ptr==' ' ) ptr++;
+	//while(*ptr=='t' || *ptr=='c'  || *ptr=='l' || *ptr=='>' || *ptr==' ' ) ptr++;
 	
 	*out= strtol(ptr,NULL,16);
 }
@@ -399,7 +401,7 @@ void return_dr_long (unsigned *out, int words) {
 #endif
 	ptr=read_xsct();
 	//printf("saw: '%s'\n", ptr);
-	while(*ptr=='t' || *ptr=='c'  || *ptr=='l' || *ptr=='>' || *ptr==' ' ) ptr++;
+	//while(*ptr=='t' || *ptr=='c'  || *ptr=='l' || *ptr=='>' || *ptr==' ' ) ptr++;
 	
 	hexcut( ptr, out, words );	
 }
@@ -434,7 +436,7 @@ void send_capture_jtag (char * hexstring) {
 	fprintf(to_xsct_file,"$jseq clear\n");                                                               
 	fprintf(to_xsct_file,"$jseq irshift -state IDLE -hex 6 23\n");                 
 	fprintf(to_xsct_file,"$jseq drshift -state IDLE -capture -hex %u %s\n",jtag_shift_reg_size,hexstring);  
-	fprintf(to_xsct_file,"set data[$jseq run]\n"); 
+	fprintf(to_xsct_file,"set data [$jseq run]\n"); 
 #endif
 
   

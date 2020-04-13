@@ -206,9 +206,6 @@ sub select_compiler {
 	my ($self,$name,$top,$target_dir,$end_func)=@_;
 	my $window = def_popwin_size(40,40,"Step 1: Select Compiler",'percent');
 	
-	
-	
-	
 	my $table = def_table(2, 2, FALSE);
 	my $col=0;
 	my $row=0;
@@ -220,11 +217,8 @@ sub select_compiler {
 	$table->attach($compiler,$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
 	$row++;$col=0;
 	
-	
-	
 	my $old_board_name=$self->object_get_attribute('compile','board');
 	my $old_compiler=$self->object_get_attribute('compile','type');
-	
 	my $vendor= ($old_compiler eq "QuartusII")? 'Altera' : 'Xilinx';
 	
 	#get the list of boards located in "boards/*" folder
@@ -235,8 +229,7 @@ sub select_compiler {
 		$init=$name;
 		$fpgas= (defined $fpgas)? "$fpgas,$name" : "$name";		
 	}
-	
-	
+		
 	
 	my $compiler_options =
 		($old_compiler eq "QuartusII")? select_board  ($self,$name,$top,$target_dir,$vendor): 
@@ -314,8 +307,9 @@ sub select_compiler {
 		$table->show_all;
 
 	});
-
+	
 }
+
 
 
 
@@ -346,10 +340,6 @@ sub select_board {
 	my $old_board_name=$self->object_get_attribute('compile','board');
 	$table->attach(gen_label_help("The list of supported boards are obtained from \"mpsoc/boards/$vendor\" path. You can add your boards by adding its required files in aformentioned path. Note that currently Altera and Xilinx FPGAs are supported. For boards from other vendors, you need to directly use their own compiler and call $name.v file in your top level module.",'Targeted Board:'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
 	$table->attach(gen_combobox_object ($self,'compile','board',$fpgas,$init,undef,undef),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$row++;
-	
-	
-	
-	
 	my $bin =  $self->object_get_attribute('compile',$bin_name);
 	
 	$col=0;
@@ -358,9 +348,16 @@ sub select_board {
 e.g:  export $env=/home/alireza/$compiler/bin","$env:"),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
 	$table->attach(get_dir_in_object ($self,'compile',$bin_name,undef,undef,undef),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$row++;
 	
+	
+	
+	
+	
 	return $table;
 	
 }
+
+
+
 
 sub select_model_path {
 	my ($self,$name,$top,$target_dir)=@_;
@@ -446,17 +443,12 @@ sub add_new_fpga_board{
 			
 		if(! defined $result ){
 			select_compiler($self,$name,$top,$target_dir,$end_func);
-			message_dialog("The new board has been added successfully!");
-			
 			$window->destroy;
-			
+			message_dialog("The new board has been added successfully!");			
 		}else {
 			show_info($tview," ");
 			show_colored_info($tview,$result,'red');			
-			
-		}
-	
-		
+		}	
 		
 	});
 	
@@ -597,7 +589,27 @@ sub add_new_xilinx_fpga_board_widgets{
 	my $help2="Path to FPGA board xdc file. In your Xilinx board installation CD or in the Internet, search for a xdc file containing your FPGA device pin assigment constrain).";
 	my $help3="Path to FPGA_board_top.v file. A verilog file containing all your FPGA device IO ports.";
 	my $help4="Your Board name (Board PART) e.g. digilentinc.com:arty-z7-20:part0:1.0";
-	my $help5="Your FOGA device name (PART) e.g. xc7z020clg400-1 ";
+	my $help5="Your FPGA device name (PART) e.g. xc7z020clg400-1 ";
+	my $help6="The order number of target device in jtag chain. Run jtag targets after \"connect\" command in xsct terminal to list all availble targets ";
+	my $help7="Path to Vivado board files repository. E.g download the repo from https://github.com/Digilent/vivado-boards and save in \$ProNoC_work/toolchain  ";
+	my $help8="Hardware device name e.g. xc7z020_1. To find it you can connect your FPGA board to your PC. In tcl terminal run 
+		open_hw  
+		connect_hw_server 
+		open_hw_target
+		get_hw_devices
+It supposed to show the list of your hardware devices in your FPGA. Select the name represent your FPGA devivce		
+		";
+	
+	
+	my $d=	{ label=>"FPGA borad display name:",        param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef};	
+	($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,'vertical');
+	$col=0;
+	
+	my $repo ="$ENV{PRONOC_WORK}/toolchain/board_files";
+	$d={ label=>"Set board repo:", param_name=>'fpga_board_repo',  type=>"DIR_path", default_val=>"$repo", content=>undef, info=>$help7, param_parent=>'compile',ref_delay=>undef};
+	($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,'vertical');
+	$col=0;
+	
 	
 	
 	my $label1= gen_label_in_left(" FPGA board part name:" );	
@@ -605,36 +617,32 @@ sub add_new_xilinx_fpga_board_widgets{
 	
 	
 	my $entry= gen_comboentry_object ($self,'compile','fpga_board_part',undef,undef,undef);	
-	my $search=def_image_button('icons/browse.png','Search'); 
-	$table->attach( $label1,0,1,0,1,'fill','shrink',2,2); 
-	$table->attach( $button1,1,2,0,1,'fill','shrink',2,2); 
-	$table->attach( $entry,2,3,0,1,'fill','shrink',2,2); 
-	$table->attach( $search,4,5,0,1,'fill','shrink',2,2); 
-	
+	my $search=def_image_button('icons/refresh.png',undef); 
+	$table->attach( $label1,0,1,$row,$row+1,'fill','shrink',2,2); 
+	$table->attach( $button1,1,2,$row,$row+1,'fill','shrink',2,2); 
+	$table->attach( $entry,2,3,$row,$row+1,'fill','shrink',2,2); 
+	$table->attach( $search,4,5,$row,$row+1,'fill','shrink',2,2); 
+	my $srow=$row;
 	$search->signal_connect("clicked" => sub{
 			my $load= show_gif("icons/load.gif");
-			$table->attach ($load,5, 6, 0, 1,'shrink','shrink',0,0);
+			$table->attach ($load,5, 6, $srow,$srow+ 1,'shrink','shrink',0,0);
 			$table->show_all;
-			my $result=	sel_xilinx_board_from_repo($self,$tview);
+			my $result=	set_xilinx_board_from_repo($self,$tview);
 			$entry->destroy;
 			$entry= gen_comboentry_object ($self,'compile','fpga_board_part',$result,undef,undef);	
-			$table->attach( $entry,2,3,$0,1,'fill','shrink',2,2); 
+			$table->attach( $entry,2,3,$srow,$srow+1,'fill','shrink',2,2); 
 			$load->destroy;
 			$table->show_all;
 		}); 
 	$row++;
 	
 	my @info = (
-	
-  #	{ label=>"FPGA board part name:",       param_name=>'fpga_board_part', type=>"Entry",     default_val=>undef, content=>undef, info=>$help4, param_parent=>'compile', ref_delay=> undef},
    	{ label=>"FPGA part name:",       param_name=>'fpga_part', type=>"Entry",     default_val=>undef, content=>undef, info=>$help5, param_parent=>'compile', ref_delay=> undef},  
-   	{ label=>"FPGA borad display name:",        param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef},	
+    { label=>"FPGA Hardware device name:", param_name=>'fpga_hw_device', type=>"Entry", default_val=>undef, content=>undef, info=>$help8, param_parent=>'compile', ref_delay=> undef},  
   	{ label=>'FPGA board xdc file:',    param_name=>'board_confg_file',   type=>"FILE_path", default_val=>undef, content=>"xdc", info=>$help2, param_parent=>'compile', ref_delay=>undef},
 	{ label=>"FPGA board golden top verilog file", param_name=>'fpga_board_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef},
-
+	{ label=>"Target device JTAG chain order number", param_name=>'fpga_board_order',  type=>"Spin-button", default_val=>1, content=>"0,256,1", info=>$help6, param_parent=>'compile',ref_delay=>undef},
 	);
-	
-	
 	
 	foreach my $d (@info) {
 	
@@ -647,11 +655,14 @@ sub add_new_xilinx_fpga_board_widgets{
 	return ($row, $col, $table);	
 }
 	
-sub sel_xilinx_board_from_repo{
+sub set_xilinx_board_from_repo{
 	my ($self,$tview)=@_;
 	my $bin =  $self->object_get_attribute('compile',"vivado bin");
 	my $result;
-	my $tcl= get_project_dir()."/mpsoc/perl_gui/lib/tcl/vivado_get_boards.tcl";
+	my $repo= $self->object_get_attribute('compile','fpga_board_repo');	
+	
+	
+	my $tcl= get_project_dir()."/mpsoc/perl_gui/lib/tcl/vivado_get_boards.tcl -tclargs $repo";
 	my $command = "cd $ENV{PRONOC_WORK}/tmp;   $bin/vivado -mode tcl -source $tcl";
 	
 	add_info($tview,"$command\n");
@@ -767,15 +778,43 @@ sub add_new_xilinx_fpga_board_files{
 	copy($xdc,"$path/$board_name.xdc");
 	copy($top,"$path/$board_name.v");
 	
+	my $a=$self->object_get_attribute('compile','fpga_board_order');
+	my $jtag_intfc="#!/bin/bash
+JTAG_INTFC=\"\$PRONOC_WORK/toolchain/bin/jtag_xilinx_xsct -a $a -b 36\"
+#it works only for 32-bit jtag data width for 64 pass -b 68 
+";
+	save_file ("$path/jtag_intfc.sh",$jtag_intfc);	
+	
+	
 	my $bin =  $self->object_get_attribute('compile',"vivado bin");
-
+    my $hw_dev=$self->object_get_attribute('compile',"fpga_hw_device");
+    my $repo=  $self->object_get_attribute('compile','fpga_board_repo');
+	
 	
 	my $tcl="proc set_project_properties { } {\n";
-	$tcl=$tcl."\tset_property  \"board_part_repo_paths\" [get_property LOCAL_ROOT_DIR [xhub::get_xstores xilinx_board_store]] [current_project]\n" if(defined $board_part);
+	if(-d $repo){
+		$tcl=$tcl."\tset_property  \"board_part_repo_paths\" [list \"$repo\"] [current_project]\n";
+	}else {
+		$tcl=$tcl."\tset_property  \"board_part_repo_paths\" [get_property LOCAL_ROOT_DIR [xhub::get_xstores xilinx_board_store]] [current_project]\n" if(defined $board_part);
+	}
 	$tcl=$tcl."\tset_property \"part\" \"$part\" [current_project]\n" if(defined $part);
 	$tcl=$tcl."\tset_property \"board_part\" \"$board_part\" [current_project]\n" if(defined $board_part);
 	$tcl=$tcl."\tset_property \"default_lib\" \"xil_defaultlib\" [current_project]\n}\n";
+
+
 	
+	if (defined $hw_dev){
+$tcl=$tcl."\n	
+proc program_board {bit_file} {
+	open_hw
+	connect_hw_server
+	open_hw_target
+	set_property PROGRAM.FILE \$bit_file [get_hw_devices $hw_dev]
+	program_hw_devices [get_hw_devices $hw_dev]
+	refresh_hw_device [get_hw_devices $hw_dev]
+}
+";	
+	}	
 	save_file ("$path/board_property.tcl",$tcl);
 	
 	
@@ -922,13 +961,9 @@ sub  get_pin_assignment{
 	$scrolled_win->set_policy( "automatic", "automatic" );
 	$scrolled_win->add_with_viewport($table);
 
-
-	my $mtable = def_table(10, 10, FALSE);
-	
+	my $mtable = def_table(10, 10, FALSE);	
 	my $next=def_image_button('icons/right.png','Next');
 	my $back=def_image_button('icons/left.png','Previous');	
-
-
 	$mtable->attach_defaults($scrolled_win,0,10,0,9);
 	$mtable->attach($back,2,3,9,10,'shrink','shrink',2,2);
 	$mtable->attach($next,8,9,9,10,'shrink','shrink',2,2);
@@ -1161,42 +1196,83 @@ sub fpga_compilation{
 
 	#Programe the board 
 	$prog-> signal_connect("clicked" => sub{ 
-		my $error = 0;
-		my $sof_file="$target_dir/output_files/${name}.sof";
-		my $bash_file="$target_dir/program_device.sh";
-
-		add_info($tview,"Programe the board using quartus_pgm and $sof_file file\n");
-		#check if the programming file exists
-		unless (-f $sof_file) {
-			add_colored_info($tview,"\tThe $sof_file does not exists! Make sure you have compiled the code successfully.\n", 'red');
-			$error=1;
-		}
-		#check if the program_device.sh file exists
-		unless (-f $bash_file) {
-			add_colored_info($tview,"\tThe $bash_file does not exists! This file veries depend on your target board and must be available inside mpsoc/boards/$vendor/[board_name].\n", 'red');
-			$error=1;
-		}
-		return if($error);
-		my $command = "bash $bash_file $sof_file";
-		add_info($tview,"$command\n");
-		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
-		if(length $stderr>1){			
-			add_colored_info($tview,"$stderr\n",'red');
-			add_colored_info($tview,"Board was not programed successfully!\n",'red');
-		}else {
-
-			if($exit){
-				add_colored_info($tview,"$stdout\n",'red');
-				add_colored_info($tview,"Board was not programed successfully!\n",'red');
-			}else{
-				add_info($tview,"$stdout\n");
-				add_colored_info($tview,"Board is programed successfully!\n",'blue');
-
-			}
-			
-		}		
+		quartus_program_the_board($self,$tview,$target_dir,$name,$vendor) if($vendor eq 'Altera');
+		vivado_program_the_board($self,$tview,$target_dir,$name,$vendor) if($vendor eq 'Xilinx');
 	});	
 
+}
+
+sub vivado_program_the_board {
+	my 	($self,$tview,$target_dir,$name,$vendor) =@_;
+	
+	my $bit_file="$target_dir/xilinx_compile/mor1k_soc.runs/impl_1/Top.bit";
+	#check bit file existance
+	unless (-f $bit_file){	
+		add_colored_info($tview,"Could not find $bit_file. Click on project Compile button first and make sure it runs successfully.",'red');	
+		return	
+	}	
+	
+	
+	unless (-f "$target_dir/program_board.tcl"){	
+	#create tcl file
+	my $xpr = "./xilinx_compile/${name}.xpr";
+	my $tcl="
+set projectName $name
+
+source \"board_property.tcl\"
+set projectXpr \"$xpr\"
+#Open project
+open_project   \$projectXpr
+program_board $bit_file
+close_project
+exit
+
+	";
+	save_file ("$target_dir/program_board.tcl",$tcl);	
+	add_info($tview,"File $target_dir/program_board.tcl is created\n");
+	}
+	
+	#run vivado using program_board.tcl
+	run_vivado ($self,$target_dir,$tview,"$target_dir/program_board.tcl");	
+}	
+
+
+
+
+sub quartus_program_the_board{
+	my ($self,$tview,$target_dir,$name,$vendor)=@_;
+	my $error = 0;
+	my $sof_file="$target_dir/output_files/${name}.sof";
+	my $bash_file="$target_dir/program_device.sh";
+
+	add_info($tview,"Programe the board using quartus_pgm and $sof_file file\n");
+	#check if the programming file exists
+	unless (-f $sof_file) {
+		add_colored_info($tview,"\tThe $sof_file does not exists! Make sure you have compiled the code successfully.\n", 'red');
+		$error=1;
+	}
+	#check if the program_device.sh file exists
+	unless (-f $bash_file) {
+		add_colored_info($tview,"\tThe $bash_file does not exist! This file varies depending on your target board and must be available inside mpsoc/boards/$vendor/[board_name].\n", 'red');
+		$error=1;
+	}
+	return if($error);
+	my $command = "bash $bash_file $sof_file";
+	add_info($tview,"$command\n");
+	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
+	if(length $stderr>1){			
+		add_colored_info($tview,"$stderr\n",'red');
+		add_colored_info($tview,"Board was not programed successfully!\n",'red');
+	}else {
+		if($exit){
+			add_colored_info($tview,"$stdout\n",'red');
+			add_colored_info($tview,"Board was not programed successfully!\n",'red');
+		}else{
+			add_info($tview,"$stdout\n");
+			add_colored_info($tview,"Board is programed successfully!\n",'blue');
+		}
+			
+	}		
 }
 
 
@@ -1424,12 +1500,29 @@ set_project_properties
 	#creat make_project tcl file
 	save_file ("$target_dir/make_project.tcl",$tcl);	
 	
+	my $error =run_vivado ($self,$target_dir,$tview,"$target_dir/make_project.tcl");
+	add_colored_info($tview,"Vivado compilation is done successfully in $target_dir!\n", 'blue') if($error==0);
+	if (defined $end_func){
+		if ($error==0){
+			$end_func->($self);
+			$window->destroy;
+		}else {
+			message_dialog("Error in Vivado compilation!",'error');	
+		}
+	}
+	
+	
+}	
+
+
+sub run_vivado {
+	my ($self,$target_dir,$tview,$tcl)=@_;
 	my $error=0;
 	#start compilation
 	my $vivado_bin= $self->object_get_attribute('compile','vivado bin');
 	add_info($tview, "Start compilation using vivado.....\n");
 	my @compilation_command =(
-		"cd \"$target_dir/\" \n xterm -e bash -c '$vivado_bin/vivado -mode tcl -source make_project.tcl'"
+		"cd \"$target_dir/\" \n xterm -e bash -c '$vivado_bin/vivado -mode tcl -source $tcl'"		
 	);
 	
 	my $log="$target_dir/vivado.log";	
@@ -1450,8 +1543,12 @@ set_project_properties
 	#check vivado.log for error
 	my $r;
 	open my $fd, "<" , $log or $r=$!;
-	if(defined $r ) {add_colored_info($tview, "could not open $log to check errors: $r",'red');}
+	if(defined $r ) {
+		add_colored_info($tview, "could not open $log to check errors: $r\n",'red');
+		$error=1;
+	}
 	else{
+	
 		#check error
 		while (my $line = <$fd>) {
 			chomp $line;
@@ -1475,7 +1572,6 @@ set_project_properties
 			} 
 		}
 		
-	
 		#check critical warning
 		close($fd);
 		open $fd, "<" , $log;
@@ -1485,43 +1581,14 @@ set_project_properties
 				chomp $line;
 				if( $line =~ /^\s*CRITICAL WARNING:/){
 					add_colored_info($tview, "$line\n",'green');
-					
 				}
 			} 
 		}
-		close($fd);
-	
-	
-	
+		close($fd);	
 	}
-	
-	
-		
-	add_colored_info($tview,"Vivado compilation is done successfully in $target_dir!\n", 'blue') if($error==0);
-	if (defined $end_func){
-		if ($error==0){
-			$end_func->($self);
-			$window->destroy;
-		}else {
-			message_dialog("Error in Vivado compilation!",'error');	
-		}
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-}	
+	return $error;	
+}
+
 
 sub modelsim_compilation{
 	my ($self,$name,$top,$target_dir,$vendor)=@_;
@@ -1531,12 +1598,22 @@ sub modelsim_compilation{
 	my $run=def_image_button('icons/run.png','_run',FALSE,1);
 	my $back=def_image_button('icons/left.png','Previous');	
 	my $regen=def_image_button('icons/refresh.png','Regenerate testbench.v');	
+	
+	
+	#creat modelsim dir
+	
+	my $model="$target_dir/Modelsim";
+	unlink("$model/run.tcl");
+	rmtree("$target_dir/rtl_work");
+	mkpath("$model/rtl_work",1,01777);
+	
 	#create testbench.v
-	gen_modelsim_soc_testbench ($self,$name,$top,$target_dir) unless (-f "$target_dir/src_verilog/testbench.v");
+	gen_modelsim_soc_testbench ($self,$name,$top,$target_dir) unless (-f "$target_dir/Modelsim/testbench.v");
 
 
 
-	my ($app,$table,$tview,$window) = software_main("$target_dir/src_verilog",'testbench.v');
+	my ($app,$table,$tview,$window) = software_main("$target_dir/Modelsim",'testbench.v');
+	add_info($tview,"creat Modelsim dir in $target_dir\n");
 	$table->attach($back,1,2,1,2,'shrink','shrink',2,2);
 	$table->attach($regen,4,5,1,2,'shrink','shrink',2,2);
 	$table->attach ($run,9, 10, 1,2,'shrink','shrink',0,0);
@@ -1552,7 +1629,7 @@ sub modelsim_compilation{
   		my $response = $dialog->run;
   		if ($response eq 'yes') {
       			gen_modelsim_soc_testbench ($self,$name,$top,$target_dir);
-			$app->load_source("$target_dir/src_verilog/testbench.v");	
+			$app->load_source("$target_dir/Modelsim/testbench.v");	
   		}
   		$dialog->destroy;
 		
@@ -1566,12 +1643,7 @@ sub modelsim_compilation{
 	});
 	
 
-	#creat modelsim dir
-	add_info($tview,"creat Modelsim dir in $target_dir\n");
-	my $model="$target_dir/Modelsim";
-	rmtree("$model");
-	rmtree("$target_dir/rtl_work");
-	mkpath("$model/rtl_work",1,01777);
+	
 	
 	#create modelsim.tcl file
 my $tcl="#!/usr/bin/tclsh
@@ -1588,8 +1660,12 @@ vmap work rtl_work
 #Get the list of  all verilog files in src_verilog folder
 	add_info($tview,"Get the list of all verilog files in src_verilog folder\n");
 	my @files = File::Find::Rule->file()
-        	->name( '*.v','*.V','*.sv' )
-                ->in( "$target_dir/src_verilog" );
+		->name( '*.v','*.V','*.sv' )
+		->in( "$target_dir/src_verilog" );
+#add testnemch.v
+	push (@files, "$target_dir/Modelsim/testbench.v");
+
+                
 #make sure source files have key word 'module' 
 	my @sources;
 	foreach my $p (@files){
@@ -2392,7 +2468,7 @@ sub soc_get_all_parameters_order {
 
 sub gen_modelsim_soc_testbench {
 	my ($self,$name,$top,$target_dir)=@_;
-	my $dir="$target_dir/src_verilog";
+	my $dir="$target_dir/Modelsim";
 	my $soc_top= $self->object_get_attribute('top_ip',undef);
 	my @intfcs=$soc_top->top_get_intfc_list();
 	my %PP;

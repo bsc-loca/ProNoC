@@ -598,7 +598,7 @@ end//xilinx_fpga
  * *********************/
 
 else if(FPGA_VENDOR=="GENERIC")begin:generic_ram
-    if(JTAG_CONNECT== "ALTERA_JTAG_WB")begin:dual_ram
+    if(JTAG_CONNECT== "ALTERA_JTAG_WB" || JTAG_CONNECT=="XILINX_JTAG_WB" )begin:dual_ram
         
 
         generic_dual_port_ram #(

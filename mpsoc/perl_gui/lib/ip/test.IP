@@ -1,0 +1,160 @@
+#######################################################################
+##	File: gpo.IP
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.8.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$ipgen = bless( {
+                   'plugs' => {
+                                'clk' => {
+                                           '0' => {
+                                                    'name' => 'hhh'
+                                                  },
+                                           'value' => '2',
+                                           'type' => 'num',
+                                           '1' => {
+                                                    'name' => 'clk1'
+                                                  }
+                                         },
+                                'enable' => {
+                                              '0' => {
+                                                       'name' => 'enable0'
+                                                     },
+                                              'value' => 1,
+                                              'type' => 'num'
+                                            },
+                                'reset' => {
+                                             'type' => 'num',
+                                             'value' => 1,
+                                             '0' => {
+                                                      'name' => 'reset0'
+                                                    }
+                                           }
+                              },
+                   'ip_name' => 'noc_based_mpsoc',
+                   'file_name' => undef,
+                   'parameters_order' => [],
+                   'module_name' => 'noc_based_mpsoc',
+                   'category' => 'mpsoc',
+                   'ports_order' => [],
+                   'ports' => {
+                                'reset0' => {
+                                              'intfc_name' => 'plug:reset[0]',
+                                              'range' => undef,
+                                              'intfc_port' => 'reset_i',
+                                              'type' => 'input'
+                                            },
+                                'T2_led_port_o' => {
+                                                     'type' => 'output',
+                                                     'intfc_port' => 'IO',
+                                                     'range' => 'T2_led_PORT_WIDTH-1     :   0',
+                                                     'intfc_name' => 'IO'
+                                                   },
+                                'T3_led_port_o' => {
+                                                     'intfc_name' => 'IO',
+                                                     'range' => 'T3_led_PORT_WIDTH-1     :   0',
+                                                     'intfc_port' => 'IO',
+                                                     'type' => 'output'
+                                                   },
+                                'T1_ram_wb_to_jtag' => {
+                                                         'range' => 'T1_ram_WB2Jw-1 : 0',
+                                                         'intfc_name' => 'socket:jtag_to_wb[1]',
+                                                         'type' => 'output',
+                                                         'intfc_port' => 'jwb_o'
+                                                       },
+                                'T2_ram_wb_to_jtag' => {
+                                                         'range' => 'T2_ram_WB2Jw-1 : 0',
+                                                         'intfc_name' => 'socket:jtag_to_wb[2]',
+                                                         'type' => 'output',
+                                                         'intfc_port' => 'jwb_o'
+                                                       },
+                                'T2_ram_jtag_to_wb' => {
+                                                         'intfc_name' => 'socket:jtag_to_wb[2]',
+                                                         'range' => 'T2_ram_J2WBw-1 : 0',
+                                                         'intfc_port' => 'jwb_i',
+                                                         'type' => 'input'
+                                                       },
+                                'clk1' => {
+                                            'intfc_port' => 'clk_i',
+                                            'type' => 'input',
+                                            'intfc_name' => 'plug:clk[1]',
+                                            'range' => undef
+                                          },
+                                'enable0' => {
+                                               'type' => 'input',
+                                               'intfc_port' => 'enable_i',
+                                               'range' => undef,
+                                               'intfc_name' => 'plug:enable[0]'
+                                             },
+                                'hhh' => {
+                                           'range' => undef,
+                                           'intfc_name' => 'plug:clk[0]',
+                                           'type' => 'input',
+                                           'intfc_port' => 'clk_i'
+                                         },
+                                'T0_ram_jtag_to_wb' => {
+                                                         'range' => 'T0_ram_J2WBw-1 : 0',
+                                                         'intfc_name' => 'socket:jtag_to_wb[0]',
+                                                         'type' => 'input',
+                                                         'intfc_port' => 'jwb_i'
+                                                       },
+                                'T0_led_port_o' => {
+                                                     'intfc_name' => 'IO',
+                                                     'range' => 'T0_led_PORT_WIDTH-1     :   0',
+                                                     'intfc_port' => 'IO',
+                                                     'type' => 'output'
+                                                   },
+                                'T3_ram_jtag_to_wb' => {
+                                                         'intfc_port' => 'jwb_i',
+                                                         'type' => 'input',
+                                                         'intfc_name' => 'socket:jtag_to_wb[3]',
+                                                         'range' => 'T3_ram_J2WBw-1 : 0'
+                                                       },
+                                'T1_ram_jtag_to_wb' => {
+                                                         'intfc_port' => 'jwb_i',
+                                                         'type' => 'input',
+                                                         'intfc_name' => 'socket:jtag_to_wb[1]',
+                                                         'range' => 'T1_ram_J2WBw-1 : 0'
+                                                       },
+                                'T1_led_port_o' => {
+                                                     'intfc_name' => 'IO',
+                                                     'range' => 'T1_led_PORT_WIDTH-1     :   0',
+                                                     'intfc_port' => 'IO',
+                                                     'type' => 'output'
+                                                   },
+                                'T0_ram_wb_to_jtag' => {
+                                                         'type' => 'output',
+                                                         'intfc_port' => 'jwb_o',
+                                                         'range' => 'T0_ram_WB2Jw-1 : 0',
+                                                         'intfc_name' => 'socket:jtag_to_wb[0]'
+                                                       },
+                                'T3_ram_wb_to_jtag' => {
+                                                         'range' => 'T3_ram_WB2Jw-1 : 0',
+                                                         'intfc_name' => 'socket:jtag_to_wb[3]',
+                                                         'type' => 'output',
+                                                         'intfc_port' => 'jwb_o'
+                                                       }
+                              },
+                   'sockets' => {
+                                  'jtag_to_wb' => {
+                                                    'type' => 'num',
+                                                    'value' => 3,
+                                                    '0' => {
+                                                             'name' => 'jtag_to_wb_0'
+                                                           },
+                                                    '1' => {
+                                                             'name' => 'jtag_to_wb_1'
+                                                           },
+                                                    '2' => {
+                                                             'name' => 'jtag_to_wb_2'
+                                                           }
+                                                  }
+                                },
+                   'hdl_files' => []
+                 }, 'ip_gen' );
+

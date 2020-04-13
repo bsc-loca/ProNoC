@@ -2,7 +2,8 @@
 use strict;
 
 package soc;
-
+use FindBin;
+use lib $FindBin::Bin;
 use ip;
 
 
@@ -79,7 +80,7 @@ sub soc_add_instance_order{
 
 sub soc_remove_scolar_from_array{
 	my ($array_ref,$item)=@_;
-	my @array=@{$array_ref};
+	my @array=@{$array_ref} if(defined $array_ref);
 	my @new;
 	foreach my $p (@array){
 		if($p ne $item ){

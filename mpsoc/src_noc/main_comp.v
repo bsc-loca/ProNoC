@@ -281,8 +281,8 @@ generate
     
         );
      end else begin :els
-        assign  bin_code = one_hot_code;
-     
+       // assign  bin_code = one_hot_code;
+       assign  bin_code = 1'b0;
      end
 
 endgenerate

@@ -21,10 +21,6 @@ use Gtk2::Pango;
 
 
 
-
-
-
-
 require "widget.pl"; 
 require "verilog_gen.pl";
 require "readme_gen.pl";
@@ -169,10 +165,10 @@ sub get_module_parameter{
 		$window->destroy;
 		#save new values 
 		my $ref=$soc->object_get_attribute('current_module_param');
-		%new_param_value=%{$ref};
-		
-		$soc->soc_add_instance_param($instance_id,\%new_param_value);
-		
+		if(defined $ref){
+			%new_param_value=%{$ref} ;
+			$soc->soc_add_instance_param($instance_id,\%new_param_value);
+		}
 		
 		#check if wishbone address bus is parameterizable regenerate the addresses again 
 		my @plugs= $soc->soc_get_all_plugs_of_an_instance($instance_id);
@@ -289,6 +285,8 @@ sub gen_instance{
 	
 	
 	
+	
+	
 #	my $box= def_vbox (FALSE,0);
 	
 #	my $table = def_table(3,5,TRUE);
@@ -343,31 +341,28 @@ sub gen_instance{
 	
 	#remove button
 	#my ($box2,$cancel_button) = button_box("Remove");
+	
 	my $cancel_button=def_image_button('icons/cancel.png','Remove');
 	my $box2=def_hbox(FALSE,5);
 	
 	my $dwn=def_image_button("icons/down_sim.png");
 	$box2->pack_start( $dwn, FALSE, FALSE, 3);
-	$box2->pack_start($cancel_button,   FALSE, FALSE,3);
+	$box2->pack_start($cancel_button,   FALSE, FALSE,3) ;
 	$table->attach  ($box2,0,1,$offset+2,$offset+3,'expand','shrink',2,2); 
 	$cancel_button->signal_connect (clicked => sub{
-		remove_instance_from_soc($soc,$instance_id);
-				
+		remove_instance_from_soc($soc,$instance_id);				
 	});	
+	
 	$dwn->signal_connect (clicked => sub{
 		$soc->soc_increase_instance_order($instance_id);
 		set_gui_status($soc,"refresh_soc",0);
 		
-	});
-
-	
+	});	
 	
 	#instance name
 	my $instance_name=$soc->soc_get_instance_name($instance_id);
 	my $instance_label=gen_label_in_left(" Instance name");
-	my $instance_entry = gen_entry($instance_name);
-	   
-	
+	my $instance_entry = gen_entry($instance_name);	
 	
 	$table->attach  ($instance_label,1,2,$offset+0,$offset+1,'expand','shrink',2,2);
 	#$table->attach_defaults ($instance_entry,1,2,$offset+1,$offset+2);
@@ -441,10 +436,12 @@ sub gen_instance{
 	
 	#interface_pluges
 	my %plugs = $ip->get_module_plugs_value($category,$module);
-			
+	
+	##print "******* %plug=get_module_plugs_value($category,$module)*************\n";
+		#print Dumper (\%$ip);	
 	my $row=0;
 	foreach my $plug (sort keys %plugs) {
-		
+		#print "******* $plug *************\n";
 		my $plug_num= $plugs{$plug};
 		for (my $k=0;$k<$plug_num;$k++){
 			
@@ -634,7 +631,7 @@ sub find_connection{
 ############
 sub generate_dev_table{
 	my($soc,$ip,$infc,$info)=@_;	
-	#my $box= def_hbox (TRUE,0);
+
   
 	my $table=def_table(3,25,FALSE);
 	my $row=0;
@@ -649,13 +646,10 @@ sub generate_dev_table{
 		
 	}
 	if($row<20){for ($i=$row; $i<20; $i++){
-		
-		#my $temp=gen_label_in_center(" ");
-		#$table->attach_defaults ($temp, 0, 1 , $i, $i+1);
+				
 	}}	
 	
-	
-	#$box->pack_start( $scrolled_win, TRUE, TRUE, 3);
+
 	return $table;
 }	
 	 
@@ -666,34 +660,13 @@ sub generate_dev_table{
 ################ 
 
 sub show_active_dev{
-	my($soc,$ip,$infc,$refresh_ref,$info)=@_;
+	my($soc,$ip,$infc,$info)=@_;
 	my $box= def_table (1, 1, FALSE);
 	my $dev_table = generate_dev_table($soc,$ip,$infc,$info);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
+	my $scrolled_win = gen_scr_win_with_adjst($soc,'device_win_adj');
 	$scrolled_win->add_with_viewport($dev_table);
-	
-
-
-	$$refresh_ref-> signal_connect("clicked" => sub{ 
-	   	
-		$dev_table->destroy;
-		select(undef, undef, undef, 0.1); #wait 10 ms
-		$dev_table = generate_dev_table($soc,$ip,$infc,$info);
-		#$box->attach_defaults ($dev_table, 0, 1, 0, 1);#( $dev_table, FALSE, FALSE, 3);
-		$scrolled_win->add_with_viewport($dev_table);
-		$dev_table->show;
-		$scrolled_win->show_all;
-		
-		
-		
-	});
-	#$box->attach_defaults ($dev_table, 0, 1, 0, 1);#$box->pack_start( $dev_table, FALSE, FALSE, 3);
-	#$box->show_all;
 	return $scrolled_win;
-	
-	
-	
+
 }	
 
 
@@ -1638,6 +1611,45 @@ return $string;
 
 
 
+
+sub soc_gen_top_ip{
+	my $soc=shift;
+	my $top_ip=ip_gen->top_gen_new();
+	my $ip = ip->lib_new ();
+	my $intfc=interface->interface_new();
+	my @instances=$soc->soc_get_all_instances();
+	my $wires=soc->new_wires();
+	foreach my $id (@instances){
+		my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$io_sim_v,
+		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
+	}	#$id
+	return $top_ip;
+}
+
+
+
+
+sub get_soc_clk_source_list{
+	my $soc=shift;
+    my %all_sources;    
+    my $top = soc_gen_top_ip($soc);
+    my @intfcs=$top->top_get_intfc_list();
+	my @sources=('clk','reset');
+	foreach my $intfc (@intfcs){	
+			my($type,$name,$num)= split("[:\[ \\]]", $intfc);
+			foreach my $s (@sources){
+				if ($intfc =~ /plug:$s/){ 
+					my @ports=$top->top_get_intfc_ports_list($intfc);				
+					$all_sources{$s}=\@ports;
+				}	
+			}
+	}
+	return %all_sources;
+}	
+
+
+
+
 ############
 #    main
 ############
@@ -1647,20 +1659,13 @@ sub socgen_main{
 	my $ip = ip->lib_new ();
 	my $soc = soc->soc_new();
 	set_gui_status($soc,"ideal",0);
-	
-	#my $soc= eval { do 'lib/soc/soc.SOC' };
-	#message_dialog("$ENV{'PRONOC_WORK'}\n");
-	
-	# main window
-	#my $window = def_win_size(1000,800,"Top");
+		
 	#  The main table containg the lib tree, selected modules and info section 
 	my $main_table = Gtk2::Table->new (20, 12, FALSE);
 	
 	# The box which holds the info, warning, error ...  mesages
 	my ($infobox,$info)= create_text();	
-	
-	
-	my $refresh_dev_win = Gtk2::Button->new_from_stock('ref');
+		
 	
 	# A tree view for holding a library
 	my %tree_text;
@@ -1676,13 +1681,14 @@ sub socgen_main{
 	$main_table->set_row_spacings (4);
 	$main_table->set_col_spacings (1);
 	
-	my  $device_win=show_active_dev($soc,$ip,$infc,\$refresh_dev_win,$info);
+	my  $device_win=show_active_dev($soc,$ip,$infc,$info);
 	
 	
 	my $generate = def_image_button('icons/gen.png','_Generate RTL',FALSE,1);
 	my $compile  = def_image_button('icons/gate.png','Compile RTL');
 	my $software = def_image_button('icons/binary.png','Software');
 	my $diagram  = def_image_button('icons/diagram.png','Diagram');
+	my $clk=  def_colored_button('CLK setting',17);	
 	my $unset    = def_image_button('icons/intfc.png','Unset Intfc.');
 	
 	my $ram      = def_image_button('icons/RAM.png','Memory');	
@@ -1703,13 +1709,18 @@ sub socgen_main{
 	$main_table->attach_defaults ($entrybox,1, 3, 19,20);
 	$main_table->attach ($unset, 3,4, 19,20,'expand','shrink',2,2);
 	
-	$main_table->attach ($wb, 4,6, 19,20,'expand','shrink',2,2);
-	$main_table->attach ($diagram, 6, 7, 19,20,'expand','shrink',2,2);
+	$main_table->attach ($wb, 4,5, 19,20,'expand','shrink',2,2);
+	$main_table->attach ($diagram, 5, 6, 19,20,'expand','shrink',2,2);
+	$main_table->attach ($clk, 6, 7, 19,20,'expand','shrink',2,2);
 	$main_table->attach ($generate, 7, 8, 19,20,'expand','shrink',2,2);
 	$main_table->attach ($software, 8, 9, 19,20,'expand','shrink',2,2);
 	#$main_table->attach ($ram, 9, 10, 19,20,'expand','shrink',2,2);
 	$main_table->attach ($compile, 10, 12, 19,20,'expand','shrink',2,2);
 	
+	
+	$clk-> signal_connect("clicked" => sub{ 
+			clk_setting_win2($soc,$info,'soc');	
+	});
 
 	$diagram-> signal_connect("clicked" => sub{ 
 		show_tile_diagram ($soc);
@@ -1838,7 +1849,10 @@ sub socgen_main{
 			set_gui_status($soc,"ideal",0);	
 		}
 		elsif( $state ne "ideal" ){
-			$refresh_dev_win->clicked;
+			$device_win->destroy;
+			$device_win=show_active_dev($soc,$ip,$infc,$info);
+			$h1 -> pack2($device_win, TRUE, TRUE);  
+			$h1 -> show_all; 
 			my $saved_name=$soc->object_get_attribute('soc_name',undef);
 			if(defined $saved_name) {$entry->set_text($saved_name);}
 			set_gui_status($soc,"ideal",0);			
@@ -1850,7 +1864,7 @@ sub socgen_main{
 	
 
 	return $sc_win;
-	#return $main_table;
+
 	
 
 }

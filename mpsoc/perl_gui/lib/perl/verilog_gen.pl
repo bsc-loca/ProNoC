@@ -32,35 +32,42 @@ sub soc_generate_verilog{
 	
 	my @instances=$soc->soc_get_all_instances();
 	my $io_sim_v;
-	my $io_top_sim_v;
+	my $top_io_short;
 	my $core_id= $soc->object_get_attribute('global_param','CORE_ID');
 	$core_id= 0 if(!defined $core_id);
-	my $param_as_in_v="\tparameter\tCORE_ID=$core_id,
+	my $param_as_in_v_all="\tparameter\tCORE_ID=$core_id,
 \tparameter\tSW_LOC=\"$sw_path\"";
 
 
 
-    my $system_v="";
-	my $param_pass_v="\t.CORE_ID(CORE_ID),\n\t.SW_LOC(SW_LOC)";
+    my $system_v_all="";
+	my $param_pass_v_all="\t.CORE_ID(CORE_ID),\n\t.SW_LOC(SW_LOC)";
 	my $body_v;
 	
-	my ($param_v_all, $local_param_v_all, $wire_def_v_all, $inst_v_all, $plugs_assign_v_all, $sockets_assign_v_all,$io_full_v_all,$io_top_full_v_all);
+	my ($param_v_all, $local_param_v_all, $wire_def_v_all, $inst_v_all, $plugs_assign_v_all, $sockets_assign_v_all,$io_full_v_all,$top_io_pass_all,$io_sim_v_all);
+	my $top_io_short_all="\tjtag_debug_reset_in";  
+	my $top_io_full_all="\tinput \tjtag_debug_reset_in;\n";
 	my $wires=soc->new_wires();
 	my $intfc=interface->interface_new();
 	 
+	 
 	foreach my $id (@instances){
-		my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v)=gen_module_inst($id,$soc,\$io_sim_v,\$io_top_sim_v,\$param_as_in_v,$top_ip,$intfc,$wires,\$param_pass_v,\$system_v);
+		my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$io_sim_v,
+		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
 		my $inst   	= $soc->soc_get_instance_name($id);
 		add_text_to_string(\$body_v,"/*******************\n*\n*\t$inst\n*\n*\n*********************/\n");
-		
+		add_text_to_string(\$param_as_in_v_all,",\n$param_as_in_v")   	if(defined($param_as_in_v)); 
 		add_text_to_string(\$local_param_v_all,"$local_param_v\n")   	if(defined($local_param_v)); 
+		add_text_to_string(\$system_v_all,"$system_v\n")   				if(defined($system_v)); 
 		add_text_to_string(\$wire_def_v_all,"$wire_def_v\n")		 	if(defined($wire_def_v));
 		add_text_to_string(\$inst_v_all,$inst_v)					 	if(defined($inst_v));
 		add_text_to_string(\$plugs_assign_v_all,"$plugs_assign_v\n") 	if(defined($plugs_assign_v));
 		add_text_to_string(\$sockets_assign_v_all,"$sockets_assign_v\n")if(defined($sockets_assign_v));
-		add_text_to_string(\$io_full_v_all,"$io_full_v\n")				if(defined($io_full_v));
-		add_text_to_string(\$io_top_full_v_all,"$io_top_full_v\n")			if(defined($io_top_full_v));
-		
+		add_text_to_string(\$io_full_v_all,"$io_full_v\n")				if(length($io_full_v)>3);
+		add_text_to_string(\$top_io_full_all,"$io_top_full_v\n")		if(length($io_top_full_v)>3);
+		$top_io_pass_all  = (defined $top_io_pass_all )? "$top_io_pass_all,\n$top_io_pass"   : $top_io_pass         if(defined($top_io_pass));
+		$io_sim_v_all     = (defined $io_sim_v_all    )? "$io_sim_v_all,\n$io_sim_v"         : $io_sim_v  	    	if(defined($io_sim_v));
+		$top_io_short_all = (defined $top_io_short_all)? "$top_io_short_all,\n$top_io_short" : $top_io_short 		if(defined($top_io_short));
 		
 		
 		#print  "$param_v $local_param_v $wire_def_v $inst_v $plugs_assign_v $sockets_assign_v $io_full_v";
@@ -80,62 +87,151 @@ sub soc_generate_verilog{
 	
 	
 
-	my $soc_v = (defined $param_as_in_v )? "module $soc_name #(\n $param_as_in_v\n)(\n$io_sim_v\n);\n": "module $soc_name (\n$io_sim_v\n);\n";
-	add_text_to_string(\$soc_v,$functions_all);	
-	add_text_to_string(\$soc_v,$system_v);
-	add_text_to_string(\$soc_v,$local_param_v_all);
-	add_text_to_string(\$soc_v,$addr_localparam);
-	add_text_to_string(\$soc_v,$module_addr_localparam);	
-	add_text_to_string(\$soc_v,$io_full_v_all);
-	add_text_to_string(\$soc_v,$wire_def_v_all);
-	add_text_to_string(\$soc_v,$unused_wiers_v);
-	add_text_to_string(\$soc_v,$inst_v_all);
-	add_text_to_string(\$soc_v,$plugs_assign_v_all);
-	add_text_to_string(\$soc_v,$sockets_assign_v_all);
-	add_text_to_string(\$soc_v,$addr_map);
-	add_text_to_string(\$soc_v,"endmodule\n\n");
+	my $soc_v = (defined $param_as_in_v_all )? "module $soc_name #(\n $param_as_in_v_all\n)(\n$io_sim_v_all\n);\n": "module $soc_name (\n$io_sim_v_all\n);\n";
+	$soc_v = $soc_v."
+$functions_all	
+$system_v_all
+$local_param_v_all
+$addr_localparam
+$module_addr_localparam
+$io_full_v_all
+$wire_def_v_all
+$unused_wiers_v
+$inst_v_all
+$plugs_assign_v_all
+$sockets_assign_v_all
+$addr_map
+endmodule
+
+";
 	
 	
 	$soc->object_add_attribute('top_ip',undef,$top_ip);
 	#print @assigned_wires;
 
-	#generate topmodule
+	#generate top module
+	my ($clk_set, $clk_io_sim,$clk_io_full, $clk_assigned_port)= get_top_clk_setting($soc);
+	$top_io_short_all=(defined $top_io_short_all)? "$top_io_short_all,\n$clk_io_sim" : $clk_io_sim;
+	$top_io_full_all=$top_io_full_all."\n$clk_io_full";            
+    $top_io_pass_all=$top_io_pass_all.",\n$clk_assigned_port";
+    my ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out)
+	=get_soc_jtag_v($soc,$soc_name,$txview);
+	my $jtag_v=add_jtag_ctrl ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out,$txview);
+    
+	my $top_v = (defined $param_as_in_v_all )? "module ${soc_name}_top #(\n $param_as_in_v_all\n)(\n$top_io_short_all\n);\n": "module ${soc_name}_top (\n $top_io_short_all\n);\n";
 	
-	my $top_v = (defined $param_as_in_v )? "module ${soc_name}_top #(\n $param_as_in_v\n)(\n$io_top_sim_v\n);\n": "module ${soc_name}_top (\n $io_top_sim_v\n);\n";
-	my $ins= gen_soc_instance_v($soc,$soc_name,$param_pass_v,$txview);
-	add_text_to_string(\$top_v,$functions_all);	
-	add_text_to_string(\$top_v,$local_param_v_all."\n".$io_top_full_v_all);
-	add_text_to_string(\$top_v,$ins);
-	my ($readme,$prog)=gen_system_info($soc,$param_as_in_v); 
+	
+	#my $ins= gen_soc_instance_v($soc,$soc_name,$param_pass_v,$txview);
+	
+	$top_v=$top_v."
+$functions_all	
+$local_param_v_all
+$top_io_full_all
+$clk_set
+$jtag_v	
+\t${soc_name} the_${soc_name} (
+$top_io_pass_all
+\t);
+endmodule
+";
+	
+	my ($readme,$prog)=gen_system_info($soc,$param_as_in_v_all); 
 	return ("$soc_v",$top_v,$readme,$prog);
 
 
 }	
+
+
+
+
+sub get_soc_jtag_v{
+	my ($soc,$soc_name,$txview)=@_;
+	
+	my $processor_en=0;
+	my $jtag_insts="";
+	my $altera_jtag_ctrl=0;
+	my $xilinx_jtag_ctrl=0;
+	my $xilinx_jtag_ctrl_in;
+	my $xilinx_jtag_ctrl_out;
+	my $jtag_inst_name="";
+	my $jtag_def="//Allow software to remote reset/enable the cpu via jtag
+\twire jtag_cpu_en, jtag_system_reset;	
+";
+		
+	my $top=$soc->soc_get_top();
+	my @intfcs=$top->top_get_intfc_list();
+
+	
+	foreach my $intfc (@intfcs){			
+		if( $intfc =~ /socket:jtag_to_wb\[/){ #check JTAG connect parameter. if it is XILINX then connect it to jtag tap
+			my @ports=$top->top_get_intfc_ports_list($intfc);
+			foreach my $p (@ports){
+				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);				
+				my $JTAG_CONNECT=$soc->soc_get_module_param_value ($id,'JTAG_CONNECT');				
+				
+				if($JTAG_CONNECT eq '"XILINX_JTAG_WB"'){
+					$jtag_inst_name= $soc->soc_get_instance_name($id);					
+					my %params	= $soc->soc_get_module_param($id);
+					my $new_range = add_instantc_name_to_parameters(\%params,$id,$range);
+					$jtag_def=$jtag_def."\twire [ $new_range ] ${p};\n";				
+					if($type eq 'input'){
+						$jtag_insts=$jtag_insts."$id XILINX JTAG,";
+						$xilinx_jtag_ctrl++;
+						$xilinx_jtag_ctrl_in=(defined $xilinx_jtag_ctrl_in)? "$xilinx_jtag_ctrl_in,$p" : "$p";
+					}else {
+						$xilinx_jtag_ctrl_out=(defined $xilinx_jtag_ctrl_out)? "$xilinx_jtag_ctrl_out,$p" : "$p";
+					}				
+				}#'"XILINX_JTAG_WB"'
+			
+				elsif($JTAG_CONNECT eq '"ALTERA_JTAG_WB"'){
+					
+					if($type eq 'input'){
+						$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
+						$altera_jtag_ctrl++;
+										
+					}
+				}#'"ALTERA_JTAG_WB"'	
+
+			}	#$p	
+		}#if
+	
+	}
+		
+	return ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out);
+}
+
 
 #################
 #	gen_module_inst
 ###############
 
 sub gen_module_inst {
-	my ($id,$soc,$io_sim_v,$io_top_sim_v,$param_as_in_v,$top_ip, $intfc,$wires,$param_pass_v,$system_v)=@_;
+	my ($id,$soc,$top_ip,$intfc,$wires)=@_;
+	my ($io_sim_v,$top_io_short,$param_as_in_v,$param_pass_v,$system_v);
+	my $top_io_pass;
 	my $module 	=$soc->soc_get_module($id);
 	my $module_name	=$soc->soc_get_module_name($id);
 	my $category 	=$soc->soc_get_category($id);
 	
 	my $inst   	= $soc->soc_get_instance_name($id);
 	my %params	= $soc->soc_get_module_param($id);
-	
+	my $src_ip=$soc ->object_get_attribute('SOURCE_SET',"IP");
 	my $ip = ip->lib_new ();
+	$ip->add_ip($src_ip) if defined $src_ip;	
+	
 	
 	my @ports=$ip->ip_list_ports($category,$module);
-	my ($inst_v,$intfc_v,$plugs_assign_v,$sockets_assign_v,$io_full_v,$io_top_full_v);
+	my ($inst_v,$intfc_v,$plugs_assign_v,$sockets_assign_v);
 	my $wire_def_v="";
+	my $io_full_v="";
+	my $io_top_full_v="";
 	$plugs_assign_v="\n";
+	
 	
 	my $counter=0;
 	my @param_order=$soc->soc_get_instance_param_order($id);
 	
-	my ($param_v,$local_param_v,$instance_param_v)= gen_parameter_v(\%params,$id,$inst,$category,$module,$ip,$param_as_in_v,\@param_order,$top_ip,$param_pass_v);
+	my ($param_v,$local_param_v,$instance_param_v)= gen_parameter_v(\%params,$id,$inst,$category,$module,$ip,\$param_as_in_v,\@param_order,$top_ip,\$param_pass_v);
 	
 	
 	
@@ -145,7 +241,7 @@ sub gen_module_inst {
 	$top_ip->top_add_def_to_instance($id,'instance',$inst);
 	
 	#
-	
+	my $assigned_ports="";
 	
 	#module name	
 	$inst_v=( defined $instance_param_v )? "$module_name #(\n": $module_name ; 
@@ -193,13 +289,36 @@ sub gen_module_inst {
 				$NC='yes';
 			}else {
 				 $i_name ='IO' if( !defined $i_name);
+				 
+								 
 				 $assigned_port="$inst\_$port";
-				 $$io_sim_v= (!defined $$io_sim_v)? "\t$assigned_port" : "$$io_sim_v, \n\t$assigned_port";
-				 $$io_top_sim_v= (!defined $$io_top_sim_v)? "\t$assigned_port" : "$$io_top_sim_v, \n\t$assigned_port" if ($i_name ne 'RxD_sim' && $i_name ne 'jtag_to_wb' );
+				 $io_sim_v= (!defined $io_sim_v)? "\t$assigned_port" : "$io_sim_v,\n\t$assigned_port";
 				 my $new_range = add_instantc_name_to_parameters(\%params,$inst,$range);
-				 my $port_def=(length ($range)>1 )? 	"\t$type\t [ $new_range    ] $assigned_port;\n": "\t$type\t\t\t$assigned_port;\n";			 
-				 add_text_to_string(\$io_full_v,$port_def);
-				 add_text_to_string(\$io_top_full_v,$port_def) if ($i_name ne 'RxD_sim' && $i_name ne 'jtag_to_wb');
+				 my $r = (!defined $new_range)? 0 : (length ($new_range)>1 )?  1 : 0;
+				 my $port_def=($r==1 )? 	"\t$type\t [ $new_range    ] $assigned_port;\n": "\t$type\t\t\t$assigned_port;\n";	
+				 $io_full_v=$io_full_v.$port_def;
+				 
+				 if ($i_name eq 'RxD_sim' ){
+				 	#do notthing 
+				 }
+				 elsif($i_name eq 'enable'){
+				 	$top_io_pass = (!defined $top_io_pass )? "\t\t.$assigned_port($assigned_port & jtag_cpu_en)" : "$top_io_pass,\n\t\t.$assigned_port($assigned_port & jtag_cpu_en)"; 				 	
+				 	$top_io_short= (!defined $top_io_short)? "\t$assigned_port" : "$top_io_short, \n\t$assigned_port";
+				 	$io_top_full_v= $io_top_full_v.$port_def;				 	
+				 } elsif($i_name eq 'reset' || $i_name eq 'clk'){
+					#connection done using  get_top_clk_setting
+				 	
+				 } elsif( $i_name eq 'jtag_to_wb' ){
+				 	 $top_io_pass = (!defined $top_io_pass )? "\t\t.$assigned_port($assigned_port)" : "$top_io_pass,\n\t\t.$assigned_port($assigned_port)";
+				 
+				 }else{	
+					 $top_io_short= (!defined $top_io_short)? "\t$assigned_port" : "$top_io_short, \n\t$assigned_port"; 
+					 $top_io_pass = (!defined $top_io_pass )? "\t\t.$assigned_port($assigned_port)" : "$top_io_pass,\n\t\t.$assigned_port($assigned_port)";
+					 $io_top_full_v= $io_top_full_v.$port_def;
+				 }
+						 
+				 
+				 
 				# $top_ip->ipgen_add_port($assigned_port, $new_range, $type ,$intfc_name,$i_port);
 				$top_ip->top_add_port($id,$assigned_port, $new_range, $type ,$intfc_name,$i_port);
 			}
@@ -227,7 +346,9 @@ sub gen_module_inst {
 					my $connect_port= "$connect_n\_socket_$i_name\_$connect_socket_num\_$i_connect";
 					#connect plug port to socket port
 					my $new_range = add_instantc_name_to_parameters(\%params,$inst,$range);
-					my $connect_port_range=(length($new_range)>1)?"$connect_port\[$new_range\]":$connect_port;					
+					my $r= (!defined $range)? 0 : (length ($range)>1 )? 1 :0; 
+					
+					my $connect_port_range=($r==1)?"$connect_port\[$new_range\]":$connect_port;					
 					
 					if($type eq 'input' ){
 						$plugs_assign_v= "$plugs_assign_v \tassign  $assigned_port = $connect_port_range;\n";
@@ -286,16 +407,20 @@ sub gen_module_inst {
 			 
 			
 		}		
-				
+		
+		my $reset_jtag_ored = ($i_name eq 'reset')? '| jtag_system_reset' : '';	
+		my $reset_jtag_nc = ($i_name eq 'reset')? 'jtag_system_reset' : '';		
 		
 		
 		if (++$counter == scalar(@ports)){#last port def
 			
 			$inst_v=($NC eq 'yes')? "$inst_v\t\t.$port()\n": "$inst_v\t\t.$port($assigned_port)\n";
+			$assigned_ports=($NC eq 'yes')? "$assigned_ports\t\t.$port($reset_jtag_nc)\n": "$assigned_ports\t\t.$port($assigned_port $reset_jtag_ored)\n";
 			
 		}
 		else {
 			$inst_v=($NC eq 'yes')? "$inst_v\t\t.$port(),\n":"$inst_v\t\t.$port($assigned_port),\n";
+			$assigned_ports=($NC eq 'yes')? "$assigned_ports\t\t.$port($reset_jtag_nc),\n":"$assigned_ports\t\t.$port($assigned_port $reset_jtag_ored),\n";
 		}
 		
 		if($type ne 'input' && $NC ne 'yes' ){
@@ -308,14 +433,17 @@ sub gen_module_inst {
 	}	
 	$inst_v="$inst_v\t);\n";
 	
+	
+	
 	my $hdr =$ip->ip_get($category,$module,'system_v');
 	if(defined $hdr){
 			$hdr=replace_golb_var($hdr,\%params);
-	    	$$system_v= "$$system_v $hdr\n";
+	    	$system_v= "$system_v $hdr\n";
 	}
 	
-	
-	return ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$param_pass_v);
+	return ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,	$io_full_v,
+	$io_top_full_v,$io_sim_v,$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass);
+	#return ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$param_pass_v,$assigned_ports);
 	
 	
 }	
@@ -457,13 +585,6 @@ sub generate_address_cmp{
 }	
 
 
-
-
-
-
-
-
-
 sub add_text_to_string{
 		my ($string,$text)=@_;
 		if(defined $text){
@@ -477,7 +598,9 @@ sub generate_wire {
 	my($range,$port_name,$inst_name,$params_ref,$i_type,$i_name,$i_num,$i_port, $wires)=@_;
 	my $wire_string;
 	my $new_range;
-	if(length ($range)>1 ){
+	my $r= (!defined $range)? 0 : (length ($range)>1 )? 1 :0; 
+	
+	if($r ==1 ){
 		#replace parameter in range
 		$new_range = add_instantc_name_to_parameters($params_ref,$inst_name,$range);
 		$wire_string= "\twire\t[ $new_range ] $port_name;\n";				
@@ -620,10 +743,12 @@ sub gen_soc_instance_v{
 		
 		
 		#jtag_to_wb	
-		elsif( $intfc eq 'socket:jtag_to_wb[0]'){ #check JTAG connect parameter. if it is XILINX then connect it to jtag tap
+		elsif( $intfc =~ /socket:jtag_to_wb\[/){ #check JTAG connect parameter. if it is XILINX then connect it to jtag tap
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
 				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
+				
+				
 				my $JTAG_CONNECT=$soc->soc_get_module_param_value ($id,'JTAG_CONNECT');
 				
 				#print "$inst,$range,$type,$intfc_name,$intfc_port-> $JTAG_CONNECT;";
@@ -883,7 +1008,7 @@ source ./jtag_intfc.sh
 			my $OFSSET="0x00000000";
 			my $end=((1 << $aw)*($dw/8))-1;
 			my $BOUNDRY=sprintf("0x%08x", $end);			
-			if($jtag_connect =~ /ALTERA_JTAG_WB/){
+			if($jtag_connect =~ /ALTERA_JTAG_WB/ || $jtag_connect =~ /XILINX_JTAG_WB/){
 				$prog= "$prog \$JTAG_INTFC -n $JTAG_INDEX -s \"$OFSSET\" -e \"$BOUNDRY\" -i  \"$BINFILE\" -c";
 				#print "prog= $prog\n";
 				
@@ -892,7 +1017,7 @@ source ./jtag_intfc.sh
 				$prog= "$prog ".'>&2 echo'." \"ALTERA_IMCE runtime programming is not supported yet for programming  $instance_id\"\n";	
 				
 			} else{
-				#disabled check if its connected to jtag_wb via the bus
+				#check if its connected to jtag_wb via the bus
 				my 	$connect_id = $ram{$instance_id}{'connect'};
 				my $OFSSET = $ram{$instance_id}{'base'};
 				my $BOUNDRY = $ram{$instance_id}{'end'};
@@ -994,37 +1119,39 @@ sub soc_generate_verilatore{
 	
 	my @instances=$soc->soc_get_all_instances();
 	my $io_sim_v;
-	my $io_top_sim_v;
+	my $top_io_short;
 	my $core_id= $soc->object_get_attribute('global_param','CORE_ID');
 	$core_id= 0 if(!defined $core_id);
-	my $param_as_in_v="\tparameter\tCORE_ID=$core_id,
+	my $param_as_in_v_all="\tparameter\tCORE_ID=$core_id,
 \tparameter\tSW_LOC=\"$sw_path\"\n,";
 
 	my $param_pass_v="\t.CORE_ID(CORE_ID),\n\t.SW_LOC(SW_LOC)";
 	my $body_v;
 	
-	my ($param_v_all, $local_param_v_all, $wire_def_v_all, $inst_v_all, $plugs_assign_v_all, $sockets_assign_v_all,$io_full_v_all,$io_top_full_v_all,$system_v);
+	my ($param_v_all, $local_param_v_all, $wire_def_v_all, $inst_v_all, $plugs_assign_v_all, $sockets_assign_v_all,$io_full_v_all,$top_io_full_all,$system_v_all);
 	my $wires=soc->new_wires();
 	my $intfc=interface->interface_new();
 	
 	
 	foreach my $id (@instances){
-		my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$system_v)=gen_module_inst($id,$soc,\$io_sim_v,\$io_top_sim_v,\$param_as_in_v,$top_ip,$intfc,$wires,\$param_pass_v,\$system_v);
-		
+		my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$io_sim_v,
+		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
 		my $inst   	= $soc->soc_get_instance_name($id);
 		add_text_to_string(\$body_v,"/*******************\n*\n*\t$inst\n*\n*\n*********************/\n");
-		
+		add_text_to_string(\$param_as_in_v_all,",\n$param_as_in_v")   	if(defined ($param_as_in_v)); 
 		add_text_to_string(\$local_param_v_all,"$local_param_v\n")   	if(defined($local_param_v)); 
 		add_text_to_string(\$wire_def_v_all,"$wire_def_v\n")		 	if(defined($wire_def_v));
 		add_text_to_string(\$inst_v_all,$inst_v)					 	if(defined($inst_v));
 		add_text_to_string(\$plugs_assign_v_all,"$plugs_assign_v\n") 	if(defined($plugs_assign_v));
 		add_text_to_string(\$sockets_assign_v_all,"$sockets_assign_v\n")if(defined($sockets_assign_v));
-		add_text_to_string(\$io_full_v_all,"$io_full_v\n")				if(defined($io_full_v));
-		add_text_to_string(\$io_top_full_v_all,"$io_top_full_v\n")			if(defined($io_top_full_v));
+		add_text_to_string(\$io_full_v_all,"$io_full_v\n")				if(length($io_full_v)>3);
+		add_text_to_string(\$top_io_full_all,"$io_top_full_v\n")		if(length($io_top_full_v)>3);
 				
 		#print  "$param_v $local_param_v $wire_def_v $inst_v $plugs_assign_v $sockets_assign_v $io_full_v";
 			
 	}	
+	
+		
 	my ($addr_map,$addr_localparam,$module_addr_localparam)= generate_address_cmp($soc,$wires);
 
 	#add functions
@@ -1071,12 +1198,12 @@ sub soc_generate_verilatore{
 		${name}
 *********************/
 	
-module ${name} (\n $io_top_sim_v\n);\n";
+module ${name} (\n $top_io_short\n);\n";
 	my $ins= gen_soc_instance_v_no_modfy($soc,$soc_name,$param_pass_v);
 	add_text_to_string(\$verilator_v,$functions_all);	
-	add_text_to_string(\$verilator_v,$params_v."\n".$io_top_full_v_all);
+	add_text_to_string(\$verilator_v,$params_v."\n".$top_io_full_all);
 	add_text_to_string(\$verilator_v,$ins);
-	my ($readme,$prog)=gen_system_info($soc,$param_as_in_v); 
+	my ($readme,$prog)=gen_system_info($soc,$param_as_in_v_all); 
 	return ($verilator_v);
 
 
