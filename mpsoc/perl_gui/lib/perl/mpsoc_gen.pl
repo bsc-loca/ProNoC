@@ -1326,7 +1326,7 @@ sub generate_mpsoc{
     
     #copy clk setting hdl codes in src_verilog
 	my $project_dir	  = abs_path("$dir/../../"); 		 
-    my $sc_soc =get_source_set_top($mpsoc);  
+    my $sc_soc =get_source_set_top($mpsoc,'mpsoc');  
   	my ($file_ref,$warnings)= get_all_files_list($sc_soc,"hdl_files");		
 	copy_file_and_folders($file_ref,$project_dir,"$hw_dir/lib");
 	show_info($info,$warnings)     		if(defined $warnings);			
@@ -2103,7 +2103,9 @@ sub clk_setting_win2{
     my $back = def_image_button('icons/left.png',undef);
     my $diagram  = def_image_button('icons/diagram.png','Diagram');	
     my $ip = ip->lib_new ();
+    #print "get_top_ip(\$self,$type);\n";
     my $mpsoc_ip=get_top_ip($self,$type);
+  
 	$ip->add_ip($mpsoc_ip);			
     my $soc =get_source_set_top($self,$type);    
     my $infc = interface->interface_new(); 
@@ -2143,7 +2145,9 @@ sub clk_setting_win2{
 				}
 				if($redefine == 1){
 					my $ip = ip->lib_new ();
+					#print "get_top_ip(\$self,$type);\n";
 			    	my $mpsoc_ip=get_top_ip($self,$type);
+			    	
 					$ip->add_ip($mpsoc_ip);	
 			    	$soc ->object_add_attribute('SOURCE_SET',"IP",$mpsoc_ip);    	
 			    	$self->object_add_attribute('SOURCE_SET',"REDEFINE_TOP",0);  
@@ -2265,6 +2269,7 @@ sub get_top_ip{
 	}
 	else{
 		my %sources = get_soc_clk_source_list($self);
+	
 		foreach my $s (sort keys %sources){
 			my @ports = @{$sources{$s}} if (defined $sources{$s});
 			my $num=scalar @ports;
@@ -2397,7 +2402,9 @@ sub get_source_set_top{
     }
     if($redefine==1){
     	my $ip = ip->lib_new ();
+    	#print "get_top_ip(\$self,$type);\n";
     	my $mpsoc_ip=get_top_ip($self,$type);
+    	
 		$ip->add_ip($mpsoc_ip);	
     	$soc ->object_add_attribute('SOURCE_SET',"IP",$mpsoc_ip);    	
     	$self->object_add_attribute('SOURCE_SET',"REDEFINE_TOP",0);  

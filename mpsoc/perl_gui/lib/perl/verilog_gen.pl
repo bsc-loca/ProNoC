@@ -114,9 +114,8 @@ endmodule
 	$top_io_short_all=(defined $top_io_short_all)? "$top_io_short_all,\n$clk_io_sim" : $clk_io_sim;
 	$top_io_full_all=$top_io_full_all."\n$clk_io_full";            
     $top_io_pass_all=$top_io_pass_all.",\n$clk_assigned_port";
-    my ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out)
-	=get_soc_jtag_v($soc,$soc_name,$txview);
-	my $jtag_v=add_jtag_ctrl ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out,$txview);
+    my %jtag_info= get_soc_jtag_v($soc,$soc_name,$txview);
+	my $jtag_v=add_jtag_ctrl (\%jtag_info,$txview);
     
 	my $top_v = (defined $param_as_in_v_all )? "module ${soc_name}_top #(\n $param_as_in_v_all\n)(\n$top_io_short_all\n);\n": "module ${soc_name}_top (\n $top_io_short_all\n);\n";
 	
@@ -141,53 +140,69 @@ endmodule
 
 }	
 
-
+sub append_to_hash {
+	my ($ref,$att1,$att2,$data)=@_;
+	my %hash= %{$ref};
+	my $r = $hash{$att1}{$att2};
+	my @array= (defined  $r)? @{$r} : ();
+	push (@array,$data);
+	$hash{$att1}{$att2} = \@array;
+	return %hash;	
+}
 
 
 sub get_soc_jtag_v{
 	my ($soc,$soc_name,$txview)=@_;
 	
 	my $processor_en=0;
-	my $jtag_insts="";
-	my $altera_jtag_ctrl=0;
-	my $xilinx_jtag_ctrl=0;
-	my $xilinx_jtag_ctrl_in;
-	my $xilinx_jtag_ctrl_out;
+	#my $jtag_insts="";
+	#my $altera_jtag_ctrl=0;
+	#my $xilinx_jtag_ctrl=0;
+	#my $xilinx_jtag_ctrl_in;
+	#my $xilinx_jtag_ctrl_out;
 	my $jtag_inst_name="";
-	my $jtag_def="//Allow software to remote reset/enable the cpu via jtag
-\twire jtag_cpu_en, jtag_system_reset;	
-";
+	
 		
 	my $top=$soc->soc_get_top();
 	my @intfcs=$top->top_get_intfc_list();
 
+	my %jtag_info;
 	
 	foreach my $intfc (@intfcs){			
 		if( $intfc =~ /socket:jtag_to_wb\[/){ #check JTAG connect parameter. if it is XILINX then connect it to jtag tap
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
 				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);				
-				my $JTAG_CONNECT=$soc->soc_get_module_param_value ($id,'JTAG_CONNECT');				
+				my $JTAG_CONNECT=$soc->soc_get_module_param_value ($id,'JTAG_CONNECT');						
 				
 				if($JTAG_CONNECT eq '"XILINX_JTAG_WB"'){
+					my $chain=$soc->soc_get_module_param_value ($id,'JTAG_CHAIN');		
+					
 					$jtag_inst_name= $soc->soc_get_instance_name($id);					
 					my %params	= $soc->soc_get_module_param($id);
 					my $new_range = add_instantc_name_to_parameters(\%params,$id,$range);
-					$jtag_def=$jtag_def."\twire [ $new_range ] ${p};\n";				
+					%jtag_info=append_to_hash (\%jtag_info,$chain,'wire',"\twire [ $new_range ] ${p};");
+		#			$jtag_def=$jtag_def."\twire [ $new_range ] ${p};\n";				
 					if($type eq 'input'){
-						$jtag_insts=$jtag_insts."$id XILINX JTAG,";
-						$xilinx_jtag_ctrl++;
-						$xilinx_jtag_ctrl_in=(defined $xilinx_jtag_ctrl_in)? "$xilinx_jtag_ctrl_in,$p" : "$p";
+		#				$jtag_insts=$jtag_insts."$id XILINX JTAG,";
+						%jtag_info=append_to_hash (\%jtag_info,0,'inst',"$id XILINX JTAG");
+		#				$xilinx_jtag_ctrl++;
+						%jtag_info=append_to_hash (\%jtag_info,$chain,'xilinx_num',1);
+		#				$xilinx_jtag_ctrl_in=(defined $xilinx_jtag_ctrl_in)? "$xilinx_jtag_ctrl_in,$p" : "$p";
+						%jtag_info=append_to_hash (\%jtag_info,$chain,'input',$p);
 					}else {
-						$xilinx_jtag_ctrl_out=(defined $xilinx_jtag_ctrl_out)? "$xilinx_jtag_ctrl_out,$p" : "$p";
+		#				$xilinx_jtag_ctrl_out=(defined $xilinx_jtag_ctrl_out)? "$xilinx_jtag_ctrl_out,$p" : "$p";
+						%jtag_info=append_to_hash (\%jtag_info,$chain,'output',$p);
 					}				
 				}#'"XILINX_JTAG_WB"'
 			
 				elsif($JTAG_CONNECT eq '"ALTERA_JTAG_WB"'){
 					
 					if($type eq 'input'){
-						$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
-						$altera_jtag_ctrl++;
+		#				$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
+						%jtag_info=append_to_hash (\%jtag_info,0,'inst',"$id ALTERA JTAG");
+						%jtag_info=append_to_hash (\%jtag_info,0,'altera_num',1);
+		#				$altera_jtag_ctrl++;
 										
 					}
 				}#'"ALTERA_JTAG_WB"'	
@@ -196,8 +211,8 @@ sub get_soc_jtag_v{
 		}#if
 	
 	}
-		
-	return ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out);
+	#print Dumper \%jtag_info;	
+	return %jtag_info;
 }
 
 

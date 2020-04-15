@@ -37,24 +37,49 @@
 // synthesis translate_on
 
 
-module jtag_system_en (
+module jtag_system_en #(
+    parameter FPGA_VENDOR = "ALTERA"
+)
+(
 	cpu_en,
 	system_reset
 	
 );
 	output cpu_en, 	system_reset;
-	wire [1	:	0] jtag_out;
+		
+	generate
+	if(FPGA_VENDOR =="ALTERA")  begin : altera  
+	
+    	wire [1	:	0] jtag_out;    
+    	jtag_control_port #(
+    		.VJTAG_INDEX(127),
+    		.DW(2)	
+    
+    	)enable(
+    		.jtag_out(jtag_out)
+    	);
+    
+    	assign system_reset=jtag_out[0];
+    	assign cpu_en=~jtag_out[1];
 
-	jtag_control_port #(
-		.VJTAG_INDEX(127),
-		.DW(2)	
-
-	)enable(
-		.jtag_out(jtag_out)
-	);
-
-	assign system_reset=jtag_out[0];
-	assign cpu_en=~jtag_out[1];
+    end else begin :xilinx 
+        
+        xilinx_jtag_wb  #(
+            .JTAG_CHAIN(4),
+            .JWB_NUM(1)        
+        )
+        jwb
+        (
+            
+            .reset(1'b0),
+            .cpu_en(cpu_en),
+            .system_reset(system_reset),
+            .wb_to_jtag_all( ),
+            .jtag_to_wb_all( )
+        );      
+          
+    end    
+    endgenerate
 
 endmodule
 

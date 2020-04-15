@@ -20,7 +20,8 @@ set text "##---- Specify variables"
 
 set path0	[pwd]
 set path 	[pwd]/verilog
-	
+set uart        $path0/../../jtag_uart/pronoc_jtag_uart.v	
+#set jtag       $path0/../../jtag_wb/xilinx_jtag_wb.v	
 
 set comp_path 			$::env(PRONOC_WORK)/simulation
 set work_path			$comp_path/work
@@ -98,8 +99,8 @@ foreach a [list $path]  {
 		}    
         }
   }
-
-			
+vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $uart	
+#vlog  -work  $work_path  +acc=rn +incdir+$a+$path0  $jtag			
 		
 
 

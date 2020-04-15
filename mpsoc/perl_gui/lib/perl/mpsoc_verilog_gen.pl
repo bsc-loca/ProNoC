@@ -34,11 +34,10 @@ sub mpsoc_generate_verilog{
 	my $noc_v=gen_noc_v($mpsoc,$pass_param);
 	
 	#generate socs
-
-	my ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$jtag_def,$jtag_insts,
-	$altera_jtag_ctrl,$xilinx_jtag_ctrl,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out,  $clk_set)=gen_socs_v($mpsoc,$top_ip,$sw_dir,$txview);
 	
-	my $jtag_v=add_jtag_ctrl ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out,$txview);
+	my ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$clk_set,$href)=gen_socs_v($mpsoc,$top_ip,$sw_dir,$txview);
+	my %jtag_info=%{$href};
+	my $jtag_v=add_jtag_ctrl (\%jtag_info,$txview); 
 	
 	
 	#functions
@@ -118,55 +117,96 @@ sub add_sources_to_top_ip{
 
 
 sub add_jtag_ctrl {
-	my ($altera_jtag_ctrl,$jtag_insts,$xilinx_jtag_ctrl,$jtag_def,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out,$txview)=@_;
-	my $jtag_v=$jtag_def;
-	
-	
-	
-	if($altera_jtag_ctrl>0 && $xilinx_jtag_ctrl>0 ){
-		add_colored_info($txview,"Found JTAG comminication ports from differnt FPGA vendors:$jtag_insts. ",'red');			
-		
-	}elsif ($xilinx_jtag_ctrl>0){
-		$xilinx_jtag_ctrl_in  ="{$xilinx_jtag_ctrl_in}"  if($xilinx_jtag_ctrl != 1); 
-		$xilinx_jtag_ctrl_out ="{$xilinx_jtag_ctrl_out}" if($xilinx_jtag_ctrl != 1); 
-		
-	#	.JDw(${jtag_inst_name}_JDw),
-    #	.JAw(${jtag_inst_name}_JAw)		
-		
-	$jtag_v=$jtag_v."
-	xilinx_jtag_wb  #(
-		.JWB_NUM($xilinx_jtag_ctrl)
-		//.JDw(\${jtag_inst_name}_JDw),
-    	//.JAw(\${jtag_inst_name}_JAw)		
-		
-	)jwb(
-		
+	my ($ref,$txview)=@_;
+	my %jtag_info=%{$ref};
+
+	my $jtag_v="\t//Allow software to remote reset/enable the cpu via jtag
+\twire jtag_cpu_en, jtag_system_reset;	
+";
+	my @chains = (sort { $b <=> $a } keys  %jtag_info);
+	my $altera=0;
+	my $xilinx=0;
+	my $glob_en;
+	foreach my $c (@chains){
+		my $xilinx_jtag_ctrl_in;
+		my $xilinx_jtag_ctrl_out;
+		my $r = $jtag_info{$c}{'wire'};
+		my @array = (defined $r)? @{$r} :();		
+		my $wires_def = join ("\n",@array); 
+		$jtag_v=$jtag_v."\n//\tJtag chain $c Wire def\n$wires_def\n" if(@array);		
+		$r= $jtag_info{$c}{'altera_num'};
+		@array = (defined $r)? @{$r} :();	
+		my $altera_jtag_ctrl =(@array)? scalar @array : 0;
+		$r= $jtag_info{$c}{'xilinx_num'};
+		@array = (defined $r)? @{$r} :();	
+		my $xilinx_jtag_ctrl =(@array)? scalar @array : 0;
+		$altera+=$altera_jtag_ctrl;
+		$xilinx+=$xilinx_jtag_ctrl;
+		if ($xilinx_jtag_ctrl>0){
+			$r=$jtag_info{$c}{'input'};
+			@array = (defined $r)? @{$r} :();	
+			$xilinx_jtag_ctrl_in = ($xilinx_jtag_ctrl!=1)? '{'.join(',',@array).'}' : $array[0];
+			$r=$jtag_info{$c}{'output'};
+			@array = (defined $r)? @{$r} :();	
+			$xilinx_jtag_ctrl_out= ($xilinx_jtag_ctrl!=1)? '{'.join(',',@array).'}' : $array[0];
+			my $ctrl = (defined $glob_en)? "
+		.reset( ),
+		.cpu_en( ),
+	" : "//The global reset/enable signals are connected to the tap with the largest jtag chain number 
 		.reset(jtag_debug_reset_in),
 		.cpu_en(jtag_cpu_en),
+	";	
+			$glob_en=1;			
+			$jtag_v=$jtag_v."
+	xilinx_jtag_wb  #(
+		.JTAG_CHAIN($c),
+		.JWB_NUM($xilinx_jtag_ctrl)		
+	)jwb(		
+		$ctrl
 		.system_reset(jtag_system_reset),
 		.wb_to_jtag_all($xilinx_jtag_ctrl_out),
 		.jtag_to_wb_all($xilinx_jtag_ctrl_in)
 	);		
+";	
+			
 		
-";
+		}
 		
-	}elsif($altera_jtag_ctrl>0) {
-$jtag_v=$jtag_v."	
-	jtag_system_en jtag_en (
-		.cpu_en(jtag_cpu_en),
-		.system_reset(jtag_system_reset)
+	}#for
 	
-	);	
-";		
+	if($altera>0 && $xilinx>0){
+		my $r = $jtag_info{0}{'inst'};
+		my @array = (defined $r)? @{$r} :();	
+		my $inst=join ("\n\t",@array);
+		add_colored_info($txview,"Found JTAG comminication ports from differnt FPGA vendors:\n$inst.",'red');			
+	}
+	elsif($altera>0){
+		$jtag_v=$jtag_v."	
+		jtag_system_en #(
+			.FPGA_VENDOR(\"ALTERA\")
+		) jtag_en (
+			.cpu_en(jtag_cpu_en),
+			.system_reset(jtag_system_reset)
 		
-	}else{
-$jtag_v=$jtag_v."
-    //No jtag connection has found in the design	
-	assign jtag_cpu_en=1\'b0;
-	assign jtag_system_reset=1'b0;	
-";
+		);	
+	";		
 	}
 	
+	elsif($altera==0 && $xilinx==0){
+		$jtag_v=$jtag_v."
+    	//No jtag connection has found in the design	
+		jtag_system_en #(
+			.FPGA_VENDOR(FPGA_VENDOR)
+		) jtag_en (
+			.cpu_en(jtag_cpu_en),
+			.system_reset(jtag_system_reset)
+		
+		);	
+";	
+	
+	
+	}
+			
 return $jtag_v;	
 	
 }
@@ -436,21 +476,24 @@ sub gen_socs_v{
 	my $io_short=$sourc_short;
 	my $top_io_short="\tjtag_debug_reset_in";   
 	
-	my $jtag_def="// Allow software to remote reset/enable the cpu via jtag
-\twire jtag_cpu_en, jtag_system_reset;	
-\twire processors_en_anded_jtag = processors_en & jtag_cpu_en;
 	
-";
+#	my $jtag_def="// Allow software to remote reset/enable the cpu via jtag
+#\twire jtag_cpu_en, jtag_system_reset;	
+#\twire processors_en_anded_jtag = processors_en & jtag_cpu_en;
+#	
+#";
 	
 	my $io_full=$source_full;
 	my $top_io_full= "\tinput jtag_debug_reset_in;\n";   
 	my $top_io_pass="//";
-	 
-	my $altera_jtag_ctrl=0;
-	my $xilinx_jtag_ctrl=0; #if it becomes larger than 0 then add jtag to wb module 
-	my $jtag_insts="";
-	my $xilinx_jtag_ctrl_in="";
-	my $xilinx_jtag_ctrl_out=""; 
+	
+	my %jtag_info;
+	%jtag_info=append_to_hash (\%jtag_info,0,'wire',"wire processors_en_anded_jtag = processors_en & jtag_cpu_en;\n"); 
+	#my $altera_jtag_ctrl=0;
+	#my $xilinx_jtag_ctrl=0; #if it becomes larger than 0 then add jtag to wb module 
+	#my $jtag_insts="";
+	#my $xilinx_jtag_ctrl_in="";
+	#my $xilinx_jtag_ctrl_out=""; 
 	
 	   
 	my $socs_v=""; 
@@ -463,21 +506,21 @@ sub gen_socs_v{
 			my ($soc_name,$n,$soc_num)=$mpsoc->mpsoc_get_tile_soc_name($tile_num);
 			
 			if(defined $soc_name) {				
-				my ($soc_v,$en,$io_short1,$io_full1,$top_io_short1,$top_io_full1,$top_io_pass1,$jtag_def1,
-				$jtag_insts1, $altera_jtag_ctrl1,$xilinx_jtag_ctrl1,$xilinx_jtag_ctrl_in1, $xilinx_jtag_ctrl_out1)= 
-				gen_soc_v($mpsoc,$top_ip,$sw_dir,$soc_name,$tile_num,$soc_num,$txview);
+				my ($soc_v,$en,$io_short1,$io_full1,$top_io_short1,$top_io_full1,$top_io_pass1,$ref)= 
+				gen_soc_v($mpsoc,$top_ip,$sw_dir,$soc_name,$tile_num,$soc_num,$txview,\%jtag_info);
+				%jtag_info=%{$ref};
 				$socs_v=$socs_v.$soc_v;
 				$io_short    = $io_short    .$io_short1;
 				$io_full     = $io_full     .$io_full1;
 				$top_io_short= $top_io_short.$top_io_short1;
 				$top_io_full = $top_io_full. $top_io_full1;
 				$top_io_pass = $top_io_pass. $top_io_pass1;
-				$jtag_def    = $jtag_def    .$jtag_def1;
-				$jtag_insts=$jtag_insts.$jtag_insts1; 
-				$altera_jtag_ctrl+=$altera_jtag_ctrl1;
-				$xilinx_jtag_ctrl+=$xilinx_jtag_ctrl1;
-				$xilinx_jtag_ctrl_in =(length ($xilinx_jtag_ctrl_in )>2)? "$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_in1"  : $xilinx_jtag_ctrl_in.$xilinx_jtag_ctrl_in1;
-				$xilinx_jtag_ctrl_out=(length ($xilinx_jtag_ctrl_out)>2)? "$xilinx_jtag_ctrl_out,$xilinx_jtag_ctrl_out1" :$xilinx_jtag_ctrl_out.$xilinx_jtag_ctrl_out1;
+			#	$jtag_def    = $jtag_def    .$jtag_def1;
+			#	$jtag_insts=$jtag_insts.$jtag_insts1; 
+			#	$altera_jtag_ctrl+=$altera_jtag_ctrl1;
+			#	$xilinx_jtag_ctrl+=$xilinx_jtag_ctrl1;
+			#	$xilinx_jtag_ctrl_in =(length ($xilinx_jtag_ctrl_in )>2)? "$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_in1"  : $xilinx_jtag_ctrl_in.$xilinx_jtag_ctrl_in1;
+			#	$xilinx_jtag_ctrl_out=(length ($xilinx_jtag_ctrl_out)>2)? "$xilinx_jtag_ctrl_out,$xilinx_jtag_ctrl_out1" :$xilinx_jtag_ctrl_out.$xilinx_jtag_ctrl_out1;
 		
 				$processors_en|=$en;
 			
@@ -513,8 +556,7 @@ sub gen_socs_v{
    $top_io_short=$top_io_short.",\n$clk_io_sim";
    $top_io_full=$top_io_full."\n$clk_io_full";            
    $top_io_pass=$top_io_pass.",\n$clk_assigned_port";
-	return ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$jtag_def,
-	$jtag_insts,$altera_jtag_ctrl,$xilinx_jtag_ctrl,$xilinx_jtag_ctrl_in,$xilinx_jtag_ctrl_out,$clk_set);
+	return ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$clk_set,\%jtag_info);
 
 }
 
@@ -527,22 +569,19 @@ sub gen_socs_v{
 
 #$mpsoc,$top_ip,$sw_dir,$soc_name,$id,$soc_num,$txview
 sub   gen_soc_v{
-	my ($mpsoc,$top_ip,$sw_path,$soc_name,$tile_num,$soc_num,$txview)=@_;
+	my ($mpsoc,$top_ip,$sw_path,$soc_name,$tile_num,$soc_num,$txview,$href)=@_;
+	my %jtag_info = %{$href};
 		
 	my $io_short="";
 	my $io_full="";
 	my $top_io_short="";
 	my $top_io_full="";
 	my $top_io_pass="";
-	my $jtag_def="";
+
 	
 	
 	my $processor_en=0;
-	my $jtag_insts="";
-	my $altera_jtag_ctrl=0;
-	my $xilinx_jtag_ctrl=0;
-	my $xilinx_jtag_ctrl_in="";
-	my $xilinx_jtag_ctrl_out="";
+
 	
 	
 	
@@ -685,7 +724,7 @@ sub   gen_soc_v{
 				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
 				my $inst_name=$top->top_get_def_of_instance($id,'instance');
 				my $JTAG_CONNECT=  $topparams{"${inst_name}_JTAG_CONNECT"};
-				
+				my $chain=$topparams{"${inst_name}_JTAG_CHAIN"};	
 				#print Dumper (\%topparams);
 				#print "my $JTAG_CONNECT=  \$topparams{${inst_name}_JTAG_CONNECT}\n"; 
 				
@@ -696,21 +735,25 @@ sub   gen_soc_v{
 					my $port_def=(length ($new_range)>1 )? 	"\t$type\t [ $new_range    ] $io_port;\n": "\t$type\t\t\t$io_port;\n";			 
 					$top_ip->top_add_port("T${tile_num}" ,$io_port, $new_range ,$type,$intfc_name,$intfc_port);
 					
-					my $wire_def=(length ($new_range)>1 )? 	"\twire\t [ $new_range    ] $io_port;\n": "\twire\t\t\t$io_port;\n";			 
+					my $wire_def=(length ($new_range)>1 )? 	"\twire\t [ $new_range    ] $io_port;": "\twire\t\t\t$io_port;";			 
 				#	my $new_range = add_instantc_name_to_parameters(\%params,"${soc_name}_$soc_num",$range);
 					
-					$jtag_def=$jtag_def."$wire_def";
-					
+				#	$jtag_def=$jtag_def."$wire_def";
+					%jtag_info=append_to_hash (\%jtag_info,$chain,'wire',"$wire_def");
 					$soc_v=$soc_v.',' if ($i);	
 					$soc_v=$soc_v."\n\t\t.$p($io_port)";
 					$i=1;	
 					if($type eq 'input'){
 						
-						$jtag_insts=$jtag_insts."$id XILINX JTAG,";
-						$xilinx_jtag_ctrl++;
-						$xilinx_jtag_ctrl_in=(length ($xilinx_jtag_ctrl_in)>2)? "$xilinx_jtag_ctrl_in,$io_port" : "$io_port";
+						#$jtag_insts=$jtag_insts."$id XILINX JTAG,";
+						%jtag_info=append_to_hash (\%jtag_info,0,'inst',"$id XILINX JTAG");
+						#$xilinx_jtag_ctrl++;
+						%jtag_info=append_to_hash (\%jtag_info,$chain,'xilinx_num',1);
+						#$xilinx_jtag_ctrl_in=(length ($xilinx_jtag_ctrl_in)>2)? "$xilinx_jtag_ctrl_in,$io_port" : "$io_port";
+						%jtag_info=append_to_hash (\%jtag_info,$chain,'input',$io_port);
 					}else {
-						$xilinx_jtag_ctrl_out=(length($xilinx_jtag_ctrl_out)>2)? "$xilinx_jtag_ctrl_out,$io_port" : "$io_port";
+						#$xilinx_jtag_ctrl_out=(length($xilinx_jtag_ctrl_out)>2)? "$xilinx_jtag_ctrl_out,$io_port" : "$io_port";
+						%jtag_info=append_to_hash (\%jtag_info,$chain,'output',$io_port);
 					}
 					$io_short=$io_short.",\n\t$io_port";
 					$io_full=$io_full."$port_def";
@@ -724,8 +767,10 @@ sub   gen_soc_v{
 			
 				if($JTAG_CONNECT eq '"ALTERA_JTAG_WB"'){
 					if($type eq 'input'){
-						$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
-						$altera_jtag_ctrl++;
+						#$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
+						#$altera_jtag_ctrl++;
+						%jtag_info=append_to_hash (\%jtag_info,0,'inst',"$id ALTERA JTAG");
+						%jtag_info=append_to_hash (\%jtag_info,0,'altera_num',1);
 					}
 				}	
 				
@@ -761,12 +806,8 @@ sub   gen_soc_v{
 	
 	$soc_v=$soc_v."\n\t);\n";
 	
-	
-	
-	
-		
-	return ($soc_v,$processor_en,$io_short,$io_full,$top_io_short,	$top_io_full,$top_io_pass,$jtag_def,
-	$jtag_insts, $altera_jtag_ctrl,$xilinx_jtag_ctrl,$xilinx_jtag_ctrl_in, $xilinx_jtag_ctrl_out);
+			
+	return ($soc_v,$processor_en,$io_short,$io_full,$top_io_short,	$top_io_full,$top_io_pass,\%jtag_info);
 
 }
 

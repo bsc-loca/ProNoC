@@ -1609,9 +1609,6 @@ return $string;
 }
 
 
-
-
-
 sub soc_gen_top_ip{
 	my $soc=shift;
 	my $top_ip=ip_gen->top_gen_new();

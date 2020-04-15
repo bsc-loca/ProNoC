@@ -32,6 +32,7 @@
 // synthesis translate_on
 
 module xilinx_jtag_wb #(
+    parameter JTAG_CHAIN=4, // Only used for Virtex 4/5 devices. May be 1, 2, 3, or 4
     parameter JWB_NUM=1,
     parameter JDw=32,
     parameter JAw=32,
@@ -158,6 +159,7 @@ module xilinx_jtag_wb #(
     
     
     xilinx_jtag_mem_ctrl #(
+        .JTAG_CHAIN(JTAG_CHAIN),
         .Dw(JDw),
         .Aw(JAw),
         .INDEXw(JINDEXw)
@@ -246,6 +248,7 @@ endmodule
 
 
 module  xilinx_jtag_mem_ctrl #(
+    parameter JTAG_CHAIN=4,
     parameter Dw=32,
     parameter Aw=32,
     parameter INDEXw=8,
@@ -324,6 +327,7 @@ module  xilinx_jtag_mem_ctrl #(
   
     
     xilinx_jtag_ctrl #(
+        .JTAG_CHAIN(JTAG_CHAIN),
         .Dw(JDw),
         .INDEXw(INDEXw),
         .STw(STATUSw)
@@ -414,6 +418,7 @@ endmodule
  *  xilinx_jtag_ctrl
  * *************/
 module xilinx_jtag_ctrl #(
+    parameter JTAG_CHAIN=4,
     parameter Dw=32,    
     parameter INDEXw=8,
     parameter STw=8
@@ -467,18 +472,20 @@ module xilinx_jtag_ctrl #(
     wire      cdr ,sdr,udr;
     wire tlr;
     
-    xilinx_jtag_bscan      vjtag_inst (
-    
-    .tdo ( tdo ),   
-    .tck ( tck ),
-    .tdi ( tdi ),
-    
-    .tlr ( tlr ),
-    .cdr ( cdr ),
-    .sdr ( sdr ),
-    .udr ( udr )
-    
-    );
+    xilinx_jtag_bscan #(
+        .JTAG_CHAIN(JTAG_CHAIN)
+    )
+    vjtag_inst
+    (
+        .tdo ( tdo ),   
+        .tck ( tck ),
+        .tdi ( tdi ),
+        
+        .tlr ( tlr ),
+        .cdr ( cdr ),
+        .sdr ( sdr ),
+        .udr ( udr )    
+     );
       
     // internal registers 
    (* KEEP = "TRUE" *)  reg [BUFFw-1   :   0] jtag_shift_buffer,jtag_shift_buffer_next;
@@ -560,7 +567,11 @@ endmodule
  *  xilinx_jtag_bscan
  * ************/
 
-module xilinx_jtag_bscan (
+module xilinx_jtag_bscan #(   
+    // Only used for Virtex 4/5 devices
+    parameter JTAG_CHAIN = 4  // May be 1, 2, 3, or 4
+)
+(
     tck,
     tdo,
     tdi,
@@ -571,9 +582,7 @@ module xilinx_jtag_bscan (
     udr
 );
 
-// May be 1, 2, 3, or 4
-// Only used for Virtex 4/5 devices
-parameter jtag_chain = 4;
+
 
 input  tdo;
 output tck;
@@ -602,12 +611,12 @@ assign cdr = capture & sel;
 `ifdef  RUN_SIM
 
     BSCANE2_sim #(
-        .JTAG_CHAIN( jtag_chain) // Value for USER command.
+        .JTAG_CHAIN(JTAG_CHAIN) // Value for USER command.
     )
     bse2_inst
     (
         .CAPTURE(capture), // 1-bit output: CAPTURE output from TAP controller.
-        .DRCK(tck_i ), // 1-bit output: Gated TCK output. When SEL is asserted, DRCK toggles when CAPTURE or SHIFT are asserted.
+        .DRCK(tck), // 1-bit output: Gated TCK output. When SEL is asserted, DRCK toggles when CAPTURE or SHIFT are asserted.
         .RESET(tlr), // 1-bit output: Reset output for TAP controller.
         .RUNTEST(), // 1-bit output: Output asserted when TAP controller is in Run Test/Idle state.
         .SEL(sel), // 1-bit output: USER instruction active output.
@@ -619,11 +628,14 @@ assign cdr = capture & sel;
         .TDO(tdo) // 1-bit input: Test Data Output (TDO) input for USER function.
     );
 
-    BUFG clk_buf(tck, tck_i);
+  
 
 `else
+
+
+
     BSCANE2 #(
-        .JTAG_CHAIN( jtag_chain) // Value for USER command.
+        .JTAG_CHAIN(JTAG_CHAIN) // Value for USER command.
     )
     bse2_inst
     (
@@ -639,6 +651,9 @@ assign cdr = capture & sel;
         .UPDATE(update), // 1-bit output: UPDATE output from TAP controller
         .TDO(tdo) // 1-bit input: Test Data Output (TDO) input for USER function.
     );
+    
+ //     BUFG clk_buf(tck, tck_i);
+    
 `endif
   
 endmodule

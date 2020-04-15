@@ -15,7 +15,7 @@
 
 
 //#define DEBUG_JTAG
-//#define PRINT_TO_XSCT
+#define PRINT_TO_XSCT
 
 
 
@@ -186,10 +186,37 @@ void check_error_xsct_out(char * buf){
 
 
 
+void wait_for_pipe_output(char* buf,  const char * out){
+
+ while(1) {
+      //printf("check error\n"); 
+      fflush(to_xsct);
+      fgets(buf,200, from_xsct); 
+      check_error_xsct_out(buf);
+      //printf("b=%s\n",buf);
+
+      if(strstr(buf, out) != NULL) return;
+     // if(!strcmp(ptr, "\n")) break;
+      if(feof(from_xsct)) {
+         fprintf(stderr, "saw eof from xsct\n");
+         exit(1);
+      }
+      if(ferror(from_xsct)) {
+         fprintf(stderr, "saw error from xsct\n");
+         exit(1);
+      }
+	
+   } 
+
+
+} 
+
+
+
 int jtag_init( ) {
 
 #ifdef PRINT_TO_XSCT
-	to_xsct_file = fopen("to_xsct.txt", "a");
+	to_xsct_file = fopen("to_xsct.txt", "w");
 	if (to_xsct_file == NULL) {
         	printf("Error!");
         	exit(1);
@@ -226,21 +253,17 @@ int jtag_init( ) {
 
    while(1) {
      
-      fgets(buf, sizeof(buf), from_xsct);    
-      // ptr=remove_color_code_from_string(buf,sizeof(buf));
-      //printf("buf:%s",buf); 
-      check_error_xsct_out(buf);
+       fgets(buf, sizeof(buf), from_xsct);    
+       check_error_xsct_out(buf);
 	
 
-     if(!strcmp(buf, "\n")){
+      if(!strcmp(buf, "\n")){
          fgets(buf, sizeof(buf), from_xsct); 
           //fgets(buf, sizeof(buf), from_xsct); 
          if(!strcmp(buf, "\n")) break;   
 	
 	}
       
-      //if(strstr(buf, "Reserved.\n")!= NULL) break;
-      //if(!strcmp(ptr, "\n")) break;
      
       if(feof(from_xsct)) {
          fprintf(stderr, "saw eof from xsct\n");
@@ -252,51 +275,32 @@ int jtag_init( ) {
          exit(1);
       }
    } 
-  
- 
-   printf("connecting to jtag\n"); 
+   
+   printf("connecting to jtag  and select index %x\n",index_num);	 
    fprintf(to_xsct, "set jseq [jtag sequence]\n");
    fprintf(to_xsct, "connect\n");
-   fprintf(to_xsct, "jtag targets %u\n",jtag_target_number);
-   //fprintf(to_xsct, "jtag frequency 5000000");
-   fflush(to_xsct);
+   wait_for_pipe_output( buf, "tcfchan");
 
+   //printf("select jtag target\n"); 
+   fprintf(to_xsct, "jtag targets %u; puts done\n",jtag_target_number);
+   //fprintf(to_xsct, "jtag frequency 5000000");
+   wait_for_pipe_output( buf, "done");
+   //printf("Done!\n"); 
 #ifdef PRINT_TO_XSCT
    fprintf(to_xsct_file, "set jseq [jtag sequence]\n");
    fprintf(to_xsct_file, "connect\n");
-   fprintf(to_xsct_file, "jtag targets %u\n",jtag_target_number);
+   fprintf(to_xsct_file, "jtag targets %u puts done\n",jtag_target_number);
   
 #endif
 
 
 //
   
-   while(1) {
-      //printf("check error\n"); 
-      fgets(buf, sizeof(buf), from_xsct); 
-      check_error_xsct_out(buf);
+  
 	
 
-      //ptr=remove_color_code_from_string(buf,sizeof(buf));
-	
-
-      if(!strcmp(buf, "\n") || (strstr(buf, "xsct") != NULL) ) break;
-     // if(!strcmp(ptr, "\n")) break;
-      if(feof(from_xsct)) {
-         fprintf(stderr, "saw eof from xsct\n");
-         exit(1);
-      }
-      if(ferror(from_xsct)) {
-         fprintf(stderr, "saw error from xsct\n");
-         exit(1);
-      }
-	printf("b=%u\n",buf[0]);
-   } 
-	
-printf("select index %x\n",index_num);	 
 jtag_vindex(index_num);
-
-	printf("Initial is done!\n");	 
+ 
 	return 0;
   
 }

@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 		fprintf (stderr, "Error opening jtag IP with %d index num\n",index_num);
 		return -1;
 	}
-	printf("jtag is initilized\n");
+	//printf("jtag is initilized\n");
 	if (enable_binary_send) {
 		if( send_binary_file() == -1) return -1;
 	}
@@ -317,7 +317,7 @@ int send_binary_file(){
 	jtag_vdr(BIT_NUM, 0x1, &out);
 	jtag_vir(UPDATE_WB_ADDR);
 
-	printf("cpu is disabled.\n");
+	//printf("cpu is disabled.\n");
 
 	// change memory sizes from byte to word	
 	memory_offset_in_word=memory_offset /BYTE_NUM;
@@ -327,8 +327,7 @@ int send_binary_file(){
 	jtag_vdr(BIT_NUM, memory_offset_in_word, 0);
 	jtag_vir(UPDATE_WB_WR_DATA);
 	
-	printf ("start programing\n");
-	printf ("Will send %d values to memory\n",num);
+	printf ("start programing. Will send %d values to memory\n",num);
 	for(i=0;i<num;i++){
 		//printf("%d:%x\n",i,buffer[i]);
 		

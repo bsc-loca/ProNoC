@@ -262,7 +262,7 @@ If internal buffer overflows, the buffer content are displayed on simulator term
                                      'RxD_wr_sim',
                                      'RxD_ready_sim'
                                    ],
-                  'description' => 'The Altera JTAG UART core with Wishbone bus interface.',
+                  'description' => 'The Altera JTAG UART IP core (qsys_jtag_uart) with Wishbone bus interface.',
                   'version' => 20,
                   'unused' => {
                                 'plug:wb_slave[0]' => [
