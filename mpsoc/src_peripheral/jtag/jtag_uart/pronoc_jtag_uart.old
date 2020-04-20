@@ -5,11 +5,12 @@
 *
 * Description: 
 ***************************************/
-
+`define DONT_CHECK_SIM
 
 // synthesis translate_off
 `timescale 1ns / 1ps
 // synthesis translate_on
+
 
 
 module  pronoc_jtag_uart #(
@@ -20,27 +21,160 @@ module  pronoc_jtag_uart #(
     parameter Dw           =   32,
     //uart parameter    
     parameter BUFF_Aw      =   6,//max is 16
+    //uart simulator param 
+    parameter SIM_BUFFER_SIZE=100,
+    parameter SIM_WAIT_COUNT    =10000,
     //jtag parameter
+    parameter JTAG_CONNECT= "XILINX_JTAG_WB",//"ALTERA_JTAG_WB" ,"XILINX_JTAG_WB"  
     parameter JTAG_INDEX= 126,
     parameter JDw = 32,
     parameter JAw=32,
     parameter JINDEXw=8,
-    parameter JSTATUSw=8
+    parameter JSTATUSw=8,
+    parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+JDw+JAw : 1,
+    parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw  : 1
 
 )(
  //wb
   clk,
   reset,
-  wb_irq,
+ // wb_irq,
   wb_dat_o,
   wb_ack_o,
   wb_adr_i,
   wb_stb_i,
   wb_cyc_i,
   wb_we_i,
-  wb_dat_i,
-  dataavailable,
-  readyfordata,  
+  wb_dat_i,  
+  
+  //jtag 
+  wb_to_jtag,
+  jtag_to_wb
+);
+    
+    //wb
+    input            clk;
+    input            reset;
+  //  output           wb_irq;
+    output  [ Dw-1: 0] wb_dat_o;
+    output           wb_ack_o;
+    input            wb_adr_i;
+    input            wb_stb_i;
+    input            wb_cyc_i;
+    input            wb_we_i;
+    input   [ Dw-1: 0] wb_dat_i;
+   
+  
+    //jtag
+    output [WB2Jw-1  : 0] wb_to_jtag;
+    input  [J2WBw-1 : 0] jtag_to_wb; 
+`ifndef DONT_CHECK_SIM
+`ifdef MODEL_TECH 
+    `define RUN_SIM
+`endif
+`ifdef VERILATOR
+    `define RUN_SIM
+`endif
+`endif
+    
+`ifdef  RUN_SIM
+
+    altera_simulator_UART #(
+        .BUFFER_SIZE(SIM_BUFFER_SIZE),  
+        .WAIT_COUNT(SIM_WAIT_COUNT)    
+    )
+    Suart
+    (
+        .reset(reset),
+        .clk(clk),
+        .s_dat_i(wb_dat_i),
+        .s_sel_i(4'b1111),
+        .s_addr_i(wb_adr_i),  
+        .s_cti_i( ),
+        .s_stb_i(wb_stb_i),
+        .s_cyc_i(wb_cyc_i),
+        .s_we_i(wb_we_i),    
+        .s_dat_o(wb_dat_o),
+        .s_ack_o(wb_ack_o),
+        .RxD_din(8'd0),
+        .RxD_wr(8'd0),
+        .RxD_ready( )
+    );
+
+
+`else 
+    pronoc_jtag_uart_hw #(
+    	.Aw(Aw),
+    	.SELw(SELw),
+    	.TAGw(TAGw),
+    	.Dw(Dw),
+    	.BUFF_Aw(BUFF_Aw),
+    	.JTAG_CONNECT(JTAG_CONNECT),
+    	.JTAG_INDEX(JTAG_INDEX),
+    	.JDw(JDw),
+    	.JAw(JAw),
+    	.JINDEXw(JINDEXw),
+    	.JSTATUSw(JSTATUSw),
+    	.J2WBw(J2WBw),
+    	.WB2Jw(WB2Jw)
+    )
+    uart_hw
+    (
+    	.clk(clk),
+    	.reset(reset),
+    	.wb_dat_o(wb_dat_o),
+    	.wb_ack_o(wb_ack_o),
+    	.wb_adr_i(wb_adr_i),
+    	.wb_stb_i(wb_stb_i),
+    	.wb_cyc_i(wb_cyc_i),
+    	.wb_we_i(wb_we_i),
+    	.wb_dat_i(wb_dat_i),
+    	.wb_to_jtag(wb_to_jtag),
+    	.jtag_to_wb(jtag_to_wb)
+    );
+
+`endif
+
+
+endmodule
+
+
+
+
+
+
+
+
+module  pronoc_jtag_uart_hw #(
+    //wb parameter 
+    parameter Aw           =   1,
+    parameter SELw         =   4,
+    parameter TAGw         =   3,
+    parameter Dw           =   32,
+    //uart parameter    
+    parameter BUFF_Aw      =   6,//max is 16
+    //jtag parameter
+    parameter JTAG_CONNECT= "XILINX_JTAG_WB",//"ALTERA_JTAG_WB" ,"XILINX_JTAG_WB"  
+    parameter JTAG_INDEX= 126,
+    parameter JDw = 32,
+    parameter JAw=32,
+    parameter JINDEXw=8,
+    parameter JSTATUSw=8,
+    parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+JDw+JAw : 1,
+    parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw  : 1
+
+)(
+ //wb
+  clk,
+  reset,
+ // wb_irq,
+  wb_dat_o,
+  wb_ack_o,
+  wb_adr_i,
+  wb_stb_i,
+  wb_cyc_i,
+  wb_we_i,
+  wb_dat_i,  
   
   //jtag 
   wb_to_jtag,
@@ -69,16 +203,15 @@ module  pronoc_jtag_uart #(
         B = 2 ** (BUFF_Aw-1),
         B_1 = B-1,
         Bw = log2(B),
-        DEPTHw=log2(B+1),
-        J2WBw= 1+1+JDw+JAw,
-        WB2Jw=1+JSTATUSw+JINDEXw+1+JDw;
+        DEPTHw=log2(B+1);
+       
         
     localparam  [Bw-1   :   0] Bint =   B_1[Bw-1    :   0];
     
     //wb
     input            clk;
     input            reset;
-    output           wb_irq;
+  //  output           wb_irq;
     output  reg[ Dw-1: 0] wb_dat_o;
     output    reg       wb_ack_o;
     input            wb_adr_i;
@@ -86,12 +219,13 @@ module  pronoc_jtag_uart #(
     input            wb_cyc_i;
     input            wb_we_i;
     input   [ Dw-1: 0] wb_dat_i;
-    output           dataavailable;
-    output           readyfordata; //jtag
+   
   
     //jtag
     output [WB2Jw-1  : 0] wb_to_jtag;
     input  [J2WBw-1 : 0] jtag_to_wb; 
+
+
 
 
     //control reg 
@@ -149,8 +283,8 @@ module  pronoc_jtag_uart #(
                     end                
                 end
                 CONTROL_REG:begin                
-                    // set the bits of control reg
-                
+                    // set the bits of control reg. //TODO add intrrupt control registers
+                    wb_ack_o_next =1'b1;
                 end
                 endcase
         end //sa_stb_i && sa_we_i
@@ -161,10 +295,8 @@ module  pronoc_jtag_uart #(
                     wb_dat_o[15] = wb_rdat_valid;
                     wb_ack_o_next =1'b1;
                     if(~jtag_fifo_empty)begin
-                        fifo_to_jtag_re=1'b1;
-                                            
-                    end
-                
+                        fifo_to_jtag_re=1'b1;                                            
+                    end                
                 end
                 CONTROL_REG:begin                
                     // read control reg
@@ -177,18 +309,19 @@ module  pronoc_jtag_uart #(
     
     reg jtag_to_fifo_we_next;
   
-   reg stb1,stb2;
-    wire valid = stb1 & ~stb2;
+    reg stb1,stb2;
+    wire jtag_stb_valid = stb1 & ~stb2;// fix jtag clock diffrence
   
     always @(*) begin
         jtag_to_fifo_we_next=1'b0;
         jtag_ack_o_next =1'b0;
         fifo_to_wb_re=1'b0;
-        if(valid) begin 
+        if(jtag_stb_valid) begin 
             if(~wb_fifo_empty) fifo_to_wb_re=1'b1;//make one cycle delay for wr enable
-            jtag_ack_o_next =1'b1;       
+             jtag_ack_o_next =1'b1;       
             if( ~jtag_fifo_full && jtag_to_fifo_dat[7:0]!=0) jtag_to_fifo_we_next=1'b1;
-        end     
+        end 
+	
     end
     
    
@@ -212,10 +345,7 @@ module  pronoc_jtag_uart #(
             else if(jtag_ack_o ) jtag_rdat_valid<=1'b0;
             
             if(~jtag_fifo_empty) wb_rdat_valid<=1'b1;
-            else if(wb_ack_o ) wb_rdat_valid<=1'b0;
-            
-            
-            
+            else if(wb_ack_o ) wb_rdat_valid<=1'b0;           
             
         end
     end
@@ -245,12 +375,50 @@ module  pronoc_jtag_uart #(
     	.clk   (clk)    	
     );
 
+   
+   generate  
+   if(JTAG_CONNECT == "XILINX_JTAG_WB")begin: xilinx_jwb 
+        assign wb_to_jtag = {jtag_status_o,jtag_ack_o,jtag_dat_o,jtag_index_o,clk};
+        assign {jtag_addr_i,jtag_stb_i,jtag_we_i,jtag_dat_i} = jtag_to_wb;
+   end else  if(JTAG_CONNECT == "AlTERA_JTAG_WB")begin: altera_jwb 
+   
+        vjtag_wb #(
+            .VJTAG_INDEX(JTAG_INDEX),
+            .DW(JDw),
+            .AW(JAw),
+            .SW(JSTATUSw),
+        
+            //wishbone port parameters
+            .M_Aw(Aw),
+            .TAGw(TAGw)
+        )
+        vjtag_inst
+        (
+            .clk(clk),
+            .reset(reset),  
+            .status_i(jtag_status_o), 
+             //wishbone master interface signals
+            .m_sel_o(),
+            .m_dat_o(jtag_dat_i),
+            .m_addr_o(jtag_addr_i),
+            .m_cti_o(),
+            .m_stb_o(jtag_stb_i),
+            .m_cyc_o(),
+            .m_we_o(jtag_we_i),
+            .m_dat_i(jtag_dat_o),
+            .m_ack_i(jtag_ack_o)     
+        
+        );
+   
+   
+        assign wb_to_jtag[0] = clk;
+   end
+   endgenerate 
+    
     assign wb_to_fifo_addr = (wb_to_fifo_we) ? {1'b0,wb_wr_ptr} : {1'b1,wb_rd_ptr};
     assign jtag_to_fifo_addr = (jtag_to_fifo_we) ? {1'b1,jtag_wr_ptr} : {1'b0,jtag_rd_ptr};
     assign jtag_status_o=0;
     assign jtag_index_o = JTAG_INDEX; 
-    assign wb_to_jtag = {jtag_status_o,jtag_ack_o,jtag_dat_o,jtag_index_o,clk};
-    assign {jtag_addr_i,jtag_stb_i,jtag_we_i,jtag_dat_i} = jtag_to_wb;
     assign jtag_to_fifo_dat = jtag_dat_i[7:0]; 
     reg [7:0] jtag_rd_dat;
     always @(posedge clk)begin 
@@ -279,9 +447,9 @@ module  pronoc_jtag_uart #(
        end
        else begin
           if (wb_to_fifo_we) wb_wr_ptr <= (wb_wr_ptr==Bint)?   {Bw{1'b0}} : wb_wr_ptr + 1'b1;
-          if (fifo_to_wb_re & valid) jtag_rd_ptr <= (jtag_rd_ptr==Bint)?   {Bw{1'b0}} : jtag_rd_ptr + 1'b1;
-          if (wb_to_fifo_we & ~(fifo_to_wb_re &valid)) wb_to_jtag_depth <=  wb_to_jtag_depth + 1'b1;
-          else if (~wb_to_fifo_we & (valid & fifo_to_wb_re)) wb_to_jtag_depth <=    wb_to_jtag_depth - 1'b1;
+          if (fifo_to_wb_re ) jtag_rd_ptr <= (jtag_rd_ptr==Bint)?   {Bw{1'b0}} : jtag_rd_ptr + 1'b1;
+          if (wb_to_fifo_we & ~(fifo_to_wb_re )) wb_to_jtag_depth <=  wb_to_jtag_depth + 1'b1;
+          else if (~wb_to_fifo_we & ( fifo_to_wb_re)) wb_to_jtag_depth <=    wb_to_jtag_depth - 1'b1;
        end
     end
     
@@ -301,10 +469,10 @@ module  pronoc_jtag_uart #(
           jtag_to_wb_depth  <= {DEPTHw{1'b0}};
        end
        else begin
-          if (jtag_to_fifo_we & valid) jtag_wr_ptr <= (jtag_wr_ptr==Bint)?   {Bw{1'b0}} : jtag_wr_ptr + 1'b1;
+          if (jtag_to_fifo_we ) jtag_wr_ptr <= (jtag_wr_ptr==Bint)?   {Bw{1'b0}} : jtag_wr_ptr + 1'b1;
           if (fifo_to_jtag_re) wb_rd_ptr <= (wb_rd_ptr==Bint)?   {Bw{1'b0}} : wb_rd_ptr + 1'b1;
-          if (jtag_to_fifo_we & valid & ~fifo_to_jtag_re) jtag_to_wb_depth <=  jtag_to_wb_depth + 1'b1;
-          else if (~(jtag_to_fifo_we & valid) & fifo_to_jtag_re) jtag_to_wb_depth <=    jtag_to_wb_depth - 1'b1;
+          if (jtag_to_fifo_we  & ~fifo_to_jtag_re) jtag_to_wb_depth <=  jtag_to_wb_depth + 1'b1;
+          else if (~(jtag_to_fifo_we ) & fifo_to_jtag_re) jtag_to_wb_depth <=    jtag_to_wb_depth - 1'b1;
        end
     end
     

@@ -107,7 +107,7 @@ module xilinx_jtag_wb #(
             assign  jtag_sel_onehot[i] = (wb_to_jtag_index_all [i] == jtag_to_wb_index);
             assign  stb_all[i] = jtag_to_wb_stb & jtag_sel_onehot[i];           
             assign  jtag_to_wb_all[(i+1)*J2WBw-1 : i*J2WBw] =jtag_to_wb[i];
-            assign  stb_masked_all[i] = stb_all[i] & ~wb_to_jtag_ack_all_latched[i];
+            assign  stb_masked_all[i] = stb_all[i] & jtag_sel_onehot[i];// & ~wb_to_jtag_ack_all_latched[i];
             assign  jtag_to_wb[i] = {jtag_to_wb_addr,stb_masked_all[i],jtag_to_wb_we,jtag_to_wb_dat};
       
         
@@ -523,14 +523,22 @@ module xilinx_jtag_ctrl #(
          jtag_shift_buffer<=jtag_shift_buffer_next;  
     end   
 
+      reg mask;
 
       always @(tck )    begin                 
             if( udr)begin 
                 if(update_index_flag) begin 
                     index <= jtag_shift_buffer[INDEXw-1 : 0];
                     ir<={Iw{1'b0}};
-                end else if(update_ir_flag   ) ir    <= jtag_shift_buffer[Iw-1 : 0];
-                if(update_dat_flag  ) data_out <= jtag_shift_buffer[Dw-1 : 0];
+                    mask<=1'b1;
+                end else if(update_ir_flag   )begin 
+                    ir    <= jtag_shift_buffer[Iw-1 : 0];
+                    mask<=1'b1;
+                end    
+                if(update_dat_flag  )begin 
+                    data_out <= jtag_shift_buffer[Dw-1 : 0];
+                    mask<=1'b0;
+                end    
             end            
     end   
    // assign data_out = jtag_shift_buffer[Dw-1 : 0];
@@ -554,7 +562,7 @@ module xilinx_jtag_ctrl #(
         //end else begin
             wb_wr_addr_en=(ir== UPDATE_WB_ADDR || ir== UPDATE_WB_RD_DATA) &  udr & update_dat_flag;
             wb_wr_data_en=((ir== UPDATE_WB_WR_DATA|| ir==UPDATE_CTRL) &  udr & update_dat_flag);  
-            wb_rd_data_en=((ir== UPDATE_WB_RD_DATA) &  cdr );
+            wb_rd_data_en=((ir== UPDATE_WB_RD_DATA) &  cdr  & ~mask);
         //end   
     end
     
@@ -616,12 +624,12 @@ assign cdr = capture & sel;
     bse2_inst
     (
         .CAPTURE(capture), // 1-bit output: CAPTURE output from TAP controller.
-        .DRCK(tck), // 1-bit output: Gated TCK output. When SEL is asserted, DRCK toggles when CAPTURE or SHIFT are asserted.
+        .DRCK(), // 1-bit output: Gated TCK output. When SEL is asserted, DRCK toggles when CAPTURE or SHIFT are asserted.
         .RESET(tlr), // 1-bit output: Reset output for TAP controller.
         .RUNTEST(), // 1-bit output: Output asserted when TAP controller is in Run Test/Idle state.
         .SEL(sel), // 1-bit output: USER instruction active output.
         .SHIFT(shift), // 1-bit output: SHIFT output from TAP controller.
-        .TCK(), // 1-bit output: Test Clock output. Fabric connection to TAP Clock pin.
+        .TCK(tck), // 1-bit output: Test Clock output. Fabric connection to TAP Clock pin.
         .TDI(tdi), // 1-bit output: Test Data Input (TDI) output from TAP controller.
         .TMS( ), // 1-bit output: Test Mode Select output. Fabric connection to TAP.
         .UPDATE(update), // 1-bit output: UPDATE output from TAP controller

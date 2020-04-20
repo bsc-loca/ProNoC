@@ -75,10 +75,6 @@ sub def_h_labeled_combo_scaled{
 		my $combo= gen_combo($combo_list, $combo_active_pos);
 		$table->attach_defaults ($label, 0, $lable_w, 0, 1);
 		$table->attach_defaults ($combo, 1, $lable_w+$comb_w, 0, 1);
-
-		
-
-
 		return ($table,$combo);
 }	
 
@@ -273,7 +269,6 @@ sub def_title_box{
 	foreach my $label (@labels){
 		my $labelbox=box_label($homogeneous, $spacing, $label);
 		$box->pack_start( $labelbox, FALSE, FALSE, 3);
-
 	}
 	return $box;
 }	
@@ -284,17 +279,12 @@ sub gen_label_help {
 	my $box = def_hbox(FALSE, 0);
 	my $label= gen_label_in_left($label_name);
 	my $button=def_image_button("icons/help.png");
-		
 	$button->signal_connect("clicked" => sub {message_dialog($help);});
-			
 	$box->pack_start( $label, FALSE, FALSE, 0);
 	$box->pack_start( $button, FALSE, FALSE, 0);
 	$box->set_spacing (0);
 	$box->show_all;
-	
 	return $box;
-
-
 }
 
 
@@ -303,8 +293,6 @@ sub gen_label_help {
 ##############
 # button
 #############
-
-
 
 sub button_box{
 # create a new button

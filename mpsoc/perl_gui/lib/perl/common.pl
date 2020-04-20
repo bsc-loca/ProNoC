@@ -5,6 +5,8 @@ use String::Similarity;
 use Proc::Background;
 use Time::HiRes qw( usleep ualarm gettimeofday tv_interval nanosleep  clock_gettime clock_getres clock_nanosleep clock stat );
 use IO::CaptureOutput qw(capture qxx qxy);
+use List::MoreUtils qw(uniq);
+use POSIX qw(ceil floor);
 
 use Cwd 'abs_path';
  
@@ -388,6 +390,17 @@ sub check_scolar_exist_in_array{
 	return 0
 }
 
+sub get_item_pos{#if not in return 0
+		my ($item,@list)=@_;
+		my $pos=0;
+		foreach my $p (@list){
+				#print "$p eq $item\n";
+				if ($p eq $item){return $pos;}
+				$pos++;
+		}	
+		return 0;
+	
+}	
 
 sub get_scolar_pos{
 	my ($item,@list)=@_;
@@ -399,7 +412,18 @@ sub get_scolar_pos{
 		$i++;
 	}	
 	return $pos;	
-}	
+}
+
+sub get_pos{
+        my ($item,@list)=@_;
+        my $pos=0;
+        foreach my $p (@list){
+                #print "$p eq $item\n";
+                if ($p eq $item){return $pos;}
+                $pos++;
+        }    
+        return undef;
+}    	
 
 sub remove_scolar_from_array{
 	my ($array_ref,$item)=@_;
@@ -796,6 +820,51 @@ sub run_cmd_in_back_ground_get_stdout
 }		
 	
 
+#############
+# object
+############
 
-1
-	 
+sub object_add_attribute{
+	my ($self,$attribute1,$attribute2,$value)=@_;
+	if(!defined $attribute2){$self->{$attribute1}=$value;}
+	else {$self->{$attribute1}{$attribute2}=$value;}
+
+}
+
+
+
+sub object_get_attribute{
+	my ($self,$attribute1,$attribute2)=@_;
+	if(!defined $attribute2) {return $self->{$attribute1};}
+	return $self->{$attribute1}{$attribute2};
+}
+
+
+sub object_add_attribute_order{
+	my ($self,$attribute,@param)=@_;
+	$self->{'parameters_order'}{$attribute}=[] if (!defined $self->{parameters_order}{$attribute});	
+	foreach my $p (uniq @param){
+		push (@{$self->{parameters_order}{$attribute}},$p);
+	}
+}
+
+
+sub object_get_attribute_order{
+	my ($self,$attribute)=@_;
+	return undef unless(defined $self->{parameters_order}{$attribute});
+	my @order=@{$self->{parameters_order}{$attribute}};
+	return uniq(@order)
+}
+
+sub object_remove_attribute{
+	my ($self,$attribute1,$attribute2)=@_;
+	if(!defined $attribute2){
+		delete $self->{$attribute1} if ( exists( $self->{$attribute1})); 
+	}
+	else {
+		delete $self->{$attribute1}{$attribute2} if ( exists( $self->{$attribute1}{$attribute2})); ;
+	}
+}
+
+
+1	 

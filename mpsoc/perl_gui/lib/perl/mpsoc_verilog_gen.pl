@@ -150,20 +150,24 @@ sub add_jtag_ctrl {
 			@array = (defined $r)? @{$r} :();	
 			$xilinx_jtag_ctrl_out= ($xilinx_jtag_ctrl!=1)? '{'.join(',',@array).'}' : $array[0];
 			my $ctrl = (defined $glob_en)? "
-		.reset( ),
+		.system_reset( ),
 		.cpu_en( ),
 	" : "//The global reset/enable signals are connected to the tap with the largest jtag chain number 
-		.reset(jtag_debug_reset_in),
+		.system_reset(jtag_system_reset),
 		.cpu_en(jtag_cpu_en),
 	";	
+	
+		
 			$glob_en=1;			
 			$jtag_v=$jtag_v."
 	xilinx_jtag_wb  #(
 		.JTAG_CHAIN($c),
 		.JWB_NUM($xilinx_jtag_ctrl)		
-	)jwb(		
+	)
+	jwb_$c
+	(		
 		$ctrl
-		.system_reset(jtag_system_reset),
+		.reset(jtag_debug_reset_in),		
 		.wb_to_jtag_all($xilinx_jtag_ctrl_out),
 		.jtag_to_wb_all($xilinx_jtag_ctrl_in)
 	);		

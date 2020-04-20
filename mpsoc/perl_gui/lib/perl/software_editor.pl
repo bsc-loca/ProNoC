@@ -52,10 +52,6 @@ sub build_gui {
 
 	
 	my $table= def_table(2,10,FALSE);
-	
-
-
-
 	my $hpaned = Gtk2::HPaned -> new;
 	my $vpaned = Gtk2::VPaned -> new;
 	$table->attach_defaults ($vpaned,0, 10, 0,1);
@@ -66,7 +62,7 @@ sub build_gui {
 	my $scwin_dirs = Gtk2::ScrolledWindow -> new;
 	$scwin_dirs -> set_policy ('automatic', 'automatic');
 	$hpaned -> pack1 ($scwin_dirs, TRUE, TRUE);
-	$hpaned ->set_position ($width*.15);
+	$hpaned -> set_position ($width*.15);
 
 	my $scwin_text = Gtk2::ScrolledWindow -> new;
 	$scwin_text -> set_policy ('automatic', 'automatic');

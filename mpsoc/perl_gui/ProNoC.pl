@@ -1,21 +1,15 @@
 #!/usr/bin/perl -w
-
 package ProNOC;
 use Term::ANSIColor qw(:constants);
-
 
 #add home dir in perl 5.6
 use FindBin;
 use lib $FindBin::Bin;
-
-
 use Glib qw/TRUE FALSE/;
-
 
 use Gtk2;
 use strict;
 use warnings;
-
 use Getopt::Long;
 
 
@@ -29,43 +23,35 @@ require "emulator.pl";
 require "simulator.pl";
 require "trace_gen.pl";
 require "network_maker.pl";
+require "uart.pl";
 
 use File::Basename;
-
-
 our $VERSION = '1.9.1'; 
 our $END_YEAR= "2019";
-
 
 sub main{
 	# check if envirement variables are defined
 	my $project_dir	  = get_project_dir(); #mpsoc dir addr
 	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/Paths";
-
 	if (-f 	$paths_file){#} && defined $ENV{PRONOC_WORK} ) {
 		my $paths= do $paths_file;
-		main_window();
-		
+		main_window();		
 	}
 	else{
 		setting(1);
-	}
-	
+	}	
 }
 
 sub set_path_env{
 	my $project_dir	  = get_project_dir(); #mpsoc dir addr
 	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/Paths";
 	my $paths= do $paths_file;
-
 	my $pronoc_work = $paths->object_get_attribute("PATH","PRONOC_WORK");	
 	my $quartus = $paths->object_get_attribute("PATH","QUARTUS_BIN");
 	my $vivado  = $paths->object_get_attribute("PATH","VIVADO_BIN");
 	my $sdk     = $paths->object_get_attribute("PATH","SDK_BIN");
-	
-	
+		
 	my $modelsim = $paths->object_get_attribute("PATH","MODELSIM_BIN");
-
 	$ENV{'PRONOC_WORK'}= $pronoc_work if( defined $pronoc_work);
 	$ENV{'QUARTUS_BIN'}= $quartus if( defined $quartus);
 	$ENV{'VIVADO_BIN'}= $vivado if( defined $vivado);
@@ -77,8 +63,6 @@ sub set_path_env{
 			mkpath("$pronoc_work/simulate",1,01777) unless -d "$pronoc_work/simulate";	
 			mkpath("$pronoc_work/tmp",1,01777) unless -d "$pronoc_work/tmp";			
 	}}
-	
-	
 	
 	#add quartus_bin to PATH linux envirement if it does not exist in PATH
 	my $add;
@@ -157,6 +141,7 @@ sub main_window{
  my @menu_items = (
   [ "/_File",            undef,        undef,          0, "<Branch>" ],
   [ "/File/_Setting",       "<control>O", sub { setting(0); },  0,  undef ],
+  [ "/File/_UART Terminal", "<control>U", sub { uart(0); },  0,  undef ],
   [ "/File/_Quit",       "<control>Q", sub { gui_quite(); },  0, "<StockItem>", 'gtk-quit' ],
   [ "/_View",                  undef, undef,         0, "<Branch>" ],
   [ "/_View/_ProNoC System Generator",  "<control>1", 	sub{ open_page($notebook,$noteref,$table,'Generator'); } ,	0,	undef ],
@@ -221,10 +206,6 @@ sub open_page{
 }
 
 
-
-
-
-
 sub user_help{ 
     my $dir = Cwd::getcwd();
     my $help="$dir/../../doc/ProNoC_User_manual.pdf";	
@@ -278,13 +259,10 @@ sub setting{
 simulation models using Modelsim software", param_parent=>'PATH',ref_delay=>undef },
 		);	
 
-
 	foreach my $d (@paths) {
 		#$mpsoc,$name,$param, $default,$type,$content,$info, $table,$row,$column,$show,$attribut1,$ref_delay,$new_status,$loc
 		($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,"vertical");
 	}
-
-
 
 	#title		
 	my $title2=gen_label_in_center("Toolchain");
@@ -293,16 +271,10 @@ simulation models using Modelsim software", param_parent=>'PATH',ref_delay=>unde
 	$table->attach ($separator2 , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
 
 	#check which toolchain is available in the system
-	$table->attach (check_toolchains($self) , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
+	$table->attach_defaults (check_toolchains($self) , 0, 10 , $row, $row+1);#,'shrink','shrink',2,2);	$row++;
 	
-	
-	
-	
-
-
-
 	my $ok = def_image_button('icons/select.png','OK');
-	my $mtable = def_table(10, 1, TRUE);
+	my $mtable = def_table(10, 1, FALSE);
 
 	$mtable->attach_defaults($scrolled_win,0,1,0,9);
 	$mtable-> attach ($ok , 0, 1,  9, 10,'expand','shrink',2,2); 
@@ -399,6 +371,12 @@ sub check_toolchains{
 }
 
 
+sub uart {
+	uart_main();	
+}
+
+
+
 sub generate_main_notebook {
 	my $mode =shift;
 	
@@ -425,7 +403,6 @@ sub generate_main_notebook {
 		$notebook->append_page ($mpsocgen,$lable4);#Gtk2::Label->new_with_mnemonic ("  _NoC based MPSoC generator  "));	
 		$lable4->show_all;	
 		
-		
 	
 	} elsif($mode eq 'Networkgen'){
 	
@@ -436,8 +413,7 @@ sub generate_main_notebook {
 	
 	
 	}else{
-		
-		
+			
 		
 		my $trace_gen= trace_gen_main('task');
 		my $lable1=def_image_label("icons/trace.png"," _Trace generator ",1);
@@ -470,8 +446,6 @@ sub generate_main_notebook {
 
 		return ($scrolled_win,$notebook);	
 }
-
-
 
 
 

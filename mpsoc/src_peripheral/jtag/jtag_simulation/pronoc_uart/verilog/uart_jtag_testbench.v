@@ -108,9 +108,9 @@ module  uart_jtag_testbench #(
     input [0:7] data;        
     begin
         jtag_wr_wb_reg(0,data);
-        if(captured_jtag_dat[7:0]!=0) $display("jtag read %s",captured_jtag_dat[7:0]);
+        if(captured_jtag_dat[7:0]!=0) $display("%tjtag read %s",$time,captured_jtag_dat[7:0]);
         jtag_wspace = captured_jtag_dat[23:8];
-        #100;
+        #1021;
     end
     endtask   
     
@@ -163,7 +163,7 @@ module  uart_jtag_testbench #(
        jtag_to_wb_we =1'b0;  
        capture_jtag_dat_o=1'b0;
        jtag_wspace=2;
-       #300
+       #300000
        repeat(15) begin
             jtag_capture(0);
        end   

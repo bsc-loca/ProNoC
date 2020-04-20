@@ -31,7 +31,7 @@ module  testbench(
      parameter JAw = 32;
      parameter JINDEXw = 8;
      parameter JSTATUSw = 8;
-     parameter BUFF_Aw =    4;
+     parameter BUFF_Aw =    6;
      parameter SELw =    4;
      parameter Aw =    1;
      parameter Dw =    32;
@@ -75,7 +75,7 @@ module  testbench(
     wire  [J2WBw-1 : 0] jtag_to_wb; 
 
 
-    pronoc_jtag_uart #(
+    pronoc_jtag_uart_hw #(
       	.BUFF_Aw(BUFF_Aw),
     	.JTAG_INDEX(JTAG_INDEX),
     	.JDw(JDw),
@@ -87,7 +87,7 @@ module  testbench(
     (
     	.clk(clk),
     	.reset(reset),
-    	.wb_irq(wb_irq),
+    	//.wb_irq(wb_irq),
     	.wb_dat_o(wb_dat_o),
     	.wb_ack_o(wb_ack_o),
     	.wb_adr_i(wb_adr_i),
@@ -95,8 +95,8 @@ module  testbench(
     	.wb_cyc_i(wb_cyc_i),
     	.wb_we_i(wb_we_i),
     	.wb_dat_i(wb_dat_i),
-    	.dataavailable(dataavailable),
-    	.readyfordata(readyfordata),
+    	//.dataavailable(dataavailable),
+    	//.readyfordata(readyfordata),
     	.wb_to_jtag(wb_to_jtag),
     	.jtag_to_wb(jtag_to_wb)
     );
@@ -152,6 +152,7 @@ module  testbench(
        capture_wb_dat_o=1'b1;
        @(posedge clk)#1;
        capture_wb_dat_o=1'b0; 
+       @(posedge clk)#10;    
       // $display("%u",captured_wb_dat); 
     end
     endtask
@@ -169,7 +170,7 @@ module  testbench(
        @(posedge wb_ack_o)#1
        wb_stb_i= 1'b0;
        wb_cyc_i= 1'b0; 
-       @(posedge clk)#1;
+       @(posedge clk)#1000;
     end
     endtask
     
@@ -215,7 +216,7 @@ module  testbench(
     
     initial begin 
         clk=1'b0;
-        forever clk = #5 ~clk;    
+        forever clk = #4 ~clk;    
     end
 
 
@@ -232,11 +233,13 @@ module  testbench(
         #10
         @(posedge clk ) 
               
-        uart_puts("hi every one! This is a test messsage\n");
+        uart_puts("hi every one! This is a test message\n");
        
         repeat (6)begin    uart_getc;        end
         
         uart_puts("Also this one!");
+uart_puts("hi every one! This is a test message\n");
+uart_puts("hi every one! This is a test message\n");
     
     end
 

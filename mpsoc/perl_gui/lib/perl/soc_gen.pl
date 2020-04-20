@@ -207,17 +207,7 @@ sub get_module_parameter{
 #  param_box
 #
 ############
-sub get_item_pos{#if not in return 0
-		my ($item,@list)=@_;
-		my $pos=0;
-		foreach my $p (@list){
-				#print "$p eq $item\n";
-				if ($p eq $item){return $pos;}
-				$pos++;
-		}	
-		return 0;
-	
-}	
+
 
  sub param_box{
 	 my ($param, $default,$type,$content,$info, $value)=@_;
@@ -1644,7 +1634,26 @@ sub get_soc_clk_source_list{
 	return %all_sources;
 }	
 
-
+sub check_soc_name{
+	my $name=shift;
+	if (length($name)==0){
+		message_dialog("Please define the Tile name!");
+		return 1;
+	}	
+	
+	my @tmp=split('_',$name);
+	if ( $tmp[-1] =~ /^[0-9]+$/ ){
+		message_dialog("The soc name must not end with '_number'!");
+		return 1;
+	}
+	
+	my $error = check_verilog_identifier_syntax($name);
+	if ( defined $error ){
+		message_dialog("The \"$name\" is given with an unacceptable formatting. This name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
+		return 1;
+	}
+	return 0;	
+}
 
 
 ############
@@ -1693,25 +1702,23 @@ sub socgen_main{
 	my $open = def_image_button('icons/browse.png',"_Load Tile",FALSE,1);
 	my $entry=gen_entry_object($soc,'soc_name',undef,undef,undef,undef);
 	my $entrybox=gen_label_info(" Tile name:",$entry);
+	my $save      = def_image_button('icons/save.png');	
+	$entrybox->pack_start( $save, FALSE, FALSE, 0);
+	
 		
 	my $h1=gen_hpaned($tree_box,.15,$device_win);
 	my $v2=gen_vpaned($h1,.55,$infobox);
 	$main_table->attach_defaults ($v2  , 0, 12, 0,19);
 
 
-
-
-	
 	$main_table->attach ($open,0, 1, 19,20,'expand','shrink',2,2);
-	$main_table->attach_defaults ($entrybox,1, 3, 19,20);
+	$main_table->attach ($entrybox,1, 3, 19,20,'expand','shrink',2,2);
 	$main_table->attach ($unset, 3,4, 19,20,'expand','shrink',2,2);
-	
 	$main_table->attach ($wb, 4,5, 19,20,'expand','shrink',2,2);
 	$main_table->attach ($diagram, 5, 6, 19,20,'expand','shrink',2,2);
 	$main_table->attach ($clk, 6, 7, 19,20,'expand','shrink',2,2);
 	$main_table->attach ($generate, 7, 8, 19,20,'expand','shrink',2,2);
 	$main_table->attach ($software, 8, 9, 19,20,'expand','shrink',2,2);
-	#$main_table->attach ($ram, 9, 10, 19,20,'expand','shrink',2,2);
 	$main_table->attach ($compile, 10, 12, 19,20,'expand','shrink',2,2);
 	
 	
@@ -1723,26 +1730,24 @@ sub socgen_main{
 		show_tile_diagram ($soc);
 	});
 	
-		
-	$generate-> signal_connect("clicked" => sub{ 
-		my $name=$soc->object_get_attribute('soc_name');
-		
-		if (length($name)==0){
-			message_dialog("Please define the Tile name!");
-			return ;
-		}	
+
+	$save-> signal_connect("clicked" => sub{ 
+		my $name=$soc->object_get_attribute('soc_name');		
+		return if(check_soc_name($name)) ;
 			
-		
-		my @tmp=split('_',$name);
-		if ( $tmp[-1] =~ /^[0-9]+$/ ){
-			message_dialog("The soc name must not end with '_number'!");
-			return ;
-		}
-		my $error = check_verilog_identifier_syntax($name);
-		if ( defined $error ){
-			message_dialog("The \"$name\" is given with an unacceptable formatting. This name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
-			return ;
-		}
+		# Write object file
+		open(FILE,  ">lib/soc/$name.SOC") || die "Can not open: $!";
+		print FILE perl_file_header("$name.SOC");
+		print FILE Data::Dumper->Dump([\%$soc],['soc']);
+		close(FILE) || die "Error closing file: $!";
+		message_dialog("Processing Tile  \"$name\" is saved as lib/soc/$name.SOC.");		
+			
+	});
+	
+	
+	$generate-> signal_connect("clicked" => sub{ 
+		my $name=$soc->object_get_attribute('soc_name');		
+		return if(check_soc_name($name)) ;
 
 		my $target_dir  = "$ENV{'PRONOC_WORK'}/SOC/$name";
 		my $hw_dir 	= "$target_dir/src_verilog";

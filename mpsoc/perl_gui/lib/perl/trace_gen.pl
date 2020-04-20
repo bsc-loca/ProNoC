@@ -84,12 +84,8 @@ sub trace_pad_ctrl{
 	$col=0;
 	my $info="Automatically set the burst size and injection ratio according to the packet size and bandwidth";
 	#add_param_widget($self,"Auto inject rate \& burst size",'Auto_inject', 0,"Check-box",1,$info, $table,$row,$col,1,'Auto',0,'ref',"vertical");
-	$row++;
-	
-	
-	
-	$col=0;
-	
+	$row++;	
+	$col=0;	
 	my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arbiter (WRRA) instead of RRA, then the initial weights allow QoS support in NoC as in presence of contention, packets with higher initial weights receive higher bandwidth and lower worst case delay compared to others." ;
 	
 	#my $selects="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot"; 
@@ -950,54 +946,7 @@ sub get_tile_id{
 	return $IP_NUM;
 }
 
-sub object_add_attribute{
-	my ($self,$attribute1,$attribute2,$value)=@_;
-	if(!defined $attribute2){$self->{$attribute1}=$value;}
-	else {$self->{$attribute1}{$attribute2}=$value;}
 
-}
-
-
-
-sub object_get_attribute{
-	my ($self,$attribute1,$attribute2)=@_;
-	if(!defined $attribute2) {return $self->{$attribute1};}
-	return $self->{$attribute1}{$attribute2};
-
-
-}
-
-
-sub object_add_attribute_order{
-	my ($self,$attribute,@param)=@_;
-	$self->{'parameters_order'}{$attribute}=[] if (!defined $self->{parameters_order}{$attribute});
-	
-	foreach my $p (uniq @param){
-		push (@{$self->{parameters_order}{$attribute}},$p);
-
-	}
-}
-
-
-
-sub object_get_attribute_order{
-	my ($self,$attribute)=@_;
-	return undef unless(defined $self->{parameters_order}{$attribute});
-	my @order=@{$self->{parameters_order}{$attribute}};
-	return uniq(@order)
-}
-
-sub object_remove_attribute{
-	my ($self,$attribute1,$attribute2)=@_;
-	if(!defined $attribute2){
-		delete $self->{$attribute1} if ( exists( $self->{$attribute1})); 
-	}
-	else {
-		delete $self->{$attribute1}{$attribute2} if ( exists( $self->{$attribute1}{$attribute2})); ;
-
-	}
-
-}
 
 sub add_trace{
 	my ($self, $file_id,$category,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size,$channel,$vc,$class)=@_;	

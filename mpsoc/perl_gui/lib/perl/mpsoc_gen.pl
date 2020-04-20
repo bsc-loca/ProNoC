@@ -4,24 +4,16 @@ use strict;
 use warnings;
 use FindBin;
 use lib $FindBin::Bin;
-
 use mpsoc;
 use soc;
 use ip;
 use interface;
-
 use POSIX 'strtol';
-
 use File::Path;
 use File::Copy;
 use Cwd 'abs_path';
-
 use Gtk2;
 use Gtk2::Pango;
-
-
-
-
 
 require "widget.pl"; 
 require "mpsoc_verilog_gen.pl";
@@ -31,16 +23,6 @@ require "soc_gen.pl";
 require "diagram.pl";
 require "orcc.pl";
 
-sub get_pos{
-        my ($item,@list)=@_;
-        my $pos=0;
-        foreach my $p (@list){
-                #print "$p eq $item\n";
-                if ($p eq $item){return $pos;}
-                $pos++;
-        }    
-        return undef;
-}    
 
 
 
@@ -70,13 +52,10 @@ sub initial_default_param{
 ############
 
 sub get_soc_list {
-    my ($mpsoc,$info)=@_;
-
-    
+    my ($mpsoc,$info)=@_;    
     my $path=$mpsoc->object_get_attribute('setting','soc_path');        
-    
     $path =~ s/ /\\ /g;
-        my @socs;
+    my @socs;
     my @files = glob "$path/*.SOC";
     for my $p (@files){
        my ($soc,$r,$err) = regen_object($p);
@@ -124,14 +103,12 @@ sub get_NI_instance_list {
 # get_conflict_decision
 ###########################
 sub b_box{
-# create a new button
+	# create a new button
     my @label=@_;
     my $button = Gtk2::Button->new_from_stock(@label);
     my $box=def_vbox(FALSE,5);
-    $box->pack_start($button,   FALSE, FALSE,0);
-    
+    $box->pack_start($button,   FALSE, FALSE,0);    
     return ($box,$button);
-
 }
 
 sub get_conflict_decision{
@@ -182,17 +159,13 @@ sub get_conflict_decision{
     $b3->signal_connect( "clicked"=> sub{
         $wind->destroy();        
             
-    });
-        
+    });        
 }    
-
 
 
 #############
 #    check_inserted_ip_nums
 ##########
-
-
 sub check_inserted_ip_nums{
     my  ($mpsoc,$name,$str)=@_;
     my @all_num=();
@@ -279,8 +252,7 @@ sub get_soc_parameter_setting{
     #read soc parameters
     my %param_value=(defined $tile) ? $top->top_get_custom_soc_param($tile)  : $top->top_get_default_soc_param();
     $mpsoc->object_add_attribute('current_tile_param',undef,\%param_value);
-    
-    
+     
     my @insts=$top->top_get_all_instances();
     my @exceptions=get_NI_instance_list($top);
     @insts=get_diff_array(\@insts,\@exceptions);
@@ -292,8 +264,7 @@ sub get_soc_parameter_setting{
 			$default= $param_value{$p} if(defined $param_value{$p});
 			($row,$column)=add_param_widget($mpsoc,$p,$p, $default,$type,$content,$info, $table,$row,$column,$show,'current_tile_param',undef,undef,'vertical');
 		}
-            
-            
+           
             
   #          if ($type eq "Entry"){
   #              my $entry=gen_entry($param_value{$p});
@@ -337,9 +308,6 @@ sub get_soc_parameter_setting{
   #      
   #      }
     }
-    
-    
-    
     
     my $ok = def_image_button('icons/select.png','OK');
     my $okbox=def_hbox(TRUE,0);
@@ -391,26 +359,20 @@ sub tile_set_widget{
     my $set= def_image_button('icons/right.png');
     my $remove= def_image_button('icons/cancel.png');
     #my $setting= def_image_button('icons/setting.png','setting');
-    
-            
+                
     my $button = def_colored_button($soc_name,$num);
     $button->signal_connect("clicked"=> sub{
-        get_soc_parameter_setting($mpsoc,$soc_name,undef);
-        
-    });    
-    
+        get_soc_parameter_setting($mpsoc,$soc_name,undef);        
+    });        
     
     $set->signal_connect("clicked"=> sub{
         my $data=$entry->get_text();
-        check_inserted_ip_nums($mpsoc,$soc_name,$data);
-        
-        
-        
+        check_inserted_ip_nums($mpsoc,$soc_name,$data);        
     });
+    
     $remove->signal_connect("clicked"=> sub{
         $mpsoc->mpsoc_remove_soc($soc_name);
         set_gui_status($mpsoc,"ref",1);
-
     });
 
     
@@ -433,7 +395,6 @@ if($show){
 
 
 
-
 ##################
 #    defualt_tilles_setting
 ###################
@@ -450,9 +411,7 @@ sub defualt_tilles_setting {
     $box1->pack_start( $title2, FALSE, FALSE, 3);
     $box1->pack_start( $separator2, FALSE, FALSE, 3);
     if($show){$table->attach_defaults ($box1 ,0,4, $row,$row+1);$row++;}
-    
-    
-    
+     
     
     my $label = gen_label_in_left("Tiles path:");
     my $entry = Gtk2::Entry->new;
@@ -488,9 +447,7 @@ sub defualt_tilles_setting {
 
 
     } , \$entry);
-    
-    
-    
+        
     
     $entry->signal_connect("activate"=>sub{
         my $file_name=$entry->get_text();
@@ -552,8 +509,6 @@ you can add individual numbers or ranges as follow
 
 sub noc_config{
     my ($mpsoc,$table,$txview)=@_;
-    
-
     
     #title    
     my $row=0;
@@ -620,7 +575,6 @@ if($topology ne '"CUSTOM"' ){
     $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"' )? 'number of last level individual router`s endpoints.' :'Number of NoC routers in row (X dimention)';
     $type= 'Spin-button';             
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
-    
 
     
     #Topology T2 parameter
@@ -742,8 +696,6 @@ if($topology ne '"CUSTOM"' ){
     $type="Combo-box";
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param');
     
-    
-    
     if($show_noc == 1){    
         $b1= def_image_button("icons/up.png","NoC Parameters");
         $table->attach  ( $b1 , 0, 2, $row,$row+1,'fill','shrink',2,2);
@@ -754,9 +706,6 @@ if($topology ne '"CUSTOM"' ){
         $mpsoc->object_add_attribute('setting','show_noc_setting',$show_noc);
         set_gui_status($mpsoc,"ref",1);
     });
-
-	
-
 
     #advance parameter start
     my $advc;
@@ -776,8 +725,6 @@ if($topology ne '"CUSTOM"' ){
     $type='Combo-box';
     $info="Enable single cycle latency on packets traversing in the same direction using static straight allocator (SSA)"; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);
-    
-    
     
     
     #Fully and partially adaptive routing setting
@@ -1242,21 +1189,10 @@ sub generate_soc_files{
             
             # Write header file
             generate_header_file($soc,$project_dir,$target_dir,$target_dir,$dir);
-            
-            
-                    
-            
-            
             #use File::Copy::Recursive qw(dircopy);
             #dircopy("$dir/../src_processor/aeMB/compiler","$target_dir/sw/") or die("$!\n");
-            
-            
             my $msg="SoC \"$soc_name\" has been created successfully at $target_dir/ ";
-            
-        
-        
-        
-return $msg;    
+	return $msg;    
 }    
 
 
@@ -1264,7 +1200,7 @@ sub generate_mpsoc_lib_file {
     my ($mpsoc,$info) = @_;
     my $tmp = $mpsoc;
     my $name=$mpsoc->object_get_attribute('mpsoc_name');
-    #$tmp->mpsoc_remove_all_soc_tops(); 
+    
     open(FILE,  ">lib/mpsoc/$name.MPSOC") || die "Can not open: $!";
     print FILE perl_file_header("$name.MPSOC");
     print FILE Data::Dumper->Dump([\%$tmp],['mpsoc']);
@@ -1274,7 +1210,22 @@ sub generate_mpsoc_lib_file {
     
 }    
 
-
+sub check_mpsoc_name {
+	my ($name,$info)= @_;
+    my $error = check_verilog_identifier_syntax($name);
+    if ( defined $error ){
+        #message_dialog("The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
+        my $message = "The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
+        add_colored_info($info, $message,'red' );
+        return 1;
+    }
+    my $size= (defined $name)? length($name) :0;
+    if ($size ==0) {
+        message_dialog("Please define the MPSoC name!");
+        return 1;
+    }
+	return 0;	
+}
 
 
 ################
@@ -1284,19 +1235,8 @@ sub generate_mpsoc_lib_file {
 sub generate_mpsoc{
     my ($mpsoc,$info,$show_sucess_msg)=@_;
     my $name=$mpsoc->object_get_attribute('mpsoc_name');
-    my $error = check_verilog_identifier_syntax($name);
-    if ( defined $error ){
-        #message_dialog("The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
-        my $message = "The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
-        add_colored_info($info, $message,'red' );
-        return 0;
-    }
-    my $size= (defined $name)? length($name) :0;
-    if ($size ==0) {
-        message_dialog("Please define the MPSoC name!");
-        return 0;
-    }
-    
+    return 0 if (check_mpsoc_name($name,$info));
+     
     # make target dir
     my $dir = Cwd::getcwd();
     my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$name";
@@ -1308,21 +1248,16 @@ sub generate_mpsoc{
     mkpath("$hw_dir/lib/",1,0755);
     mkpath("$hw_dir/tiles",1,0755);
     mkpath("$sw_dir",1,0755);
-    
-    
+     
     #remove old rtl files that were copied by ProNoC
     my ($old_file_ref,$r,$err) = regen_object("$hw_dir/file_list");
     if (defined $old_file_ref){        
         remove_file_and_folders($old_file_ref,$target_dir);
     }    
-    
     unlink "$hw_dir/file_list";
-    
-    
-    
+     
     #generate/copy all tiles HDL/SW codes
     gen_all_tiles($mpsoc,$info, $hw_dir,$sw_dir );
-    
     
     #copy clk setting hdl codes in src_verilog
 	my $project_dir	  = abs_path("$dir/../../"); 		 
@@ -1331,11 +1266,7 @@ sub generate_mpsoc{
 	copy_file_and_folders($file_ref,$project_dir,"$hw_dir/lib");
 	show_info($info,$warnings)     		if(defined $warnings);			
 	add_to_project_file_list($file_ref,,"$hw_dir/lib/",$hw_dir);
-    
-    
-    
-    
-    
+     
     #generate header file containig the tiles physical addresses
     gen_tiles_physical_addrsses_header_file($mpsoc,"$sw_dir/phy_addr.h");
         
@@ -1382,11 +1313,7 @@ sub generate_mpsoc{
   #  open(FILE,  ">$target_dir/src_verilog/${name}_mp.v") || die "Can not open: $!";
   #  print FILE "$l\n$mp_v";
   #  close(FILE) || die "Error closing file: $!";   
-    
-    
-               
-   
-     
+        
     
     #generate makefile
     open(FILE,  ">$sw_dir/Makefile") || die "Can not open: $!";
@@ -1399,21 +1326,15 @@ sub generate_mpsoc{
     close(FILE) || die "Error closing file: $!";
       
     my @ff= ("$target_dir/src_verilog/$name.v","$target_dir/src_verilog/${name}_top.v");       
-    add_to_project_file_list(\@ff,"$hw_dir/lib/",$hw_dir);    
-    
+    add_to_project_file_list(\@ff,"$hw_dir/lib/",$hw_dir);   
     
     #write perl_object_file 
 	mkpath("$target_dir/perl_lib/",1,01777);
-	open(FILE,  ">$target_dir/perl_lib/$name.SOC") || die "Can not open: $!";
+	open(FILE,  ">$target_dir/perl_lib/$name.MPSOC") || die "Can not open: $!";
 	print FILE perl_file_header("$name.MPSOC");
-	print FILE Data::Dumper->Dump([\%$mpsoc],['mpsoc']);		
-    
-             
+	print FILE Data::Dumper->Dump([\%$mpsoc],['mpsoc']);                 
     message_dialog("MPSoC \"$name\" has been created successfully at $target_dir/ " ) if($show_sucess_msg);
-        
-        
-        
-return 1;    
+	return 1;    
 }    
 
 sub mpsoc_sw_make {
@@ -1425,8 +1346,7 @@ SUBDIRS := \$(wildcard */.)
 
 .PHONY: \$(TOPTARGETS) \$(SUBDIRS)    
 ";
-return $make;
-    
+	return $make;
 }
 
 
@@ -1469,18 +1389,16 @@ $JTAG_INTFC -n 127  -d  "I:1,D:2:0,I:0"
 # D:2:0 load jtag_enable data register with 0x0 reset=0 disable=0
 # I:0  set jtag_enable  in bypass mode
 ';
-return $string;
-    
+	return $string;
 }
 
 
 sub get_tile_LIST{
-     my ($mpsoc,$x,$y,$soc_num,$row,$table)=@_;
+    my ($mpsoc,$x,$y,$soc_num,$row,$table)=@_;
     my $instance_name=$mpsoc->mpsoc_get_instance_info($soc_num);    
     if(!defined $instance_name){
         $mpsoc->mpsoc_set_default_ip($soc_num);
         $instance_name=$mpsoc->mpsoc_get_instance_info($soc_num);    
-
     }
 
     #ipname
@@ -1495,9 +1413,7 @@ sub get_tile_LIST{
         $mpsoc->mpsoc_set_ip_inst_name($soc_num,$new_instance);
         set_gui_status($mpsoc,"ref",20);
         print "changed to  $new_instance\n ";    
-
     });
-
 
     #combo box
     my @list=('A','B');
@@ -1506,18 +1422,11 @@ sub get_tile_LIST{
     #setting
     my $setting= def_image_button("icons/setting.png","Browse");
     $table->attach_defaults ( $setting, $col, $col+1 , $row, $row+1);$col+=2;
-
-
 }
-
-
 
 sub get_tile{
     my ($mpsoc,$tile)=@_;
-    
-
     my ($soc_name,$num)= $mpsoc->mpsoc_get_tile_soc_name($tile);
-    
     my $button;
     my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
     
@@ -1537,8 +1446,7 @@ sub get_tile{
         $scrolled_win->add_with_viewport($table);
         my $row=0;
         my ($soc_name,$g,$t)=$mpsoc->mpsoc_get_tile_soc_name($tile);
-        
-        
+       
         my @socs=$mpsoc->mpsoc_get_soc_list();
         my @list=(' ',@socs);
         my $pos=(defined $soc_name)? get_scolar_pos($soc_name,@list): 0;
@@ -1548,12 +1456,10 @@ sub get_tile{
         $table->attach_defaults($combo,3,7,$row,$row+1);$row++;
         my $separator1 = Gtk2::HSeparator->new;
         $table->attach_defaults($separator1,0,7,$row,$row+1);$row++;
-        
+       
         my $ok = def_image_button('icons/select.png','OK');
         my $okbox=def_hbox(TRUE,0);
         $okbox->pack_start($ok, FALSE, FALSE,0);
-        
-        
         
         my $param_setting=$mpsoc->mpsoc_get_tile_param_setting($tile);
         @list=('Default','Custom');
@@ -1569,11 +1475,7 @@ sub get_tile{
                 
         
         });
-        
-            
-                
-        
-        
+       
         $combo->signal_connect('changed'=>sub{
             my $new_soc=$combo->get_active_text();
             if ($new_soc eq ' '){
@@ -1582,19 +1484,11 @@ sub get_tile{
             }else {
                 $mpsoc->mpsoc_set_tile_soc_name($tile,$new_soc);
             }
-            
-            
-            
         });
-        
-            
-    
-    
+     
         my $mtable = def_table(10, 1, TRUE);
-
         $mtable->attach_defaults($scrolled_win,0,1,0,9);
         $mtable->attach_defaults($okbox,0,1,9,10);
-    
         $window->add ($mtable);
         $window->show_all();
     
@@ -1613,44 +1507,31 @@ sub get_tile{
             #$$refresh_soc->clicked;
         
             });
-    
     });    
-    
+  
     #$button->show_all;
     return $button;
-
 }
-
-      
-                    
-
 
 
 ##########
 # gen_tiles
 #########
-
 sub gen_tiles{
     my ($mpsoc)=@_;
-	
 	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($mpsoc);
-   
     my $table;
-    
     my $dim_y = floor(sqrt($NE));
-
-	
- 
-    	$table=def_table($NE%8,$NE/8,FALSE);#    my ($row,$col,$homogeneous)=@_;
-      	for (my $i=0; $i<$NE;$i++){
-    		my $tile=get_tile($mpsoc,$i);
-    		my $y= int($i/$dim_y);
-    		my $x= $i % $dim_y;    		
-	        $table->attach_defaults ($tile, $x, $x+1 , $y, $y+1);
-    	}
-  
+   	$table=def_table($NE%8,$NE/8,FALSE);#    my ($row,$col,$homogeneous)=@_;
+   	for (my $i=0; $i<$NE;$i++){
+   		my $tile=get_tile($mpsoc,$i);
+   		my $y= int($i/$dim_y);
+   		my $x= $i % $dim_y;    		
+        $table->attach_defaults ($tile, $x, $x+1 , $y, $y+1);
+   	}
     return $table;
 }
+
 
 sub get_elf_file_addr_range {
 	my ($file,$tview)=@_;	
@@ -1745,16 +1626,12 @@ sub show_reqired_brams{
                                    'Glib::String',
                                    'Glib::String',
                                    'Glib::String'); # you get the idea
-
-	
 	
 	my $list=	gen_list_store ($self,\@data,\@clmn_type,\@clmns);
 	$table-> attach  ($list, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
 	
 	$win->add($sc_win);
-	$win->show_all();
-	
-	
+	$win->show_all();	
 }
 
 
@@ -1880,7 +1757,7 @@ sub load_mpsoc{
     $filter->set_name("MPSoC");
     $filter->add_pattern("*.MPSOC");
     $dialog->add_filter ($filter);
-        my $dir = Cwd::getcwd();
+    my $dir = Cwd::getcwd();
     $dialog->set_current_folder ("$dir/lib/mpsoc")    ;
     my @newsocs=$mpsoc->mpsoc_get_soc_list();
     add_info($info,'');
@@ -2018,12 +1895,9 @@ sub get_source_assignment_win{
 	}	
      	
    	#source assigmnmet
-     	
-   	$win2= get_source_assignment_win2($mpsoc,$s,$ports_ref,$type);
-	 $v2=gen_vpaned($win1,.2,$win2);	
-   	
-	
-	return $v2;	
+    $win2= get_source_assignment_win2($mpsoc,$s,$ports_ref,$type);
+	$v2=gen_vpaned($win1,.2,$win2);	
+   	return $v2;	
 }
 
 sub get_source_assignment_win2{
@@ -2045,9 +1919,7 @@ sub get_source_assignment_win2{
 		add_param_widget($mpsoc,"    NoC $s","NoC_${s}", $default,'Combo-box',$contents,undef, $table2,$row,$column,1,'SOURCE_SET_CONNECT',undef,undef,'horizental');
 		($row,$column)=(1,0);
 	}	
-	
-	
-	
+
 	foreach my $p (sort keys %ports){
    		my @array=@{$ports{$p}};
    		foreach my $q (@array){
@@ -2086,12 +1958,7 @@ sub get_all_tiles_clk_sources_list{
 		}
 	}
 		return  %all_sources;	
-	
-	
 }
-
-
-
 
 sub clk_setting_win2{
 	my ($self,$info,$type)=@_;
@@ -2154,7 +2021,6 @@ sub clk_setting_win2{
 			    	add_mpsoc_to_device($soc,$ip); 
 			    	$self->object_add_attribute('SOURCE_SET',"SOC",$soc);					
 				}
-				         
 	           
 	            $device_win->destroy();
 	            $device_win=show_active_dev($soc,$ip,$infc,$info); 
@@ -2168,11 +2034,8 @@ sub clk_setting_win2{
 	        return TRUE;
 	        
 	    } );
-   
-       
  
  	my $mtable = def_table(10, 5, FALSE);
-
 	$mtable->attach_defaults($scrolled_win,0,5,0,9);
 	$mtable->attach($back,0,1,9,10,'expand','fill',2,2) if($type ne 'soc');
 	$mtable->attach($diagram,2,4,9,10,'expand','fill',2,2);
@@ -2269,7 +2132,6 @@ sub get_top_ip{
 	}
 	else{
 		my %sources = get_soc_clk_source_list($self);
-	
 		foreach my $s (sort keys %sources){
 			my @ports = @{$sources{$s}} if (defined $sources{$s});
 			my $num=scalar @ports;
@@ -2280,12 +2142,8 @@ sub get_top_ip{
 				$mpsoc_ip->ipgen_add_port($p,undef,'input',"plug:${s}\[$n\]","${s}_i");
 				$n++;
 			} 
-			
-			
 		}
-		
 	}
-	
 	return $mpsoc_ip;			
 }
 
@@ -2417,11 +2275,9 @@ sub get_source_set_top{
 
 sub add_mpsoc_to_device{
 	my ($soc,$ip)=@_;
-	
 	my $category='TOP';
 	my $module='TOP';
 	my ($instance_id,$id) =('TOP',1);
-	
 	
 	#my ($instance_id,$id)= get_instance_id($soc,$category,$module);
 	
@@ -2458,49 +2314,48 @@ sub add_mpsoc_to_device{
 	set_gui_status($soc,"refresh_soc",0);	
 } 
 
-
-
-
 ######
 # ctrl
 ######
 
 sub ctrl_box{
 	my ($mpsoc,$info)=@_;
-	my $table = Gtk2::Table->new (1, 12, FALSE);	
- 
- 	
+	my $table = Gtk2::Table->new (1, 12, FALSE);	 
 	my $generate = def_image_button('icons/gen.png','_Generate RTL',FALSE,1);
     my $open = def_image_button('icons/browse.png','_Load MPSoC',FALSE,1);
     my $compile  = def_image_button('icons/gate.png','_Compile RTL',FALSE,1);
     my $software = def_image_button('icons/binary.png','_Software',FALSE,1);
     my $entry=gen_entry_object($mpsoc,'mpsoc_name',undef,undef,undef,undef);
     my $entrybox=gen_label_info(" MPSoC name:",$entry);
+    my $save      = def_image_button('icons/save.png');	
+	$entrybox->pack_start( $save, FALSE, FALSE, 0);
     my $diagram  = def_image_button('icons/diagram.png','Diagram');
     my $clk=  def_colored_button('CLK setting',17);	
-	
-	
+
 	my $row=0;
     $table->attach ($open,$row, $row+2, 24,25,'expand','shrink',2,2);$row+=2;
-    $table->attach_defaults ($entrybox,$row, $row+2, 24,25);$row+=2;
+    $table->attach ($entrybox,$row, $row+2, 24,25,'expand','shrink',2,2);$row+=2;
     $table->attach ($diagram, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
-    $table->attach ($clk, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
-    
+    $table->attach ($clk, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;    
     $table->attach ($generate, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
     $table->attach ($software, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;    
     $table->attach ($compile, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
 	
-	 $generate-> signal_connect("clicked" => sub{ 
+	$generate-> signal_connect("clicked" => sub{ 
         generate_mpsoc($mpsoc,$info,1);
         set_gui_status($mpsoc,"refresh_soc",1);
-
+    });
+    
+    $save-> signal_connect("clicked" => sub{ 
+    	my $name=$mpsoc->object_get_attribute('mpsoc_name');
+    	return  if (check_mpsoc_name($name,$info));
+    	generate_mpsoc_lib_file($mpsoc,$info);
     });
 
 
     $open-> signal_connect("clicked" => sub{ 
         set_gui_status($mpsoc,"ref",5);
-        load_mpsoc($mpsoc,$info);
-    
+        load_mpsoc($mpsoc,$info);    
     });
 
 
@@ -2536,28 +2391,18 @@ sub ctrl_box{
 			clk_setting_win1($mpsoc,$info,'mpsoc');	
 	});
 	
-	return $table;
-	
+	return $table;	
 }
-
-
-
-
-
-
 
 ############
 #    main
 ############
 sub mpsocgen_main{
-    
     my $infc = interface->interface_new(); 
     my $soc = ip->lib_new ();
     my $mpsoc= mpsoc->mpsoc_new();
-    
-    
+       
     set_gui_status($mpsoc,"ideal",0);
-    
     my $main_table = Gtk2::Table->new (25, 12, FALSE);
     
     # The box which holds the info, warning, error ...  mesages
@@ -2576,23 +2421,16 @@ sub mpsocgen_main{
 
     $main_table->set_row_spacings (4);
     $main_table->set_col_spacings (1);
-    
-    my $ctrl=ctrl_box($mpsoc,$info);
-    
+    my $ctrl=ctrl_box($mpsoc,$info);    
     my $h1=gen_hpaned($scr_conf,.3,$scr_tile);
     my $v2=gen_vpaned($h1,.55,$infobox);
 	my $row=0;
     $main_table->attach_defaults ($v2  , 0, 12, 0,24);
     $main_table->attach_defaults ($ctrl,0, 12, 24,25);
 
-    
-
-
     #check soc status every 0.5 second. referesh device table if there is any changes 
     Glib::Timeout->add (100, sub{ 
         my ($state,$timeout)= get_gui_status($mpsoc);
-        
-
         if ($timeout>0){
             $timeout--;
             set_gui_status($mpsoc,$state,$timeout);                        
@@ -2629,18 +2467,12 @@ sub mpsocgen_main{
         return TRUE;
         
     } );
-        
-        
-  
-    
     
     my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-        $sc_win->set_policy( "automatic", "automatic" );
-        $sc_win->add_with_viewport($main_table);    
+    $sc_win->set_policy( "automatic", "automatic" );
+    $sc_win->add_with_viewport($main_table);    
 
     return $sc_win;
-    
-
 }
 
 
