@@ -53,7 +53,7 @@ sub soc_generate_verilog{
 	 
 	foreach my $id (@instances){
 		my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$io_sim_v,
-		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
+		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass,$src_io_short, $src_io_full)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
 		my $inst   	= $soc->soc_get_instance_name($id);
 		add_text_to_string(\$body_v,"/*******************\n*\n*\t$inst\n*\n*\n*********************/\n");
 		add_text_to_string(\$param_as_in_v_all,",\n$param_as_in_v")   	if(defined($param_as_in_v)); 
@@ -220,10 +220,47 @@ sub get_soc_jtag_v{
 #	gen_module_inst
 ###############
 
+sub get_io_nc_info  {
+	my($soc,$port,$inst,$intfc_name,$id)=@_;
+	my $IO='no';
+	my $NC='no';
+	my($i_type,$i_name,$i_num) =split("[:\[ \\]]", $intfc_name);		
+	if($i_type eq 'plug'){
+		my ($addr,$base,$end,$name,$connect_id,$connect_socket,$connect_socket_num)=$soc->soc_get_plug($id,$i_name,$i_num);
+			if($connect_id eq 'IO'){ $IO='yes';}
+			if($connect_id eq 'NC'){ $NC='yes';}
+	}		
+	if($i_type eq 'socket' && $i_name ne'wb_addr_map'){  
+			
+		my ($ref1,$ref2)= $soc->soc_get_modules_plug_connected_to_socket($id,$i_name,$i_num);
+		my %connected_plugs=%$ref1;
+		my %connected_plug_nums=%$ref2;
+		if(!%connected_plugs ){ 
+			my  ($s_type,$s_value,$s_connection_num)=$soc->soc_get_socket_of_instance($id,$i_name);
+			my $v=$soc->soc_get_module_param_value($id,$s_value);
+				if ( length( $v || '' )){ $IO='no';} else {
+					my $con= $soc->object_get_attribute("Unset-intfc" ,"$inst-$port");
+					if(!defined $con){ $IO='yes';}
+					else{
+						$IO='yes' if $con eq 'IO'; 
+					}
+				}
+			}
+		}
+		
+		
+	
+	return ($IO ,$NC);
+}
+
+
+
 sub gen_module_inst {
 	my ($id,$soc,$top_ip,$intfc,$wires)=@_;
 	my ($io_sim_v,$top_io_short,$param_as_in_v,$param_pass_v,$system_v);
 	my $top_io_pass;
+	my $src_io_short;
+	my $src_io_full="";
 	my $module 	=$soc->soc_get_module($id);
 	my $module_name	=$soc->soc_get_module_name($id);
 	my $category 	=$soc->soc_get_category($id);
@@ -270,30 +307,10 @@ sub gen_module_inst {
 		my ($type,$range,$intfc_name,$i_port)=$ip->ip_get_port($category,$module,$port);
 		my $assigned_port;
 		my($i_type,$i_name,$i_num) =split("[:\[ \\]]", $intfc_name);
-		my $IO='no';
-		my $NC='no';		
-		if($i_type eq 'plug'){
-			my ($addr,$base,$end,$name,$connect_id,$connect_socket,$connect_socket_num)=$soc->soc_get_plug($id,$i_name,$i_num);
-			if($connect_id eq 'IO'){ $IO='yes';}
-			if($connect_id eq 'NC'){ $NC='yes';}
-		}		
-		if($i_type eq 'socket' && $i_name ne'wb_addr_map'){  
-			
-			my ($ref1,$ref2)= $soc->soc_get_modules_plug_connected_to_socket($id,$i_name,$i_num);
-			my %connected_plugs=%$ref1;
-			my %connected_plug_nums=%$ref2;
-			if(!%connected_plugs ){ 
-				my  ($s_type,$s_value,$s_connection_num)=$soc->soc_get_socket_of_instance($id,$i_name);
-				my $v=$soc->soc_get_module_param_value($id,$s_value);
-				if ( length( $v || '' )){ $IO='no';} else {
-					my $con= $soc->object_get_attribute("Unset-intfc" ,"$inst-$port");
-					if(!defined $con){ $IO='yes';}
-					else{
-						$IO='yes' if $con eq 'IO'; 
-					}
-				}
-			}
-		}
+		
+		my ($IO ,$NC) =get_io_nc_info($soc,$port,$inst,$intfc_name,$id);
+		
+		
 		
 		if($NC eq 'yes'){
 			
@@ -321,8 +338,9 @@ sub gen_module_inst {
 				 	$top_io_short= (!defined $top_io_short)? "\t$assigned_port" : "$top_io_short, \n\t$assigned_port";
 				 	$io_top_full_v= $io_top_full_v.$port_def;				 	
 				 } elsif($i_name eq 'reset' || $i_name eq 'clk'){
-					#connection done using  get_top_clk_setting
-				 	
+					#connection done using  get_top_clk_setting 
+				 	 $src_io_short= (!defined $src_io_short)? "\t$assigned_port" : "$src_io_short, \n\t$assigned_port"; 
+					 $src_io_full= $src_io_full.$port_def;
 				 } elsif( $i_name eq 'jtag_to_wb' ){
 				 	 $top_io_pass = (!defined $top_io_pass )? "\t\t.$assigned_port($assigned_port)" : "$top_io_pass,\n\t\t.$assigned_port($assigned_port)";
 				 
@@ -457,7 +475,8 @@ sub gen_module_inst {
 	}
 	
 	return ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,	$io_full_v,
-	$io_top_full_v,$io_sim_v,$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass);
+	$io_top_full_v,$io_sim_v,$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass,
+	$src_io_short, $src_io_full);
 	#return ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$param_pass_v,$assigned_ports);
 	
 	
@@ -865,10 +884,7 @@ $soc_v = $soc_v."
 	assign jtag_system_reset=1'b0;	
 ";
 	}
-	
-	
-	
-	
+		
 	$soc_v=$soc_v."\n endmodule\n";	
 	return $soc_v;
 
@@ -1134,7 +1150,7 @@ sub soc_generate_verilatore{
 	
 	my @instances=$soc->soc_get_all_instances();
 	my $io_sim_v;
-	my $top_io_short;
+	my $top_io_short_all;
 	my $core_id= $soc->object_get_attribute('global_param','CORE_ID');
 	$core_id= 0 if(!defined $core_id);
 	my $param_as_in_v_all="\tparameter\tCORE_ID=$core_id,
@@ -1144,13 +1160,14 @@ sub soc_generate_verilatore{
 	my $body_v;
 	
 	my ($param_v_all, $local_param_v_all, $wire_def_v_all, $inst_v_all, $plugs_assign_v_all, $sockets_assign_v_all,$io_full_v_all,$top_io_full_all,$system_v_all);
+	my ($src_io_full_all,$src_io_short_all);
 	my $wires=soc->new_wires();
 	my $intfc=interface->interface_new();
 	
 	
 	foreach my $id (@instances){
 		my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$io_sim_v,
-		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
+		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass,$src_io_short, $src_io_full)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
 		my $inst   	= $soc->soc_get_instance_name($id);
 		add_text_to_string(\$body_v,"/*******************\n*\n*\t$inst\n*\n*\n*********************/\n");
 		add_text_to_string(\$param_as_in_v_all,",\n$param_as_in_v")   	if(defined ($param_as_in_v)); 
@@ -1161,7 +1178,10 @@ sub soc_generate_verilatore{
 		add_text_to_string(\$sockets_assign_v_all,"$sockets_assign_v\n")if(defined($sockets_assign_v));
 		add_text_to_string(\$io_full_v_all,"$io_full_v\n")				if(length($io_full_v)>3);
 		add_text_to_string(\$top_io_full_all,"$io_top_full_v\n")		if(length($io_top_full_v)>3);
-				
+		add_text_to_string(\$src_io_full_all,"$src_io_full\n")			if(length($src_io_full)>3);
+	
+		$top_io_short_all = (defined $top_io_short_all)? "$top_io_short_all,\n$top_io_short" : $top_io_short 		if(defined($top_io_short));		
+		$src_io_short_all = (defined $src_io_short_all)? "$src_io_short_all,\n$src_io_short" : $src_io_short 		if(defined($src_io_short));		
 		#print  "$param_v $local_param_v $wire_def_v $inst_v $plugs_assign_v $sockets_assign_v $io_full_v";
 			
 	}	
@@ -1208,12 +1228,18 @@ sub soc_generate_verilatore{
 		add_text_to_string(\$params_v,"\tlocalparam  $p = $all_param{$p};\n") if(defined $all_param{$p} );			
 	}
 	
+  
+	$top_io_short_all=(defined $top_io_short_all)? "$top_io_short_all,\n$src_io_short_all" : $src_io_short_all;
+	$top_io_full_all=$top_io_full_all."\n$src_io_full_all";            
+  #  $top_io_pass_all=$top_io_pass_all.",\n$clk_assigned_port";	
+	
+	
 	my $verilator_v =  "
 /*********************
 		${name}
 *********************/
 	
-module ${name} (\n $top_io_short\n);\n";
+module ${name} (\n $top_io_short_all\n);\n";
 	my $ins= gen_soc_instance_v_no_modfy($soc,$soc_name,$param_pass_v);
 	add_text_to_string(\$verilator_v,$functions_all);	
 	add_text_to_string(\$verilator_v,$params_v."\n".$top_io_full_all);

@@ -465,8 +465,8 @@ sub add_new_fpga_board{
 		$auto-> signal_connect("clicked" => sub{ 
 			my $pid;
 			my $hw;
-			my $dir = Cwd::getcwd();
-			my $project_dir	  = abs_path("$dir/../../"); #mpsoc directory address		
+			
+			my $project_dir	  = get_project_dir();		
 			my $command=  "$project_dir/mpsoc/src_c/jtag/jtag_libusb/list_usb_dev";
 			add_info($tview,"$command\n");
 			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
@@ -771,8 +771,8 @@ sub add_new_xilinx_fpga_board_files{
 	return "Please define at least one of FPGA board part or FPGA part names"if(!defined $part && !defined $board_part  );   
 	
 	#make board directory
-	my $dir = Cwd::getcwd();
-	my $path="$dir/../boards/$vendor/$board_name";
+	my $project_dir = get_project_dir();
+	my $path="$$project_dir/mpsoc/boards/$vendor/$board_name";
 	mkpath($path,1,01777);
 	return "Error cannot make $path path" if ((-d $path)==0);
 	copy($xdc,"$path/$board_name.xdc");
@@ -861,8 +861,8 @@ sub add_new_altera_fpga_board_files{
 	
 	
 	#make board directory
-	my $dir = Cwd::getcwd();
-	my $path="$dir/../boards/$vendor/$board_name";
+	my $project_dir = get_project_dir();
+	my $path="$project_dir/mpsoc/boards/$vendor/$board_name";
 	mkpath($path,1,01777);
 	return "Error cannot make $path path" if ((-d $path)==0);
 	
@@ -1205,7 +1205,7 @@ sub fpga_compilation{
 sub vivado_program_the_board {
 	my 	($self,$tview,$target_dir,$name,$vendor) =@_;
 	
-	my $bit_file="$target_dir/xilinx_compile/mor1k_soc.runs/impl_1/Top.bit";
+	my $bit_file="$target_dir/xilinx_compile/${name}.runs/impl_1/Top.bit";
 	#check bit file existance
 	unless (-f $bit_file){	
 		add_colored_info($tview,"Could not find $bit_file. Click on project Compile button first and make sure it runs successfully.",'red');	
@@ -1920,8 +1920,8 @@ sub verilator_compilation_win {
 
 sub  gen_mpsoc_verilator_model{
 	my ($self,$name,$top,$target_dir,$outtext)=@_;	
-	my $dir = Cwd::getcwd();
-	my $project_dir	  = abs_path("$dir/..");
+	my $project_dir	  = get_project_dir();
+	$project_dir= "$project_dir/mpsoc";
 	my $src_verilator_dir="$project_dir/src_verilator";
 	my $target_verilog_dr ="$target_dir/src_verilog";
 	my $target_verilator_dr ="$target_dir/src_verilator";
@@ -2470,6 +2470,7 @@ sub gen_modelsim_soc_testbench {
 	my ($self,$name,$top,$target_dir)=@_;
 	my $dir="$target_dir/Modelsim";
 	my $soc_top= $self->object_get_attribute('top_ip',undef);
+	
 	my @intfcs=$soc_top->top_get_intfc_list();
 	my %PP;
 	my $top_port_def="// ${name}.v IO definition \n";
@@ -2480,8 +2481,8 @@ sub gen_modelsim_soc_testbench {
 	
 	
 	#add functions
-	my $d = Cwd::getcwd();
-	open my $file1, "<", "$d/lib/verilog/functions.v" or die;
+	my $project_dir	  = get_project_dir();
+	open my $file1, "<", "$project_dir/mpsoc/perl_gui/lib/verilog/functions.v" or die;
 	my $functions_all='';
 	while (my $f1 = readline ($file1)) {	
 		 $functions_all="$functions_all $f1 ";

@@ -9,6 +9,7 @@ use List::MoreUtils qw(uniq);
 use POSIX qw(ceil floor);
 
 use Cwd 'abs_path';
+use Term::ANSIColor qw(:constants);
  
 sub find_the_most_similar_position{
 	my ($item ,@list)=@_;
@@ -114,6 +115,36 @@ sub get_ports_rang{
 	}
 	return %ports;
 }
+
+
+
+
+sub get_param_list_in_order {
+   my $ref =shift;
+   return undef if (!defined $ref);
+   my %param=%{$ref};
+   my @array = sort keys %param;
+   my $l= scalar @array;
+   SCAN: {
+   foreach my $i (0..($l-2)) {     
+      my $str1=$array[$i];
+      foreach my $j ($i+1..($l-1)) {
+      my $str2=$array[$j];
+       	if ($param{$str1} =~ /\b$str2\b/ ) {
+      	
+        my $tmp = $array[$i];
+        $array[$i] =$array[$j];
+	$array[$j]=$tmp;
+        
+        redo SCAN;
+      }
+    }
+    }
+  }
+
+  return @array;
+}
+
 
 
 ####################
@@ -258,7 +289,60 @@ sub count_file_line_num {
     return $n;
 }
 
-
+sub set_path_env{
+	my $project_dir	  = get_project_dir(); #mpsoc dir addr
+	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/Paths";
+	#print "$paths_file\n";
+	my $paths= do $paths_file;
+	my $pronoc_work =object_get_attribute($paths,"PATH","PRONOC_WORK");	
+	my $quartus = object_get_attribute($paths,"PATH","QUARTUS_BIN");
+	my $vivado  = object_get_attribute($paths,"PATH","VIVADO_BIN");
+	my $sdk     = object_get_attribute($paths,"PATH","SDK_BIN");
+		
+	my $modelsim = object_get_attribute($paths,"PATH","MODELSIM_BIN");
+	$ENV{'PRONOC_WORK'}= $pronoc_work if( defined $pronoc_work);
+	$ENV{'QUARTUS_BIN'}= $quartus if( defined $quartus);
+	$ENV{'VIVADO_BIN'}= $vivado if( defined $vivado);
+	$ENV{'SDK_BIN'}= $vivado if( defined $sdk);
+	$ENV{'MODELSIM_BIN'}= $modelsim if( defined $modelsim);	
+	
+	if( defined $pronoc_work){if(-d $pronoc_work ){
+			mkpath("$pronoc_work/emulate",1,01777) unless -d "$pronoc_work/emulate";
+			mkpath("$pronoc_work/simulate",1,01777) unless -d "$pronoc_work/simulate";	
+			mkpath("$pronoc_work/tmp",1,01777) unless -d "$pronoc_work/tmp";			
+	}}
+	
+	#add quartus_bin to PATH linux envirement if it does not exist in PATH
+	my $add;
+	if( defined $quartus){
+		my @q =split  (/:/,$ENV{'PATH'});
+		my $p=get_scolar_pos ($quartus,@q);
+		$ENV{'PATH'}= $ENV{'PATH'}.":$quartus" unless ( defined $p); 
+		$add=(defined $add)? $add.":$quartus" : $quartus unless ( defined $p);
+		
+	}
+	
+	if( defined $vivado){
+		my @q =split  (/:/,$ENV{'PATH'});
+		my $p=get_scolar_pos ($vivado,@q);
+		$ENV{'PATH'}= $ENV{'PATH'}.":$vivado" unless ( defined $p); 
+		$add=(defined $add)? $add.":$vivado" : $vivado unless ( defined $p);
+		
+	}
+	
+	if( defined $sdk){
+		my @q =split  (/:/,$ENV{'PATH'});
+		my $p=get_scolar_pos ($sdk,@q);
+		$ENV{'PATH'}= $ENV{'PATH'}.":$sdk" unless ( defined $p); 
+		$add=(defined $add)? $add.":$sdk" : $sdk unless ( defined $p);
+		   
+	}
+	if(defined $add){
+		print GREEN, "Info: $add has been added to linux PATH envirement.\n",RESET,"\n";
+	}
+	
+	
+}
 
 
 
@@ -327,8 +411,9 @@ sub clone_obj{
 
 sub get_project_dir{ #mpsoc directory address
 	my $dir = Cwd::getcwd();
-	my $project_dir	  = abs_path("$dir/../../");
-	return $project_dir;
+	my @p=	split('/perl_gui',$dir);
+    my $d	  = abs_path("$p[0]/../");
+	return $d;
 }
 
 
@@ -796,7 +881,7 @@ sub run_cmd_in_back_ground
   my $retcode = $proc->wait;
   $retcode /= 256;
 
-  print "\t*RETCODE == $retcode\n\n";
+  #print "\t*RETCODE == $retcode\n\n";
   Gtk2::Gdk->flush;
   ### Check if the RETCODE returned with an Error:
   if ($retcode ne 0) {

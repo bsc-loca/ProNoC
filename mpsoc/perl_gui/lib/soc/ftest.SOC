@@ -1,0 +1,572 @@
+#######################################################################
+##	File: ftest.SOC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$soc = bless( {
+                'device_win_adj' => {
+                                      'ha' => '0',
+                                      'va' => '0'
+                                    },
+                'instance_order' => [
+                                      'gpo0'
+                                    ],
+                'instances' => {
+                                 'gpo0' => {
+                                             'module' => 'gpo',
+                                             'category' => 'GPIO',
+                                             'plugs' => {
+                                                          'reset' => {
+                                                                       'connection_num' => undef,
+                                                                       'nums' => {
+                                                                                   '0' => {
+                                                                                            'name' => 'reset',
+                                                                                            'connect_socket' => undef,
+                                                                                            'connect_id' => 'IO',
+                                                                                            'connect_socket_num' => undef
+                                                                                          }
+                                                                                 },
+                                                                       'type' => 'num',
+                                                                       'value' => 1
+                                                                     },
+                                                          'clk' => {
+                                                                     'nums' => {
+                                                                                 '0' => {
+                                                                                          'name' => 'clk',
+                                                                                          'connect_socket' => undef,
+                                                                                          'connect_id' => 'IO',
+                                                                                          'connect_socket_num' => undef
+                                                                                        }
+                                                                               },
+                                                                     'connection_num' => undef,
+                                                                     'value' => 1,
+                                                                     'type' => 'num'
+                                                                   },
+                                                          'wb_slave' => {
+                                                                          'value' => 1,
+                                                                          'type' => 'num',
+                                                                          'connection_num' => undef,
+                                                                          'nums' => {
+                                                                                      '0' => {
+                                                                                               'connect_socket_num' => undef,
+                                                                                               'width' => 5,
+                                                                                               'connect_id' => 'IO',
+                                                                                               'addr' => '0x9100_0000	0x91ff_ffff		General-Purpose I/O',
+                                                                                               'connect_socket' => undef,
+                                                                                               'name' => 'wb'
+                                                                                             }
+                                                                                    }
+                                                                        }
+                                                        },
+                                             'parameters_order' => [
+                                                                     'PORT_WIDTH',
+                                                                     'Aw',
+                                                                     'TAGw',
+                                                                     'SELw',
+                                                                     'Dw'
+                                                                   ],
+                                             'sockets' => {},
+                                             'parameters' => {
+                                                               'SELw' => {
+                                                                           'value' => '    4'
+                                                                         },
+                                                               'PORT_WIDTH' => {
+                                                                                 'value' => '   1'
+                                                                               },
+                                                               'Aw' => {
+                                                                         'value' => '    2'
+                                                                       },
+                                                               'Dw' => {
+                                                                         'value' => 'PORT_WIDTH'
+                                                                       },
+                                                               'TAGw' => {
+                                                                           'value' => '    3'
+                                                                         }
+                                                             },
+                                             'instance_name' => 'gpo0',
+                                             'module_name' => 'gpo',
+                                             'description_pdf' => undef
+                                           }
+                               },
+                'modules' => {},
+                'gpo0' => {
+                            'version' => 2
+                          },
+                'soc_name' => 'ftest',
+                'SOURCE_SET' => {
+                                  'SOC' => bless( {
+                                                    'hdl_files' => undef,
+                                                    'SOURCE_SET' => {
+                                                                      'IP' => bless( {
+                                                                                       'category' => 'TOP',
+                                                                                       'hdl_files' => [],
+                                                                                       'ports' => {
+                                                                                                    'gpo0_reset' => {
+                                                                                                                      'range' => undef,
+                                                                                                                      'intfc_port' => 'reset_i',
+                                                                                                                      'intfc_name' => 'plug:reset[0]',
+                                                                                                                      'type' => 'input'
+                                                                                                                    },
+                                                                                                    'gpo0_clk' => {
+                                                                                                                    'type' => 'input',
+                                                                                                                    'intfc_name' => 'plug:clk[0]',
+                                                                                                                    'intfc_port' => 'clk_i',
+                                                                                                                    'range' => undef
+                                                                                                                  }
+                                                                                                  },
+                                                                                       'plugs' => {
+                                                                                                    'clk' => {
+                                                                                                               'value' => 1,
+                                                                                                               'type' => 'num',
+                                                                                                               '0' => {
+                                                                                                                        'name' => 'gpo0_clk'
+                                                                                                                      },
+                                                                                                               '1' => {}
+                                                                                                             },
+                                                                                                    'reset' => {
+                                                                                                                 '0' => {
+                                                                                                                          'name' => 'gpo0_reset'
+                                                                                                                        },
+                                                                                                                 'value' => 1,
+                                                                                                                 'type' => 'num',
+                                                                                                                 '1' => {}
+                                                                                                               }
+                                                                                                  },
+                                                                                       'parameters_order' => [],
+                                                                                       'ip_name' => 'TOP',
+                                                                                       'file_name' => undef,
+                                                                                       'ports_order' => [],
+                                                                                       'GUI_REMOVE_SET' => 'DISABLE',
+                                                                                       'module_name' => 'TOP'
+                                                                                     }, 'ip_gen' )
+                                                                    },
+                                                    'TOP' => {
+                                                               'version' => 0
+                                                             },
+                                                    'gui_status' => {
+                                                                      'status' => 'refresh_soc',
+                                                                      'timeout' => 0
+                                                                    },
+                                                    'modules' => {},
+                                                    'instances' => {
+                                                                     'TOP' => {
+                                                                                'description_pdf' => undef,
+                                                                                'parameters_order' => [],
+                                                                                'plugs' => {
+                                                                                             'clk' => {
+                                                                                                        'value' => 1,
+                                                                                                        'type' => 'num',
+                                                                                                        'connection_num' => undef,
+                                                                                                        'nums' => {
+                                                                                                                    '0' => {
+                                                                                                                             'connect_socket' => undef,
+                                                                                                                             'name' => 'gpo0_clk',
+                                                                                                                             'connect_socket_num' => undef,
+                                                                                                                             'connect_id' => 'IO'
+                                                                                                                           }
+                                                                                                                  }
+                                                                                                      },
+                                                                                             'reset' => {
+                                                                                                          'nums' => {
+                                                                                                                      '0' => {
+                                                                                                                               'connect_id' => 'IO',
+                                                                                                                               'connect_socket_num' => undef,
+                                                                                                                               'name' => 'gpo0_reset',
+                                                                                                                               'connect_socket' => undef
+                                                                                                                             }
+                                                                                                                    },
+                                                                                                          'connection_num' => undef,
+                                                                                                          'type' => 'num',
+                                                                                                          'value' => 1
+                                                                                                        }
+                                                                                           },
+                                                                                'module_name' => 'TOP',
+                                                                                'module' => 'TOP',
+                                                                                'instance_name' => 'TOP',
+                                                                                'category' => 'TOP'
+                                                                              }
+                                                                   },
+                                                    'soc_name' => {
+                                                                    'TOP' => undef
+                                                                  },
+                                                    'instance_order' => [
+                                                                          'TOP'
+                                                                        ]
+                                                  }, 'soc' ),
+                                  'REDEFINE_TOP' => 0
+                                },
+                'global_param' => {
+                                    'CORE_ID' => 0,
+                                    'SW_LOC' => '/home/alireza/work/hca_git/mpsoc_work/SOC/ftest/sw'
+                                  },
+                'gui_status' => {
+                                  'status' => 'save_project',
+                                  'timeout' => 0
+                                },
+                'compile' => {
+                               'type' => 'Modelsim',
+                               'quartus bin' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
+                               'board' => 'DE5',
+                               'modelsim_bin' => '/home/alireza/intelFPGA_lite/18.1/modelsim_ase/bin',
+                               'compilers' => 'QuartusII,Vivado,Verilator,Modelsim'
+                             },
+                'top_ip' => bless( {
+                                     'instance_ids' => {
+                                                         'gpo0' => {
+                                                                     'instance' => 'gpo0',
+                                                                     'localparam' => {
+                                                                                       'gpo0_SELw' => {
+                                                                                                        'info' => undef,
+                                                                                                        'global_param' => 'Localparam',
+                                                                                                        'type' => 'Fixed',
+                                                                                                        'content' => '',
+                                                                                                        'redefine_param' => 1,
+                                                                                                        'default' => '    4'
+                                                                                                      },
+                                                                                       'gpo0_TAGw' => {
+                                                                                                        'content' => '',
+                                                                                                        'global_param' => 'Localparam',
+                                                                                                        'type' => 'Fixed',
+                                                                                                        'info' => undef,
+                                                                                                        'default' => '    3',
+                                                                                                        'redefine_param' => 1
+                                                                                                      },
+                                                                                       'gpo0_Aw' => {
+                                                                                                      'redefine_param' => 1,
+                                                                                                      'default' => '    2',
+                                                                                                      'type' => 'Fixed',
+                                                                                                      'global_param' => 'Localparam',
+                                                                                                      'info' => undef,
+                                                                                                      'content' => ''
+                                                                                                    },
+                                                                                       'gpo0_Dw' => {
+                                                                                                      'content' => '',
+                                                                                                      'info' => undef,
+                                                                                                      'type' => 'Fixed',
+                                                                                                      'global_param' => 'Localparam',
+                                                                                                      'default' => 'gpo0_PORT_WIDTH',
+                                                                                                      'redefine_param' => 1
+                                                                                                    }
+                                                                                     },
+                                                                     'parameters' => {
+                                                                                       'gpo0_PORT_WIDTH' => {
+                                                                                                              'content' => '1,32,1',
+                                                                                                              'type' => 'Spin-button',
+                                                                                                              'global_param' => 'Parameter',
+                                                                                                              'info' => 'output port width',
+                                                                                                              'default' => '   1',
+                                                                                                              'redefine_param' => 1
+                                                                                                            }
+                                                                                     },
+                                                                     'module' => 'gpo',
+                                                                     'category' => 'GPIO',
+                                                                     'ports' => {
+                                                                                  'gpo0_port_o' => {
+                                                                                                     'intfc_name' => 'IO',
+                                                                                                     'intfc_port' => 'IO',
+                                                                                                     'range' => 'gpo0_PORT_WIDTH-1     :   0',
+                                                                                                     'type' => 'output'
+                                                                                                   },
+                                                                                  'gpo0_sa_sel_i' => {
+                                                                                                       'type' => 'input',
+                                                                                                       'intfc_port' => 'sel_i',
+                                                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                       'range' => 'gpo0_SELw-1     :   0'
+                                                                                                     },
+                                                                                  'gpo0_sa_cyc_i' => {
+                                                                                                       'intfc_port' => 'cyc_i',
+                                                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                       'range' => '',
+                                                                                                       'type' => 'input'
+                                                                                                     },
+                                                                                  'gpo0_reset' => {
+                                                                                                    'range' => '',
+                                                                                                    'intfc_port' => 'reset_i',
+                                                                                                    'intfc_name' => 'plug:reset[0]',
+                                                                                                    'type' => 'input'
+                                                                                                  },
+                                                                                  'gpo0_clk' => {
+                                                                                                  'intfc_port' => 'clk_i',
+                                                                                                  'intfc_name' => 'plug:clk[0]',
+                                                                                                  'range' => '',
+                                                                                                  'type' => 'input'
+                                                                                                },
+                                                                                  'gpo0_sa_we_i' => {
+                                                                                                      'range' => '',
+                                                                                                      'intfc_port' => 'we_i',
+                                                                                                      'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                      'type' => 'input'
+                                                                                                    },
+                                                                                  'gpo0_sa_ack_o' => {
+                                                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                       'intfc_port' => 'ack_o',
+                                                                                                       'range' => '',
+                                                                                                       'type' => 'output'
+                                                                                                     },
+                                                                                  'gpo0_sa_tag_i' => {
+                                                                                                       'range' => 'gpo0_TAGw-1     :   0',
+                                                                                                       'intfc_port' => 'tag_i',
+                                                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                       'type' => 'input'
+                                                                                                     },
+                                                                                  'gpo0_sa_dat_i' => {
+                                                                                                       'intfc_port' => 'dat_i',
+                                                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                       'range' => 'gpo0_Dw-1       :   0',
+                                                                                                       'type' => 'input'
+                                                                                                     },
+                                                                                  'gpo0_sa_err_o' => {
+                                                                                                       'type' => 'output',
+                                                                                                       'intfc_port' => 'err_o',
+                                                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                       'range' => ''
+                                                                                                     },
+                                                                                  'gpo0_sa_stb_i' => {
+                                                                                                       'range' => '',
+                                                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                       'intfc_port' => 'stb_i',
+                                                                                                       'type' => 'input'
+                                                                                                     },
+                                                                                  'gpo0_sa_dat_o' => {
+                                                                                                       'range' => 'gpo0_Dw-1       :   0',
+                                                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                       'intfc_port' => 'dat_o',
+                                                                                                       'type' => 'output'
+                                                                                                     },
+                                                                                  'gpo0_sa_rty_o' => {
+                                                                                                       'range' => '',
+                                                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                       'intfc_port' => 'rty_o',
+                                                                                                       'type' => 'output'
+                                                                                                     },
+                                                                                  'gpo0_sa_addr_i' => {
+                                                                                                        'intfc_port' => 'adr_i',
+                                                                                                        'intfc_name' => 'plug:wb_slave[0]',
+                                                                                                        'range' => 'gpo0_Aw-1       :   0',
+                                                                                                        'type' => 'input'
+                                                                                                      }
+                                                                                },
+                                                                     'module_name' => 'gpo'
+                                                                   }
+                                                       },
+                                     'interface' => {
+                                                      'IO' => {
+                                                                'ports' => {
+                                                                             'gpo0_port_o' => {
+                                                                                                'intfc_port' => 'IO',
+                                                                                                'range' => 'gpo0_PORT_WIDTH-1     :   0',
+                                                                                                'instance_name' => 'gpo0',
+                                                                                                'type' => 'output'
+                                                                                              }
+                                                                           }
+                                                              },
+                                                      'plug:wb_slave[0]' => {
+                                                                              'ports' => {
+                                                                                           'gpo0_sa_cyc_i' => {
+                                                                                                                'range' => '',
+                                                                                                                'instance_name' => 'gpo0',
+                                                                                                                'intfc_port' => 'cyc_i',
+                                                                                                                'type' => 'input'
+                                                                                                              },
+                                                                                           'gpo0_sa_sel_i' => {
+                                                                                                                'range' => 'gpo0_SELw-1     :   0',
+                                                                                                                'instance_name' => 'gpo0',
+                                                                                                                'intfc_port' => 'sel_i',
+                                                                                                                'type' => 'input'
+                                                                                                              },
+                                                                                           'gpo0_sa_we_i' => {
+                                                                                                               'intfc_port' => 'we_i',
+                                                                                                               'instance_name' => 'gpo0',
+                                                                                                               'range' => '',
+                                                                                                               'type' => 'input'
+                                                                                                             },
+                                                                                           'gpo0_sa_tag_i' => {
+                                                                                                                'instance_name' => 'gpo0',
+                                                                                                                'range' => 'gpo0_TAGw-1     :   0',
+                                                                                                                'intfc_port' => 'tag_i',
+                                                                                                                'type' => 'input'
+                                                                                                              },
+                                                                                           'gpo0_sa_ack_o' => {
+                                                                                                                'type' => 'output',
+                                                                                                                'instance_name' => 'gpo0',
+                                                                                                                'range' => '',
+                                                                                                                'intfc_port' => 'ack_o'
+                                                                                                              },
+                                                                                           'gpo0_sa_dat_i' => {
+                                                                                                                'type' => 'input',
+                                                                                                                'intfc_port' => 'dat_i',
+                                                                                                                'range' => 'gpo0_Dw-1       :   0',
+                                                                                                                'instance_name' => 'gpo0'
+                                                                                                              },
+                                                                                           'gpo0_sa_stb_i' => {
+                                                                                                                'range' => '',
+                                                                                                                'instance_name' => 'gpo0',
+                                                                                                                'intfc_port' => 'stb_i',
+                                                                                                                'type' => 'input'
+                                                                                                              },
+                                                                                           'gpo0_sa_rty_o' => {
+                                                                                                                'intfc_port' => 'rty_o',
+                                                                                                                'range' => '',
+                                                                                                                'instance_name' => 'gpo0',
+                                                                                                                'type' => 'output'
+                                                                                                              },
+                                                                                           'gpo0_sa_addr_i' => {
+                                                                                                                 'intfc_port' => 'adr_i',
+                                                                                                                 'instance_name' => 'gpo0',
+                                                                                                                 'range' => 'gpo0_Aw-1       :   0',
+                                                                                                                 'type' => 'input'
+                                                                                                               },
+                                                                                           'gpo0_sa_dat_o' => {
+                                                                                                                'instance_name' => 'gpo0',
+                                                                                                                'range' => 'gpo0_Dw-1       :   0',
+                                                                                                                'intfc_port' => 'dat_o',
+                                                                                                                'type' => 'output'
+                                                                                                              },
+                                                                                           'gpo0_sa_err_o' => {
+                                                                                                                'type' => 'output',
+                                                                                                                'range' => '',
+                                                                                                                'instance_name' => 'gpo0',
+                                                                                                                'intfc_port' => 'err_o'
+                                                                                                              }
+                                                                                         }
+                                                                            },
+                                                      'plug:clk[0]' => {
+                                                                         'ports' => {
+                                                                                      'gpo0_clk' => {
+                                                                                                      'range' => '',
+                                                                                                      'instance_name' => 'gpo0',
+                                                                                                      'intfc_port' => 'clk_i',
+                                                                                                      'type' => 'input'
+                                                                                                    }
+                                                                                    }
+                                                                       },
+                                                      'plug:reset[0]' => {
+                                                                           'ports' => {
+                                                                                        'gpo0_reset' => {
+                                                                                                          'type' => 'input',
+                                                                                                          'range' => '',
+                                                                                                          'instance_name' => 'gpo0',
+                                                                                                          'intfc_port' => 'reset_i'
+                                                                                                        }
+                                                                                      }
+                                                                         }
+                                                    },
+                                     'ports' => {
+                                                  'gpo0_sa_err_o' => {
+                                                                       'intfc_port' => 'err_o',
+                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                       'instance_name' => 'gpo0',
+                                                                       'range' => '',
+                                                                       'type' => 'output'
+                                                                     },
+                                                  'gpo0_sa_stb_i' => {
+                                                                       'type' => 'input',
+                                                                       'range' => '',
+                                                                       'instance_name' => 'gpo0',
+                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                       'intfc_port' => 'stb_i'
+                                                                     },
+                                                  'gpo0_sa_dat_o' => {
+                                                                       'range' => 'gpo0_Dw-1       :   0',
+                                                                       'instance_name' => 'gpo0',
+                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                       'intfc_port' => 'dat_o',
+                                                                       'type' => 'output'
+                                                                     },
+                                                  'gpo0_sa_rty_o' => {
+                                                                       'intfc_port' => 'rty_o',
+                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                       'instance_name' => 'gpo0',
+                                                                       'range' => '',
+                                                                       'type' => 'output'
+                                                                     },
+                                                  'gpo0_sa_addr_i' => {
+                                                                        'type' => 'input',
+                                                                        'range' => 'gpo0_Aw-1       :   0',
+                                                                        'instance_name' => 'gpo0',
+                                                                        'intfc_name' => 'plug:wb_slave[0]',
+                                                                        'intfc_port' => 'adr_i'
+                                                                      },
+                                                  'gpo0_sa_tag_i' => {
+                                                                       'intfc_port' => 'tag_i',
+                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                       'instance_name' => 'gpo0',
+                                                                       'range' => 'gpo0_TAGw-1     :   0',
+                                                                       'type' => 'input'
+                                                                     },
+                                                  'gpo0_sa_ack_o' => {
+                                                                       'type' => 'output',
+                                                                       'instance_name' => 'gpo0',
+                                                                       'range' => '',
+                                                                       'intfc_port' => 'ack_o',
+                                                                       'intfc_name' => 'plug:wb_slave[0]'
+                                                                     },
+                                                  'gpo0_sa_dat_i' => {
+                                                                       'type' => 'input',
+                                                                       'instance_name' => 'gpo0',
+                                                                       'range' => 'gpo0_Dw-1       :   0',
+                                                                       'intfc_port' => 'dat_i',
+                                                                       'intfc_name' => 'plug:wb_slave[0]'
+                                                                     },
+                                                  'gpo0_sa_we_i' => {
+                                                                      'instance_name' => 'gpo0',
+                                                                      'range' => '',
+                                                                      'intfc_port' => 'we_i',
+                                                                      'intfc_name' => 'plug:wb_slave[0]',
+                                                                      'type' => 'input'
+                                                                    },
+                                                  'gpo0_clk' => {
+                                                                  'range' => '',
+                                                                  'instance_name' => 'gpo0',
+                                                                  'intfc_name' => 'plug:clk[0]',
+                                                                  'intfc_port' => 'clk_i',
+                                                                  'type' => 'input'
+                                                                },
+                                                  'gpo0_port_o' => {
+                                                                     'range' => 'gpo0_PORT_WIDTH-1     :   0',
+                                                                     'instance_name' => 'gpo0',
+                                                                     'intfc_name' => 'IO',
+                                                                     'intfc_port' => 'IO',
+                                                                     'type' => 'output'
+                                                                   },
+                                                  'gpo0_sa_sel_i' => {
+                                                                       'instance_name' => 'gpo0',
+                                                                       'range' => 'gpo0_SELw-1     :   0',
+                                                                       'intfc_port' => 'sel_i',
+                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                       'type' => 'input'
+                                                                     },
+                                                  'gpo0_sa_cyc_i' => {
+                                                                       'intfc_name' => 'plug:wb_slave[0]',
+                                                                       'intfc_port' => 'cyc_i',
+                                                                       'range' => '',
+                                                                       'instance_name' => 'gpo0',
+                                                                       'type' => 'input'
+                                                                     },
+                                                  'gpo0_reset' => {
+                                                                    'instance_name' => 'gpo0',
+                                                                    'range' => '',
+                                                                    'intfc_port' => 'reset_i',
+                                                                    'intfc_name' => 'plug:reset[0]',
+                                                                    'type' => 'input'
+                                                                  }
+                                                }
+                                   }, 'ip_gen' ),
+                'parameters_order' => {
+                                        'current_module_param' => [
+                                                                    'PORT_WIDTH',
+                                                                    'Aw',
+                                                                    'TAGw',
+                                                                    'SELw',
+                                                                    'Dw'
+                                                                  ]
+                                      },
+                'current_module_param' => undef,
+                'hdl_files' => undef
+              }, 'soc' );

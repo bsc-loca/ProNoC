@@ -691,7 +691,7 @@ sub get_all_files_list {
 	my $warnings;
 	#make target dir
 	my $project_dir	  = abs_path("$dir/../..");
-	
+		
 	foreach my $id (@instances){
 		my $module 		=$soc->soc_get_module($id);
 		my $module_name	=$soc->soc_get_module_name($id);
@@ -704,15 +704,8 @@ sub get_all_files_list {
     			my $n="$project_dir$f";
     			 if (!(-f "$n") && !(-f "$f" ) && !(-d "$n") && !(-d "$f" )     ){
     			 	$warnings=(defined $warnings)? "$warnings WARNING: Can not find  \"$f\" which is required for \"$inst\" \n":"WARNING: Can not find  \"$f\"  which is required for \"$inst\"\n ";   
-    			 	
-    			 }
-    			
-    		
+     			 }
     		}
-		
-		
-		
-		
 		@files=(@files,@new);
 	}
 	return \@files,$warnings;
@@ -748,10 +741,10 @@ sub add_to_project_file_list{
 #################
 
 sub generate_soc{
-	my ($soc,$info,$target_dir,$hw_path,$sw_path,$gen_top,$gen_hw_lib,$oldfiles)=@_;
+	my ($soc,$info,$target_dir,$hw_path,$sw_path,$gen_top,$gen_hw_lib,$oldfiles,$multi_core)=@_;
 		my $name=$soc->object_get_attribute('soc_name');
 	    $oldfiles = "remove" if(!defined $oldfiles);
-		
+		$multi_core = 0 if(!defined $multi_core);
 		my ($file_v,$top_v,$readme,$prog)=soc_generate_verilog($soc,$sw_path,$info);
 			
 		# Write object file
@@ -861,6 +854,7 @@ sub generate_soc{
 		if (!(-f "$n")) { 
 			# Write main.c
 			open(FILE,  ">$n") || die "Can not open: $!";
+			print FILE '#define MULTI_CORE' if($multi_core);
 			print FILE main_c_template($name);
 			close(FILE) || die "Error closing file: $!";
 			
@@ -1608,7 +1602,7 @@ sub soc_gen_top_ip{
 	my $wires=soc->new_wires();
 	foreach my $id (@instances){
 		my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$io_sim_v,
-		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
+		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass,$src_io_short, $src_io_full)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
 	}	#$id
 	return $top_ip;
 }

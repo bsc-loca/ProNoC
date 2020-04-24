@@ -6,6 +6,7 @@ use Glib qw(TRUE FALSE);
 use Gtk2 '-init';
 use Gtk2::SourceView2;
 use Data::Dumper;
+use File::Which;
 
 use IPC::Run qw( harness start pump finish timeout );
 
@@ -26,6 +27,7 @@ my $NAME = 'Uart Terminal';
 my 	$path = "";
 sub uart_stand_alone(){
 	$path = "../../";
+	set_path_env();
 	Gtk2->init;
 	my $window=uart_main();
 	$window->signal_connect (delete_event => sub { Gtk2->main_quit });
@@ -67,7 +69,7 @@ sub receive_boxes{
 	my @tviews;
 	for (my $i=0; $i<$num; $i+=1){	
 			my ($box,$tview) = create_rsv_box($self,$i);
-			push(@tviews,$tview);  			
+			$tviews[$i]=$tview;  			
   			my $y= int($i/$dim_y);
     		my $x= $i % $dim_y;    		
 	        $table->attach_defaults ($box, $x, $x+1 , $y, $y+1);	
@@ -132,7 +134,7 @@ sub sender_box{
 	for (my $i=0; $i<$num; $i+=1){	
 		my $index= $self->object_get_attribute("CTRL","INDEX_$i");	
 		$def= $index if(!defined $def);
-		push(@indexs,$index);
+		$indexs[$i]=$index;
 	}
 	my $indexs = join(',',@indexs);
 	my $comb=gen_combobox_object($self,'CTRL',"SEND_TO_INDEX",$indexs,$def,undef,undef);	
@@ -185,31 +187,7 @@ sub run_pipe{
 
 
 
-sub start_xsct{
-	my ($self,$pipe,$tview,$in, $out, $err)=@_;
-	my $xsct="/home/alireza/xilinx/SDK/2019.1/bin/xsct";
-	
-	#check if $xsct exits
-	unless(-f $xsct){
-		add_colored_info($tview,"Error file not found: $xsct\n",'red');
-		return 0;	
-	}	
-	my @cat = ( $xsct );
-	my $r;
-	
-	$$pipe =start \@cat, $in, $out, $err or $r=$?;
-	if(defined $r){
-		add_colored_info($tview,"XSCT got an Error: $r\n",'red');
-		return 0;		
-	}
-	
-	$$in = "";
-    return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
-    $$in = "set jseq [jtag sequence]\n connect\n jtag targets 3\n puts done\n";
-    return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
-         
-    return 1;
-}
+
 
 sub refresh_gui{
 	while (Gtk2->events_pending) {
@@ -218,12 +196,7 @@ sub refresh_gui{
     Gtk2::Gdk->flush;
 }
 
-sub close_xsct{
-	my ($self,$pipe,$tview,$in, $out, $err)=@_;
-	$$in = "exit\n";
-  	pump $$pipe while (length $$in);
-   	finish $$pipe;
-}
+
 
 
 sub check_jtag_connect {
@@ -269,13 +242,7 @@ sub hex_to_ascii { # $ascii ($hex)
 	
 sub run_jtag_scaner{
 	my ($self,$tview,$tv_ref,$pipe,$in, $out, $err)=@_; 
-	
-	
-	
-	
-	
-	
-	
+		
 	my $num = $self->object_get_attribute('CTRL','UART_NUM');
 	my $chain= $self->object_get_attribute('CTRL','JTAG_CHAIN');
 	my $chain_code=
@@ -288,7 +255,7 @@ sub run_jtag_scaner{
 	
 	for (my $i=0; $i<$num; $i+=1){	
 		my $index= $self->object_get_attribute("CTRL","INDEX_$i");	
-	
+		next if (!defined $index);
 		my $txt= $self->object_get_attribute("SEND","TXT_$index");
 		my $send_char =0;
 		my $l=length $txt;
@@ -315,9 +282,9 @@ sub run_jtag_scaner{
 		#print"read reg 0\n";
 		my $str=jtag_vdr   ($send_char,32,$chain_code);	
 		$$in=$str;
-		#print "$$in\n";
+		nop();
 		return  unless run_pipe($self,$pipe,$in,$out,$err,$tview);
-		print "$$out\n";
+		nop();
 		my ($hex)= sscanf("R:%s:R",$$out);
 		my $char= substr $hex, 0, 2;
 		if($char ne '00'){	
@@ -327,7 +294,10 @@ sub run_jtag_scaner{
 	}
 }
 
-
+sub nop{
+	#no oprtstion
+	return
+}
 
 
 ###############
@@ -343,6 +313,44 @@ use constant UPDATE_DAT   => "04";
 #USER3 100010 Access user-defined register 3.
 #USER4 100011 Access user-defined register 4
 
+
+sub start_xsct{
+	my ($self,$pipe,$tview,$in, $out, $err)=@_;
+	
+	
+	my $xsct = which('xsct');	
+	
+	#check if $xsct exits
+	unless(-f $xsct){
+		add_colored_info($tview,"Error xsct not found. Please add the path to xilinx/SDK/bin to your \$PATH envirement\n",'red');
+		return 0;	
+	}	
+	my @cat = ( $xsct );
+	my $r;
+	
+	$$pipe =start \@cat, $in, $out, $err or $r=$?;
+	if(defined $r){
+		add_colored_info($tview,"XSCT got an Error: $r\n",'red');
+		return 0;		
+	}
+	
+	$$in = "";
+    return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
+    $$in = "set jseq [jtag sequence]\n connect\n jtag targets 3\n puts done\n";
+    return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
+         
+    return 1;
+}
+
+
+
+
+sub close_xsct{
+	my ($self,$pipe,$tview,$in, $out, $err)=@_;
+	$$in = "exit\n";
+  	pump $$pipe while (length $$in);
+   	finish $$pipe;
+}
 
 
 sub jtag_reorder{
@@ -453,10 +461,10 @@ sub uart_main {
             	check_jtag_connect ($self,\$pipe,$tview,\$in, \$out, \$err);
             	my $st =$self->object_get_attribute("CTRL","RUN");
             	$counter=5 if ($st eq 'OFF');
-            	print "ON-OFF\n";
+            	#print "ON-OFF\n";
             }
-            print "ref\n";
-           ;    
+           # print "ref\n";
+               
             
        }
         my $st =$self->object_get_attribute("CTRL","RUN");

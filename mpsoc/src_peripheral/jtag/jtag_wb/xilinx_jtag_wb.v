@@ -72,7 +72,8 @@ module xilinx_jtag_wb #(
     wire  [J2WBw-1  : 0] jtag_to_wb [JWB_NUM-1 : 0];
     wire  [WB2Jw-1  : 0] wb_to_jtag [JWB_NUM-1 : 0];   
     wire  [JINDEXw-1 : 0] wb_to_jtag_index_all[JWB_NUM-1 : 0];
-    wire  [JDw-1 : 0] wb_to_jtag_dat_all [JWB_NUM-1 : 0];
+    //wire  [JDw-1 : 0] wb_to_jtag_dat_all [JWB_NUM-1 : 0];
+    wire  [JDw*JWB_NUM-1 : 0] wb_to_jtag_dat_all;
     wire  [JWB_NUM-1 : 0] wb_to_jtag_ack_all;
     wire  [JWB_NUM-1 : 0] wb_to_jtag_ack_all_latched;
     wire  [JSTATUSw-1 : 0] wb_to_jtag_status_all [JWB_NUM-1 : 0];
@@ -103,7 +104,7 @@ module xilinx_jtag_wb #(
         for (i = 0; i < JWB_NUM ; i = i + 1) begin : block
            
             assign  wb_to_jtag[i]  = wb_to_jtag_all [(i+1)*WB2Jw-1 : i*WB2Jw];            
-            assign  {wb_to_jtag_status_all[i],wb_to_jtag_ack_all[i],wb_to_jtag_dat_all[i],wb_to_jtag_index_all [i],wb_to_jtag_clk[i]}  = wb_to_jtag[i];
+            assign  {wb_to_jtag_status_all[i],wb_to_jtag_ack_all[i],wb_to_jtag_dat_all[(i+1)*JDw-1 : i*JDw],wb_to_jtag_index_all [i],wb_to_jtag_clk[i]}  = wb_to_jtag[i];
             assign  jtag_sel_onehot[i] = (wb_to_jtag_index_all [i] == jtag_to_wb_index);
             assign  stb_all[i] = jtag_to_wb_stb & jtag_sel_onehot[i];           
             assign  jtag_to_wb_all[(i+1)*J2WBw-1 : i*J2WBw] =jtag_to_wb[i];
@@ -132,7 +133,7 @@ module xilinx_jtag_wb #(
   
     jtag_one_hot_to_bin #(
         .ONE_HOT_WIDTH(JWB_NUM),
-        .BIN_WIDTH()
+        .BIN_WIDTH(BIN_WIDTH)
     )
     convert
     (
@@ -144,7 +145,19 @@ module xilinx_jtag_wb #(
      
      assign wb_to_jtag_status=wb_to_jtag_status_all[jtag_sel_bin];
      assign wb_to_jtag_ack =wb_to_jtag_ack_all_latched[jtag_sel_bin];
-     assign wb_to_jtag_dat=wb_to_jtag_dat_all   [jtag_sel_bin];
+    // assign wb_to_jtag_dat=wb_to_jtag_dat_all   [jtag_sel_bin];
+   //use one-hot mux if index doesnt match the read data is zero
+     jtag_one_hot_mux #(
+     	.IN_WIDTH(JDw*JWB_NUM),
+     	.SEL_WIDTH(JWB_NUM),
+     	.OUT_WIDTH(JDw)
+     )
+     one_hot_mux
+     (
+     	.mux_in(wb_to_jtag_dat_all),
+     	.mux_out(wb_to_jtag_dat),
+     	.sel(jtag_sel_onehot)
+     );
    
     
     //assign {wb_to_jtag_status,wb_to_jtag_ack,wb_to_jtag_dat}
@@ -190,21 +203,34 @@ module xilinx_jtag_wb #(
     always @(posedge tclk or posedge reset)begin    
        if(reset) begin 
         ctrl_reg <=2'b00;
-        rst_ctrl_ack<=1'b0;
+      
        end 
        else if(jtag_to_wb_index ==   CTRL_REG_INDEX)begin 
-            rst_ctrl_ack<=jtag_to_wb_stb;
+           
             if(jtag_to_wb_we & jtag_to_wb_stb) begin 
                 ctrl_reg <= jtag_to_wb_dat[1:0];
                 
             end
        end  
     end 
+    
+     always @(posedge tclk or posedge reset)begin    
+       if(reset) begin 
+      
+        rst_ctrl_ack<=1'b0;
+       end 
+       else begin 
+            rst_ctrl_ack<=jtag_to_wb_stb;
+           
+       end  
+    end 
+    
+    
 
     assign  system_reset =   ctrl_reg[0];
     assign  cpu_en       = ~ ctrl_reg[1];
     
-    assign  mem_ctrl_jtag_ack = (jtag_to_wb_index ==   CTRL_REG_INDEX)? rst_ctrl_ack : wb_to_jtag_ack; 
+    assign  mem_ctrl_jtag_ack = ((jtag_to_wb_index ==   CTRL_REG_INDEX) ||  jtag_sel_onehot == {JWB_NUM{1'b0}} ) ? rst_ctrl_ack : wb_to_jtag_ack; 
 endmodule
   
   
@@ -295,10 +321,10 @@ module  xilinx_jtag_mem_ctrl #(
         WB_WR_DATA=2,
         WB_RD_DATA=4;
     
-  //  output reg [STATE_NUM-1    :   0] ps;
+  
     
     reg [STATE_NUM-1    :   0] ns, ps;
-    
+    wire reset_ps=1'b0;
    
       
     wire  wb_wr_addr_en,  wb_wr_data_en,    wb_rd_data_en;
@@ -310,7 +336,7 @@ module  xilinx_jtag_mem_ctrl #(
     reg wb_addr_inc;    
     
    
-    assign  jtag_to_wb_stb    = wr_mem_en |  rd_mem_en;
+    assign  jtag_to_wb_stb    = (wr_mem_en |  rd_mem_en) & ~reset_ps;
     assign  jtag_to_wb_we     = wr_mem_en;
     assign  jtag_to_wb_dat    = wb_wr_data;
     assign  jtag_to_wb_addr   = wb_addr;
@@ -324,8 +350,8 @@ module  xilinx_jtag_mem_ctrl #(
     
     assign  data_in    = wb_rd_data;
    
+    wire ir_updated;
   
-    
     xilinx_jtag_ctrl #(
         .JTAG_CHAIN(JTAG_CHAIN),
         .Dw(JDw),
@@ -344,7 +370,8 @@ module  xilinx_jtag_mem_ctrl #(
         .data_in(data_in),
         .wb_wr_addr_en(wb_wr_addr_en),
         .wb_wr_data_en(wb_wr_data_en),
-        .wb_rd_data_en(wb_rd_data_en)
+        .wb_rd_data_en(wb_rd_data_en),
+        .ir_updated(ir_updated)
     );
         
     
@@ -356,9 +383,10 @@ module  xilinx_jtag_mem_ctrl #(
             ps <= IDEAL;
         end else begin
             wb_addr <= wb_addr_next;
-            ps <= ns;
+              if(reset_ps)   ps <= IDEAL;
+              else ps <= ns;
            // if(wb_wr_data_en) wb_wr_data  <= data_out;  
-            if(wb_cap_rd) wb_rd_data <= wb_to_jtag_dat;
+            if(wb_cap_rd | ir_updated ) wb_rd_data <= wb_to_jtag_dat;
         end
     end
     
@@ -378,6 +406,8 @@ module  xilinx_jtag_mem_ctrl #(
         rd_mem_en =1'b0;
         wb_addr_inc=1'b0;
         wb_cap_rd=1'b0;
+      
+        
         case(ps)
         IDEAL : begin 
             if(wb_wr_data_en) ns= WB_WR_DATA;   
@@ -396,10 +426,10 @@ module  xilinx_jtag_mem_ctrl #(
         end 
         WB_RD_DATA: begin 
             rd_mem_en =1'b1;
-            wb_cap_rd=1'b1;
+            //wb_cap_rd=1'b1;
             if(wb_to_jtag_ack) begin 
                  rd_mem_en =1'b0;
-                 wb_cap_rd=1'b0;
+                // wb_cap_rd=1'b0;
                 ns=IDEAL;
                 //wb_addr_inc=1'b1;         
             end     
@@ -426,6 +456,7 @@ module xilinx_jtag_ctrl #(
   //  clk,
     tck,
     reset,
+    ir_updated,
     status_i,
     data_out,
     data_in,
@@ -466,6 +497,7 @@ module xilinx_jtag_ctrl #(
     output  reg [Iw-1:0] ir;
     output  reg [INDEXw-1:0] index;
     output   reg [Dw-1    :0] data_out;
+    output reg ir_updated;
     
 
     wire      tdo, tck,   tdi;  
@@ -502,6 +534,9 @@ module xilinx_jtag_ctrl #(
             end
             UPDATE_WB_RD_DATA: begin 
                 jtag_shift_buffer_next[Dw-1 : 0] = data_in;
+                //synthesis translate_off 
+                 if(data_in[7:0]!=7'd0 && index==126)  $write("%c",data_in[7:0]);
+                //synthesis translate_on
             end
             default :begin
                 jtag_shift_buffer_next=jtag_shift_buffer;
@@ -531,16 +566,27 @@ module xilinx_jtag_ctrl #(
                     index <= jtag_shift_buffer[INDEXw-1 : 0];
                     ir<={Iw{1'b0}};
                     mask<=1'b1;
+                   
+                    
                 end else if(update_ir_flag   )begin 
                     ir    <= jtag_shift_buffer[Iw-1 : 0];
+                  
                     mask<=1'b1;
                 end    
                 if(update_dat_flag  )begin 
                     data_out <= jtag_shift_buffer[Dw-1 : 0];
                     mask<=1'b0;
+                 
                 end    
             end            
-    end   
+    end 
+    
+    
+    
+    always @(tck )    begin                 
+            if( udr && update_ir_flag   ) ir_updated<=1'b1;
+            else ir_updated<=1'b0;
+    end        
    // assign data_out = jtag_shift_buffer[Dw-1 : 0];
     
    /* 
@@ -719,5 +765,43 @@ generate
 
 endgenerate
 
+endmodule
+
+
+module jtag_one_hot_mux #(
+        parameter   IN_WIDTH      = 20,
+        parameter   SEL_WIDTH =   5, 
+        parameter   OUT_WIDTH = IN_WIDTH/SEL_WIDTH
+
+    )
+    (
+        input [IN_WIDTH-1       :0] mux_in,
+        output[OUT_WIDTH-1  :0] mux_out,
+        input[SEL_WIDTH-1   :0] sel
+
+    );
+
+    wire [IN_WIDTH-1    :0] mask;
+    wire [IN_WIDTH-1    :0] masked_mux_in;
+    wire [SEL_WIDTH-1:0]    mux_out_gen [OUT_WIDTH-1:0]; 
+    
+    genvar i,j;
+    
+    //first selector masking
+    generate    // first_mask = {sel[0],sel[0],sel[0],....,sel[n],sel[n],sel[n]}
+        for(i=0; i<SEL_WIDTH; i=i+1) begin : mask_loop
+            assign mask[(i+1)*OUT_WIDTH-1 : (i)*OUT_WIDTH]  =   {OUT_WIDTH{sel[i]} };
+        end
+        
+        assign masked_mux_in    = mux_in & mask;
+        
+        for(i=0; i<OUT_WIDTH; i=i+1) begin : lp1
+            for(j=0; j<SEL_WIDTH; j=j+1) begin : lp2
+                assign mux_out_gen [i][j]   =   masked_mux_in[i+OUT_WIDTH*j];
+            end
+            assign mux_out[i] = | mux_out_gen [i];
+        end
+    endgenerate
+    
 endmodule
 

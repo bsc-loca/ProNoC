@@ -1097,9 +1097,9 @@ sub gen_all_tiles{
         my $sw_path     = "$sw_dir/tile$tile_num";
         #print "$sw_path\n";
         if( grep (/^$soc_name$/,@generated_tiles)){ # This soc is generated before only create the software file
-            generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,0);
+            generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,0,undef,1);
         }else{
-            generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,1,"merge");
+            generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,1,"merge",1);
             move ("$hw_dir/$soc_name.v","$hw_dir/tiles/");
             my @tmp= ("$hw_dir/tiles/$soc_name.v");
             add_to_project_file_list(\@tmp,"$hw_dir/tiles",$hw_dir);       
@@ -1271,9 +1271,9 @@ sub generate_mpsoc{
     gen_tiles_physical_addrsses_header_file($mpsoc,"$sw_dir/phy_addr.h");
         
     #copy all NoC HDL files    
-    my @files = glob( "$dir/../src_noc/*.v" );
-    copy_file_and_folders(\@files,$project_dir,"$hw_dir/lib/");  
-    add_to_project_file_list(\@files,"$hw_dir/lib/",$hw_dir);
+    #my @files = glob( "$dir/../src_noc/*.v" );
+    #copy_file_and_folders(\@files,$project_dir,"$hw_dir/lib/");  
+    #add_to_project_file_list(\@files,"$hw_dir/lib/",$hw_dir);
     my ($file_v,$top_v)=mpsoc_generate_verilog($mpsoc,$sw_dir,$info);
     
     #if Topology is custom copy custom topology files

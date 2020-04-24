@@ -90,7 +90,7 @@ endmodule
 
 	#add_text_to_string(\$top_v,$local_param_v_all."\n".$io_full_v_all);
 	#add_text_to_string(\$top_v,$ins);
-	#$mpsoc->object_add_attribute('top_ip',undef,$top_ip);
+	$mpsoc->object_add_attribute('top_ip',undef,$top_ip);
 	return ($mpsoc_v,$top_v);
 }
 
@@ -265,8 +265,10 @@ sub  gen_soc_param {
 		 %params=$top->top_get_default_soc_param();
 	}
 	my $params="\n\t //Parameter setting for $soc_name  located in tile: $tile_num \n";
-	foreach my $p (sort keys %params){
+	$params{'CORE_ID'}=$tile_num;
+	foreach my $p (get_param_list_in_order(\%params)){
 			$params{$p}=add_instantc_name_to_parameters(\%params,"T$tile_num",$params{$p});
+			
 			$params="$params\t localparam T${tile_num}_$p=$params{$p};\n";
 	}
 	return $params;
@@ -846,7 +848,7 @@ sub get_top_clk_setting{
 	my $clk_assigned_port;
     foreach my $id (@instances){
     	my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$io_sim_v,
-		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
+		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass,$src_io_short, $src_io_full)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
     	
 		#my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$system_v,$assigned_ports)=gen_module_inst($id,$soc,\$io_sim_v,\$io_top_sim_v,\$param_as_in_v,$top_ip,$intfc,$wires,\$param_pass_v,\$system_v);
    		my $inst   	= $soc->soc_get_instance_name($id);

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 package ProNOC;
-use Term::ANSIColor qw(:constants);
+
 
 #add home dir in perl 5.6
 use FindBin;
@@ -42,60 +42,7 @@ sub main{
 	}	
 }
 
-sub set_path_env{
-	my $project_dir	  = get_project_dir(); #mpsoc dir addr
-	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/Paths";
-	my $paths= do $paths_file;
-	my $pronoc_work = $paths->object_get_attribute("PATH","PRONOC_WORK");	
-	my $quartus = $paths->object_get_attribute("PATH","QUARTUS_BIN");
-	my $vivado  = $paths->object_get_attribute("PATH","VIVADO_BIN");
-	my $sdk     = $paths->object_get_attribute("PATH","SDK_BIN");
-		
-	my $modelsim = $paths->object_get_attribute("PATH","MODELSIM_BIN");
-	$ENV{'PRONOC_WORK'}= $pronoc_work if( defined $pronoc_work);
-	$ENV{'QUARTUS_BIN'}= $quartus if( defined $quartus);
-	$ENV{'VIVADO_BIN'}= $vivado if( defined $vivado);
-	$ENV{'SDK_BIN'}= $vivado if( defined $sdk);
-	$ENV{'MODELSIM_BIN'}= $modelsim if( defined $modelsim);	
-	
-	if( defined $pronoc_work){if(-d $pronoc_work ){
-			mkpath("$pronoc_work/emulate",1,01777) unless -d "$pronoc_work/emulate";
-			mkpath("$pronoc_work/simulate",1,01777) unless -d "$pronoc_work/simulate";	
-			mkpath("$pronoc_work/tmp",1,01777) unless -d "$pronoc_work/tmp";			
-	}}
-	
-	#add quartus_bin to PATH linux envirement if it does not exist in PATH
-	my $add;
-	if( defined $quartus){
-		my @q =split  (/:/,$ENV{'PATH'});
-		my $p=get_scolar_pos ($quartus,@q);
-		$ENV{'PATH'}= $ENV{'PATH'}.":$quartus" unless ( defined $p); 
-		$add=(defined $add)? $add.":$quartus" : $quartus unless ( defined $p);
-		
-	}
-	
-	if( defined $vivado){
-		my @q =split  (/:/,$ENV{'PATH'});
-		my $p=get_scolar_pos ($vivado,@q);
-		$ENV{'PATH'}= $ENV{'PATH'}.":$vivado" unless ( defined $p); 
-		$add=(defined $add)? $add.":$vivado" : $vivado unless ( defined $p);
-		
-	}
-	
-	if( defined $sdk){
-		my @q =split  (/:/,$ENV{'PATH'});
-		my $p=get_scolar_pos ($sdk,@q);
-		$ENV{'PATH'}= $ENV{'PATH'}.":$sdk" unless ( defined $p); 
-		$add=(defined $add)? $add.":$sdk" : $sdk unless ( defined $p);
-		   
-	}
-	if(defined $add){
-		print GREEN, "Info: $add",RESET;
-		print " has been added to linux PATH envirement.\n";
-	}
-	
-	
-}
+
 
 
 
