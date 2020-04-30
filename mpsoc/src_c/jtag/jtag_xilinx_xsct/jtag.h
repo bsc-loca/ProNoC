@@ -39,8 +39,8 @@ unsigned int write_verify=0;
 unsigned int memory_offset=0;
 unsigned int memory_boundary=0xFFFFFFFF;
 unsigned int WORDS_NUM = 2;// will be updated after reading arguments
-
-
+int chain_num = 4;
+int chain_code=	0x23;	
 
 
 char * binary_file_name=0;

@@ -9,6 +9,7 @@
 
 
 
+
 /* functions */
 int send_binary_file();
 int read_mem();
@@ -28,6 +29,7 @@ int main(int argc, char **argv) {
 		fprintf (stderr, "Error opening jtag IP with %d index num\n",index_num);
 		return -1;
 	}
+	jtag_vindex(index_num);
 	//printf("jtag is initilized\n");
 	if (enable_binary_send) {
 		if( send_binary_file() == -1) return -1;
@@ -52,10 +54,11 @@ int main(int argc, char **argv) {
 
 void usage(){
 
-	printf ("usage:./jtag_main [-n	index number] [-a jtag_target_number] [-b jtag_shift_reg_size] [-i file_name][-c][-s rd/wr offset address][-d string]\n");
+	printf ("usage:./jtag_main [-n	index number] -a jtag_target_number [-b jtag_shift_reg_size] [-i file_name][-c][-s rd/wr offset address][-d string] [-t Jtag_chain number]\n");
 	printf ("\t-a	the order number of target device in jtag chain. Run jtag targets after \"connect\" command in xsct terminal to list all availble targets\n");  
 	printf ("\t-b	Jtag shiftreg data width. It should be the target device Data width + 4\n");  
- 	printf ("\t-n	index number: the target jtag IP core index number. The default number is 126\n");  
+	printf ("\t-t	Jtag_chain number: the BSCANE2 tab number :1,2,3 or 4. The default is 4\n");    	
+	printf ("\t-n	index number: the target jtag IP core index number. The default number is 126\n");  
 	printf ("\t-i	file_name:  input binary file name (.bin file)\n");
 	printf ("\t-r	read memory content and display in terminal\n");
 	printf ("\t-w	bin file word width in byte. default is 4 bytes (32 bits)\n");
@@ -74,7 +77,7 @@ int p;
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage();	
-   while ((c = getopt (argc, argv, "s:e:d:n:i:w:a:b:cr")) != -1)
+   while ((c = getopt (argc, argv, "s:e:d:n:t:i:w:a:b:cr")) != -1)
       {
 	 switch (c)
 	    {
@@ -84,7 +87,13 @@ int p;
 	    case 'b':	/* device number in chain */
 	       jtag_shift_reg_size = atoi(optarg);
 	       break;
-
+	    case 't':	/* Jtag_chain_num */
+	       chain_num = atoi(optarg);
+	       if (chain_num<1 || chain_num>4 ) {
+			fprintf (stderr, "Wrong jtag_chain_num the given %u value is out of valid range 1,2,3 or 4.\n\n", chain_num);
+			usage();	  
+	       }
+	       break;
 
 	    case 'n':	/* index number */
 	       index_num = atoi(optarg);

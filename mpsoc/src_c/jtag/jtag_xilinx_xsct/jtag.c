@@ -215,6 +215,14 @@ void wait_for_pipe_output(char* buf,  const char * out){
 
 int jtag_init( ) {
 
+//update chain code value
+  chain_code=
+		(chain_num==1)? 0x02:
+		(chain_num==2)? 0x03:
+		(chain_num==3)? 0x022:
+		0x23;	
+
+
 #ifdef PRINT_TO_XSCT
 	to_xsct_file = fopen("to_xsct.txt", "w");
 	if (to_xsct_file == NULL) {
@@ -266,7 +274,7 @@ int jtag_init( ) {
       
      
       if(feof(from_xsct)) {
-         fprintf(stderr, "saw eof from xsct\n");
+         fprintf(stderr, "saw eof from xsct. Make sure path to xsxt is included in PATH linuc enviremet\n");
          exit(1);
       }
 
@@ -299,7 +307,7 @@ int jtag_init( ) {
   
 	
 
-jtag_vindex(index_num);
+
  
 	return 0;
   
@@ -413,14 +421,14 @@ void return_dr_long (unsigned *out, int words) {
 
 void send_to_jtag (char * hexstring) {
 	fprintf(to_xsct,"$jseq clear\n");                                                               
-	fprintf(to_xsct,"$jseq irshift -state IDLE -hex 6 23\n");                 
+	fprintf(to_xsct,"$jseq irshift -state IDLE -hex 6 %x\n",chain_code);                 
 	fprintf(to_xsct,"$jseq drshift -state IDLE -hex %u %s\n",jtag_shift_reg_size,hexstring);                  
 	//printf("$jseq drshift -state IDLE -hex %u %s\n",jtag_shift_reg_size,hexstring);
 	fprintf(to_xsct,"$jseq run\n");
 
 #ifdef PRINT_TO_XSCT
 	fprintf(to_xsct_file,"$jseq clear\n");                                                               
-	fprintf(to_xsct_file,"$jseq irshift -state IDLE -hex 6 23\n");                 
+	fprintf(to_xsct_file,"$jseq irshift -state IDLE -hex 6 %x\n",chain_code);                 
 	fprintf(to_xsct_file,"$jseq drshift -state IDLE -hex %u %s\n",jtag_shift_reg_size,hexstring);                  
 	fprintf(to_xsct_file,"$jseq run\n");
 #endif
@@ -431,14 +439,14 @@ void send_to_jtag (char * hexstring) {
 
 void send_capture_jtag (char * hexstring) {
 	fprintf(to_xsct,"$jseq clear\n");                                                               
-	fprintf(to_xsct,"$jseq irshift -state IDLE -hex 6 23\n");                 
+	fprintf(to_xsct,"$jseq irshift -state IDLE -hex 6 %x\n",chain_code);                 
 	fprintf(to_xsct,"$jseq drshift -state IDLE -capture -hex %u %s\n",jtag_shift_reg_size,hexstring);  
 	//printf("$jseq drshift -state IDLE -capture -hex %u %s\n",jtag_shift_reg_size,hexstring);
 	fprintf(to_xsct,"set data [$jseq run]\n"); 
 	//fflush(to_xsct);     
 #ifdef PRINT_TO_XSCT
 	fprintf(to_xsct_file,"$jseq clear\n");                                                               
-	fprintf(to_xsct_file,"$jseq irshift -state IDLE -hex 6 23\n");                 
+	fprintf(to_xsct_file,"$jseq irshift -state IDLE -hex 6 %x\n",chain_code);                  
 	fprintf(to_xsct_file,"$jseq drshift -state IDLE -capture -hex %u %s\n",jtag_shift_reg_size,hexstring);  
 	fprintf(to_xsct_file,"set data [$jseq run]\n"); 
 #endif
