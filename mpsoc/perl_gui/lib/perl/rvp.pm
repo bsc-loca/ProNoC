@@ -3318,7 +3318,7 @@ $languageDef =
  allowAnything => 1, 
  search => 
   [
-   { arcName   => 'CONCAT',      regexp    => '{' ,
+   { arcName   => 'CONCAT',      regexp    => '\{' ,
      nextState => ['IN_CONCAT','PARAM_AFTER_EQUALS'] ,  },
    { arcName   => 'COMMA',       regexp    => ',' ,
      nextState => ['PARAM_NAME'] ,    },
@@ -3331,7 +3331,7 @@ $languageDef =
  allowAnything => 1, 
  search => 
   [
-   { arcName   => 'CONCAT' ,   regexp    => '{' ,
+   { arcName   => 'CONCAT' ,   regexp    => '\{' ,
      nextState => ['IN_CONCAT','IN_CONCAT'] ,     },
    { arcName   => 'END' ,      regexp    => '}' , }, # pop up
    @$vid_vnum_or_string,
@@ -3444,7 +3444,7 @@ $languageDef =
    [ 
     { arcName=>'COMMA',     regexp => ',',    
       nextState => ['ASSIGN'],},
-    { arcName=>'CONCAT',    regexp => '{',
+    { arcName=>'CONCAT',    regexp => '\{',
       nextState => ['IN_CONCAT','ASSIGN_AFTER_EQUALS'],},
     # don't get confused by function calls (which can also contain commas)
     {	arcName=>'BRACKET',   regexp => '\(',    
@@ -3500,7 +3500,7 @@ $languageDef =
  search => 
    [ 
     { regexp => ',',    nextState => ['SIGNAL_NAME'],},
-    { regexp => '{',    nextState => ['IN_CONCAT','SIGNAL_AFTER_EQUALS'],},
+    { regexp => '\{',    nextState => ['IN_CONCAT','SIGNAL_AFTER_EQUALS'],},
     { regexp => '\(',   nextState => ['IN_BRACKET','SIGNAL_AFTER_EQUALS'],},
     { arcName => 'END', regexp => ';', }, # pop up
     @$vid_vnum_or_string,
@@ -3663,7 +3663,7 @@ $languageDef =
      nextState => ['STMNT_ASSIGN_OR_TASK'] , },
    { arcName   => 'ASSIGN_OR_TASK',	   regexp => '$VID' ,
      nextState => ['STMNT_ASSIGN_OR_TASK'] , },
-   { arcName   => 'CONCAT',	           regexp => '{' ,
+   { arcName   => 'CONCAT',	           regexp => '\{' ,
      nextState => ['IN_CONCAT','STMNT_ASSIGN'] ,  },
    { arcName   => 'NULL',                  regexp => ';' ,
      }, # pop up
@@ -3938,7 +3938,7 @@ $languageDef =
  allowAnything => 1, 
  search => 
   [
-   { arcName   => 'CONCAT',      regexp    => '{' ,
+   { arcName   => 'CONCAT',      regexp    => '\{' ,
      nextState => ['IN_CONCAT','PPL_AFTER_EQUALS'] ,  },
    { arcName   => 'BRACKET',      regexp    => '\(' ,
      nextState => ['IN_BRACKET','PPL_AFTER_EQUALS'] ,  },

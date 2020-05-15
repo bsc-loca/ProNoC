@@ -214,7 +214,7 @@ sub load_orcc_csv{
     			 			
     			$channels{"${src}:$src_port"}= (defined $channels{"${src}:$src_port"})? $channels{"${src}:$src_port"}+1 : 0;  
     			my $cc=$channels{"${src}:$src_port"};
-    			print "find channel for  ** ${src}_$src_port -> ${dest}_$dst_port**: $cc\n";
+    			#print "find channel for  ** ${src}_$src_port -> ${dest}_$dst_port**: $cc\n";
     			  			
     			add_trace($self, "${net}:${f_id}:","raw",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size,$channels{"${src}:$src_port"},0);	
     			#print "add_trace($self, \"${net}:${f_id}:\",\"raw\",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size,$channels{\"${src}:$src_port\"});\n";	

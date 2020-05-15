@@ -153,7 +153,7 @@ module  testbench(
        @(posedge clk)#1;
        capture_wb_dat_o=1'b0; 
        @(posedge clk)#10;    
-      // $display("%u",captured_wb_dat); 
+      // $display("%d",captured_wb_dat); 
     end
     endtask
     

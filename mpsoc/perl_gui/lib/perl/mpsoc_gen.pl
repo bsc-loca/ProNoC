@@ -181,7 +181,7 @@ sub check_inserted_ip_nums{
             push(@all_num,$range[0]);
         }elsif($size ==2){# its a range
             my($min,$max)=@range;
-            if($min>$max) {message_dialog ("invalid range: [$p]" ); return;} 
+            if($min>$max) {message_dialog ("invalid range: [$p]",'error' ); return;} 
             for (my $i=$min; $i<=$max; $i++){
                 if ( grep( /^$i$/, @all_num ) ) { message_dialog ("Multiple definition for Ip number $i in $p" ); return; }
                 push(@all_num,$i);
@@ -1859,6 +1859,18 @@ sub clk_setting_win1{
 
 }
 
+
+sub update_wave_form {
+	my ($period,$rise,$fall,$r_lab,$f_lab)=@_;
+	my $p =$period->get_value();
+	my $n =$rise->get_value();
+	my $v= ($p * $n)/100;
+	$r_lab->set_text("=$v ns");			 
+	$n =$fall->get_value();
+	$v= ($p * $n)/100;
+	$f_lab->set_text("=$v ns");	
+}
+
 sub get_source_assignment_win{
 	my ($mpsoc,$s,$ports_ref,$type)=@_;
 	my$row=0;
@@ -1868,6 +1880,15 @@ sub get_source_assignment_win{
 	my $win1=add_widget_to_scrolled_win($table1);
 	my $win2;
 	my $v2;
+	
+	#if($s eq 'clk'){
+	#	my @lables=("clk name", 'Frequency MHz', 'Period ns', 'rise edge times ns', 'fall edge times ns');
+	#	foreach my $l (@lables){
+			#  $table1->attach  (gen_label_in_center($l),$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column+=5;
+	#	}
+		#$row++;
+		#$column=0;
+	#}
 	
 	#get source signal names	
 	my $loc =  'vertical';
@@ -1886,12 +1907,19 @@ sub get_source_assignment_win{
 			$win2= get_source_assignment_win2($mpsoc,$s,$ports_ref,$type);
 			$v2-> pack2($win2, TRUE, TRUE);  
 			$v2->show_all;			
-		});		
+		});
+		
+		
+		if($s eq 'clk'){
+			($column,$row)=get_clk_constrain_widget($mpsoc,$table1,$column,$row, $s,$n);		 		
+		}
+		
+			
 	    
-	    if((($n+1) % 4)==0){
+	   # if((($n+1) % 4)==0){
 		  	$column=0;
 		  	$row++;
-		  }		  
+	   #}		  
 	}	
      	
    	#source assigmnmet
@@ -1899,6 +1927,49 @@ sub get_source_assignment_win{
 	$v2=gen_vpaned($win1,.2,$win2);	
    	return $v2;	
 }
+
+
+sub get_clk_constrain_widget {
+	my ($self,$table,$column,$row, $s,$n)=@_;
+	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
+	my $frequency;	
+	($row,$column,$frequency)=  add_param_widget($self,"Frequency(MHz)","${s}_${n}_mhz", 100,'Spin-button',"1,1024,0.01",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
+	my $period;
+	($row,$column,$period)=  add_param_widget($self,"Period(ns)","${s}_${n}_period", 10,'Spin-button',"0,1024,0.01",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
+	my $rise;	
+	($row,$column,$rise)=  add_param_widget($self,"rising edge(%)","${s}_${n}_rise", 0,'Spin-button',"0,100,0.1",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+	my $r_lab=gen_label_in_center('=0 ns');
+	$table->attach  ($r_lab,$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column+=1;
+	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
+	my $fall;	
+	($row,$column,$fall)=  add_param_widget($self,"falling edge(%)","${s}_${n}_fall", 50,'Spin-button',"0,100,0.1",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+	my $f_lab=gen_label_in_center('=5 ns');
+	$table->attach  ($f_lab,$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column+=1;
+	update_wave_form($period,$rise,$fall,$r_lab,$f_lab);
+	$frequency-> signal_connect("value_changed" => sub{
+	 	my $fr =$frequency->get_value();
+		my $p = 1000/$fr;
+	 	$period->set_value($p);
+	 	update_wave_form($period,$rise,$fall,$r_lab,$f_lab);
+	});	
+	$period-> signal_connect("value_changed" => sub{
+		my $p =$period->get_value();
+		my $fr = 1000/$p;
+		$frequency->set_value($fr);
+		update_wave_form($period,$rise,$fall,$r_lab,$f_lab);
+	});	
+	$rise-> signal_connect("value_changed" => sub{
+	 	update_wave_form($period,$rise,$fall,$r_lab,$f_lab);		 	
+	});	
+	$fall-> signal_connect("value_changed" => sub{
+	   update_wave_form($period,$rise,$fall,$r_lab,$f_lab);
+	});	
+	return ($column,$row);
+}
+
+
 
 sub get_source_assignment_win2{
 	my ($mpsoc,$s,$ports_ref,$type)=@_;
@@ -2350,6 +2421,8 @@ sub ctrl_box{
     	my $name=$mpsoc->object_get_attribute('mpsoc_name');
     	return  if (check_mpsoc_name($name,$info));
     	generate_mpsoc_lib_file($mpsoc,$info);
+    	message_dialog("MPSOC  \"$name\" is saved as lib/mpsoc/$name.MPSOC.");
+    
     });
 
 
@@ -2362,6 +2435,7 @@ sub ctrl_box{
     $compile -> signal_connect("clicked" => sub{ 
         $mpsoc->object_add_attribute('compile','compilers',"QuartusII,Vivado,Verilator,Modelsim");
         my $name=$mpsoc->object_get_attribute('mpsoc_name');
+        $name="" if (!defined $name);
         if (length($name)==0){
             message_dialog("Please define the MPSoC name!");
             return ;
@@ -2378,6 +2452,18 @@ sub ctrl_box{
     });    
     
     $software -> signal_connect("clicked" => sub{
+    	my $name=$mpsoc->object_get_attribute('mpsoc_name');
+    	$name="" if (!defined $name);
+    	if (length($name)==0){
+            message_dialog("Please define the MPSoC name!");
+            return ;
+        }
+    	my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$name";
+    	my $sw_folder = "$target_dir/sw";
+    	unless (-d $sw_folder){  
+    		message_dialog("Cannot find $sw_folder. Please run RTL Generator first!");
+    		return;
+    	}
         software_edit_mpsoc($mpsoc);
 
     });
@@ -2440,7 +2526,7 @@ sub mpsocgen_main{
             open(FILE,  ">lib/mpsoc/$name.MPSOC") || die "Can not open: $!";
             print FILE perl_file_header("$name.MPSOC");
             print FILE Data::Dumper->Dump([\%$mpsoc],[$name]);
-            close(FILE) || die "Error closing file: $!";
+            close(FILE) || die "Error closing file: $!";           
             set_gui_status($mpsoc,"ideal",0);    
         }
         elsif( $state ne "ideal" ){

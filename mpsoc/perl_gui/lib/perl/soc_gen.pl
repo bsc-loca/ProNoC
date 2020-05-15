@@ -304,7 +304,7 @@ sub gen_instance{
 			}elsif (-f "$pdf"){
 				system qq (xdg-open $pdf);
 			}else{
-				message_dialog("Error! $pdf or ${project_dir}$pdf did not find!\n");	
+				message_dialog("Error! $pdf or ${project_dir}$pdf did not find!\n",'error');	
 			}
 
 		});
@@ -1189,7 +1189,7 @@ sub wb_address_setting {
 			
 			$window->destroy;
 		}else{
-			message_dialog("Invalid address!");
+			message_dialog("Invalid address!",'error');
 			
 		}	
 		
@@ -1451,6 +1451,7 @@ sub get_ram_init{
 sub software_edit_soc {
 	my $soc=shift;	
 	my $name=$soc->object_get_attribute('soc_name');
+	$name="" if (!defined $name);
 	if (length($name)==0){
 		message_dialog("Please define the Tile name!");
 		return ;
@@ -1630,6 +1631,7 @@ sub get_soc_clk_source_list{
 
 sub check_soc_name{
 	my $name=shift;
+	$name="" if (!defined $name);
 	if (length($name)==0){
 		message_dialog("Please define the Tile name!");
 		return 1;
@@ -1653,6 +1655,54 @@ sub check_soc_name{
 ############
 #    main
 ############
+
+
+
+sub soc_clk_setting_win1 { 
+	my ($soc,$info)=@_;
+	my $window = def_popwin_size(80,80,"CLK setting",'percent');
+   
+    my $next=def_image_button('icons/right.png','Next'); 	
+	my $mtable = def_table(10, 1, FALSE);
+	#get the list of all tiles clk sources
+	
+	
+	
+	my $table = def_table(10, 7, FALSE);
+	my($row,$column)=(0,0);
+	
+	my %all = get_soc_clk_source_list($soc) ;
+	my @ports = @{$all{'clk'}} if defined $all{'clk'};
+	my $n=0;
+	foreach my $p (@ports){
+		my $r_lab=gen_label_in_center("$p:");
+		$table->attach  ($r_lab,$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column+=1;
+		$soc->object_add_attribute('SOURCE_SET',"clk_${n}_name",$p);
+		($column,$row)=get_clk_constrain_widget($soc,$table,$column,$row,'clk',$n);	
+		$n++;
+	}
+
+	$mtable->attach_defaults($table,0,1,0,1);
+	$mtable->attach($next,0,1,20,21,'expand','fill',2,2);	
+	$window->add ($mtable);
+	$window->show_all();	
+	$next-> signal_connect("clicked" => sub{ 			
+		$window->destroy;		
+		clk_setting_win2($soc,$info,'soc');
+					
+	});	
+
+
+ 	
+
+}
+
+
+
+
+
+
+
 sub socgen_main{
 	 
 	my $infc = interface->interface_new(); 
@@ -1717,7 +1767,7 @@ sub socgen_main{
 	
 	
 	$clk-> signal_connect("clicked" => sub{ 
-			clk_setting_win2($soc,$info,'soc');	
+			soc_clk_setting_win1($soc,$info);	
 	});
 
 	$diagram-> signal_connect("clicked" => sub{ 
@@ -1793,6 +1843,7 @@ sub socgen_main{
 	$compile -> signal_connect("clicked" => sub{ 
 		$soc->object_add_attribute('compile','compilers',"QuartusII,Vivado,Verilator,Modelsim");
 		my $name=$soc->object_get_attribute('soc_name');
+		$name="" if (!defined $name);
 		if (length($name)==0){
 			message_dialog("Please define the Tile name!");
 			return ;
@@ -1806,7 +1857,7 @@ sub socgen_main{
 			generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,1,1);	
 			select_compiler($soc,$name,$top,$target_dir);
 		} else {
-			message_dialog("Cannot find $top file. Please run RTL Generator first!");
+			message_dialog("Cannot find $top file. Please run RTL Generator first!",'error');
 			return;
 		}
 	});
@@ -1841,7 +1892,7 @@ sub socgen_main{
 			open(FILE,  ">lib/soc/$name.SOC") || die "Can not open: $!";
 			print FILE perl_file_header("$name.SOC");
 			print FILE Data::Dumper->Dump([\%$soc],['soc']);
-			close(FILE) || die "Error closing file: $!";
+			close(FILE) || die "Error closing file: $!";			
 			set_gui_status($soc,"ideal",0);	
 		}
 		elsif( $state ne "ideal" ){

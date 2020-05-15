@@ -560,7 +560,7 @@ module xilinx_jtag_ctrl #(
 
       reg mask;
 
-      always @(tck )    begin                 
+      always @(posedge tck )    begin                 
             if( udr)begin 
                 if(update_index_flag) begin 
                     index <= jtag_shift_buffer[INDEXw-1 : 0];
@@ -583,7 +583,7 @@ module xilinx_jtag_ctrl #(
     
     
     
-    always @(tck )    begin                 
+    always @( posedge tck )    begin                 
             if( udr && update_ir_flag   ) ir_updated<=1'b1;
             else ir_updated<=1'b0;
     end        

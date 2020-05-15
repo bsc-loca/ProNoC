@@ -121,8 +121,8 @@ sub trace_pad_ctrl{
 		my $v_val= $self->object_get_attribute('noc_param','V');
 		my $v_max=$v_val-1;	
 		my $c_val= $self->object_get_attribute('noc_param','C');
-		my $c_max=$c_val-1;	
-	
+		my $c_max=($c_val==0)? 0 : $c_val-1;	
+	 
 	 	@selectedinfo = (
 	 	{ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
 	 	{ label=>" Virtual channel#", param_name=>'vc', type=>'Spin-button', default_val=>0, content=>"0,$v_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
@@ -371,7 +371,7 @@ sub trace_pad{
 	my $v_max=$v_val-1;	
 	
 	my $c_val= $self->object_get_attribute('noc_param','C');
-	my $c_max=$c_val-1;	
+	my $c_max=($c_val==0)? 0 : $c_val-1;
 	
 	
 	if($mode eq "orcc"){
@@ -831,7 +831,7 @@ sub load_workspace {
 							
 			my ($pp,$r,$err) = regen_object($file);
 			if ($r){		
-				message_dialog("**Error reading  $file file: $err\n");
+				message_dialog("Error reading  $file file: $err\n",'error');
 				 $dialog->destroy;
 				return;
 			} 

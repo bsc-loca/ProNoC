@@ -148,7 +148,8 @@ localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
     wire   [Dw-1    :   0]  q_a,q_b;
     
 
-`ifdef VERILATOR // verilatore does not recognize altsyncram
+`ifdef VERILATOR 
+	// The verilator does not recognize altsyncram, use Generic Ram instead
     localparam FPGA_VENDOR_MDFY= "GENERIC";
 `else 
     `ifdef MODEL_TECH
@@ -305,7 +306,7 @@ localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
           .AUTO_SLEEP_TIME(0),            // DECIMAL
           .BYTE_WRITE_WIDTH_A(8),        // DECIMAL
           .BYTE_WRITE_WIDTH_B(8),        // DECIMAL
-          .CASCADE_HEIGHT(0),             // DECIMAL
+          //.CASCADE_HEIGHT(0),             // DECIMAL
           .CLOCKING_MODE("common_clock"), // String
           .ECC_MODE("no_ecc"),            // String
           .MEMORY_INIT_FILE(INIT_FILE),      // String
@@ -320,9 +321,9 @@ localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
           .READ_LATENCY_B(1),             // DECIMAL
           .READ_RESET_VALUE_A("0"),       // String
           .READ_RESET_VALUE_B("0"),       // String
-          .RST_MODE_A("SYNC"),            // String
-          .RST_MODE_B("SYNC"),            // String
-          .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+         // .RST_MODE_A("SYNC"),            // String
+         // .RST_MODE_B("SYNC"),            // String
+         // .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
           .USE_EMBEDDED_CONSTRAINT(0),    // DECIMAL
           .USE_MEM_INIT(1),               // DECIMAL
           .WAKEUP_TIME("disable_sleep"),  // String

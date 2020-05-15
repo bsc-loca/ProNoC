@@ -10,198 +10,359 @@
 ################################################################################
 
 $Trace = bless( {
-                  'trace_2' => {
-                                 'source' => 'network:a:adder1',
-                                 'file' => 'network:a:',
-                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
-                                 'scr_port' => 'Output',
-                                 'dst_port' => 'result',
-                                 'destination' => 'network:a:printer1',
-                                 'injct_rate_var' => 20,
-                                 'selected' => 0,
-                                 'Mbytes' => 1,
-                                 'burst_size' => 1,
-                                 'max_pck_size' => 5,
-                                 'buff_size' => '32',
-                                 'min_pck_size' => 5,
-                                 'init_weight' => 1,
-                                 'injct_rate' => 10
-                               },
-                  'gui_status' => {
-                                    'timeout' => 0,
-                                    'status' => 'ideal'
-                                  },
-                  'MAP_LOCK' => {
-                                  'network:a:adder2' => 0,
-                                  'network:a:source1' => 0,
-                                  'network:a:source2' => 0,
-                                  'network:a:printer1' => 0,
-                                  'network:a:printer2' => 0,
-                                  'network:a:adder1' => 0
-                                },
-                  'trace_pad' => {
-                                   'va' => '0',
-                                   'ha' => '0'
-                                 },
-                  'trace_4' => {
-                                 'source' => 'network:a:source2',
-                                 'destination' => 'network:a:adder1',
-                                 'dst_port' => 'Input2',
-                                 'scr_port' => 'Output1',
-                                 'file' => 'network:a:',
-                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
-                                 'Mbytes' => 1,
-                                 'selected' => 0,
-                                 'injct_rate_var' => 20,
-                                 'injct_rate' => 10,
-                                 'init_weight' => 1,
-                                 'min_pck_size' => 5,
-                                 'buff_size' => '32',
-                                 'burst_size' => 1,
-                                 'max_pck_size' => 5
-                               },
-                  'trace_5' => {
-                                 'source' => 'network:a:source1',
-                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
-                                 'file' => 'network:a:',
-                                 'destination' => 'network:a:adder1',
-                                 'dst_port' => 'Input1',
-                                 'scr_port' => 'Output1',
-                                 'injct_rate_var' => 20,
-                                 'selected' => 0,
-                                 'Mbytes' => 1,
-                                 'burst_size' => 1,
-                                 'max_pck_size' => 5,
-                                 'buff_size' => '32',
-                                 'min_pck_size' => 5,
-                                 'init_weight' => 1,
-                                 'injct_rate' => 10
-                               },
                   'map_info' => {
                                   'ha' => '0',
                                   'va' => '0'
                                 },
-                  'trace_0' => {
-                                 'source' => 'network:a:source1',
-                                 'scr_port' => 'Output2',
-                                 'dst_port' => 'Input1',
-                                 'destination' => 'network:a:adder2',
-                                 'file' => 'network:a:',
-                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
-                                 'selected' => 0,
-                                 'Mbytes' => 1,
-                                 'injct_rate_var' => 20,
-                                 'min_pck_size' => 5,
-                                 'init_weight' => 1,
-                                 'injct_rate' => 10,
-                                 'max_pck_size' => 5,
-                                 'burst_size' => 1,
-                                 'buff_size' => '32'
+                  'raw_traces' => {
+                                    '3' => 1,
+                                    '0' => 1,
+                                    '4' => 1,
+                                    '2' => 1,
+                                    '1' => 1,
+                                    '5' => 1
+                                  },
+                  'noc_param' => {
+                                   'B' => '4',
+                                   'Fpay' => '32',
+                                   'DEBUG_EN' => '0',
+                                   'T3' => '1',
+                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                   'C' => 0,
+                                   'SSA_EN' => '"NO"',
+                                   'MUX_TYPE' => '"BINARY"',
+                                   'MIN_PCK_SIZE' => '2',
+                                   'T1' => '2',
+                                   'T2' => '2',
+                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                   'AVC_ATOMIC_EN' => 0,
+                                   'WEIGHTw' => '4',
+                                   'BYTE_EN' => 0,
+                                   'TOPOLOGY' => '"MESH"',
+                                   'ROUTE_NAME' => '"XY"',
+                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                   'V' => '2',
+                                   'CONGESTION_INDEX' => 3,
+                                   'ESCAP_VC_MASK' => '2\'b01'
+                                 },
+                  'Auto' => {
+                              'Auto_inject' => '1\'b0'
+                            },
+                  'save_as' => 'test',
+                  'mapping' => {
+                                 'group_name_editble' => 'NO',
+                                 'ungrouped' => [],
+                                 'map_limit' => 1,
+                                 'group_name_root' => 'tile',
+                                 'lable' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'trace_icon' => 'icons/cd2.png',
+                                 'tile(2)' => [
+                                                'src2'
+                                              ],
+                                 'tile(3)_name' => 'tile(3)',
+                                 'tile(0)_name' => 'tile(0)',
+                                 'tile(3)' => [
+                                                'print2'
+                                              ],
+                                 'tile(2)_name' => 'tile(2)',
+                                 'ungrouped_name' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'tile(1)' => [
+                                                'add'
+                                              ],
+                                 'group_num' => 4,
+                                 'tile(0)' => [
+                                                'r'
+                                              ],
+                                 'tile(1)_name' => 'tile(1)'
                                },
-                  'trace_1' => {
-                                 'selected' => 0,
+                  'raw_3' => {
+                               'init_weight' => 1,
+                               'Mbytes' => 1,
+                               'file_name' => '/home/alireza/eclipse-workspace/add/src/accumulatorv2/src/net.csv',
+                               'source' => 'src2',
+                               'vc' => 0,
+                               'scr_port' => 'Output2',
+                               'class' => 0,
+                               'injct_rate' => 10,
+                               'channel' => 0,
+                               'max_pck_size' => 5,
+                               'file' => 'net:a:',
+                               'burst_size' => 1,
+                               'selected' => 0,
+                               'injct_rate_var' => 20,
+                               'buff_size' => '32',
+                               'dst_port' => 'Input2',
+                               'destination' => 'add2',
+                               'min_pck_size' => 5
+                             },
+                  'raw_1' => {
+                               'init_weight' => 1,
+                               'scr_port' => 'Output2',
+                               'vc' => 0,
+                               'file_name' => '/home/alireza/eclipse-workspace/add/src/accumulatorv2/src/net.csv',
+                               'source' => 'src1',
+                               'Mbytes' => 1,
+                               'buff_size' => '32',
+                               'selected' => 0,
+                               'burst_size' => 1,
+                               'injct_rate_var' => 20,
+                               'max_pck_size' => 5,
+                               'channel' => 0,
+                               'file' => 'net:a:',
+                               'injct_rate' => 10,
+                               'class' => 0,
+                               'min_pck_size' => 5,
+                               'destination' => 'add2',
+                               'dst_port' => 'Input1'
+                             },
+                  'merge_4' => {
+                                 'scr_port' => 'src1_Output1',
+                                 'vc' => 0,
+                                 'file_name' => '/home/alireza/work/hca_git/mpsoc_work/MPSOC/xilinx_orcc/sw/src1.c',
+                                 'source' => 'r',
+                                 'destination' => 'add',
+                                 'dst_port' => 'add1_Input1',
                                  'Mbytes' => 1,
-                                 'injct_rate_var' => 20,
-                                 'min_pck_size' => 5,
-                                 'init_weight' => 1,
-                                 'injct_rate' => 10,
-                                 'max_pck_size' => 5,
-                                 'burst_size' => 1,
                                  'buff_size' => '32',
-                                 'source' => 'network:a:source2',
+                                 'init_weight' => 1,
+                                 'selected' => 0,
+                                 'file' => 'net:a:',
+                                 'channel' => 0,
+                                 'class' => 0
+                               },
+                  'map_param' => {
+                                   'Map_Algrm' => 'Random'
+                                 },
+                  'merge_0' => {
+                                 'file_name' => '/home/alireza/eclipse-workspace/add/src/accumulatorv2/src/net.csv',
+                                 'source' => 'src2',
+                                 'Mbytes' => 1,
+                                 'dst_port' => 'add1_Input2',
+                                 'destination' => 'add',
+                                 'scr_port' => 'Output1',
+                                 'vc' => 0,
+                                 'channel' => 0,
+                                 'file' => 'net:a:',
+                                 'class' => 0,
+                                 'init_weight' => 1,
+                                 'buff_size' => '32',
+                                 'selected' => 0
+                               },
+                  'raw_2' => {
+                               'dst_port' => 'Input2',
+                               'destination' => 'add1',
+                               'min_pck_size' => 5,
+                               'channel' => 0,
+                               'file' => 'net:a:',
+                               'max_pck_size' => 5,
+                               'class' => 0,
+                               'injct_rate' => 10,
+                               'buff_size' => '32',
+                               'injct_rate_var' => 20,
+                               'burst_size' => 1,
+                               'selected' => 0,
+                               'file_name' => '/home/alireza/eclipse-workspace/add/src/accumulatorv2/src/net.csv',
+                               'source' => 'src2',
+                               'Mbytes' => 1,
+                               'scr_port' => 'Output1',
+                               'vc' => 0,
+                               'init_weight' => 1
+                             },
+                  'ni_name' => {
+                                 '0' => 'ni',
+                                 '2' => 'ni',
+                                 '3' => 'ni',
+                                 '1' => 'ni'
+                               },
+                  'file_id' => 'b',
+                  'out_name' => undef,
+                  'select_multiple' => {
+                                         'action' => 'Select'
+                                       },
+                  'raw_0' => {
+                               'min_pck_size' => 5,
+                               'dst_port' => 'Input1',
+                               'destination' => 'add1',
+                               'buff_size' => '32',
+                               'selected' => 0,
+                               'burst_size' => 1,
+                               'injct_rate_var' => 20,
+                               'file' => 'net:a:',
+                               'max_pck_size' => 5,
+                               'channel' => 0,
+                               'injct_rate' => 10,
+                               'class' => 0,
+                               'scr_port' => 'Output1',
+                               'vc' => 0,
+                               'file_name' => '/home/alireza/eclipse-workspace/add/src/accumulatorv2/src/net.csv',
+                               'source' => 'src1',
+                               'Mbytes' => 1,
+                               'init_weight' => 1
+                             },
+                  'grouping' => {
+                                  'group(0)_name' => 'add',
+                                  'ungrouped' => [
+                                                   'print2',
+                                                   'src2'
+                                                 ],
+                                  'group_name_editble' => 'YES',
+                                  'ungrouped_name' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'group(1)_name' => 'r',
+                                  'trace_icon' => 'icons/cd.png',
+                                  'group(3)_name' => 'group(3)',
+                                  'group_num' => 4,
+                                  'group(1)' => [
+                                                  'src1',
+                                                  'print1'
+                                                ],
+                                  'map_limit' => 4,
+                                  'lable' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'group(2)_name' => 'group(2)',
+                                  'group_name_root' => 'group',
+                                  'group(0)' => [
+                                                  'add1',
+                                                  'add2'
+                                                ]
+                                },
+                  'raw_5' => {
+                               'source' => 'add1',
+                               'file_name' => '/home/alireza/eclipse-workspace/add/src/accumulatorv2/src/net.csv',
+                               'Mbytes' => 1,
+                               'scr_port' => 'Output',
+                               'vc' => 0,
+                               'init_weight' => 1,
+                               'destination' => 'print1',
+                               'dst_port' => 'result',
+                               'min_pck_size' => 5,
+                               'channel' => 0,
+                               'file' => 'net:a:',
+                               'max_pck_size' => 5,
+                               'injct_rate' => 10,
+                               'class' => 0,
+                               'buff_size' => '32',
+                               'injct_rate_var' => 20,
+                               'burst_size' => 1,
+                               'selected' => 0
+                             },
+                  'trace_id' => 6,
+                  'merge_traces' => {
+                                      '3' => 1,
+                                      '4' => 1,
+                                      '2' => 1,
+                                      '0' => 1,
+                                      '1' => 1,
+                                      '5' => 1
+                                    },
+                  'mpsoc_name' => 'xilinx_orcc',
+                  'trace_pad' => {
+                                   'ha' => '0',
+                                   'va' => '0'
+                                 },
+                  'merge_1' => {
+                                 'selected' => 0,
+                                 'buff_size' => '32',
+                                 'init_weight' => 1,
+                                 'class' => 0,
+                                 'file' => 'net:a:',
+                                 'channel' => 0,
+                                 'vc' => 0,
                                  'scr_port' => 'Output2',
-                                 'dst_port' => 'Input2',
-                                 'destination' => 'network:a:adder2',
-                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
-                                 'file' => 'network:a:'
+                                 'destination' => 'add',
+                                 'dst_port' => 'add2_Input2',
+                                 'Mbytes' => 1,
+                                 'file_name' => '/home/alireza/eclipse-workspace/add/src/accumulatorv2/src/net.csv',
+                                 'source' => 'src2'
+                               },
+                  'merge_5' => {
+                                 'vc' => 0,
+                                 'scr_port' => 'src1_Output2',
+                                 'Mbytes' => 1,
+                                 'destination' => 'add',
+                                 'dst_port' => 'add2_Input1',
+                                 'file_name' => '/home/alireza/work/hca_git/mpsoc_work/MPSOC/xilinx_orcc/sw/src1.c',
+                                 'source' => 'r',
+                                 'selected' => 0,
+                                 'init_weight' => 1,
+                                 'buff_size' => '32',
+                                 'class' => 0,
+                                 'file' => 'net:a:',
+                                 'channel' => 0
                                },
                   'parameters_order' => {
                                           'map_param' => [
                                                            'Map_Algrm'
                                                          ]
                                         },
-                  'MAP_TASK' => {
-                                  'tile(3)' => 'network:a:source1',
-                                  'tile(0)' => 'network:a:printer1',
-                                  'tile(1)' => 'network:a:adder1',
-                                  'tile(2)' => 'network:a:source2',
-                                  'tile(4)' => 'network:a:adder2',
-                                  '-' => undef,
-                                  'tile(5)' => 'network:a:printer2'
-                                },
-                  'map_param' => {
-                                   'Map_Algrm' => 'Random'
-                                 },
-                  'trace_3' => {
-                                 'dst_port' => 'result',
-                                 'scr_port' => 'Output',
-                                 'destination' => 'network:a:printer2',
-                                 'file' => 'network:a:',
-                                 'file_name' => '/home/alireza/work/develop/for-friends/zakipur/eclipse_work/adder/src/out/src/network.csv',
-                                 'source' => 'network:a:adder2',
-                                 'injct_rate' => 10,
-                                 'init_weight' => 1,
-                                 'min_pck_size' => 5,
-                                 'buff_size' => '32',
-                                 'max_pck_size' => 5,
-                                 'burst_size' => 1,
-                                 'selected' => 0,
+                  'merge_2' => {
+                                 'scr_port' => 'add1_Output',
+                                 'vc' => 0,
+                                 'source' => 'add',
+                                 'file_name' => '/home/alireza/work/hca_git/mpsoc_work/MPSOC/xilinx_orcc/sw/add1.c',
                                  'Mbytes' => 1,
-                                 'injct_rate_var' => 20
+                                 'destination' => 'r',
+                                 'dst_port' => 'print1_result',
+                                 'init_weight' => 1,
+                                 'buff_size' => '32',
+                                 'selected' => 0,
+                                 'file' => 'net:a:',
+                                 'channel' => 0,
+                                 'class' => 0
                                },
-                  'noc_param' => {
-                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
-                                   'FIRST_ARBITER_EXT_P_EN' => 1,
-                                   'T2' => 2,
-                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
-                                   'SWA_ARBITER_TYPE' => '"RRA"',
-                                   'WEIGHTw' => '4',
-                                   'T3' => '1',
-                                   'B' => '4',
-                                   'TOPOLOGY' => '"MESH"',
-                                   'SSA_EN' => '"NO"',
-                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
-                                   'Fpay' => '32',
-                                   'ROUTE_NAME' => '"XY"',
-                                   'AVC_ATOMIC_EN' => 0,
-                                   'C' => 0,
-                                   'CONGESTION_INDEX' => 3,
-                                   'T1' => '3',
-                                   'MIN_PCK_SIZE' => '2',
-                                   'DEBUG_EN' => '0',
-                                   'V' => '2',
-                                   'MUX_TYPE' => '"BINARY"',
-                                   'ESCAP_VC_MASK' => '2\'b01'
-                                 },
-                  'select_multiple' => {
-                                         'action' => 'Select'
-                                       },
-                  'file_id' => 'b',
-                  'trace_id' => 6,
-                  'save_as' => 'test',
-                  'out_name' => undef,
-                  'MAP_TILE' => {
-                                  'network:a:printer1' => 'tile(0)',
-                                  'network:a:source2' => 'tile(2)',
-                                  'network:a:adder1' => 'tile(1)',
-                                  'network:a:printer2' => 'tile(5)',
-                                  'network:a:source1' => 'tile(3)',
-                                  'network:a:adder2' => 'tile(4)'
+                  'raw_4' => {
+                               'min_pck_size' => 5,
+                               'dst_port' => 'result',
+                               'destination' => 'print2',
+                               'injct_rate_var' => 20,
+                               'burst_size' => 1,
+                               'selected' => 0,
+                               'buff_size' => '32',
+                               'class' => 0,
+                               'injct_rate' => 10,
+                               'channel' => 0,
+                               'file' => 'net:a:',
+                               'max_pck_size' => 5,
+                               'vc' => 0,
+                               'scr_port' => 'Output',
+                               'Mbytes' => 1,
+                               'file_name' => '/home/alireza/eclipse-workspace/add/src/accumulatorv2/src/net.csv',
+                               'source' => 'add2',
+                               'init_weight' => 1
+                             },
+                  'gui_status' => {
+                                    'status' => 'ideal',
+                                    'timeout' => 0
+                                  },
+                  'MAP_LOCK' => {},
+                  'MAP_TASK' => {
+                                  'tile(1)' => 'add',
+                                  'tile(0)' => 'r',
+                                  'tile(3)' => 'print2',
+                                  'tile(2)' => 'src2'
                                 },
-                  'mpsoc_name' => 'newAdder',
-                  'Auto' => {
-                              'Auto_inject' => '1\'b0'
-                            },
-                  'trace_map' => {
-                                   'ha' => '0',
-                                   'va' => '0'
-                                 },
-                  'traces' => {
-                                '2' => 1,
-                                '3' => 1,
-                                '4' => 1,
-                                '0' => 1,
-                                '5' => 1,
-                                '1' => 1
-                              }
+                  'merge_3' => {
+                                 'buff_size' => '32',
+                                 'init_weight' => 1,
+                                 'selected' => 0,
+                                 'file' => 'net:a:',
+                                 'channel' => 0,
+                                 'class' => 0,
+                                 'scr_port' => 'add2_Output',
+                                 'vc' => 0,
+                                 'source' => 'add',
+                                 'file_name' => '/home/alireza/work/hca_git/mpsoc_work/MPSOC/xilinx_orcc/sw/add2.c',
+                                 'dst_port' => 'result',
+                                 'destination' => 'print2',
+                                 'Mbytes' => 1
+                               },
+                  'soc_name' => {
+                                  '3' => 'mor1k_tile',
+                                  '2' => 'mor1k_tile',
+                                  '0' => 'mor1k_tile',
+                                  '1' => 'mor1k_tile'
+                                },
+                  'process_notebook' => {
+                                          'currentpage' => 2
+                                        }
                 }, 'ProNOC' );

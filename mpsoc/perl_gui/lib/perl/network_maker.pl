@@ -318,7 +318,7 @@ sub show_custom_topology_diagram {
 	    $cmd = "echo \'$dotfile\' | $cmd";
 		my ($stdout,$exit,$stderr)= run_cmd_in_back_ground_get_stdout ($cmd);
 		if ( length( $stderr || '' ) !=0)  {
-			message_dialog("$stderr\nHave you installed graphviz? If not run \n \t \"sudo apt-get install graphviz\" \n in terminal");
+			message_dialog("$stderr\nHave you installed graphviz? If not run \n \t \"sudo apt-get install graphviz\" \n in terminal",'error');
 		}
 	     $diagram =open_inline_image( $stdout,70*$scale,70*$scale,'percent');
 	}

@@ -84,6 +84,7 @@ sub def_h_labeled_combo_scaled{
 #############
 sub gen_spin{
 	my ($min,$max,$step,$digit)= @_;
+	
 	return Gtk2::SpinButton->new_with_range ($min, $max, $step);
 	 if(!defined $digit){
 		my $d1 = get_float_precision($min);
@@ -195,16 +196,6 @@ sub gen_combo_entry{
 }
 
 
-sub def_h_labeled_combo_entry_help{
-	my ($help,$label_name,$list_ref,$initial)=@_;
-	my $box = def_hbox(TRUE,0);
-	my $label= gen_label_in_left($list_ref);	
-	my ($b,$entry) =gen_combo_entry($help,$initial);
-	$box->pack_start( $label, FALSE, FALSE, 3);
-	$box->pack_start( $b, FALSE, FALSE, 3);
-	return ($box,$entry);
-	
-}		
 
 ###########
 # checkbutton
@@ -1330,6 +1321,19 @@ sub add_param_widget {
 		 });
 		 
 	 }
+	 elsif ($type eq "EntryCombo"){
+	 	 my @combo_list;
+	 	 @combo_list=split(/\s*,\s*/,$content) if(defined $content);
+	 	 my $pos=get_pos($value, @combo_list) if(defined $value && defined $content);
+	 	 $widget= gen_combo_entry (\@combo_list,$pos);
+	 	 ($widget->child)->signal_connect('changed' => sub {
+				my ($entry) = @_;
+				my $new_param_value=$entry->get_text();
+				$self->object_add_attribute($attribut1,$param,$new_param_value);
+				set_gui_status($self,$new_status,$ref_delay) if(defined $ref_delay);
+	 	 });
+	 }
+	 
 	 elsif 	($type eq "Spin-button"){ 
 		my ($min,$max,$step,$digit)=split(/\s*,\s*/,$content);
 		

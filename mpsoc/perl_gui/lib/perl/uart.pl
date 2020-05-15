@@ -7,6 +7,7 @@ use Gtk2 '-init';
 use Gtk2::SourceView2;
 use Data::Dumper;
 use File::Which;
+use File::Basename;
 
 use IPC::Run qw( harness start pump finish timeout );
 
@@ -78,31 +79,68 @@ sub receive_boxes{
 }
 
 sub ctrl_boxes{
-	my $self=shift;
-	my $table= def_table(2,10,FALSE);	
-	my $scrolled_win=add_widget_to_scrolled_win ($table);
-	my ($row,$col)=(0,0);
-	my @info = (
-	#Altera_Qsys_UART
-		{ label=>" UART name ", param_name=>'UART_NAME', type=>"Combo-box", default_val=>'ProNoC_XILINX_UART', content=>"ProNoC_XILINX_UART", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_ctrl', loc=>'vertical'},
-		{ label=>" Number of UART", param_name=>'UART_NUM', type=>"Spin-button", default_val=>1, content=>"1,128,1", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_all', loc=>'vertical'},
-		{ label=>" JTAG CHAIN ", param_name=>'JTAG_CHAIN', type=>"Combo-box", default_val=>3, content=>"1,2,3,4", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_ctrl', loc=>'vertical'},
-		
-		
-	);	
-
-	foreach my $d (@info) {		
-		($row,$col)=add_param_widget  ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status}, $d->{loc});
-	} 
+	my ($self,$main_tview)=@_;
 	
 	my $state=$self->object_get_attribute("CTRL","RUN");
 	if (!defined $state){
 		$state='OFF' ;
 		$self->object_add_attribute("CTRL","RUN",$state);
 	}		
-	my $lable=gen_label_in_center("JTAG Connect");
+	
+	
+	my $table= def_table(2,10,FALSE);	
+	my $scrolled_win=add_widget_to_scrolled_win ($table);
+	my ($row,$col)=(0,0);
+	my @info = (
+	#TODO add Altera_Qsys_UART
+		{ label=>" UART name ", param_name=>'UART_NAME', type=>"Combo-box", default_val=>'ProNoC_XILINX_UART', content=>"ProNoC_XILINX_UART,ProNoC_ALTERA_UART", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_ctrl', loc=>'vertical'},
+		{ label=>" Number of UART", param_name=>'UART_NUM', type=>"Spin-button", default_val=>1, content=>"1,128,1", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_all', loc=>'vertical'}		
+		
+	);	
+	
+	
+	my $uname= $self->object_get_attribute('CTRL','UART_NAME');
+	$uname = 'ProNoC_XILINX_UART' if(!defined $uname);
+	if ($uname eq "ProNoC_XILINX_UART" ) {
+		push (@info,{ label=>" JTAG CHAIN ", param_name=>'JTAG_CHAIN', type=>"Combo-box", default_val=>3, content=>"1,2,3,4", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_ctrl', loc=>'vertical'}) ;
+		push (@info,{ label=>" JTAG TARGET ", param_name=>'JTAG_TARGET', type=>"Spin-button", default_val=>3, content=>"1,128,1", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_ctrl', loc=>'vertical'}) ;
+	}elsif ($uname eq "ProNoC_ALTERA_UART" ) {
+		my $list= $self->object_get_attribute('CTRL','quartus_device_list');
+		push (@info,{ label=>" Hardware Name", param_name=>'quartus_hardware', type=>"Entry", default_val=>undef, content=>undef, info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>undef, loc=>'vertical'}) ;
+		push (@info,{ label=>" Device Number",   param_name=>'quartus_device',   type=>"EntryCombo", default_val=>undef,  content=>$list, info=>undef,param_parent=>'CTRL', ref_delay=> 1, new_status=>undef, loc=>'vertical'}) ;
+	}
+	
+	
+	my @restricted_params= ('UART_NAME','JTAG_TARGET','quartus_hardware','quartus_device');
+	
+	foreach my $d (@info) {
+		my $wiget;		
+		($row,$col,$wiget)=add_param_widget  ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status}, $d->{loc});
+		
+		#the following parameter should not be changed while the jtag connection is stablished
+		if($state eq "ON"){
+			$wiget->set_sensitive (FALSE) if (check_scolar_exist_in_array($d->{param_name},\@restricted_params )); 
+		}
+		
+		
+		if($d->{param_name} eq 'JTAG_TARGET' || $d->{param_name} eq "quartus_hardware"){
+			my $search=def_image_button($path."icons/browse.png");
+			$table->attach ($search,  4, 5,$row-1,$row,'shrink','shrink',2,2); 
+			set_tip($search, "Display all Jtag targets. You need to connect your FPGA device to your PC first."); 
+			$search-> signal_connect("clicked" => sub{
+				show_all_xilinx_targets ($self,$main_tview) if($uname eq "ProNoC_XILINX_UART");
+				capture_altera_jtag_info($self,$main_tview) if($uname eq "ProNoC_ALTERA_UART");
+			}); 			
+			
+		}
+	} 
+	
+	
+	
+	$col=0;
+	my $lable=gen_label_in_left(" JTAG Connect ");
 	my $run= ($state eq 'ON')? def_colored_button('ON',17): def_colored_button('OFF',4); 
-	$table->attach ($lable,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col++; 
+	$table->attach ($lable,  $col, $col+1,$row,$row+1,'fill','shrink',2,2); $col+=1; 
 	$table->attach ($run,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;$col=0;
 	$run -> signal_connect("clicked" => sub{ 
 			my $state=$self->object_get_attribute("CTRL","RUN");			
@@ -114,6 +152,123 @@ sub ctrl_boxes{
 	
 	return $scrolled_win;
 }
+
+
+
+sub select_uart_board {
+	my ($self,$table,$vendor,$row,$col)=@_;
+	
+	#get the list of boards located in "boards/*" folder
+	my @dirs = grep {-d} glob("$path/../boards/$vendor/*");
+	my ($fpgas,$init);
+	$fpgas="";
+	
+	foreach my $dir (@dirs) {
+		my ($name,$fpath,$suffix) = fileparse("$dir",qr"\..[^.]*$");
+		
+		$fpgas= (defined $fpgas)? "$fpgas,$name" : "$name";	
+		$init="$name";	
+	}
+	my $button=def_image_button("$path/icons/help.png");
+	my $help1= "The list of supported boards are obtained from \"mpsoc/boards/$vendor\" path. You can add your boards by adding its required files in aformentioned path";
+	$button->signal_connect("clicked" => sub {message_dialog($help1);});	
+	my $combo=gen_combobox_object ($self,'compile','board',$fpgas,$init,undef,undef);	
+	$table->attach(gen_label_in_left('Targeted Board:'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
+	$table->attach($button,$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
+	$table->attach($combo, $col,$col+1,$row,$row+1,'fill','shrink',2,2);$row++;
+		
+	#do not change the board when the connection is ON
+	my $state=$self->object_get_attribute("CTRL","RUN");
+	$combo->set_sensitive (FALSE) if($state eq "ON" );	
+		
+	
+}
+
+
+
+sub capture_altera_jtag_info {
+	my ($self,$tview) = @_;
+	my $command=  "$ENV{QUARTUS_BIN}/jtagconfig";
+	add_info($tview,"$command\n");
+	my $stdout= run_cmd_textview_errors($command,$tview);
+	if(!defined $stdout){
+		add_colored_info($tview,"No JTAG Hardware is detected\n",'red');
+		return 1; 
+	}
+	add_info($tview,"$stdout\n");
+	my @a=split /1\)\s+/, $stdout; 
+	if(!defined $a[1]){
+		add_colored_info($tview,"No JTAG Hardware is detected\n",'red');
+		return 1;
+	}
+	my @b=split /\s+/, $a[1]; 
+	my $hw=$b[0];
+	
+	
+	
+	
+	my @devs=split /\n/, $stdout; 
+	
+	$self->object_add_attribute('CTRL','quartus_hardware',$hw);
+	add_colored_info($tview,"Detected Hardware: $hw\n",'blue');
+	
+	#capture device name in JTAG chain
+		
+	my $i=0;
+	my $info="";
+	my $list;
+	foreach my $p (@devs){
+		next if ($p =~/^\s*1\)/); 
+		$i++;
+		$info .= "\t $i : $p\n"; 
+		$list= (defined $list) ? "$list,$i" : $i;
+		
+	}
+	
+	$info = "There are total pf $i devices in JTAG chain:\n $info. Select the coresponding Jtag device number which the serial port is connected to\n";
+		
+	
+	my $names = join (',',@devs);
+	add_colored_info($tview,"$info",'blue');
+	$self->object_add_attribute('CTRL','quartus_device_list',$list);
+	$self->object_add_attribute('CTRL','quartus_device',$i);
+	set_gui_status($self,'ref_ctrl',1);	   
+	return 0;		
+}
+
+
+
+
+
+
+
+sub show_all_xilinx_targets{
+	my ($self,$tview) =@_;
+	my ($pipe,$in, $out, $err,$r);
+	my $xsct = which('xsct');	
+	
+	#check if $xsct exits
+	unless(-f $xsct){
+		add_colored_info($tview,"Error xsct not found. Please add the path to xilinx/SDK/bin to your \$PATH envirement\n",'red');
+		return 0;	
+	}	
+	my @cat = ( $xsct );
+	$pipe =start \@cat, \$in, \$out, \$err or $r=$?;
+	if(defined $r){
+		add_colored_info($tview," quartus_stp got an Error: $r\n",'red');
+		return 0;		
+	}
+
+    $in = "";
+    return 0 unless run_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
+    $in = "set jseq [jtag sequence]\n connect\n";
+    return 0 unless run_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
+    $in = "set R [jtag targets]\n puts \$R \n";
+    return 0 unless run_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
+	add_colored_info($tview,"targets are:\n $out .\n",'blue');
+	close_xsct($self,\$pipe,$tview,\$in, \$out, \$err);
+}
+
 
 
 sub sender_box{
@@ -169,18 +324,23 @@ sub run_pipe{
 	my ($self,$pipe,$in,$out,$err,$tview)=@_;
 	$$out='';	
 	$$in .= "puts done\n";
+	
+	#print "$$in";
+	
 	pump $$pipe while (length $$in);
     until ($$out =~ /done/ || (length $$err)){
+    
     	pump $$pipe; 
     	refresh_gui();    	
     }	 
     if(length $$err){
-    	add_colored_info($tview,"XSCT got an Error: $$err\n",'red');
+    	add_colored_info($tview,"Got an Error: $$err\n",'red');
     	$self->object_add_attribute("CTRL","DISCONNECT",1);	
     	set_gui_status($self,"ON-OFF",0);	    	
     	return 0;    	
     }
     refresh_gui();
+   # print $$out;
 	return 1;	
 }
 
@@ -204,8 +364,12 @@ sub check_jtag_connect {
 	my $run =$self->object_get_attribute("CTRL","RUN");
 	my $connect = $self->object_get_attribute("CTRL","CONNECT");
 	my $disconnect = $self->object_get_attribute("CTRL","DISCONNECT");
+	my $uname= $self->object_get_attribute('CTRL','UART_NAME');
+	my $r;
 	if($connect){
-       	my $r=start_xsct($self,$pipe,$tview,$in, $out, $err);
+		
+       	$r=start_xsct($self,$pipe,$tview,$in, $out, $err) if($uname eq 'ProNoC_XILINX_UART' );
+       	$r=start_stp ($self,$pipe,$tview,$in, $out, $err) if($uname eq 'ProNoC_ALTERA_UART' );
        	if($r){
        		$self->object_add_attribute("CTRL","RUN",'ON');
        		add_info($tview,"Connected!\n");
@@ -220,7 +384,8 @@ sub check_jtag_connect {
        	}            					
 		$self->object_add_attribute("CTRL","CONNECT",0);
 	}if($disconnect){
-		close_xsct($self,$pipe,$tview,$in, $out, $err);
+		close_xsct($self,$pipe,$tview,$in, $out, $err) if($uname eq 'ProNoC_XILINX_UART' );
+		close_stp ($self,$pipe,$tview,$in, $out, $err) if($uname eq 'ProNoC_ALTERA_UART' );
 		$self->object_add_attribute("CTRL","RUN",'OFF');
 		$self->object_add_attribute("CTRL","DISCONNECT",0);	
 		add_info($tview,"disconnected!\n");
@@ -240,7 +405,7 @@ sub hex_to_ascii { # $ascii ($hex)
   return pack 'H*', $s;
 }
 	
-sub run_jtag_scaner{
+sub run_xsct_jtag_scaner{
 	my ($self,$tview,$tv_ref,$pipe,$in, $out, $err)=@_; 
 		
 	my $num = $self->object_get_attribute('CTRL','UART_NUM');
@@ -298,6 +463,84 @@ sub nop{
 	#no oprtstion
 	return
 }
+##########
+#	Quartus stp
+##########
+
+
+sub start_stp{
+	my ($self,$pipe,$tview,$in, $out, $err)=@_;
+	
+	
+	my $stp = which('quartus_stp');	
+	
+	#check if $xsct exits
+	unless(-f $stp){
+		add_colored_info($tview,"Error quartus_stp not found. Please add the path to QuartusII/bin to your \$PATH envirement\n",'red');
+		return 0;	
+	}	
+	my @run = ( "$stp" );
+	my @run_args = ( "-s" );
+	
+	my $r;
+	
+	$$pipe =start [@run, @run_args], $in, $out, $err or $r=$?;
+	if(defined $r){
+		add_colored_info($tview," quartus_stp got an Error: $r\n",'red');
+		return 0;		
+	}
+	
+	my $hdw= $self->object_get_attribute('CTRL','quartus_hardware');
+	my $dev= $self->object_get_attribute('CTRL','quartus_device');
+
+	$hdw="" if(!defined $hdw);	
+	$dev="" if(!defined $dev);
+	
+	
+	if(length ($hdw) ==0){
+		add_colored_info($tview,"Error: Cannot initial the quartus_stp. the hardware name is not defined!\n",'red');
+		return 0;		
+	}
+	
+	if(length ($dev)==0) {
+		add_colored_info($tview,"Error: Cannot initial the quartus_stp. the device number is not defined!\n",'red');		
+		return 0;
+	}
+	
+	my $HARDWARE_NAME="$hdw *";
+	my $DEVICE_NAME="\@$dev*"; 
+		
+	
+	$$in = " ";
+	
+	
+	
+    return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
+    $$in = "  foreach name [get_hardware_names] {
+   if { [string match \"*${HARDWARE_NAME}*\" \$name] } {
+       set hardware_name \$name\n
+     }
+   }
+   puts \"\\nhardware_name is \$hardware_name\"
+   foreach name [get_device_names -hardware_name \$hardware_name] {
+     if { [string match \"*$DEVICE_NAME*\" \$name] } {
+       set chip_name \$name
+     }
+   }
+   puts \"device_name is \$chip_name\\n\";
+   open_device -hardware_name \$hardware_name -device_name \$chip_name\n";
+   return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
+         
+    return 1;
+}
+
+sub close_stp{
+	my ($self,$pipe,$tview,$in, $out, $err)=@_;
+	$$in = "exit\n";
+  	pump $$pipe while (length $$in);
+   	finish $$pipe;
+}
+
 
 
 ###############
@@ -334,9 +577,12 @@ sub start_xsct{
 		return 0;		
 	}
 	
+	
+	my $target= $self->object_get_attribute('CTRL','JTAG_TARGET');
+	
 	$$in = "";
     return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
-    $$in = "set jseq [jtag sequence]\n connect\n jtag targets 3\n puts done\n";
+    $$in = "set jseq [jtag sequence]\n connect\n jtag targets $target\n";
     return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
          
     return 1;
@@ -420,11 +666,11 @@ sub uart_main {
 	set_gui_status($self,"ideal",0);
 	my $window = def_popwin_size (85,85,'UART Terminal','percent');
 	my ($sw,$tview) =create_text();# a textveiw for showing the info, erro messages etc
-	my $ctrl= ctrl_boxes($self);
+	my $ctrl= ctrl_boxes($self,$tview);
 	my ($rsv,$tv_ref) = receive_boxes($self);
 	my ($send,$send_tv) =	sender_box($self,$tview);
 	 
-	my $v1 = gen_vpaned ($ctrl,0.2,$send);	
+	my $v1 = gen_vpaned ($ctrl,0.3,$send);	
 	my $v2 = gen_vpaned ($v1,0.5,$sw);
 	my $h1 = gen_hpaned ($rsv,0.55,$v2);
 	
@@ -451,7 +697,7 @@ sub uart_main {
             $send->destroy();
            
             ($send,$send_tv) =	sender_box($self,$tview);
-            $ctrl= ctrl_boxes($self);
+            $ctrl= ctrl_boxes($self,$tview);
            
             $v1-> pack1($ctrl, TRUE, TRUE);
             $v1-> pack2($send, TRUE, TRUE);
@@ -469,8 +715,10 @@ sub uart_main {
        }
         my $st =$self->object_get_attribute("CTRL","RUN");
         $counter-- if ($st eq 'ON' && $counter>0);
-		run_jtag_scaner($self,$tview,$tv_ref,\$pipe,\$in, \$out, \$err) if($counter ==0);
-    	
+        if($counter ==0 ){
+        	my $uname= $self->object_get_attribute('CTRL','UART_NAME');
+			run_xsct_jtag_scaner($self,$tview,$tv_ref,\$pipe,\$in, \$out, \$err) if($uname eq 'ProNoC_XILINX_UART' ); 
+        }
     	return TRUE;
         
     } );
@@ -482,6 +730,7 @@ sub uart_main {
 }	
 
 
+ 	
 
 
 

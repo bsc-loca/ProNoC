@@ -118,7 +118,8 @@ module wb_single_port_ram #(
     wire                 we;
     wire [Dw-1   :   0]  q;
 
-`ifdef VERILATOR // verilatore does not recognize altsyncram
+`ifdef VERILATOR 
+	// The verilator does not recognize altsyncram, use Generic Ram instead
 	localparam FPGA_VENDOR_MDFY= "GENERIC";
 `else 
     `ifdef MODEL_TECH
@@ -409,7 +410,7 @@ else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
       .AUTO_SLEEP_TIME(0),            // DECIMAL
       .BYTE_WRITE_WIDTH_A(8),        // DECIMAL
       .BYTE_WRITE_WIDTH_B(8),        // DECIMAL
-      .CASCADE_HEIGHT(0),             // DECIMAL
+     // .CASCADE_HEIGHT(0),             // DECIMAL
       .CLOCKING_MODE("common_clock"), // String
       .ECC_MODE("no_ecc"),            // String
       .MEMORY_INIT_FILE(INIT_FILE),      // String
@@ -424,9 +425,9 @@ else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
       .READ_LATENCY_B(1),             // DECIMAL
       .READ_RESET_VALUE_A("0"),       // String
       .READ_RESET_VALUE_B("0"),       // String
-      .RST_MODE_A("SYNC"),            // String
-      .RST_MODE_B("SYNC"),            // String
-      .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+      //.RST_MODE_A("SYNC"),            // String
+      //.RST_MODE_B("SYNC"),            // String
+     // .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
       .USE_EMBEDDED_CONSTRAINT(0),    // DECIMAL
       .USE_MEM_INIT(1),               // DECIMAL
       .WAKEUP_TIME("disable_sleep"),  // String
@@ -528,7 +529,7 @@ else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
           .ADDR_WIDTH_A(Aw),             // DECIMAL
           .AUTO_SLEEP_TIME(0),           // DECIMAL
           .BYTE_WRITE_WIDTH_A(8),        // DECIMAL
-          .CASCADE_HEIGHT(0),            // DECIMAL
+        //  .CASCADE_HEIGHT(0),            // DECIMAL
           .ECC_MODE("no_ecc"),           // String
           .MEMORY_INIT_FILE(INIT_FILE),  // String
           .MEMORY_INIT_PARAM(""),       // String
@@ -539,8 +540,8 @@ else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
           .READ_DATA_WIDTH_A(Dw),        // DECIMAL
           .READ_LATENCY_A(1),            // DECIMAL
           .READ_RESET_VALUE_A("0"),      // String
-          .RST_MODE_A("SYNC"),           // String
-          .SIM_ASSERT_CHK(0),            // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+         // .RST_MODE_A("SYNC"),           // String
+         // .SIM_ASSERT_CHK(0),            // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
           .USE_MEM_INIT(1),              // DECIMAL
           .WAKEUP_TIME("disable_sleep"), // String
           .WRITE_DATA_WIDTH_A(Dw),       // DECIMAL

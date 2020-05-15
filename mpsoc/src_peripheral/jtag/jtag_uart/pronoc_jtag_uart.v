@@ -586,12 +586,12 @@ begin
 end
 
 
-  // synthesis translate_off
+  
     integer i;
     initial begin 
        for (i=0; i<B;i=i+1 ) queue[i] ="*";
     end
-// synthesis translate_on
+
  
 
 

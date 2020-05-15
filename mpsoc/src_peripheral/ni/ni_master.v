@@ -502,11 +502,11 @@ module  ni_master #(
 always @(posedge clk) begin
     
     if(precap_hdr_flit_wr)begin 
-        $display("%t: endp %u got a packet with port address %u from endp %u",$time,current_e_addr,precap_din,src_endp_addr);
+        $display("%t: endp %d got a packet with port address %d from endp %d",$time,current_e_addr,precap_din,src_endp_addr);
     end
     
     if(send_hdr & flit_out_wr)begin 
-        $display("%t: endp %u sends a packet with port address %u to endp %u",$time,current_e_addr,hdr_data,dest_e_addr);
+        $display("%t: endp %d sends a packet with port address %d to endp %d",$time,current_e_addr,hdr_data,dest_e_addr);
     end
     
     

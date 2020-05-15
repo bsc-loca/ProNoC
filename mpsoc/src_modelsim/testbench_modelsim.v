@@ -621,7 +621,7 @@ end
             if(ni_flit_in_wr) total_flit_num = total_flit_num+1;
             
             if(update_i)    begin 
-              //  $display("offset=%u",offset);
+              //  $display("offset=%d",offset);
                 tmp1                = (offset)? clk_num:0;
                 tmp2                = (offset)? tmp1/offset: 0;
                 total_pck_num   =total_pck_num+1;

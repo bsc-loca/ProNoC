@@ -74,7 +74,7 @@ module  uart_jtag_testbench #(
        capture_jtag_dat_o=1'b0;
        jtag_to_wb_stb= 1'b0;
        //wb_cyc_i= 1'b0; 
-     // $display(" jtag_wr_wb_reg (%u,%u);",addr,dat_in);
+     // $display(" jtag_wr_wb_reg (%d,%d);",addr,dat_in);
     end
     endtask
 
@@ -94,7 +94,7 @@ module  uart_jtag_testbench #(
        capture_jtag_dat_o=1'b1;
        @(posedge jtag_clk)#1;
        capture_jtag_dat_o=1'b0;
-      // $display("%u",captured_jtag_dat);  
+      // $display("%d",captured_jtag_dat);  
        jtag_to_wb_stb= 1'b0;
        //wb_cyc_i= 1'b0; 
       

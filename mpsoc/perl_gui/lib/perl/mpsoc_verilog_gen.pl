@@ -107,11 +107,36 @@ sub add_sources_to_top_ip{
 			$name=$s if(!defined $name);
 			$top_ip->top_add_port('IO',$name,'', 'input' ,"plug:$s\[$n\]","${s}_i");
 			$sourc_short= (defined $sourc_short)? $sourc_short.",\n\t$name" : "\t$name"; 
+			$source_full=$source_full. "// synthesis attribute keep of $name is true;\n" if($s eq 'clk');
 			$source_full=$source_full."\tinput $name;\n";
 		}
 		#$top_ip->top_add_port('IO','clk','', 'input' ,'plug:clk[0]','clk_i');
 	}	
 	return ($sourc_short, $source_full);
+}
+
+
+sub get_clk_constrain_file{
+	my ($self)=@_;
+	my $s='clk';
+	my $num = $self->object_get_attribute('SOURCE_SET',"${s}_number");
+	my $top_name=$self->object_get_attribute('mpsoc_name');
+	$top_name=$self->object_get_attribute('soc_name') if(!defined $top_name);
+	my $xdc="";
+	return  if (!defined $num);
+	for (my $n=0;$n<$num;$n++){ 
+		my $clk_name=$self->object_get_attribute('SOURCE_SET',"${s}_${n}_name");
+		my $period=$self->object_get_attribute('SOURCE_SET',"${s}_${n}_period");
+		my $fall=$self->object_get_attribute('SOURCE_SET',"${s}_${n}_fall");
+		my $rise=$self->object_get_attribute('SOURCE_SET',"${s}_${n}_rise");
+		my $fal_ns=  ($period * $fall)/100;
+		my $rise_ns= ($period * $rise)/100;
+		
+		$xdc=$xdc."create_clock -period $period -name internal_clk$n -waveform {$rise_ns $fal_ns} -add \[get_nets uut/the_${top_name}/${clk_name}\]\n";
+		
+	}
+	return $xdc;
+		
 }
 
 
@@ -559,9 +584,9 @@ sub gen_socs_v{
  #  $io_full=$io_full."\n\tinput jtag_system_reset;"; 
  #  $top_io_pass=$top_io_pass.",\n\t\t.jtag_system_reset(jtag_system_reset)";
     
-   $top_io_short=$top_io_short.",\n$clk_io_sim";
+   $top_io_short=$top_io_short.",\n$clk_io_sim" if (defined $clk_io_sim);
    $top_io_full=$top_io_full."\n$clk_io_full";            
-   $top_io_pass=$top_io_pass.",\n$clk_assigned_port";
+   $top_io_pass=$top_io_pass.",\n$clk_assigned_port" if (defined $clk_assigned_port);
 	return ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$clk_set,\%jtag_info);
 
 }
@@ -840,7 +865,7 @@ sub get_top_clk_setting{
 	my $sockets_assign_v_all="";
 	my $io_full_v_all="";
 	my $io_top_full_v_all="";
-	my $io_sim_v_all="";
+	my $io_sim_v_all;
 	my $system_v_all="";
 	
 	my $wires=soc->new_wires();
@@ -862,23 +887,22 @@ sub get_top_clk_setting{
 			add_text_to_string(\$sockets_assign_v_all,"$sockets_assign_v\n")if(defined($sockets_assign_v));
 			add_text_to_string(\$io_full_v_all,"$io_full_v\n")				if(length($io_full_v)>3);
 			add_text_to_string(\$io_top_full_v_all,"$io_top_full_v\n")		if(length($io_top_full_v)>3);
-			add_text_to_string(\$io_sim_v_all, "$io_sim_v")					if(defined($io_sim_v)); 
+			$io_sim_v_all     = (defined $io_sim_v_all    )? "$io_sim_v_all,\n$io_sim_v"         : $io_sim_v  	    	if(defined($io_sim_v)); 
 		}else{
 			add_text_to_string(\$system_v_all,"$system_v\n")   	if(defined($system_v)); 
 			add_text_to_string(\$wire_def_v_all,"$wire_def_v\n")		 	if(defined($wire_def_v));
 			add_text_to_string(\$plugs_assign_v_all,"$plugs_assign_v\n") 	if(defined($plugs_assign_v));
 			add_text_to_string(\$sockets_assign_v_all,"$sockets_assign_v\n")if(defined($sockets_assign_v));
 			add_text_to_string(\$io_full_v_all,"$io_full_v\n")				if(length($io_full_v)>3);
-			add_text_to_string(\$io_sim_v_all, "$io_sim_v")				if(defined($io_sim_v)); 
+			$io_sim_v_all     = (defined $io_sim_v_all    )? "$io_sim_v_all,\n$io_sim_v"         : $io_sim_v  	    	if(defined($io_sim_v)); 
 			add_text_to_string(\$io_top_full_v_all,"$io_top_full_v\n")			if(length($io_top_full_v)>3);		
-			$clk_assigned_port=$assigned_ports;
+			$clk_assigned_port= (defined $clk_assigned_port)? "$clk_assigned_port,\n$assigned_ports"  : $assigned_ports if(defined $assigned_ports);
 		} 
    
     }	
     
     
-      
-    
+       
     
     
     

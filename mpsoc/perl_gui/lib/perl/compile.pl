@@ -454,10 +454,6 @@ sub add_new_fpga_board{
 	
 	
 	
-	
-	
-	
-	
 	if($vendor eq 'Altera'){
 	    my $auto=def_image_button('icons/advance.png','Auto-fill'); 
 	    set_tip($auto, "Auto-fill JTAG configuration. The board must be powered on and be connecred to the PC."); 
@@ -520,7 +516,7 @@ sub add_new_fpga_board{
 							add_colored_info ($tview,"Cannot detect devce location in JTAG chin. Please enter the QSF file or fill in manually \n",'red'); 
 											
 						}else{
-							#search for device nam ein qsf file
+							#search for device name in qsf file
 							$qsf=add_project_dir_to_addr($qsf);
 							if (!(-f $qsf)){
 								add_colored_info($tview, "Error Could not find $qsf file!\n");
@@ -577,6 +573,8 @@ sub add_new_fpga_board{
 	$window->show_all();
 	
 }
+
+
 
 sub add_new_xilinx_fpga_board_widgets{
 	my ($self,$name,$top,$target_dir,$end_func,$vendor,$tview)=@_;	
@@ -772,7 +770,7 @@ sub add_new_xilinx_fpga_board_files{
 	
 	#make board directory
 	my $project_dir = get_project_dir();
-	my $path="$$project_dir/mpsoc/boards/$vendor/$board_name";
+	my $path="$project_dir/mpsoc/boards/$vendor/$board_name";
 	mkpath($path,1,01777);
 	return "Error cannot make $path path" if ((-d $path)==0);
 	copy($xdc,"$path/$board_name.xdc");
@@ -994,7 +992,7 @@ sub  get_pin_assignment{
 	my $top_v= "../boards/$vendor/$board_name/$board_name.v";
 
 	if(!-f $top_v){
-		message_dialog("Error: Could not load the board pin list. The $top_v does not exist!");
+		message_dialog("Error: Could not load the board pin list. The $top_v does not exist!",'error');
 		$window->destroy;
 	}
 	
@@ -1047,11 +1045,21 @@ sub  get_pin_assignment{
 				#	print"($portrange=$portrange)=~ s/\b$l\b/$value/g      if(defined $param{$l})\n";
 				}
 			}
-			$portrange = "[ $portrange ]" ;
+					
+			my($s1,$s2)=split (":",$portrange);
+			{
+				no warnings 'numeric';
+				$s1 = eval $s1;
+				$s2 = eval $s2;
+			}
+			$portrange = "[ $portrange ]" ;	
+		    if(defined $s1 && defined $s2 ){
+		    	$portrange = "" if($s1 eq 0 && $s2 eq 0);			 #the upper and lower range are equal zero so remove it				
+			}
 		}	
 		
 		my $label1= gen_label_in_left("  $porttype");
-		my $label2= gen_label_in_left("  $portrange");
+		my $label2= gen_label_in_left("  $portrange"); 
 		my $label3= gen_label_in_left("  $p");
 
 		$table->attach($label1, 0,1, $row, $row+1,'fill','shrink',2,2);
@@ -1206,24 +1214,23 @@ sub vivado_program_the_board {
 	my 	($self,$tview,$target_dir,$name,$vendor) =@_;
 	
 	my $bit_file="$target_dir/xilinx_compile/${name}.runs/impl_1/Top.bit";
-	#check bit file existance
-	unless (-f $bit_file){	
-		add_colored_info($tview,"Could not find $bit_file. Click on project Compile button first and make sure it runs successfully.",'red');	
-		return	
-	}	
+	
 	
 	
 	unless (-f "$target_dir/program_board.tcl"){	
 	#create tcl file
-	my $xpr = "./xilinx_compile/${name}.xpr";
+	my $xpr = "\$tcl_path/xilinx_compile/${name}.xpr";
 	my $tcl="
+#Get tcl shell path relative to current script
+set tcl_path	[file dirname [info script]] 
+	
 set projectName $name
 
-source \"board_property.tcl\"
+source \"\$tcl_path/board_property.tcl\"
 set projectXpr \"$xpr\"
 #Open project
 open_project   \$projectXpr
-program_board $bit_file
+program_board \"\$tcl_path/xilinx_compile/${name}.runs/impl_1/Top.bit\"
 close_project
 exit
 
@@ -1231,6 +1238,13 @@ exit
 	save_file ("$target_dir/program_board.tcl",$tcl);	
 	add_info($tview,"File $target_dir/program_board.tcl is created\n");
 	}
+	
+	#check bit file existance
+	unless (-f $bit_file){	
+		add_colored_info($tview,"Could not find $bit_file. Click on project Compile button first and make sure it runs successfully.",'red');	
+		return	
+	}	
+	
 	
 	#run vivado using program_board.tcl
 	run_vivado ($self,$target_dir,$tview,"$target_dir/program_board.tcl");	
@@ -1304,7 +1318,7 @@ sub quartus_run_compile{
 	my $board_name=$self->object_get_attribute('compile','board');
 	my @qsfs =   glob("../boards/$vendor/$board_name/*.qsf");
 	if(!defined $qsfs[0]){
-		message_dialog("Error: ../boards/$vendor/$board_name folder does not contain the qsf file.!");
+		message_dialog("Error: ../boards/$vendor/$board_name folder does not contain the qsf file.!",'error');
 		$window->destroy;
 	}
 
@@ -1397,19 +1411,22 @@ sub xilinx_run_compile{
 		$d=~ s/\///g; #remove /
 		$d = "tile0".$d unless($m[-1]=~/^tile/); #add tile0 to soc
 		copy($f,"$target_dir/xilinx_mem/$d");
-		$mem_files="$mem_files $target_dir/xilinx_mem/$d"; 		
+		$mem_files="$mem_files \$tcl_path/xilinx_mem/$d"; 		
 	}
 	add_info($tview,"HDL sources:\n$files\nMem sources:\n$mem_files\n");
 	#make tcl file
-	my $tcl="";
+	my $tcl="
+#Get tcl shell path relative to current script
+set tcl_path	[file dirname [info script]] 
+";
 	
 	$tcl=$tcl."set projectName $name";
 	
-	$tcl =$tcl.'
-source "board_property.tcl"
-
+	$tcl =$tcl."
+source \"\$tcl_path/board_property.tcl\" 
 #Create output directory and clear contents
-set outputdir ./xilinx_compile
+set outputdir \"\$tcl_path/xilinx_compile\"";
+	$tcl =$tcl.'
 file mkdir $outputdir
 set files [glob -nocomplain "$outputdir/*"]
 if {[llength $files] != 0} {
@@ -1431,7 +1448,7 @@ set_project_properties
 	#get boards pin list
 	my $top_v= "$target_dir/src_verilog/Top.v";
 	if(!-f $top_v){
-		message_dialog("Error: Could not load the board pin list. The Top.v does not exist!");
+		message_dialog("Error: Could not load the board pin list. The Top.v does not exist!",'error');
 		$window->destroy;
 	}
 	
@@ -1458,7 +1475,8 @@ set_project_properties
 		foreach my $l (@lines){
 			foreach my $p (@ports){
 				
-				$l=~ s/^\s*#/ /g if($l =~ /^\s*#/   && $l =~ /\[get_ports\s*{\s*$p[\s\}\[]/);
+				$l=~ s/^\s*#/ /g if($l =~ /^\s*#/   && $l =~  /\[\s*get_ports\s*[{\s]\s*$p[\s\[\]\}]/ );#             /\[get_ports\s*{\s*$p[\s\}\[]/);
+				
 			}
 			$out=$out."$l\n";			
 		}	
@@ -1467,14 +1485,22 @@ set_project_properties
 		#save new xdc file
 		save_file($xdc_file,$out);				
 		#add xdc to tcl file
-		$tcl =$tcl."add_files -fileset constrs_$i ./$fname.xdc\n";
+		$tcl =$tcl."add_files -fileset constrs_1 \$tcl_path/$fname.xdc\n";
 		$i++;	
 	}	
+
+	#internal clock constrain
+	my $clk_xdc=get_clk_constrain_file($self);
+	save_file ("$target_dir/clk.xdc",$clk_xdc);
+	$tcl =$tcl."add_files -fileset constrs_1 \$tcl_path/clk.xdc\n";
+
+
 
 	$tcl =$tcl."add_files ";
 	#add hdl sources
 	foreach my $f (@sources){
-		$tcl =$tcl." $f ";	
+		my $p =cut_dir_path($f,'src_verilog');		
+		$tcl =$tcl." \$tcl_path/src_verilog/$p ";	
 	}	
 	$tcl =$tcl."\n";
 	
@@ -2081,7 +2107,7 @@ int main(int argc, char** argv) {
 	main_time=0;
 	printf(\"Start Simulation\\n\");
 	while (!Verilated::gotFinish()) {
-	   
+	    if ((main_time & 0x3FF)==0) fflush(stdout); // fflush \$dispaly command each 1024 clock cycle 
 		if (main_time >= 10 ) { 
 			$PP{reset0}
 		}	
@@ -2290,7 +2316,7 @@ $tile_addr
 	main_time=0;
 	printf(\"Start Simulation\\n\");
 	while (!Verilated::gotFinish()) {
-	   
+	    if ((main_time & 0x3FF)==0) fflush(stdout); // fflush \$dispaly command each 1024 clock cycle 
 		if (main_time >= 10 ) { 
 			reset=0;
 		}	
@@ -2702,7 +2728,7 @@ sub verilator_testbench{
 	$run -> signal_connect("clicked" => sub{
 		my $bin="$verilator/processed_rtl/obj_dir/testbench";
 		if (-f $bin){
-			my $cmd= "cd \"$verilator/processed_rtl/obj_dir/\" \n xterm -e bash -c $bin";
+			my $cmd= "cd \"$verilator/processed_rtl/obj_dir/\" \n xterm -e bash -c \"$bin; sleep 5\"";
 			add_info($tview,"$cmd\n");	
 			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
 			if(length $stderr>1){			

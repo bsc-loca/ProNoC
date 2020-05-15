@@ -533,7 +533,7 @@ sub check_sample{
 			my $p=$pp->{'noc_param'};
 			
 			$status=0 if $@;
-			message_dialog("Error reading: $@") if $@;
+			message_dialog("Error reading: $@",'error') if $@;
 			if ($status==1){
 				$emulate->object_add_attribute ($sample,"noc_info",$p) ;
 					
@@ -999,7 +999,7 @@ sub save_the_sof_file{
 	copy($files[0],"$sofdir/$fpga_board/$name.sof") or do { 
 		my $err= "Error copy($files[0] , $sofdir/$fpga_board/$name.sof";	
 		print "$err\n"; 	
-		message_dialog($err); 
+		message_dialog($err,'error'); 
 		return;
 	};
 	#copy the board's programming and jtag interface files

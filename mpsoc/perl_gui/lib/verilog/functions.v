@@ -19,6 +19,7 @@
         end     
    endfunction //i2s
 
+/*
 function   [159:0]f2s;   
           input   real f; reg s;reg b; integer i; integer j;integer a;  real tmp; begin 
               s=0;
@@ -57,3 +58,4 @@ function   [159:0]f2s;
 	      end
 	end
       endfunction //f2s
+*/

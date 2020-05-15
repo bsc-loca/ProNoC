@@ -715,7 +715,7 @@ For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
 				
 		
 		if (defined $error){
-			message_dialog("$error");
+			message_dialog("$error",'error');
 			$error=undef;
 		}else {
 			$window->destroy();

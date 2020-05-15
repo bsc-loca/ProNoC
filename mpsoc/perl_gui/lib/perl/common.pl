@@ -339,6 +339,7 @@ sub set_path_env{
 	}
 	if(defined $add){
 		print GREEN, "Info: $add has been added to linux PATH envirement.\n",RESET,"\n";
+		
 	}
 	
 	
@@ -414,6 +415,12 @@ sub get_project_dir{ #mpsoc directory address
 	my @p=	split('/perl_gui',$dir);
     my $d	  = abs_path("$p[0]/../");
 	return $d;
+}
+
+sub cut_dir_path{ 
+	my ($dir,$folder_name) = @_;
+	my @p=  split (/\/$folder_name\//,$dir);
+	return $p[-1];
 }
 
 
@@ -904,6 +911,38 @@ sub run_cmd_in_back_ground_get_stdout
 	
 }		
 	
+sub run_cmd_message_dialog_errors{
+	my ($cmd)=@_;
+	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+	if(length $stderr>1){			
+		message_dialog("$stderr\n",'error');
+		return 1;
+	}if($exit){
+		message_dialog("Error $cmd failed: $stdout\n",'error');
+		return 1;		
+	}
+	return 0;
+	
+}
+
+
+sub run_cmd_textview_errors{
+	my ($cmd,$tview)=@_;
+	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+	if(length $stderr>1){			
+		add_colored_info($tview,"Error: $stderr\n",'red');
+		add_colored_info($tview,"$cmd was not run successfully!\n",'red');
+		return undef;
+	}
+	if($exit){
+		add_colored_info($tview,"Error:$stdout\n",'red');
+		add_colored_info($tview,"$cmd was not run successfully!\n",'red');
+		return undef;
+	}
+	$stdout = "" if (!defined $stdout);
+	return 	$stdout
+}	
+
 
 #############
 # object
