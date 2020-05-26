@@ -189,13 +189,13 @@ sub select_uart_board {
 sub capture_altera_jtag_info {
 	my ($self,$tview) = @_;
 	my $command=  "$ENV{QUARTUS_BIN}/jtagconfig";
-	add_info($tview,"$command\n");
+	#add_info($tview,"$command\n");
 	my $stdout= run_cmd_textview_errors($command,$tview);
 	if(!defined $stdout){
 		add_colored_info($tview,"No JTAG Hardware is detected\n",'red');
 		return 1; 
 	}
-	add_info($tview,"$stdout\n");
+	#add_info($tview,"$stdout\n");
 	my @a=split /1\)\s+/, $stdout; 
 	if(!defined $a[1]){
 		add_colored_info($tview,"No JTAG Hardware is detected\n",'red');
@@ -260,11 +260,11 @@ sub show_all_xilinx_targets{
 	}
 
     $in = "";
-    return 0 unless run_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
+    return 0 unless run_xsct_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
     $in = "set jseq [jtag sequence]\n connect\n";
-    return 0 unless run_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
+    return 0 unless run_xsct_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
     $in = "set R [jtag targets]\n puts \$R \n";
-    return 0 unless run_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
+    return 0 unless run_xsct_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
 	add_colored_info($tview,"targets are:\n $out .\n",'blue');
 	close_xsct($self,\$pipe,$tview,\$in, \$out, \$err);
 }
@@ -320,29 +320,7 @@ sub sender_box{
 	return ($scrolled_win,$tview);	
 }
 
-sub run_pipe{
-	my ($self,$pipe,$in,$out,$err,$tview)=@_;
-	$$out='';	
-	$$in .= "puts done\n";
-	
-	#print "$$in";
-	
-	pump $$pipe while (length $$in);
-    until ($$out =~ /done/ || (length $$err)){
-    
-    	pump $$pipe; 
-    	refresh_gui();    	
-    }	 
-    if(length $$err){
-    	add_colored_info($tview,"Got an Error: $$err\n",'red');
-    	$self->object_add_attribute("CTRL","DISCONNECT",1);	
-    	set_gui_status($self,"ON-OFF",0);	    	
-    	return 0;    	
-    }
-    refresh_gui();
-   # print $$out;
-	return 1;	
-}
+
 
 
 
@@ -405,59 +383,7 @@ sub hex_to_ascii { # $ascii ($hex)
   return pack 'H*', $s;
 }
 	
-sub run_xsct_jtag_scaner{
-	my ($self,$tview,$tv_ref,$pipe,$in, $out, $err)=@_; 
-		
-	my $num = $self->object_get_attribute('CTRL','UART_NUM');
-	my $chain= $self->object_get_attribute('CTRL','JTAG_CHAIN');
-	my $chain_code=
-		($chain==1)? '02':
-		($chain==2)? '03':
-		($chain==3)? '22':
-		'23';
-	
-	my @tviews=@{$tv_ref};
-	
-	for (my $i=0; $i<$num; $i+=1){	
-		my $index= $self->object_get_attribute("CTRL","INDEX_$i");	
-		next if (!defined $index);
-		my $txt= $self->object_get_attribute("SEND","TXT_$index");
-		my $send_char =0;
-		my $l=length $txt;
-		if ($l){
-			$send_char = substr $txt, 0,1;
-			$txt =  substr $txt, 1,$l;
-			$self->object_add_attribute("SEND","TXT_$index",$txt );
-		}
-		
-	
-		#select index		
-		#print"select index\n";
-		$$in=jtag_vindex ($index,32,$chain_code);
-		return  unless run_pipe($self,$pipe,$in,$out,$err,$tview);
-			
-		
-		#select instruction
-		#print"select instruction\n";
-		$$in=jtag_vir (JTAG_UPDATE_WB_RD_DATA,32,$chain_code);	
-		return  unless run_pipe($self,$pipe,$in,$out,$err,$tview);
-				
-		
-		#read uart reg 0 
-		#print"read reg 0\n";
-		my $str=jtag_vdr   ($send_char,32,$chain_code);	
-		$$in=$str;
-		nop();
-		return  unless run_pipe($self,$pipe,$in,$out,$err,$tview);
-		nop();
-		my ($hex)= sscanf("R:%s:R",$$out);
-		my $char= substr $hex, 0, 2;
-		if($char ne '00'){	
-			$char =hex_to_ascii(substr $hex, 0, 2);	
-			append_to_textview($tviews[$i],$char) if(defined $tviews[$i]);
-		}
-	}
-}
+
 
 sub nop{
 	#no oprtstion
@@ -467,6 +393,42 @@ sub nop{
 #	Quartus stp
 ##########
 
+
+sub run_stp_pipe{
+	my ($self,$pipe,$in,$out,$err,$tview)=@_;
+	$$out='';	
+	$$in .= "puts done\n";
+	
+	#print $$in;
+	
+	pump $$pipe while (length $$in);
+    until ($$out =~ /done/ || (length $$err)){
+    
+    	pump $$pipe; 
+    	refresh_gui();    	
+    }	 
+    if(length $$err){
+    	add_colored_info($tview,"Got an Error: $$err\n",'red');
+    	$self->object_add_attribute("CTRL","DISCONNECT",1);	
+    	set_gui_status($self,"ON-OFF",0);	    	
+    	return 0;    	
+    }
+    # stp does not print on stderr. we need to check stdout manually for error 
+    my @error_list=("ERROR:","can't read");
+    foreach my $err (@error_list) {
+    	if( $$out =~ /$err/){
+    		add_colored_info($tview,"Got an Error: $$out\n",'red');
+    		$self->object_add_attribute("CTRL","DISCONNECT",1);	
+    		set_gui_status($self,"ON-OFF",0);	    	
+    		return 0;    		
+    	}	
+    	
+    }
+     
+    refresh_gui();
+    #print $$out;
+	return 1;	
+}
 
 sub start_stp{
 	my ($self,$pipe,$tview,$in, $out, $err)=@_;
@@ -511,11 +473,9 @@ sub start_stp{
 	my $DEVICE_NAME="\@$dev*"; 
 		
 	
-	$$in = " ";
+	$$in = " ";	
 	
-	
-	
-    return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
+    return 0 unless run_stp_pipe($self,$pipe,$in,$out,$err,$tview);
     $$in = "  foreach name [get_hardware_names] {
    if { [string match \"*${HARDWARE_NAME}*\" \$name] } {
        set hardware_name \$name\n
@@ -529,18 +489,95 @@ sub start_stp{
    }
    puts \"device_name is \$chip_name\\n\";
    open_device -hardware_name \$hardware_name -device_name \$chip_name\n";
-   return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
+   return 0 unless run_stp_pipe($self,$pipe,$in,$out,$err,$tview);
          
     return 1;
 }
 
 sub close_stp{
 	my ($self,$pipe,$tview,$in, $out, $err)=@_;
-	$$in = "exit\n";
+	$$in = 
+"device_unlock
+close_device
+exit
+";
   	pump $$pipe while (length $$in);
    	finish $$pipe;
 }
 
+
+sub stp_jtag_vir {
+	my ($index,$ir)=@_;	
+	my $hex = sprintf("%X", $ir);
+	my $in = 
+"device_lock -timeout 10000
+device_virtual_ir_shift -instance_index $index -ir_value $hex -no_captured_ir_value
+catch {device_unlock}
+";
+return $in;	
+}
+
+
+sub stp_jtag_vdr{
+	my ($index,$dat,$width)=@_;
+	my $digits= $width>>2;	
+	my $hex = sprintf("%0${digits}X", $dat);
+	my $in=
+"device_lock -timeout 10000
+set data [device_virtual_dr_shift -dr_value $hex -instance_index $index  -length $width  -value_in_hex]
+catch {device_unlock}
+puts R:\$data:R
+";
+	return $in;	
+}
+
+
+sub run_stp_jtag_scaner{
+	my ($self,$tview,$tv_ref,$pipe,$in, $out, $err)=@_; 
+		
+	my $num = $self->object_get_attribute('CTRL','UART_NUM');
+		
+	
+	my @tviews=@{$tv_ref};
+	
+	for (my $i=0; $i<$num; $i+=1){	
+		my $index= $self->object_get_attribute("CTRL","INDEX_$i");	
+		next if (!defined $index);
+		
+		
+		
+		my $txt= $self->object_get_attribute("SEND","TXT_$index");
+		my $send_char =0;
+		my $l=length $txt;
+		if ($l){
+			$send_char = substr $txt, 0,1;
+			$txt =  substr $txt, 1,$l;
+			$self->object_add_attribute("SEND","TXT_$index",$txt );
+		}
+		
+			
+		
+		#select instruction
+		$$in=stp_jtag_vir ($index,JTAG_UPDATE_WB_RD_DATA);	
+		return  unless run_stp_pipe($self,$pipe,$in,$out,$err,$tview);
+				
+		
+		#read uart reg 0 
+		my $str=stp_jtag_vdr ($index,$send_char,32);	
+		$$in=$str;
+		nop();
+		return  unless run_stp_pipe($self,$pipe,$in,$out,$err,$tview);
+		nop();
+		my ($tmp,$hex)= sscanf("%sR:%s:R",$$out);
+		#print "capture $hex\n";
+		my $char= substr($hex, -2);
+		#print "char = $char\n";
+		if($char ne '00'){	
+			$char =hex_to_ascii($char);	
+			append_to_textview($tviews[$i],$char) if(defined $tviews[$i]);
+		}
+	}
+}
 
 
 ###############
@@ -555,6 +592,28 @@ use constant UPDATE_DAT   => "04";
 #USER2 000011 Access user-defined register 2.
 #USER3 100010 Access user-defined register 3.
 #USER4 100011 Access user-defined register 4
+
+sub run_xsct_pipe{
+	my ($self,$pipe,$in,$out,$err,$tview)=@_;
+	$$out='';	
+	$$in .= "puts done\n";
+	
+	pump $$pipe while (length $$in);
+    until ($$out =~ /done/ || (length $$err)){
+    
+    	pump $$pipe; 
+    	refresh_gui();    	
+    }	 
+    if(length $$err){
+    	add_colored_info($tview,"Got an Error: $$err\n",'red');
+    	$self->object_add_attribute("CTRL","DISCONNECT",1);	
+    	set_gui_status($self,"ON-OFF",0);	    	
+    	return 0;    	
+    }
+    refresh_gui();
+  
+	return 1;	
+}
 
 
 sub start_xsct{
@@ -581,9 +640,9 @@ sub start_xsct{
 	my $target= $self->object_get_attribute('CTRL','JTAG_TARGET');
 	
 	$$in = "";
-    return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
+    return 0 unless run_xsct_pipe($self,$pipe,$in,$out,$err,$tview);
     $$in = "set jseq [jtag sequence]\n connect\n jtag targets $target\n";
-    return 0 unless run_pipe($self,$pipe,$in,$out,$err,$tview);
+    return 0 unless run_xsct_pipe($self,$pipe,$in,$out,$err,$tview);
          
     return 1;
 }
@@ -607,7 +666,7 @@ sub jtag_reorder{
 
 
 
-sub send_to_jtag{
+sub xsct_send_to_jtag{
 	my ($hex,$width,$chain) =@_;
 	my $siz = $width+4;
 	#print "$chain\n";
@@ -620,7 +679,7 @@ return $str;
 }
 
 
-sub send_capture_jtag {
+sub xsct_send_capture_jtag {
 	my ($hex,$width,$chain) =@_;
 	my $siz = $width+4;
 	my $str="\$jseq clear                                                      
@@ -633,31 +692,88 @@ return $str;
 }
 
 
-sub jtag_vdr{
+sub xsct_jtag_vdr{
 	my ($dat,$width,$chain)=@_;
 	my $digits= $width>>2;	
 	my $hex = UPDATE_DAT.sprintf("%0${digits}X", $dat);
 	$hex=jtag_reorder($hex);	
-	return send_capture_jtag($hex,$width,$chain);
+	return xsct_send_capture_jtag($hex,$width,$chain);
 }
 
 
-sub jtag_vir {
+sub xsct_jtag_vir {
 	my ($ir,$width,$chain)=@_;	
 	my $digits= $width>>2;	
 	my $hex = UPDATE_IR.sprintf("%0${digits}X", $ir);
 	$hex=jtag_reorder($hex);
-	return send_to_jtag($hex,$width,$chain);
+	return xsct_send_to_jtag($hex,$width,$chain);
 }
 
-sub jtag_vindex {
+sub xsct_jtag_vindex {
 	my ($index,$width,$chain)=@_;	
 	my $digits= $width>>2;	
 	my $hex = UPDATE_INDEX.sprintf("%0${digits}X", $index);
 	$hex=jtag_reorder($hex);
-	return send_to_jtag($hex,$width,$chain);
+	return xsct_send_to_jtag($hex,$width,$chain);
 }
 
+sub run_xsct_jtag_scaner{
+	my ($self,$tview,$tv_ref,$pipe,$in, $out, $err)=@_; 
+		
+	my $num = $self->object_get_attribute('CTRL','UART_NUM');
+	my $chain= $self->object_get_attribute('CTRL','JTAG_CHAIN');
+	my $chain_code=
+		($chain==1)? '02':
+		($chain==2)? '03':
+		($chain==3)? '22':
+		'23';
+	
+	my @tviews=@{$tv_ref};
+	
+	for (my $i=0; $i<$num; $i+=1){	
+		my $index= $self->object_get_attribute("CTRL","INDEX_$i");	
+		next if (!defined $index);
+		my $txt= $self->object_get_attribute("SEND","TXT_$index");
+		my $send_char =0;
+		my $l=length $txt;
+		if ($l){
+			$send_char = substr $txt, 0,1;
+			$txt =  substr $txt, 1,$l;
+			$self->object_add_attribute("SEND","TXT_$index",$txt );
+		}
+		
+	
+		#select index		
+		#print"select index\n";
+		$$in=xsct_jtag_vindex ($index,32,$chain_code);
+		return  unless run_xsct_pipe($self,$pipe,$in,$out,$err,$tview);
+			
+		
+		#select instruction
+		#print"select instruction\n";
+		$$in=xsct_jtag_vir (JTAG_UPDATE_WB_RD_DATA,32,$chain_code);	
+		return  unless run_xsct_pipe($self,$pipe,$in,$out,$err,$tview);
+				
+		
+		#read uart reg 0 
+		#print"read reg 0\n";
+		my $str=xsct_jtag_vdr   ($send_char,32,$chain_code);	
+		$$in=$str;
+		nop();
+		return  unless run_xsct_pipe($self,$pipe,$in,$out,$err,$tview);
+		nop();
+		my ($hex)= sscanf("R:%s:R",$$out);
+		my $char= substr $hex, 0, 2;
+		if($char ne '00'){	
+			$char =hex_to_ascii(substr $hex, 0, 2);	
+			append_to_textview($tviews[$i],$char) if(defined $tviews[$i]);
+		}
+	}
+}
+
+############
+#	main
+############
 
 
 
@@ -677,7 +793,7 @@ sub uart_main {
 	my ($pipe,$in, $out, $err);
 	my $counter=5;
 	#check soc status every 0.5 second. referesh device table if there is any changes 
-    Glib::Timeout->add (100, sub{ 
+    Glib::Timeout->add (10, sub{ 
         my ($state,$timeout)= get_gui_status($self);
         
         if ($timeout>0){
@@ -718,6 +834,7 @@ sub uart_main {
         if($counter ==0 ){
         	my $uname= $self->object_get_attribute('CTRL','UART_NAME');
 			run_xsct_jtag_scaner($self,$tview,$tv_ref,\$pipe,\$in, \$out, \$err) if($uname eq 'ProNoC_XILINX_UART' ); 
+			run_stp_jtag_scaner($self,$tview,$tv_ref,\$pipe,\$in, \$out, \$err) if($uname eq 'ProNoC_ALTERA_UART' ); 
         }
     	return TRUE;
         

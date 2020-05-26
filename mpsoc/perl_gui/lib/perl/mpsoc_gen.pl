@@ -1320,9 +1320,11 @@ sub generate_mpsoc{
     print FILE mpsoc_sw_make();
     close(FILE) || die "Error closing file: $!";
     
+    my $m_chain = $mpsoc->object_get_attribute('JTAG','M_CHAIN');
+    
     #generate prog_mem
     open(FILE,  ">$sw_dir/program.sh") || die "Can not open: $!";
-    print FILE mpsoc_mem_prog();
+    print FILE mpsoc_mem_prog($m_chain);
     close(FILE) || die "Error closing file: $!";
       
     my @ff= ("$target_dir/src_verilog/$name.v","$target_dir/src_verilog/${name}_top.v");       
@@ -1351,16 +1353,18 @@ SUBDIRS := \$(wildcard */.)
 
 
 sub mpsoc_mem_prog {
-     my $string='#!/bin/bash
+    my $chain=shift;
+    
+     my $string="#!/bin/bash
 
 
-#JTAG_INTFC="$PRONOC_WORK/toolchain/bin/JTAG_INTFC"
+#JTAG_INTFC=\"\$PRONOC_WORK/toolchain/bin/JTAG_INTFC\"
 source ./jtag_intfc.sh
 
 
 #reset and disable cpus, then release the reset but keep the cpus disabled
 
-$JTAG_INTFC -n 127  -d  "I:1,D:2:3,D:2:2,I:0"
+\$JTAG_INTFC -t $chain  -n 127  -d  \"I:1,D:2:3,D:2:2,I:0\"
 
 # jtag instruction 
 #    0: bypass
@@ -1376,19 +1380,19 @@ $JTAG_INTFC -n 127  -d  "I:1,D:2:3,D:2:2,I:0"
 
 
 #programe the memory
-for i in $(ls -d */); do 
-    echo "Enter ${i%%/}"
-    cd ${i%%/}
+for i in \$(ls -d */); do 
+    echo \"Enter \${i\%\%/}\"
+    cd \${i\%\%/}
     bash write_memory.sh 
     cd ..
 done
  
 #Enable the cpu
-$JTAG_INTFC -n 127  -d  "I:1,D:2:0,I:0"
+\$JTAG_INTFC -t $chain -n 127  -d  \"I:1,D:2:0,I:0\"
 # I:1  set jtag_enable  in active mode
 # D:2:0 load jtag_enable data register with 0x0 reset=0 disable=0
 # I:0  set jtag_enable  in bypass mode
-';
+";
 	return $string;
 }
 
@@ -1648,7 +1652,7 @@ sub software_edit_mpsoc {
     my $sw     = "$target_dir/sw";
     
     my $orcc_page=select_orcc_generated_srcs($self);
-    my $orcc_lable=def_image_label('icons/orcc.png','Autogenrate Software with ORCC');
+    my $orcc_lable=def_image_label('icons/orcc.png','Auto-generate Software using ORCC');
     my @pages=($orcc_page);
     my @pages_lables=($orcc_lable);
     my ($app,$table,$tview) = software_main($sw,undef,\@pages,\@pages_lables);    
@@ -1932,6 +1936,7 @@ sub get_source_assignment_win{
 sub get_clk_constrain_widget {
 	my ($self,$table,$column,$row, $s,$n)=@_;
 	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
+	return ($column,$row);
 	my $frequency;	
 	($row,$column,$frequency)=  add_param_widget($self,"Frequency(MHz)","${s}_${n}_mhz", 100,'Spin-button',"1,1024,0.01",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
 	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;

@@ -808,6 +808,8 @@ sub save_as{
 
 sub load_workspace {
 	my $self=shift;
+	my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+	
 	my $file;
 	my $dialog = Gtk2::FileChooserDialog->new(
             	'Select a File', undef,
@@ -823,7 +825,7 @@ sub load_workspace {
 	my $dir = Cwd::getcwd();
 	$dialog->set_current_folder ("$dir/lib/simulate");		
 
-
+	
 	if ( "ok" eq $dialog->run ) {
 		$file = $dialog->get_filename;
 		my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
@@ -855,8 +857,10 @@ sub load_workspace {
 					}
 				}
 			}
-				
-		
+			
+			#update mpsocname
+			$self->object_add_attribute('mpsoc_name',undef,$mpsoc_name) if (defined $mpsoc_name);
+			
 			
 			
 			

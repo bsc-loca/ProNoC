@@ -91,6 +91,10 @@ endmodule
 	#add_text_to_string(\$top_v,$local_param_v_all."\n".$io_full_v_all);
 	#add_text_to_string(\$top_v,$ins);
 	$mpsoc->object_add_attribute('top_ip',undef,$top_ip);
+	
+	my @chains = (sort { $b <=> $a } keys  %jtag_info);
+	$mpsoc->object_add_attribute('JTAG','M_CHAIN',$chains[0]);
+	
 	return ($mpsoc_v,$top_v);
 }
 
@@ -107,7 +111,7 @@ sub add_sources_to_top_ip{
 			$name=$s if(!defined $name);
 			$top_ip->top_add_port('IO',$name,'', 'input' ,"plug:$s\[$n\]","${s}_i");
 			$sourc_short= (defined $sourc_short)? $sourc_short.",\n\t$name" : "\t$name"; 
-			$source_full=$source_full. "// synthesis attribute keep of $name is true;\n" if($s eq 'clk');
+			#$source_full=$source_full. "// synthesis attribute keep of $name is true;\n" if($s eq 'clk');
 			$source_full=$source_full."\tinput $name;\n";
 		}
 		#$top_ip->top_add_port('IO','clk','', 'input' ,'plug:clk[0]','clk_i');
@@ -181,6 +185,8 @@ sub add_jtag_ctrl {
 		.system_reset(jtag_system_reset),
 		.cpu_en(jtag_cpu_en),
 	";	
+	
+	
 	
 		
 			$glob_en=1;			
@@ -445,9 +451,9 @@ sub gen_noc_v{
 	foreach my $p (@ports){
 		my $port;
 		if($p eq 'reset' ){
-			$port=($i==0)?  "\t\t.$p(noc_reset)":",\n\t\t.$p(noc_reset)";
+			$port=($i==0)?  "\t\t.$p(noc_reset_in)":",\n\t\t.$p(noc_reset_in)";
 		}elsif( $p eq 'clk'){
-			$port=($i==0)?  "\t\t.$p(noc_clk)":",\n\t\t.$p(noc_clk)";
+			$port=($i==0)?  "\t\t.$p(noc_clk_in)":",\n\t\t.$p(noc_clk_in)";
 		}else {
 			$port=($i==0)?  "\t\t.$p($p)":",\n\t\t.$p($p)";			
 		}
@@ -760,7 +766,7 @@ sub   gen_soc_v{
 				#print "my $JTAG_CONNECT=  \$topparams{${inst_name}_JTAG_CONNECT}\n"; 
 				
 				#print "$inst,$range,$type,$intfc_name,$intfc_port-> $JTAG_CONNECT;";
-				if($JTAG_CONNECT eq '"XILINX_JTAG_WB"'){
+				if($JTAG_CONNECT  =~ /XILINX_JTAG_WB/){
 					
 					my ($io_port,$type,$new_range,$intfc_name,$intfc_port)=	get_top_port_io_info($top,$p,$tile_num,\%params,\%soc_localparam);
 					my $port_def=(length ($new_range)>1 )? 	"\t$type\t [ $new_range    ] $io_port;\n": "\t$type\t\t\t$io_port;\n";			 
@@ -796,7 +802,7 @@ sub   gen_soc_v{
 					$i=1;
 				}
 			
-				if($JTAG_CONNECT eq '"ALTERA_JTAG_WB"'){
+				if($JTAG_CONNECT =~ /ALTERA_JTAG_WB/){
 					if($type eq 'input'){
 						#$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
 						#$altera_jtag_ctrl++;

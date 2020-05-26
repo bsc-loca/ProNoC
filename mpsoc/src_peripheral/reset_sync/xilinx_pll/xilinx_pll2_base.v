@@ -5,7 +5,7 @@
 *
 * Description: 
 ***************************************/
-module  xilinx_pll_base #(
+module  xilinx_pll2_base #(
     parameter CLKOUT_NUM= 6,   // number of output clk 1-6
     parameter BANDWIDTH = "OPTIMIZED",  // OPTIMIZED, HIGH, LOW
     parameter CLKFBOUT_MULT = 5,        // Multiply value for all CLKOUT, (2-64)

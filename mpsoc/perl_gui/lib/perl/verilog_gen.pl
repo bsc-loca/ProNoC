@@ -85,7 +85,8 @@ sub soc_generate_verilog{
 	close($file1);
 	my $unused_wiers_v=assign_unconnected_wires($wires,$intfc);
 	
-	
+	$unused_wiers_v="" if(!defined $unused_wiers_v);
+	$sockets_assign_v_all=""  if(!defined $sockets_assign_v_all);
 
 	my $soc_v = (defined $param_as_in_v_all )? "module $soc_name #(\n $param_as_in_v_all\n)(\n$io_sim_v_all\n);\n": "module $soc_name (\n$io_sim_v_all\n);\n";
 	$soc_v = $soc_v."
@@ -116,6 +117,8 @@ endmodule
     $top_io_pass_all=$top_io_pass_all.",\n$clk_assigned_port";
     my %jtag_info= get_soc_jtag_v($soc,$soc_name,$txview);
 	my $jtag_v=add_jtag_ctrl (\%jtag_info,$txview);
+    my @chains = (sort { $b <=> $a } keys  %jtag_info);
+	$soc->object_add_attribute('JTAG','M_CHAIN',$chains[0]);
     
 	my $top_v = (defined $param_as_in_v_all )? "module ${soc_name}_top #(\n $param_as_in_v_all\n)(\n$top_io_short_all\n);\n": "module ${soc_name}_top (\n $top_io_short_all\n);\n";
 	
@@ -139,6 +142,9 @@ endmodule
 
 
 }	
+
+
+
 
 sub append_to_hash {
 	my ($ref,$att1,$att2,$data)=@_;
@@ -174,8 +180,8 @@ sub get_soc_jtag_v{
 			foreach my $p (@ports){
 				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);				
 				my $JTAG_CONNECT=$soc->soc_get_module_param_value ($id,'JTAG_CONNECT');						
-				
-				if($JTAG_CONNECT eq '"XILINX_JTAG_WB"'){
+				$JTAG_CONNECT=remove_all_white_spaces($JTAG_CONNECT);
+				if($JTAG_CONNECT  =~ /XILINX_JTAG_WB/){
 					my $chain=$soc->soc_get_module_param_value ($id,'JTAG_CHAIN');		
 					
 					$jtag_inst_name= $soc->soc_get_instance_name($id);					
@@ -783,7 +789,7 @@ sub gen_soc_instance_v{
 				my($id,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
 				
 				
-				my $JTAG_CONNECT=$soc->soc_get_module_param_value ($id,'JTAG_CONNECT');
+				my $JTAG_CONNECT=remove_all_white_spaces($soc->soc_get_module_param_value ($id,'JTAG_CONNECT'));
 				
 				#print "$inst,$range,$type,$intfc_name,$intfc_port-> $JTAG_CONNECT;";
 				if($JTAG_CONNECT eq '"XILINX_JTAG_WB"'){
@@ -810,7 +816,7 @@ sub gen_soc_instance_v{
 					$mm="$mm\n\t\t.$p( )";
 				}
 			
-				if($JTAG_CONNECT eq '"ALTERA_JTAG_WB"'){
+				if($JTAG_CONNECT =~ /ALTERA_JTAG_WB/){
 					
 					if($type eq 'input'){
 						$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
@@ -996,11 +1002,14 @@ my %jtagwb; my %ram;
 				}
 				# get jtag_wbs
 				if((defined $connect_socket) && ($connect_socket eq 'wb_master') && ($instance_id =~ /jtag_wb/)){						
-					my $index=$soc->soc_get_module_param_value($instance_id,'VJTAG_INDEX');
-					
+					my $index=$soc->soc_get_module_param_value($instance_id,'JTAG_INDEX');
+					my $chain=$soc->soc_get_module_param_value($instance_id,'JTAG_CHAIN');
+					my $vendor_connect =$soc->soc_get_module_param_value($instance_id,'JTAG_CONNECT');
 					add_text_to_string(\$jtag, "\t$instance_name,  $connect_name, $index\n");
+					
 					$jtagwb{$connect_id}{'index'}=$index;	
-				
+					$jtagwb{$connect_id}{'chain'}=$chain;	
+					$jtagwb{$connect_id}{'vendor_connect'}=$vendor_connect;
 				}
 
 
@@ -1022,9 +1031,11 @@ source ./jtag_intfc.sh
 		if ($category eq 'RAM') {
 		
 			my $jtag_connect=$soc->soc_get_module_param_value($instance_id,'JTAG_CONNECT');
+			$jtag_connect=remove_all_white_spaces($jtag_connect);
 			my $aw=$soc->soc_get_module_param_value($instance_id,'Aw');
 			my $dw=$soc->soc_get_module_param_value($instance_id,'Dw');
 			my $JTAG_INDEX=$soc->soc_get_module_param_value($instance_id,'JTAG_INDEX');
+			my $JTAG_CHAIN=$soc->soc_get_module_param_value($instance_id,'JTAG_CHAIN');
 			
 			#check if jtag_index is a parameter
 			my $v=$soc->soc_get_module_param_value($instance_id,$JTAG_INDEX);
@@ -1039,11 +1050,16 @@ source ./jtag_intfc.sh
 			my $OFSSET="0x00000000";
 			my $end=((1 << $aw)*($dw/8))-1;
 			my $BOUNDRY=sprintf("0x%08x", $end);			
-			if($jtag_connect =~ /ALTERA_JTAG_WB/ || $jtag_connect =~ /XILINX_JTAG_WB/){
+			if($jtag_connect =~ /ALTERA_JTAG_WB/ ) {
 				$prog= "$prog \$JTAG_INTFC -n $JTAG_INDEX -s \"$OFSSET\" -e \"$BOUNDRY\" -i  \"$BINFILE\" -c";
 				#print "prog= $prog\n";
 				
-			}elsif ($jtag_connect eq 'ALTERA_IMCE'){
+			} elsif ($jtag_connect =~ /XILINX_JTAG_WB/){
+				$prog= "$prog \$JTAG_INTFC -t $JTAG_CHAIN -n $JTAG_INDEX -s \"$OFSSET\" -e \"$BOUNDRY\" -i  \"$BINFILE\" -c";
+				
+			}
+			
+			elsif ($jtag_connect eq 'ALTERA_IMCE'){
 				#TODO add later
 				$prog= "$prog ".'>&2 echo'." \"ALTERA_IMCE runtime programming is not supported yet for programming  $instance_id\"\n";	
 				
@@ -1055,17 +1071,22 @@ source ./jtag_intfc.sh
 				if(defined $connect_id){
 					#print "id=$connect_id\n";
 					my $JTAG_INDEX= $jtagwb{$connect_id}{'index'};
-						if(defined $JTAG_INDEX){
+					my $JTAG_CHAIN= $jtagwb{$connect_id}{'chain'};
+					my $JTAG_VENDOR= $jtagwb{$connect_id}{'vendor_connect'}; 
+					
+					my $t="";
+					$t="-t $JTAG_CHAIN"if($JTAG_VENDOR =~ /XILINX_JTAG_WB/);
+					
+					if(defined $JTAG_INDEX){
 							$v= $soc->object_get_attribute('global_param',$JTAG_INDEX);
 							$JTAG_INDEX = $v if (defined $v);
-							$prog= "$prog \$JTAG_INTFC -n $JTAG_INDEX -s \"$OFSSET\" -e \"$BOUNDRY\" -i  \"$BINFILE\" -c";
+							$prog= "$prog  \$JTAG_INTFC $t -n $JTAG_INDEX -s \"$OFSSET\" -e \"$BOUNDRY\" -i  \"$BINFILE\" -c";
 							#print "prog= $prog\n";
 							
-						}else{
-							
-					$prog= "$prog".'>&2 echo'." \"JTAG runtime programming is not enabled in  $instance_id\"\n";	
+					}else{
+						$prog= "$prog".'>&2 echo'." \"JTAG runtime programming is not enabled in  $instance_id\"\n";	
 					
-				}
+					}
 					
 				}else{
 					$prog= "$prog".'>&2 echo'."\"JTAG runtime programming is not enabled in  $instance_id\"\n";	
@@ -1084,7 +1105,8 @@ my $lisence= get_license_header("readme");
 my $warning=autogen_warning();
 
 
-
+$wb_slaves = " \t\t NOTE: No wishbone slaves interface has been found in the design " if (!defined $wb_slaves);
+$wb_masters= " \t\t NOTE: No wishbone master interface has been found in the design " if (!defined $wb_masters);
 
 my $readme="
 $warning
@@ -1121,7 +1143,7 @@ $wb_masters
 **	Jtag to wishbone interface (jtag_wb) info:
 ****************************
 
-	#instance name, instance name,  VJTAG_INDEX
+	#instance name, instance name,  JTAG_INDEX
 $jtag
 
 

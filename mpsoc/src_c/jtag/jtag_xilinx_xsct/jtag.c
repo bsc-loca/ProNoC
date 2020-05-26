@@ -15,7 +15,7 @@
 
 
 //#define DEBUG_JTAG
-#define PRINT_TO_XSCT
+//#define PRINT_TO_XSCT
 
 
 
@@ -219,12 +219,12 @@ int jtag_init( ) {
   chain_code=
 		(chain_num==1)? 0x02:
 		(chain_num==2)? 0x03:
-		(chain_num==3)? 0x022:
+		(chain_num==3)? 0x22:
 		0x23;	
 
 
 #ifdef PRINT_TO_XSCT
-	to_xsct_file = fopen("to_xsct.txt", "w");
+	to_xsct_file = fopen("to_xsct.txt", "a");
 	if (to_xsct_file == NULL) {
         	printf("Error!");
         	exit(1);
@@ -232,12 +232,12 @@ int jtag_init( ) {
 #endif
 
 
-   /* Create a quartus_stp process, and get the list of ports */
+   /* Create a xsct process, and connect t jtag device */
 
    int  f_to_xsct, f_from_xsct;
    char buf[1024];
   // char * ptr;
-   char *command[] = {"xsct", "-interactive", 0};
+   char *command[] = {"xsdb", "-interactive", 0};
 
    if(from_xsct != (FILE *) NULL) {
       fclose(from_xsct);
@@ -329,7 +329,7 @@ void strreplace(char s[], char chr, char repl_chr)
 }
 
 
-void  clean_stp_buff (){
+void  clean_xsct_buff (){
 	char buf[2024];
 	fprintf(to_xsct,"puts \"hi\"\n"); 
 #ifdef PRINT_TO_XSCT
@@ -367,11 +367,11 @@ char * read_xsct (){
 		//if(!strcmp(ptr, "\n")) break;
 
 		if(feof(from_xsct)) {
-			fprintf(stderr, "saw eof from quartus_stp\n");
+			fprintf(stderr, "saw eof from xsct\n");
 			exit(1);
 		}
 		if(ferror(from_xsct)) {
-			fprintf(stderr, "saw error from quartus_stp\n");
+			fprintf(stderr, "saw error from xsct\n");
 			exit(1);
 	      }
 	} 
@@ -464,7 +464,7 @@ void jtag_vindex(unsigned vindex) {
 	hextostring_xsct( hexstring, bits,  WORDS_NUM, jtag_shift_reg_size ); 	
 	add_update_state (hexstring,UPDATE_INDEX,jtag_shift_reg_size);
 	send_to_jtag (hexstring); 
-	clean_stp_buff ();      
+	clean_xsct_buff ();      
 }
 
 
@@ -481,7 +481,7 @@ void jtag_vir(unsigned vir) {
 	hextostring_xsct( hexstring, bits,  WORDS_NUM, jtag_shift_reg_size ); 	
 	add_update_state (hexstring,UPDATE_IR,jtag_shift_reg_size);
 	send_to_jtag (hexstring);
-	clean_stp_buff ();
+	clean_xsct_buff ();
 }
 
 
@@ -495,7 +495,7 @@ void jtag_vdr(unsigned sz, unsigned bits, unsigned *out) {
 	add_update_state (hexstring,UPDATE_DAT,jtag_shift_reg_size);
 	if (!out){
 		send_to_jtag (hexstring);     
-		clean_stp_buff();			
+		clean_xsct_buff();			
 	}else{
 		send_capture_jtag(hexstring);
 		return_dr (out);
@@ -511,7 +511,7 @@ void jtag_vdr_long(unsigned sz, unsigned * bits, unsigned *out, int words) {
 	if (!out){
   		//printf("send_to_jtag (%s)\n",hexstring);
 		send_to_jtag (hexstring);
-		clean_stp_buff();	
+		clean_xsct_buff();	
 	}else{
 		//printf("send_capture_to_jtag (%s)\n",hexstring);
 		send_capture_jtag(hexstring);		

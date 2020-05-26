@@ -8,12 +8,16 @@ use Scalar::Util 'looks_like_number';
 
 use String::Scanf; # imports sscanf()
 
+my $o="R:00002032:R";
+my $out=\$o;
 
 
-my $f= "/Alireza/mpsoc/src_verilog/top.v";
-my $p =cut_dir_path($f,'src_verilog');		
 
-print $p;
+
+
+my ($tmp,$hex)= sscanf("%sR:%s:R",$$out);
+$hex = substr($hex, -3);
+print "capture $hex\n";
 
 
 

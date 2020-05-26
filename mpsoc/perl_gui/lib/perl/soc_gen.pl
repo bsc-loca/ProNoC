@@ -778,9 +778,12 @@ sub generate_soc{
 		print FILE $prog;
 		close(FILE) || die "Error closing file: $!";
 
+
+        my $m_chain = $soc->object_get_attribute('JTAG','M_CHAIN');
+
 		#generate prog_mem
 		open(FILE,  ">lib/verilog/program.sh") || die "Can not open: $!";
-		print FILE soc_mem_prog();
+		print FILE soc_mem_prog($m_chain);
 		close(FILE) || die "Error closing file: $!";
 
 
@@ -807,7 +810,12 @@ sub generate_soc{
 			show_info($info,$warnings)     		if(defined $warnings);			
 			add_to_project_file_list($file_ref,$hw_lib,$hw_path);
 			    
-    		
+    		#copy clk setting hdl codes in src_verilog
+    		my $sc_soc =get_source_set_top($soc,'soc');  
+  			($file_ref,$warnings)= get_all_files_list($sc_soc,"hdl_files");		
+			copy_file_and_folders($file_ref,$project_dir,$hw_lib);
+			show_info($info,$warnings)     		if(defined $warnings);			
+			add_to_project_file_list($file_ref,$hw_lib,$hw_path);
     		
 			#copy jtag control files 
 			my @jtags=(("/mpsoc/src_peripheral/jtag/jtag_wb"),("jtag"));
@@ -1555,15 +1563,16 @@ sub software_edit_soc {
 
 
 sub soc_mem_prog {
-	 my $string='#!/bin/bash
+	my $chain=shift;
+	my $string="#!/bin/bash
 
 
-#JTAG_INTFC="$PRONOC_WORK/toolchain/bin/JTAG_INTFC"
+#JTAG_INTFC=\"\$PRONOC_WORK/toolchain/bin/JTAG_INTFC\"
 source ./jtag_intfc.sh
 
 #reset and disable cpus, then release the reset but keep the cpus disabled
 
-$JTAG_INTFC -n 127  -d  "I:1,D:2:3,D:2:2,I:0"
+\$JTAG_INTFC -t $chain -n 127  -d  \"I:1,D:2:3,D:2:2,I:0\"
 
 # jtag instruction 
 #	0: bypass
@@ -1584,11 +1593,11 @@ $JTAG_INTFC -n 127  -d  "I:1,D:2:3,D:2:2,I:0"
 
  
 #Enable the cpu
-$JTAG_INTFC -n 127  -d  "I:1,D:2:0,I:0"
+\$JTAG_INTFC -t $chain -n 127  -d  \"I:1,D:2:0,I:0\"
 # I:1  set jtag_enable  in active mode
 # D:2:0 load jtag_enable data register with 0x0 reset=0 disable=0
 # I:0  set jtag_enable  in bypass mode
-';
+";
 return $string;
 	
 }

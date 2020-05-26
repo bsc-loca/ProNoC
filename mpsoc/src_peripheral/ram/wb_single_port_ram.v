@@ -38,8 +38,8 @@ module wb_single_port_ram #(
     parameter Dw=32, //RAM data_width in bits
     parameter Aw=10, //RAM address width
     parameter BYTE_WR_EN= "YES",//"YES","NO"
-    parameter FPGA_VENDOR= "ALTERA",//"ALTERA","GENERIC"
-    parameter JTAG_CONNECT= "ALTERA_JTAG_WB",//"DISABLED", "ALTERA_JTAG_WB" , "ALTERA_IMCE", if not disabled then the actual memory implements as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb  
+    parameter FPGA_VENDOR= "ALTERA",//"XILINX",ALTERA","GENERIC"
+    parameter JTAG_CONNECT= "ALTERA_JTAG_WB",//"DISABLED","XILINX_JTAG_WB", "ALTERA_JTAG_WB" , "ALTERA_IMCE", if not disabled then the actual memory implements as a dual port RAM with the second port is connected either to In-System Memory Content Editor or Jtag_to_wb  
     parameter JTAG_INDEX= 0,
     parameter INITIAL_EN= "NO",
     parameter MEM_CONTENT_FILE_NAME= "ram0",// ram initial file name
@@ -249,7 +249,9 @@ module single_port_ram_top #(
         jtag_to_wb,
         wb_to_jtag
 );
+    /* verilator lint_off WIDTH */
     localparam  BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
+    /* verilator lint_on WIDTH */
   
     input                           clk,reset;
     input  [Dw-1   :   0]  data_a;
@@ -293,12 +295,15 @@ generate
 /***********************
  *  "ALTERA"
  * *********************/
+ /* verilator lint_off WIDTH */
 if(FPGA_VENDOR=="ALTERA")begin:altera_fpga
     localparam  RAM_TAG_STRING=i2s(JTAG_INDEX);  
     localparam  RAM_ID =(JTAG_CONNECT== "ALTERA_IMCE") ?  {"ENABLE_RUNTIME_MOD=YES,INSTANCE_NAME=",RAM_TAG_STRING}
                                         : {"ENABLE_RUNTIME_MOD=NO"};
 
     if(JTAG_CONNECT== "ALTERA_JTAG_WB")begin:dual_ram
+/* verilator lint_on WIDTH */
+ 
 // aletra dual port ram 
         altsyncram #(
             .operation_mode("BIDIR_DUAL_PORT"),
@@ -395,11 +400,18 @@ end//altera_fpga
 /***********************
  *  "XILINX"
  * *********************/
+
+/* verilator lint_off WIDTH */
 else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
+/* verilator lint_on WIDTH */
+ 
     localparam MEMORY_SIZE = (2**Aw)*Dw;//total memory array size, in bits
     wire  [BYTE_ENw-1   :   0] xilinx_we_a = (we_a)? byteena_a : {BYTE_ENw{1'b0}};
-     
+
+    /* verilator lint_off WIDTH */ 
     if(JTAG_CONNECT == "XILINX_JTAG_WB")begin: xilinx_dual
+    /* verilator lint_on WIDTH */
+     
         wire [BYTE_ENw-1   :   0] xilinx_we_b = (we_b)? {BYTE_ENw{1'b1}} : {BYTE_ENw{1'b0}};
     // xpm_memory_tdpram: True Dual Port RAM
    // Xilinx Parameterized Macro, version 2019.1
@@ -597,10 +609,10 @@ end//xilinx_fpga
 /***********************
  *  "GENERIC"
  * *********************/
-
+/* verilator lint_off WIDTH */
 else if(FPGA_VENDOR=="GENERIC")begin:generic_ram
     if(JTAG_CONNECT== "ALTERA_JTAG_WB" || JTAG_CONNECT=="XILINX_JTAG_WB" )begin:dual_ram
-        
+/* verilator lint_on WIDTH */        
 
         generic_dual_port_ram #(
             .Dw(Dw),
@@ -651,9 +663,9 @@ else if(FPGA_VENDOR=="GENERIC")begin:generic_ram
     end//jtag_wb
 end //Generic
 
-
+/* verilator lint_off WIDTH */
 if(JTAG_CONNECT == "ALTERA_JTAG_WB")begin:altera_jwb
-
+/* verilator lint_on WIDTH */
     reg jtag_ack;
     wire    jtag_we_o, jtag_stb_o;
 
@@ -695,8 +707,10 @@ if(JTAG_CONNECT == "ALTERA_JTAG_WB")begin:altera_jwb
     assign wb_to_jtag = clk;
     
 end//altera_jwb
+
+/* verilator lint_off WIDTH */
 else if(JTAG_CONNECT == "XILINX_JTAG_WB")begin: xilinx_jwb 
-     
+/* verilator lint_on WIDTH */     
     
     localparam [JSTATUSw-1    :   0] ST1 = Aw;
     

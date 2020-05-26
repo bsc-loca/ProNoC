@@ -320,6 +320,8 @@ module ni_vc_wb_slave_regs #(
         receive_en_next = receive_en;
        
         receive_max_buff_siz_next = receive_max_buff_siz;
+        receive_start_index_next=receive_start_index;
+        receive_start_index_offset_next=receive_start_index_offset;
         hdr_data_next = hdr_data;
         
         //ctrl flags
@@ -336,7 +338,7 @@ module ni_vc_wb_slave_regs #(
         got_packet_int_en_next = got_packet_int_en;
         packet_is_saved_int_en_next = packet_is_saved_int_en;
         packet_is_sent_int_en_next = packet_is_sent_int_en;
-        
+       
         
        
         if (receive_vc_got_packet & receive_en ) begin 

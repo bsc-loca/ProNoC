@@ -14,7 +14,7 @@
 
 
 
-module  altera_simulator_UART #(
+module  altera_uart_simulator #(
     parameter BUFFER_SIZE   =100,  
     parameter WAIT_COUNT    =1000
 )(

@@ -1,9 +1,9 @@
 #######################################################################
-##	File: jtag_uart.IP
+##	File: altera_jtag_uart.IP
 ##    
 ##	Copyright (C) 2014-2019  Alireza Monemi
 ##    
-##	This file is part of ProNoC 1.9.1 
+##	This file is part of ProNoC 2.0.0 
 ##
 ## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
 ##	MAY CAUSE UNEXPECTED BEHAIVOR.
@@ -11,14 +11,13 @@
 
 $ipgen = bless( {
                   'parameters_order' => [
-                                          'FPGA_VENDOR',
                                           'SIM_BUFFER_SIZE',
                                           'SIM_WAIT_COUNT',
                                           'INCLUDE_SIM_PRINTF'
                                         ],
-                  'ip_name' => 'jtag_uart',
+                  'ip_name' => 'altera_jtag_uart',
                   'modules' => {
-                                 'jtag_uart_wb' => {}
+                                 'altera_jtag_uart' => {}
                                },
                   'system_h' => '
 
@@ -48,8 +47,8 @@ int jtag_scanint(int *num);
 #ifdef INCLUDE_SIMPLE_PRINTF_LONG
 	#include "simple-printf/printf.h" 
 #endif',
-                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/jtag/jtag_uart/jtag_uart_wb.v',
-                  'module_name' => 'jtag_uart_wb',
+                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/jtag/jtag_uart/altera_jtag_uart.v',
+                  'module_name' => 'altera_jtag_uart',
                   'ports' => {
                                's_cyc_i' => {
                                               'intfc_name' => 'plug:wb_slave[0]',
@@ -233,17 +232,10 @@ If internal buffer overflows, the buffer content are displayed on simulator term
                                                               'content' => 'NONE,SIMPLE_PRINTF,SIMPLE_PRINTF_LONG',
                                                               'global_param' => 'Don\'t include',
                                                               'redefine_param' => 0,
-                                                              'default' => 'NONE',
+                                                              'default' => 'SIMPLE_PRINTF',
                                                               'type' => 'Combo-box'
                                                             },
-                                    'FPGA_VENDOR' => {
-                                                       'content' => ' "ALTERA"',
-                                                       'info' => 'FPGA VENDOR name. Only Altera FPGA is supported. Currently the Generic serial port is not supported. ',
-                                                       'global_param' => 'Localparam',
-                                                       'type' => 'Combo-box',
-                                                       'default' => ' "ALTERA"',
-                                                       'redefine_param' => 1
-                                                     }
+                                    
                                   },
                   'ports_order' => [
                                      'reset',
@@ -315,8 +307,7 @@ If internal buffer overflows, the buffer content are displayed on simulator term
                                              }
                              },
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_jtag_uart_wb.v',
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/jtag_uart_wb.v',
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_simulator_UART.v'
+                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_jtag_uart.v',
+                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_uart_simulator.v'
                                  ]
                 }, 'ip_gen' );

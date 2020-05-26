@@ -74,11 +74,15 @@ int p;
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage();	
-   while ((c = getopt (argc, argv, "s:e:d:n:i:w:a:b:cr")) != -1)
+   while ((c = getopt (argc, argv, "s:e:d:n:i:t:w:a:b:cr")) != -1)
       {
 	 switch (c)
 	    {
-	    case 'a':	/* hardware_name */
+	     case 't':	/* chain number */
+		//not used for Altera
+               break;
+
+             case 'a':	/* hardware_name */
 	       hardware_name = optarg;
 	       break;
 	    case 'b':	/* device number in chain */

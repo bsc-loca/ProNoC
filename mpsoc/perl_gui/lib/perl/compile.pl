@@ -1491,8 +1491,8 @@ set_project_properties
 
 	#internal clock constrain
 	my $clk_xdc=get_clk_constrain_file($self);
-	save_file ("$target_dir/clk.xdc",$clk_xdc);
-	$tcl =$tcl."add_files -fileset constrs_1 \$tcl_path/clk.xdc\n";
+	#save_file ("$target_dir/clk.xdc",$clk_xdc);
+	#$tcl =$tcl."add_files -fileset constrs_1 \$tcl_path/clk.xdc\n";
 
 
 

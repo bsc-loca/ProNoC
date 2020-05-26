@@ -25,7 +25,8 @@ require "simulator.pl";
 require "trace_gen.pl";
 require "network_maker.pl";
 require "uart.pl";
-require "gdown.pl";
+require "source_probe.pl";
+require "gdown.pl"; # google drive downlouder
 
 use File::Basename;
 our $VERSION = '1.9.1'; 
@@ -90,7 +91,8 @@ sub main_window{
  my @menu_items = (
   [ "/_File",            undef,        undef,          0, "<Branch>" ],
   [ "/File/_Setting",       "<control>O", sub { setting(0); },  0,  undef ],
-  [ "/File/_UART Terminal", "<control>U", sub { uart(0); },  0,  undef ],
+  [ "/Tools/_UART Terminal", "<control>U", sub { uart(0); },  0,  undef ],
+  [ "/Tools/Sourc Probe", "<control>P", sub { source_probe(0); },  0,  undef ],
   [ "/File/_Quit",       "<control>Q", sub { gui_quite(); },  0, "<StockItem>", 'gtk-quit' ],
   [ "/_View",                  undef, undef,         0, "<Branch>" ],
   [ "/_View/_ProNoC System Generator",  "<control>1", 	sub{ open_page($notebook,$noteref,$table,'Generator'); } ,	0,	undef ],
@@ -486,6 +488,9 @@ sub uart {
 	uart_main();	
 }
 
+sub source_probe{
+	source_probe_main();	
+}
 
 
 sub generate_main_notebook {

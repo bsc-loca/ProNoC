@@ -6,7 +6,7 @@ Generate jtag_sim_input.v file
 2- run makefile in src_c
 3- connect your FPGA-board to usb port
 4- run program.sh in target SoC folder 
-5- It generate a file called to_xsct.txt. Copy this file in /home/alireza/work/hca_git/ProNoC/mpsoc/src_c/jtag/test_rtl/jtag_sim_pattern and run ./main
+5- It generate a file called to_xsct.txt. Copy this file in mpsoc/src_c/jtag/test_rtl/jtag_sim_pattern and run ./main
 6- Replace the jtag_sim_input.v file in mpsoc/src_peripheral/jtag/jtag_simulation/src_verilog folder  add 
 
 7- in Target SoC/MpSoC folder create a folder called src_sim (next to src_verilog folder)

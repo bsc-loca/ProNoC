@@ -79,7 +79,7 @@ module  pronoc_jtag_uart #(
     
 `ifdef  RUN_SIM
 
-    altera_simulator_UART #(
+    altera_uart_simulator #(
         .BUFFER_SIZE(SIM_BUFFER_SIZE),  
         .WAIT_COUNT(SIM_WAIT_COUNT)    
     )
@@ -274,6 +274,8 @@ module  pronoc_jtag_uart_hw #(
         j2w_fifo_rd_en=1'b0;
         wb_dat_o[7:0]=j2w_fifo_dat_o;
         wb_dat_o[15] = wb_rdat_valid;
+        wb_dat_o[14:8] = ctrl_reg[14:8];
+        wb_dat_o[31:16] = ctrl_reg[31:16];
         ns=ps;
         case(ps)
         IDEAL :begin 
@@ -349,7 +351,7 @@ module  pronoc_jtag_uart_hw #(
             stb1<=1'b0;
             stb2<=1'b0;
             ps<=IDEAL;
-            
+            wb_rdat_valid<=1'b0;
           
         end else begin
             wb_ack_o<= wb_ack_o_next;
@@ -431,7 +433,7 @@ module  pronoc_jtag_uart_hw #(
    if(JTAG_CONNECT == "XILINX_JTAG_WB")begin: xilinx_jwb 
         assign wb_to_jtag = {jtag_status_o,jtag_ack_o,jtag_dat_o,jtag_index_o,clk};
         assign {jtag_addr_i,jtag_stb_i,jtag_we_i,jtag_dat_i} = jtag_to_wb;
-   end else  if(JTAG_CONNECT == "AlTERA_JTAG_WB")begin: altera_jwb 
+   end else  if(JTAG_CONNECT == "ALTERA_JTAG_WB")begin: altera_jwb 
    
         vjtag_wb #(
             .VJTAG_INDEX(JTAG_INDEX),

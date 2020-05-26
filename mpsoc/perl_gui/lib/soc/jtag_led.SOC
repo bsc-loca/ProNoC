@@ -1,0 +1,1363 @@
+#######################################################################
+##	File: jtag_led.SOC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$soc = bless( {
+                'instances' => {
+                                 'source_probe0' => {
+                                                      'instance_name' => 'sp',
+                                                      'parameters' => {
+                                                                        'JTAG_CHAIN' => {
+                                                                                          'value' => '3'
+                                                                                        },
+                                                                        'JDw' => {
+                                                                                   'value' => '32'
+                                                                                 },
+                                                                        'JTAG_CONNECT' => {
+                                                                                            'value' => '"XILINX_JTAG_WB" '
+                                                                                          },
+                                                                        'JTAG_INDEX' => {
+                                                                                          'value' => ' 0'
+                                                                                        },
+                                                                        'J2WBw' => {
+                                                                                     'value' => '(JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+JDw+JAw : 1'
+                                                                                   },
+                                                                        'Dw' => {
+                                                                                  'value' => '4'
+                                                                                },
+                                                                        'JSTATUSw' => {
+                                                                                        'value' => '8'
+                                                                                      },
+                                                                        'JINDEXw' => {
+                                                                                       'value' => '8'
+                                                                                     },
+                                                                        'WB2Jw' => {
+                                                                                     'value' => '(JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw  : 1'
+                                                                                   },
+                                                                        'JAw' => {
+                                                                                   'value' => '32'
+                                                                                 }
+                                                                      },
+                                                      'module_name' => 'pronoc_jtag_source_probe',
+                                                      'category' => 'Communication',
+                                                      'sockets' => {
+                                                                     'jtag_to_wb' => {
+                                                                                       'value' => 1,
+                                                                                       'connection_num' => 'single connection',
+                                                                                       'type' => 'num',
+                                                                                       'nums' => {
+                                                                                                   '0' => {
+                                                                                                            'name' => 'jtag_to_wb'
+                                                                                                          }
+                                                                                                 }
+                                                                                     }
+                                                                   },
+                                                      'description_pdf' => undef,
+                                                      'parameters_order' => [
+                                                                              'Dw',
+                                                                              'JTAG_CONNECT',
+                                                                              'JTAG_INDEX',
+                                                                              'JDw',
+                                                                              'JAw',
+                                                                              'JINDEXw',
+                                                                              'JSTATUSw',
+                                                                              'J2WBw',
+                                                                              'WB2Jw',
+                                                                              'JTAG_CHAIN'
+                                                                            ],
+                                                      'plugs' => {
+                                                                   'clk' => {
+                                                                              'connection_num' => undef,
+                                                                              'value' => 1,
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'connect_id' => 'clk_source0',
+                                                                                                   'name' => 'clk',
+                                                                                                   'connect_socket' => 'clk',
+                                                                                                   'connect_socket_num' => '0'
+                                                                                                 }
+                                                                                        },
+                                                                              'type' => 'num'
+                                                                            },
+                                                                   'reset' => {
+                                                                                'value' => 1,
+                                                                                'connection_num' => undef,
+                                                                                'type' => 'num',
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'connect_socket' => 'reset',
+                                                                                                     'connect_socket_num' => '0',
+                                                                                                     'name' => 'reset',
+                                                                                                     'connect_id' => 'clk_source0'
+                                                                                                   }
+                                                                                          }
+                                                                              }
+                                                                 },
+                                                      'module' => 'source_probe'
+                                                    },
+                                 'clk_source0' => {
+                                                    'parameters_order' => [],
+                                                    'sockets' => {
+                                                                   'reset' => {
+                                                                                'connection_num' => 'multi connection',
+                                                                                'value' => 1,
+                                                                                'type' => 'num',
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'name' => 'reset'
+                                                                                                   }
+                                                                                          }
+                                                                              },
+                                                                   'clk' => {
+                                                                              'type' => 'num',
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'name' => 'clk'
+                                                                                                 }
+                                                                                        },
+                                                                              'connection_num' => 'multi connection',
+                                                                              'value' => 1
+                                                                            }
+                                                                 },
+                                                    'description_pdf' => undef,
+                                                    'category' => 'Source',
+                                                    'module' => 'clk_source',
+                                                    'plugs' => {
+                                                                 'clk' => {
+                                                                            'type' => 'num',
+                                                                            'nums' => {
+                                                                                        '0' => {
+                                                                                                 'connect_socket' => undef,
+                                                                                                 'connect_socket_num' => undef,
+                                                                                                 'name' => 'clk',
+                                                                                                 'connect_id' => 'IO'
+                                                                                               }
+                                                                                      },
+                                                                            'connection_num' => undef,
+                                                                            'value' => 1
+                                                                          },
+                                                                 'reset' => {
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'connect_socket' => undef,
+                                                                                                   'connect_socket_num' => undef,
+                                                                                                   'connect_id' => 'IO',
+                                                                                                   'name' => 'reset'
+                                                                                                 }
+                                                                                        },
+                                                                              'type' => 'num',
+                                                                              'connection_num' => undef,
+                                                                              'value' => 1
+                                                                            }
+                                                               },
+                                                    'parameters' => {},
+                                                    'instance_name' => 'ss',
+                                                    'module_name' => 'clk_source'
+                                                  }
+                               },
+                'SOURCE_SET_CONNECT' => {
+                                          'T0_pll_reset_in' => 'reset0',
+                                          'T0_ss_clk_in' => 'clk99',
+                                          'T0_ss_reset_in' => 'reset0',
+                                          'T0_pll_clk_in' => 'clk'
+                                        },
+                'ProNoC_jtag_uart1' => {
+                                         'version' => 6
+                                       },
+                'tile_diagram' => {
+                                    'show_unused' => 1,
+                                    'show_clk' => 0,
+                                    'show_reset' => 0
+                                  },
+                'top_ip' => bless( {
+                                     'instance_ids' => {
+                                                         'source_probe0' => {
+                                                                              'parameters' => {
+                                                                                                'sp_JTAG_CONNECT' => {
+                                                                                                                       'info' => 'Parameter',
+                                                                                                                       'global_param' => 'Parameter',
+                                                                                                                       'type' => 'Combo-box',
+                                                                                                                       'default' => '"XILINX_JTAG_WB" ',
+                                                                                                                       'redefine_param' => 1,
+                                                                                                                       'content' => '"ALTERA_JTAG_WB","XILINX_JTAG_WB" '
+                                                                                                                     },
+                                                                                                'sp_J2WBw' => {
+                                                                                                                'content' => '',
+                                                                                                                'info' => 'Parameter',
+                                                                                                                'global_param' => 'Parameter',
+                                                                                                                'type' => 'Fixed',
+                                                                                                                'default' => '(sp_JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+sp_JDw+sp_JAw : 1',
+                                                                                                                'redefine_param' => 1
+                                                                                                              },
+                                                                                                'sp_JTAG_CHAIN' => {
+                                                                                                                     'redefine_param' => 0,
+                                                                                                                     'default' => '3',
+                                                                                                                     'global_param' => 'Parameter',
+                                                                                                                     'info' => 'Only used for Virtex 4/5 devices. May be 1, 2, 3, or 4. It is the  BSCANE2 JTAG tap number.',
+                                                                                                                     'type' => 'Combo-box',
+                                                                                                                     'content' => '1,2,3,4 '
+                                                                                                                   },
+                                                                                                'sp_JTAG_INDEX' => {
+                                                                                                                     'content' => '0,128,1',
+                                                                                                                     'default' => ' 0',
+                                                                                                                     'redefine_param' => 1,
+                                                                                                                     'global_param' => 'Parameter',
+                                                                                                                     'info' => ' A unique index number which will be used for adressing this source probe module.',
+                                                                                                                     'type' => 'Spin-button'
+                                                                                                                   },
+                                                                                                'sp_Dw' => {
+                                                                                                             'redefine_param' => 1,
+                                                                                                             'default' => '4',
+                                                                                                             'type' => 'Spin-button',
+                                                                                                             'global_param' => 'Parameter',
+                                                                                                             'info' => 'probe/probe width in bits ',
+                                                                                                             'content' => '1,32,1'
+                                                                                                           },
+                                                                                                'sp_JINDEXw' => {
+                                                                                                                  'global_param' => 'Parameter',
+                                                                                                                  'type' => 'Fixed',
+                                                                                                                  'info' => 'Parameter',
+                                                                                                                  'redefine_param' => 1,
+                                                                                                                  'default' => '8',
+                                                                                                                  'content' => ''
+                                                                                                                },
+                                                                                                'sp_JAw' => {
+                                                                                                              'content' => '',
+                                                                                                              'info' => 'Parameter',
+                                                                                                              'global_param' => 'Parameter',
+                                                                                                              'type' => 'Fixed',
+                                                                                                              'redefine_param' => 1,
+                                                                                                              'default' => '32'
+                                                                                                            },
+                                                                                                'sp_JDw' => {
+                                                                                                              'content' => '',
+                                                                                                              'type' => 'Fixed',
+                                                                                                              'global_param' => 'Parameter',
+                                                                                                              'info' => 'Parameter',
+                                                                                                              'default' => '32',
+                                                                                                              'redefine_param' => 1
+                                                                                                            },
+                                                                                                'sp_JSTATUSw' => {
+                                                                                                                   'type' => 'Fixed',
+                                                                                                                   'global_param' => 'Parameter',
+                                                                                                                   'info' => 'Parameter',
+                                                                                                                   'redefine_param' => 1,
+                                                                                                                   'default' => '8',
+                                                                                                                   'content' => ''
+                                                                                                                 },
+                                                                                                'sp_WB2Jw' => {
+                                                                                                                'global_param' => 'Parameter',
+                                                                                                                'info' => 'Parameter',
+                                                                                                                'type' => 'Fixed',
+                                                                                                                'default' => '(sp_JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+sp_JSTATUSw+sp_JINDEXw+1+sp_JDw  : 1',
+                                                                                                                'redefine_param' => 1,
+                                                                                                                'content' => ''
+                                                                                                              }
+                                                                                              },
+                                                                              'category' => 'Communication',
+                                                                              'ports' => {
+                                                                                           'sp_wb_to_jtag' => {
+                                                                                                                'range' => 'sp_WB2Jw-1: 0',
+                                                                                                                'intfc_port' => 'jwb_o',
+                                                                                                                'type' => 'output',
+                                                                                                                'intfc_name' => 'socket:jtag_to_wb[0]'
+                                                                                                              },
+                                                                                           'sp_jtag_to_wb' => {
+                                                                                                                'intfc_port' => 'jwb_i',
+                                                                                                                'range' => 'sp_J2WBw-1 : 0',
+                                                                                                                'intfc_name' => 'socket:jtag_to_wb[0]',
+                                                                                                                'type' => 'input'
+                                                                                                              },
+                                                                                           'sp_probe_i' => {
+                                                                                                             'intfc_name' => 'IO',
+                                                                                                             'type' => 'input',
+                                                                                                             'range' => 'sp_Dw-1	:0',
+                                                                                                             'intfc_port' => 'IO'
+                                                                                                           },
+                                                                                           'sp_source_o' => {
+                                                                                                              'type' => 'output',
+                                                                                                              'intfc_name' => 'IO',
+                                                                                                              'intfc_port' => 'IO',
+                                                                                                              'range' => 'sp_Dw-1	:0'
+                                                                                                            }
+                                                                                         },
+                                                                              'module_name' => 'pronoc_jtag_source_probe',
+                                                                              'instance' => 'sp',
+                                                                              'module' => 'source_probe'
+                                                                            },
+                                                         'clk_source0' => {
+                                                                            'module' => 'clk_source',
+                                                                            'instance' => 'ss',
+                                                                            'module_name' => 'clk_source',
+                                                                            'ports' => {
+                                                                                         'ss_reset_in' => {
+                                                                                                            'range' => '',
+                                                                                                            'intfc_port' => 'reset_i',
+                                                                                                            'type' => 'input',
+                                                                                                            'intfc_name' => 'plug:reset[0]'
+                                                                                                          },
+                                                                                         'ss_clk_in' => {
+                                                                                                          'intfc_port' => 'clk_i',
+                                                                                                          'range' => '',
+                                                                                                          'intfc_name' => 'plug:clk[0]',
+                                                                                                          'type' => 'input'
+                                                                                                        }
+                                                                                       },
+                                                                            'category' => 'Source'
+                                                                          }
+                                                       },
+                                     'interface' => {
+                                                      'IO' => {
+                                                                'ports' => {
+                                                                             'sp_source_o' => {
+                                                                                                'instance_name' => 'source_probe0',
+                                                                                                'range' => 'sp_Dw-1	:0',
+                                                                                                'intfc_port' => 'IO',
+                                                                                                'type' => 'output'
+                                                                                              },
+                                                                             'sp_probe_i' => {
+                                                                                               'type' => 'input',
+                                                                                               'instance_name' => 'source_probe0',
+                                                                                               'intfc_port' => 'IO',
+                                                                                               'range' => 'sp_Dw-1	:0'
+                                                                                             }
+                                                                           }
+                                                              },
+                                                      'plug:clk[0]' => {
+                                                                         'ports' => {
+                                                                                      'ss_clk_in' => {
+                                                                                                       'type' => 'input',
+                                                                                                       'intfc_port' => 'clk_i',
+                                                                                                       'range' => '',
+                                                                                                       'instance_name' => 'clk_source0'
+                                                                                                     }
+                                                                                    }
+                                                                       },
+                                                      'plug:reset[0]' => {
+                                                                           'ports' => {
+                                                                                        'ss_reset_in' => {
+                                                                                                           'instance_name' => 'clk_source0',
+                                                                                                           'range' => '',
+                                                                                                           'intfc_port' => 'reset_i',
+                                                                                                           'type' => 'input'
+                                                                                                         }
+                                                                                      }
+                                                                         },
+                                                      'socket:jtag_to_wb[0]' => {
+                                                                                  'ports' => {
+                                                                                               'sp_jtag_to_wb' => {
+                                                                                                                    'instance_name' => 'source_probe0',
+                                                                                                                    'intfc_port' => 'jwb_i',
+                                                                                                                    'range' => 'sp_J2WBw-1 : 0',
+                                                                                                                    'type' => 'input'
+                                                                                                                  },
+                                                                                               'sp_wb_to_jtag' => {
+                                                                                                                    'type' => 'output',
+                                                                                                                    'range' => 'sp_WB2Jw-1: 0',
+                                                                                                                    'intfc_port' => 'jwb_o',
+                                                                                                                    'instance_name' => 'source_probe0'
+                                                                                                                  }
+                                                                                             }
+                                                                                }
+                                                    },
+                                     'ports' => {
+                                                  'sp_wb_to_jtag' => {
+                                                                       'type' => 'output',
+                                                                       'intfc_name' => 'socket:jtag_to_wb[0]',
+                                                                       'intfc_port' => 'jwb_o',
+                                                                       'range' => 'sp_WB2Jw-1: 0',
+                                                                       'instance_name' => 'source_probe0'
+                                                                     },
+                                                  'sp_jtag_to_wb' => {
+                                                                       'instance_name' => 'source_probe0',
+                                                                       'intfc_port' => 'jwb_i',
+                                                                       'range' => 'sp_J2WBw-1 : 0',
+                                                                       'type' => 'input',
+                                                                       'intfc_name' => 'socket:jtag_to_wb[0]'
+                                                                     },
+                                                  'sp_probe_i' => {
+                                                                    'type' => 'input',
+                                                                    'intfc_name' => 'IO',
+                                                                    'instance_name' => 'source_probe0',
+                                                                    'intfc_port' => 'IO',
+                                                                    'range' => 'sp_Dw-1	:0'
+                                                                  },
+                                                  'sp_source_o' => {
+                                                                     'type' => 'output',
+                                                                     'intfc_name' => 'IO',
+                                                                     'range' => 'sp_Dw-1	:0',
+                                                                     'intfc_port' => 'IO',
+                                                                     'instance_name' => 'source_probe0'
+                                                                   },
+                                                  'ss_reset_in' => {
+                                                                     'intfc_name' => 'plug:reset[0]',
+                                                                     'type' => 'input',
+                                                                     'range' => '',
+                                                                     'intfc_port' => 'reset_i',
+                                                                     'instance_name' => 'clk_source0'
+                                                                   },
+                                                  'ss_clk_in' => {
+                                                                   'type' => 'input',
+                                                                   'intfc_name' => 'plug:clk[0]',
+                                                                   'intfc_port' => 'clk_i',
+                                                                   'range' => '',
+                                                                   'instance_name' => 'clk_source0'
+                                                                 }
+                                                }
+                                   }, 'ip_gen' ),
+                'current_module_param' => undef,
+                'compile_assign_type' => {
+                                           'pll_clk_in' => 'Direct',
+                                           'sp_probe_i' => 'Direct',
+                                           'cpu_cpu_en' => 'Direct',
+                                           'pll_reset_in' => 'Direct',
+                                           'source_probe_probe_i' => 'Direct',
+                                           'jtag_debug_reset_in' => 'Direct'
+                                         },
+                'source_probe0' => {
+                                     'version' => 4
+                                   },
+                'gui_status' => {
+                                  'timeout' => 0,
+                                  'status' => 'save_project'
+                                },
+                'xilinx_pll0' => {
+                                   'version' => 15
+                                 },
+                'parameters_order' => {
+                                        'Unset-intfc' => [
+                                                           'uart-RxD_din_sim',
+                                                           'uart-RxD_ready_sim',
+                                                           'uart-RxD_wr_sim',
+                                                           'bus-snoop_adr_o',
+                                                           'bus-snoop_en_o',
+                                                           'xilinx_pll0-clk_out1',
+                                                           'xilinx_pll0-clk_out2',
+                                                           'xilinx_pll0-clk_out3',
+                                                           'xilinx_pll0-clk_out4',
+                                                           'xilinx_pll0-clk_out5',
+                                                           'pll-clk_out1',
+                                                           'pll-clk_out2',
+                                                           'pll-clk_out3',
+                                                           'pll-clk_out4',
+                                                           'pll-clk_out5'
+                                                         ],
+                                        'compile' => [
+                                                       'quartus_board',
+                                                       'quartus_qsf',
+                                                       'quartus_v',
+                                                       'quartus_pid',
+                                                       'quartus_hardware',
+                                                       'quartus_device',
+                                                       'quartus_board',
+                                                       'quartus_qsf',
+                                                       'quartus_v',
+                                                       'quartus_pid',
+                                                       'quartus_hardware',
+                                                       'quartus_board',
+                                                       'quartus_qsf',
+                                                       'quartus_v',
+                                                       'quartus_pid',
+                                                       'quartus_hardware',
+                                                       'fpga_board',
+                                                       'board_confg_file',
+                                                       'fpga_board_part',
+                                                       'fpga_part',
+                                                       'fpga_board_v',
+                                                       'fpga_part',
+                                                       'fpga_board_v',
+                                                       'fpga_part',
+                                                       'fpga_board_v',
+                                                       'fpga_board_repo',
+                                                       'fpga_hw_device',
+                                                       'fpga_board_order'
+                                                     ],
+                                        'SOURCE_SET' => [
+                                                          'clk_number',
+                                                          'clk_0_name',
+                                                          'reset_number',
+                                                          'reset_0_name',
+                                                          'clk_0_mhz',
+                                                          'clk_0_period',
+                                                          'clk_0_rise',
+                                                          'clk_0_fall'
+                                                        ],
+                                        'current_module_param' => [
+                                                                    'BANDWIDTH',
+                                                                    'CLKFBOUT_MULT',
+                                                                    'CLKFBOUT_PHASE',
+                                                                    'CLKIN1_PERIOD',
+                                                                    'CLKOUT0_DIVIDE',
+                                                                    'CLKOUT1_DIVIDE',
+                                                                    'CLKOUT2_DIVIDE',
+                                                                    'CLKOUT3_DIVIDE',
+                                                                    'CLKOUT4_DIVIDE',
+                                                                    'CLKOUT5_DIVIDE',
+                                                                    'CLKOUT0_DUTY_CYCLE',
+                                                                    'CLKOUT1_DUTY_CYCLE',
+                                                                    'CLKOUT2_DUTY_CYCLE',
+                                                                    'CLKOUT3_DUTY_CYCLE',
+                                                                    'CLKOUT4_DUTY_CYCLE',
+                                                                    'CLKOUT5_DUTY_CYCLE',
+                                                                    'CLKOUT0_PHASE',
+                                                                    'CLKOUT1_PHASE',
+                                                                    'CLKOUT2_PHASE',
+                                                                    'CLKOUT3_PHASE',
+                                                                    'CLKOUT4_PHASE',
+                                                                    'CLKOUT5_PHASE',
+                                                                    'DIVCLK_DIVIDE',
+                                                                    'REF_JITTER1',
+                                                                    'STARTUP_WAIT',
+                                                                    'CLKOUT_NUM',
+                                                                    'Dw',
+                                                                    'Aw',
+                                                                    'BYTE_WR_EN',
+                                                                    'FPGA_VENDOR',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'TAGw',
+                                                                    'SELw',
+                                                                    'CTIw',
+                                                                    'BTEw',
+                                                                    'WB_Aw',
+                                                                    'BURST_MODE',
+                                                                    'MEM_CONTENT_FILE_NAME',
+                                                                    'INITIAL_EN',
+                                                                    'INIT_FILE_PATH',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JSTATUSw',
+                                                                    'JINDEXw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'CORE_NUM',
+                                                                    'Dw',
+                                                                    'Aw',
+                                                                    'BYTE_WR_EN',
+                                                                    'FPGA_VENDOR',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'CORE_NUM',
+                                                                    'TAGw',
+                                                                    'SELw',
+                                                                    'CTIw',
+                                                                    'BTEw',
+                                                                    'WB_Aw',
+                                                                    'BURST_MODE',
+                                                                    'MEM_CONTENT_FILE_NAME',
+                                                                    'INITIAL_EN',
+                                                                    'INIT_FILE_PATH',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JSTATUSw',
+                                                                    'JINDEXw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'Dw',
+                                                                    'Aw',
+                                                                    'BYTE_WR_EN',
+                                                                    'FPGA_VENDOR',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'CORE_NUM',
+                                                                    'TAGw',
+                                                                    'SELw',
+                                                                    'CTIw',
+                                                                    'BTEw',
+                                                                    'WB_Aw',
+                                                                    'BURST_MODE',
+                                                                    'MEM_CONTENT_FILE_NAME',
+                                                                    'INITIAL_EN',
+                                                                    'INIT_FILE_PATH',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JSTATUSw',
+                                                                    'JINDEXw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'JTAG_CHAIN',
+                                                                    'Dw',
+                                                                    'Aw',
+                                                                    'BYTE_WR_EN',
+                                                                    'FPGA_VENDOR',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'CORE_NUM',
+                                                                    'TAGw',
+                                                                    'SELw',
+                                                                    'CTIw',
+                                                                    'BTEw',
+                                                                    'WB_Aw',
+                                                                    'BURST_MODE',
+                                                                    'MEM_CONTENT_FILE_NAME',
+                                                                    'INITIAL_EN',
+                                                                    'INIT_FILE_PATH',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JSTATUSw',
+                                                                    'JINDEXw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'JTAG_CHAIN',
+                                                                    'Dw',
+                                                                    'Aw',
+                                                                    'BYTE_WR_EN',
+                                                                    'FPGA_VENDOR',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'CORE_NUM',
+                                                                    'TAGw',
+                                                                    'SELw',
+                                                                    'CTIw',
+                                                                    'BTEw',
+                                                                    'WB_Aw',
+                                                                    'BURST_MODE',
+                                                                    'MEM_CONTENT_FILE_NAME',
+                                                                    'INITIAL_EN',
+                                                                    'INIT_FILE_PATH',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JSTATUSw',
+                                                                    'JINDEXw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'JTAG_CHAIN',
+                                                                    'Aw',
+                                                                    'SELw',
+                                                                    'TAGw',
+                                                                    'Dw',
+                                                                    'BUFF_Aw',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'JTAG_CHAIN',
+                                                                    'M',
+                                                                    'S',
+                                                                    'Dw',
+                                                                    'Aw',
+                                                                    'SELw',
+                                                                    'TAGw',
+                                                                    'CTIw',
+                                                                    'BTEw',
+                                                                    'Aw',
+                                                                    'SELw',
+                                                                    'TAGw',
+                                                                    'Dw',
+                                                                    'BUFF_Aw',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'JTAG_CHAIN',
+                                                                    'JTAG_CONNECT',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'Aw',
+                                                                    'SELw',
+                                                                    'TAGw',
+                                                                    'Dw',
+                                                                    'BUFF_Aw',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'JTAG_CHAIN',
+                                                                    'JTAG_CONNECT',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'Aw',
+                                                                    'SELw',
+                                                                    'TAGw',
+                                                                    'Dw',
+                                                                    'BUFF_Aw',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'JTAG_CHAIN',
+                                                                    'JTAG_CONNECT',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'Aw',
+                                                                    'SELw',
+                                                                    'TAGw',
+                                                                    'Dw',
+                                                                    'BUFF_Aw',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'JTAG_CHAIN',
+                                                                    'JTAG_CONNECT',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'INCLUDE_SIM_PRINTF',
+                                                                    'Aw',
+                                                                    'SELw',
+                                                                    'TAGw',
+                                                                    'Dw',
+                                                                    'BUFF_Aw',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'JTAG_CHAIN',
+                                                                    'JTAG_CONNECT',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'INCLUDE_SIM_PRINTF',
+                                                                    'Aw',
+                                                                    'SELw',
+                                                                    'TAGw',
+                                                                    'Dw',
+                                                                    'BUFF_Aw',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'JTAG_CHAIN',
+                                                                    'JTAG_CONNECT',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'INCLUDE_SIM_PRINTF',
+                                                                    'Aw',
+                                                                    'SELw',
+                                                                    'TAGw',
+                                                                    'Dw',
+                                                                    'BUFF_Aw',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'JTAG_CHAIN',
+                                                                    'JTAG_CONNECT',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'INCLUDE_SIM_PRINTF',
+                                                                    'Dw',
+                                                                    'Aw',
+                                                                    'BYTE_WR_EN',
+                                                                    'FPGA_VENDOR',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'CORE_NUM',
+                                                                    'TAGw',
+                                                                    'SELw',
+                                                                    'CTIw',
+                                                                    'BTEw',
+                                                                    'WB_Aw',
+                                                                    'BURST_MODE',
+                                                                    'MEM_CONTENT_FILE_NAME',
+                                                                    'INITIAL_EN',
+                                                                    'INIT_FILE_PATH',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JSTATUSw',
+                                                                    'JINDEXw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'JTAG_CHAIN',
+                                                                    'Dw',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'JTAG_CHAIN',
+                                                                    'Dw',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'JTAG_CHAIN',
+                                                                    'Dw',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'JTAG_CHAIN',
+                                                                    'Dw',
+                                                                    'JTAG_CONNECT',
+                                                                    'JTAG_INDEX',
+                                                                    'JDw',
+                                                                    'JAw',
+                                                                    'JINDEXw',
+                                                                    'JSTATUSw',
+                                                                    'J2WBw',
+                                                                    'WB2Jw',
+                                                                    'JTAG_CHAIN'
+                                                                  ],
+                                        'SOURCE_SET_CONNECT' => [
+                                                                  'T0_pll_clk_in',
+                                                                  'T0_pll_reset_in',
+                                                                  'T0_ss_clk_in',
+                                                                  'T0_ss_reset_in'
+                                                                ]
+                                      },
+                'hdl_files' => undef,
+                'compile_pin_pos' => {
+                                       'source_probe_source_o' => [
+                                                                    3,
+                                                                    0
+                                                                  ],
+                                       'pll_clk_in' => [
+                                                         4,
+                                                         0
+                                                       ],
+                                       'sp_source_o' => [
+                                                          3,
+                                                          0
+                                                        ],
+                                       'jtag_debug_reset_in' => [
+                                                                  3,
+                                                                  0
+                                                                ],
+                                       'source_probe_probe_i' => [
+                                                                   0,
+                                                                   0
+                                                                 ],
+                                       'pll_reset_in' => [
+                                                           3,
+                                                           0
+                                                         ],
+                                       'cpu_cpu_en' => [
+                                                         2,
+                                                         0
+                                                       ],
+                                       'led_port_o' => [
+                                                         3,
+                                                         0
+                                                       ]
+                                     },
+                'dma0' => {
+                            'version' => 4
+                          },
+                'jtag_uart0' => {
+                                  'version' => 20
+                                },
+                'sim_uart0' => {
+                                 'version' => 7
+                               },
+                'timer0' => {
+                              'version' => 11
+                            },
+                'compile' => {
+                               'board_confg_file' => '/home/alireza/work/develop/xilinx/artyz7/digilent-xdc-master/Arty-Z7-20-Master.xdc',
+                               'board' => 'Arty_z7_20',
+                               'type' => 'Vivado',
+                               'vivado_bin' => '/home/alireza/xilinx/Vivado/2019.1/bin',
+                               'fpga_board' => 'Arty_z7_20',
+                               'modelsim_bin' => '/home/alireza/intelFPGA_lite/18.1/modelsim_ase/bin',
+                               'quartus_v' => undef,
+                               'fpga_board_part' => 'digilentinc.com:arty-z7-20:part0:1.0',
+                               'compilers' => 'QuartusII,Vivado,Verilator,Modelsim',
+                               'quartus_bin' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
+                               'quartus_board' => undef,
+                               'quartus_pid' => undef,
+                               'fpga_board_repo' => '/home/alireza/work/hca_git/mpsoc_work/toolchain/board_files',
+                               'vivado bin' => '/home/alireza/xilinx/Vivado/2019.1/bin',
+                               'quartus_qsf' => undef,
+                               'fpga_board_v' => '/home/alireza/work/develop/xilinx/add_board/Arty_Z7/Arty_z7.v',
+                               'fpga_part' => 'xc7z020clg400-1',
+                               'quartus_device' => 0,
+                               'fpga_board_order' => '3',
+                               'fpga_hw_device' => 'xc7z020_1',
+                               'quartus_hardware' => undef
+                             },
+                'global_param' => {
+                                    'SW_LOC' => '/home/alireza/work/hca_git/mpsoc_work/SOC/jtag_led/sw',
+                                    'CORE_ID' => 0
+                                  },
+                'liststore' => {
+                                 'va' => '0',
+                                 'ha' => '0'
+                               },
+                'instance_order' => [
+                                      'clk_source0',
+                                      'source_probe0'
+                                    ],
+                'single_port_ram0' => {
+                                        'version' => 32
+                                      },
+                'xilinx_pll1' => {
+                                   'version' => 8
+                                 },
+                'clk_source0' => {
+                                   'version' => 0
+                                 },
+                'compile_pin_range_lsb' => {
+                                             'sp_source_o' => 0,
+                                             'led_port_o' => 0,
+                                             'source_probe_source_o' => 0,
+                                             'jtag_debug_reset_in' => 0,
+                                             'pll_reset_in' => 0
+                                           },
+                'compile_pin' => {
+                                   'jtag_debug_reset_in' => 'btn',
+                                   'source_probe_probe_i' => '*GND',
+                                   'pll_reset_in' => 'btn',
+                                   'cpu_cpu_en' => '*VCC',
+                                   'led_port_o' => 'led',
+                                   'source_probe_source_o' => 'led',
+                                   'pll_clk_in' => 'clk',
+                                   'sp_source_o' => 'led'
+                                 },
+                'ProNoC_jtag_uart0' => {
+                                         'version' => 9
+                                       },
+                'mor1kx0' => {
+                               'version' => 22
+                             },
+                'single_port_ram1' => {
+                                        'version' => 25
+                                      },
+                'compile_pin_range_hsb' => {
+                                             'led_port_o' => '0',
+                                             'sp_source_o' => 3,
+                                             'source_probe_source_o' => 3
+                                           },
+                'gpo0' => {
+                            'version' => 2
+                          },
+                'soc_name' => 'jtag_led',
+                'ni_master0' => {
+                                  'version' => 75
+                                },
+                'verilator' => {
+                                 'libs' => {
+                                             'Vtop' => 'mor1k_soc.v'
+                                           }
+                               },
+                'SOURCE_SET' => {
+                                  'SOC' => bless( {
+                                                    'hdl_files' => undef,
+                                                    'TOP' => {
+                                                               'version' => 0
+                                                             },
+                                                    'parameters_order' => {
+                                                                            'current_module_param' => [
+                                                                                                        'CLKOUT_NUM',
+                                                                                                        'BANDWIDTH',
+                                                                                                        'CLKFBOUT_MULT',
+                                                                                                        'CLKFBOUT_PHASE',
+                                                                                                        'CLKIN1_PERIOD',
+                                                                                                        'CLKOUT0_DIVIDE',
+                                                                                                        'CLKOUT1_DIVIDE',
+                                                                                                        'CLKOUT2_DIVIDE',
+                                                                                                        'CLKOUT3_DIVIDE',
+                                                                                                        'CLKOUT4_DIVIDE',
+                                                                                                        'CLKOUT5_DIVIDE',
+                                                                                                        'CLKOUT0_DUTY_CYCLE',
+                                                                                                        'CLKOUT1_DUTY_CYCLE',
+                                                                                                        'CLKOUT2_DUTY_CYCLE',
+                                                                                                        'CLKOUT3_DUTY_CYCLE',
+                                                                                                        'CLKOUT4_DUTY_CYCLE',
+                                                                                                        'CLKOUT5_DUTY_CYCLE',
+                                                                                                        'CLKOUT0_PHASE',
+                                                                                                        'CLKOUT1_PHASE',
+                                                                                                        'CLKOUT2_PHASE',
+                                                                                                        'CLKOUT3_PHASE',
+                                                                                                        'CLKOUT4_PHASE',
+                                                                                                        'CLKOUT5_PHASE',
+                                                                                                        'DIVCLK_DIVIDE',
+                                                                                                        'REF_JITTER1',
+                                                                                                        'STARTUP_WAIT',
+                                                                                                        'CLKOUT_NUM',
+                                                                                                        'BANDWIDTH',
+                                                                                                        'CLKFBOUT_MULT',
+                                                                                                        'CLKFBOUT_PHASE',
+                                                                                                        'CLKIN1_PERIOD',
+                                                                                                        'CLKOUT0_DIVIDE',
+                                                                                                        'CLKOUT1_DIVIDE',
+                                                                                                        'CLKOUT2_DIVIDE',
+                                                                                                        'CLKOUT3_DIVIDE',
+                                                                                                        'CLKOUT4_DIVIDE',
+                                                                                                        'CLKOUT5_DIVIDE',
+                                                                                                        'CLKOUT0_DUTY_CYCLE',
+                                                                                                        'CLKOUT1_DUTY_CYCLE',
+                                                                                                        'CLKOUT2_DUTY_CYCLE',
+                                                                                                        'CLKOUT3_DUTY_CYCLE',
+                                                                                                        'CLKOUT4_DUTY_CYCLE',
+                                                                                                        'CLKOUT5_DUTY_CYCLE',
+                                                                                                        'CLKOUT0_PHASE',
+                                                                                                        'CLKOUT1_PHASE',
+                                                                                                        'CLKOUT2_PHASE',
+                                                                                                        'CLKOUT3_PHASE',
+                                                                                                        'CLKOUT4_PHASE',
+                                                                                                        'CLKOUT5_PHASE',
+                                                                                                        'DIVCLK_DIVIDE',
+                                                                                                        'REF_JITTER1',
+                                                                                                        'STARTUP_WAIT',
+                                                                                                        'CLKOUT_NUM',
+                                                                                                        'BANDWIDTH',
+                                                                                                        'CLKFBOUT_MULT',
+                                                                                                        'CLKFBOUT_PHASE',
+                                                                                                        'CLKIN1_PERIOD',
+                                                                                                        'CLKOUT0_DIVIDE',
+                                                                                                        'CLKOUT1_DIVIDE',
+                                                                                                        'CLKOUT2_DIVIDE',
+                                                                                                        'CLKOUT3_DIVIDE',
+                                                                                                        'CLKOUT4_DIVIDE',
+                                                                                                        'CLKOUT5_DIVIDE',
+                                                                                                        'CLKOUT0_DUTY_CYCLE',
+                                                                                                        'CLKOUT1_DUTY_CYCLE',
+                                                                                                        'CLKOUT2_DUTY_CYCLE',
+                                                                                                        'CLKOUT3_DUTY_CYCLE',
+                                                                                                        'CLKOUT4_DUTY_CYCLE',
+                                                                                                        'CLKOUT5_DUTY_CYCLE',
+                                                                                                        'CLKOUT0_PHASE',
+                                                                                                        'CLKOUT1_PHASE',
+                                                                                                        'CLKOUT2_PHASE',
+                                                                                                        'CLKOUT3_PHASE',
+                                                                                                        'CLKOUT4_PHASE',
+                                                                                                        'CLKOUT5_PHASE',
+                                                                                                        'DIVCLK_DIVIDE',
+                                                                                                        'REF_JITTER1',
+                                                                                                        'STARTUP_WAIT'
+                                                                                                      ]
+                                                                          },
+                                                    'soc_name' => {
+                                                                    'MPSOC' => undef
+                                                                  },
+                                                    'SOURCE_SET' => {
+                                                                      'IP' => bless( {
+                                                                                       'ip_name' => 'TOP',
+                                                                                       'file_name' => undef,
+                                                                                       'ports' => {
+                                                                                                    'ss_clk_in' => {
+                                                                                                                     'type' => 'input',
+                                                                                                                     'intfc_name' => 'plug:clk[0]',
+                                                                                                                     'intfc_port' => 'clk_i',
+                                                                                                                     'range' => undef
+                                                                                                                   },
+                                                                                                    'ss_reset_in' => {
+                                                                                                                       'type' => 'input',
+                                                                                                                       'intfc_name' => 'plug:reset[0]',
+                                                                                                                       'range' => undef,
+                                                                                                                       'intfc_port' => 'reset_i'
+                                                                                                                     }
+                                                                                                  },
+                                                                                       'module_name' => 'TOP',
+                                                                                       'GUI_REMOVE_SET' => 'DISABLE',
+                                                                                       'ports_order' => [],
+                                                                                       'plugs' => {
+                                                                                                    'clk' => {
+                                                                                                               'value' => 1,
+                                                                                                               '1' => {},
+                                                                                                               'type' => 'num',
+                                                                                                               '0' => {
+                                                                                                                        'name' => 'ss_clk_in'
+                                                                                                                      }
+                                                                                                             },
+                                                                                                    'reset' => {
+                                                                                                                 '0' => {
+                                                                                                                          'name' => 'ss_reset_in'
+                                                                                                                        },
+                                                                                                                 'type' => 'num',
+                                                                                                                 '1' => {},
+                                                                                                                 'value' => 1
+                                                                                                               }
+                                                                                                  },
+                                                                                       'category' => 'TOP',
+                                                                                       'hdl_files' => [],
+                                                                                       'parameters_order' => []
+                                                                                     }, 'ip_gen' )
+                                                                    },
+                                                    'device_win_adj' => {
+                                                                          'ha' => '0',
+                                                                          'va' => '0'
+                                                                        },
+                                                    'noc_param' => {},
+                                                    'MPSOC' => {
+                                                                 'version' => 0
+                                                               },
+                                                    'modules' => {},
+                                                    'instances' => {
+                                                                     'xilinx_pll0' => {
+                                                                                        'module_name' => 'xilinx_pll2_base',
+                                                                                        'parameters' => {
+                                                                                                          'CLKOUT0_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKFBOUT_MULT' => {
+                                                                                                                               'value' => '8'
+                                                                                                                             },
+                                                                                                          'CLKOUT1_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKOUT4_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'REF_JITTER1' => {
+                                                                                                                             'value' => '0.0'
+                                                                                                                           },
+                                                                                                          'CLKOUT4_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              },
+                                                                                                          'CLKOUT5_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              },
+                                                                                                          'CLKOUT3_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'CLKOUT0_DIVIDE' => {
+                                                                                                                                'value' => '16'
+                                                                                                                              },
+                                                                                                          'CLKOUT2_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'CLKOUT4_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'DIVCLK_DIVIDE' => {
+                                                                                                                               'value' => '1'
+                                                                                                                             },
+                                                                                                          'STARTUP_WAIT' => {
+                                                                                                                              'value' => '"FALSE"'
+                                                                                                                            },
+                                                                                                          'CLKIN1_PERIOD' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'BANDWIDTH' => {
+                                                                                                                           'value' => '"OPTIMIZED"'
+                                                                                                                         },
+                                                                                                          'CLKOUT1_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              },
+                                                                                                          'CLKOUT2_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKOUT1_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'CLKOUT5_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'CLKOUT3_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKOUT_NUM' => {
+                                                                                                                            'value' => '1'
+                                                                                                                          },
+                                                                                                          'CLKOUT2_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              },
+                                                                                                          'CLKOUT0_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'CLKFBOUT_PHASE' => {
+                                                                                                                                'value' => '0.0'
+                                                                                                                              },
+                                                                                                          'CLKOUT5_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKOUT3_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              }
+                                                                                                        },
+                                                                                        'instance_name' => 'pll',
+                                                                                        'plugs' => {
+                                                                                                     'clk' => {
+                                                                                                                'value' => 1,
+                                                                                                                'connection_num' => undef,
+                                                                                                                'type' => 'num',
+                                                                                                                'nums' => {
+                                                                                                                            '0' => {
+                                                                                                                                     'connect_socket' => undef,
+                                                                                                                                     'connect_socket_num' => undef,
+                                                                                                                                     'connect_id' => 'IO',
+                                                                                                                                     'name' => 'clk_in'
+                                                                                                                                   }
+                                                                                                                          }
+                                                                                                              },
+                                                                                                     'reset' => {
+                                                                                                                  'nums' => {
+                                                                                                                              '0' => {
+                                                                                                                                       'name' => 'reset_in',
+                                                                                                                                       'connect_id' => 'IO',
+                                                                                                                                       'connect_socket_num' => undef,
+                                                                                                                                       'connect_socket' => undef
+                                                                                                                                     }
+                                                                                                                            },
+                                                                                                                  'type' => 'num',
+                                                                                                                  'connection_num' => undef,
+                                                                                                                  'value' => 1
+                                                                                                                }
+                                                                                                   },
+                                                                                        'module' => 'xilinx_pll',
+                                                                                        'description_pdf' => undef,
+                                                                                        'sockets' => {
+                                                                                                       'reset' => {
+                                                                                                                    'value' => 1,
+                                                                                                                    'connection_num' => 'multi connection',
+                                                                                                                    'type' => 'num',
+                                                                                                                    'nums' => {
+                                                                                                                                '0' => {
+                                                                                                                                         'name' => 'reset'
+                                                                                                                                       }
+                                                                                                                              }
+                                                                                                                  },
+                                                                                                       'clk' => {
+                                                                                                                  'type' => 'param',
+                                                                                                                  'nums' => {
+                                                                                                                              '0' => {
+                                                                                                                                       'name' => 'clk'
+                                                                                                                                     }
+                                                                                                                            },
+                                                                                                                  'value' => 'CLKOUT_NUM',
+                                                                                                                  'connection_num' => 'multi connection'
+                                                                                                                }
+                                                                                                     },
+                                                                                        'category' => 'Source',
+                                                                                        'parameters_order' => [
+                                                                                                                'CLKOUT_NUM',
+                                                                                                                'BANDWIDTH',
+                                                                                                                'CLKFBOUT_MULT',
+                                                                                                                'CLKFBOUT_PHASE',
+                                                                                                                'CLKIN1_PERIOD',
+                                                                                                                'CLKOUT0_DIVIDE',
+                                                                                                                'CLKOUT1_DIVIDE',
+                                                                                                                'CLKOUT2_DIVIDE',
+                                                                                                                'CLKOUT3_DIVIDE',
+                                                                                                                'CLKOUT4_DIVIDE',
+                                                                                                                'CLKOUT5_DIVIDE',
+                                                                                                                'CLKOUT0_DUTY_CYCLE',
+                                                                                                                'CLKOUT1_DUTY_CYCLE',
+                                                                                                                'CLKOUT2_DUTY_CYCLE',
+                                                                                                                'CLKOUT3_DUTY_CYCLE',
+                                                                                                                'CLKOUT4_DUTY_CYCLE',
+                                                                                                                'CLKOUT5_DUTY_CYCLE',
+                                                                                                                'CLKOUT0_PHASE',
+                                                                                                                'CLKOUT1_PHASE',
+                                                                                                                'CLKOUT2_PHASE',
+                                                                                                                'CLKOUT3_PHASE',
+                                                                                                                'CLKOUT4_PHASE',
+                                                                                                                'CLKOUT5_PHASE',
+                                                                                                                'DIVCLK_DIVIDE',
+                                                                                                                'REF_JITTER1',
+                                                                                                                'STARTUP_WAIT'
+                                                                                                              ]
+                                                                                      },
+                                                                     'TOP' => {
+                                                                                'module' => 'TOP',
+                                                                                'plugs' => {
+                                                                                             'reset' => {
+                                                                                                          'connection_num' => undef,
+                                                                                                          'value' => 1,
+                                                                                                          'type' => 'num',
+                                                                                                          'nums' => {
+                                                                                                                      '0' => {
+                                                                                                                               'connect_socket_num' => '0',
+                                                                                                                               'connect_socket' => 'reset',
+                                                                                                                               'name' => 'ss_reset_in',
+                                                                                                                               'connect_id' => 'xilinx_pll0'
+                                                                                                                             }
+                                                                                                                    }
+                                                                                                        },
+                                                                                             'clk' => {
+                                                                                                        'value' => 1,
+                                                                                                        'connection_num' => undef,
+                                                                                                        'nums' => {
+                                                                                                                    '0' => {
+                                                                                                                             'connect_id' => 'xilinx_pll0',
+                                                                                                                             'name' => 'ss_clk_in',
+                                                                                                                             'connect_socket_num' => '0',
+                                                                                                                             'connect_socket' => 'clk'
+                                                                                                                           }
+                                                                                                                  },
+                                                                                                        'type' => 'num'
+                                                                                                      }
+                                                                                           },
+                                                                                'description_pdf' => undef,
+                                                                                'sockets' => {},
+                                                                                'category' => 'TOP',
+                                                                                'parameters_order' => [],
+                                                                                'module_name' => 'TOP',
+                                                                                'instance_name' => 'TOP'
+                                                                              }
+                                                                   },
+                                                    'current_module_param' => undef,
+                                                    'tile_diagram' => {
+                                                                        'show_clk' => 0,
+                                                                        'show_unused' => 0,
+                                                                        'show_reset' => 0
+                                                                      },
+                                                    'instance_order' => [
+                                                                          'TOP',
+                                                                          'xilinx_pll0'
+                                                                        ],
+                                                    'clk_source0' => {
+                                                                       'version' => 0
+                                                                     },
+                                                    'gui_status' => {
+                                                                      'status' => 'ideal',
+                                                                      'timeout' => 0
+                                                                    },
+                                                    'xilinx_pll0' => {
+                                                                       'version' => 15
+                                                                     }
+                                                  }, 'soc' ),
+                                  'clk_0_fall' => 50,
+                                  'reset_number' => 1,
+                                  'REDEFINE_TOP' => 0,
+                                  'clk_number' => 1,
+                                  'clk_0_name' => 'ss_clk_in',
+                                  'clk_0_mhz' => '62.5',
+                                  'clk_0_rise' => 0,
+                                  'clk_0_period' => '16',
+                                  'reset_0_name' => 'reset0'
+                                },
+                'noc_param' => {},
+                'device_win_adj' => {
+                                      'va' => '0',
+                                      'ha' => '0'
+                                    },
+                'modules' => {},
+                'Unset-intfc' => {
+                                   'uart-RxD_ready_sim' => 'NC',
+                                   'pll-clk_out5' => 'NC',
+                                   'xilinx_pll0-clk_out3' => 'NC',
+                                   'uart-RxD_din_sim' => 'NC',
+                                   'pll-clk_out4' => 'NC',
+                                   'pll-clk_out3' => 'NC',
+                                   'xilinx_pll0-clk_out5' => 'NC',
+                                   'xilinx_pll0-clk_out1' => 'NC',
+                                   'bus-snoop_en_o' => 'NC',
+                                   'xilinx_pll0-clk_out4' => 'NC',
+                                   'xilinx_pll0-clk_out2' => 'NC',
+                                   'bus-snoop_adr_o' => 'NC',
+                                   'pll-clk_out1' => 'NC',
+                                   'uart-RxD_wr_sim' => 'NC',
+                                   'pll-clk_out2' => 'NC'
+                                 },
+                'wishbone_bus0' => {
+                                     'version' => 1
+                                   }
+              }, 'soc' );

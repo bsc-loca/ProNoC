@@ -324,11 +324,13 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
         WEST = 3,
         SOUTH = 4;
  
-        always @(posedge clk) begin            
+        always @(posedge clk) begin 
+        /* verilator lint_off WIDTH */ 
                 if(current_rx == {RXw{1'b0}}         && flit_out_wr_all[WEST]) $display ( "%t\t   Error: a packet is going to the WEST in a router located in first column in mesh topology %m",$time ); 
                 if(current_rx == T1-1     && flit_out_wr_all[EAST]) $display ( "%t\t   Error: a packet is going to the EAST in a router located in last column in mesh topology %m",$time ); 
                 if(current_ry == {RYw{1'b0}}         && flit_out_wr_all[NORTH])$display ( "%t\t  Error: a packet is going to the NORTH in a router located in first row in mesh topology %m",$time ); 
                 if(current_ry == T2-1    && flit_out_wr_all[SOUTH])$display ( "%t\t  Error: a packet is going to the SOUTH in a router located in last row in mesh topology %m",$time); 
+      /* verilator lint_on WIDTH */ 
         end//always
    
 endmodule

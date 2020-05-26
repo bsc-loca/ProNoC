@@ -74,6 +74,7 @@ module xilinx_jtag_wb #(
     wire  [JINDEXw-1 : 0] wb_to_jtag_index_all[JWB_NUM-1 : 0];
     //wire  [JDw-1 : 0] wb_to_jtag_dat_all [JWB_NUM-1 : 0];
     wire  [JDw*JWB_NUM-1 : 0] wb_to_jtag_dat_all;
+    wire  [JDw*JWB_NUM-1 : 0] wb_to_jtag_dat_all_latched;
     wire  [JWB_NUM-1 : 0] wb_to_jtag_ack_all;
     wire  [JWB_NUM-1 : 0] wb_to_jtag_ack_all_latched;
     wire  [JSTATUSw-1 : 0] wb_to_jtag_status_all [JWB_NUM-1 : 0];
@@ -98,6 +99,7 @@ module xilinx_jtag_wb #(
     
     wire [JWB_NUM-1 : 0] stb_masked_all; 
     
+    reg  [JDw-1 : 0] jtag_dat_in_reg  [JWB_NUM-1: 0];
     
     genvar i;
     generate
@@ -108,11 +110,14 @@ module xilinx_jtag_wb #(
             assign  jtag_sel_onehot[i] = (wb_to_jtag_index_all [i] == jtag_to_wb_index);
             assign  stb_all[i] = jtag_to_wb_stb & jtag_sel_onehot[i];           
             assign  jtag_to_wb_all[(i+1)*J2WBw-1 : i*J2WBw] =jtag_to_wb[i];
-            assign  stb_masked_all[i] = stb_all[i] & jtag_sel_onehot[i];// & ~wb_to_jtag_ack_all_latched[i];
+            assign  stb_masked_all[i] = stb_all[i] & jtag_sel_onehot[i] & ~wb_to_jtag_ack_all_latched[i];
             assign  jtag_to_wb[i] = {jtag_to_wb_addr,stb_masked_all[i],jtag_to_wb_we,jtag_to_wb_dat};
       
-        
-        
+            always @ (posedge clk)begin 
+                if ( wb_to_jtag_ack_all[i] & ~jtag_to_wb_we) jtag_dat_in_reg[i] <= wb_to_jtag_dat_all[(i+1)*JDw-1 : i*JDw]; 
+            end
+            assign wb_to_jtag_dat_all_latched [(i+1)*JDw-1 : i*JDw] = jtag_dat_in_reg[i];
+            
             wb_to_jtag_latch ack_latch 
                 (
                 .clk(clk),
@@ -154,7 +159,7 @@ module xilinx_jtag_wb #(
      )
      one_hot_mux
      (
-     	.mux_in(wb_to_jtag_dat_all),
+     	.mux_in(wb_to_jtag_dat_all_latched),
      	.mux_out(wb_to_jtag_dat),
      	.sel(jtag_sel_onehot)
      );
@@ -348,7 +353,8 @@ module  xilinx_jtag_mem_ctrl #(
     wire [JDw-1  :0] data_out;
     wire [JDw-1   :0] data_in;
     
-    assign  data_in    = wb_rd_data;
+    //assign  data_in    = wb_rd_data;
+   assign  data_in = wb_to_jtag_dat;
    
     wire ir_updated;
   

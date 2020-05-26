@@ -1,3 +1,186 @@
+// synthesis translate_off
+`timescale 1ns / 1ps
+// synthesis translate_on
+
+
+module altera_jtag_uart #(
+    parameter SIM_BUFFER_SIZE   =100,  
+    parameter SIM_WAIT_COUNT    =1000
+
+
+)(
+    reset,
+    clk,
+    irq,
+    s_dat_i,
+    s_sel_i,
+    s_addr_i,  
+    s_cti_i,
+    s_stb_i,
+    s_cyc_i,
+    s_we_i,    
+    s_dat_o,
+    s_ack_o,
+    RxD_din_sim,
+    RxD_wr_sim,
+    RxD_ready_sim    
+
+);
+
+	localparam
+		Dw            =   32,
+		M_Aw          =   32,
+		TAGw          =   3,
+		SELw          =   4;
+  
+
+
+    input reset,clk;
+//wishbone slave interface signals
+    input   [Dw-1       :   0]      s_dat_i;
+    input   [SELw-1     :   0]      s_sel_i;
+    input    			    s_addr_i;  
+    input   [TAGw-1     :   0]      s_cti_i;
+    input                           s_stb_i;
+    input                           s_cyc_i;
+    input                           s_we_i;
+    output irq;
+    output  [Dw-1       :   0]  s_dat_o;
+    output                     s_ack_o;
+
+
+    
+    
+    input [7:0 ] RxD_din_sim;
+    input RxD_wr_sim;
+    output RxD_ready_sim;
+    
+
+
+
+
+`ifdef VERILATOR
+
+	// code for simulation with verilator
+  
+	altera_uart_simulator #(
+		.BUFFER_SIZE(SIM_BUFFER_SIZE),  
+    		.WAIT_COUNT(SIM_WAIT_COUNT)    
+	)
+	Suart
+	(
+		.reset(reset),
+		.clk(clk),
+		.s_dat_i(s_dat_i),
+		.s_sel_i(s_sel_i),
+		.s_addr_i(s_addr_i),  
+		.s_cti_i(s_cti_i),
+		.s_stb_i(s_stb_i),
+		.s_cyc_i(s_cyc_i),
+		.s_we_i(s_we_i),    
+		.s_dat_o(s_dat_o),
+		.s_ack_o(s_ack_o),
+		.RxD_din(RxD_din_sim),
+		.RxD_wr(RxD_wr_sim),
+		.RxD_ready(RxD_ready_sim)
+
+
+	);
+`else 
+ `ifdef MODEL_TECH
+	// code for simulation with modelsim
+  
+	altera_simulator_UART #(
+		.BUFFER_SIZE(SIM_BUFFER_SIZE),  
+    		.WAIT_COUNT(SIM_WAIT_COUNT)    
+	)
+	Suart
+	(
+		.reset(reset),
+		.clk(clk),
+		.s_dat_i(s_dat_i),
+		.s_sel_i(s_sel_i),
+		.s_addr_i(s_addr_i),  
+		.s_cti_i(s_cti_i),
+		.s_stb_i(s_stb_i),
+		.s_cyc_i(s_cyc_i),
+		.s_we_i(s_we_i),    
+		.s_dat_o(s_dat_o),
+		.s_ack_o(s_ack_o),
+		.RxD_din(RxD_din_sim),
+		.RxD_wr(RxD_wr_sim),
+		.RxD_ready(RxD_ready_sim)
+
+
+	);
+ `else 
+// code for synthesis
+
+	altera_jtag_uart_wb_hw Juart(
+	  	.clk(clk),
+		.rst(reset),
+	  	.wb_irq(irq),
+	  	.dat_o(s_dat_o),
+	  	.ack_o(s_ack_o),
+	  	.adr_i(s_addr_i),
+	  	.stb_i(s_stb_i),
+	  	.cyc_i(s_cyc_i),
+	  	.we_i(s_we_i),
+	  	.dat_i(s_dat_i),
+	  	.dataavailable(),
+	  	.readyfordata()
+	);
+
+	assign  RxD_ready_sim = 1'bX;
+
+
+`endif
+`endif
+
+endmodule
+
+
+
+
+
+module altera_jtag_uart_wb_hw(
+  input 				clk,rst,
+  output           wb_irq,
+  output  [ 31: 0] dat_o,
+  output           ack_o,
+  input            adr_i,
+  input            stb_i,
+  input            cyc_i,
+  input            we_i,
+  input   [ 31: 0] dat_i,
+  output           dataavailable,
+  output           readyfordata
+);
+	wire av_waitrequest;
+	assign ack_o=~av_waitrequest;
+
+	qsys_jtag_uart_0 jtag_uart_0 (
+		.clk            (clk),
+		.rst_n          (~rst),
+		.av_chipselect  (stb_i),
+		.av_address     (adr_i),
+		.av_read_n      (~(cyc_i&~we_i)),
+		.av_readdata    (dat_o),
+		.av_write_n     (~(cyc_i&we_i)),
+		.av_writedata   (dat_i),
+		.av_waitrequest (av_waitrequest),
+		.av_irq         (wb_irq),
+		.dataavailable	(dataavailable),
+		.readyfordata	(readyfordata)
+	);
+
+endmodule 
+
+
+
+
+
+
 //Legal Notice: (C)2015 Altera Corporation. All rights reserved.  Your
 //use of Altera Corporation's design tools, logic functions and other
 //software and tools, and its AMPP partner logic functions, and any
@@ -10,9 +193,7 @@
 //or its authorized distributors.  Please refer to the applicable
 //agreement for further details.
 
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
+
 
 // turn off superfluous verilog processor warnings 
 // altera message_level Level1 
@@ -581,35 +762,4 @@ module qsys_jtag_uart_0 (
 
 endmodule
 
-module altera_jtag_uart_wb(
-  input 				clk,rst,
-  output           wb_irq,
-  output  [ 31: 0] dat_o,
-  output           ack_o,
-  input            adr_i,
-  input            stb_i,
-  input            cyc_i,
-  input            we_i,
-  input   [ 31: 0] dat_i,
-  output           dataavailable,
-  output           readyfordata
-);
-wire av_waitrequest;
-assign ack_o=~av_waitrequest;
 
-qsys_jtag_uart_0 jtag_uart_0 (
-		.clk            (clk),
-		.rst_n          (~rst),
-		.av_chipselect  (stb_i),
-		.av_address     (adr_i),
-		.av_read_n      (~(cyc_i&~we_i)),
-		.av_readdata    (dat_o),
-		.av_write_n     (~(cyc_i&we_i)),
-		.av_writedata   (dat_i),
-		.av_waitrequest (av_waitrequest),
-		.av_irq         (wb_irq),
-		.dataavailable	(dataavailable),
-		.readyfordata	(readyfordata)
-);
-
-endmodule 

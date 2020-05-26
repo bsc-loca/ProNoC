@@ -110,9 +110,9 @@ module wb_dual_port_ram #(
     i2s = tmp[15:0];
     end     
     endfunction //i2s
-
+/* verilator lint_off WIDTH */
 localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
-
+/* verilator lint_on WIDTH */
     
 
 	input                  clk;
@@ -159,22 +159,23 @@ localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
     `endif
 `endif
 
-
+    /* verilator lint_off WIDTH */
 	localparam MEM_NAME =
        (FPGA_VENDOR_MDFY== "ALTERA")? {MEM_CONTENT_FILE_NAME,".mif"} : 
        (FPGA_VENDOR_MDFY== "XILINX")? {MEM_CONTENT_FILE_NAME,".mem"} : 
                             {MEM_CONTENT_FILE_NAME,".hex"}; //Generic
-
+    /* verilator lint_on WIDTH */
     
     localparam [7:0] N1 = (CORE_NUM%10) + 48;
     localparam [7:0] N2 = ((CORE_NUM/10)%10) + 48;
     localparam [7:0] N3 = ((CORE_NUM/100)%10) + 48;
     localparam NN = (CORE_NUM<10) ? N1 : (CORE_NUM<100)? {N2,N1} : {N3,N2,N1}; 
 
+    /* verilator lint_off WIDTH */
     localparam  INIT_FILE = 
        (FPGA_VENDOR_MDFY== "XILINX")? {"tile",NN,MEM_NAME}:
        {INIT_FILE_PATH,"/RAM/",MEM_NAME};
-
+    /* verilator lint_on WIDTH */
 	
    
         
@@ -242,7 +243,9 @@ localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
      
 
     generate 
+    /* verilator lint_off WIDTH */
     if(FPGA_VENDOR_MDFY=="ALTERA")begin:altera_fpga
+    /* verilator lint_on WIDTH */
     	localparam  RAM_ID ={"ENABLE_RUNTIME_MOD=NO"};
          // aletra dual port ram 
     		altsyncram #(
@@ -293,8 +296,9 @@ localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
     
     	
     end //altera_fpga
-    
+    /* verilator lint_off WIDTH */
     else if(FPGA_VENDOR_MDFY=="XILINX")begin:xilinx_ram
+    /* verilator lint_on WIDTH */
         localparam MEMORY_SIZE = (2**Aw)*Dw;//total memory array size, in bits
         wire [BYTE_ENw-1   :   0] xilinx_we_a = (we_a)? sa_sel_i : {BYTE_ENw{1'b0}};
         wire [BYTE_ENw-1   :   0] xilinx_we_b = (we_b)? {BYTE_ENw{1'b1}} : {BYTE_ENw{1'b0}};
@@ -419,9 +423,9 @@ localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
     
     
     end//
-    
+    /* verilator lint_off WIDTH */
     else if(FPGA_VENDOR_MDFY=="GENERIC")begin:generic_ram
-    	
+    /* verilator lint_on WIDTH */	
     		
     
         generic_dual_port_ram #(

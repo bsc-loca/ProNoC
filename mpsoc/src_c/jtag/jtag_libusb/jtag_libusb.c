@@ -105,7 +105,7 @@ int p;
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage();	
-   while ((c = getopt (argc, argv, "s:a:e:d:n:i:w:cr")) != -1)
+   while ((c = getopt (argc, argv, "s:a:e:d:n:t:i:w:cr")) != -1)
       {
 	 switch (c)
 	    {
@@ -121,6 +121,10 @@ int p;
 			 exit(1);
 		}
 
+	    case 't':	/* chain number */
+		//not used for Altera
+               break;
+   
 	    case 'n':	/* index number */
 	       index_num = atoi(optarg);
 	       break;
