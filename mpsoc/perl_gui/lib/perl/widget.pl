@@ -364,12 +364,13 @@ sub def_image_button{
 	# create box for image and label 
 	$homogeneous = FALSE if(!defined $homogeneous);
 	my $box = def_hbox($homogeneous,0);
-	my $image = def_icon($image_file) if(-f $image_file);
-		
+	my $image; 
+	$image = def_icon($image_file) if(-f $image_file); #called from perl_gui
+	$image = def_icon("../../$image_file") if(-f "../../$image_file"); #called from lib/perl 	
 	
 	# now on to the image stuff
 	#my $image = Gtk2::Image->new_from_file($image_file);
-	$box->pack_start($image, FALSE, FALSE, 0) if(-f $image_file);
+	$box->pack_start($image, FALSE, FALSE, 0) if(defined  $image);
 	$box->set_border_width(0);
 	$box->set_spacing (0);
 	# Create a label for the button
@@ -981,7 +982,7 @@ sub get_file_name {
 	$browse->signal_connect("clicked"=> sub{
 		my $entry_ref=$_[1];
  		my $file;
-		$title ='select directory' if(!defined $title);
+		$title ='select a file' if(!defined $title);
 		my $dialog = Gtk2::FileChooserDialog->new(
             	'Select a File', undef,
             	'open',

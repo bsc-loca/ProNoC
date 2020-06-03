@@ -8,18 +8,10 @@ use Scalar::Util 'looks_like_number';
 
 use String::Scanf; # imports sscanf()
 
-my $o="R:00002032:R";
-my $out=\$o;
+my $s="22oA55j";
+$s =~ s/[^0-9a-fA-F]//g;
 
-
-
-
-
-my ($tmp,$hex)= sscanf("%sR:%s:R",$$out);
-$hex = substr($hex, -3);
-print "capture $hex\n";
-
-
+print $s;
 
 
 0;

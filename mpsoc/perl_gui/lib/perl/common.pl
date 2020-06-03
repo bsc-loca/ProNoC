@@ -460,7 +460,11 @@ sub regen_object {
 #	general
 #################
 
-
+sub remove_not_hex {
+	my $s=shift;
+	$s =~ s/[^0-9a-fA-F]//g;
+	return $s;	
+}
 
 
 sub  trim { my $s = shift;  $s=~s/[\n]//gs; return $s };
