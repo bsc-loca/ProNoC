@@ -183,7 +183,7 @@ sub get_soc_jtag_v{
 				$JTAG_CONNECT=remove_all_white_spaces($JTAG_CONNECT);
 				if($JTAG_CONNECT  =~ /XILINX_JTAG_WB/){
 					my $chain=$soc->soc_get_module_param_value ($id,'JTAG_CHAIN');		
-					
+					my $index=$soc->soc_get_module_param_value ($id,'JTAG_INDEX');	
 					$jtag_inst_name= $soc->soc_get_instance_name($id);					
 					my %params	= $soc->soc_get_module_param($id);
 					my $new_range = add_instantc_name_to_parameters(\%params,$id,$range);
@@ -196,6 +196,9 @@ sub get_soc_jtag_v{
 						%jtag_info=append_to_hash (\%jtag_info,$chain,'xilinx_num',1);
 		#				$xilinx_jtag_ctrl_in=(defined $xilinx_jtag_ctrl_in)? "$xilinx_jtag_ctrl_in,$p" : "$p";
 						%jtag_info=append_to_hash (\%jtag_info,$chain,'input',$p);
+						%jtag_info=check_jtag_indexs(\%jtag_info,$chain,$index,$txview,$jtag_inst_name,0);
+						#print "\%jtag_info=check_jtag_indexs(\%jtag_info,$chain,$index,$txview,$jtag_inst_name);\n"
+						
 					}else {
 		#				$xilinx_jtag_ctrl_out=(defined $xilinx_jtag_ctrl_out)? "$xilinx_jtag_ctrl_out,$p" : "$p";
 						%jtag_info=append_to_hash (\%jtag_info,$chain,'output',$p);
@@ -203,11 +206,12 @@ sub get_soc_jtag_v{
 				}#'"XILINX_JTAG_WB"'
 			
 				elsif($JTAG_CONNECT eq '"ALTERA_JTAG_WB"'){
-					
+					my $index=$soc->soc_get_module_param_value ($id,'JTAG_INDEX');	
 					if($type eq 'input'){
 		#				$jtag_insts=$jtag_insts."$id ALTERA JTAG,";
 						%jtag_info=append_to_hash (\%jtag_info,0,'inst',"$id ALTERA JTAG");
 						%jtag_info=append_to_hash (\%jtag_info,0,'altera_num',1);
+						%jtag_info=check_jtag_indexs(\%jtag_info,0,$index,$txview,$jtag_inst_name,0);
 		#				$altera_jtag_ctrl++;
 										
 					}
@@ -447,6 +451,7 @@ sub gen_module_inst {
 			
 		}		
 		
+		$i_name ='IO' if (!defined $i_name);
 		my $reset_jtag_ored = ($i_name eq 'reset')? '| jtag_system_reset' : '';	
 		my $reset_jtag_nc = ($i_name eq 'reset')? 'jtag_system_reset' : '';		
 		

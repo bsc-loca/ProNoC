@@ -226,8 +226,9 @@ int send_data ()
 			//printf ("(bit=%d, data=%s)\n",bit, string);
 			//jtag_vdr(bit, data, 0);
 			vdr_large(bit,string,0);
-		}if(d==2){
+		}else if(d==2){
 
+			vdr_large(bit,string,out);
 			vdr_large(bit,string,out);
 			vdr_large(bit,string,out);
 			printf("###read data#%s###read data#\n",out);

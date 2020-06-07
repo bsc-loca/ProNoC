@@ -347,6 +347,20 @@ sub set_path_env{
 
 
 
+sub source_file {
+    my $file = shift;
+    open my $fh, "<", $file   or return  "could not open $file: $!";
+
+    while (<$fh>) {
+        chomp;
+        #FIXME: this regex isn't quite good enough
+        next unless my ($var, $value) = /\s*(\w+)=([^#]+)/;
+        $ENV{$var} = $value;
+    }
+    return undef;
+}
+
+
 ##############
 #  clone_obj
 #############

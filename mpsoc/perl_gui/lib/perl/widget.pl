@@ -357,7 +357,11 @@ sub open_inline_image{
 	return $image;
 }
 
-
+sub find_icon{
+	my $file =shift;
+	return $file if(-f $file); #called from perl_gui
+	return "../../$file"; #called from lib/perl 		
+}
 
 sub def_image_button{
 	my ($image_file, $label_text, $homogeneous, $mnemonic)=@_;
@@ -365,8 +369,8 @@ sub def_image_button{
 	$homogeneous = FALSE if(!defined $homogeneous);
 	my $box = def_hbox($homogeneous,0);
 	my $image; 
-	$image = def_icon($image_file) if(-f $image_file); #called from perl_gui
-	$image = def_icon("../../$image_file") if(-f "../../$image_file"); #called from lib/perl 	
+	$image_file = find_icon( $image_file);
+	$image = def_icon($image_file) if(-f $image_file); 
 	
 	# now on to the image stuff
 	#my $image = Gtk2::Image->new_from_file($image_file);
@@ -455,6 +459,7 @@ sub def_colored_button{
 
 sub show_gif{
 	my $gif = shift;
+	$gif=find_icon( $gif);
 	my $vbox = Gtk2::HBox->new (TRUE, 8);
     my $filename;
       eval {

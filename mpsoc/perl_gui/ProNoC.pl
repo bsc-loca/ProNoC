@@ -25,7 +25,7 @@ require "simulator.pl";
 require "trace_gen.pl";
 require "network_maker.pl";
 require "uart.pl";
-require "source_probe.pl";
+require "run_time_jtag_debug.pl";
 require "gdown.pl"; # google drive downlouder
 
 use File::Basename;
@@ -92,7 +92,10 @@ sub main_window{
   [ "/_File",            undef,        undef,          0, "<Branch>" ],
   [ "/File/_Setting",       "<control>O", sub { setting(0); },  0,  undef ],
   [ "/Tools/_UART Terminal", "<control>U", sub { uart(0); },  0,  undef ],
-  [ "/Tools/Sourc Probe", "<control>P", sub { source_probe(0); },  0,  undef ],
+  [ "/Tools/Run time JTAG debuger", "<control>P", sub { source_probe(0); },  0,  undef ],
+  [ "/Tools/Add New Altera FPGA Board", undef, sub { add_altera_board(); },  0,  undef ],
+  [ "/Tools/Add New XILINX FPGA Board", undef, sub { add_xilinx_board(); },  0,  undef ],
+  
   [ "/File/_Quit",       "<control>Q", sub { gui_quite(); },  0, "<StockItem>", 'gtk-quit' ],
   [ "/_View",                  undef, undef,         0, "<Branch>" ],
   [ "/_View/_ProNoC System Generator",  "<control>1", 	sub{ open_page($notebook,$noteref,$table,'Generator'); } ,	0,	undef ],
@@ -405,7 +408,7 @@ sub check_toolchains{
 			my $srow=	$row;
 			$dowload ->signal_connect("clicked" => sub {
 				$dowload ->set_sensitive (FALSE);
-				$download_st = $download_st | (1<<$index);
+				$download_st = $download_st | (1 << $index);
 				my $load= show_gif("icons/load.gif");
 				$table->attach ($load, $col, $col+1, $srow,$srow+ 1,'shrink','shrink',0,0);  $col++;
 				$load->show_all;
@@ -419,7 +422,7 @@ sub check_toolchains{
 				$load->destroy;
 				#remove zip file
 				unlink "$pronoc_work/toolchain/$d->{label}.zip";
-				$download_st = $download_st & ~(1<<$index);
+				$download_st = $download_st & ~(1 << $index);
 				
 				if ($download_st==0){
 					$cmd = "chmod +x -Rf $pronoc_work/toolchain/";
@@ -490,6 +493,33 @@ sub uart {
 
 sub source_probe{
 	source_probe_main();	
+}
+
+
+
+
+sub add_altera_board{
+	
+	__PACKAGE__->mk_accessors(qw{
+	PRONOC_WORK
+	});
+	my $self= __PACKAGE__->new();
+		
+	
+	
+	add_new_fpga_board($self,undef,undef,undef,undef,'Altera');
+	
+}
+
+sub add_xilinx_board{
+		__PACKAGE__->mk_accessors(qw{
+	PRONOC_WORK
+	});
+	my $self= __PACKAGE__->new();
+		
+	add_new_fpga_board($self,undef,undef,undef,undef,'Xilinx');
+	
+	
 }
 
 

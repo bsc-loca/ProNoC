@@ -234,7 +234,7 @@ int send_data ()
 			vdr_large(bit,string,0);
 			
 		}else if(d==2){
-
+			vdr_large(bit,string,out);
 			vdr_large(bit,string,out);
 			vdr_large(bit,string,out);
 			printf("###read data#%s###read data#\n",out);

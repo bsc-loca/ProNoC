@@ -338,7 +338,7 @@ sub select_board {
 	my $Fpga_bin=   $ENV{$env};
 	
 	my $old_board_name=$self->object_get_attribute('compile','board');
-	$table->attach(gen_label_help("The list of supported boards are obtained from \"mpsoc/boards/$vendor\" path. You can add your boards by adding its required files in aformentioned path. Note that currently Altera and Xilinx FPGAs are supported. For boards from other vendors, you need to directly use their own compiler and call $name.v file in your top level module.",'Targeted Board:'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
+	$table->attach(gen_label_help("The list of supported boards are obtained from \"mpsoc/boards/$vendor\" path. You can add your boards by adding its required files in aformentioned path. Note that currently Altera and Xilinx FPGAs are supported.",'Targeted Board:'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
 	$table->attach(gen_combobox_object ($self,'compile','board',$fpgas,$init,undef,undef),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$row++;
 	my $bin =  $self->object_get_attribute('compile',$bin_name);
 	
@@ -406,9 +406,9 @@ sub add_new_fpga_board{
 	my $mtable = def_table(10, 10, FALSE);
 	
 	my $next=def_image_button('icons/plus.png','Add');
-	my $back=def_image_button('icons/left.png','Previous');	
+	my $back=def_image_button('icons/left.png','Previous'); 	
 	$mtable->attach_defaults($scrolled_win,0,10,0,9);
-	$mtable->attach($back,2,3,9,10,'shrink','shrink',2,2);	
+	$mtable->attach($back,2,3,9,10,'shrink','shrink',2,2) if (defined $name);	
 	$mtable->attach($next,8,9,9,10,'shrink','shrink',2,2);
 	
 	
@@ -442,7 +442,7 @@ sub add_new_fpga_board{
 			add_new_xilinx_fpga_board_files($self,$vendor); 
 			
 		if(! defined $result ){
-			select_compiler($self,$name,$top,$target_dir,$end_func);
+			select_compiler($self,$name,$top,$target_dir,$end_func) if (defined $name);	
 			$window->destroy;
 			message_dialog("The new board has been added successfully!");			
 		}else {
@@ -599,7 +599,7 @@ It supposed to show the list of your hardware devices in your FPGA. Select the n
 		";
 	
 	
-	my $d=	{ label=>"FPGA borad display name:",        param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef};	
+	my $d=	{ label=>"FPGA board display name:",        param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef};	
 	($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,'vertical');
 	$col=0;
 	
@@ -656,12 +656,13 @@ It supposed to show the list of your hardware devices in your FPGA. Select the n
 sub set_xilinx_board_from_repo{
 	my ($self,$tview)=@_;
 	my $bin =  $self->object_get_attribute('compile',"vivado bin");
+	my $vivado =(defined $bin)?  "${bin}/vivado" :  "vivado";
 	my $result;
 	my $repo= $self->object_get_attribute('compile','fpga_board_repo');	
 	
 	
 	my $tcl= get_project_dir()."/mpsoc/perl_gui/lib/tcl/vivado_get_boards.tcl -tclargs $repo";
-	my $command = "cd $ENV{PRONOC_WORK}/tmp;   $bin/vivado -mode tcl -source $tcl";
+	my $command = "cd $ENV{PRONOC_WORK}/tmp;   $vivado -mode tcl -source $tcl";
 	
 	add_info($tview,"$command\n");
 	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
@@ -697,7 +698,7 @@ sub add_new_altera_fpga_board_widgets{
 	my $help1="FPGA Board name. Do not use any space in given name";
 	my $help2="Path to FPGA board qsf file. In your Altra board installation CD or in the Internet search for a QSF file containing your FPGA device name with other necessary global project setting including the pin assignments (e.g DE10_Nano_golden_top.qsf).";
 	my $help3="Path to FPGA_board_top.v file. In your Altra board installation CD or in the Internet search for a verilog file containing all your FPGA device IO ports (e.g DE10_Nano_golden_top.v).";
-	my $help4="FPGA Borad USB-Blaster product ID (PID). Power on your FPGA board and connect it to your PC. Then press Auto-fill button to find PID. Optinally you can run mpsoc/
+	my $help4="FPGA Board USB-Blaster product ID (PID). Power on your FPGA board and connect it to your PC. Then press Auto-fill button to find PID. Optinally you can run mpsoc/
 src_c/jtag/jtag_libusb/list_usb_dev to find your USB-Blaster PID. Search for PID of a device having 9fb (altera) Vendor ID (VID)";
 	my $help5="Power on your FPGA board and connect it to your PC. Then press Auto-fill button to find your hardware name. Optinally you can run \$QUARTUS_BIN/jtagconfig to find your programming hardware name. 
 an example of output from the 'jtagconfig' command:
@@ -715,15 +716,15 @@ my $help6="Power on your FPGA board and connect it to your PC. Then press Auto-f
 
 
 	my @info = (
-	{ label=>"FPGA Borad name:",                   param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef},
-  	{ label=>'FPGA board golden top QSF file:',    param_name=>'board_confg_file',   type=>"FILE_path", default_val=>undef, content=>"qsf", info=>$help2, param_parent=>'compile', ref_delay=>undef},
-	{ label=>"FPGA board golden top verilog file", param_name=>'fpga_board_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef },
+	{ label=>"FPGA Board Name:",                   param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef},
+  	{ label=>'FPGA Board Golden top QSF file:',    param_name=>'board_confg_file',   type=>"FILE_path", default_val=>undef, content=>"qsf", info=>$help2, param_parent=>'compile', ref_delay=>undef},
+	{ label=>"FPGA Board Golden top verilog file", param_name=>'fpga_board_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef },
 	);
 	
 	my @usb = (
-	{ label=>"FPGA Borad USB Blaster PID:",        param_name=>'quartus_pid',   type=>"Entry",     default_val=>undef, content=>undef, info=>$help4, param_parent=>'compile', ref_delay=> undef},
-	{ label=>"FPGA Borad Programming Hardware Name:", param_name=>'quartus_hardware',   type=>"Entry",     default_val=>undef, content=>undef, info=>$help5, param_parent=>'compile', ref_delay=> undef},
-	{ label=>"FPGA Borad Device location in JTAG chain:", param_name=>'quartus_device',   type=>"Spin-button",     default_val=>0, content=>"0,100,1", info=>$help6, param_parent=>'compile', ref_delay=> undef},
+	{ label=>"FPGA Board USB Blaster PID:",        param_name=>'quartus_pid',   type=>"Entry",     default_val=>undef, content=>undef, info=>$help4, param_parent=>'compile', ref_delay=> undef},
+	{ label=>"FPGA Board Programming Hardware Name:", param_name=>'quartus_hardware',   type=>"Entry",     default_val=>undef, content=>undef, info=>$help5, param_parent=>'compile', ref_delay=> undef},
+	{ label=>"FPGA Board Device location in JTAG chain:", param_name=>'quartus_device',   type=>"Spin-button",     default_val=>0, content=>"0,100,1", info=>$help6, param_parent=>'compile', ref_delay=> undef},
 	);	
 	
 	
@@ -758,10 +759,12 @@ sub add_new_xilinx_fpga_board_files{
 	#check xdc file 
 	my $xdc=$self->object_get_attribute('compile','board_confg_file');	
 	return "Please define the xdc file\n" if(!defined $xdc );
+	$xdc=add_project_dir_to_addr($xdc);
 	
 	#check v file 
 	my $top=$self->object_get_attribute('compile','fpga_board_v');
 	return "Please define the verilog file file\n" if(!defined $top );
+	$top=add_project_dir_to_addr($top);
 	
 	#check board part 
 	my $part=$self->object_get_attribute('compile','fpga_part');
@@ -773,8 +776,10 @@ sub add_new_xilinx_fpga_board_files{
 	my $path="$project_dir/mpsoc/boards/$vendor/$board_name";
 	mkpath($path,1,01777);
 	return "Error cannot make $path path" if ((-d $path)==0);
-	copy($xdc,"$path/$board_name.xdc");
+	copy( $xdc,"$path/$board_name.xdc");
 	copy($top,"$path/$board_name.v");
+	
+
 	
 	my $a=$self->object_get_attribute('compile','fpga_board_order');
 	my $jtag_intfc="#!/bin/bash

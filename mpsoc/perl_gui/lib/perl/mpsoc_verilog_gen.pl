@@ -160,6 +160,8 @@ sub add_jtag_ctrl {
 		my $xilinx_jtag_ctrl_in;
 		my $xilinx_jtag_ctrl_out;
 		my $r = $jtag_info{$c}{'wire'};
+		my $index = $jtag_info{$c}{'index'};
+		
 		my @array = (defined $r)? @{$r} :();		
 		my $wires_def = join ("\n",@array); 
 		$jtag_v=$jtag_v."\n//\tJtag chain $c Wire def\n$wires_def\n" if(@array);		
@@ -762,6 +764,7 @@ sub   gen_soc_v{
 				my $inst_name=$top->top_get_def_of_instance($id,'instance');
 				my $JTAG_CONNECT=  $topparams{"${inst_name}_JTAG_CONNECT"};
 				my $chain=$topparams{"${inst_name}_JTAG_CHAIN"};	
+				my $index=$topparams{"${inst_name}_JTAG_INDEX"};	
 				#print Dumper (\%topparams);
 				#print "my $JTAG_CONNECT=  \$topparams{${inst_name}_JTAG_CONNECT}\n"; 
 				
@@ -777,11 +780,13 @@ sub   gen_soc_v{
 					
 				#	$jtag_def=$jtag_def."$wire_def";
 					%jtag_info=append_to_hash (\%jtag_info,$chain,'wire',"$wire_def");
+					
+					
 					$soc_v=$soc_v.',' if ($i);	
 					$soc_v=$soc_v."\n\t\t.$p($io_port)";
 					$i=1;	
 					if($type eq 'input'){
-						
+						%jtag_info=check_jtag_indexs(\%jtag_info,$chain,$index,$txview,$inst_name,$tile_num);
 						#$jtag_insts=$jtag_insts."$id XILINX JTAG,";
 						%jtag_info=append_to_hash (\%jtag_info,0,'inst',"$id XILINX JTAG");
 						#$xilinx_jtag_ctrl++;
@@ -808,6 +813,8 @@ sub   gen_soc_v{
 						#$altera_jtag_ctrl++;
 						%jtag_info=append_to_hash (\%jtag_info,0,'inst',"$id ALTERA JTAG");
 						%jtag_info=append_to_hash (\%jtag_info,0,'altera_num',1);
+						%jtag_info=check_jtag_indexs(\%jtag_info,0,$index,$txview,$inst_name,$tile_num);
+						
 					}
 				}	
 				
@@ -847,6 +854,27 @@ sub   gen_soc_v{
 	return ($soc_v,$processor_en,$io_short,$io_full,$top_io_short,	$top_io_full,$top_io_pass,\%jtag_info);
 
 }
+
+
+sub check_jtag_indexs{
+	my ($ref,$chain,$index,$txview,$inst_name,$core_id)=@_;
+	my %jtag_info = %{$ref} if (defined $ref);
+	
+	chomp $index;   
+	# replace coreid parameter  	
+	($index=$index)=~ s/CORE_ID/$core_id/g; 
+	$index = eval $index;
+	my $inst1 =$jtag_info{$chain}{'index'}{$index};
+	my $id1 = $jtag_info{$chain}{'core_id'}{$index};
+	if (defined $inst1){
+		add_colored_info($txview,"Error: The JTAG INDEX number $index in JTAG Chain $chain is not unique. The same index number is used in tile($id1):$inst1  & tile($core_id):$inst_name  IPs. It should be used in only one module.\n",'red');				
+	}
+	$jtag_info{$chain}{'index'}{$index}=$inst_name;
+	$jtag_info{$chain}{'core_id'}{$index}=$core_id;
+	#print "\$jtag_info{$chain}{'index'}{$index}=$inst_name\n";
+	return %jtag_info;
+}
+
 
 
 sub get_top_clk_setting{

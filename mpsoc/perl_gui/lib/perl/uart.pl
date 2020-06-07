@@ -338,16 +338,18 @@ sub refresh_gui{
 
 
 sub check_jtag_connect {
-	my ($self,$pipe,$tview,$in, $out, $err)=@_;
+	my ($self,$pipe,$tview,$in, $out, $err,$pipe_name)=@_;
 	my $run =$self->object_get_attribute("CTRL","RUN");
 	my $connect = $self->object_get_attribute("CTRL","CONNECT");
 	my $disconnect = $self->object_get_attribute("CTRL","DISCONNECT");
-	my $uname= $self->object_get_attribute('CTRL','UART_NAME');
+	
+	
+	
 	my $r;
 	if($connect){
 		
-       	$r=start_xsct($self,$pipe,$tview,$in, $out, $err) if($uname eq 'ProNoC_XILINX_UART' );
-       	$r=start_stp ($self,$pipe,$tview,$in, $out, $err) if($uname eq 'ProNoC_ALTERA_UART' );
+       	$r=start_xsct($self,$pipe,$tview,$in, $out, $err) if($pipe_name eq 'xsct' );
+       	$r=start_stp ($self,$pipe,$tview,$in, $out, $err) if($pipe_name eq 'stp'  );
        	if($r){
        		$self->object_add_attribute("CTRL","RUN",'ON');
        		add_info($tview,"Connected!\n");
@@ -356,14 +358,14 @@ sub check_jtag_connect {
           		
        	}else{
        		$self->object_add_attribute("CTRL","RUN",'OFF');
-       		add_info($tview,"failed to connect!\n");
+       		add_colored_info($tview,"failed to connect!\n",'red');
       		set_gui_status($self,"ref",1); 
       		
        	}            					
 		$self->object_add_attribute("CTRL","CONNECT",0);
 	}if($disconnect){
-		close_xsct($self,$pipe,$tview,$in, $out, $err) if($uname eq 'ProNoC_XILINX_UART' );
-		close_stp ($self,$pipe,$tview,$in, $out, $err) if($uname eq 'ProNoC_ALTERA_UART' );
+		close_xsct($self,$pipe,$tview,$in, $out, $err) if($pipe_name eq 'xsct' );
+		close_stp ($self,$pipe,$tview,$in, $out, $err) if($pipe_name eq 'stp'  );
 		$self->object_add_attribute("CTRL","RUN",'OFF');
 		$self->object_add_attribute("CTRL","DISCONNECT",0);	
 		add_info($tview,"disconnected!\n");
@@ -372,9 +374,9 @@ sub check_jtag_connect {
 }	
 
 
-use constant JTAG_UPDATE_WB_ADDR => 7;
-use constant JTAG_UPDATE_WB_WR_DATA=>  6;
-use constant JTAG_UPDATE_WB_RD_DATA => 5;	
+use constant UART_UPDATE_WB_ADDR => 7;
+use constant UART_UPDATE_WB_WR_DATA=>  6;
+use constant UART_UPDATE_WB_RD_DATA => 5;	
 
 # Converts pairs of hex digits to asci
 sub hex_to_ascii { # $ascii ($hex)
@@ -558,7 +560,7 @@ sub run_stp_jtag_scaner{
 			
 		
 		#select instruction
-		$$in=stp_jtag_vir ($index,JTAG_UPDATE_WB_RD_DATA);	
+		$$in=stp_jtag_vir ($index,UART_UPDATE_WB_RD_DATA);	
 		return  unless run_stp_pipe($self,$pipe,$in,$out,$err,$tview);
 				
 		
@@ -751,7 +753,7 @@ sub run_xsct_jtag_scaner{
 		
 		#select instruction
 		#print"select instruction\n";
-		$$in=xsct_jtag_vir (JTAG_UPDATE_WB_RD_DATA,32,$chain_code);	
+		$$in=xsct_jtag_vir (UART_UPDATE_WB_RD_DATA,32,$chain_code);	
 		return  unless run_xsct_pipe($self,$pipe,$in,$out,$err,$tview);
 				
 		
@@ -820,7 +822,9 @@ sub uart_main {
             $h1->show_all();
             set_gui_status($self,"ideal",0);     
             if($state eq 'ON-OFF') {  
-            	check_jtag_connect ($self,\$pipe,$tview,\$in, \$out, \$err);
+            	my $uname= $self->object_get_attribute('CTRL','UART_NAME');
+            	my $pipe_name = ($uname eq 'ProNoC_XILINX_UART') ? 'xsct' : 'stp';            	
+            	check_jtag_connect ($self,\$pipe,$tview,\$in, \$out, \$err,$pipe_name);
             	my $st =$self->object_get_attribute("CTRL","RUN");
             	$counter=5 if ($st eq 'OFF');
             	#print "ON-OFF\n";
