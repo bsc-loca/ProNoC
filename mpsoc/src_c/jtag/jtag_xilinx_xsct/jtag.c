@@ -297,7 +297,7 @@ int jtag_init( ) {
 #ifdef PRINT_TO_XSCT
    fprintf(to_xsct_file, "set jseq [jtag sequence]\n");
    fprintf(to_xsct_file, "connect\n");
-   fprintf(to_xsct_file, "jtag targets %u puts done\n",jtag_target_number);
+   fprintf(to_xsct_file, "jtag targets %u; puts done\n",jtag_target_number);
   
 #endif
 
@@ -387,6 +387,81 @@ char * read_xsct (){
 	return 0;
 }
 
+void check_from_xsct(){
+	if(feof(from_xsct)) {
+		fprintf(stderr, "saw eof from xsct\n");
+		exit(1);
+	}
+	if(ferror(from_xsct)) {
+		fprintf(stderr, "saw error from xsct\n");
+		exit(1);
+        }
+}
+
+void verify_memory_multi (unsigned * memory, unsigned int size ){
+        char buf[2024];
+	char * out;
+	unsigned hex;
+	//char * ptr;
+	fflush(to_xsct);
+        int c;
+	char cmp[]={"RESULT:"};
+	int i=0;
+	unsigned int count=0;
+	do {
+		c=fgetc(from_xsct);
+		if(c==cmp[i]) i++;
+		if(c=='\n'){
+			//fprintf(stderr, "Unable to get the key word RESULT:\n");		 	
+			//return;
+		}
+		check_from_xsct();	
+	}while(cmp[i]!=':');
+	miss=0;
+	i=0;
+	while(1){
+		c=fgetc(from_xsct);
+		if(c==' ' || c=='\n'){//we have got a data check it
+			buf[i]=0;
+			remove_state(buf);
+			out =(char*)malloc( sizeof(buf)+2);
+			jtag_reorder (buf, out );
+			hex= strtol(out,NULL,16);	
+			//printf("out = %x\n",hex);		
+			i=0;
+			if(count < size){
+				if(hex!=memory[count]) {
+					printf ("miss-matched at location %d. Expected %x but read %x\n",count,memory[count], hex);
+					if(miss<=MISS_RETRY_NUM){
+						mis_addr[miss] = count;
+						miss++;
+					}
+					else {// the number of miss matched exceed the MISS_RETRY_NUM stop checking the rest of the memory
+						printf ("Error: the number of miss-matched location exceeds than MISS_RETRY_NUM (%u). ",MISS_RETRY_NUM);
+					}
+				}
+			}
+			count++;
+		}else{
+			buf[i]=c;
+			i++;
+			
+		}
+		if(c=='\n') break;
+		check_from_xsct();
+	}
+}
+
+
+void write_specefic_loc (unsigned int addr, unsigned value){
+
+	jtag_vir(UPDATE_WB_ADDR);
+	jtag_vdr(BIT_NUM, addr, 0);
+	jtag_vir(UPDATE_WB_WR_DATA);
+	jtag_vdr(BIT_NUM, value, 0);
+
+
+}
 
 
 
@@ -435,6 +510,63 @@ void send_to_jtag (char * hexstring) {
 
 	//fflush(to_xsct);       
 }
+
+
+void jseq_multi_init () {
+	fprintf(to_xsct,"$jseq clear\n");                                                               
+	fprintf(to_xsct,"$jseq irshift -state IDLE -hex 6 %x\n",chain_code);  
+	
+
+#ifdef PRINT_TO_XSCT
+	fprintf(to_xsct_file,"$jseq clear\n");                                                               
+	fprintf(to_xsct_file,"$jseq irshift -state IDLE -hex 6 %x\n",chain_code);                 
+	
+#endif
+
+	//fflush(to_xsct);       
+}
+
+
+void jseq_multi_drshift (char * hexstring) {
+	fprintf(to_xsct,"$jseq drshift -state IDLE -hex %u %s\n",jtag_shift_reg_size,hexstring);                  
+	
+#ifdef PRINT_TO_XSCT
+	fprintf(to_xsct_file,"$jseq drshift -state IDLE -hex %u %s\n",jtag_shift_reg_size,hexstring);                  
+	
+#endif
+}
+
+
+void jseq_multi_drshift_capture (char * hexstring) {
+	fprintf(to_xsct,"$jseq drshift -state IDLE -capture -hex %u %s\n",jtag_shift_reg_size,hexstring);                  
+	
+#ifdef PRINT_TO_XSCT
+	fprintf(to_xsct_file,"$jseq drshift -state IDLE -capture -hex %u %s\n",jtag_shift_reg_size,hexstring);                  
+	
+#endif
+}
+
+
+
+void jseq_multi_end () {
+	fprintf(to_xsct,"$jseq run\n");
+#ifdef PRINT_TO_XSCT
+	fprintf(to_xsct_file,"$jseq run\n");
+#endif
+       
+}
+
+
+void jseq_multi_get_results () {
+	fprintf(to_xsct,"set data [$jseq run]\n"); 
+	fprintf(to_xsct,"puts \"RESULT:$data\"\n");
+	//fflush(to_xsct);     
+#ifdef PRINT_TO_XSCT
+	fprintf(to_xsct_file,"set data [$jseq run]\n"); 
+	fprintf(to_xsct_file,"puts \"RESULT:$data\"\n");
+#endif  
+}
+
 
 
 void send_capture_jtag (char * hexstring) {
@@ -519,6 +651,35 @@ void jtag_vdr_long(unsigned sz, unsigned * bits, unsigned *out, int words) {
 	}
 	
 }
+
+
+void jtag_vdr_multi(unsigned sz, unsigned bits) {
+	char hexstring[1000];	
+	hextostring_xsct( hexstring, &bits,  WORDS_NUM, jtag_shift_reg_size );
+	add_update_state (hexstring,UPDATE_DAT,jtag_shift_reg_size);
+	jseq_multi_drshift (hexstring);	
+}
+
+void jtag_vdr_multi_capture(unsigned sz, unsigned bits) {
+	char hexstring[1000];	
+	hextostring_xsct( hexstring, &bits,  WORDS_NUM, jtag_shift_reg_size );
+	add_update_state (hexstring,UPDATE_DAT,jtag_shift_reg_size);
+	jseq_multi_drshift_capture (hexstring);	
+}
+
+
+void jtag_vdr_long_multi(unsigned sz, unsigned * bits,  int words) {
+	char hexstring[1000];	
+	hextostring_xsct( hexstring, bits,  words, jtag_shift_reg_size );
+	add_update_state (hexstring,UPDATE_DAT,jtag_shift_reg_size);
+	jseq_multi_drshift (hexstring);
+}
+
+
+
+
+
+
 
 
 void closeport(){

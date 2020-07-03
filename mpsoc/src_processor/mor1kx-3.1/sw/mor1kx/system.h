@@ -77,6 +77,7 @@ unsigned long cpu_get_timer_ticks(void);
 void cpu_sleep_10ms(void);
 
 
+void initial_global_data (void);
 
 /******************
 *	General inttrupt functions for all CPUs added to ProNoC

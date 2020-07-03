@@ -30,6 +30,9 @@
 #define BIT_NUM		(word_width<<3)	
 #define BYTE_NUM	 word_width	
 
+#define MISS_RETRY_NUM  10
+
+
 /* Global vars */
 unsigned int jtag_target_number=3;//default value for arty z7-20 board
 unsigned int jtag_shift_reg_size=36;//default value 32 + 4
@@ -41,6 +44,9 @@ unsigned int memory_boundary=0xFFFFFFFF;
 unsigned int WORDS_NUM = 2;// will be updated after reading arguments
 int chain_num = 4;
 int chain_code=	0x23;	
+
+unsigned int mis_addr[MISS_RETRY_NUM+1];
+unsigned int miss=0;
 
 
 char * binary_file_name=0;

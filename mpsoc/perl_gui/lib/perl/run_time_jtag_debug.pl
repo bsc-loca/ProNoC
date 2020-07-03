@@ -51,10 +51,53 @@ sub source_probe_stand_alone(){
 exit source_probe_stand_alone() unless caller;
 
 
+sub get_jtag_intfc_rst_cmd {
+	my $self=shift;
+	
+	my $vendor = $self->object_get_attribute('CTRL','VENDOR');
+	my $board  = $self->object_get_attribute('CTRL','Board_Name');
+	my $chain  = $self->object_get_attribute('CTRL','RESET_CHAIN');
+	my $index  = 127;
+	my $pronoc = get_project_dir();
+	my $intfc = "$pronoc/mpsoc/boards/$vendor/$board/jtag_intfc.sh";
+	#my $script  = "$ENV{'PRONOC_WORK'}/tmp/script.bash";
+	
+	my $t = ($vendor eq 'Xilinx') ? "-t  $chain " : "";
+	
+	my $cmd = "bash -c \"source $intfc; \\\$JTAG_INTFC $t -n $index";
+	return $cmd;
+	
+}
+
+
+sub jtag_enable_cpus_func{
+	my ($self,$new,$tview)=@_;
+	my $intfc = get_jtag_intfc_rst_cmd($self);
+    my $e = ($new eq 'Enabled')? 0 : 2;
+	my $cmd =	"$intfc  -d   I:1,D:2:$e,I:0\"";
+	add_info($tview,"$cmd\n");	
+	my $results =run_cmd_textview_errors($cmd,$tview);
+	return 1 if(!defined $results);
+
+}
+
+sub jtag_reset_cpus_func {
+	my ($self,$tview)=@_;
+	my $intfc = get_jtag_intfc_rst_cmd($self);
+
+	my $cmd =	"$intfc  -d   I:1,D:2:1,D:2:0,I:0\"";
+	add_info($tview,"$cmd\n");	
+	my $results =run_cmd_textview_errors($cmd,$tview);
+	return 1 if(!defined $results);
+			
+};	
+
+
+
 
 
 sub source_probe_ctrl {
-	my ($self,$main_tview)=@_;
+	my ($self,$tview)=@_;
 	my $table= def_table(2,10,FALSE);
 	
 	my $vendor= $self->object_get_attribute('CTRL','VENDOR');
@@ -83,28 +126,21 @@ sub source_probe_ctrl {
 	
 	
 	
-		
-	
-	
 	if ($vendor eq "Xilinx" ) {
 		push (@info,{ label=>" JTAG CHAIN ", param_name=>'JTAG_CHAIN', type=>"Combo-box", default_val=>4, content=>"1,2,3,4", info=>undef, param_parent=>'CTRL', ref_delay=> 0, new_status=>'ref_ctrl', loc=>'vertical'}) ;
 
 	}
 	
-	
-	
-	
-	
-	
-	
-	my ($row,$col)=(0,0);
+		
+	my ($row,$col)=(0,6);
 	
 	foreach my $d (@info) {
 		my $wiget;		
 		($row,$col,$wiget)=add_param_widget  ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status}, $d->{loc});
+		my $sc=$col;
 		if($d->{param_name} eq 'Board_Name'){
 			my $add=def_image_button("icons/plus.png");
-			$table->attach ($add,  4, 5,$row-1,$row,'shrink','shrink',2,2); 
+			$table->attach ($add,  $sc+4, $sc+5,$row-1,$row,'shrink','shrink',2,2); 
 			set_tip($add, "Add new FPGA Board"); 
 			$add-> signal_connect("clicked" => sub{
 				add_new_fpga_board($self,undef,undef,undef,undef,$vendor);
@@ -115,14 +151,53 @@ sub source_probe_ctrl {
 	
 	}	
 	
-	$col=0; 
-	$table->attach ( Gtk2::HSeparator->new, 0, 10 , $row, $row+1, 'fill','shrink',2,2); 
-	$row++;
 	
+	 $table->attach ( Gtk2::VSeparator->new, 5, 6 , 0, $row+1,'fill','fill',2,2);
+	
+	#Column 2
+	$row=0;$col=0;
 	my $d={ label=>" Number of Sources/Probes:", param_name=>'SP_NUM', type=>"Spin-button", default_val=>1, content=>"1,128,1", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_all', loc=>'vertical'};		
+	($row,$col)=add_param_widget  ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status}, $d->{loc});
+	$d={ label=>" Address format: ", param_name=>'R_ADDR_FORMAT', type=>"Combo-box", default_val=>'Decimal', content=>"Decimal,Hexadecimal", info=>undef, param_parent=>'FILE_VIEW', ref_delay=> 1, new_status=>'ref_file_view', loc=>'vertical'},
 	($row,$col)=add_param_widget  ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status}, $d->{loc});
 	
 	
+	#enable
+	my $en_state=$self->object_get_attribute("CTRL","enable");
+	if (!defined $en_state){
+		$en_state='Enabled' ;
+		$self->object_add_attribute("CTRL","enable",$en_state);
+	}		
+	my $enable= ($en_state eq 'Enabled')? def_colored_button('Enabled',17): def_colored_button('Disabled',4);
+	
+	my $reset= def_button('Reset');
+	
+	if ($vendor eq "Xilinx" ) {
+	
+		my $w=gen_combobox_object ($self,'CTRL','RESET_CHAIN',"4,3,2,1","4",undef,undef);
+		my $h=gen_button_message ("The JTAG remote reset/enable is connected to the Jtag tab chain with the largets chain number in each tile.  ","icons/help.png");
+		my $b= def_pack_hbox(FALSE,0,(Gtk2::Label->new  ("CPU(s) Chain:"),$w,$h));
+		$table->attach ($b ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col+=1;
+	
+	}else{	
+		$table->attach (Gtk2::Label->new  ("CPU(s)") ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col+=1;
+	}
+	
+	$table->attach ($reset ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col+=1;
+	$table->attach ($enable ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
+	
+	$enable -> signal_connect("clicked" => sub{ 
+			my $en_state=$self->object_get_attribute("CTRL","enable");			
+			my $new = ($en_state eq 'Enabled')? 'Disabled' : 'Enabled';
+			jtag_enable_cpus_func($self,$new,$tview);
+			$self->object_add_attribute("CTRL","enable",$new);	
+			set_gui_status($self,"ref",1);		
+	});	
+	
+	$reset -> signal_connect("clicked" => sub{ 
+			jtag_reset_cpus_func($self,$tview);		
+	});	
+	
 	
 	my $scrolled_win=gen_scr_win_with_adjst ($self,"recive_box");
 	$scrolled_win->add_with_viewport($table);
@@ -131,40 +206,6 @@ sub source_probe_ctrl {
 
 
 
-
-sub file_bin_ctrl {
-	my ($self,$main_tview)=@_;
-	my $table= def_table(2,10,FALSE);
-	my @info = (
-	{ label=>" Input bin file: ", param_name=>'IN_FILE', type=>"FILE_path", default_val=>undef, content=>'bin', info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'load_in_file', loc=>'vertical'},
-	{ label=>" Offset address: ", param_name=>'IN_FILE_OFFSET', type=>"Spin-button", default_val=>0, content=>'0,9999999999,1', info=>'The Wishbone bus offset address where the beginning of the memory bin file is written there (It can be the base address of the peripheral device where the memory file is intended to be written to.)   ', param_parent=>'CTRL', ref_delay=> 1, new_status=>'load_in_file', loc=>'vertical'},
-	);	
-	
-	
-	
-	
-	
-	my ($row,$col)=(0,0);
-	
-	foreach my $d (@info) {
-		my $wiget;		
-		($row,$col,$wiget)=add_param_widget  ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status}, $d->{loc});
-		
-	
-	
-	}	
-	
-	$col=0; 
-	$table->attach ( Gtk2::HSeparator->new, 0, 10 , $row, $row+1, 'fill','shrink',2,2); 
-	$row++;
-	
-	
-	
-	
-	my $scrolled_win=gen_scr_win_with_adjst ($self,"recive_box");
-	$scrolled_win->add_with_viewport($table);
-	return $scrolled_win;		
-}
 
 
 
@@ -222,9 +263,7 @@ sub soure_probe_widgets_old {
 	        
 	        $y++; $x=0; 
 	        $table->attach ( Gtk2::HSeparator->new, 0, 7 , $y, $y+1, 'fill','shrink',2,2); 
-	        $y++;
-	        
-	     
+	        $y++;	     
 	        
 	}	
 	
@@ -238,7 +277,8 @@ sub read_mem_specefic_addr{
 	my ($self,$addr,$tview)=@_;
 	add_info($tview,"Read addr: $addr\n"); 	
 	my $intfc = get_jtag_intfc_cmd($self);
-
+	$addr=($addr>>2);
+	$addr=sprintf("%x",$addr);
 	my $cmd =	"$intfc -d  I:${\JTAG_UPDATE_WB_RD_DATA},R:32:$addr,I:0\"";
 	add_info($tview,"$cmd\n");	
 	my $results =run_cmd_textview_errors($cmd,$tview);
@@ -254,6 +294,8 @@ sub read_mem_specefic_addr{
 sub write_mem_specefic_addr {
 	my ($self,$addr,$value,$tview)=@_;
 	my $intfc = get_jtag_intfc_cmd($self);
+	$addr=($addr>>2);
+	$addr=sprintf("%x",$addr);
 	my $cmd =	"$intfc -d  I:${\JTAG_UPDATE_WB_ADDR},D:32:$addr,I:${\JTAG_UPDATE_WB_WR_DATA},D:32:$value,I:0\"";
 	add_info($tview,"$cmd\n");	
 	my $results =run_cmd_textview_errors($cmd,$tview);
@@ -266,13 +308,17 @@ sub soure_probe_widgets {
 	my $scrolled_win=gen_scr_win_with_adjst ($self,"recive_box");
 	$scrolled_win->add_with_viewport($table);
 	my $num = $self->object_get_attribute('CTRL','SP_NUM');
-	
+	$num = 1 if (!defined $num);
 	my $y= 0;
    	my $x= 0; 	
 	
-	$table->attach (gen_label_in_center(" Address "), 0, 1 , $y, $y+1,'shrink','shrink',2,2); 
-	$table->attach (gen_label_in_center(" Content  "), 2, 3 , $y, $y+1,'shrink','shrink',2,2); 
-	$table->attach (gen_label_in_center(" Action  "), 4, 5 , $y, $y+1,'shrink','shrink',2,2); 
+	
+
+
+	
+	$table->attach (gen_label_in_center(" Address (in byte)"), 0, 1 , $y, $y+1,'shrink','shrink',2,2); 
+	$table->attach (gen_label_in_center(" Memory Content  "), 2, 3 , $y, $y+1,'shrink','shrink',2,2); 
+	$table->attach (gen_label_in_center(" Action "), 4, 6 , $y, $y+1,'shrink','shrink',2,2); 
 	$y++;
 	
 	$table->attach ( Gtk2::HSeparator->new, 0, 6 , $y, $y+1, 'fill','shrink',2,2); 
@@ -287,7 +333,7 @@ sub soure_probe_widgets {
 		#	($y,$x,$addr)=add_param_widget  ($self,"$n-", "$n-address", 0, "Spin-button", "0,99999999,1", undef, $table,$y,$x,1, "JTAG_WB", undef, undef, 'horizental');
 		   # ($y,$x,$entry)=add_param_widget  ($self,undef, "$n-value", 0, "Entry", undef, undef, $table,$y,$x,1, "JTAG_WB", undef, undef, 'horizental');
 		    
-		    my $addr = gen_spin(0,99999999,1);
+		    my $addr = gen_entry(0);
 		    my $entry =gen_entry('xxxxxxxx');	   
 		    my $read=def_image_button($path."icons/simulator.png","Read"); 
 		    my $write=def_image_button($path."icons/write.png","Write"); 		    
@@ -310,7 +356,10 @@ sub soure_probe_widgets {
 	      
 	        
 	        $read-> signal_connect("clicked" => sub{
-	        	my $address=$addr->get_value();
+	        	my $address=$addr->get_text();
+	        	my $format =$self->	object_get_attribute('FILE_VIEW','R_ADDR_FORMAT');
+				$format= 'Decimal' if (!defined $format);
+	        	$address = hex($address) unless($format eq 'Decimal');	        	
 	        	my $load= show_gif("icons/load.gif");
 				$table->attach ($load,$sx, $sx+1 , $sy, $sy+1,'shrink','shrink',0,0);
 				$table->show_all();
@@ -325,7 +374,10 @@ sub soure_probe_widgets {
 	        
 	        $write-> signal_connect("clicked" => sub{
 	        	my $value = $entry->get_text();
-	        	my $address=$addr->get_value();
+	        	my $address=$addr->get_text();
+	        	my $format =$self->	object_get_attribute('FILE_VIEW','R_ADDR_FORMAT');
+				$format= 'Decimal' if (!defined $format);
+	        	$address = hex($address) unless($format eq 'Decimal');
 	        	my $load= show_gif("icons/load.gif");
 				$table->attach ($load,$sx, $sx+1 , $sy, $sy+1,'shrink','shrink',0,0);
 				$table->show_all();
@@ -351,9 +403,15 @@ sub soure_probe_widgets {
 				$entry->set_text(remove_not_hex($in));
 				
 			});	
-	        
-	        
-	        
+			
+			
+			$addr->signal_connect("changed" => sub{
+				my $format =$self->	object_get_attribute('FILE_VIEW','R_ADDR_FORMAT');
+				$format= 'Decimal' if (!defined $format);
+				my $in = $addr->get_text();
+				$addr->set_text(remove_not_hex($in)) if ($format ne 'Decimal' );
+				$addr->set_text(remove_not_number($in)) if ($format eq 'Decimal' );
+			});	
 	        
 	}	
 	
@@ -369,7 +427,7 @@ sub get_file_b_setting{
 	my $window = def_popwin_size (30,30,'Source Probe','percent');
     my $table= def_table(2,10,FALSE);	
     my @info = (
-	{ label=>" Address format: ", param_name=>'R_ADDR_FORMAT', type=>"Combo-box", default_val=>'Decimal', content=>"Decimal,Hexadecimal", info=>undef, param_parent=>'FILE_VIEW', ref_delay=> 1, new_status=>'ref_file_view', loc=>'vertical'},
+	#{ label=>" Address format: ", param_name=>'R_ADDR_FORMAT', type=>"Combo-box", default_val=>'Decimal', content=>"Decimal,Hexadecimal", info=>undef, param_parent=>'FILE_VIEW', ref_delay=> 1, new_status=>'ref_file_view', loc=>'vertical'},
 	{ label=>" Page row number: ", param_name=>'PAGE_MAX_X', type=>"Spin-button", default_val=>10, content=>"0,128,1", info=>undef, param_parent=>'FILE_VIEW', ref_delay=> 1, new_status=>'ref_file_view', loc=>'vertical'},
 	{ label=>" Page column number:", param_name=>'PAGE_MAX_Y', type=>"Spin-button", default_val=>10, content=>"1,128,1", info=>undef, param_parent=>'FILE_VIEW', ref_delay=> 1, new_status=>'ref_file_view', loc=>'vertical'}
 	);	
@@ -403,9 +461,9 @@ sub fill_memory_array_from_file{
 	open(F,"<$fname") or die("Unable to open file $fname, $!");
 	binmode(F);
 	my $buf;
-	my $ct=$offset;
+	my $ct=($offset>>2);
 
-	my $start = $offset;
+	my $start = ($offset>>2);
 	my $r=read(F,$buf,$BLOCK_SIZE);
 	while($r){
 		my $v='';
@@ -423,6 +481,7 @@ sub fill_memory_array_from_file{
 	close(F);
 	
 	add_info($tview,"Load $fname\n"); 
+	$ct=($ct<<2);
 	add_info($tview,"address $offset to $ct\n"); 
 }
 
@@ -447,7 +506,7 @@ sub get_file_in_name{
 			my $window = def_popwin_size (30,20,'Get Offset Address','percent');
 			my $table= def_table(2,10,FALSE);	
 			my $d=
-			{ label=>" Offset address: ", param_name=>'IN_FILE_OFFSET', type=>"Spin-button", default_val=>0, content=>'0,9999999999,1', info=>'The Wishbone bus offset address where the beginning of the memory bin file is written there (It can be the base address of the peripheral device where the memory file is intended to be written to.)   ', param_parent=>'FILE_VIEW', ref_delay=> undef, new_status=>undef, loc=>'vertical'};
+			{ label=>" Offset address (in byte): ", param_name=>'IN_FILE_OFFSET', type=>"Spin-button", default_val=>0, content=>'0,9999999999,1', info=>'The Wishbone bus offset address where the beginning of the memory bin file is written there (It can be the base address of the peripheral device where the memory file is intended to be written to.)   ', param_parent=>'FILE_VIEW', ref_delay=> undef, new_status=>undef, loc=>'vertical'};
 			my $row=0;
 			my $col=0;
 			($row,$col)=add_param_widget  ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status}, $d->{loc});
@@ -469,30 +528,6 @@ sub get_file_in_name{
 }
 
 
-sub run_stp_jtag_vdr{
-	my ($self,$index,$addr,$bits,$pipe,$in,$out,$err,$tview)=@_; 
-
-	my $str=stp_jtag_vdr ($index,$addr,$bits);	
-	$$in=$str;
-	nop();
-	return  unless run_stp_pipe($self,$pipe,$in,$out,$err,$tview);
-	nop();
-	my ($tmp,$hex)= sscanf("%sR:%s:R",$$out);
-	return $hex;
-}	
-
-
-sub run_xsct_jtag_vdr {
-	my ($self,$chain_code,$addr,$bits,$pipe,$in,$out,$err,$tview)=@_; 
-	my $str=xsct_jtag_vdr   ($addr,$bits,$chain_code);	
-	$$in=$str;
-	#add_info($tview,"$$in\n");
-	nop();
-	return  unless run_xsct_pipe($self,$pipe,$in,$out,$err,$tview);
-	nop();
-	my ($hex)= sscanf("R:%s:R",$$out);
-	return $hex;
-}	
 
 
 sub get_jtag_intfc_cmd {
@@ -519,8 +554,8 @@ sub read_memory_array_from_device {
 	my $lower  = $self->object_get_attribute('FILE_VIEW','READ_LBA');
 	my $upper  = $self->object_get_attribute('FILE_VIEW','READ_UBA');
 		
-	$lower= sprintf("0x%x",$lower*4);
-	$upper= sprintf("0x%x",$upper*4); 
+	$lower= sprintf("0x%x",$lower);
+	$upper= sprintf("0x%x",$upper); 
 		
 	my $intfc = get_jtag_intfc_cmd($self);
 	#my $comand = "#!/bin/bash\n  source $intfc\n \$JTAG_INTFC $t -n $index -s \"$lower\" -e \"$upper\" -r";
@@ -544,9 +579,10 @@ sub read_memory_array_from_device {
 	my @nums=split (/\n/,$nn[1]);
 	
 	$lower  = $self->object_get_attribute('FILE_VIEW','READ_LBA');
+	$lower>>=2; #change to word
 	foreach my $n ( @nums) {
 		$n='0'x( 8 - length $n).$n;
-		$memory{$lower}= $n;
+		$memory{$lower }= $n;
 	    $status{$lower}=1; #valid
 	    $lower++;
 			
@@ -571,8 +607,6 @@ sub write_memory_array_from_device {
 	
 	my $tmp_bin= "$ENV{'PRONOC_WORK'}/tmp/tmp.bin";
 	
-	
-
 		
 	#create binfile
 	unlink $tmp_bin;
@@ -580,7 +614,7 @@ sub write_memory_array_from_device {
 	#binmode($F);
 	my $warning;
 	my $n;
-	for (my $i=$lower; $i<= $upper; $i++){
+	for (my $i=($lower>>2); $i< ($upper>>2); $i++){
 		 my $s =(defined $status{$i}) ? $status{$i} : 0; 
 		 if( $s==0) {
 		 	$n= 0;
@@ -597,8 +631,8 @@ sub write_memory_array_from_device {
 	
 	
 
-	$lower= sprintf("0x%x",$lower*4);
-	$upper= sprintf("0x%x",$upper*4); 
+	$lower= sprintf("0x%x",$lower);
+	$upper= sprintf("0x%x",$upper); 
 		
 	
 	#my $comand = "#!/bin/bash\n  source $intfc\n \$JTAG_INTFC $t -n $index -s \"$lower\" -e \"$upper\"  -i  $tmp_bin -c";
@@ -633,8 +667,8 @@ sub read_write_widget {
 	#get start & end addresses;
 	my $window = def_popwin_size (30,20,'Select Memory Boundary Addresses','percent');
 	my $table= def_table(2,10,FALSE);	
-	my $l ={ label=>" Lower-bound address: ", param_name=>'READ_LBA', type=>"Spin-button", default_val=>0, content=>'0,9999999999,1', info=>'The Wishbone bus offset address where the beginning of the memory bin file is written there (It can be the base address of the peripheral device where the memory file is intended to be written to.)   ', param_parent=>'FILE_VIEW', ref_delay=> undef, new_status=>undef, loc=>'vertical'};
-	my $u ={ label=>" Upper-bound address: ", param_name=>'READ_UBA', type=>"Spin-button", default_val=>0, content=>'0,9999999999,1', info=>'The Wishbone bus offset address where the beginning of the memory bin file is written there (It can be the base address of the peripheral device where the memory file is intended to be written to.)   ', param_parent=>'FILE_VIEW', ref_delay=> undef, new_status=>undef, loc=>'vertical'};
+	my $l ={ label=>" Lower-bound address (in byte): ", param_name=>'READ_LBA', type=>"Spin-button", default_val=>0, content=>'0,9999999999,1', info=>'The Wishbone bus offset address where the beginning of the memory bin file is written there (It can be the base address of the peripheral device where the memory file is intended to be written to.)   ', param_parent=>'FILE_VIEW', ref_delay=> undef, new_status=>undef, loc=>'vertical'};
+	my $u ={ label=>" Upper-bound address (in byte): ", param_name=>'READ_UBA', type=>"Spin-button", default_val=>0, content=>'0,9999999999,1', info=>'The Wishbone bus offset address where the end of the memory bin file is written there (It can be the base address of the peripheral device where the memory file is intended to be written to plus bin file size in byte.)   ', param_parent=>'FILE_VIEW', ref_delay=> undef, new_status=>undef, loc=>'vertical'};
 	my ($l_spin,$u_spin);
 	my $row=0;
 	my $col=0;
@@ -751,7 +785,9 @@ sub read_write_bin_file {
 	
 	#column address labels
 	for (my $y=1; $y<=$MAX_Y; $y++){
-		my $addr =($format eq 'Hexadecimal')? sprintf("%x", $y-1) : $y-1;
+		my $addr=(($y-1)<<2);
+		$addr =($format eq 'Hexadecimal')? sprintf("%x", $addr) : $addr;
+		
 		my $l=gen_label_in_center (" $addr ");
 		$table1->attach ( $l, $y, $y+1 , 0, 1,'fill','fill',2,2);
 	}	
@@ -761,7 +797,7 @@ sub read_write_bin_file {
 	for (my $x=1; $x<=$MAX_X; $x++){
 		my $addr=$base_addr+($x-1) * $MAX_Y;
 		
-		$addr = ($format eq 'Hexadecimal')? sprintf("%x",$addr)   : $addr;
+		$addr = ($format eq 'Hexadecimal')? sprintf("%x",($addr<<2))   : ($addr<<2);
 		
 		
 		my $l=gen_label_in_left (" $addr ");
@@ -776,7 +812,7 @@ sub read_write_bin_file {
 			my $state=0;# not modified
 			
 			my $addr =$base_addr+ (($x-1) * $MAX_Y ) + $y-1;
-			my $addr_tip=($format eq 'Hexadecimal')? sprintf("0x%x",$addr)   : $addr;
+			my $addr_tip=($format eq 'Hexadecimal')? sprintf("0x%x",($addr<<2))   : ($addr<<2);
 			
 			my $v= $memory{$addr};
 			my $s = $status{$addr};
@@ -850,7 +886,7 @@ sub source_probe_main {
 	#my $bin_ctrl = file_bin_ctrl($self,$tview);
 	
 	
-	my $h1 = gen_hpaned ($sp,0.55,$ctrl);
+	my $h1 = gen_hpaned ($sp,0.35,$ctrl);
 	#my $h2 = gen_hpaned ($bin_f,0.55,$bin_ctrl);
 	my $v1 = gen_vpaned ($h1,0.2,$bin_f);
 	my $v2 = gen_vpaned ($v1,0.65,$sw);

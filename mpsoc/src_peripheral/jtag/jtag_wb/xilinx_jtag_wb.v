@@ -101,6 +101,9 @@ module xilinx_jtag_wb #(
     
     reg  [JDw-1 : 0] jtag_dat_in_reg  [JWB_NUM-1: 0];
     
+    reg jtag_to_wb_stb_reg;
+    
+    
     genvar i;
     generate
         for (i = 0; i < JWB_NUM ; i = i + 1) begin : block
@@ -108,7 +111,7 @@ module xilinx_jtag_wb #(
             assign  wb_to_jtag[i]  = wb_to_jtag_all [(i+1)*WB2Jw-1 : i*WB2Jw];            
             assign  {wb_to_jtag_status_all[i],wb_to_jtag_ack_all[i],wb_to_jtag_dat_all[(i+1)*JDw-1 : i*JDw],wb_to_jtag_index_all [i],wb_to_jtag_clk[i]}  = wb_to_jtag[i];
             assign  jtag_sel_onehot[i] = (wb_to_jtag_index_all [i] == jtag_to_wb_index);
-            assign  stb_all[i] = jtag_to_wb_stb & jtag_sel_onehot[i];           
+            assign  stb_all[i] = jtag_to_wb_stb_reg & jtag_sel_onehot[i];           
             assign  jtag_to_wb_all[(i+1)*J2WBw-1 : i*J2WBw] =jtag_to_wb[i];
             assign  stb_masked_all[i] = stb_all[i] & jtag_sel_onehot[i] & ~wb_to_jtag_ack_all_latched[i];
             assign  jtag_to_wb[i] = {jtag_to_wb_addr,stb_masked_all[i],jtag_to_wb_we,jtag_to_wb_dat};
@@ -125,11 +128,19 @@ module xilinx_jtag_wb #(
                 .in(wb_to_jtag_ack_all[i]),
                 .out(wb_to_jtag_ack_all_latched[i])
             );
+      
+            
+            
         
         
         
         end
     endgenerate
+    
+    
+    always @(posedge clk )begin 
+        jtag_to_wb_stb_reg<= jtag_to_wb_stb;    
+    end
     
   
     localparam BIN_WIDTH     =  (JWB_NUM>1)? log2(JWB_NUM):1;
@@ -237,6 +248,9 @@ module xilinx_jtag_wb #(
     
     assign  mem_ctrl_jtag_ack = ((jtag_to_wb_index ==   CTRL_REG_INDEX) ||  jtag_sel_onehot == {JWB_NUM{1'b0}} ) ? rst_ctrl_ack : wb_to_jtag_ack; 
 endmodule
+  
+  
+ 
   
   
   

@@ -14,6 +14,7 @@ use File::Copy;
 use Cwd 'abs_path';
 use Gtk2;
 use Gtk2::Pango;
+use HexSpin;
 
 require "widget.pl"; 
 require "mpsoc_verilog_gen.pl";
@@ -1335,6 +1336,12 @@ sub generate_mpsoc{
 	open(FILE,  ">$target_dir/perl_lib/$name.MPSOC") || die "Can not open: $!";
 	print FILE perl_file_header("$name.MPSOC");
 	print FILE Data::Dumper->Dump([\%$mpsoc],['mpsoc']);                 
+   
+    #regenerate linker var file
+    create_linker_var_file($mpsoc);
+   
+   
+   
     message_dialog("MPSoC \"$name\" has been created successfully at $target_dir/ " ) if($show_sucess_msg);
 	return 1;    
 }    
@@ -1638,7 +1645,391 @@ sub show_reqired_brams{
 	$win->show_all();	
 }
 
+sub check_conflict {
+	my ($self,$tile_num,$lable)=@_;	
+	
+	my $r1 =$self->object_get_attribute("ROM$tile_num",'end'); 
+	my $r2 =$self->object_get_attribute("RAM$tile_num",'start');
+	
+	if(defined $r1 && defined $r2){
+		if(hex($r1)> hex($r2)){
+			$lable->set_markup("<span  foreground= 'red' ><b>RAM-ROM range Conflict</b></span>");
+			
+		}else {	 
+			$lable->set_label(" ");
+		
+		}
+	}else {
+		$lable->set_label(" ");
+	
+	} 	
+}
 
+
+sub update_ram_rom_size {
+	my ($self,$tile_num,$name,$lable,$start,$end,$conflict)=@_;	
+	my $s = $start->get_value();
+	my $e = $end->get_value();
+
+	$self->object_add_attribute($name.$tile_num,'start',$start->get_value());
+	$self->object_add_attribute($name.$tile_num,'end',$end->get_value());
+	if($e <= $s){
+		#$lable->set_label("Invalid range" );
+		$lable->set_markup("<span  foreground= 'red' ><b>Invalid range</b></span>");
+		
+	}else {
+		$lable->set_label( metric_conversion($e - $s) . "B");
+	
+	}
+	
+	check_conflict($self,$tile_num,$conflict);
+	
+	
+	
+}
+
+sub get_tile_peripheral_patameter {
+	my ($mpsoc,$tile_num,$peripheral,$param_name)=@_;  
+	my ($soc_name,$n,$soc_num)=$mpsoc->mpsoc_get_tile_soc_name($tile_num);
+	if(defined $soc_name) {
+		my $top=$mpsoc->mpsoc_get_soc($soc_name);
+		my @insts=$top->top_get_all_instances();
+		foreach my $id (@insts){					
+			if ($id =~/$peripheral[0-9]/){
+				my $name=$top->top_get_def_of_instance($id,'instance');
+				
+				my  %params;
+				my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile_num);
+				if ($setting eq 'Custom'){
+					%params= $top->top_get_custom_soc_param($tile_num);
+				}else{
+					%params=$top->top_get_default_soc_param();
+				}
+				return $params{"${name}_$param_name"};
+			}	
+		}
+	}
+	return undef;		
+							
+}
+
+sub get_soc_peripheral_parameter {
+	my ($soc,$peripheral,$param_nam)=@_;	
+	my @instances=$soc->soc_get_all_instances();
+	foreach my $id (@instances){
+		if ($id =~/$peripheral[0-9]/){	
+			return $soc->soc_get_module_param_value ($id,$param_nam);		
+		}
+	}	
+	return undef;
+}
+
+
+sub linker_initial_setting {
+	my ($self,$tview)=@_;	
+	my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+    my $tnum;
+    my $target_dir;
+	if(defined $mpsoc_name){#it is an mpsoc
+
+		my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);	
+   	
+	    $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
+	    for (my $tile_num=0;$tile_num<$NE;$tile_num++){      
+	    	
+	    	my $v=get_tile_peripheral_patameter($self,$tile_num,"_ram","Aw");
+	    	$v = 13 if (!defined $v);
+	    	$self->object_add_attribute('MEM'.$tile_num,'width',$v);
+	    	$self->object_add_attribute('MEM'.$tile_num,'percent',75);
+	    	
+	    	my $s =(1<<($v+2)) ;
+			my $p = 75;
+			
+			my $rom_start = 0;
+			my $rom_end= int ( ($s*$p)/100);
+			my $ram_start= int (($s*$p)/100);
+			my $ram_end= $s;
+			
+			$self->object_add_attribute('ROM'.$tile_num,'start',$rom_start);
+			$self->object_add_attribute('ROM'.$tile_num,'end',$rom_end);
+			$self->object_add_attribute('RAM'.$tile_num,'start',$ram_start);
+			$self->object_add_attribute('RAM'.$tile_num,'end',$ram_end);
+	    	
+	    
+	    }	
+	    
+	     	  
+	}
+	else 
+	{
+		my $v=get_soc_peripheral_parameter ($self,"_ram","Aw");
+		$v = 13 if (!defined $v);
+		$self->object_add_attribute('MEM0','width',$v);
+		$self->object_add_attribute('MEM0','percent',75);
+		my $s =(1<<($v+2)) ;
+		my $p = 75;
+			
+		my $rom_start = 0;
+		my $rom_end= int ( ($s*$p)/100);
+		my $ram_start= int (($s*$p)/100);
+		my $ram_end= $s;
+			
+		$self->object_add_attribute('ROM0','start',$rom_start);
+		$self->object_add_attribute('ROM0','end',$rom_end);
+		$self->object_add_attribute('RAM0','start',$ram_start);
+		$self->object_add_attribute('RAM0','end',$ram_end);
+	}  
+	
+	
+}
+
+
+
+sub linker_setting{
+	my ($self,$tview)=@_;
+	my $win=def_popwin_size (80,50,"BRAM info", 'percent');
+	my $sc_win = gen_scr_win_with_adjst($self,'liststore');
+	my $table= def_table(10,10,FALSE);
+	
+	
+	my $row=0;
+	my $col=0;		
+	
+	$table-> attach  (gen_label_in_center("Tile"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
+	$table-> attach  (gen_label_in_center("Memory Addr"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
+	$table-> attach  (gen_label_in_center("ROM/RAM"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
+	
+	$table-> attach  (gen_label_in_center("ROM index addr (hex)"), $col, $col+2,  $row, $row+1,'shrink','shrink',2,2); $col+=3;
+	$table-> attach  (gen_label_in_center("RAM index addr (hex)"), $col, $col+2,  $row, $row+1,'shrink','shrink',2,2); $col+=3;
+
+	
+	$col=0;$row++; 
+	$table-> attach  (gen_label_in_center("#"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
+	$table-> attach  (gen_label_in_center("Width"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
+	$table-> attach  (gen_label_in_center("(%)"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
+	
+	$table-> attach  (gen_label_in_center("Begining"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
+	$table-> attach  (gen_label_in_center("End"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
+	$table-> attach  (gen_label_in_center("Size"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
+	
+	$table-> attach  (gen_label_in_center("Begining"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
+	$table-> attach  (gen_label_in_center("End"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
+	$table-> attach  (gen_label_in_center("Size"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
+	
+		
+	$col=0;$row++; 	
+	
+	my $target_dir;
+	my @data;
+    
+    my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+    my $tnum;
+	if(defined $mpsoc_name){#it is an mpsoc
+
+		my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);	
+   		$tnum=$NE;
+	    $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name"; 	  
+	}
+	else 
+	{
+		my $soc_name=$self->object_get_attribute('soc_name');
+		$target_dir  = "$ENV{'PRONOC_WORK'}/SOC/$soc_name";
+		$tnum=1;
+	}   
+	for (my $j=0;$j<$tnum;$j++){           
+			my $tile_num=$j;
+			my $conflict =gen_label_in_center(" ") ;
+			
+			$table-> attach  (gen_label_in_center("$tile_num"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2);$col++; 
+			my $ram_width = gen_spin(2,64,1);
+			my $width = $self->object_get_attribute('MEM'.$tile_num,'width');
+			if(!defined $width){
+				linker_initial_setting ($self,$tview);
+				$width = $self->object_get_attribute('MEM'.$tile_num,'width');
+			}
+			$ram_width->set_value($width);	
+			my $size =gen_label_in_center(metric_conversion(1<<15). "B") ;
+			
+			
+			$table-> attach  (def_pack_hbox('FALSE',0,$ram_width,$size), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
+			
+			
+			
+			
+			my $percent = gen_spin_float(6.25,93.75,6.25,2);
+			my $p=$self->object_get_attribute('MEM'.$tile_num,'percent');
+			$percent->set_value($p);
+			
+			my $enter= def_image_button("icons/enter.png"); 
+			$table-> attach  (def_pack_hbox('FALSE',0,$percent,$enter), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
+			
+			my $rom_start_v =$self->object_get_attribute('ROM'.$tile_num,'start');
+			my $rom_end_v = $self->object_get_attribute('ROM'.$tile_num,'end');
+			my $ram_start_v = $self->object_get_attribute('RAM'.$tile_num,'start');
+			my $ram_end_v = $self->object_get_attribute('RAM'.$tile_num,'end');
+			
+			
+			
+			my $rom_start = HexSpin->new ( $rom_start_v, 0, 0xffffffff ,4);
+			$rom_start->set_digits(8);
+			$table-> attach  ($rom_start, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
+			
+			
+			
+			my $rom_end = HexSpin->new ( $rom_end_v, 0, 0xffffffff ,4);
+			$rom_end->set_digits(8);
+			$table-> attach  ($rom_end, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
+			
+			my $rom_size =gen_label_in_center(" ") ;
+			$table-> attach  ($rom_size, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
+			update_ram_rom_size($self,$tile_num,'ROM',$rom_size,$rom_start,$rom_end,$conflict);
+			$rom_start->signal_connect ( 'changed', sub {update_ram_rom_size($self,$tile_num,'ROM',$rom_size,$rom_start,$rom_end,$conflict);});
+			$rom_end->signal_connect ( 'changed', sub {update_ram_rom_size($self,$tile_num,'ROM',$rom_size,$rom_start,$rom_end,$conflict);});
+		
+			my $ram_start = HexSpin->new ( $ram_start_v, 0, 0xffffffff ,4);
+			$ram_start->set_digits(8);
+			$table-> attach  ($ram_start, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
+			
+			
+			my $ram_end = HexSpin->new ( $ram_end_v, 0, 0xffffffff ,4);
+			$ram_end->set_digits(8);
+			$table-> attach  ($ram_end, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
+		
+			my $ram_size =gen_label_in_center(" ") ;
+			$table-> attach  ($ram_size, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
+			
+			
+			
+			
+			update_ram_rom_size($self,$tile_num,'RAM',$ram_size,$ram_start,$ram_end,$conflict);
+			
+			$ram_start->signal_connect ( 'changed', sub {update_ram_rom_size($self,$tile_num,'RAM',$ram_size,$ram_start,$ram_end,$conflict);});
+			$ram_end->signal_connect ( 'changed', sub {update_ram_rom_size($self,$tile_num,'RAM',$ram_size,$ram_start,$ram_end,$conflict);});
+		
+		    $ram_width->signal_connect("value_changed" => sub{
+				my $w=$ram_width->get_value();
+				$self->object_add_attribute('MEM'.$tile_num,'width',$w);
+				
+				$size->set_label (metric_conversion(1<<($w+2)). "B") ;
+				$size->show_all;
+			});	
+		    $percent->signal_connect("value_changed" => sub{
+		    	$self->object_add_attribute('MEM'.$tile_num,'percent',$percent->get_value());
+		    });
+		    
+		    $table-> attach  ($conflict, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
+		
+		   
+		
+			
+			$enter-> signal_connect ( 'clicked' , sub {
+				my $w=$ram_width->get_value();
+				my $s =(1<<($w+2)) ;
+				my $p = $percent->get_value();
+				
+				my $rom_start_v = 0;
+				my $rom_end_v= int ( ($s*$p)/100);
+				my $ram_start_v= int (($s*$p)/100);
+				my $ram_end_v= $s;
+				
+				$rom_start->set_value($rom_start_v);
+				$rom_end->set_value($rom_end_v);
+				$ram_start->set_value($ram_start_v);
+				$ram_end->set_value($ram_end_v);
+				update_ram_rom_size($self,$tile_num,'ROM',$rom_size,$rom_start,$rom_end,$conflict);
+				update_ram_rom_size($self,$tile_num,'RAM',$ram_size,$ram_start,$ram_end,$conflict);
+				
+			});
+			
+			$col=0; $row++; 
+	        
+	}#$tile_num	
+	 
+	my $main_table=def_table(10,10,FALSE);
+	  
+	my $ok = def_image_button('icons/select.png','OK');	
+	$main_table->attach_defaults ($table  , 0, 12, 0,11);
+    $main_table->attach ($ok,5, 6, 11,12,'shrink','shrink',0,0);
+	
+	$ok->signal_connect('clicked', sub {
+		for (my $t=0;$t<$tnum;$t++){      
+			my $r0 =$self->object_get_attribute("ROM$t",'start');
+			my $r1 =$self->object_get_attribute("ROM$t",'end'); 
+			my $r2 =$self->object_get_attribute("RAM$t",'start');
+			my $r3 =$self->object_get_attribute("RAM$t",'end'); 
+			if(hex($r1) <hex($r0)  || hex($r3) <hex($r2)   ){
+				 message_dialog("Please fix tile $t invalid range !");
+				 return ;
+				
+			}
+			
+			if(hex($r1) > hex($r2)  ){
+				 message_dialog("Please fix tile $t conflict range !");
+				 return ;
+				
+			}
+			
+			
+			
+		}
+		create_linker_var_file($self);	
+		$win->destroy();
+	
+	
+	});
+	
+	
+	$sc_win->add_with_viewport($main_table);
+	$win->add($sc_win);
+	$win->show_all();	
+	
+}
+
+
+sub create_linker_var_file{
+	my ($self)=@_;
+	my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+    my $tnum;
+    
+    my $width = $self->object_get_attribute('MEM0','width');
+	if(!defined $width){
+        linker_initial_setting ($self);
+	}
+    
+	if(defined $mpsoc_name){#it is an mpsoc
+		my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);	
+   		$tnum=$NE;	   
+	}
+	else 
+	{
+		
+		$tnum=1;		
+	}   
+	
+	for (my $t=0;$t<$tnum;$t++){       
+		my $r0 =$self->object_get_attribute("ROM$t",'start');
+		my $r1 =$self->object_get_attribute("ROM$t",'end'); 
+		my $r2 =$self->object_get_attribute("RAM$t",'start');
+		my $r3 =$self->object_get_attribute("RAM$t",'end'); 
+						
+		my $file=sprintf("		
+	
+MEMORY
+{	
+	rom (rx)    : ORIGIN = 0x%x , LENGTH = 0x%x  /* %s B- Rom space  */
+	ram (wrx)   : ORIGIN = 0x%x , LENGTH = 0x%x  /* %s B- Ram space  */
+}		
+
+			",$r0,$r1 - $r0, metric_conversion($r1 - $r0),$r2,$r3- $r2,metric_conversion($r3 - $r2));
+			
+		if(defined $mpsoc_name){			
+			save_file ("$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name/sw/tile$t/linkvar.ld",$file); 
+		}else{
+			my $soc_name=$self->object_get_attribute('soc_name');		
+			save_file ("$ENV{'PRONOC_WORK'}/SOC/$soc_name/sw/linkvar.ld",$file) 
+		}
+	}	
+}
 
 
 sub software_edit_mpsoc {
@@ -1658,10 +2049,12 @@ sub software_edit_mpsoc {
     my ($app,$table,$tview) = software_main($sw,undef,\@pages,\@pages_lables);    
     
 	my $prog= def_image_button('icons/write.png','Program FPGA\'s BRAMs');
+    my $linker = def_image_button('icons/setting.png','LD Linker',FALSE,1);
     my $make = def_image_button('icons/gen.png','_Compile',FALSE,1);
     my $ram = def_image_button('icons/info.png',"Reqired BRAMs\' size",FALSE,1);
             
     $table->attach ($ram,0, 1, 1,2,'shrink','shrink',0,0);
+    $table->attach ($linker,4, 5, 1,2,'shrink','shrink',0,0);
     $table->attach ($make,5, 6, 1,2,'shrink','shrink',0,0);
     $table->attach ($prog,9, 10, 1,2,'shrink','shrink',0,0); 
     
@@ -1738,6 +2131,11 @@ sub software_edit_mpsoc {
             
         }        
     });
+    
+    
+    $linker -> signal_connect("clicked" => sub{
+		linker_setting($self,$tview);
+	});
 
 }
 

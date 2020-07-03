@@ -112,3 +112,14 @@ cpu_sleep_10ms(void)
 
 }
   
+extern char _erodata, _sdata, _edata, _bstart, _bend;
+void initial_global_data (void){
+	
+	char *src = &_erodata;  //start of Data section in Rom
+	char *dst = &_sdata;
+
+	/* ROM has data at end of rodata; copy it. */
+	while (dst < &_edata) {
+  	*dst++ = *src++;
+	}
+}

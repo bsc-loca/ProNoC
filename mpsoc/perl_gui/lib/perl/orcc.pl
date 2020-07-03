@@ -511,6 +511,7 @@ sub genereate_output_orcc{
 		my $main_def=""; 
 		my $main_fifo_def="";
 		my $main_fifo_assign="";
+		my $main_fifo_rst_ptr="void rest_all_fifo_ptr(void){\n";
 		
 		my $all_got_packet_funtion="";	
 		my $all_sent_packet_done_funtion="";	
@@ -519,9 +520,6 @@ sub genereate_output_orcc{
 		my $all_init_actor="";
 		my $all_run_actor="";
 		my $actors_str='';
-	
-	
-		
 	
 		
 		
@@ -567,7 +565,7 @@ char ${actor}_sent_packet_done_funtion (unsigned char oport){
 ";	
 
 			my $actor_init="
-void ${actor}_init_actor (void) { 
+void ${actor}_init_actor (schedinfo_t * si) { 	
 ";
 	
 			my $actor_local_connect;
@@ -639,8 +637,10 @@ void ${actor}_init_actor (void) {
 #define ${src_port}_end_index   index_${src_port} 
 #define ${src_port}_end_index_in_byte   (${src_port}_end_index << ${actor}_${src_port}_size_shift)
 
-
 ";
+
+					#$actor_init.="\t${actor}_${src_port}->write_ind=0;\n";
+
 				}
 	
 				$Hw_fifo_define=$Hw_fifo_define."
@@ -654,8 +654,9 @@ void ${actor}_init_actor (void) {
 static unsigned int ${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in_byte;	
 static unsigned int ${src_port}_ch${channel}_send_data;
 ";
+#$actor_init.="\t${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in_byte;\n";
 				
-				
+				#$actor_init.="\t${actor}_${src_port}->read_inds[$channel]=0;\n";
 				
 				$transfer_str=$transfer_str."		
 	if(${src_port}_ch${channel}_has_data_to_send){
@@ -721,8 +722,12 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 								
 			#7 We need to add sink ports 				
 			#save the input  port index before running the credit	
-			$actor_init =$actor_init."	read_${dst_port}();
-			index_${dst_port}_sender=index_$dst_port;			
+#$actor_init.=\t${actor}_${dst_port}->read_inds[0]=0;			
+#$actor_init.=\t${actor}_${dst_port}->write_ind=0;
+
+			$actor_init =$actor_init."
+\tread_${dst_port}();
+\tindex_${dst_port}_sender=index_$dst_port;			
 ";
 		
 	my $dstportnum = get_port_num($self,\%dstp_number,$dst,$dst_port); 
@@ -818,9 +823,12 @@ $actor_update_credit =$actor_update_credit."
 	return 0;
 }
 ";		
-$actor_h=$actor_h."void ${actor}_init_actor(void);\n";	
-$all_init_actor=$all_init_actor."\t\t${actor}_init_actor();\n";	
+$actor_h=$actor_h."void ${actor}_init_actor(schedinfo_t *);\n";	
+$all_init_actor=$all_init_actor."\t${actor}_init_actor(&si);\n";	
 $actor_init=$actor_init."
+
+	${actor}_initialize(si);
+
 }
 ";	
 
@@ -886,7 +894,7 @@ $schedul
    
    print $fc "  
 #include <stddef.h>    
-#include \"../mor1k_tile.h\"   
+#include \"../$soc_name.h\" 
 #include \"orcc_lib.h\"
 #include \"../../phy_addr.h\"
 
@@ -954,6 +962,11 @@ extern unsigned char oport_array [${ni_name}_NUM_VCs];
 	    	 			$main_fifo_def=$main_fifo_def . "DECLARE_FIFO(${type}, $size, $fnum, $ch_num);\n";	    	 			
 	    	 		}
 	    	 		$main_fifo_assign=$main_fifo_assign . "fifo_${type}_t *$fifo_name = &fifo_$fnum;\n"; 
+	    	 		$main_fifo_rst_ptr.="\t${fifo_name}->write_ind=0;\n";
+	    	 		for (my $c=0; $c<$ch_num; $c++){
+	    	 			$main_fifo_rst_ptr.="\t${fifo_name}->read_inds[$c]=0;\n" 
+	    	 		}
+	    	 		
 	    	 		$origen_fuctions= $origen_fuctions . "$line \n";
 	    	 		
 	    	 		  	 		
@@ -1044,6 +1057,8 @@ $actor_sent_pck_done_func
 
 
 $actor_run
+
+
 
 $actor_init
 
@@ -1269,9 +1284,14 @@ for (my $i=0;$i<$v_val; $i++){
 	$opr = $opr."\toport_array[$i]=255;\n"; 
 }	
 	
+$main_fifo_rst_ptr.="}\n";	
+	
+	
 my $main="	
 int main(){
 	schedinfo_t si;
+	initial_global_data(); // It is needed to be done after reset
+	rest_all_fifo_ptr();
 $all_init_actor	
 	general_int_init();
 	general_int_add(${ni_name}_INT_PIN, ${ni_name}_isr, 0); //${ni_name}_INT_PIN
@@ -1315,6 +1335,8 @@ $actors_str
 $main_fifo_def
 
 $main_fifo_assign
+
+$main_fifo_rst_ptr
 
 $main_def
 

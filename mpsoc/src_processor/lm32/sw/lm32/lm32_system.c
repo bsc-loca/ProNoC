@@ -77,7 +77,17 @@ void general_int_enable(unsigned long irq){
 }
 
 
+extern char _erodata, _fdata,_edata;
+void initial_global_data (void){
+	
+	char *src = &_erodata;  //start of Data section in Rom
+	char *dst = &_fdata;
 
+	/* ROM has data at end of rodata; copy it. */
+	while (dst < &_edata) {
+  	*dst++ = *src++;
+	}
+}
 
 
 #endif

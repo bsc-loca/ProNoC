@@ -480,6 +480,12 @@ sub remove_not_hex {
 	return $s;	
 }
 
+sub remove_not_number {
+	my $s=shift;
+	$s =~ s/[^0-9]//g;
+	return $s;		
+	
+}
 
 sub  trim { my $s = shift;  $s=~s/[\n]//gs; return $s };
 
@@ -650,7 +656,7 @@ sub compress_nums{
 
 sub metric_conversion{
 	my $size=shift;	
-	my $size_text=	$size==0	 ? 'Error': 
+	my $size_text=	$size<=0	 ? 'Error ': 
 			$size<(1 << 10)? $size:
 			$size<(1 << 20)? join (' ', ($size>>10,"K")) :
 			$size<(1 << 30)? join (' ', ($size>>20,"M")) :
@@ -949,12 +955,12 @@ sub run_cmd_textview_errors{
 	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
 	if(length $stderr>1){			
 		add_colored_info($tview,"Error: $stderr\n",'red');
-		add_colored_info($tview,"$cmd was not run successfully!\n",'red');
+		add_colored_info($tview,"$cmd did not run successfully!\n",'red');
 		return undef;
 	}
 	if($exit){
 		add_colored_info($tview,"Error:$stdout\n",'red');
-		add_colored_info($tview,"$cmd was not run successfully!\n",'red');
+		add_colored_info($tview,"$cmd did not run successfully!\n",'red');
 		return undef;
 	}
 	$stdout = "" if (!defined $stdout);

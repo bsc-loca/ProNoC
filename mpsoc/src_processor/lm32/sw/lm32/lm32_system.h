@@ -46,7 +46,7 @@ void general_int_enable(unsigned long irq);
 #define  general_cpu_int_en	irq_enable
 
 
-
+void initial_global_data (void);
 
 
 

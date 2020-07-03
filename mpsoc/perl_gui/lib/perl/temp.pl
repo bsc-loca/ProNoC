@@ -1,42 +1,44 @@
 #!/usr/bin/perl -w
 #use strict;
 use warnings;
+require "widget.pl";
 require "common.pl";
+require "mpsoc_gen.pl";
 use FindBin;
 use lib $FindBin::Bin;
-use Scalar::Util 'looks_like_number'; 
-use Gtk2;
-use Env::Modify qw(:ksh source);
-
-use String::Scanf; # imports sscanf()
-
-sub main{
-
-my $index = 0;
-my $lower = 0;
-my $upper =10;
-
-    my $pronoc = get_project_dir();
-	my $intfc = "$pronoc/mpsoc/boards/Xilinx/Arty_z7_20/jtag_intfc.sh";
-	my $t =  "-t  4 " ;
-	
+use Glib qw(TRUE FALSE);
+use HexSpin;
+use mpsoc;
 
 
-	my $comand = "bash -c \"source $intfc;   \\\$JTAG_INTFC $t -n $index -s $lower -e $upper -r\"";
-print "$comand\n";
-	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($comand);
-	
-	
+   use Gtk2 qw(-init);
 
-	print "out:$stdout,$exit,$stderr\n";
+ 
 
-exit;
 
-}
+my ($infobox,$info)= create_text();    
 
-Gtk2->init;
-main;
-Gtk2->main();
+ my $self= mpsoc->mpsoc_new();
+$self->object_add_attribute('mpsoc_name','tmp');
+$self->object_add_attribute('noc_param','TOPOLOGY','MESH');
+$self->object_add_attribute('noc_param','T1',2);
+$self->object_add_attribute('noc_param','T2',2);
+$self->object_add_attribute('noc_param','T3',1);
+$self->object_add_attribute('noc_param','V',1);
+$self->object_add_attribute('noc_param','Fpay',32);
+
+linker_setting($self,$info);
+
+
+
+
+Gtk2->main;
+exit ();
+
+
+
+
+
 
 
 

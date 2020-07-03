@@ -1252,7 +1252,10 @@ exit
 	
 	
 	#run vivado using program_board.tcl
-	run_vivado ($self,$target_dir,$tview,"$target_dir/program_board.tcl");	
+	my $error =run_vivado ($self,$target_dir,$tview,"$target_dir/program_board.tcl");	
+	add_colored_info($tview,"Board is programed successfully!\n",'blue') if($error==0);
+	
+	
 }	
 
 

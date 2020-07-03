@@ -22,7 +22,7 @@
 				</dictionary>
 				<dictionary>
 					<key>net.sourceforge.veditor.simulateBuilder.00000000Default.enable</key>
-					<value>false</value>
+					<value>true</value>
 				</dictionary>
 				<dictionary>
 					<key>net.sourceforge.veditor.simulateBuilder.00000000Default.name</key>
@@ -30,7 +30,7 @@
 				</dictionary>
 				<dictionary>
 					<key>net.sourceforge.veditor.simulateBuilder.00000000Default.parser</key>
-					<value>modelsim_new</value>
+					<value>ModelSim</value>
 				</dictionary>
 				<dictionary>
 					<key>net.sourceforge.veditor.simulateBuilder.00000000Default.workFolder</key>
@@ -38,15 +38,8 @@
 				</dictionary>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.xtext.ui.shared.xtextBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>net.sourceforge.veditor.HdlNature</nature>
-		<nature>com.sigasi.hdt.verilog.ui.verilogNature</nature>
-		<nature>org.eclipse.xtext.ui.shared.xtextNature</nature>
 	</natures>
 </projectDescription>

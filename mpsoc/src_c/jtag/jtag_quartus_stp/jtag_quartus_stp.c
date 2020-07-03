@@ -421,7 +421,7 @@ int read_mem(){
 		
 	if(BYTE_NUM <= sizeof(unsigned )){
 			//printf("vdr\n");
-			for(i=2;i<=num; i++){
+			for(i=2;i<num; i++){
 				jtag_vdr(BIT_NUM, memory_offset_in_word+i, &out); 
 				printf("%X\n",out);	
 			}
@@ -435,7 +435,7 @@ int read_mem(){
 		}
 		else{
 			//printf("vdr_long\n");
-			for(i=2*words;i<=num+2; i+=words){
+			for(i=2*words;i<num+2; i+=words){
 				//printf("%d,%d,%d\n",i,words,num);
 				read_buff[0]= memory_offset_in_word+i/words;
 				jtag_vdr_long(BIT_NUM, read_buff, small_buff, words);

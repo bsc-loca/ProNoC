@@ -2,11 +2,8 @@ OUTPUT_ARCH(or1knd)
 SEARCH_DIR(.)
 __DYNAMIC  =  0;
 
-MEMORY
-{
-	vectors : ORIGIN = 0, LENGTH = 0x1000
-	ram     : ORIGIN = 0x1000, LENGTH = (8M - 0x1000)
-}
+INCLUDE linkvar.ld;
+
 
 
 /* Stack information variables */
@@ -18,9 +15,9 @@ SECTIONS
 	.vectors :
 	{
 		*(.vectors)
-	} > vectors
+	} > rom
                               
-	.text : {
+	.text 0x1000 : {
 		_stext = .;
 		*(.text)
 		_etext  =  .;
@@ -37,12 +34,14 @@ SECTIONS
 		*(.lit)
 		*(.shdata)
 		_endtext = .;
-	}  > ram
+	}  > rom
 
 	.rodata : {
+               	_srodata = .;
 		*(.rodata);
 		*(.rodata.*)
-	} > ram
+             	_erodata = .;
+	} > rom
 	
 	.shbss :
 	{
@@ -59,7 +58,7 @@ SECTIONS
 		*(.data)
 		edata  =  .;
 		_edata  =  .;
-	} > ram
+	} > ram AT > rom  /* "> ram" is the VMA, "> rom" is the LMA */
 	
 	.bss :
 	{

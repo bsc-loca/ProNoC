@@ -1740,7 +1740,7 @@ sub remove_selected_traces{
 	my ($self,$category)=@_;
 	my @traces= get_trace_list($self,$category);
 	foreach my $p (@traces) {	
-		my $select=$self->object_get_attribute("${$category}_$p",'selected', 0); 
+		my $select=$self->object_get_attribute("${category}_$p",'selected', 0); 
 		
 		if($select){
 			$self->remove_trace($category,"$p");

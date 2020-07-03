@@ -288,6 +288,24 @@ void reorder_buffer(unsigned * buff, unsigned int words){
 }
 
 
+void read_multi_sequence (unsigned * buffer, unsigned int num, unsigned int memory_offset_in_word ) {
+	int i;
+	jseq_multi_init ();
+
+	for(i=2;i<num; i++){
+		jtag_vdr_multi_capture(BIT_NUM, memory_offset_in_word+i);
+			//if(out!=buffer[i-2]) printf ("Error: missmatched at location %d. Expected %x but read %x\n",i-2,buffer[i-2], out);
+	}
+		jtag_vdr_multi_capture(BIT_NUM, 0);
+		//if(out!=buffer[i-2]) printf ("Error: missmatched at location %d. Expected %x but read %x\n",i-2,buffer[i-2], out);
+		jtag_vdr_multi_capture(BIT_NUM, 1 );
+		//if(out!=buffer[i-1]) printf ("Error: missmatched at location %d. Expected %x but read %x\n",i-1,buffer[i-1], out);
+		jseq_multi_get_results();
+		verify_memory_multi (buffer, num);
+}
+
+
+
 
 
 int send_binary_file(){
@@ -336,23 +354,24 @@ int send_binary_file(){
 	jtag_vdr(BIT_NUM, memory_offset_in_word, 0);
 	jtag_vir(UPDATE_WB_WR_DATA);
 	
-	printf ("start programing. Will send %d values to memory\n",num);
+	printf ("start programming. Will send %d values to memory\n",num);
+	jseq_multi_init ();	
 	for(i=0;i<num;i++){
 		//printf("%d:%x\n",i,buffer[i]);
 		
 		if(BYTE_NUM <= sizeof(unsigned )){
 			//printf("%d:%x\n",i,buffer[i]);
-			jtag_vdr(BIT_NUM, buffer[i], 0);
+			jtag_vdr_multi(BIT_NUM, buffer[i]);
 		}else {
 			//printf("%d:%x\n",i,buffer[i]);
 			reorder_buffer(&buffer[i],words);
-			jtag_vdr_long(BIT_NUM, &buffer[i], 0, words);
+			jtag_vdr_long_multi(BIT_NUM, &buffer[i],  words);
 			i+= (words-1);
 
 		}
 	}
-		
-	printf ("done programing\n");
+	jseq_multi_end ();	
+	printf ("done programming\n");
 	if(write_verify){
 		if(!(fp = fopen(binary_file_name,"rb"))){  
 			fprintf (stderr,"Error: can not open %s file in read mode\n",binary_file_name);
@@ -360,17 +379,39 @@ int send_binary_file(){
 		}
 		buffer=read_file (fp, &file_size);
 
-
-
 		//fclose(fp);
 		jtag_vir(UPDATE_WB_RD_DATA);
 		jtag_vdr(BIT_NUM,memory_offset_in_word+0, &out);
 		jtag_vdr(BIT_NUM,memory_offset_in_word+1, &out);
 		
 		
+		//create jseq for all memory
+		if(BYTE_NUM <= sizeof(unsigned )){
+
+			read_multi_sequence ( buffer,  num,  memory_offset_in_word );
+
+		}
+		else{
+			//printf("vdr_long\n");
+			for(i=2*words;i<num; i+=words){
+				read_buff[0]= memory_offset_in_word+i/words;
+				jtag_vdr_long(BIT_NUM, read_buff, small_buff, words);
+				reorder_buffer(&buffer[i-2*words],words);
+				compare_values(&buffer[i-2*words],small_buff,words,i/words);
+				 
+			}
+
+		}
+
+
+
+
+
+/*
+	
 		if(BYTE_NUM <= sizeof(unsigned )){
 			//printf("vdr\n");
-			for(i=2;i<=num; i++){
+			for(i=2;i<num; i++){
 				jtag_vdr(BIT_NUM, memory_offset_in_word+i, &out); 
 				if(out!=buffer[i-2]) printf ("Error: missmatched at location %d. Expected %x but read %x\n",i-2,buffer[i-2], out);
 			}
@@ -382,7 +423,7 @@ int send_binary_file(){
 		}
 		else{
 			//printf("vdr_long\n");
-			for(i=2*words;i<=num; i+=words){
+			for(i=2*words;i<num; i+=words){
 				read_buff[0]= memory_offset_in_word+i/words;
 				jtag_vdr_long(BIT_NUM, read_buff, small_buff, words);
 				reorder_buffer(&buffer[i-2*words],words);
@@ -391,8 +432,35 @@ int send_binary_file(){
 			}
 
 		}
-		printf ("write is verified\n");
+
+*/
 		
+		//check miss matched location
+		if(miss == 0){
+			printf ("write is verified\n");
+		}
+		else if(miss<=MISS_RETRY_NUM){
+			printf ("Try to write miss matched values\n");
+			for(i=0; i<miss; i++){
+
+				int loc = mis_addr[i];
+				write_specefic_loc (loc+memory_offset_in_word,buffer[loc]);
+			}
+			jtag_vir(UPDATE_WB_RD_DATA);
+			jtag_vdr(BIT_NUM,memory_offset_in_word+0, &out);
+			jtag_vdr(BIT_NUM,memory_offset_in_word+1, &out);
+			read_multi_sequence ( buffer,  num,  memory_offset_in_word );
+			if(miss != 0){
+						printf ("Error: write verification is failed!\n");
+			}
+
+		}else{
+			printf ("Error: write verification is failed!");
+		}
+
+
+
+
 	}
 	//enable the cpu
 	jtag_vir(RD_WR_STATUS);
@@ -427,7 +495,7 @@ int read_mem(){
 		
 	if(BYTE_NUM <= sizeof(unsigned )){
 			//printf("vdr\n");
-			for(i=2;i<=num; i++){
+			for(i=2;i<num; i++){
 				jtag_vdr(BIT_NUM, memory_offset_in_word+i, &out); 
 				printf("%X\n",out);	
 			}
@@ -441,7 +509,7 @@ int read_mem(){
 		}
 		else{
 			//printf("vdr_long\n");
-			for(i=2*words;i<=num+2; i+=words){
+			for(i=2*words;i<num+2; i+=words){
 				//printf("%d,%d,%d\n",i,words,num);
 				read_buff[0]= memory_offset_in_word+i/words;
 				jtag_vdr_long(BIT_NUM, read_buff, small_buff, words);
