@@ -1,3 +1,5 @@
+include cpu_flags
+
 SOURCE_LIB =
 include SOURCE_LIB
 
@@ -30,7 +32,7 @@ LDFLAGS=-nostdlib -nodefaultlibs -Tlinker.ld
 # Sources to go into the liborpsoc.a support library
 COMPILE_SRCS=   $(SOURCE_LIB)
 
-CPU_FLAGS=-mbarrel-shift-enabled -mmultiply-enabled 
+#CPU_FLAGS=-mbarrel-shift-enabled -mmultiply-enabled 
 
 
 #LDFLAGS=-nostdlib -T -Tlinker.ld

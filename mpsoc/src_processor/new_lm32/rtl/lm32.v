@@ -43,9 +43,7 @@ module lm32 #(
     D_WE_O,
     D_CTI_O,
     //D_LOCK_O,
-    D_BTE_O,
-    snoop_adr_i,
-    snoop_en_i
+    D_BTE_O
 
 );
 
@@ -141,19 +139,12 @@ output [`LM32_BTYPE_RNG] D_BTE_O;               // Data Wishbone interface burst
 wire   [`LM32_BTYPE_RNG] D_BTE_O;
 
 
-
-input [31:0]          snoop_adr_i;
-input                 snoop_en_i;
-
-
 wire [31:0] iadr_o,dadr_o;   
 
 lm32_top  the_lm32_top(
 	.clk_i(clk_i),
 	.rst_i(reset ),
 	.interrupt(interrupt),
-	.snoop_adr_i(snoop_adr_i),
-	.snoop_en_i (snoop_en_i),
 	.I_DAT_I(I_DAT_I),
 	.I_ACK_I(I_ACK_I),
 	.I_ERR_I(I_ERR_I),

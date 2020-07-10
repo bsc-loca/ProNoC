@@ -30,8 +30,9 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 	jtag_vindex(index_num);
+
 	//printf("jtag is initilized\n");
-	if (enable_binary_send) {
+	if (enable_binary_send | enable_binary_verify) {
 		if( send_binary_file() == -1) return -1;
 	}
 
@@ -61,6 +62,7 @@ void usage(){
 	printf ("\t-n	index number: the target jtag IP core index number. The default number is 126\n");  
 	printf ("\t-i	file_name:  input binary file name (.bin file)\n");
 	printf ("\t-r	read memory content and display in terminal\n");
+	printf ("\t-v	read memory content and verify with input binary file\n");
 	printf ("\t-w	bin file word width in byte. default is 4 bytes (32 bits)\n");
 	printf ("\t-c	verify after write\n");
 	printf ("\t-s	memory wr/rd offset address in byte (hex format). The default value is 0x0000000\n");
@@ -74,46 +76,61 @@ void processArgs (int argc, char **argv )
    char c;
 int p;
 
-   /* don't want getopt to moan - I can do that just fine thanks! */
-   opterr = 0;
-   if (argc < 2)  usage();	
-   while ((c = getopt (argc, argv, "s:e:d:n:t:i:w:a:b:cr")) != -1)
-      {
-	 switch (c)
+	/* don't want getopt to moan - I can do that just fine thanks! */
+	opterr = 0;
+	if (argc < 2)  usage();
+	while ((c = getopt (argc, argv, "s:e:d:n:t:i:v:w:a:b:cr")) != -1)
+	{
+	   switch (c)
 	    {
 	    case 'a':	/* hardware_name */
 	       jtag_target_number = atoi(optarg);
 	       break;
+
 	    case 'b':	/* device number in chain */
 	       jtag_shift_reg_size = atoi(optarg);
 	       break;
+
 	    case 't':	/* Jtag_chain_num */
 	       chain_num = atoi(optarg);
 	       if (chain_num<1 || chain_num>4 ) {
-			fprintf (stderr, "Wrong jtag_chain_num the given %u value is out of valid range 1,2,3 or 4.\n\n", chain_num);
-			usage();	  
+	    	   fprintf (stderr, "Wrong jtag_chain_num the given %u value is out of valid range 1,2,3 or 4.\n\n", chain_num);
+	    	   usage();
 	       }
 	       break;
 
 	    case 'n':	/* index number */
 	       index_num = atoi(optarg);
 	       break;
+
 	    case 'i':	/* input binary file name */
-		binary_file_name = optarg;
-		enable_binary_send=1;
-		break;
+	    	binary_file_name = optarg;
+	    	enable_binary_send=1;
+	    	break;
+
+	    case 'v':	/* input binary file name */
+	   		binary_file_name = optarg;
+	   		enable_binary_verify=1;
+	   		write_verify= 1;
+	   		break;
+
+
 	    case 'r':	/* read memory */
-		enable_binary_read=1;
-		break;
+	    	enable_binary_read=1;
+	    	break;
+
 	    case 'w':	/* word width in byte */
-		word_width= atoi(optarg);
-		break;
+	    	word_width= atoi(optarg);
+	    	break;
+
 	    case 'c':	/* enable write verify */
-		write_verify= 1;
-		break;
+	    	write_verify= 1;
+	    	break;
+
 	    case 'd':	/* send string */
-		write_data= optarg;		
-		break;
+	    	write_data= optarg;
+	    	break;
+
 	    case 's':	/* set offset address*/
 		
 		p=sscanf(optarg,"%x",&memory_offset);
@@ -351,27 +368,33 @@ int send_binary_file(){
 	//size of buffer
 	num= (BYTE_NUM < sizeof(unsigned )) ? file_size /BYTE_NUM : file_size /sizeof(unsigned );
 
-	jtag_vdr(BIT_NUM, memory_offset_in_word, 0);
-	jtag_vir(UPDATE_WB_WR_DATA);
 	
-	printf ("start programming. Will send %d values to memory\n",num);
-	jseq_multi_init ();	
-	for(i=0;i<num;i++){
-		//printf("%d:%x\n",i,buffer[i]);
-		
-		if(BYTE_NUM <= sizeof(unsigned )){
-			//printf("%d:%x\n",i,buffer[i]);
-			jtag_vdr_multi(BIT_NUM, buffer[i]);
-		}else {
-			//printf("%d:%x\n",i,buffer[i]);
-			reorder_buffer(&buffer[i],words);
-			jtag_vdr_long_multi(BIT_NUM, &buffer[i],  words);
-			i+= (words-1);
 
+	if(enable_binary_send){
+
+		jtag_vdr(BIT_NUM, memory_offset_in_word, 0);
+		jtag_vir(UPDATE_WB_WR_DATA);
+		
+		printf ("start programming. Will send %d values to memory\n",num);
+		jseq_multi_init ();
+		for(i=0;i<num;i++){
+			//printf("%d:%x\n",i,buffer[i]);
+
+			if(BYTE_NUM <= sizeof(unsigned )){
+				//printf("%d:%x\n",i,buffer[i]);
+				jtag_vdr_multi(BIT_NUM, buffer[i]);
+			}else {
+				//printf("%d:%x\n",i,buffer[i]);
+				reorder_buffer(&buffer[i],words);
+				jtag_vdr_long_multi(BIT_NUM, &buffer[i],  words);
+				i+= (words-1);
+
+			}
 		}
+		jseq_multi_end ();
+		printf ("Write is done\n");
 	}
-	jseq_multi_end ();	
-	printf ("done programming\n");
+
 	if(write_verify){
 		if(!(fp = fopen(binary_file_name,"rb"))){  
 			fprintf (stderr,"Error: can not open %s file in read mode\n",binary_file_name);
@@ -437,9 +460,9 @@ int send_binary_file(){
 		
 		//check miss matched location
 		if(miss == 0){
-			printf ("write is verified\n");
+			printf ("Memory content is verified\n");
 		}
-		else if(miss<=MISS_RETRY_NUM){
+		else if(miss<=MISS_RETRY_NUM && enable_binary_send==1){
 			printf ("Try to write miss matched values\n");
 			for(i=0; i<miss; i++){
 
@@ -455,7 +478,7 @@ int send_binary_file(){
 			}
 
 		}else{
-			printf ("Error: write verification is failed!");
+			printf ("Error: verification is failed!");
 		}
 
 

@@ -40,6 +40,7 @@ SECTIONS
                	_srodata = .;
 		*(.rodata);
 		*(.rodata.*)
+		. = ALIGN(0x10);
              	_erodata = .;
 	} > rom
 	
@@ -57,6 +58,7 @@ SECTIONS
 		_sdata  =  .;
 		*(.data)
 		edata  =  .;
+		. = ALIGN(0x4);
 		_edata  =  .;
 	} > ram AT > rom  /* "> ram" is the VMA, "> rom" is the LMA */
 	

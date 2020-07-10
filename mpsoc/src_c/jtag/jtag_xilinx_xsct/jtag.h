@@ -51,6 +51,7 @@ unsigned int miss=0;
 
 char * binary_file_name=0;
 char enable_binary_send=0;
+char enable_binary_verify=0;
 char enable_binary_read=0;
 char * write_data=0;
 

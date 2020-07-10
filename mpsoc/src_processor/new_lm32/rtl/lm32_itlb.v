@@ -140,7 +140,7 @@ reg    miss_x;
 /////////////////////////////////////////////////////
 // Internal nets and registers
 /////////////////////////////////////////////////////
-wire flushing;
+
 wire [`LM32_ITLB_ADDR_RNG] read_address;
 wire [`LM32_ITLB_ADDR_RNG] write_address;
 wire read_port_enable;
@@ -154,6 +154,7 @@ wire [`LM32_ITLB_VPFN_RNG] tlbe_pfn_f;
 wire tlbe_valid_f;
 
 reg miss_d;
+wire flushing;
 
 /////////////////////////////////////////////////////
 // Functions

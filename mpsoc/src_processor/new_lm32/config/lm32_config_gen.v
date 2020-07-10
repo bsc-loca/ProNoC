@@ -22,8 +22,8 @@
 // ALU OPTIONS
 //
 
-// Enable sign-extension instructions
-`define CFG_SIGN_EXTEND_ENABLED
+// Enable sign-extension instructions  
+`define CFG_SIGN_EXTEND_${SIGN_EXTEND}
 
 // Shifter
 // You may either enable the piplined or the multi-cycle barrel
@@ -31,21 +31,49 @@
 // the result is available after 32 cycles.
 // If both options are disabled, only "right shift by one bit" is
 // available.
-//`define CFG_MC_BARREL_SHIFT_ENABLED
-`define CFG_PL_BARREL_SHIFT_ENABLED
+
+`define CFG_BARREL_SHIFT_${BARREL_SHIFT}
+
+`ifdef CFG_BARREL_SHIFT_MULTI_CYCLE
+	`define CFG_MC_BARREL_SHIFT_ENABLED
+
+`else 
+	`ifdef  CFG_BARREL_SHIFT_PIPE_LINE
+		`define CFG_PL_BARREL_SHIFT_ENABLED
+	`endif
+`endif 
+
 
 // Multiplier
 // The multiplier is available either in a multi-cycle version or
 // in a pipelined one. The multi-cycle multiplier stalls the pipe
 // for 32 cycles. If both options are disabled, multiply operations
 // are not supported.
-//`define CFG_MC_MULTIPLY_ENABLED
-`define CFG_PL_MULTIPLY_ENABLED
+
+`define CFG_MULTIPLY_${MULTIPLIER_TYPE}
+
+`ifdef CFG_MULTIPLY_MULTI_CYCLE
+	`define CFG_MC_MULTIPLY_ENABLED
+
+`else 
+	`ifdef  CFG_MULTIPLY_PIPE_LINE
+		`define CFG_PL_MULTIPLY_ENABLED
+	`endif
+`endif 
+
+
+
+
 
 // Enable the multi-cycle divider. Stalls the pipe until the result
 // is ready after 32 cycles. If disabled, the divide operation is not
 // supported.
-`define CFG_MC_DIVIDE_ENABLED
+
+`define CFG_DIVIDE_${DIVIDOR_TYPE}
+
+`ifdef CFG_DIVIDE_MULTI_CYCLE
+	`define CFG_MC_DIVIDE_ENABLED
+`endif
 
 
 //
@@ -82,17 +110,17 @@
 //
 
 // Instruction cache
-`define CFG_ICACHE_ENABLED
-`define CFG_ICACHE_ASSOCIATIVITY   1
-`define CFG_ICACHE_SETS            256
+`define CFG_ICACHE_${INSTRUCTION_CACHE}
+`define CFG_ICACHE_ASSOCIATIVITY   ${ICACHE_ASSOCIATIVITY}
+`define CFG_ICACHE_SETS            ${ICACHE_SETS}
 `define CFG_ICACHE_BYTES_PER_LINE  16
 `define CFG_ICACHE_BASE_ADDRESS    32'h00000000
 `define CFG_ICACHE_LIMIT           32'h7fffffff
 
 // Data cache
-`define CFG_DCACHE_ENABLED
-`define CFG_DCACHE_ASSOCIATIVITY   1
-`define CFG_DCACHE_SETS            256
+`define CFG_DCACHE_${DATA_CACHE}
+`define CFG_DCACHE_ASSOCIATIVITY   ${DCACHE_ASSOCIATIVITY}
+`define CFG_DCACHE_SETS            ${DCACHE_SETS}
 `define CFG_DCACHE_BYTES_PER_LINE  16
 `define CFG_DCACHE_BASE_ADDRESS    32'h00000000
 `define CFG_DCACHE_LIMIT           32'h7fffffff

@@ -217,7 +217,8 @@ ENTRY(_start)
 	CLEAR_GPR(r4)
 	/* nop to reset cycle counter */
 	l.nop	NOP_CNT_RESET
-	OR1K_DELAYED_NOP(OR1K_INST(l.jal   main))
+        /*initial_global_data then call main*/
+	OR1K_DELAYED_NOP(OR1K_INST(l.jal   __main))  
 
 	/* If program exits, call exit routine */
 	/* Save r11 */

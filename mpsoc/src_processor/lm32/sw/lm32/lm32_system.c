@@ -78,7 +78,7 @@ void general_int_enable(unsigned long irq){
 
 
 extern char _erodata, _fdata,_edata;
-void initial_global_data (void){
+void __main (void){ //initial_global_data
 	
 	char *src = &_erodata;  //start of Data section in Rom
 	char *dst = &_fdata;
@@ -87,6 +87,8 @@ void initial_global_data (void){
 	while (dst < &_edata) {
   	*dst++ = *src++;
 	}
+	
+	main(); //call the main function now
 }
 
 

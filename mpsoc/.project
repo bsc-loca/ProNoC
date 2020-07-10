@@ -22,7 +22,7 @@
 				</dictionary>
 				<dictionary>
 					<key>net.sourceforge.veditor.simulateBuilder.00000000Default.enable</key>
-					<value>true</value>
+					<value>false</value>
 				</dictionary>
 				<dictionary>
 					<key>net.sourceforge.veditor.simulateBuilder.00000000Default.name</key>
@@ -30,7 +30,7 @@
 				</dictionary>
 				<dictionary>
 					<key>net.sourceforge.veditor.simulateBuilder.00000000Default.parser</key>
-					<value>ModelSim</value>
+					<value></value>
 				</dictionary>
 				<dictionary>
 					<key>net.sourceforge.veditor.simulateBuilder.00000000Default.workFolder</key>
@@ -40,6 +40,6 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>net.sourceforge.veditor.HdlNature</nature>
+		<nature>net.sourceforge.veditor.HdlNature</nature>		
 	</natures>
 </projectDescription>

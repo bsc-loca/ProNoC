@@ -24,6 +24,7 @@ SECTIONS
     _frodata = .;
     *(.rodata .rodata.* .gnu.linkonce.r.*)
     *(.rodata1)
+    . = ALIGN(0x10);
     _erodata = .;
   } > rom
 

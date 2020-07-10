@@ -114,10 +114,7 @@ module lm32_top (
     D_WE_O,
     D_CTI_O,
     D_LOCK_O,
-    D_BTE_O,
-    snoop_adr_i,
-    snoop_en_i
-
+    D_BTE_O
     );
 
 /////////////////////////////////////////////////////
@@ -212,18 +209,6 @@ output D_LOCK_O;                                // Date Wishbone interface lock 
 wire   D_LOCK_O;
 output [`LM32_BTYPE_RNG] D_BTE_O;               // Data Wishbone interface burst type
 wire   [`LM32_BTYPE_RNG] D_BTE_O;
-
-input [31:0]          snoop_adr_i;
-input                 snoop_en_i;
-
-wire d_snoop_valid;
-
-
-// We have to mask out our snooped bus accesses
-   assign d_snoop_valid = snoop_en_i &
-			!((snoop_adr_i == D_ADR_O) & D_ACK_I);
-
-  
 
 /////////////////////////////////////////////////////
 // Internal nets and registers
@@ -347,10 +332,7 @@ lm32_cpu cpu (
     .D_WE_O                (D_WE_O),
     .D_CTI_O               (D_CTI_O),
     .D_LOCK_O              (D_LOCK_O),
-    .D_BTE_O               (D_BTE_O),
-    .d_snoop_valid         (d_snoop_valid),
-    .snoop_adr_i           (snoop_adr_i)
-
+    .D_BTE_O               (D_BTE_O)
     );
 
 `ifdef CFG_JTAG_ENABLED

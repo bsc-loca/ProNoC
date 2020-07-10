@@ -102,9 +102,7 @@ module lm32_dcache (
     refill_request,
     refill_address,
     refilling,
-    load_data,
-    snoop_adr_i,
-    d_snoop_valid
+    load_data
     );
 
 /////////////////////////////////////////////////////
@@ -175,9 +173,6 @@ reg    refilling;
 output [`LM32_WORD_RNG] load_data;                      // Data read from cache
 wire   [`LM32_WORD_RNG] load_data;
 
-input [31:0]          snoop_adr_i;
-input d_snoop_valid;
-
 /////////////////////////////////////////////////////
 // Internal nets and registers
 /////////////////////////////////////////////////////
@@ -210,13 +205,7 @@ reg [`LM32_DC_ADDR_OFFSET_RNG] refill_offset;           // Which word in cache l
 wire last_refill;                                       // Indicates when on last cycle of cache refill
 reg [`LM32_DC_TMEM_ADDR_RNG] flush_set;                 // Which set is currently being flushed
 
-wire [`LM32_DC_TMEM_ADDR_RNG] snp_read_address;        // Tag memory read address
-wire [`LM32_DC_TMEM_ADDR_RNG] snp_write_address;       // Tag memory write address
-
 genvar i, j;
-
-
-wire  snoop_check_way_match [associativity-1:0];
 
 /////////////////////////////////////////////////////
 // Functions
@@ -304,10 +293,6 @@ wire  snoop_check_way_match [associativity-1:0];
                 // ----- Outputs -------
                 .read_data ({way_tag[i], way_valid[i]})
                 );
-	 assign snoop_check_way_match[i] = (snoop_check_way_tag[i] == snoop_tag);
-	 assign snoop_way_hit[i] = snoop_check_way_valid[i] & snoop_check_way_match[i];
-
-
         end
 
    endgenerate
@@ -384,7 +369,6 @@ assign tmem_write_address = (flushing == `TRUE)
                             : refill_address[`LM32_DC_ADDR_SET_RNG];
 assign tmem_read_address = address_x[`LM32_DC_ADDR_SET_RNG];
 
-
 // Compute signal to indicate when we are on the last refill accesses
 generate
     if (bytes_per_line > 4)
@@ -452,37 +436,6 @@ begin
 end
     end
 endgenerate
-
-
-
-////////////////////////
-//snoop
-////////////////////////
-
-
-reg snoop_check;
-always @(posedge clk_i `CFG_RESET_SENSITIVITY)
- if (rst_i == `TRUE)begin 
- 	snoop_check <= 0;
- end else begin
-    if (d_snoop_valid) begin
-	    //
-	    // If there is a snoop event, we need to store this
-	    // information. This happens independent of whether we
-	    // have a snoop tag memory or not.
-	    //
-	    snoop_check <= 1;
-	    snoop_windex <= snoop_adr_i[`LM32_DC_ADDR_SET_RNG];
-	    snoop_tag    <= snoop_adr_i[`LM32_DC_ADDR_TAG_RNG];
-	 end else begin
-	    snoop_check <= 0;
-	 end
-     end
-end
-
-
-
-
 
 // Record whether we are currently refilling
 always @(posedge clk_i `CFG_RESET_SENSITIVITY)

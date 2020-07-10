@@ -1290,7 +1290,7 @@ $main_fifo_rst_ptr.="}\n";
 my $main="	
 int main(){
 	schedinfo_t si;
-	initial_global_data(); // It is needed to be done after reset
+	
 	rest_all_fifo_ptr();
 $all_init_actor	
 	general_int_init();

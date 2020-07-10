@@ -170,7 +170,8 @@ _crt0:
 	mvi     r1, 0
 	mvi     r2, 0
 	mvi     r3, 0
-	calli   main
+	/*initial_global_data then run main*/
+	calli   __main  
 
 irq_enable:
 	mvi     r1, 1

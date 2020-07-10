@@ -299,64 +299,135 @@ for more information vist: http://www.latticesemi.com/en/Products/DesignSoftware
                                                        ]
                               },
                   'module_name' => 'lm32',
-                  'parameters_order' => [
+                   'parameters_order' => [
                                           'INTR_NUM',
-                                          'CFG_PL_MULTIPLY',
-                                          'CFG_PL_BARREL_SHIFT',
-                                          'CFG_SIGN_EXTEND',
-                                          'CFG_MC_DIVIDE'
+                                          'BARREL_SHIFT',
+                                          'SIGN_EXTEND',
+                                          'BARREL_SHIFT',
+                                          'MULTIPLIER_TYPE',
+                                          'DIVIDOR_TYPE',
+                                          'INSTRUCTION_CACHE',
+                                          'ICACHE_ASSOCIATIVITY',
+                                          'ICACHE_SETS',
+                                          'DATA_CACHE',
+                                          'DCACHE_ASSOCIATIVITY',
+                                          'DCACHE_SETS'
                                         ],
                   'system_c' => '#include "lm32/lm32_system.c"',
                   'category' => 'Processor',
                   'modules' => {
                                  'lm32' => {}
                                },
+		    'gen_sw_files' => [
+                                      '/mpsoc/src_processor/new_lm32/sw/cpu_flags_genfrename_sep_tcpu_flags'
+                                    ],
+		   'gen_hw_files' => [
+                                      '/mpsoc/src_processor/new_lm32/config/lm32_config_gen.vfrename_sep_tlib/lm32_config.v'
+                                    ],
                   'sw_files' => [
                                   '/mpsoc/src_processor/lm32/sw/lm32',
                                   '/mpsoc/src_processor/lm32/sw/linker.ld',
                                   '/mpsoc/src_processor/lm32/sw/Makefile'
                                 ],
-                  'parameters' => {
-                                    'CFG_SIGN_EXTEND' => {
-                                                           'content' => '"ENABLED","DISABLED"',
-                                                           'info' => undef,
-                                                           'default' => '"ENABLED"',
-                                                           'redefine_param' => 1,
-                                                           'type' => 'Fixed',
-                                                           'global_param' => 0
-                                                         },
+                 'parameters' => {
                                     'INTR_NUM' => {
-                                                    'global_param' => 0,
-                                                    'default' => '32',
                                                     'redefine_param' => 1,
                                                     'type' => 'Fixed',
-                                                    'info' => undef,
-                                                    'content' => ''
+                                                    'global_param' => 'Localparam',
+                                                    'content' => '',
+                                                    'default' => '32',
+                                                    'info' => undef
                                                   },
-                                    'CFG_MC_DIVIDE' => {
-                                                         'global_param' => 0,
-                                                         'redefine_param' => 1,
-                                                         'default' => '"DISABLED"',
-                                                         'type' => 'Fixed',
-                                                         'content' => '"ENABLED","DISABLED"',
-                                                         'info' => undef
-                                                       },
-                                    'CFG_PL_MULTIPLY' => {
-                                                           'global_param' => 0,
-                                                           'content' => '"ENABLED","DISABLED"',
-                                                           'info' => undef,
-                                                           'type' => 'Fixed',
-                                                           'default' => '"ENABLED"',
+                                    'SIGN_EXTEND' => {
+                                                       'content' => 'ENABLED,DISABLED',
+                                                       'global_param' => 'Don\'t include',
+                                                       'type' => 'Combo-box',
+                                                       'redefine_param' => 1,
+                                                       'info' => 'Enable sign-extension instructions',
+                                                       'default' => 'ENABLED'
+                                                     },
+                                    'INSTRUCTION_CACHE' => {
+                                                             'default' => 'ENABLED',
+                                                             'info' => 'Enable/Disable Instruction cache',
+                                                             'redefine_param' => 1,
+                                                             'type' => 'Combo-box',
+                                                             'content' => 'ENABLED,DISABLED',
+                                                             'global_param' => 'Don\'t include'
+                                                           },
+                                    'BARREL_SHIFT' => {
+                                                        'content' => 'MULTI_CYCLE,PIPE_LINE,NONE',
+                                                        'global_param' => 'Don\'t include',
+                                                        'type' => 'Combo-box',
+                                                        'redefine_param' => 1,
+                                                        'info' => 'Shifter
+You may either enable the piplined or the multi-cycle barrel
+shifter. The multi-cycle shifter will stall the pipeline until
+the result is available after 32 cycles.
+If both options are disabled, only "right shift by one bit" is
+available.',
+                                                        'default' => 'PIPE_LINE'
+                                                      },
+                                    'DCACHE_ASSOCIATIVITY' => {
+                                                                'redefine_param' => 1,
+                                                                'type' => 'Combo-box',
+                                                                'content' => '1,2,4,8',
+                                                                'global_param' => 'Don\'t include',
+                                                                'default' => '1',
+                                                                'info' => 'Data cache assocativity number '
+                                                              },
+                                    'DIVIDOR_TYPE' => {
+                                                        'info' => ' Enable the multi-cycle divider. Stalls the pipe until the result
+ is ready after 32 cycles. If disabled, the divide operation is not  supported.',
+                                                        'default' => 'MULTI_CYCLE',
+                                                        'global_param' => 'Don\'t include',
+                                                        'content' => 'MULTI_CYCLE,NONE',
+                                                        'type' => 'Combo-box',
+                                                        'redefine_param' => 1
+                                                      },
+                                    'MULTIPLIER_TYPE' => {
+                                                           'info' => '// Multiplier
+ The multiplier is available either in a multi-cycle version or
+ in a pipelined one. The multi-cycle multiplier stalls the pipe
+ for 32 cycles. If both options are disabled, multiply operations
+ are not supported.',
+                                                           'default' => 'PIPE_LINE',
+                                                           'global_param' => 'Don\'t include',
+                                                           'content' => 'MULTI_CYCLE,PIPE_LINE,NONE',
+                                                           'type' => 'Combo-box',
                                                            'redefine_param' => 1
                                                          },
-                                    'CFG_PL_BARREL_SHIFT' => {
-                                                               'global_param' => 0,
-                                                               'redefine_param' => 1,
-                                                               'default' => '"ENABLED"',
-                                                               'type' => 'Fixed',
-                                                               'info' => undef,
-                                                               'content' => '"ENABLED","DISABLED"'
-                                                             }
+                                    'DATA_CACHE' => {
+                                                      'redefine_param' => 1,
+                                                      'type' => 'Combo-box',
+                                                      'global_param' => 'Don\'t include',
+                                                      'content' => 'ENABLED,DISABLED',
+                                                      'default' => 'ENABLED',
+                                                      'info' => 'Enable/Disable the data cache'
+                                                    },
+                                    'DCACHE_SETS' => {
+                                                       'info' => ' Number of sets',
+                                                       'default' => '256',
+                                                       'global_param' => 'Don\'t include',
+                                                       'content' => '128,256,512,1024,2048,4096,8119,16384',
+                                                       'redefine_param' => 1,
+                                                       'type' => 'Combo-box'
+                                                     },
+                                    'ICACHE_ASSOCIATIVITY' => {
+                                                                'info' => 'Istruction cache assocativity number ',
+                                                                'default' => '1',
+                                                                'global_param' => 'Don\'t include',
+                                                                'content' => '1,2,4,8',
+                                                                'redefine_param' => 1,
+                                                                'type' => 'Combo-box'
+                                                              },
+                                    'ICACHE_SETS' => {
+                                                       'type' => 'Combo-box',
+                                                       'redefine_param' => 1,
+                                                       'global_param' => 'Don\'t include',
+                                                       'content' => '128,256,512,1024,2048,4096,8119,16384',
+                                                       'default' => '256',
+                                                       'info' => ' Number of sets'
+                                                     }
                                   },
                   'system_h' => '#include "lm32/lm32_system.h"
 static inline void nop (void) {
