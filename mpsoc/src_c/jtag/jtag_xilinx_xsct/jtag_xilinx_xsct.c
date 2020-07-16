@@ -341,7 +341,7 @@ int send_binary_file(){
 	read_buff  = (unsigned *) calloc(words , sizeof(unsigned ) );
 	
 
-	printf("send %s to the wishbone bus\n",binary_file_name);
+	
 	fp = fopen(binary_file_name,"rb");
 	if (!fp) {
 		fprintf (stderr,"Error: can not open %s file in read mode\n",binary_file_name);
@@ -359,7 +359,7 @@ int send_binary_file(){
 	//disable the cpu
 	jtag_vir(RD_WR_STATUS);
 	jtag_vdr(BIT_NUM, 0x1, &out);
-	jtag_vir(UPDATE_WB_ADDR);
+	
 
 	//printf("cpu is disabled.\n");
 
@@ -371,10 +371,10 @@ int send_binary_file(){
 	
 
 	if(enable_binary_send){
-
+		jtag_vir(UPDATE_WB_ADDR);
 		jtag_vdr(BIT_NUM, memory_offset_in_word, 0);
 		jtag_vir(UPDATE_WB_WR_DATA);
-		
+		printf("send %s to the wishbone bus\n",binary_file_name);
 		printf ("start programming. Will send %d values to memory\n",num);
 		jseq_multi_init ();
 		for(i=0;i<num;i++){
@@ -460,7 +460,7 @@ int send_binary_file(){
 		
 		//check miss matched location
 		if(miss == 0){
-			printf ("Memory content is verified\n");
+			printf ("Memory content is verified. There was no difference!\n");
 		}
 		else if(miss<=MISS_RETRY_NUM && enable_binary_send==1){
 			printf ("Try to write miss matched values\n");
@@ -478,7 +478,7 @@ int send_binary_file(){
 			}
 
 		}else{
-			printf ("Error: verification is failed!");
+			printf ("Error: verification is failed!\n");
 		}
 
 

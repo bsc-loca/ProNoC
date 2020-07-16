@@ -62,7 +62,7 @@ module xilinx_jtag_wb #(
     localparam  WB2Jw=1+JSTATUSw+JINDEXw+1+JDw;
     
     input reset;//,clk;
-    output cpu_en, system_reset;
+    output reg cpu_en, system_reset;
     
    // output [7: 0 ] out;
     
@@ -90,6 +90,7 @@ module xilinx_jtag_wb #(
     
     wire [JDw-1 : 0] jtag_to_wb_dat;
     wire [JAw-1 : 0] jtag_to_wb_addr;
+    reg  [JAw-1 : 0] jtag_to_wb_addr_reg;
     wire jtag_to_wb_stb;
     wire jtag_to_wb_we;
     wire [JWB_NUM-1 : 0] wb_to_jtag_clk;
@@ -102,7 +103,8 @@ module xilinx_jtag_wb #(
     reg  [JDw-1 : 0] jtag_dat_in_reg  [JWB_NUM-1: 0];
     
     reg jtag_to_wb_stb_reg;
-    
+    reg [JWB_NUM-1: 0] jtag_sel_onehot_reg;
+    reg jtag_to_wb_we_reg;
     
     genvar i;
     generate
@@ -111,13 +113,13 @@ module xilinx_jtag_wb #(
             assign  wb_to_jtag[i]  = wb_to_jtag_all [(i+1)*WB2Jw-1 : i*WB2Jw];            
             assign  {wb_to_jtag_status_all[i],wb_to_jtag_ack_all[i],wb_to_jtag_dat_all[(i+1)*JDw-1 : i*JDw],wb_to_jtag_index_all [i],wb_to_jtag_clk[i]}  = wb_to_jtag[i];
             assign  jtag_sel_onehot[i] = (wb_to_jtag_index_all [i] == jtag_to_wb_index);
-            assign  stb_all[i] = jtag_to_wb_stb_reg & jtag_sel_onehot[i];           
+            assign  stb_all[i] = jtag_to_wb_stb_reg & jtag_sel_onehot_reg[i];           
             assign  jtag_to_wb_all[(i+1)*J2WBw-1 : i*J2WBw] =jtag_to_wb[i];
-            assign  stb_masked_all[i] = stb_all[i] & jtag_sel_onehot[i] & ~wb_to_jtag_ack_all_latched[i];
-            assign  jtag_to_wb[i] = {jtag_to_wb_addr,stb_masked_all[i],jtag_to_wb_we,jtag_to_wb_dat};
+            assign  stb_masked_all[i] = stb_all[i] ; // & ~wb_to_jtag_ack_all_latched[i];
+            assign  jtag_to_wb[i] = {jtag_to_wb_addr_reg,stb_masked_all[i],jtag_to_wb_we_reg,jtag_to_wb_dat};
       
             always @ (posedge clk)begin 
-                if ( wb_to_jtag_ack_all[i] & ~jtag_to_wb_we) jtag_dat_in_reg[i] <= wb_to_jtag_dat_all[(i+1)*JDw-1 : i*JDw]; 
+                if ( wb_to_jtag_ack_all[i] & jtag_sel_onehot_reg[i] & ~jtag_to_wb_we) jtag_dat_in_reg[i] <= wb_to_jtag_dat_all[(i+1)*JDw-1 : i*JDw]; 
             end
             assign wb_to_jtag_dat_all_latched [(i+1)*JDw-1 : i*JDw] = jtag_dat_in_reg[i];
             
@@ -137,10 +139,20 @@ module xilinx_jtag_wb #(
         end
     endgenerate
     
-    
+    reg [1:0]ctrl_reg;  
+      
     always @(posedge clk )begin 
-        jtag_to_wb_stb_reg<= jtag_to_wb_stb;    
+        jtag_to_wb_stb_reg<= jtag_to_wb_stb ;
+        jtag_sel_onehot_reg<=jtag_sel_onehot;
+        jtag_to_wb_we_reg<=jtag_to_wb_we;
+        jtag_to_wb_addr_reg <=jtag_to_wb_addr;
+        system_reset <=   ctrl_reg[0];
+        cpu_en       <= ~ ctrl_reg[1];           
     end
+    
+   
+    
+    
     
   
     localparam BIN_WIDTH     =  (JWB_NUM>1)? log2(JWB_NUM):1;
@@ -172,7 +184,7 @@ module xilinx_jtag_wb #(
      (
      	.mux_in(wb_to_jtag_dat_all_latched),
      	.mux_out(wb_to_jtag_dat),
-     	.sel(jtag_sel_onehot)
+     	.sel(jtag_sel_onehot_reg)
      );
    
     
@@ -214,7 +226,7 @@ module xilinx_jtag_wb #(
         
    );
    
-    reg [1:0]ctrl_reg;  
+  
     reg rst_ctrl_ack;
     always @(posedge tclk or posedge reset)begin    
        if(reset) begin 
@@ -230,21 +242,20 @@ module xilinx_jtag_wb #(
        end  
     end 
     
-     always @(posedge tclk or posedge reset)begin    
-       if(reset) begin 
-      
-        rst_ctrl_ack<=1'b0;
+    always @(posedge tclk or posedge reset)begin    
+        if(reset) begin 
+            rst_ctrl_ack<=1'b0;
+          
        end 
        else begin 
-            rst_ctrl_ack<=jtag_to_wb_stb;
+            rst_ctrl_ack <= jtag_to_wb_stb;
            
        end  
     end 
     
     
 
-    assign  system_reset =   ctrl_reg[0];
-    assign  cpu_en       = ~ ctrl_reg[1];
+   
     
     assign  mem_ctrl_jtag_ack = ((jtag_to_wb_index ==   CTRL_REG_INDEX) ||  jtag_sel_onehot == {JWB_NUM{1'b0}} ) ? rst_ctrl_ack : wb_to_jtag_ack; 
 endmodule
@@ -626,9 +637,9 @@ module xilinx_jtag_ctrl #(
         //  wb_wr_addr1<=1'b0;
         //  wb_wr_data1<=1'b0;
         //end else begin
-            wb_wr_addr_en=(ir== UPDATE_WB_ADDR || ir== UPDATE_WB_RD_DATA) &  udr & update_dat_flag;
-            wb_wr_data_en=((ir== UPDATE_WB_WR_DATA|| ir==UPDATE_CTRL) &  udr & update_dat_flag);  
-            wb_rd_data_en=((ir== UPDATE_WB_RD_DATA) &  cdr  & ~mask);
+            wb_wr_addr_en<=(ir== UPDATE_WB_ADDR || ir== UPDATE_WB_RD_DATA) &  udr & update_dat_flag;
+            wb_wr_data_en<=((ir== UPDATE_WB_WR_DATA|| ir==UPDATE_CTRL) &  udr & update_dat_flag);  
+            wb_rd_data_en<=((ir== UPDATE_WB_RD_DATA) &  cdr  & ~mask);
         //end   
     end
     
@@ -766,7 +777,7 @@ generate
         end
 
 
-        one_hot_mux #(
+        jtag_one_hot_mux #(
             .IN_WIDTH   (MUX_IN_WIDTH),
             .SEL_WIDTH  (ONE_HOT_WIDTH)
             
