@@ -40,6 +40,6 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>net.sourceforge.veditor.HdlNature</nature>		
+		<nature>net.sourceforge.veditor.HdlNature</nature>
 	</natures>
 </projectDescription>

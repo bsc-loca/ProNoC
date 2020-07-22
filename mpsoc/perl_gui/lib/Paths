@@ -10,13 +10,6 @@
 ################################################################################
 
 $setting = bless( {
-                    'PATH' => {
-                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
-                                'PRONOC_WORK' => '/home/alireza/work/hca_git/mpsoc_work',
-                                'MODELSIM_BIN' => undef,
-                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
-                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin'
-                              },
                     'parameters_order' => {
                                             'PATH' => [
                                                         'PRONOC_WORK',
@@ -24,31 +17,16 @@ $setting = bless( {
                                                         'MODELSIM_BIN',
                                                         'QUARTUS_BIN',
                                                         'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'VIVADO_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'SDK_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
-                                                        'MODELSIM_BIN',
                                                         'MODELSIM_BIN'
                                                       ]
                                           },
+                    'PATH' => {
+                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
+                                'PRONOC_WORK' => '/home/alireza/mywork/git-hca/mpsoc_work',
+                                'MODELSIM_BIN' => '/home/alireza/intelFPGA_lite/17.1/modelsim_ase/bin'
+                              },
                     'gui_status' => {
-                                      'timeout' => 10,
-                                      'status' => 'ref'
+                                      'status' => 'ref',
+                                      'timeout' => 10
                                     }
                   }, 'ProNOC' );
