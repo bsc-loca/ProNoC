@@ -238,7 +238,11 @@ module weight_counter #(
     end
     
 
-    always @(posedge clk or posedge reset) begin  
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif    
         if (reset)begin 
             counter<= {WEIGHTw{1'b0}};
         end else begin 
@@ -293,7 +297,11 @@ module classic_weight_counter #(
     end
     
 
-    always @(posedge clk or posedge reset) begin  
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif    
         if (reset)begin 
             counter<= {WEIGHTw{1'b0}};
         end else begin 
@@ -406,7 +414,11 @@ module  weight_control #(
                 assign oports_weight [(i+1)*W-1 : i*W] = {W{1'b0}};
              end else begin :else1
         
-                always @ (posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+                always @ (posedge clk )begin 
+`else 
+                always @ (posedge clk or posedge reset)begin 
+`endif   
                     if(reset) begin 
                         oport_weight_counter[i]<=INIT_WEIGHT;
                     end else begin 
@@ -415,7 +427,11 @@ module  weight_control #(
                     end
                 end //always
                 
-                always @ (posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+                always @ (posedge clk )begin 
+`else 
+                always @ (posedge clk or posedge reset)begin 
+`endif   
                     if(reset) begin 
                         oport_weight[i]<={W{1'b0}};
                     end else begin 
@@ -451,7 +467,11 @@ module  weight_control #(
                 assign oports_weight [(i+1)*W-1 : i*W] = {W{1'b0}};
              end else begin :else1
         
-                always @ (posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+                always @ (posedge clk )begin 
+`else 
+                always @ (posedge clk or posedge reset)begin 
+`endif   
                     if(reset) begin 
                         oport_weight_counter[i]<= INIT_WEIGHT;
                     end else begin 
@@ -460,7 +480,11 @@ module  weight_control #(
                     end
                 end //always
                 
-                always @ (posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+                always @ (posedge clk )begin 
+`else 
+                always @ (posedge clk or posedge reset)begin 
+`endif   
                     if(reset) begin 
                         oport_weight[i]<={W{1'b0}};
                     end else begin 
@@ -850,7 +874,11 @@ module weights_update # (
         for (i=0; i<P; i=i+1) begin : lp
             assign flit_out_is_tail[i] = flit_out_all[(i+1)*Fw-2];
             
-            always @ (posedge clk or posedge reset) begin 
+ `ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+`else 
+            always @ (posedge clk or posedge reset)begin 
+`endif   
                     if(reset) begin 
                         oport_weight_counter[i]<=INIT_WEIGHT;
                     end else begin 
@@ -859,7 +887,11 @@ module weights_update # (
                     end
                 end //always
                 
-                always @ (posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+                always @ (posedge clk )begin 
+`else 
+                always @ (posedge clk or posedge reset)begin 
+`endif   
                     if(reset) begin 
                         limited_oport_weight[i]<={W{1'b0}};
                     end else begin 
@@ -1040,7 +1072,11 @@ module weight_update_per_port # (
         end
      
      end else  if(ADD_PIPREG_AFTER_CROSSBAR==1)begin : add_reg 
-       always @ (posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif   
             if(reset) begin 
                 contention<={W{1'b0}};
             end else begin 
@@ -1121,7 +1157,11 @@ localparam W=WEIGHTw;
  end
 
 
-always @ (posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
     if(reset) begin 
         counter = {WEIGHTw{1'b0}};
         weight_out = {WEIGHTw{1'b0}}; 

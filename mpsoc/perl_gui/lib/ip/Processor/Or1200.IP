@@ -282,7 +282,7 @@ Overflow interrupt indicator. When enabled, SR[OV] flag does not remain asserted
                                    '/mpsoc/src_processor/or1200/verilog/src/or1200_xcv_ram32x8d.v',
                                    '/mpsoc/src_processor/or1200/verilog/src/timescale.v'
                                  ],
-                  'file_name' => '/home/alireza/mywork/mpsoc/src_processor/or1200/verilog/or1200.v',
+                  'file_name' => 'mpsoc/src_processor/or1200/verilog/or1200.v',
                   'ip_name' => 'Or1200',
                   'module_name' => 'or1200',
                   'ports' => {

@@ -27,7 +27,7 @@
 
 module altera_reset_synchronizer
 #(
-    parameter ASYNC_RESET = 1,
+    parameter ASYNC_RESET = 0,
     parameter DEPTH       = 2
 )
 (

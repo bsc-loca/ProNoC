@@ -15,7 +15,7 @@ $ipgen = bless( {
                                  'IBUFGDS' => {}
                                },
                   'description' => 'Xilinx Differential Signaling Input Clock Buffer',
-                  'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/perl_gui/lib/verilog/IBUFGDS.v',
+                  'file_name' => 'mpsoc/perl_gui/lib/verilog/IBUFGDS.v',
                   'sockets' => {
                                  'clk' => {
                                             'type' => 'num',

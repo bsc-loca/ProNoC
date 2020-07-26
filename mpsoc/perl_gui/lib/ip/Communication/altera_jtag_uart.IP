@@ -47,7 +47,7 @@ int jtag_scanint(int *num);
 #ifdef INCLUDE_SIMPLE_PRINTF_LONG
 	#include "simple-printf/printf.h" 
 #endif',
-                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/jtag/jtag_uart/altera_jtag_uart.v',
+                  'file_name' => 'mpsoc/src_peripheral/jtag/jtag_uart/altera_jtag_uart.v',
                   'module_name' => 'altera_jtag_uart',
                   'ports' => {
                                's_cyc_i' => {

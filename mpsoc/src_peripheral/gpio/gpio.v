@@ -120,7 +120,11 @@ module gpio #(
 	reg   [PORT_WIDTH-1         :   0] read_reg;
 	
 	
-	always @ (posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
 	   if(reset) begin 
          io_dir		<= {PORT_WIDTH{1'b0}};
 		 io_write	<= {PORT_WIDTH{1'b0}};
@@ -321,7 +325,11 @@ module gpo #(
     
     
     
-    always @ (posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
        if(reset) begin 
             io_write   <= {PORT_WIDTH{1'b0}};
             sa_ack_o   <=  1'b0;

@@ -10,7 +10,7 @@
 ################################################################################
 
 $ipgen = bless( {
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_processor/lm32/verilog/src/lm32.v',
+                  'file_name' => 'mpsoc/src_processor/lm32/verilog/src/lm32.v',
                   'ports' => {
                                'I_STB_O' => {
                                               'intfc_name' => 'plug:wb_master[0]',

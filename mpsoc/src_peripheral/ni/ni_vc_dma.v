@@ -599,7 +599,11 @@ module ni_vc_dma #(
     
     //registers assigmnet
     
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
     always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) begin 
             send_ps <= SEND_IDEAL;
             receive_ps <= RECEIVE_IDEAL;

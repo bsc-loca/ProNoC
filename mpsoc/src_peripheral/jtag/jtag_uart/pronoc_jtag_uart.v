@@ -343,7 +343,11 @@ module  pronoc_jtag_uart_hw #(
     
    
    
-    always @ (posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if (reset) begin 
             wb_ack_o<=1'b0;
             jtag_ack_o<=1'b0;

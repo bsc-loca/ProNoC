@@ -736,7 +736,7 @@ void ${IP}_receive (unsigned int v, unsigned int data_start_addr,  unsigned int 
                                    ],
                   'version' => 47,
                   'module_name' => 'ni_slave',
-                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/ni/ni_slave.v',
+                  'file_name' => 'mpsoc/src_peripheral/ni/ni_slave.v',
                   'plugs' => {
                                'reset' => {
                                             'reset' => {},

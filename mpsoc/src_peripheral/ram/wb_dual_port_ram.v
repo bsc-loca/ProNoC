@@ -111,7 +111,9 @@ module wb_dual_port_ram #(
     end     
     endfunction //i2s
 /* verilator lint_off WIDTH */
-localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
+    localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
+    localparam  XILINX_INIT_FILE = (INITIAL_EN == "NO") ? "none" : INIT_FILE;
+    localparam  ALTERA_INIT_FILE = (INITIAL_EN == "NO") ? "UNUSED" : INIT_FILE;    
 /* verilator lint_on WIDTH */
     
 
@@ -262,7 +264,7 @@ localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
     			.widthad_a(Aw),
     			.widthad_b(Aw),
     			.width_byteena_a(BYTE_ENw),
-    			.init_file(INIT_FILE)
+    			.init_file(ALTERA_INIT_FILE)
     	
     		) ram_inst
     		(
@@ -313,7 +315,7 @@ localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
           //.CASCADE_HEIGHT(0),             // DECIMAL
           .CLOCKING_MODE("common_clock"), // String
           .ECC_MODE("no_ecc"),            // String
-          .MEMORY_INIT_FILE(INIT_FILE),      // String
+          .MEMORY_INIT_FILE(XILINX_INIT_FILE),      // String
           .MEMORY_INIT_PARAM(""),        // String
           .MEMORY_OPTIMIZATION("true"),   // String
           .MEMORY_PRIMITIVE("auto"),      // String

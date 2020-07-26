@@ -429,7 +429,11 @@ module fattree_nca_random_up_routing  #(
     
     reg [K-1 : 0] counter; // a one hot counter. The value of the counter is used as a random destination port number when going to the up ports
     
-    always @(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset) begin 
             counter <= 1;
         end 
@@ -541,7 +545,11 @@ module fattree_nca_destp_up_routing  #(
     
     reg [K-1 : 0] counter; // a one hot counter. The value of the counter is used as a random destination port number when going to the up ports
     
-    always @(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset) begin 
             counter <= 1;
         end 
@@ -654,7 +662,11 @@ module fattree_nca_straight_up_routing  #(
     
     reg [K-1 : 0] counter; // a one hot counter. The value of the counter is used as a random destination port number when going to the up ports
     
-    always @(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset) begin 
             counter <= 1;
         end 
@@ -890,7 +902,11 @@ module fattree_look_ahead_routing #(
      );
      
         
-      always @(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset)begin
             destport_encoded_delayed <= {(K+1){1'b0}};
             dest_addr_encoded_delayed<= {LKw{1'b0}};

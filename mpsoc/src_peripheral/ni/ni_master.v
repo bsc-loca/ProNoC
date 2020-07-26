@@ -418,10 +418,14 @@ module  ni_master #(
    
     
     
-    
-    
-    
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
     always @ (posedge clk or posedge reset)begin 
+`endif 
+    
+    
+   
         if(reset) begin 
             burst_counter <= {BURST_SIZE_w{1'b0}};
             burst_size <= {BURST_SIZE_w{1'b1}};
@@ -713,9 +717,13 @@ end
             .m_receive_we_o(vc_m_receive_we_o[i]),
             .m_receive_ack_i(m_receive_ack_i)
         );
-        
-        
-        always @ (posedge clk or posedge reset)begin 
+     
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif         
+             
             if(reset) begin 
                 class_in[i]<= {Cw{1'b0}};
                 src_e_addr[i]<= {EAw{1'b0}};
@@ -736,7 +744,11 @@ end
 /* verilator lint_on WIDTH */
    
       reg fifo_rd_delayed;
-      always @(posedge clk or posedge reset)begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) fifo_rd_delayed <=1'b0;
         else fifo_rd_delayed <= fifo_rd;
       end
@@ -774,7 +786,13 @@ end
         );
         
         for (i=0;i<V;i=i+1) begin: crc_v
+        
+`ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+`else 
             always @ (posedge clk or posedge reset)begin 
+`endif 
+                  
                 if(reset) begin 
                     crc_miss_match[i] <= 1'b0;
                 end else begin 
@@ -1001,10 +1019,6 @@ end
     );  
   
   
-
-
-  
-  
  
   assign m_receive_dat_o = fifo_dout[Dw-1   :   0];
   assign received_flit_is_tail = fifo_dout[Fw-2];
@@ -1066,7 +1080,14 @@ endmodule
     genvar i;
     generate
         for(i=0;i<V;i=i+1) begin : vc_loop
-            always@(posedge clk or posedge reset)begin
+        
+`ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+`else 
+            always @ (posedge clk or posedge reset)begin 
+`endif         
+        
+           
                     if(reset)begin
                         depth[i]<={DEPTH_WIDTH{1'b0}};
                     end else begin

@@ -125,7 +125,7 @@ sub get_module_parameter{
 	
 	#gui
 	my $table_size = ($param_num<10) ? 10 : $param_num;
-	my $window =  def_popwin_size(60,60, "Parameter setting for $module ",'percent');
+	my $window =  def_popwin_size(40,60, "Parameter setting for $module ",'percent');
 	my $table = def_table($table_size, 7, FALSE);
 	
 	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
@@ -1756,7 +1756,7 @@ sub socgen_main{
 	my $compile  = def_image_button('icons/gate.png','Compile RTL');
 	my $software = def_image_button('icons/binary.png','Software');
 	my $diagram  = def_image_button('icons/diagram.png','Diagram');
-	my $clk=  def_colored_button('CLK setting',17);	
+	my $clk=  def_image_button('icons/clk.png','CLK setting');
 	my $unset    = def_image_button('icons/intfc.png','Unset Intfc.');
 	
 	my $ram      = def_image_button('icons/RAM.png','Memory');	

@@ -247,7 +247,11 @@ assign {reset_all_o,reset_cpus_o}=2'b01;
   
    reg sent_start,start_source_delayed;
     
-   always @(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
     if(reset)begin 
          sent_start<=1'b0;
          start_source_delayed<=1'b0;
@@ -347,7 +351,11 @@ assign {reset_all_o,reset_cpus_o}=2'b01;
     
     
     
-    always @(posedge clk or posedge reset)begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset) begin
             ps<= IDEAL;
             cnt<= 3'd0;

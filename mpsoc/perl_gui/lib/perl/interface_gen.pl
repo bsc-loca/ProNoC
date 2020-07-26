@@ -2,6 +2,10 @@
 use Glib qw/TRUE FALSE/;
 use strict;
 use warnings;
+
+use FindBin;
+use lib $FindBin::Bin;
+
 use Data::Dumper;
 use intfc_gen;
 use rvp;
@@ -15,21 +19,26 @@ require "widget.pl";
 sub read_file_modules{
 	my ($file,$intfc_gen,$info)=@_;
 	
-	if (!defined $file) {return; }
-	if (-e $file) { 
-		my $vdb =  read_verilog_file($file);
-		my @modules=sort $vdb->get_modules($file);
+	if (!defined $file) {
+		add_colored_info($info,"No input file is given. Please set an input Verilog fle first.\n", 'red');	
+		return;
+	 }
+	 
+	my $f=add_project_dir_to_addr($file); 
+	if (-e $f) { 
+		my $vdb =  read_verilog_file($f);
+		my @modules=sort $vdb->get_modules($f);
 		#foreach my $p(@module_list) {print "$p\n"}
 		$intfc_gen->intfc_set_interface_file($file);
 		$intfc_gen->intfc_set_module_name($modules[0]);
 		$intfc_gen->intfc_add_module_list(@modules);
 		
 		set_gui_status($intfc_gen,"file_selected",1);
-		show_info($info,"Select the module which contain the interface ports\n ");	
+		add_info($info,"$f is loaded\n");	
 	    
 	}
 	else { 
-		show_info($info,"File $file doese not exsit!\n ");	
+		add_colored_info($info,"File $file does not exist!\n", 'red');		
 		
 	}	
 }	
@@ -71,7 +80,7 @@ sub file_box {
 	});	
 	
 	if(defined $file){$entry->set_text($file);}
-	show_info($info,"Please select the verilog file containig the interface\n");
+	else {show_info($info,"Please select the verilog file containig the interface\n");}
 	$browse->signal_connect("clicked"=> sub{
 		my $entry_ref=$_[1];
  		my $file;
@@ -117,7 +126,7 @@ sub file_box {
 	});
 		
 	$entry->signal_connect("changed"=>sub{
-		show_info($info,"Please select the verilog file containig the interface\n");
+		#show_info($info,"Please select the verilog file containig the interface\n");
 	});
 	
 	my $row=0;
@@ -144,7 +153,8 @@ sub get_interface_ports {
 	if (!defined $file){show_info($info,"File name has not been defined yet!");  return;}
 	my $module=$intfc_gen->intfc_get_module_name();
 	if (!defined $module){  show_info($info,"Module name has not been selected yet!");  return;}
-	my $vdb=read_verilog_file($file);
+	my $f=add_project_dir_to_addr($file);
+	my $vdb=read_verilog_file($f);
 	my %port_type=get_ports_type($vdb,$module);
 	my %port_range=get_ports_rang($vdb,$module);
 	
@@ -243,7 +253,7 @@ sub get_interface_ports {
 
 sub module_select{
 	my ($intfc_gen,$info)=@_;
-	my $file= $intfc_gen->intfc_get_interface_file();
+	#my $file= $intfc_gen->intfc_get_interface_file();
 	
 	my $table = def_table(1,10,TRUE);
 
@@ -733,7 +743,8 @@ Glib::Timeout->add (100, sub{
 				add_info($info,"**Error reading  $file file: $err\n");
 				return;
 			} 			
-			clone_obj($intfc_gen,$pp);			
+			clone_obj($intfc_gen,$pp);
+			show_info($info,"$file is loaded!\n ");			
 			set_gui_status($intfc_gen,"ref",1);
 			
 			

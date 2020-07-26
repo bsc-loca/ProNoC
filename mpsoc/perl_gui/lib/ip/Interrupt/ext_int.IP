@@ -16,7 +16,7 @@ $ipgen = bless( {
                                     'timeout' => 0,
                                     'status' => 'ideal'
                                   },
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/ext_int/ext_int.v',
+                  'file_name' => 'mpsoc/src_peripheral/ext_int/ext_int.v',
                   'parameters' => {
                                     'TAGw' => {
                                                 'type' => 'Fixed',

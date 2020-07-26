@@ -203,7 +203,11 @@ module crossbar #(
             reg [PFw-1 : 0] flit_out_all_pipe;
             reg [P-1 : 0] flit_out_wr_all_pipe;
             
-            always @(posedge clk or posedge reset)begin 
+`ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+`else 
+            always @ (posedge clk or posedge reset)begin 
+`endif  
                 if(reset)begin
                     flit_out_all_pipe    <=  {PFw{1'b0}};
                     flit_out_wr_all_pipe <=  {P{1'b0}};

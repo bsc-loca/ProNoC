@@ -67,7 +67,7 @@ $ipgen = bless( {
                   'hdl_files' => [
                                    '/mpsoc/src_peripheral/gpio/gpio.v'
                                  ],
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/gpio/gpio.v',
+                  'file_name' => 'mpsoc/src_peripheral/gpio/gpio.v',
                   'ports' => {
                                'sa_sel_i' => {
                                                'type' => 'input',

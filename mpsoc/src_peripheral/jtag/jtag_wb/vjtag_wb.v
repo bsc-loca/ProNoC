@@ -100,7 +100,11 @@ localparam VJ_DW= (DW > AW)? DW : AW;
 	
 	
 	
-	always @(posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
 		if(reset) begin 
 			wb_addr <= {AW{1'b0}};
 			wb_wr_data  <= {DW{1'b0}};	
@@ -238,10 +242,12 @@ module vjtag_ctrl #(
 	assign data_out = shift_buffer;
 	
 	
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge tck )begin 
+`else 
+    always @ (posedge tck or posedge reset)begin 
+`endif  	
 	
-	
-	always @(posedge tck or posedge reset)
-	begin
 		if (reset)begin 
 			ir <= 3'b000;
 			bypass_reg<=1'b0;
@@ -290,8 +296,11 @@ module vjtag_ctrl #(
 	reg wb_wr_addr2, 	wb_wr_data2, 	wb_rd_data2;
 	reg wb_wr_addr3, 	wb_wr_data3, 	wb_rd_data3;
 	
-	always @(posedge clk or posedge reset)
-	begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
 		if( reset )	begin
 			wb_wr_addr2<=1'b0;
 			wb_wr_data2<=1'b0;

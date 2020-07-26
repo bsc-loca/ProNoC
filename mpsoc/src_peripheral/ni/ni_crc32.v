@@ -91,7 +91,11 @@ module crc_32_multi_channel #(
     genvar i;
     generate
     for (i=0;i<CHANNEL; i=i+1)begin :lp
-    always @(posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
         if (reset ) begin 
             crc_channel_reg[i]<=0;
         end else begin 

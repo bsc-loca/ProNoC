@@ -279,7 +279,11 @@ module router # (
         );
         
    
-    always @( posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset) begin 
             granted_dest_port_all_delayed<= {PP_1{1'b0}};            
         end else begin

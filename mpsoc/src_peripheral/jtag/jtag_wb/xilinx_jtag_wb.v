@@ -228,7 +228,12 @@ module xilinx_jtag_wb #(
    
   
     reg rst_ctrl_ack;
-    always @(posedge tclk or posedge reset)begin    
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge tclk )begin 
+`else 
+    always @ (posedge tclk or posedge reset)begin 
+`endif  
+   
        if(reset) begin 
         ctrl_reg <=2'b00;
       
@@ -241,8 +246,12 @@ module xilinx_jtag_wb #(
             end
        end  
     end 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge tclk )begin 
+`else 
+    always @ (posedge tclk or posedge reset)begin 
+`endif      
     
-    always @(posedge tclk or posedge reset)begin    
         if(reset) begin 
             rst_ctrl_ack<=1'b0;
           
@@ -358,10 +367,10 @@ module  xilinx_jtag_mem_ctrl #(
    
       
     wire  wb_wr_addr_en,  wb_wr_data_en,    wb_rd_data_en;
-    reg wr_mem_en,  rd_mem_en,  wb_cap_rd;
+    reg wr_mem_en,  rd_mem_en;//  wb_cap_rd;
     
     reg [Aw-1   :   0]  wb_addr,wb_addr_next;
-    reg [Dw-1   :   0]  wb_rd_data;
+   // reg [Dw-1   :   0]  wb_rd_data;
     wire [Dw-1   :   0]  wb_wr_data;
     reg wb_addr_inc;    
     
@@ -405,19 +414,22 @@ module  xilinx_jtag_mem_ctrl #(
         .ir_updated(ir_updated)
     );
         
-    
-    always @(posedge tclk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge tclk )begin 
+`else 
+    always @ (posedge tclk or posedge reset)begin 
+`endif  
         if(reset) begin 
             wb_addr <= {Aw{1'b0}};
            // wb_wr_data  <= {Dw{1'b0}};  
-            wb_rd_data  <= {Dw{1'b0}};
+           // wb_rd_data  <= {Dw{1'b0}};
             ps <= IDEAL;
         end else begin
             wb_addr <= wb_addr_next;
               if(reset_ps)   ps <= IDEAL;
               else ps <= ns;
            // if(wb_wr_data_en) wb_wr_data  <= data_out;  
-            if(wb_cap_rd | ir_updated ) wb_rd_data <= wb_to_jtag_dat;
+           // if(wb_cap_rd | ir_updated ) wb_rd_data <= wb_to_jtag_dat;
         end
     end
     
@@ -436,7 +448,7 @@ module  xilinx_jtag_mem_ctrl #(
         wr_mem_en =1'b0;
         rd_mem_en =1'b0;
         wb_addr_inc=1'b0;
-        wb_cap_rd=1'b0;
+       // wb_cap_rd=1'b0;
       
         
         case(ps)
@@ -444,7 +456,7 @@ module  xilinx_jtag_mem_ctrl #(
             if(wb_wr_data_en) ns= WB_WR_DATA;   
             if(wb_rd_data_en) begin 
                 ns= WB_RD_DATA;
-                wb_cap_rd=1'b1;
+               // wb_cap_rd=1'b1;
              end   
         end 
         WB_WR_DATA: begin 

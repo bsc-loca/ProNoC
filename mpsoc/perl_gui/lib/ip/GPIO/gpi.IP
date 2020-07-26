@@ -21,7 +21,7 @@ $ipgen = bless( {
                   'module_name' => 'gpi',
                   'category' => 'GPIO',
                   'sockets' => {},
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/gpio/gpio.v',
+                  'file_name' => 'mpsoc/src_peripheral/gpio/gpio.v',
                   'unused' => {
                                 'plug:wb_slave[0]' => [
                                                         'bte_i',

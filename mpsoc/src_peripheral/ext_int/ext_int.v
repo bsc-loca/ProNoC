@@ -108,7 +108,11 @@ module ext_int #(
 	
 	assign	triggered	=	rise_edge |  fall_edge;
 	
-	always @ (posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
 		if(reset) begin 
 			ger		<=	1'b0;
 			ier_rise	<= {EXT_INT_NUM{1'b0}};

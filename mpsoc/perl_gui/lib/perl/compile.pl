@@ -1520,6 +1520,10 @@ set_project_properties
 	$tcl =$tcl."
 	update_compile_order -fileset sources_1
 	#launch synthesis
+	
+	# Make all reset syncron 
+	set_property verilog_define {{SYNC_RESET_MODE}} [current_fileset]
+	
 	launch_runs synth_1
 	wait_on_run synth_1
 	#Run implementation and generate bitstream
@@ -1637,7 +1641,7 @@ sub modelsim_compilation{
 	#creat modelsim dir
 	
 	my $model="$target_dir/Modelsim";
-	unlink("$model/run.tcl");
+	unlink("$model/model.tcl");
 	rmtree("$target_dir/rtl_work");
 	mkpath("$model/rtl_work",1,01777);
 	
@@ -1718,13 +1722,16 @@ view structure
 view signals
 run -all
 ";
-	add_info($tview,"Create run.tcl file\n");
-	save_file ("$model/run.tcl",$tcl);
+	add_info($tview,"Create model.tcl, run.sh files\n");
+	save_file ("$model/model.tcl",$tcl);
+	my $modelsim_bin= $self->object_get_attribute('compile','modelsim_bin');		
+	my $cmd="cd $target_dir; $modelsim_bin/vsim -do $model/model.tcl";
+	save_file ("$model/run.sh",'#!/bin/bash\n'.$cmd);
+	
 	$run -> signal_connect("clicked" => sub{
 		set_gui_status($self,'save_project',1);
 		$app->do_save();
-		my $modelsim_bin= $self->object_get_attribute('compile','modelsim_bin');		
-		my $cmd="cd $target_dir; $modelsim_bin/vsim -do $model/run.tcl";
+		
 		
 		add_info($tview,"$cmd\n");
 		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);

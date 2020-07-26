@@ -234,7 +234,7 @@ $ipgen = bless( {
                                },
                   'module_name' => 'wishbone_bus',
                   'version' => 1,
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/bus/wishbone_bus.v',
+                  'file_name' => 'mpsoc/src_peripheral/bus/wishbone_bus.v',
                   'parameters' => {
                                     'Aw' => {
                                               'redefine_param' => 1,

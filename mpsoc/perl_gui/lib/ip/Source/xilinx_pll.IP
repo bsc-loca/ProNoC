@@ -270,12 +270,12 @@ $ipgen = bless( {
                                              }
                              },
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/reset_sync/xilinx_pll/xilinx_pll2_base.v',
-                                   '/mpsoc/src_peripheral/reset_sync/xilinx_pll/xilinx_pll_sim'
+                                   '/mpsoc/src_peripheral/clk_source/xilinx_pll/xilinx_pll2_base.v',
+                                   '/mpsoc/src_peripheral/clk_source/xilinx_pll/xilinx_pll_sim'
                                  ],
                   'category' => 'Source',
                   'module_name' => 'xilinx_pll2_base',
-                  'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/reset_sync/xilinx_pll/xilinx_pll2_base.v',
+                  'file_name' => 'mpsoc/src_peripheral/clk_source/xilinx_pll/xilinx_pll2_base.v',
                   'gui_status' => {
                                     'timeout' => 0,
                                     'status' => 'ideal'

@@ -422,5 +422,5 @@ mif: memory initialization file format. This file can be used to initialize Alte
                                     'timeout' => 0,
                                     'status' => 'ideal'
                                   },
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/ram/wb_single_port_ram.v'
+                  'file_name' => 'mpsoc/src_peripheral/ram/wb_single_port_ram.v'
                 }, 'ip_gen' );

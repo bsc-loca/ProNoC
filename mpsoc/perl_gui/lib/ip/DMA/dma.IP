@@ -406,7 +406,7 @@ The wishbone bus will be released each time one burst is completed or when the i
                                      'm_wr_ack_i',
                                      'irq'
                                    ],
-                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/DMA/dma_multi_channel_wb.v',
+                  'file_name' => 'mpsoc/src_peripheral/DMA/dma_multi_channel_wb.v',
                   'gui_status' => {
                                     'timeout' => 0,
                                     'status' => 'ideal'

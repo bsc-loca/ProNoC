@@ -191,7 +191,11 @@ module  traffic_gen #(
     wire [HDR_Dw-1 : 0] hdr_data_in,rd_hdr_data_out;
    
     
-    always @ (posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) begin 
             dest_e_addr_reg<={EAw{1'b0}};           
         end else begin 
@@ -571,7 +575,11 @@ always @(*)begin
            if((tail_flit & flit_out_wr ) || not_yet_sent_aflit) pck_size_next  = pck_size_in;
     end
     
-always @(posedge clk or posedge reset )begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) begin 
             inject_en       <= 1'b0;
             ps              <= IDEAL;
@@ -658,7 +666,11 @@ always @(posedge clk or posedge reset )begin
     
     
     integer ii;
-    always @(posedge clk or posedge reset )begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset) begin
             for(ii=0;ii<V;ii=ii+1'b1)begin
                 old_flit_counter[ii]<=0;            
@@ -802,7 +814,11 @@ module injection_ratio_ctrl #
          
  
  
-    always @(posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if( reset) begin            
             state       <=  STATE_INIT;
             inject      <=  1'b0; 
@@ -968,7 +984,11 @@ endmodule
     );
     */ 
     
-    always @ (posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) begin 
             packet_counter <= {PCK_CNTw{1'b0}};
             

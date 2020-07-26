@@ -484,7 +484,11 @@ module   mesh_torus_swap_port_presel_gen #(
        assign  evc_forbiden = (sel)? y_evc_forbiden : x_evc_forbiden;
        assign  swap_port_presel_next= non_assigned_ovc_request & evc_forbiden & avc_unavailable;
     
-        always @(posedge clk or posedge reset)begin 
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif   
             if(reset)begin 
                 swap_reg<=1'b0;        
             end else begin 

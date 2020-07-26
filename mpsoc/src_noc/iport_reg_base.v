@@ -239,24 +239,32 @@ module iport_reg_base  #(
     // synopsys  translate_on       
      
      
-always @ (posedge clk or posedge reset) begin 
-    if(reset) begin 
-          iport_weight <= 1;
-    end else begin 
-          if(hdr_flit_wr != {V{1'b0}})  iport_weight <= (weight_in=={WEIGHTw{1'b0}})? 1 : weight_in; // the minimum weight is 1
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
+        if(reset) begin 
+              iport_weight <= 1;
+        end else begin 
+              if(hdr_flit_wr != {V{1'b0}})  iport_weight <= (weight_in=={WEIGHTw{1'b0}})? 1 : weight_in; // the minimum weight is 1
+        end
     end
-end
 
 // genrate write enable for lk_routing result with one clock cycle latency after reciveing the flit
-always @(posedge clk or posedge reset) begin 
-    if(reset) begin 
-        hdr_flit_wr_delayed <= {V{1'b0}};
-        //lk_dst_rd_fifo          <= {V{1'b0}};
-    end else begin 
-        hdr_flit_wr_delayed <= hdr_flit_wr;
-    //    lk_dst_rd_fifo          <= dst_rd_fifo;
-    end
-end 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
+        if(reset) begin 
+            hdr_flit_wr_delayed <= {V{1'b0}};
+            //lk_dst_rd_fifo          <= {V{1'b0}};
+        end else begin 
+            hdr_flit_wr_delayed <= hdr_flit_wr;
+        //    lk_dst_rd_fifo          <= dst_rd_fifo;
+        end
+    end 
 
 
 genvar i;
@@ -704,7 +712,11 @@ endgenerate
     
     assign flit_wr =(flit_in_wr )? vc_num_in : {V{1'b0}};
         
-    always @(posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) begin 
                 lk_dst_rd_fifo          <= {V{1'b0}};
         end else begin 

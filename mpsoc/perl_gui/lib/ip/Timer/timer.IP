@@ -157,7 +157,7 @@ $ipgen = bless( {
                                     'status' => 'ideal'
                                   },
                   'version' => 11,
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/timer/timer.v',
+                  'file_name' => 'mpsoc/src_peripheral/timer/timer.v',
                   'description_pdf' => '/mpsoc/src_peripheral/timer/timer.pdf',
                   'system_h' => '#define ${IP}_TCSR	   			(*((volatile unsigned int *) ($BASE	)))
 		

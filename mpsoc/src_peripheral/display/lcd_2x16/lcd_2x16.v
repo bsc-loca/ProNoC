@@ -108,7 +108,11 @@ module lcd_2x16 #(
 	assign lcd_data = (s_addr_i[0]) ? 8'bz : s_dat_i;
 	assign s_dat_o  = lcd_data;
 
-	always @(posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
 		if(reset) begin 
 			s_ack_o	<=	1'b0;
 			cnt=6'd0;

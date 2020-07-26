@@ -240,7 +240,7 @@ void ${IP}_transfer (unsigned int init_weight, unsigned int v, unsigned int clas
 */
 
 void ${IP}_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max_buffer_size, unsigned int start_index);',
-                  'file_name' => '/home/alireza/mywork/mpsoc/src_peripheral/ni/ni_master.v',
+                  'file_name' => 'mpsoc/src_peripheral/ni/ni_master.v',
                   'description_pdf' => '/mpsoc/src_peripheral/ni/NI.pdf',
                   'gui_status' => {
                                     'timeout' => 0,

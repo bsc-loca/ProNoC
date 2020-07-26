@@ -211,7 +211,11 @@ module  flit_buffer_reg_base #(
        
                
            
-        always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif  
             if(reset)begin 
                 flit_regs[i]<= {REGFw{1'b0}};
                 class_vc[i]<=  {Cw{1'b0}};
@@ -233,7 +237,11 @@ module  flit_buffer_reg_base #(
         /* verilator lint_off WIDTH */
          /*
         if( ROUTE_TYPE=="DETERMINISTIC") begin : dtrmn_dest
-            always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+`else 
+            always @ (posedge clk or posedge reset)begin 
+`endif  
                 if(reset)begin 
                    
                 end else begin 

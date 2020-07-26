@@ -344,7 +344,11 @@ module header_flit_update_lk_route_ovc #(
     wire [DSTPw-1 : 0]  lk_mux_out;
 
    
-    always @(posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) begin 
             vc_num_delayed                  <= {V{1'b0}};
             //assigned_ovc_num_delayed  <=  {VV{1'b0}};
@@ -372,7 +376,12 @@ module header_flit_update_lk_route_ovc #(
     if( SSA_EN == "YES" ) begin : predict // bypass the lk fifo when no ivc is granted
     /* verilator lint_on WIDTH */
         reg ivc_any_delayed;
-        always @(posedge clk or posedge reset) begin 
+
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif   
             if(reset) begin 
                 ivc_any_delayed <= 1'b0;
             end else begin

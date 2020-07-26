@@ -278,7 +278,7 @@ For XILINX FPGAs define it as "XILINX_JTAG_WB". In this case, the BSCANE2 JTAG t
                              },
                   'hdl_files' => [],
                   'version' => 8,
-                  'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_wb/pronoc_jtag_wb.v',
+                  'file_name' => 'mpsoc/src_peripheral/jtag/jtag_wb/pronoc_jtag_wb.v',
                   'gui_status' => {
                                     'timeout' => 0,
                                     'status' => 'ideal'

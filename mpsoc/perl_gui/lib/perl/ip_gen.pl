@@ -49,10 +49,17 @@ sub check_input_file{
 sub read_all_module{
 	my ($file,$ipgen,$info)=@_;
 	
-	if (!defined $file) {return; }
-	if (-e $file) { 
-		my $vdb =  read_verilog_file($file);
-		my @modules=sort $vdb->get_modules($file);
+	if (!defined $file) {
+		add_colored_info($info,"No input file is given. Please set an input Verilog fle first.\n", 'red');	
+		
+		return; 
+	}
+	
+	my $f=add_project_dir_to_addr($file);
+	
+	if (-f $f) { 
+		my $vdb =  read_verilog_file($f);
+		my @modules=sort $vdb->get_modules($f);
 		#foreach my $p(@module_list) {print "$p\n"}
 		$ipgen->ipgen_add("file_name",$file);
 
@@ -64,12 +71,11 @@ sub read_all_module{
 		
 		
 		set_gui_status($ipgen,"file_selected",1);
-		show_info($info,"Select the module which contain the interface ports\n ");	
+		add_info($info,"$f is loaded\n");		
 	    
 	}
 	else { 
-		show_info($info,"File $file doese not exsit!\n ");	
-		
+		add_colored_info($info,"File $file does not exist!\n", 'red');			
 	}	
 }	
 
@@ -108,14 +114,14 @@ sub ip_file_box {
 	my $browse= def_image_button("icons/browse.png","Browse");
 	my $file= $ipgen->ipgen_get("file_name");
 	if(defined $file){$entry->set_text($file);}
-
+    else {show_info($info,"Please select the verilog file containig the top level IP core\n");}
 
 	
 	my $entry2=gen_label_info(" IP name:",gen_entry_object($ipgen,'ip_name',undef,undef,undef,undef));
 
 
 
-	show_info($info,"Please select the verilog file containig the ip module\n");
+	#show_info($info,"Please select the verilog file containig the ip module\n");
 	$browse->signal_connect("clicked"=> sub{
 		my $entry_ref=$_[1];
  		my $file;
@@ -156,7 +162,8 @@ sub ip_file_box {
 	});
 		
 	$entry->signal_connect("changed"=>sub{
-		show_info($info,"Please select the verilog file containig the interface\n");
+		#my $file_name=$entry->get_text();
+		#check_input_file($file_name,$ipgen,$info);
 	});
 	
 	$table->attach_defaults ($label, 0, 1 , $row, $row+1);
@@ -337,6 +344,7 @@ header file example
 sub load_default_setting{
 	my ($ipgen,$module)=@_; 
 	my $file= $ipgen->ipgen_get("file_name");
+	$file=add_project_dir_to_addr($file);
 	$ipgen->ipgen_add("module_name",$module);
 	my $vdb =read_verilog_file($file);
 	my %parameters = $vdb->get_modules_parameters_not_local($module);
@@ -2032,11 +2040,12 @@ Glib::Timeout->add (100, sub{
 			my $file=$ipgen->ipgen_get("file_name");
 			my ($pp,$r,$err) = regen_object($file);
 			if ($r){		
-				add_info($info,"**Error reading  $file file: $err\n");
+				add_colored_info($info,"**Error reading  $file file: $err\n",'red');
 				
 				return;
 			} 			
 			clone_obj($ipgen,$pp);
+			show_info($info,"$file is loaded!\n ");
 			set_gui_status($ipgen,"ref",1);
 			
 			

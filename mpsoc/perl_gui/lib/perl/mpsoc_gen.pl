@@ -2804,16 +2804,16 @@ sub ctrl_box{
     my $save      = def_image_button('icons/save.png');	
 	$entrybox->pack_start( $save, FALSE, FALSE, 0);
     my $diagram  = def_image_button('icons/diagram.png','Diagram');
-    my $clk=  def_colored_button('CLK setting',17);	
+    my $clk=  def_image_button('icons/clk.png','CLK setting');	
 
 	my $row=0;
-    $table->attach ($open,$row, $row+2, 24,25,'expand','shrink',2,2);$row+=2;
-    $table->attach ($entrybox,$row, $row+2, 24,25,'expand','shrink',2,2);$row+=2;
-    $table->attach ($diagram, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
-    $table->attach ($clk, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;    
-    $table->attach ($generate, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
-    $table->attach ($software, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;    
-    $table->attach ($compile, $row, $row+1, 24,25,'expand','shrink',2,2);$row++;
+    $table->attach ($open,$row, $row+2, 0,1,'expand','shrink',2,2);$row+=2;
+    $table->attach ($entrybox,$row, $row+2, 0,1,'expand','shrink',2,2);$row+=2;
+    $table->attach ($diagram, $row, $row+1, 0,1,'expand','shrink',2,2);$row++;
+    $table->attach ($clk, $row, $row+1, 0,1,'expand','shrink',2,2);$row++;    
+    $table->attach ($generate, $row, $row+1, 0,1,'expand','shrink',2,2);$row++;
+    $table->attach ($software, $row, $row+1, 0,1,'expand','shrink',2,2);$row++;    
+    $table->attach ($compile, $row, $row+1, 0,1,'expand','shrink',2,2);$row++;
 	
 	$generate-> signal_connect("clicked" => sub{ 
         generate_mpsoc($mpsoc,$info,1);
@@ -2915,7 +2915,8 @@ sub mpsocgen_main{
     my $v2=gen_vpaned($h1,.55,$infobox);
 	my $row=0;
     $main_table->attach_defaults ($v2  , 0, 12, 0,24);
-    $main_table->attach_defaults ($ctrl,0, 12, 24,25);
+    #$main_table->attach_defaults ($ctrl,0, 12, 24,25);
+    $main_table->attach ($ctrl,0, 12, 24,25, 'fill','fill',2,2);
 
     #check soc status every 0.5 second. referesh device table if there is any changes 
     Glib::Timeout->add (100, sub{ 
@@ -2945,7 +2946,7 @@ sub mpsocgen_main{
             $h1->show_all;
             $ctrl->destroy;
             $ctrl=ctrl_box($mpsoc,$info);
-            $main_table->attach_defaults ($ctrl,0, 12, 24,25);
+            $main_table->attach ($ctrl,0, 12, 24,25,'fill','fill',2,2);
             $main_table->show_all();
                    
             

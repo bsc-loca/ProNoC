@@ -632,7 +632,11 @@ module tree_look_ahead_routing #(
      );
      
         
-      always @(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset)begin
             destport_encoded_delayed <= {DSPw{1'b0}};
             dest_addr_encoded_delayed<= {LKw{1'b0}};

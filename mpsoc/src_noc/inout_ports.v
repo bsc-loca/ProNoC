@@ -337,7 +337,11 @@ endgenerate
 
 
 
-always @ (posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
     if (reset)    begin
         ovc_is_assigned_all   <=  {PV{1'b0}};
         assigned_ovc_num_all  <=  {PVV{1'b0}};
@@ -619,7 +623,11 @@ endmodule
     genvar i;
     generate
         for(i=0;i<V;i=i+1) begin : vc_loop
-            always@(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+`else 
+            always @ (posedge clk or posedge reset)begin 
+`endif  
                     if(reset)begin
                         depth[i]<={DEPTH_WIDTH{1'b0}};
                     end else begin
@@ -673,7 +681,11 @@ endmodule
 
         end //else
 
-        always @(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif  
             if          (reset)          cand_vc    <= {V{1'b0}};
             else    if(cand_wr_vc_en)    cand_vc    <=  cand_vc_next;
         end

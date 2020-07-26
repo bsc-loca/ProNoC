@@ -444,5 +444,5 @@ static inline void nop (void) {
                                                              'value' => 'INTR_NUM'
                                                            }
                                },
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_processor/lm32/verilog/src/lm32.v'
+                  'file_name' => 'mpsoc/src_processor/lm32/verilog/src/lm32.v'
                 }, 'ip_gen' );

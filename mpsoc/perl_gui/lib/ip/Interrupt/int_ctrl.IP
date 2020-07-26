@@ -10,7 +10,7 @@
 ################################################################################
 
 $ipgen = bless( {
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/int_ctrl/int_ctrl.v',
+                  'file_name' => 'mpsoc/src_peripheral/int_ctrl/int_ctrl.v',
                   'sockets' => {
                                  'interrupt_peripheral' => {
                                                              'connection_num' => 'single connection',

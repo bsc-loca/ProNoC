@@ -383,5 +383,5 @@ int jtag_scanint(int *num);
                                                         'sel_i'
                                                       ]
                               },
-                  'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/src_peripheral/jtag/jtag_uart/pronoc_jtag_uart.v'
+                  'file_name' => 'mpsoc/src_peripheral/jtag/jtag_uart/pronoc_jtag_uart.v'
                 }, 'ip_gen' );

@@ -198,8 +198,11 @@ generate
         assign  vc_not_empty    [i] =   (depth[i] > 0);
     
     
-        always @(posedge clk or posedge reset)
-        begin
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif        
             if (reset) begin
                 rd_ptr  [i] <= {Bw{1'b0}};
                 wr_ptr  [i] <= {Bw{1'b0}};
@@ -281,9 +284,12 @@ generate
         assign  vc_not_empty    [i] =   (depth[i] > 0);
     
      /* verilator lint_off WIDTH */ 
-        always @(posedge clk or posedge reset)
-        begin
-            if (reset) begin
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif  
+           if (reset) begin
                
                 rd_ptr  [i] <= (B*i);
                 wr_ptr  [i] <= (B*i);
@@ -710,7 +716,11 @@ endgenerate
 
 
 
-always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif   
             if (reset) begin
                  depth  <= {DEPTH_DATA_WIDTH{1'b0}};
             end else begin
@@ -734,7 +744,11 @@ always @(posedge clk or posedge reset) begin
         end//always
         
         
-        always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif   
             if (reset) begin
                  dout  <= {DATA_WIDTH{1'b0}};
             end else begin
@@ -914,7 +928,11 @@ module fwft_fifo_with_output_clear #(
     end    
 endgenerate
 
-        always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif   
             if (reset) begin
                  depth  <= {DEPTH_DATA_WIDTH{1'b0}};
             end else begin
@@ -938,7 +956,11 @@ endgenerate
         
     generate 
     for(i=0;i<DATA_WIDTH; i=i+1) begin : lp
-        always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif   
             if (reset) begin
                 dout[i]  <= 1'b0;
             end else begin

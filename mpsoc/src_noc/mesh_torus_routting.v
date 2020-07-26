@@ -100,7 +100,11 @@ module mesh_torus_look_ahead_routing #(
     endgenerate
     
 
-    always @(posedge clk or posedge reset)begin
+ `ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset)begin
             destx_delayed               <= {Xw{1'b0}};
             desty_delayed               <= {Yw{1'b0}};

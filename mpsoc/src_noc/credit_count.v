@@ -145,7 +145,11 @@ module credit_counter #(
         /* verilator lint_on WIDTH */
             reg    [PV-1        :    0]    empty_all,empty_all_next;
             
-            always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+         always @ (posedge clk )begin 
+`else 
+         always @ (posedge clk or posedge reset)begin 
+`endif 
                 if(reset) begin 
                     empty_all    <=    {PV{1'b0}};
                 end else begin 
@@ -193,7 +197,11 @@ module credit_counter #(
                 end//always
 
         
-        always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+`else 
+            always @ (posedge clk or posedge reset)begin 
+`endif 
                     if(reset) begin 
                             full_adaptive_ovc_mask    <=  {PV{1'b0}};
                      end else begin 
@@ -294,7 +302,12 @@ module credit_counter #(
     end//for
     
     for(i=0;    i<PV; i=i+1) begin :reg_blk
-        always @(posedge clk or posedge reset) begin
+
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif 
             if(reset) begin 
                 credit_counter[i]    <=    Bint;
                 ovc_status[i]        <=    1'b0;
@@ -367,7 +380,12 @@ module credit_counter #(
     //synopsys  translate_off
 generate 
 if(DEBUG_EN) begin: debug
-    always @(posedge clk or posedge reset ) begin
+
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif 
         if(reset )begin 
 
         end else begin
@@ -618,7 +636,11 @@ module sw_mask_gen #(
         full_reg2_next    =    nearly_full_muxout2 & ivc_getting_sw_grant;
     end
     
-    always @(posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset)  begin     
             full_reg1    <= 1'b0;
             full_reg2    <= 1'b0;

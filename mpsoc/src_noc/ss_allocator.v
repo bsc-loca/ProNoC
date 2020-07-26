@@ -231,7 +231,11 @@ module  ss_allocator#(
     
     
     for(i=0;i<P;i=i+1)begin: port_lp                   
-        always @(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif  
             if(reset)begin
                     ssa_flit_wr_all[i]<=1'b0;
             end else begin

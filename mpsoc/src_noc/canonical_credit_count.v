@@ -144,8 +144,12 @@ module canonical_credit_counter #(
         if(VC_REALLOCATION_TYPE=="ATOMIC") begin :atomic
         /* verilator lint_on WIDTH */
             reg    [PV-1        :    0]    empty_all,empty_all_next;
-            
-            always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+`else 
+            always @ (posedge clk or posedge reset)begin 
+`endif            
+          
                 for(k=0;    k<PV; k=k+1'b1) begin 
                     if(reset) begin 
                         empty_all[k]    <=    1'b0;
@@ -192,13 +196,17 @@ module canonical_credit_counter #(
                      end // for  
                 end//always
 
-         always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+`else 
+            always @ (posedge clk or posedge reset)begin 
+`endif        
                         if(reset) begin 
                             full_adaptive_ovc_mask    <=  {PV{1'b0}};
                         end else begin 
                             full_adaptive_ovc_mask    <= full_adaptive_ovc_mask_next;
                         end                    
-                end//always
+            end//always
         
 
                 assign ovc_avalable_all              = ~ovc_status & full_adaptive_ovc_mask;
@@ -297,7 +305,13 @@ module canonical_credit_counter #(
     end//for
     
     for(i=0;    i<PV; i=i+1) begin :register_loop
-        always @(posedge clk or posedge reset) begin
+    
+`ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+`else 
+        always @ (posedge clk or posedge reset)begin 
+`endif     
+        
             if(reset) begin 
                 credit_counter[i]    <=    Bint;
                 ovc_status[i]        <=    1'b0;
@@ -611,8 +625,13 @@ module sw_mask_gen_can #(
         full_reg1_next    =    full_muxout2;
         full_reg2_next    =    nearly_full_muxout2 & ivc_getting_sw_grant;
     end
-    
-    always @(posedge clk or posedge reset) begin 
+ 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif 
+   
         if(reset)  begin     
             full_reg1    <= 1'b0;
             full_reg2    <= 1'b0;

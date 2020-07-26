@@ -466,7 +466,11 @@ module ni_vc_wb_slave_regs #(
  
  
      //registers assigmnet    
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
     always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) begin        
             send_pointer_addr   <= {Dw{1'b0}};
             send_pointer_addr_byte_offset<={OFFSETw{1'b0}};

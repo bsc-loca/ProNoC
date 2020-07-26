@@ -102,7 +102,7 @@ $HashRef = bless( {
                                                   }
                                },
                     'module_name' => 'ni',
-                    'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/ni/ni.v',
+                    'file_name' => 'mpsoc/src_peripheral/ni/ni.v',
                     'category' => 'NoC',
                     'gui_status' => {
                                       'status' => 'ideal',

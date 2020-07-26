@@ -148,7 +148,7 @@ int ${IP}_send(int length);   //return (-1) or length (still processing previous
                   'custom_file' => {
                                      '0' => {}
                                    },
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/ethmac/ethtop.v',
+                  'file_name' => 'mpsoc/src_peripheral/ethmac/ethtop.v',
                   'custom_file_num' => 1,
                   'parameters_order' => [
                                           'TX_FIFO_DATA_WIDTH',

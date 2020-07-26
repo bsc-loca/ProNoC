@@ -132,7 +132,11 @@ module int_ctrl #(
 			end
 		end//stb
 		
-		always @(posedge clk) begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
 		if(reset)begin 
 			mer		<= 2'b0;
 			ier		<= {INT_NUM{1'b0}};

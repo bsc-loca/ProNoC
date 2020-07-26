@@ -108,7 +108,7 @@ static inline void nop (void) {
                                                     'info' => undef
                                                   }
                                   },
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_processor/aeMB/verilog/aemb.v',
+                  'file_name' => 'mpsoc/src_processor/aeMB/verilog/aemb.v',
                   'gen_sw_files' => [
                                       '/mpsoc/src_processor/aeMB/sw/Makefilefrename_sep_tMakefile'
                                     ],

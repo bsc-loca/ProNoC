@@ -263,7 +263,11 @@
     end 
     
     
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
     always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) begin 
             burst_counter <= {BURST_SIZE_w{1'b0}};
             burst_size <= {BURST_SIZE_w{1'b1}};
@@ -918,7 +922,11 @@ module dma_single_wb #(
     
     //registers assigmnet
     
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
     always @ (posedge clk or posedge reset)begin 
+`endif   
         if(reset) begin 
             rd_ps <= RD_IDEAL;
             wr_ps <= WR_IDEAL;
@@ -1177,8 +1185,11 @@ generate
        
     
     
-        always @(posedge clk or posedge reset)
-        begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
             if (reset) begin
                 rd_ptr  [i] <= {Bw{1'b0}};
                 wr_ptr  [i] <= {Bw{1'b0}};
@@ -1259,8 +1270,11 @@ generate
         assign empty[i] = depth[i] == {DEPTHw{1'b0}};
     
     
-        always @(posedge clk or posedge reset)
-        begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
             if (reset) begin
                 rd_ptr  [i] <= (B*i);
                 wr_ptr  [i] <= (B*i);

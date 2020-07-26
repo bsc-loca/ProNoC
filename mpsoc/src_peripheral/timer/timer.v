@@ -162,7 +162,11 @@ PRESCALER_WIDTH+3: 4:	prescaler_ctrl
 	   .one_hot_code	(dev_one_hot)
 	);
 
-	always @(posedge clk or posedge reset) begin 
+ `ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
 		if(reset) begin 
 			counter				<= {CNTw{1'b0}};
 			cmp					<=	{CNTw{1'b1}};

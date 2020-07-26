@@ -228,7 +228,11 @@ module  port_presel_based_dst_ports_credit #(
     end//always
     
   for(i=0;    i<P_1; i=i+1'b1) begin :blk2
-    always @(posedge clk or posedge reset) begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif 
       
             if(reset) begin 
                 credit_per_port[i]   <=  C_INT;
@@ -669,7 +673,11 @@ endmodule
     reg     [CONGw-1    :   0]  congestion_out ; 
     reg     [PV-1       :   0]  ivc_request_not_granted; 
     
-    always @(posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset) begin 
             ivc_request_not_granted <= 0;
         end else begin 
@@ -1173,7 +1181,11 @@ endmodule
     wire    [V-1        :   0]  ivc_not_grnt  [P_1-1  :   0];
     wire    [CNT_Vw-1   :   0]  ivc_not_grnt_num [P_1-1  :   0];
     
-    always @(posedge clk or posedge reset) begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif  
         if(reset) begin 
             ivc_request_not_granted <= 0;
         end else begin 
@@ -1554,14 +1566,18 @@ if(ROUTE_TYPE  !=  "DETERMINISTIC") begin :adpt
 
 endgenerate
 
-	always @(posedge clk or posedge reset)begin
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif 
 		if(reset)begin
 			congestion_out_all <= {CONG_ALw{1'b0}};  
 		end else begin 
 			congestion_out_all <= congestion_out_all_next;
 		
 		end	
-	end
+	end //always
 
 
 endmodule
@@ -1614,7 +1630,12 @@ module  deadlock_detector #(
   wire  [V-1    :   0]  counter_rst,counter_en,detect_gen;
   reg   [PV-1   :   0]  ivc_num_getting_sw_grant_reg;
  
-  always @(posedge clk or posedge reset)begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif 
+
     if(reset) begin 
           ivc_num_getting_sw_grant_reg  <= {PV{1'b0}};
     end else begin 
@@ -1634,7 +1655,11 @@ module  deadlock_detector #(
     assign counter_rst[i]   =|counter_rst_gen[i];
     assign counter_en[i]    =|counter_en_gen [i]; 
     // generate the counter
-    always @(posedge clk or posedge reset)begin 
+`ifdef SYNC_RESET_MODE 
+    always @ (posedge clk )begin 
+`else 
+    always @ (posedge clk or posedge reset)begin 
+`endif 
         if(reset) begin 
             counter[i]<={CNTw{1'b0}};
         end else begin 

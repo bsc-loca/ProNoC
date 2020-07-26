@@ -24,7 +24,7 @@ $ipgen = bless( {
                                    '/mpsoc/src_peripheral/gpio/gpio.v'
                                  ],
                   'ip_name' => 'gpio',
-                  'file_name' => '/home/alireza/Mywork/mpsoc/src_peripheral/gpio/gpio.v',
+                  'file_name' => 'mpsoc/src_peripheral/gpio/gpio.v',
                   'version' => 1,
                   'modules' => {
                                  'gpo' => {},

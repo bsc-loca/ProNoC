@@ -420,7 +420,7 @@ int main(){
                                   },
                   'ip_name' => 'mor1kx',
                   'module_name' => 'mor1k',
-                  'file_name' => '/home/alireza/mywork/mpsoc/src_processor/mor1kx-3.1/rtl/mor1k.v',
+                  'file_name' => 'mpsoc/src_processor/mor1kx-3.1/rtl/mor1k.v',
                   'version' => 22,
                   'unused' => {
                                 'plug:wb_master[0]' => [

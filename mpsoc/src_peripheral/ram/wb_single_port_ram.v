@@ -251,6 +251,8 @@ module single_port_ram_top #(
 );
     /* verilator lint_off WIDTH */
     localparam  BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
+    localparam  XILINX_INIT_FILE = (INITIAL_EN == "NO") ? "none" : INIT_FILE;
+    localparam  ALTERA_INIT_FILE = (INITIAL_EN == "NO") ? "UNUSED" : INIT_FILE;    
     /* verilator lint_on WIDTH */
   
     input                           clk,reset;
@@ -319,7 +321,7 @@ if(FPGA_VENDOR=="ALTERA")begin:altera_fpga
             .widthad_a(Aw),
             .widthad_b(Aw),
             .width_byteena_a(BYTE_ENw),
-            .init_file(INIT_FILE)
+            .init_file(ALTERA_INIT_FILE)
     
         ) ram_inst(
             .clock0         (clk),
@@ -365,7 +367,7 @@ if(FPGA_VENDOR=="ALTERA")begin:altera_fpga
             .read_during_write_mode_mixed_ports("DONT_CARE"),
             .widthad_a(Aw),
             .width_byteena_a(BYTE_ENw),
-            .init_file(INIT_FILE)   
+            .init_file(ALTERA_INIT_FILE)   
         )
         ram_inst
         (
@@ -415,7 +417,7 @@ else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
         wire [BYTE_ENw-1   :   0] xilinx_we_b = (we_b)? {BYTE_ENw{1'b1}} : {BYTE_ENw{1'b0}};
     // xpm_memory_tdpram: True Dual Port RAM
    // Xilinx Parameterized Macro, version 2019.1
-
+   
    xpm_memory_tdpram #(
       .ADDR_WIDTH_A(Aw),               // DECIMAL
       .ADDR_WIDTH_B(Aw),               // DECIMAL
@@ -425,7 +427,7 @@ else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
      // .CASCADE_HEIGHT(0),             // DECIMAL
       .CLOCKING_MODE("common_clock"), // String
       .ECC_MODE("no_ecc"),            // String
-      .MEMORY_INIT_FILE(INIT_FILE),      // String
+      .MEMORY_INIT_FILE(XILINX_INIT_FILE),      // String
       .MEMORY_INIT_PARAM(""),        // String
       .MEMORY_OPTIMIZATION("true"),   // String
       .MEMORY_PRIMITIVE("auto"),      // String
@@ -535,7 +537,7 @@ else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
     end //   xilinx_dual
     else begin : xilinx_single
     
-      
+     
        
         xpm_memory_spram #(
           .ADDR_WIDTH_A(Aw),             // DECIMAL
@@ -543,7 +545,7 @@ else if (FPGA_VENDOR=="XILINX")begin:xilinx_fpga
           .BYTE_WRITE_WIDTH_A(8),        // DECIMAL
         //  .CASCADE_HEIGHT(0),            // DECIMAL
           .ECC_MODE("no_ecc"),           // String
-          .MEMORY_INIT_FILE(INIT_FILE),  // String
+          .MEMORY_INIT_FILE(XILINX_INIT_FILE),  // String
           .MEMORY_INIT_PARAM(""),       // String
           .MEMORY_OPTIMIZATION("true"),  // String
           .MEMORY_PRIMITIVE("auto"),     // String
