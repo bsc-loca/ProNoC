@@ -69,11 +69,12 @@ sub object_get_attribute{
 
 sub object_add_attribute_order{
 	my ($self,$attribute,@param)=@_;
-	$self->{'parameters_order'}{$attribute}=[] if (!defined $self->{parameters_order}{$attribute});
-	foreach my $p (uniq (@param)){
-		push (@{$self->{parameters_order}{$attribute}},$p);
-
-	}
+	my $r = $self->{'parameters_order'}{$attribute};
+	my @a;
+	@a = @{$r} if(defined $r);
+	push (@a,@param);
+	@a=uniq(@a);	
+	$self->{'parameters_order'}{$attribute} =\@a;
 }
 
 sub object_get_attribute_order{

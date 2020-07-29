@@ -1090,6 +1090,11 @@ sub gen_all_tiles{
         my $top=$mpsoc->mpsoc_get_soc($soc_name);
         my @nis=get_NI_instance_list($top);
         $soc->soc_add_instance_param($nis[0] ,$nocparam );
+        my %z;
+        foreach my $p (sort keys %{$nocparam}){
+			$z{$p}="Parameter";
+		}		
+		$soc->soc_add_instance_param_type($nis[0] ,\%z);
         #foreach my $p ( sort keys %nocparam ) {
             
         #    print "$p = $nocparam{$p} \n";
@@ -1145,54 +1150,62 @@ sub generate_soc_files{
             
      
             
-    #copy hdl codes in src_verilog 
-        
+    #copy hdl codes in src_verilog         
     my ($hdl_ref,$warnings)= get_all_files_list($soc,"hdl_files");
-    foreach my $f(@{$hdl_ref}){
-    
+    my ($sim_ref,$warnings2)= get_all_files_list($soc,"hdl_files_ticked");
+	#hdl_ref-sim_ref
+	my @n= get_diff_array($hdl_ref,$sim_ref);
+	$hdl_ref=\@n;
+			
+    foreach my $f(@{$hdl_ref}){    
         my $n="$project_dir$f";
          if (-f "$n") {
                  copy ("$n","$target_dir/src_verilog/lib");         
          }elsif(-f "$f" ){
-                 copy ("$f","$target_dir/src_verilog/lib");         
-                     
-         }
-                
-            
+                 copy ("$f","$target_dir/src_verilog/lib");                     
+         }            
     }
-    show_info($info,$warnings)             if(defined $warnings);  
+    show_info($info,$warnings)             if(defined $warnings); 
+    
+    
+    
+	foreach my $f(@{$sim_ref}){    
+         my $n="$project_dir$f";
+         if (-f "$n") {
+                 copy ("$n","$target_dir/src_sim");         
+         }elsif(-f "$f" ){
+                 copy ("$f","$target_dir/src_sim");                     
+         }            
+    }
+    show_info($info,$warnings)             if(defined $warnings2); 
+    
     
     #save project hdl file/folder list
     my @new_file_ref;
-        foreach my $f(@{$hdl_ref}){
+    foreach my $f(@{$hdl_ref}){
             my ($name,$path,$suffix) = fileparse("$f",qr"\..[^.]*$");
             push(@new_file_ref,"$target_dir/src_verilog/lib/$name$suffix");
+    }
+    foreach my $f(@{$sim_ref}){
+            my ($name,$path,$suffix) = fileparse("$f",qr"\..[^.]*$");
+            push(@new_file_ref,"$target_dir/src_sim/$name$suffix");
     }
     open(FILE,  ">$target_dir/src_verilog/file_list") || die "Can not open: $!";
     print FILE Data::Dumper->Dump([\@new_file_ref],['files']);
     close(FILE) || die "Error closing file: $!";            
             
-            #my @pathes=("$dir/../src_peripheral","$dir/../src_noc","$dir/../src_processor");
-            #foreach my $p(@pathes){
-            #    find(
-            #        sub {
-            #            return unless ( -f $_ );
-            #            $_ =~ /\.v$/ && copy( $File::Find::name, "$target_dir/src_verilog/lib/" );
-            #        },
-            #    $p
-            #    );
-            #}
             
             
-            move ("$dir/lib/verilog/$soc_name.v","$target_dir/src_verilog/tiles/");     
-            copy_noc_files($project_dir,"$target_dir/src_verilog/lib");
+            
+	move ("$dir/lib/verilog/$soc_name.v","$target_dir/src_verilog/tiles/");     
+	copy_noc_files($project_dir,"$target_dir/src_verilog/lib");
             
             
-            # Write header file
-            generate_header_file($soc,$project_dir,$target_dir,$target_dir,$dir);
-            #use File::Copy::Recursive qw(dircopy);
-            #dircopy("$dir/../src_processor/aeMB/compiler","$target_dir/sw/") or die("$!\n");
-            my $msg="SoC \"$soc_name\" has been created successfully at $target_dir/ ";
+	# Write header file
+	generate_header_file($soc,$project_dir,$target_dir,$target_dir,$dir);
+	#use File::Copy::Recursive qw(dircopy);
+	#dircopy("$dir/../src_processor/aeMB/compiler","$target_dir/sw/") or die("$!\n");
+	my $msg="SoC \"$soc_name\" has been created successfully at $target_dir/ ";
 	return $msg;    
 }    
 
@@ -1263,10 +1276,21 @@ sub generate_mpsoc{
     #copy clk setting hdl codes in src_verilog
 	my $project_dir	  = abs_path("$dir/../../"); 		 
     my $sc_soc =get_source_set_top($mpsoc,'mpsoc');  
-  	my ($file_ref,$warnings)= get_all_files_list($sc_soc,"hdl_files");		
+  	my ($file_ref,$warnings)= get_all_files_list($sc_soc,"hdl_files");	
+  	my ($sim_ref,$warnings2)= get_all_files_list($sc_soc,"hdl_files_ticked");
+	#file_ref-sim_ref
+	my @n= get_diff_array($file_ref,$sim_ref);
+	$file_ref=\@n;
+  	  		
 	copy_file_and_folders($file_ref,$project_dir,"$hw_dir/lib");
 	show_info($info,$warnings)     		if(defined $warnings);			
-	add_to_project_file_list($file_ref,,"$hw_dir/lib/",$hw_dir);
+	add_to_project_file_list($file_ref,"$hw_dir/lib/",$hw_dir);
+	
+	copy_file_and_folders($sim_ref,$project_dir,"$hw_dir/../src_sim");
+	show_info($info,$warnings2)     if(defined $warnings2);			
+	add_to_project_file_list($sim_ref,"$hw_dir/../src_sim",$hw_dir);
+    		
+	
      
     #generate header file containig the tiles physical addresses
     gen_tiles_physical_addrsses_header_file($mpsoc,"$sw_dir/phy_addr.h");

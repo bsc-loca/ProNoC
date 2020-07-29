@@ -204,10 +204,10 @@ sub gen_combo_entry{
 sub def_h_labeled_checkbutton{
 	my ($label_name)=@_;
 	my $box = def_hbox(TRUE,0);
-	my $label= gen_label_in_left($label_name);	
+	my $label= gen_label_in_left($label_name) if (defined $label_name);	
 	my $check= Gtk2::CheckButton->new;
 	#if($status==1) $check->
-	$box->pack_start( $label, FALSE, FALSE, 3);
+	$box->pack_start( $label, FALSE, FALSE, 3) if (defined $label_name);	
 	$box->pack_start( $check, FALSE, FALSE, 3);
 	return ($box,$check);
 	

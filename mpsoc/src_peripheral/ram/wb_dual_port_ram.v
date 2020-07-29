@@ -111,9 +111,7 @@ module wb_dual_port_ram #(
     end     
     endfunction //i2s
 /* verilator lint_off WIDTH */
-    localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;
-    localparam  XILINX_INIT_FILE = (INITIAL_EN == "NO") ? "none" : INIT_FILE;
-    localparam  ALTERA_INIT_FILE = (INITIAL_EN == "NO") ? "UNUSED" : INIT_FILE;    
+    localparam	BYTE_ENw= ( BYTE_WR_EN == "YES")? Dw/8 : 1;  
 /* verilator lint_on WIDTH */
     
 
@@ -177,6 +175,8 @@ module wb_dual_port_ram #(
     localparam  INIT_FILE = 
        (FPGA_VENDOR_MDFY== "XILINX")? {"tile",NN,MEM_NAME}:
        {INIT_FILE_PATH,"/RAM/",MEM_NAME};
+    localparam  XILINX_INIT_FILE = (INITIAL_EN == "NO") ? "none" : INIT_FILE_PATH;
+    localparam  ALTERA_INIT_FILE = (INITIAL_EN == "NO") ? "UNUSED" : INIT_FILE_PATH;  
     /* verilator lint_on WIDTH */
 	
    

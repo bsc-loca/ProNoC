@@ -1700,6 +1700,12 @@ vmap work rtl_work
 	my @files = File::Find::Rule->file()
 		->name( '*.v','*.V','*.sv' )
 		->in( "$target_dir/src_verilog" );
+		
+#get list of allverilog files in src_sim folder 
+     my @sim_files = File::Find::Rule->file()
+		->name( '*.v','*.V','*.sv' )
+		->in( "$target_dir/src_sim" );		
+	push (@files, @sim_files);	
 #add testnemch.v
 	push (@files, "$target_dir/Modelsim/testbench.v");
 
@@ -1726,7 +1732,7 @@ run -all
 	save_file ("$model/model.tcl",$tcl);
 	my $modelsim_bin= $self->object_get_attribute('compile','modelsim_bin');		
 	my $cmd="cd $target_dir; $modelsim_bin/vsim -do $model/model.tcl";
-	save_file ("$model/run.sh",'#!/bin/bash\n'.$cmd);
+	save_file ("$model/run.sh",'#!/bin/bash'."\n".$cmd);
 	
 	$run -> signal_connect("clicked" => sub{
 		set_gui_status($self,'save_project',1);
@@ -1765,6 +1771,7 @@ sub verilator_compilation {
 	
 	my @ff = ("$target_dir/src_verilog");
 	push (@ff,"$target_dir/src_verilator") if (-d "$target_dir/src_verilator");
+	push (@ff,"$target_dir/src_sim") if (-d "$target_dir/src_sim");
 	
 	
 	
@@ -2040,6 +2047,12 @@ sub  gen_mpsoc_verilator_model{
 		$y{'Fw'}  = $Fw; 		
 		my @nis=get_NI_instance_list($top);
 		$soc->soc_add_instance_param($nis[0] ,\%y );
+		my %z;
+		foreach my $p (sort keys %y){
+			$z{$p}="Parameter";
+		}		
+		$soc->soc_add_instance_param_type($nis[0] ,\%z );
+		
 		
 		my $tile=$tile_num;
 		my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile);
@@ -2464,6 +2477,7 @@ sub soc_get_all_parameters {
 		my $category 	=$soc->soc_get_category($id);	
 		my $inst   	= $soc->soc_get_instance_name($id);
 		my %params	= $soc->soc_get_module_param($id);
+		my %params_type	= $soc->soc_get_module_param_type($id);
 		my $ip = ip->lib_new ();		
 		my @param_order=$soc->soc_get_instance_param_order($id);
 			
@@ -2472,9 +2486,16 @@ sub soc_get_all_parameters {
 			#add instance name to parameter value
 			$params{$p}=add_instantc_name_to_parameters(\%params,$inst,$params{$p});
 			my ($default,$type,$content,$info,$vfile_param_type,$redefine_param)= $ip->ip_get_parameter($category,$module,$p);
+			
 			$vfile_param_type= "Don't include" if (!defined $vfile_param_type );
-			$vfile_param_type= "Parameter"  if ($vfile_param_type eq 1);
-			$vfile_param_type= "Localparam" if ($vfile_param_type eq 0);		
+			if ($vfile_param_type eq "Localparam"){
+				my $type = $params_type{$p};
+				$type = "Localparam" if (! defined $type);	
+				$vfile_param_type = ($type eq 'Parameter')?  "Parameter" : "Localparam";
+			}
+						
+			#$vfile_param_type= "Parameter"  if ($vfile_param_type eq 1);
+			#$vfile_param_type= "Localparam" if ($vfile_param_type eq 0);		
 			$all_param{ $inst_param} = 	$params{ $p} if($vfile_param_type eq "Parameter" || $vfile_param_type eq "Localparam"  );	
 			#print"$all_param{ $inst_param} = 	$params{ $p} if($vfile_param_type eq \"Parameter\" || $vfile_param_type eq \"Localparam\"  );	\n";	
 		}
@@ -2492,13 +2513,18 @@ sub soc_get_all_parameters_order {
 		my $category 	=$soc->soc_get_category($id);	
 		my $inst   	= $soc->soc_get_instance_name($id);
 		my @order	= $soc->soc_get_instance_param_order($id);
-		
+		my %params_type	= $soc->soc_get_module_param_type($id);
 		foreach my $p ( @order){
 			my $inst_param= "$inst\_$p";
 			my ($default,$type,$content,$info,$vfile_param_type,$redefine_param)= $ip->ip_get_parameter($category,$module,$p);
 			$vfile_param_type= "Don't include" if (!defined $vfile_param_type );
-			$vfile_param_type= "Parameter"  if ($vfile_param_type eq 1);
-			$vfile_param_type= "Localparam" if ($vfile_param_type eq 0);		
+			if ($vfile_param_type eq "Localparam"){
+				my $type = $params_type{$p};
+				$type = "Localparam" if (! defined $type);	
+				$vfile_param_type = ($type eq 'Parameter')?  "Parameter" : "Localparam";
+			}
+			#$vfile_param_type= "Parameter"  if ($vfile_param_type eq 1);
+			#$vfile_param_type= "Localparam" if ($vfile_param_type eq 0);		
 			push(@all_order, $inst_param) if($vfile_param_type eq "Parameter" || $vfile_param_type eq "Localparam"  );				
 		}
 	}

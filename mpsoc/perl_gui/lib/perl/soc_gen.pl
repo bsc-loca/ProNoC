@@ -121,7 +121,10 @@ sub get_module_parameter{
 	
 	#read soc parameters
 	my %param_value= $soc->soc_get_module_param($instance_id);
+	my %param_type=  $soc->soc_get_module_param_type($instance_id);
 	my %new_param_value=%param_value;
+	
+	
 	
 	#gui
 	my $table_size = ($param_num<10) ? 10 : $param_num;
@@ -141,13 +144,22 @@ sub get_module_parameter{
 	
 	$table->attach (gen_label_in_left("Parameter name"),0, 2, $row, $row+1,$at0,$at1,2,2);
 	$table->attach (gen_label_in_left("Value"),2, 3, $row, $row+1,$at0,$at1,2,2);
-
+	my $param_info='Define how parameter will be included in the SoC/Tile top module containig this IP core. If you define it as "Parameter", its value can be changed at SoC/tile  instantiation time. So multiple different instancitaions of single SoC/tile can be used in MpSoC where each has its own parameter value';
+	$table->attach (gen_label_help($param_info,"Type"),3, 4, $row, $row+1,$at0,$at1,2,2);
+    
 	$row++;
 	foreach my $p (@parameters){
-		my ($default,$type,$content,$info)= $ip->ip_get_parameter($category,$module,$p);
+		my ($default,$type,$content,$info,$vfile_param_type)= $ip->ip_get_parameter($category,$module,$p);
 		my $show = ($type ne "Fixed");
+		if ($show){
+			my $default_type=  "Localparam";
+			$default_type=$param_type{$p} if(defined $param_type{$p});
+			my $combo = gen_combobox_object($soc,'current_module_param_type',$p,"Parameter,Localparam",$default_type,undef,undef);
+			$table->attach ($combo,3, 4, $row, $row+1,$at0,$at1,2,2) if($vfile_param_type ne 'Parameter' && $category ne 'NoC' );
+		}
 		$default= $param_value{$p} if(defined $param_value{$p});
 		($row,$column)=add_param_widget($soc,$p,$p, $default,$type,$content,$info, $table,$row,$column,$show,'current_module_param',undef,undef,'vertical');
+	   
 	}
 	
 	
@@ -169,6 +181,13 @@ sub get_module_parameter{
 			%new_param_value=%{$ref} ;
 			$soc->soc_add_instance_param($instance_id,\%new_param_value);
 		}
+		$ref=$soc->object_get_attribute('current_module_param_type');
+		if(defined $ref){
+			%new_param_value=%{$ref} ;
+			$soc->soc_add_instance_param_type($instance_id,\%new_param_value);
+		}
+		
+		
 		
 		#check if wishbone address bus is parameterizable regenerate the addresses again 
 		my @plugs= $soc->soc_get_all_plugs_of_an_instance($instance_id);
@@ -196,6 +215,7 @@ sub get_module_parameter{
 			}#if
 		}#plugs
 		$soc->object_add_attribute('current_module_param',undef,undef);
+		$soc->object_add_attribute('current_module_param_type',undef,undef);
 		set_gui_status($soc,"refresh_soc",0);
 		
 		});
@@ -783,7 +803,7 @@ sub generate_soc{
 
 		#generate prog_mem
 		open(FILE,  ">lib/verilog/program.sh") || die "Can not open: $!";
-		print FILE soc_mem_prog($m_chain);
+		print FILE soc_mem_prog($m_chain) if (defined $m_chain);
 		close(FILE) || die "Error closing file: $!";
 
 
@@ -794,8 +814,10 @@ sub generate_soc{
 
 			#make target dir
 			my $hw_lib="$hw_path/lib";
+			my $hw_sim="$hw_path/../src_sim";
 			mkpath("$hw_lib/",1,01777);
 			mkpath("$sw_path/",1,01777);
+			mkpath("$hw_sim/",1,01777);
 			
 			if ($oldfiles eq "remove"){
 				#remove old rtl files that were copied by ProNoC
@@ -804,18 +826,42 @@ sub generate_soc{
 					remove_file_and_folders($old_file_ref,$target_dir);
 				}				
 			}
+			
 			#copy hdl codes in src_verilog			
-			my ($file_ref,$warnings)= get_all_files_list($soc,"hdl_files");		
+			my ($file_ref,$warnings)= get_all_files_list($soc,"hdl_files");	
+			my ($sim_ref,$warnings2)= get_all_files_list($soc,"hdl_files_ticked");
+			#file_ref-sim_ref
+			my @n= get_diff_array($file_ref,$sim_ref);
+			$file_ref=\@n;
+					
 			copy_file_and_folders($file_ref,$project_dir,$hw_lib);
 			show_info($info,$warnings)     		if(defined $warnings);			
 			add_to_project_file_list($file_ref,$hw_lib,$hw_path);
+			
+			
+			copy_file_and_folders($sim_ref,$project_dir,$hw_sim  );
+			show_info($info,$warnings2)     if(defined $warnings2);			
+			add_to_project_file_list($sim_ref,$hw_sim,$hw_path);
+			    
+			  
+			    
 			    
     		#copy clk setting hdl codes in src_verilog
     		my $sc_soc =get_source_set_top($soc,'soc');  
-  			($file_ref,$warnings)= get_all_files_list($sc_soc,"hdl_files");		
+  			($file_ref,$warnings)= get_all_files_list($sc_soc,"hdl_files");	
+  			($sim_ref,$warnings2)= get_all_files_list($soc,"hdl_files_ticked");
+			#file_ref-sim_ref
+			my @m= get_diff_array($file_ref,$sim_ref);
+			$file_ref=\@m;
+  			
+  				
 			copy_file_and_folders($file_ref,$project_dir,$hw_lib);
 			show_info($info,$warnings)     		if(defined $warnings);			
 			add_to_project_file_list($file_ref,$hw_lib,$hw_path);
+			
+			copy_file_and_folders($sim_ref,$project_dir,$hw_sim  );
+			show_info($info,$warnings2)     if(defined $warnings2);			
+			add_to_project_file_list($sim_ref,$hw_sim,$hw_path);
     		
 			#copy jtag control files 
 			my @jtags=(("/mpsoc/src_peripheral/jtag/jtag_wb"),("jtag"));

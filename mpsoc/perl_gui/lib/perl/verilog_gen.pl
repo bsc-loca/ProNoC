@@ -41,7 +41,7 @@ sub soc_generate_verilog{
 
 
     my $system_v_all="";
-	my $param_pass_v_all="\t.CORE_ID(CORE_ID),\n\t.SW_LOC(SW_LOC)";
+	my $param_pass_v_all="\t\t.CORE_ID(CORE_ID),\n\t\t.SW_LOC(SW_LOC)";
 	my $body_v;
 	
 	my ($param_v_all, $local_param_v_all, $wire_def_v_all, $inst_v_all, $plugs_assign_v_all, $sockets_assign_v_all,$io_full_v_all,$top_io_pass_all,$io_sim_v_all);
@@ -58,6 +58,7 @@ sub soc_generate_verilog{
 		add_text_to_string(\$body_v,"/*******************\n*\n*\t$inst\n*\n*\n*********************/\n");
 		add_text_to_string(\$param_as_in_v_all,",\n$param_as_in_v")   	if(defined($param_as_in_v)); 
 		add_text_to_string(\$local_param_v_all,"$local_param_v\n")   	if(defined($local_param_v)); 
+		add_text_to_string(\$param_pass_v_all,",\n$param_pass_v")       if(defined($param_pass_v));
 		add_text_to_string(\$system_v_all,"$system_v\n")   				if(defined($system_v)); 
 		add_text_to_string(\$wire_def_v_all,"$wire_def_v\n")		 	if(defined($wire_def_v));
 		add_text_to_string(\$inst_v_all,$inst_v)					 	if(defined($inst_v));
@@ -88,6 +89,7 @@ sub soc_generate_verilog{
 	$unused_wiers_v="" if(!defined $unused_wiers_v);
 	$sockets_assign_v_all=""  if(!defined $sockets_assign_v_all);
 
+	
 	my $soc_v = (defined $param_as_in_v_all )? "module $soc_name #(\n $param_as_in_v_all\n)(\n$io_sim_v_all\n);\n": "module $soc_name (\n$io_sim_v_all\n);\n";
 	$soc_v = $soc_v."
 $functions_all	
@@ -125,13 +127,17 @@ endmodule
 	
 	#my $ins= gen_soc_instance_v($soc,$soc_name,$param_pass_v,$txview);
 	
+	my $pass =  (defined $param_pass_v_all )? "#(\n$param_pass_v_all\n\t)\n": ""; 
+	
+	
 	$top_v=$top_v."
 $functions_all	
 $local_param_v_all
 $top_io_full_all
 $clk_set
 $jtag_v	
-\t${soc_name} the_${soc_name} (
+\t${soc_name}${pass}\tthe_${soc_name} 
+\t(
 $top_io_pass_all
 \t);
 endmodule
@@ -275,8 +281,13 @@ sub gen_module_inst {
 	my $module_name	=$soc->soc_get_module_name($id);
 	my $category 	=$soc->soc_get_category($id);
 	
+	
 	my $inst   	= $soc->soc_get_instance_name($id);
 	my %params	= $soc->soc_get_module_param($id);
+	my %params_type	= $soc->soc_get_module_param_type($id);
+	
+	
+	
 	my $src_ip=$soc ->object_get_attribute('SOURCE_SET',"IP");
 	my $ip = ip->lib_new ();
 	$ip->add_ip($src_ip) if defined $src_ip;	
@@ -293,7 +304,7 @@ sub gen_module_inst {
 	my $counter=0;
 	my @param_order=$soc->soc_get_instance_param_order($id);
 	
-	my ($param_v,$local_param_v,$instance_param_v)= gen_parameter_v(\%params,$id,$inst,$category,$module,$ip,\$param_as_in_v,\@param_order,$top_ip,\$param_pass_v);
+	my ($param_v,$local_param_v,$instance_param_v)= gen_parameter_v(\%params,$id,$inst,$category,$module,$ip,\$param_as_in_v,\@param_order,$top_ip,\$param_pass_v,\%params_type);
 	
 	
 	
@@ -510,15 +521,15 @@ sub add_instantc_name_to_parameters{
 
 
 sub gen_parameter_v{
-	my ($param_ref,$id,$inst,$category,$module,$ip,$param_as_in_v,$ref_ordered,$top_ip,$param_pass_v)=@_;
-	my %params=%$param_ref;
+	my ($param_ref,$id,$inst,$category,$module,$ip,$param_as_in_v,$ref_ordered,$top_ip,$param_pass_v,$param_type_ref)=@_;
+	my %params=%{$param_ref};
+	my %params_type=%{$param_type_ref};
 	my @param_order;
 	@param_order=@{$ref_ordered} if(defined $ref_ordered);
 	
 	my ($param_v,$local_param_v,$instance_param_v);	
 	my @list;
-	@list= (@param_order)? @param_order : 
-sort keys%params;
+	@list= (@param_order)? @param_order : 	sort keys%params;
 	my $first_param=1;
 	
 	$local_param_v="";
@@ -527,7 +538,7 @@ sort keys%params;
 	#add instance name to parameter value
 	foreach my $param (@list){
 		$params{$param}=add_instantc_name_to_parameters(\%params,$inst,$params{$param});
-
+		#%params_type{$param}=add_instantc_name_to_parameters(\%params_type,$inst,$params_type{$param});
 	}
 
 
@@ -536,8 +547,16 @@ sort keys%params;
 		my $inst_param= "$inst\_$param";
 		my ($default,$type,$content,$info,$vfile_param_type,$redefine_param)= $ip->ip_get_parameter($category,$module,$param);
 		$vfile_param_type= "Don't include" if (!defined $vfile_param_type );
-		$vfile_param_type= "Parameter"  if ($vfile_param_type eq 1);
-		$vfile_param_type= "Localparam" if ($vfile_param_type eq 0);		
+		if ($vfile_param_type eq "Localparam"){
+			my $type = $params_type{$param};
+			$type = "Localparam" if (! defined $type);	
+			$vfile_param_type = ($type eq 'Parameter')?  "Parameter" : "Localparam";			
+		}
+			
+		
+		
+		#$vfile_param_type= "Parameter"  if ($vfile_param_type eq 1);
+		#$vfile_param_type= "Localparam" if ($vfile_param_type eq 0);		
 		$redefine_param=1 if (! defined $redefine_param);
 		$redefine_param=0 if ($vfile_param_type eq "Don't include");
 		if($redefine_param eq 1){				
@@ -554,7 +573,7 @@ sort keys%params;
 		}
 		elsif($vfile_param_type eq "Parameter"){
 			$param_v="$param_v\tparameter\t$inst_param=$params{$param};\n"; 
-			$$param_pass_v =(defined ($$param_pass_v ))? "$$param_pass_v,\n\t.$inst_param($inst_param)": "\t.$inst_param($inst_param)";
+			$$param_pass_v =(defined ($$param_pass_v ))? "$$param_pass_v,\n\t\t.$inst_param($inst_param)": "\t\t.$inst_param($inst_param)";
 			$$param_as_in_v=(defined ($$param_as_in_v))? "$$param_as_in_v ,\n\tparameter\t$inst_param=$params{$param}":
 														 "   \tparameter\t$inst_param=$params{$param}";
 			#add parameter to top 
@@ -1225,10 +1244,7 @@ sub soc_generate_verilatore{
 	}
 	close($file1);
 	my $unused_wiers_v=assign_unconnected_wires($wires,$intfc);
-	
-
-	
-	
+		
 	
 	$soc->object_add_attribute('top_ip',undef,$top_ip);
 	#print @assigned_wires;

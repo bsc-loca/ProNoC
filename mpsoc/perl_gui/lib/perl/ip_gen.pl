@@ -306,9 +306,9 @@ header file example
 		
 	});	
 	$lib_hdl->signal_connect("clicked"=> sub{
-		my $help1="The files and folder that selected here will be copied in genertated processing tile RTL  folder.";
-		my $help2="The file listed here can contain some variable with \${var_name} format. The file genertor will replace them with their values during file generation. The variable can be selected from above listed global vairables";
-		my $help3='The content here will be added to the generated tile.v file. You can define functions/ tasks etc...';
+		my $help1="The files and folder that selected here will be copied in the generated processing tile src_verilog folder. If you tick simulation only option for each file/folder, they will be copied in src_sim folder instead and will only be used for simulation.";
+		my $help2="The files listed here can contain some variables with \${var_name} format. The file generator will replace them with their values during file generation. The variable can be selected from the above listed global variables.";
+		my $help3='The content here will be added to the generated tile.v file. You can define functions/tasks etc...';
 		  
 		my %page_info;
 		$page_info{0}{page_name} = "_Add exsiting HDL file/folder";
@@ -317,6 +317,7 @@ header file example
 		$page_info{0}{rename_file}=undef;
 		$page_info{0}{folder_en}=1; 
 		$page_info{0}{help}=$help1;
+		$page_info{0}{tick}="Used only for Simulation";
 
 		$page_info{1}{page_name} = "_Add files contain variables";
 		$page_info{1}{filed_name}= "gen_hw_files";
@@ -816,7 +817,7 @@ sub get_Description{
 #########
 
 sub gen_file_list{
-	my ($ipgen,$list_name,$window,$rename_file_en)=@_;
+	my ($ipgen,$list_name,$window,$rename_file_en,$tick)=@_;
 	
 
 	my $table=def_table(10,10,FALSE);#	my ($row,$col,$homogeneous)=@_;
@@ -827,23 +828,50 @@ sub gen_file_list{
 	$scrolled_win->add_with_viewport($table);
 	$table->attach  (gen_label_in_center("File path"), 0, 5 , 0, 1,'expand','shrink',2,2);
    	$table->attach (gen_label_help("The target name can contain any of Global variables e.g \$IP\$.h","Copy as"), 5, 9 , 0, 1,'expand','shrink',2,2) if(defined $rename_file_en);
+	$table->attach  (gen_label_in_center("$tick"), 9, 10 , 0, 1,'expand','shrink',2,2) if (defined $tick);
 	my $col=0;
-        my $row=1;
+    my $row=1;
 	my @files=  $ipgen->ipgen_get_list($list_name); #@{$ref};
 	my $file_num= scalar @files;	
 	foreach my $p(@files){
 			my ($path,$rename)=split('frename_sep_t',$p); 
 			my $entry=gen_entry($path);
-			my $entry2=gen_entry($rename) ;
+			my $entry2=gen_entry($rename);
+			
 			my $remove=def_image_button("icons/cancel.png");
 			$table->attach  ($entry, 0, 5 , $row, $row+1,'fill','shrink',2,2);
 			$table->attach  ($entry2, 5, 9 , $row, $row+1,'fill','shrink',2,2) if(defined $rename_file_en);
-			$table->attach ($remove, 9,10 , $row, $row+1,'expand','shrink',2,2);
+			$table->attach ($remove, 10,11 , $row, $row+1,'expand','shrink',2,2);
+			my $check= Gtk2::CheckButton->new;
+			if (defined $tick){				
+				$table->attach ($check, 9,10 , $row, $row+1,'expand','shrink',2,2);
+				$check-> signal_connect("toggled" => sub{
+					my @ticked_files=$ipgen->ipgen_get_list($list_name."_ticked");
+					@ticked_files =() if (!@ticked_files);
+					
+					
+					if($check->get_active()){
+						push(@ticked_files,$p);
+					}else{
+						@ticked_files=remove_scolar_from_array(\@ticked_files,$p);
+					}
+					$ipgen->ipgen_add($list_name."_ticked",\@ticked_files);
+				});	
+			
+			}
 			$row++;		
+			
+			
 			$remove->signal_connect("clicked"=> sub {
 				my @saved_files=$ipgen->ipgen_get_list($list_name);
 				@saved_files=remove_scolar_from_array(\@saved_files,$p);
 				$ipgen->ipgen_add($list_name,\@saved_files);
+				
+				my @ticked_files=$ipgen->ipgen_get_list($list_name."_ticked");
+				@ticked_files=remove_scolar_from_array(\@ticked_files,$p);
+				$ipgen->ipgen_add($list_name."_ticked",\@ticked_files);
+				
+				
 				$entry->destroy;
 				$entry2->destroy if(defined $rename_file_en);
 				$remove->destroy;
@@ -1717,7 +1745,8 @@ sub get_file_folder{
 	my $table = Gtk2::Table->new (15, 15, FALSE);	
 	my $help=gen_label_help($page_info{$page}{help});	
 	$table->attach ($help,0,2,0,1,'expand','shrink',2,2);	
-	my ($scrwin,$ok)=gen_file_list($ipgen,$page_info{$page}{filed_name},$window,$page_info{$page}{rename_file});
+	my $tick = $page_info{$page}{'tick'};
+	my ($scrwin,$ok)=gen_file_list($ipgen,$page_info{$page}{filed_name},$window,$page_info{$page}{rename_file},$tick);
 	
 	my $label=gen_label_in_left("Selecet file(s):"); 
 	my $brows=def_image_button("icons/browse.png",' Browse');
@@ -1810,6 +1839,9 @@ sub get_file_folder{
 
 		} );# # ,\$entry);
 	}	
+	
+	
+	
 	
 	
 	
