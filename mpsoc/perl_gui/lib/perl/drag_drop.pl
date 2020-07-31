@@ -152,7 +152,7 @@ sub create_iconview {
 		source_drag_data_get(@_,$icon_string); 
 		my @array=remove_scolar_from_array($gref,$no_markup );
 		$self->object_add_attribute("$name",$param,\@array);
-		
+		set_gui_status($self,"drag-data-get",1);
 		
 	} );
     

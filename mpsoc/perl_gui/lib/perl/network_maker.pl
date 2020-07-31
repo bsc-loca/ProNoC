@@ -405,7 +405,7 @@ sub take_node_num_page{
 	($row,$col)=add_param_widget ($self,"# Endpoints","NUM", 0,'Spin-button','0,1024,1',undef, $table,$row,$col,1,'ENDP',10,'redraw');$col=0;
 	for ( my $i=2;$i<=12; $i++){
 		$table->attach (def_icon('icons/r.png'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
-		($row,$col)=add_param_widget ($self,"# $i Port Routers","NUM", 0,'Spin-button','0,1024,1',undef, $table,$row,$col,1,"ROUTER${i}",10,'redraw');$col=0;		
+		($row,$col)=add_param_widget ($self,"# $i-Port Routers","NUM", 0,'Spin-button','0,1024,1',undef, $table,$row,$col,1,"ROUTER${i}",10,'redraw');$col=0;		
 	}	
 	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
 	$sc_win->set_policy( "automatic", "automatic" );
@@ -2105,7 +2105,7 @@ sub build_network_maker_gui {
 	my $w1 = def_table(2,10,FALSE);
 	my $w2 = def_table(2,10,FALSE);
 	
-	my $h2=gen_hpaned($w1,.35,$w2);
+	my $h2=gen_hpaned($w1,.15,$w2);
 	
 	#check soc status every 0.5 second. referesh device table if there is any changes 
 	Glib::Timeout->add (100, sub{ 

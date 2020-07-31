@@ -504,5 +504,39 @@ sub gen_tiles_physical_addrsses_header_file{
 }
 
 
+sub get_endpoints_mah_distance {
+	my ($self,$endp1,$endp2)=@_;
+	
+	my $router1=get_connected_router_id_to_endp($self,$endp1);
+	my $router2=get_connected_router_id_to_endp($self,$endp2);
+	
+	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
+	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
+		return fattree_mah_distance($self, $router1,$router2);
+	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
+		return mesh_tori_mah_distance($self, $router1,$router2);
+	}else { #custom
+		return undef;		
+	}	
+	
+}
+
+sub mesh_tori_mah_distance {
+	my ($self, $router1,$router2)=@_;
+	my $T1=$self->object_get_attribute('noc_param','T1');
+	my $T2=$self->object_get_attribute('noc_param','T2');
+	my ($x1,$y1,$l1) = mesh_tori_addrencod_sep ($router1,$T1,$T2,1);
+	my ($x2,$y2,$l2) = mesh_tori_addrencod_sep ($router2,$T1,$T2,1);
+	my $x_diff = ($x1 > $x2) ? ($x1 - $x2) : ($x2 - $x1);
+	my $y_diff = ($y1 > $y2) ? ($y1 - $y2) : ($y2 - $y1);
+	my $mah_distance = $x_diff + $y_diff;
+	return $mah_distance;	
+}
+
+sub fattree_mah_distance {
+	my ($self, $router1,$router2)=@_;
+	my $mah_distance = ($router1 > $router2) ? ($router1 - $router2) : ($router2 - $router1);
+	return $mah_distance;
+}	
 
 1

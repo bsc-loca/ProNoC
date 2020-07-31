@@ -227,24 +227,40 @@ sub trace_map_ctrl{
 	my $table= def_table(2,10,FALSE);
 	
 	my $run_map= def_image_button("icons/enter.png",undef);
-	my $drawmap = def_image_button('icons/diagram.png');
-	set_tip($drawmap,'View Task Mapping');
+	my $drawmap = def_image_button('icons/trace.png');
+	my $diagram = def_image_button('icons/diagram.png');
+	set_tip($drawmap,'View Task Mapping Diagram');
+	set_tip($diagram,'View Topology Diagram');
 	my $auto = def_image_button('icons/refresh.png');
 	set_tip($auto,'Automatically set the network dimentions according to the task number');	
 	my $clean = def_image_button('icons/clear.png');
 	set_tip($clean,'Remove mapping');	
 	
 	my $box;
-	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$clean,$auto) if($mode eq 'task');
+	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$diagram,$clean,$auto) if($mode eq 'task');
 	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$clean) if($mode eq 'orcc');	
 	
 	my $col=0;
 	my $row=0;
 	$table->attach ($box,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);$row++;	
 	
+	
+	if($mode eq 'task'){
+		($row,$col) =noc_topology_setting_gui($self,$table,$tview,$row,1);
+		
+		$diagram-> signal_connect("clicked" => sub{ 
+        	show_topology_diagram ($self);
+    	});
+		
+		
+	}
+	
+	
+	
+	
 	my @info = ($mode eq 'task')? (
-  	{ label=>'Routers per Row', param_name=>'T1', type=>"Spin-button", default_val=>2, content=>"2,64,1", info=>undef, param_parent=>'noc_param', ref_delay=>1,placement=>'vertical'},
-	{ label=>"Routers per Column", param_name=>"T2", type=>"Spin-button", default_val=>2, content=>"1,64,1", info=>undef, param_parent=>'noc_param',ref_delay=>1, placement=>'vertical'},
+  #	{ label=>'Routers per Row', param_name=>'T1', type=>"Spin-button", default_val=>2, content=>"2,64,1", info=>undef, param_parent=>'noc_param', ref_delay=>1,placement=>'vertical'},
+	#{ label=>"Routers per Column", param_name=>"T2", type=>"Spin-button", default_val=>2, content=>"1,64,1", info=>undef, param_parent=>'noc_param',ref_delay=>1, placement=>'vertical'},
 	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizental'},
 	) :
 	
@@ -278,10 +294,19 @@ sub trace_map_ctrl{
 		my @tasks = $self->get_all_merged_tasks();
 		my $task_num= scalar @tasks;
 		return if($task_num ==0);
-		my ($nx,$ny) =network_dim_cal($task_num);
-		$self->object_add_attribute('noc_param','T1',$nx);
-		$self->object_add_attribute('noc_param','T2',$ny);	
-		set_gui_status($self,"ref",1);	
+		my $topology = $self->object_get_attribute('noc_param','TOPOLOGY');
+		if ($topology eq '"MESH"' || $topology eq '"TORUS"' ){
+			my ($nx,$ny) =network_dim_cal($task_num);
+			$self->object_add_attribute('noc_param','T1',$nx);
+			$self->object_add_attribute('noc_param','T2',$ny);	
+			$self->object_add_attribute('noc_param','T3',1);	
+			set_gui_status($self,"ref",1);
+		}elsif ($topology eq '"RING"' || $topology eq '"LINE"'){
+			$self->object_add_attribute('noc_param','T1',$task_num);
+			$self->object_add_attribute('noc_param','T2',1);
+			$self->object_add_attribute('noc_param','T3',1);
+			set_gui_status($self,"ref",1);			
+		}
 	});
 	
 	$clean->signal_connect ( 'clicked'=> sub{
@@ -316,8 +341,15 @@ sub trace_group_ctrl{
 	
 	my $col=0;
 	my $row=0;
+	
+	
+	
+	
 	$table->attach ($box,$col, $col+1,  $row, $row+1,'shrink','shrink',2,2);$row++;	
-		
+	
+	#$self->object_add_attribute('grouping','map_limit',$NE);
+	#add_param_widget ($self,'Max actors in a group:','map_limit', 4,"Spin-button","1,1024,1","The maximum number of actors that can be grouped to be run in one tile", $table,$row,$col,1,'grouping',undef,undef);
+	
 	
 	
 	$clean->signal_connect ( 'clicked'=> sub{
@@ -532,7 +564,7 @@ sub load_tarce_file{
 #######
 
 
-sub trace_map {
+sub group_info {
 	my ($self,$tview,$mode)=@_;
 	my $table= def_table(10,10,FALSE);
 	
@@ -545,7 +577,7 @@ sub trace_map {
 	
 	my $lab= ($mode eq 'task')? "Task-name" :"Actor-name";
 	
-	my @titles = (" # "," $lab ", " Mapped-to " ,"Lock ", " Sent-Bandwidth ", " Resvd-Bandwidth ", " Total-Bandwidth ");
+	my @titles = (" # "," $lab ", " Internal" , " Sent ", " Resvd ", " Sent+Resvd ");
 	foreach my $p (@titles){
 		$table-> attach  (gen_label_in_left($p), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
 	}
@@ -554,46 +586,22 @@ sub trace_map {
 	
 	
 	
-	
-	
-	my @tiles=get_tiles_name($self);
-	#print "\@tile= @tiles \n";
-	
 	my $i=0;
 	my @tasks=get_all_merged_tasks($self);
 	
 	
 	
 	
-	
-	my @assigned = $self->get_assigned_tiles();
-	
-	
-	#a-b
-	my @list= get_diff_array(\@tiles ,\@assigned);
-	push(@list,'-');
-	
 	#print "tils=@tiles \nass=@assigned  \nlist=@list\n";
 	my %com_tasks= $self->get_communication_task('merge');
-	
+	#print Dumper(\%com_tasks);
 	foreach my $p (@tasks){
-		#my $value=$self->object_get_attribute("MAP_TILE",$p);
-		my $value=get_task_give_tile($self,$p);
-		$value = "-" if (!defined $value);
-		my @l=($value eq "-" || grep (/^\Q$value\E$/,@tiles)==0 )? @list : (@list,$value);
-		
-		my $combo= map_combobox ($self,"$p",\@l,'-');
-		
-		#my $lock=$self->object_get_attribute("MAP_LOCK",$p);
-		#$lock = 0 if (!defined $lock);
-		my $lock = gen_check_box_object ($self,"MAP_LOCK",$p,0,undef,undef);
 		
 			
 		$table-> attach  (gen_label_in_left($i), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
 		$table-> attach  (gen_label_in_left($p), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
-		$table-> attach  ($combo, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
-		$table-> attach  ($lock, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
-		my @a=('sent','rsv','total');
+	    
+		my @a=('internal' , 'sent','rsv','total');
 		foreach my $q (@a){
 			my $s = (defined $com_tasks{$p}{$q}) ? $com_tasks{$p}{$q} : '-';
 			$table-> attach  (gen_label_in_left($s), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
@@ -717,6 +725,7 @@ sub get_map_info {
 	my $comtotal=0;	
 	
 	my @traces= get_trace_list($self,'merge');
+	
 	foreach my $p (@traces) {	
 		my ($src, $dst, $Mbytes, $file_id, $file_name)=get_trace($self,'merge',$p);
 		#my $src_tile = $self->object_get_attribute('MAP_TILE',"$src");
@@ -725,14 +734,12 @@ sub get_map_info {
 		my $dst_tile  = get_task_give_tile($self,"$dst");
 		next if(!defined $src_tile || !defined  $dst_tile );
 		next if($src_tile eq '-' || $dst_tile eq "-" );
-		my ($src_x,$src_y)= tile_id_to_loc($src_tile);
-		my ($dst_x,$dst_y)= tile_id_to_loc($dst_tile);
+		#my ($src_x,$src_y)= tile_id_to_loc($src_tile);
 		
-		
-		
+		#my ($dst_x,$dst_y)= tile_id_to_loc($dst_tile);		
 		#print" ($dst_x,$dst_y)= tile_id_to_loc($dst_tile)\n";
 		
-		my $mah_distance=get_mah_distance($src_x,$src_y,$dst_x,$dst_y);
+		my $mah_distance=get_endpoints_mah_distance($self,tile_id_number($src_tile),tile_id_number($dst_tile));
 		#print "$mah_distance=get_mah_distance($src_x,$src_y,$dst_x,$dst_y);\n";
 		$min = $mah_distance if($min> $mah_distance);
 		$max = $mah_distance if($max< $mah_distance);
@@ -922,10 +929,11 @@ sub get_cfg_content{
 	my @traces= get_trace_list($self,'merge');
 	foreach my $p (@traces) {	
 		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,'merge',$p);
+				
 		
+		my  $src_tile = tile_id_number(get_task_give_tile($self,"$src"));
+		my  $dst_tile = tile_id_number(get_task_give_tile($self,"$dst"));
 		
-		my $src_tile=$self->get_tile_id($src);
-		my $dst_tile=$self->get_tile_id($dst);
 		my $auto=$self->object_get_attribute('Auto','Auto_inject');
 		
 		my $bytes = $Mbytes * 1000000;
@@ -936,18 +944,6 @@ sub get_cfg_content{
 	}
 	
 	return $file;
-}
-
-sub get_tile_id{
-	my ($self,$task)=@_;
-	my $nx=$self->object_get_attribute('noc_param','T1');
-	#my $tile=$self->object_get_attribute("MAP_TILE",$task);
-	$task=$self->get_item_group_name('grouping',$task);
-	my $tile= get_task_give_tile($self,$task);
-	my ($x, $y) =  $tile =~ /(\d+)/g;  
-	$y=0 if(!defined $y);
-	my $IP_NUM =    ($y * $nx) +    $x;	
-	return $IP_NUM;
 }
 
 
@@ -970,6 +966,16 @@ sub add_trace{
 	$self->{"${category}_traces"}{$trace_id}=1;
 	
 }
+
+sub add_trace_extra {
+	my ($self, $file_id,$category,$trace_id,$min_pck, $max_pck,$burst, $injct_rate, $injct_rate_var)=@_;
+	$self->object_add_attribute("${category}_$trace_id",'min_pck_size',$min_pck);
+	$self->object_add_attribute("${category}_$trace_id",'max_pck_size',$max_pck);
+	$self->object_add_attribute("${category}_$trace_id",'burst_size',$burst); 
+	$self->object_add_attribute("${category}_$trace_id",'injct_rate',$injct_rate);	
+	$self->object_add_attribute("${category}_$trace_id",'injct_rate_var',$injct_rate_var);	
+}	
+
 
 sub remove_trace{
 	my ($self,$category, $trace_id)=@_;
@@ -1160,9 +1166,7 @@ sub random_map{
 sub direct_map {
 	my $self=shift;
 	
-	my $nx=$self->object_get_attribute('noc_param','T1');
-	my $ny=$self->object_get_attribute('noc_param','T2');
-	my $nc= $nx * $ny;	
+	
 	my @tasks=get_nlock_tasks($self);	
 	my @tiles=get_nlock_tiles($self);	
 	$self->remove_nlock_mapping() ;
@@ -1170,12 +1174,13 @@ sub direct_map {
 	my @sort_tiles;
 	my %tilenum;
 	foreach my $tile (@tiles){
-		my ($x,$y)=tile_id_to_loc($tile);
-		my $id= $y*$nx+$x;
+		#my ($x,$y)=tile_id_to_loc($tile);
+		#my $id= $y*$nx+$x;
+		my $id=tile_id_number($tile);
 		$tilenum{$id}=$tile;
 	}
 	
-	foreach my $id  (sort keys %tilenum){
+	foreach my $id  (sort  {$a <=> $b} keys %tilenum){
 		
 		push(@sort_tiles, $tilenum{$id});
 	}
@@ -1252,30 +1257,25 @@ sub get_tiles_name{
 }
 
 
-
-
-sub tile_id_to_loc{
+sub tile_id_number{
 	my $tile=shift;
-	my ($x, $y) =  $tile =~ /(\d+)/g;  
-	$y=0 if(!defined $y);
-	return ($x,$y);
+	my ($x) =  $tile =~ /(\d+)/g;  
+	return $x;
 }
 
-sub get_mah_distance{
-	my ($x1,$y1,$x2,$y2)=@_;
-	my $x_diff = ($x1 > $x2) ? ($x1 - $x2) : ($x2 - $x1);
-	my $y_diff = ($y1 > $y2) ? ($y1 - $y2) : ($y2 - $y1);
-	my $mah_distance = $x_diff + $y_diff;
-	return $mah_distance;
-}
+
 
 sub get_communication_task{
 	my ($self,$category)=@_;
 	my %com_tasks;
-	my @traces= get_trace_list($self,$category);
-	my @tasks=get_all_tasks($self,$category);
+	my @tasks=get_all_merged_tasks($self);
+	my @traces= get_trace_list($self,'raw');
+	
+
+	
 	foreach my $p (@tasks){
 		$com_tasks{$p}{'total'}= 0;
+	
 		foreach my $q (@tasks){
 			$com_tasks{$p}{$q}= 0;
 		
@@ -1283,27 +1283,33 @@ sub get_communication_task{
 	}
 	
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$category,$p);
+		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,'raw',$p);
+		$src =$self->get_item_group_name('grouping',$src);
+		$dst =$self->get_item_group_name('grouping',$dst);
+	    if	($src eq  $dst){
+	    	$com_tasks{$src}{'internal'} += $Mbytes;
+	    	
+	    }else{	
 		
-		
-		$com_tasks{$src}{'sent'} += $Mbytes;
-		$com_tasks{$dst}{'rsv'} += $Mbytes;
-		
-		$com_tasks{$src}{'total'} += $Mbytes;
-		$com_tasks{$dst}{'total'} += $Mbytes;
-		$com_tasks{$src}{$dst} += $Mbytes;
-		$com_tasks{$file_id}{'maxsent'} = $com_tasks{$src}{'sent'} if(!defined $com_tasks{$file_id}{'maxsent'});
-		$com_tasks{$file_id}{'maxsent'} = $com_tasks{$src}{'sent'} if( $com_tasks{$file_id}{'maxsent'}<$com_tasks{$src}{'sent'});
-		
-		
-		
-		my $minpck = $self->object_get_attribute("raw_$p",'min_pck_size');
-		my $maxpck = $self->object_get_attribute("raw_$p",'max_pck_size');
-		my $avg_pck_size =($minpck+ $maxpck)/2;
-		my $pck_num = ($Mbytes*8) /($avg_pck_size*64);
-		$pck_num= 1 if($pck_num==0); 		
-		$com_tasks{$src}{'min_pck_num'} =$pck_num if(!defined $com_tasks{$src}{'min_pck_num'}); 
-		$com_tasks{$src}{'min_pck_num'} =$pck_num if( $com_tasks{$src}{'min_pck_num'} > $pck_num); 
+			$com_tasks{$src}{'sent'} += $Mbytes;
+			$com_tasks{$dst}{'rsv'} += $Mbytes;
+			
+			$com_tasks{$src}{'total'} += $Mbytes;
+			$com_tasks{$dst}{'total'} += $Mbytes;
+			$com_tasks{$src}{$dst} += $Mbytes;
+			$com_tasks{$file_id}{'maxsent'} = $com_tasks{$src}{'sent'} if(!defined $com_tasks{$file_id}{'maxsent'});
+			$com_tasks{$file_id}{'maxsent'} = $com_tasks{$src}{'sent'} if( $com_tasks{$file_id}{'maxsent'}<$com_tasks{$src}{'sent'});
+			
+			
+			
+			my $minpck = $self->object_get_attribute("raw_$p",'min_pck_size');
+			my $maxpck = $self->object_get_attribute("raw_$p",'max_pck_size');
+			my $avg_pck_size =($minpck+ $maxpck)/2;
+			my $pck_num = ($Mbytes*8) /($avg_pck_size*64);
+			$pck_num= 1 if($pck_num==0); 		
+			$com_tasks{$src}{'min_pck_num'} =$pck_num if(!defined $com_tasks{$src}{'min_pck_num'}); 
+			$com_tasks{$src}{'min_pck_num'} =$pck_num if( $com_tasks{$src}{'min_pck_num'} > $pck_num); 
+	    }
 		
 	}
 	return %com_tasks;
@@ -1312,10 +1318,11 @@ sub get_communication_task{
 
 sub find_max_neighbor_tile{
 	my $self=shift;
-	my $nx=$self->object_get_attribute('noc_param','T1');
-	my $ny=$self->object_get_attribute('noc_param','T2');
-	my $x_mid = floor($nx/2);
-	my $y_mid = floor($ny/2);
+	#Select the tile located in center as the max-neighbor if its not locked for any other task
+	my ($NE,$NR) = get_topology_info($self);
+	
+	my $ne_mid = floor($NE/2);
+	
 	#my $centered_tile= get_tile_name($self,$x_mid ,$y_mid);
 	#Select the tile located in center as the max-neighbor if its not locked for any other task
 	#therwise select the tile with the min manhatan distance to center tile
@@ -1323,8 +1330,10 @@ sub find_max_neighbor_tile{
 	my $min=1000000;
 	my $max_neighbors_tile_id;
 	foreach my $tile (@tiles){
-		my ($x,$y)=tile_id_to_loc($tile);
-		my $mah_distance=get_mah_distance($x,$y,$x_mid,$y_mid);
+		#my ($x,$y)=tile_id_to_loc($tile);
+		my $tile_num = tile_id_number($tile);
+		my $mah_distance=get_endpoints_mah_distance($self,$ne_mid,$tile_num);
+		
 		if($min > $mah_distance ){
 			$min = $mah_distance;
 			$max_neighbors_tile_id=$tile;
@@ -1338,10 +1347,9 @@ sub find_max_neighbor_tile{
 	
 sub find_min_neighbor_tile	{
 	my $self=shift;
-	my $nx=$self->object_get_attribute('noc_param','T1');
-	my $ny=$self->object_get_attribute('noc_param','T2');
-	my $x_mid = 0;
-	my $y_mid = 0;
+
+	my $ne_mid = 0;
+
 	#my $centered_tile= get_tile_name($self,$x_mid ,$y_mid);
 	#Select the tile located in center as the max-neighbor if its not locked for any other task
 	#therwise select the tile with the min manhatan distance to center tile
@@ -1349,8 +1357,9 @@ sub find_min_neighbor_tile	{
 	my $min=1000000;
 	my $min_neighbors_tile_id;
 	foreach my $tile (@tiles){
-		my ($x,$y)=tile_id_to_loc($tile);
-		my $mah_distance=get_mah_distance($x,$y,$x_mid,$y_mid);
+		#my ($x,$y)=tile_id_to_loc($tile);
+		my $tile_num = tile_id_number($tile);
+		my $mah_distance=get_endpoints_mah_distance($self,$ne_mid,$tile_num );
 		if($min > $mah_distance ){
 			$min = $mah_distance;
 			$min_neighbors_tile_id=$tile;
@@ -1377,7 +1386,7 @@ sub nmap_algorithm{
 	my @unmapped_tasks_set=@tasks; # unmapped set of tasks
 	my @unallocated_tiles_set=@tiles;	# tile ids which are not allocated yet
 	
-	
+#	print "@unmapped_tasks_set *** @unallocated_tiles_set\n";
 	
 	
 	#------ step 1: find the task with highest weighted communication volume
@@ -1390,7 +1399,7 @@ sub nmap_algorithm{
 	my $max_com_task;
 	my $max_com =0;
 	foreach my $p (sort keys %com_tasks){
-		#print "$p\n";
+		#print "**$p\n";
 		if(defined $com_tasks{$p}{'total'}){
 		if ($com_tasks{$p}{'total'} >$max_com){
 			$max_com = $com_tasks{$p}{'total'};
@@ -1398,13 +1407,14 @@ sub nmap_algorithm{
 		}}
 	}
 	
-	
+	#print "m=$max_com 	t=$max_com_task\n";
 	
 	
 	#------ step 2: find the tile with max number of neighbors
 	# normally, this tile is in the middle of the array
 	my $max_neighbors_tile_id = find_max_neighbor_tile($self);
 	
+	#print "\$max_neighbors_tile_id = $max_neighbors_tile_id\n";
 	
 	
 	
@@ -1476,14 +1486,16 @@ sub nmap_algorithm{
 		
 		foreach my $unallocated_tile(@unallocated_tiles_set){
 			my $com_cost = 0;
-			my ($unallocated_x,$unallocated_y)=tile_id_to_loc($unallocated_tile);
+			#my ($unallocated_x,$unallocated_y)=tile_id_to_loc($unallocated_tile);
+			my $unallocated_tile_num = tile_id_number($unallocated_tile);
 			# scan all mapped tasks
 			foreach my $mapped_task (sort keys %map){
 				# get location of this mapped task
 				my $mapped_tile=$map{$mapped_task};
-				my ($allocated_x,$allocated_y)=tile_id_to_loc($mapped_tile);				
+				#my ($allocated_x,$allocated_y)=tile_id_to_loc($mapped_tile);
+				my $mapped_tile_num = tile_id_number($mapped_tile);				
 				# mahattan distance of 2 tiles
-				my $mah_distance=get_mah_distance($unallocated_x,$unallocated_y,$allocated_x,$allocated_y);
+				my $mah_distance=get_endpoints_mah_distance($self,$unallocated_tile_num,$mapped_tile_num);
 				
 
 				$com_cost += $com_tasks{$max_com_unmapped_task}{$mapped_task} * $mah_distance;
@@ -1649,16 +1661,17 @@ sub worst_map_algorithm{
 		
 		foreach my $unallocated_tile(@unallocated_tiles_set){
 			my $com_cost = 0;
-			my ($unallocated_x,$unallocated_y)=tile_id_to_loc($unallocated_tile);
+			#my ($unallocated_x,$unallocated_y)=tile_id_to_loc($unallocated_tile);
+			my $unallocated_tile_num = tile_id_number($unallocated_tile);
 			# scan all mapped tasks
 			foreach my $mapped_task (sort keys %map){
 				# get location of this mapped task
 				my $mapped_tile=$map{$mapped_task};
-				my ($allocated_x,$allocated_y)=tile_id_to_loc($mapped_tile);				
-				# mahattan distance of 2 tiles
-				my $mah_distance=get_mah_distance($unallocated_x,$unallocated_y,$allocated_x,$allocated_y);
+				#my ($allocated_x,$allocated_y)=tile_id_to_loc($mapped_tile);
+				my $mapped_tile_num = tile_id_number($mapped_tile);				
+				# mahattan distance of 2 tiles				
+				my $mah_distance=get_endpoints_mah_distance($self,$unallocated_tile_num,$mapped_tile_num);
 				
-
 				$com_cost += $com_tasks{$max_com_unmapped_task}{$mapped_task} * $mah_distance;
 				$com_cost += $com_tasks{$mapped_task}{$max_com_unmapped_task} * $mah_distance;
 					
@@ -1755,7 +1768,7 @@ sub remove_selected_traces{
 sub auto_generate_injtratio{
 	my ($self,$category)=@_;
 	my %com_tasks= $self->get_communication_task($category);
-	my @traces= get_trace_list($self,$category);
+	my @traces= get_trace_list($self,'raw');
 	foreach my $p (@traces) {	
 		my ($src,$dst, $Mbytes, $file_id, $file_name)=get_trace($self,$category,$p);
 		my $max= $com_tasks{$file_id}{'maxsent'};
@@ -1850,13 +1863,13 @@ sub trace_maker_notebook{
 	$self->object_add_attribute('grouping','group_name_editble','YES');	
 	$self->object_add_attribute('grouping','trace_icon','icons/cd.png');
 	$self->object_add_attribute('grouping','group_num',$NE);
-	$self->object_add_attribute('grouping','map_limit',$NE);
+	$self->object_add_attribute('grouping','map_limit',1024);
 	$self->object_add_attribute('grouping','lable',"${lb}s: Drag and drop ${lb}s to bottom group list");	
 	my $group_ctrl =gen_group_ctrl_box($self,$tview,$mode);
 		
 	my @tasks=get_all_tasks($self,'raw');
 	my $page2=drag_and_drop_page($self,$tview,'grouping',\@tasks,$group_ctrl);
-	$notebook->append_page ($page2,Gtk2::Label->new  ("2-Groap ${lb}s   "));
+	$notebook->append_page ($page2,Gtk2::Label->new  ("2-Group ${lb}s   "));
 	
 	#map tasks	
 	$self->object_add_attribute('mapping','group_name_root','tile');	
@@ -1914,7 +1927,7 @@ sub get_all_merged_tasks {
 	my($self)=@_;
 	my @merged;
 	my $group_num=$self->object_get_attribute('mapping','group_num');	
-	
+	$group_num = 0 if(!defined $group_num);
 	for(my $i=0;$i<$group_num;$i=$i+1){
 		my $gref = $self->object_get_attribute('grouping',"group($i)");
 		next if(! defined $gref);
@@ -1928,6 +1941,7 @@ sub get_all_merged_tasks {
 	push (@merged, @{$uref}) if(defined  $uref);	
 	return @merged;
 }
+
 
 
 sub gen_mapping_ctrl_box{
@@ -1944,7 +1958,12 @@ sub gen_group_ctrl_box{
 	#my $map_info=map_info($self);
 	#my $v_paned=gen_vpaned($map_ctrl,.5,$map_info);
 	#return $v_paned; 
-	return $group_ctrl;
+	
+	my $group_info = group_info ($self,$tview,$mode);
+	my $v_paned=gen_vpaned($group_ctrl,.3,$group_info);
+	return $v_paned; 
+	
+	#return $group_ctrl;
 }
 
 

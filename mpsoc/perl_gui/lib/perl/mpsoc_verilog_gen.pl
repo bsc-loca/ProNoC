@@ -43,10 +43,13 @@ sub mpsoc_generate_verilog{
 	#functions
 	my $functions=get_functions();
 	
+	my $global_localparam=get_golal_param_v();	
+	
 	my $mpsoc_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule $mpsoc_name #(\n $param_as_in_v\n)(\n$io_short\n);\n": "`timescale	 1ns/1ps\nmodule $mpsoc_name (\n$io_short\n);\n";
 	$mpsoc_v=$mpsoc_v. "
 $noc_param
 $functions
+$global_localparam	
 $socs_param
 $io_full
 $noc_v
@@ -58,6 +61,7 @@ endmodule
 	my $top_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule ${mpsoc_name}_top #(\n $param_as_in_v\n)(\n$top_io_short\n);\n": "`timescale	 1ns/1ps\nmodule ${mpsoc_name}_top (\n $top_io_short\n);\n";
 
 $top_v=$top_v."
+$global_localparam	
 $socs_param
 $top_io_full
 $clk_set
@@ -994,6 +998,7 @@ sub log2{
 sub gen_emulate_top_v{
 		my $emulate=shift;	
 		my ($localparam, $pass_param)=gen_noc_param_v( $emulate);
+		my $global_localparam=get_golal_param_v();	
 		my $top_v="
 		
 module  emulator_top (
@@ -1002,10 +1007,9 @@ module  emulator_top (
 	input  [0:0]KEY,
 	input  CLOCK_50
 ); 
-
-	
 		
-		
+	$global_localparam
+			
 	$localparam
 
 

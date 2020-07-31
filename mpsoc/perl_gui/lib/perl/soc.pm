@@ -6,6 +6,10 @@ use FindBin;
 use lib $FindBin::Bin;
 use ip;
 
+sub uniq {
+  my %seen;
+  return grep { !$seen{$_}++ } @_;
+}
 
 sub soc_new {
     # be backwards compatible with non-OO call

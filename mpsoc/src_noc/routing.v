@@ -241,7 +241,7 @@ module look_ahead_routing #(
     current_r_addr,  //current router  address
     neighbors_r_addr,
     dest_e_addr,  // destination endpoint address   
-    src_e_addr, //   source endpoint address
+    src_e_addr, //   source endpoint address. Only needed for custom topology 
     destport_encoded,   // current router destination port number       
     lkdestport_encoded, // look ahead destination port number
     reset,

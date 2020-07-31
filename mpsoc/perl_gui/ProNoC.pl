@@ -91,12 +91,16 @@ sub main_window{
  my @menu_items = (
   [ "/_File",            undef,        undef,          0, "<Branch>" ],
   [ "/File/_Setting",       "<control>O", sub { setting(0); },  0,  undef ],
+#  [ "/File/Global Parameters",  "<control>G", sub { global_param(); },  0,  undef ],
+  [ "/File/_Quit",       "<control>Q", sub { gui_quite(); },  0, "<StockItem>", 'gtk-quit' ],
+  
+  
   [ "/Tools/_UART Terminal", "<control>U", sub { uart(0); },  0,  undef ],
   [ "/Tools/Run time JTAG debuger", "<control>P", sub { source_probe(0); },  0,  undef ],
   [ "/Tools/Add New Altera FPGA Board", undef, sub { add_altera_board(); },  0,  undef ],
   [ "/Tools/Add New XILINX FPGA Board", undef, sub { add_xilinx_board(); },  0,  undef ],
   
-  [ "/File/_Quit",       "<control>Q", sub { gui_quite(); },  0, "<StockItem>", 'gtk-quit' ],
+ 
   [ "/_View",                  undef, undef,         0, "<Branch>" ],
   [ "/_View/_ProNoC System Generator",  "<control>1", 	sub{ open_page($notebook,$noteref,$table,'Generator'); } ,	0,	undef ],
   [ "/_View/_ProNoC Simulator",  "<control>2", 	sub{ open_page($notebook,$noteref,$table,'Simulator'); } ,	0,	undef ],
@@ -494,6 +498,203 @@ sub uart {
 sub source_probe{
 	source_probe_main();	
 }
+
+
+sub global_param{
+	my $project_dir	  = get_project_dir(); #mpsoc dir addr
+	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/glob_params";
+	
+	__PACKAGE__->mk_accessors(qw{
+	PRONOC_WORK
+	});
+	my $self;
+	if (-f 	$paths_file ){
+		$self= do $paths_file;
+	}else{
+		$self = __PACKAGE__->new();		
+	}
+		
+		
+		
+	
+	my $table1=def_table(10,10,FALSE);	
+	my $set_win=def_popwin_size(60,80,"Configuration setting",'percent');
+	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
+	$scrolled_win->set_policy( "automatic", "automatic" );
+	$scrolled_win->add_with_viewport($table1);
+	my $row=0; my $col=0;
+	#title1		
+	my $title1=gen_label_in_center("Global Parameters setting");
+	$table1->attach ($title1 , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
+	my $separator = Gtk2::HSeparator->new;	
+	$table1->attach ($separator , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
+	
+	
+    
+    my @parameters = object_get_attribute_order($self,'Parameters');
+   	my $ok = def_image_button('icons/select.png','OK');
+   
+
+
+	foreach my $p (@parameters) {
+	 	   	my $name = object_get_attribute($self,$p,'name');
+			my $default = object_get_attribute($self,$p,'default');
+			my $type= object_get_attribute($self,$p,'type');
+			my $content= object_get_attribute($self,$p,'content');
+			my $info= object_get_attribute($self,$p,'info');			
+			add_param_widget($self,$name,$p, $default,$type,$content,$info, $table1,$row,$col,1,'Parameters',0,undef,undef);
+			my $remove= def_image_button("icons/cancel.png","remove");
+			$table1->attach ($remove, 4, 5, $row, $row+1,'expand','shrink',2,2);
+			$row++;
+			$remove->signal_connect (clicked => sub{
+				delete $self->{$p};
+				object_remove_attribute_order($self,'Parameters',$p);
+				object_remove_attribute($self,'Parameters',$p);
+				$ok->clicked;
+				global_param();
+			});	
+	} 
+	
+	$row=0;  $col=0;
+	my $table2=def_table(10,10,FALSE);	
+	#title1		
+	$title1=gen_label_in_center("Add new Global Parameter");
+	$table2->attach ($title1 , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
+	$separator = Gtk2::HSeparator->new;	
+	$table2->attach ($separator , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
+	my $scrolled_win2 = new Gtk2::ScrolledWindow (undef, undef);
+	$scrolled_win2->set_policy( "automatic", "automatic" );
+	$scrolled_win2->add_with_viewport($table2);
+	
+	
+	
+	my @widget_type_list=("Fixed","Entry","Combo-box","Spin-button");
+    my $type_info="Define the parameter type: 
+
+Fixed: The parameter is fixed and get the default value. Users can not see or change the parameter value.
+
+Entry: The parameter value is received via entry. The user can type anything.
+
+Combo-box: The parameter value can be selected from a list of predefined value.
+
+Spin-button: The parameter is numeric and will be obtained using spin button.";
+	my $content_info='
+For Fixed and Entry leave it empty.
+For Combo box define the parameters which must be shown in combo box as: "PAEAMETER1","PARAMETER2"...,"PARAMETERn".
+For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
+	my $param_info='Define how parameter is included in the top module containig this IP core.';
+	
+	
+	#title
+	my @title;
+	$title[0]=gen_label_in_center("Parameter name");
+	$title[1]=gen_label_in_center("Default value");
+	$title[2]=gen_label_help($type_info,"Widget type");
+	$title[3]=gen_label_help($content_info,"Widget content");
+	$title[4]=gen_label_help("You can add aditional information about this parameter.","info");
+	$title[5]=gen_label_in_center("add/remove");
+	
+	
+	foreach my $t (@title){
+		$table2->attach ($t, $col, $col+1, $row, $row+1,'expand','shrink',2,2); $col++;
+
+	}
+	$row++;$col=0;
+
+	my $param_name= gen_entry();			
+	my $default_entry= gen_entry();
+	my $widget_type_combo=gen_combo(\@widget_type_list, 0);
+	my $content_entry= gen_entry( );
+	my $info=def_image_button("icons/add_info.png");
+	my $add= def_image_button("icons/plus.png","add");
+			
+	$table2->attach ($param_name, $col, $col+1, $row, $row+1,'expand','shrink',2,2);$col++;
+	$table2->attach ($default_entry, $col, $col+1, $row, $row+1,'expand','shrink',2,2);$col++;
+	$table2->attach ($widget_type_combo, $col, $col+1, $row, $row+1,'expand','shrink',2,2);$col++;
+	$table2->attach ($content_entry, $col, $col+1, $row, $row+1,'expand','shrink',2,2);$col++;
+	$table2->attach ($info, $col, $col+1, $row, $row+1,'expand','shrink',2,2);$col++;
+	$table2->attach ($add, $col, $col+1, $row, $row+1,'expand','shrink',2,2);$col++;
+	my $sinfo;
+	$info->signal_connect (clicked => sub{			
+			get_param_info($self,\$sinfo);
+		});	
+		
+	$add->signal_connect (clicked => sub{	
+		my $param= $param_name->get_text();
+		$param=remove_all_white_spaces($param);
+			        
+		if( length($param) ){
+				my $default=$default_entry->get_text();
+				my $type=$widget_type_combo->get_active_text();
+				my $content=$content_entry->get_text();
+				
+				object_add_attribute($self,$param,'name',$param);
+			    object_add_attribute($self,$param,'default',$default);
+			    object_add_attribute($self,$param,'type',$type);
+			    object_add_attribute($self,$param,'content',$content);
+			    object_add_attribute($self,$param,'info',$sinfo);			
+				object_add_attribute_order($self,'Parameters',$param);
+				$ok->clicked;
+				global_param();
+		}
+		
+		
+	});		
+
+	
+	
+	
+	
+	my $mtable = def_table(10, 1, FALSE);
+    my $v2=gen_vpaned($scrolled_win,.55,$scrolled_win2);
+	$mtable->attach_defaults($v2,0,1,0,9);
+	
+	$mtable-> attach ($ok , 0, 1,  9, 10,'expand','shrink',2,2); 
+	
+	$set_win->add ($mtable);
+	$set_win->show_all();
+	
+	
+	
+	$ok->signal_connect("clicked"=> sub{
+		#save setting
+		open(FILE,  ">$paths_file") || die "Can not open: $!";
+		print FILE perl_file_header("Paths");
+		print FILE Data::Dumper->Dump([\%$self],['glob']);
+		close(FILE) || die "Error closing file: $!";
+	
+			
+		
+
+	
+		$set_win->destroy;
+	
+
+	});
+	
+	
+	
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

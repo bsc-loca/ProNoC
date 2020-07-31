@@ -543,12 +543,6 @@ For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
 	}
 	
 
-	
-	
-	
-	
-	
-
 	my @parameters=$ipgen->ipgen_get_all_parameters_list();
 	my @params_order= $ipgen->ipgen_get_list("parameters_order");
 	if((@params_order)) {@parameters=@params_order;}

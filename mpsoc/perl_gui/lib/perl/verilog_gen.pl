@@ -89,11 +89,12 @@ sub soc_generate_verilog{
 	$unused_wiers_v="" if(!defined $unused_wiers_v);
 	$sockets_assign_v_all=""  if(!defined $sockets_assign_v_all);
 
-	
+my $global_localparam=get_golal_param_v();	
 	my $soc_v = (defined $param_as_in_v_all )? "module $soc_name #(\n $param_as_in_v_all\n)(\n$io_sim_v_all\n);\n": "module $soc_name (\n$io_sim_v_all\n);\n";
 	$soc_v = $soc_v."
 $functions_all	
 $system_v_all
+$global_localparam
 $local_param_v_all
 $addr_localparam
 $module_addr_localparam
@@ -132,6 +133,7 @@ endmodule
 	
 	$top_v=$top_v."
 $functions_all	
+$global_localparam
 $local_param_v_all
 $top_io_full_all
 $clk_set
@@ -1294,7 +1296,20 @@ module ${name} (\n $top_io_short_all\n);\n";
 }	
 
 
-
+sub get_golal_param_v{
+	my $project_dir	  = get_project_dir(); #mpsoc dir addr
+	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/glob_params";
+	my $paramv='';
+	if (-f 	$paths_file ){
+		my $self= do $paths_file;
+		my @parameters = object_get_attribute_order($self,'Parameters');
+		foreach my $p (@parameters) {
+			my $v =object_get_attribute($self,'Parameters',$p);
+			$paramv.="\t localparam  $p = $v;\n" if(defined $v);	
+		}
+	}
+	return $paramv;
+}
 
 
 

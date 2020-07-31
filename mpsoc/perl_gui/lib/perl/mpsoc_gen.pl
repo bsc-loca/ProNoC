@@ -508,6 +508,69 @@ you can add individual numbers or ranges as follow
 #   noc_config
 ######################
 
+
+sub noc_topology_setting_gui {
+	my ($mpsoc,$table,$txview,$row,$show_noc)=@_;
+	my $coltmp=0;
+	#  topology
+	my  $label='Topology';
+	my  $param='TOPOLOGY';
+	my  $default='"MESH"';
+	my  $content='"MESH","TORUS","RING","LINE","FATTREE","TREE","CUSTOM"';
+	my  $type='Combo-box';
+	my  $info="NoC topology"; 
+	($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
+            
+    my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
+
+	if($topology ne '"CUSTOM"' ){
+    #topology T1 parameter
+	    $label= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'K' : 'Routers per row';
+	    $param= 'T1';
+		$default= '2';
+	    $content=($topology eq '"MESH"' || $topology eq '"TORUS"') ? '2,16,1':
+		($topology eq '"FATTREE"' || $topology eq '"TREE"' )? '2,6,1':'2,64,1';
+	    $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"' )? 'number of last level individual router`s endpoints.' :'Number of NoC routers in row (X dimention)';
+	    $type= 'Spin-button';             
+	    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
+
+    
+    #Topology T2 parameter
+    if($topology eq '"MESH"' || $topology eq '"TORUS"' || $topology eq '"FATTREE"' || $topology eq '"TREE"' ) {
+        $label= ($topology eq '"FATTREE"' || $topology eq '"TREE"')?  'L' :'Routers per column';
+        $param= 'T2';
+        $default='2';
+        $content='2,16,1';
+        $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'Fattree layer number (The height of FT)':'Number of NoC routers in column (Y dimention)';
+        $type= 'Spin-button';             
+        ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
+    } else {
+        $mpsoc->object_add_attribute('noc_param','T2',1);        
+    }
+    
+    #Topology T3 parameter
+    if($topology eq '"MESH"' || $topology eq '"TORUS"' || $topology eq '"RING"' || $topology eq '"LINE"') {
+    	$label="Router's endpoint number";
+		$param= 'T3';
+        $default='1';
+        $content='1,4,1';
+        $info= "In $topology topology, each router can have up to 4 endpoint processing tile.";
+        $type= 'Spin-button';             
+        ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
+    }
+    
+       
+    
+    
+	}else{#its a custom Topology
+		($row,$coltmp)=config_custom_topology_gui($mpsoc,$table,$txview,$row);
+	}
+	return ($row,$coltmp);
+
+}
+
+
+
 sub noc_config{
     my ($mpsoc,$table,$txview)=@_;
     
@@ -555,59 +618,10 @@ sub noc_config{
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_type',1);
     my $router_type=$mpsoc->object_get_attribute('noc_type',"ROUTER_TYPE");
     
-    #topology
-    $label='Topology';
-    $param='TOPOLOGY';
-    $default='"MESH"';
-    $content='"MESH","TORUS","RING","LINE","FATTREE","TREE","CUSTOM"';
-    $type='Combo-box';
-    $info="NoC topology"; 
-    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
-            
-    my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
-
-if($topology ne '"CUSTOM"' ){
-    #topology T1 parameter
-    $label= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'K' : 'Routers per row';
-    $param= 'T1';
-	$default= '2';
-    $content=($topology eq '"MESH"' || $topology eq '"TORUS"') ? '2,16,1':
-	($topology eq '"FATTREE"' || $topology eq '"TREE"' )? '2,6,1':'2,64,1';
-    $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"' )? 'number of last level individual router`s endpoints.' :'Number of NoC routers in row (X dimention)';
-    $type= 'Spin-button';             
-    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
-
     
-    #Topology T2 parameter
-    if($topology eq '"MESH"' || $topology eq '"TORUS"' || $topology eq '"FATTREE"' || $topology eq '"TREE"' ) {
-        $label= ($topology eq '"FATTREE"' || $topology eq '"TREE"')?  'L' :'Routers per column';
-        $param= 'T2';
-        $default='2';
-        $content='2,16,1';
-        $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'Fattree layer number (The height of FT)':'Number of NoC routers in column (Y dimention)';
-        $type= 'Spin-button';             
-        ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
-    } else {
-        $mpsoc->object_add_attribute('noc_param','T2',1);        
-    }
-    
-    #Topology T3 parameter
-    if($topology eq '"MESH"' || $topology eq '"TORUS"' || $topology eq '"RING"' || $topology eq '"LINE"') {
-    	$label="Router's endpoint number";
-		$param= 'T3';
-        $default='1';
-        $content='1,4,1';
-        $info= "In $topology topology, each router can have up to 4 endpoint processing tile.";
-        $type= 'Spin-button';             
-        ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
-    }
-    
-       
-    
-    
-}else{#its a custom Topology
-	($row,$coltmp)=config_custom_topology_gui($mpsoc,$table,$txview,$row);
-}
+    ($row,$coltmp) =noc_topology_setting_gui($mpsoc,$table,$txview,$row,$show_noc);
+     my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');  
+  
     #VC number per port
     if($router_type eq '"VC_BASED"'){    
         my $v=$mpsoc->object_get_attribute('noc_param','V');

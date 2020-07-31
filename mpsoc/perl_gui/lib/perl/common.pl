@@ -998,10 +998,21 @@ sub object_add_attribute_order{
 	$self->{'parameters_order'}{$attribute} =\@a;
 }
 
+sub object_remove_attribute_order{
+	my ($self,$attribute,$param)=@_;
+	my @r=@{$self->{parameters_order}{$attribute}};
+	my @n;
+	foreach my $p(@r){
+		if( $p ne $param) {push(@n,$p)};	
+
+	}
+	$self->{parameters_order}{$attribute}=\@n;
+
+}
 
 sub object_get_attribute_order{
 	my ($self,$attribute)=@_;
-	return undef unless(defined $self->{parameters_order}{$attribute});
+	return unless(defined $self->{parameters_order}{$attribute});
 	my @order=@{$self->{parameters_order}{$attribute}};
 	return uniq(@order)
 }

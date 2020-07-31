@@ -10,6 +10,10 @@ use ip_gen;
 
 #use Clone 'clone';
 
+sub uniq {
+  my %seen;
+  return grep { !$seen{$_}++ } @_;
+}
 
 
 sub mpsoc_new {
@@ -250,6 +254,7 @@ sub object_add_attribute_order{
 	@a=uniq(@a);	
 	$self->{'parameters_order'}{$attribute} =\@a;
 }
+
 sub object_get_attribute_order{
 	my ($self,$attribute)=@_;
 	return @{$self->{parameters_order}{$attribute}};

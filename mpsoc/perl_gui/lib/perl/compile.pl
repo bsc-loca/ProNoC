@@ -2623,7 +2623,7 @@ sub gen_modelsim_soc_testbench {
 		
 
 	}
-
+my $global_localparam=get_golal_param_v();	
 my $test_v= get_license_header("testbench.v");
 
 $test_v	="$test_v
@@ -2634,6 +2634,8 @@ module testbench;
 
 $functions_all
 
+$global_localparam
+	
 $params_v
 
 $top_port_def

@@ -9,6 +9,7 @@ use warnings;
 use strict;
 
 
+
 package ip_gen;
 #use Clone 'clone';
 
@@ -334,10 +335,6 @@ sub ipgen_get_port_intfc_port{
 	return ($intfc_port);
 }	
 	
-	
-
-
-
 
 
 sub ipgen_save_wb_addr{
@@ -666,7 +663,7 @@ sub object_add_attribute_order{
 	my @a;
 	@a = @{$r} if(defined $r);
 	push (@a,@param);
-	@a=uniq(@a);	
+	@a=List::MoreUtils(@a);	
 	$self->{'parameters_order'}{$attribute} =\@a;
 }
 

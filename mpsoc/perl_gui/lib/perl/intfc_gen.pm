@@ -12,6 +12,12 @@ use strict;
 
 package intfc_gen;
 
+sub uniq {
+  my %seen;
+  return grep { !$seen{$_}++ } @_;
+}
+
+
 sub interface_generator {
 		my $class = "intfc_gen";
 		my $self;

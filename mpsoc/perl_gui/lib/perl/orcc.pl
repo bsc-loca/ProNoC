@@ -264,12 +264,15 @@ sub update_merge_actor_list{
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
 			)=get_trace($self,'raw',$inject);
 			my $tdst=$self->get_item_group_name('grouping',$dst);
+			$dst_port=0 if (!defined $dst_port);
 			if($tdst ne $dst){					
 					$dst_port="${dst}_$dst_port";
 			}
 								
-			add_trace($self, "$file_id",'merge',$t_id, $src,$tdst, 1,$file_name, $src_port,$dst_port,$buff_size,$channel,$vc,$class);
-			#print "add_trace(\$self, \"$file_id\",merge,$t_id, $src,$dst, 1,$file_name, $src_port,$dst_port,$buff_size,$channel);\n";
+			add_trace($self, "$file_id",'merge',$t_id, $src,$tdst,$Mbytes,$file_name, $src_port,$dst_port,$buff_size,$channel,$vc,$class);
+			if(defined $min_pck){
+				add_trace_extra($self, "$file_id",'merge',$t_id,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var );						
+			}
 			$t_id++;
 		}		
 		
@@ -287,12 +290,16 @@ sub update_merge_actor_list{
 		
 		my $merged_actor =  $self->object_get_attribute('grouping',"group($i)"."_name");
 		$merged_actor = "group($i)" if(!defined $merged_actor);		
-		my $tile =get_task_give_tile($self,$merged_actor);
-		my $tile_id=get_tile_id($self,$merged_actor);
-		add_info($tview,"Generating $merged_actor.c grouped actor file from: @grouped  actors on $tile\n");
+		#my $tile =get_task_give_tile($self,$merged_actor);
+	#	print "my $tile =get_task_give_tile($self,$merged_actor);\n";
+		#my $tile_id=get_tile_id($self,$merged_actor);
+		#my $tile_id = tile_id_number($tile);
+		
+		#add_info($tview,"Generating $merged_actor.c grouped actor file from: @grouped  actors\n");
 	 
 	
 		my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+		$mpsoc_name = 'tmp' if (!defined $mpsoc_name);
 		my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
 		
 		#setp 1 : find local commiunication ports in merged actor
@@ -302,6 +309,8 @@ sub update_merge_actor_list{
 			foreach my $inject (@injectors) {
 				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
 				)=get_trace($self,'raw',$inject);
+				$dst_port=0 if (!defined $dst_port);
+				$src_port=0 if (!defined $src_port);
 				my $dst_actor=$dst;
 				if (check_scolar_exist_in_array($dst,\@grouped)){
 					#print "$src $src_port is locally connected to $dst $dst_port\n";
@@ -321,8 +330,11 @@ sub update_merge_actor_list{
 							#my ($dnet,$dnum,$dname)=split(':',$dst);
 							$dst_port="${dst}_$dst_port";
 					}					
-						
-					add_trace($self, "$file_id",'merge',$t_id, $merge_src,$tdst, 1,$file, $src_port,$dst_port,$buff_size,$channel,$vc,$class);
+					
+					add_trace($self, "$file_id",'merge',$t_id, $merge_src,$tdst, $Mbytes,$file, $src_port,$dst_port,$buff_size,$channel,$vc,$class);
+					if(defined $min_pck){
+						add_trace_extra($self, "$file_id",'merge',$t_id,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var );						
+					}
 					$t_id++;	
 				}#else
 			}#$ink=ject
@@ -597,8 +609,8 @@ void ${actor}_init_actor (schedinfo_t * si) {
 				#my $dst_tile = $self->object_get_attribute("MAP_TILE",$dst_actor);
 				my $dst_actor=$self->get_item_group_name('grouping',$dst);
 				my $dst_tile = get_task_give_tile($self,$dst_actor);
-				my $dst_tile_id=get_tile_id($self,$dst_actor);				
-				
+				#my $dst_tile_id=get_tile_id($self,$dst_actor);				
+				my $dst_tile_id=tile_id_number($dst_tile);
 				
 				
 				if($dst_tile eq $actor_tile){
@@ -700,11 +712,13 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 				)=get_trace($self,'raw',$sink);
 						
 				
-			my $src_tile_id=get_tile_id($self,$src);			
+					
 			my $srcportnum =  get_port_num($self,\%srcp_number,$src,$src_port,$channel); 
 			my $src_actor=$self->get_item_group_name('grouping',$src);
 			my $src_tile = get_task_give_tile($self,$src_actor);
-		
+		    #my $src_tile_id=get_tile_id($self,$src);
+		    my $src_tile_id=tile_id_number($src_tile);
+		    	
 		    #print "my $srcportnum = get_port_num($self,\%srcp_number,$src,$src_port,$channel);\n";
 				
 				if($src_tile eq $actor_tile){
