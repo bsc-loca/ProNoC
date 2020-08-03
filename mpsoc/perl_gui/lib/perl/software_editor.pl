@@ -801,7 +801,7 @@ sub run_make_file {
 		}
 		
 		add_colored_info($outtext,"Compilation finished successfully.\n",'blue');
-		print " successfull!\n";  
+		print " successful!\n";  
 		return 1;
 	}
 			

@@ -80,7 +80,7 @@ sub file_box {
 	});	
 	
 	if(defined $file){$entry->set_text($file);}
-	else {show_info($info,"Please select the verilog file containig the interface\n");}
+	else {show_info($info,"Please select the Verilog file containing the interface\n");}
 	$browse->signal_connect("clicked"=> sub{
 		my $entry_ref=$_[1];
  		my $file;
@@ -126,7 +126,7 @@ sub file_box {
 	});
 		
 	$entry->signal_connect("changed"=>sub{
-		#show_info($info,"Please select the verilog file containig the interface\n");
+		#show_info($info,"Please select the verilog file containing the interface\n");
 	});
 	
 	my $row=0;
@@ -300,7 +300,7 @@ sub interface_type_select {
 	my $entrybox=gen_label_info(" Interface name:",$entry);
 
 	my $combo=gen_combobox_object($intfc_gen,'connection_num',undef,"single connection,multi connection","single connection",'refresh',1);
-	my $combo_box=gen_label_info(" Select soket type:",$combo,'Define the soket as multi connection if only if all interfaces ports are output oprts and they can feed more than one plug interface. E.g. clk is defined as multi connection');
+	my $combo_box=gen_label_info(" Select socket type:",$combo,'Define the socket as multi connection if only if all interfaces ports are output oprts and they can feed more than one plug interface. E.g. clk is defined as multi connection');
 	
 	$table->attach ($entrybox, 0, 2 , $row, $row+1,'expand','shrink',2,2);
 	$table->attach ($combo_box, 3, 6 , $row, $row+1,'expand','shrink',2,2);
@@ -545,7 +545,7 @@ sub check_intfc{
 	$result=$intfc_gen->intfc_get_interface_name();
 	if(!defined $result){$message="The interface name is empty!";}
 	$result=$intfc_gen->intfc_get_interface_file();
-	if(!defined $result){$message="The verilog file containig the interface has not been selected!";}
+	if(!defined $result){$message="The Verilog file containing the interface has not been selected!";}
 	
 	if(!defined $message){return 1;}
 	else {message_dialog($message); return 0;}

@@ -2173,9 +2173,9 @@ void delay ( unsigned int num ){
     1d6c:	44 00 48 00 	l.jr r9
     1d70:	84 21 ff fc 	l.lwz r1,-4(r1)
 
-00001d74 <error_handelling_function>:
+00001d74 <error_handling_function>:
 
-void error_handelling_function(){
+void error_handling_function(){
     1d74:	d7 e1 77 f8 	l.sw -8(r1),r14
     1d78:	d7 e1 4f fc 	l.sw -4(r1),r9
     1d7c:	d7 e1 0f f0 	l.sw -16(r1),r1
@@ -2188,7 +2188,7 @@ void error_handelling_function(){
 	return;
 }
 
-void error_handelling_function(){
+void error_handling_function(){
     1d88:	9c 21 ff ec 	l.addi r1,r1,-20
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
@@ -2199,17 +2199,17 @@ void error_handelling_function(){
     1d98:	e0 42 18 00 	l.add r2,r2,r3
     1d9c:	84 62 00 00 	l.lwz r3,0(r2)
     1da0:	bc 23 00 00 	l.sfnei r3,0
-    1da4:	10 00 00 0c 	l.bf 1dd4 <error_handelling_function+0x60>
+    1da4:	10 00 00 0c 	l.bf 1dd4 <error_handling_function+0x60>
     1da8:	18 60 00 00 	l.movhi r3,0x0
 	return;
 }
 
-void error_handelling_function(){
+void error_handling_function(){
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
     1dac:	9d ce 00 01 	l.addi r14,r14,1
     1db0:	bc 2e 00 02 	l.sfnei r14,2
-    1db4:	13 ff ff f7 	l.bf 1d90 <error_handelling_function+0x1c>
+    1db4:	13 ff ff f7 	l.bf 1d90 <error_handling_function+0x1c>
     1db8:	18 60 b8 00 	l.movhi r3,0xb800
 				if(ni_ERROR_FLAGS_REG(i) & ILLEGAL_SEND_REQ)  printf( "A new send request is received while the DMA is still busy sending previous packet in core%u\n",COREID);
 				if(ni_ERROR_FLAGS_REG(i) & CRC_MISS_MATCH)	    printf( "CRC missmatch in core%u\n",COREID);
@@ -2224,7 +2224,7 @@ void error_handelling_function(){
     1dcc:	44 00 48 00 	l.jr r9
     1dd0:	85 c1 ff f8 	l.lwz r14,-8(r1)
 
-void error_handelling_function(){
+void error_handling_function(){
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
 			if(ni_ERROR_FLAGS_REG(i)){
@@ -2236,31 +2236,31 @@ void error_handelling_function(){
     1de0:	84 62 00 00 	l.lwz r3,0(r2)
     1de4:	a4 63 00 01 	l.andi r3,r3,0x1
     1de8:	bc 03 00 00 	l.sfeqi r3,0
-    1dec:	0c 00 00 1c 	l.bnf 1e5c <error_handelling_function+0xe8>
+    1dec:	0c 00 00 1c 	l.bnf 1e5c <error_handling_function+0xe8>
     1df0:	9c 60 00 00 	l.addi r3,r0,0
 				if(ni_ERROR_FLAGS_REG(i) & SEND_DATA_SIZE_ERR)  printf ("the send data size is not set in core%u\n",COREID);
     1df4:	84 62 00 00 	l.lwz r3,0(r2)
     1df8:	a4 63 00 02 	l.andi r3,r3,0x2
     1dfc:	bc 03 00 00 	l.sfeqi r3,0
-    1e00:	0c 00 00 20 	l.bnf 1e80 <error_handelling_function+0x10c>
+    1e00:	0c 00 00 20 	l.bnf 1e80 <error_handling_function+0x10c>
     1e04:	9c 60 00 00 	l.addi r3,r0,0
 				if(ni_ERROR_FLAGS_REG(i) & BURST_SIZE_ERR)	 printf (" the burst size is not set in core%u\n",COREID);
     1e08:	84 62 00 00 	l.lwz r3,0(r2)
     1e0c:	a4 63 00 04 	l.andi r3,r3,0x4
     1e10:	bc 03 00 00 	l.sfeqi r3,0
-    1e14:	0c 00 00 24 	l.bnf 1ea4 <error_handelling_function+0x130>
+    1e14:	0c 00 00 24 	l.bnf 1ea4 <error_handling_function+0x130>
     1e18:	9c 60 00 00 	l.addi r3,r0,0
 				if(ni_ERROR_FLAGS_REG(i) & ILLEGAL_SEND_REQ)  printf( "A new send request is received while the DMA is still busy sending previous packet in core%u\n",COREID);
     1e1c:	84 62 00 00 	l.lwz r3,0(r2)
     1e20:	a4 63 00 08 	l.andi r3,r3,0x8
     1e24:	bc 03 00 00 	l.sfeqi r3,0
-    1e28:	0c 00 00 28 	l.bnf 1ec8 <error_handelling_function+0x154>
+    1e28:	0c 00 00 28 	l.bnf 1ec8 <error_handling_function+0x154>
     1e2c:	9c 60 00 00 	l.addi r3,r0,0
 				if(ni_ERROR_FLAGS_REG(i) & CRC_MISS_MATCH)	    printf( "CRC missmatch in core%u\n",COREID);
     1e30:	84 42 00 00 	l.lwz r2,0(r2)
     1e34:	a4 42 00 10 	l.andi r2,r2,0x10
     1e38:	bc 02 00 00 	l.sfeqi r2,0
-    1e3c:	13 ff ff dc 	l.bf 1dac <error_handelling_function+0x38>
+    1e3c:	13 ff ff dc 	l.bf 1dac <error_handling_function+0x38>
     1e40:	9c 40 00 00 	l.addi r2,r0,0
     1e44:	18 60 00 00 	l.movhi r3,0x0
     1e48:	d4 01 10 00 	l.sw 0(r1),r2
@@ -2269,10 +2269,10 @@ void error_handelling_function(){
 	return;
 }
 
-void error_handelling_function(){
+void error_handling_function(){
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
-    1e54:	03 ff ff d7 	l.j 1db0 <error_handelling_function+0x3c>
+    1e54:	03 ff ff d7 	l.j 1db0 <error_handling_function+0x3c>
     1e58:	9d ce 00 01 	l.addi r14,r14,1
 			if(ni_ERROR_FLAGS_REG(i)){
 				printf ("Error in vc %u\n",i);
@@ -2285,7 +2285,7 @@ void error_handelling_function(){
     1e6c:	84 62 00 00 	l.lwz r3,0(r2)
     1e70:	a4 63 00 02 	l.andi r3,r3,0x2
     1e74:	bc 03 00 00 	l.sfeqi r3,0
-    1e78:	13 ff ff e4 	l.bf 1e08 <error_handelling_function+0x94>
+    1e78:	13 ff ff e4 	l.bf 1e08 <error_handling_function+0x94>
     1e7c:	9c 60 00 00 	l.addi r3,r0,0
     1e80:	d4 01 18 00 	l.sw 0(r1),r3
     1e84:	18 60 00 00 	l.movhi r3,0x0
@@ -2295,7 +2295,7 @@ void error_handelling_function(){
     1e90:	84 62 00 00 	l.lwz r3,0(r2)
     1e94:	a4 63 00 04 	l.andi r3,r3,0x4
     1e98:	bc 03 00 00 	l.sfeqi r3,0
-    1e9c:	13 ff ff e0 	l.bf 1e1c <error_handelling_function+0xa8>
+    1e9c:	13 ff ff e0 	l.bf 1e1c <error_handling_function+0xa8>
     1ea0:	9c 60 00 00 	l.addi r3,r0,0
     1ea4:	d4 01 18 00 	l.sw 0(r1),r3
     1ea8:	18 60 00 00 	l.movhi r3,0x0
@@ -2305,7 +2305,7 @@ void error_handelling_function(){
     1eb4:	84 62 00 00 	l.lwz r3,0(r2)
     1eb8:	a4 63 00 08 	l.andi r3,r3,0x8
     1ebc:	bc 03 00 00 	l.sfeqi r3,0
-    1ec0:	13 ff ff dc 	l.bf 1e30 <error_handelling_function+0xbc>
+    1ec0:	13 ff ff dc 	l.bf 1e30 <error_handling_function+0xbc>
     1ec4:	9c 60 00 00 	l.addi r3,r0,0
     1ec8:	d4 01 18 00 	l.sw 0(r1),r3
     1ecc:	18 60 00 00 	l.movhi r3,0x0
@@ -2315,9 +2315,9 @@ void error_handelling_function(){
     1ed8:	84 42 00 00 	l.lwz r2,0(r2)
     1edc:	a4 42 00 10 	l.andi r2,r2,0x10
     1ee0:	bc 02 00 00 	l.sfeqi r2,0
-    1ee4:	13 ff ff b2 	l.bf 1dac <error_handelling_function+0x38>
+    1ee4:	13 ff ff b2 	l.bf 1dac <error_handling_function+0x38>
     1ee8:	9c 40 00 00 	l.addi r2,r0,0
-    1eec:	03 ff ff d7 	l.j 1e48 <error_handelling_function+0xd4>
+    1eec:	03 ff ff d7 	l.j 1e48 <error_handling_function+0xd4>
     1ef0:	18 60 00 00 	l.movhi r3,0x0
 
 00001ef4 <ni_isr>:
@@ -2356,8 +2356,8 @@ void ni_isr(void){
     1f14:	10 00 00 07 	l.bf 1f30 <ni_isr+0x3c>
     1f18:	9c 21 ff f4 	l.addi r1,r1,-12
 	// An error ocures 
-		error_handelling_function();
-    1f1c:	07 ff ff 96 	l.jal 1d74 <error_handelling_function>
+		error_handling_function();
+    1f1c:	07 ff ff 96 	l.jal 1d74 <error_handling_function>
     1f20:	15 00 00 00 	l.nop 0x0
 		ni_ack_errors_isr();
     1f24:	84 62 00 00 	l.lwz r3,0(r2)
@@ -2373,10 +2373,10 @@ void ni_isr(void){
     1f3c:	44 00 48 00 	l.jr r9
     1f40:	84 41 ff f8 	l.lwz r2,-8(r1)
 
-00001f44 <got_packet_funtion>:
+00001f44 <got_packet_function>:
 
 unsigned int reseived_counter=0;
-void got_packet_funtion(){
+void got_packet_function(){
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
 		if(ni_got_packet(i)) {
@@ -2386,7 +2386,7 @@ void got_packet_funtion(){
 }
 
 unsigned int reseived_counter=0;
-void got_packet_funtion(){
+void got_packet_function(){
     1f48:	d7 e1 0f fc 	l.sw -4(r1),r1
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
@@ -2394,14 +2394,14 @@ void got_packet_funtion(){
     1f4c:	84 64 00 00 	l.lwz r3,0(r4)
     1f50:	a4 63 00 01 	l.andi r3,r3,0x1
     1f54:	bc 03 00 00 	l.sfeqi r3,0
-    1f58:	0c 00 00 0c 	l.bnf 1f88 <got_packet_funtion+0x44>
+    1f58:	0c 00 00 0c 	l.bnf 1f88 <got_packet_function+0x44>
     1f5c:	9c 21 ff fc 	l.addi r1,r1,-4
     1f60:	18 80 b8 00 	l.movhi r4,0xb800
     1f64:	84 64 00 00 	l.lwz r3,0(r4)
     1f68:	b8 63 00 41 	l.srli r3,r3,0x1
     1f6c:	a4 63 00 01 	l.andi r3,r3,0x1
     1f70:	bc 03 00 00 	l.sfeqi r3,0
-    1f74:	0c 00 00 20 	l.bnf 1ff4 <got_packet_funtion+0xb0>
+    1f74:	0c 00 00 20 	l.bnf 1ff4 <got_packet_function+0xb0>
     1f78:	15 00 00 00 	l.nop 0x0
 			ni_receive (i, (unsigned int)recive_buffer, 4);
 			reseived_counter++;
@@ -2420,7 +2420,7 @@ void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max
     1f88:	84 64 00 00 	l.lwz r3,0(r4)
     1f8c:	a4 63 00 10 	l.andi r3,r3,0x10
     1f90:	bc 23 00 00 	l.sfnei r3,0
-    1f94:	13 ff ff fd 	l.bf 1f88 <got_packet_funtion+0x44>
+    1f94:	13 ff ff fd 	l.bf 1f88 <got_packet_function+0x44>
     1f98:	18 a0 b8 00 	l.movhi r5,0xb800
 
 	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;
@@ -2449,7 +2449,7 @@ void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max
     1fb8:	d4 03 20 00 	l.sw 0(r3),r4
 	ni_RECEIVE_CTRL_REG(v)   = 1;
     1fbc:	9c 60 00 01 	l.addi r3,r0,1
-void got_packet_funtion(){
+void got_packet_function(){
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
 		if(ni_got_packet(i)) {
@@ -2463,7 +2463,7 @@ void got_packet_funtion(){
     1fd4:	d4 04 18 00 	l.sw 0(r4),r3
 
 unsigned int reseived_counter=0;
-void got_packet_funtion(){
+void got_packet_function(){
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
 		if(ni_got_packet(i)) {
@@ -2472,7 +2472,7 @@ void got_packet_funtion(){
     1fe0:	b8 63 00 41 	l.srli r3,r3,0x1
     1fe4:	a4 63 00 01 	l.andi r3,r3,0x1
     1fe8:	bc 03 00 00 	l.sfeqi r3,0
-    1fec:	13 ff ff e4 	l.bf 1f7c <got_packet_funtion+0x38>
+    1fec:	13 ff ff e4 	l.bf 1f7c <got_packet_function+0x38>
     1ff0:	15 00 00 00 	l.nop 0x0
 	data_start_addr : The address pointer to the start location of the memory where the newly arrived packet must be stored by NI in.
 	max_buffer_size : The allocated receive-memory buffer size in words.
@@ -2483,7 +2483,7 @@ void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max
     1ff4:	84 64 00 00 	l.lwz r3,0(r4)
     1ff8:	a4 63 00 20 	l.andi r3,r3,0x20
     1ffc:	bc 23 00 00 	l.sfnei r3,0
-    2000:	13 ff ff fd 	l.bf 1ff4 <got_packet_funtion+0xb0>
+    2000:	13 ff ff fd 	l.bf 1ff4 <got_packet_function+0xb0>
     2004:	18 a0 b8 00 	l.movhi r5,0xb800
 
 	ni_RECEIVE_STRT_ADDR_REG(v)  = data_start_addr;

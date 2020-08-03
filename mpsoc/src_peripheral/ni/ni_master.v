@@ -24,7 +24,7 @@
 **
 **
 **	Description: multi-channel DMA-based network interace for 
-**	handelling packetizing/depacketizing data to/form NoC. 
+**	handling packetizing/depacketizing data to/form NoC. 
 **	Can support CRC32 
 **	
 **

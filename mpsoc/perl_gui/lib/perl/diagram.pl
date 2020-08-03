@@ -218,7 +218,7 @@ sub show_topology_diagram {
 
 	my $table=def_table(20,20,FALSE);
 	
-	my $window=def_popwin_size(80,80,"NoC-based MCSoC topology block diagram",'percent');	
+	my $window=def_popwin_size(80,80,"NoC-based MPSoC topology block diagram",'percent');	
 	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
 	$scrolled_win->set_policy( "automatic", "automatic" );
 	

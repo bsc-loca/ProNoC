@@ -57,13 +57,13 @@ module ram_test #(
           end     
      endfunction //i2s
   
- 	localparam	programer_DW=32;
-	localparam	programer_AW=32;
-	localparam	programer_S_Aw=   7;
-	localparam	programer_M_Aw=   32;
-	localparam	programer_TAGw=   3;
-	localparam	programer_SELw=   4;
-	localparam	programer_VJTAG_INDEX=CORE_ID;
+ 	localparam	programmer_DW=32;
+	localparam	programmer_AW=32;
+	localparam	programmer_S_Aw=   7;
+	localparam	programmer_M_Aw=   32;
+	localparam	programmer_TAGw=   3;
+	localparam	programmer_SELw=   4;
+	localparam	programmer_VJTAG_INDEX=CORE_ID;
 
  	localparam	ram_BYTE_WR_EN="YES";
 	localparam	ram_FPGA_VENDOR="ALTERA";
@@ -103,17 +103,17 @@ module ram_test #(
   	wire			 ss_socket_clk_0_clk_o;
  	wire			 ss_socket_reset_0_reset_o;
 
-  	wire			 programer_plug_clk_0_clk_i;
- 	wire			 programer_plug_wb_master_0_ack_i;
- 	wire	[ programer_M_Aw-1          :   0 ] programer_plug_wb_master_0_adr_o;
- 	wire	[ programer_TAGw-1          :   0 ] programer_plug_wb_master_0_cti_o;
- 	wire			 programer_plug_wb_master_0_cyc_o;
- 	wire	[ programer_DW-1           :  0 ] programer_plug_wb_master_0_dat_i;
- 	wire	[ programer_DW-1            :   0 ] programer_plug_wb_master_0_dat_o;
- 	wire	[ programer_SELw-1          :   0 ] programer_plug_wb_master_0_sel_o;
- 	wire			 programer_plug_wb_master_0_stb_o;
- 	wire			 programer_plug_wb_master_0_we_o;
- 	wire			 programer_plug_reset_0_reset_i;
+  	wire			 programmer_plug_clk_0_clk_i;
+ 	wire			 programmer_plug_wb_master_0_ack_i;
+ 	wire	[ programmer_M_Aw-1          :   0 ] programmer_plug_wb_master_0_adr_o;
+ 	wire	[ programmer_TAGw-1          :   0 ] programmer_plug_wb_master_0_cti_o;
+ 	wire			 programmer_plug_wb_master_0_cyc_o;
+ 	wire	[ programmer_DW-1           :  0 ] programmer_plug_wb_master_0_dat_i;
+ 	wire	[ programmer_DW-1            :   0 ] programmer_plug_wb_master_0_dat_o;
+ 	wire	[ programmer_SELw-1          :   0 ] programmer_plug_wb_master_0_sel_o;
+ 	wire			 programmer_plug_wb_master_0_stb_o;
+ 	wire			 programmer_plug_wb_master_0_we_o;
+ 	wire			 programmer_plug_reset_0_reset_i;
 
   	wire			 ram_plug_clk_0_clk_i;
  	wire			 ram_plug_reset_0_reset_i;
@@ -201,25 +201,25 @@ module ram_test #(
 		.reset_out(ss_socket_reset_0_reset_o)
 	);
  vjtag_wb #(
- 		.DW(programer_DW),
-		.AW(programer_AW),
-		.S_Aw(programer_S_Aw),
-		.M_Aw(programer_M_Aw),
-		.TAGw(programer_TAGw),
-		.SELw(programer_SELw),
-		.VJTAG_INDEX(programer_VJTAG_INDEX)
-	)  programer 	(
-		.clk(programer_plug_clk_0_clk_i),
-		.m_ack_i(programer_plug_wb_master_0_ack_i),
-		.m_addr_o(programer_plug_wb_master_0_adr_o),
-		.m_cti_o(programer_plug_wb_master_0_cti_o),
-		.m_cyc_o(programer_plug_wb_master_0_cyc_o),
-		.m_dat_i(programer_plug_wb_master_0_dat_i),
-		.m_dat_o(programer_plug_wb_master_0_dat_o),
-		.m_sel_o(programer_plug_wb_master_0_sel_o),
-		.m_stb_o(programer_plug_wb_master_0_stb_o),
-		.m_we_o(programer_plug_wb_master_0_we_o),
-		.reset(programer_plug_reset_0_reset_i),
+ 		.DW(programmer_DW),
+		.AW(programmer_AW),
+		.S_Aw(programmer_S_Aw),
+		.M_Aw(programmer_M_Aw),
+		.TAGw(programmer_TAGw),
+		.SELw(programmer_SELw),
+		.VJTAG_INDEX(programmer_VJTAG_INDEX)
+	)  programmer 	(
+		.clk(programmer_plug_clk_0_clk_i),
+		.m_ack_i(programmer_plug_wb_master_0_ack_i),
+		.m_addr_o(programmer_plug_wb_master_0_adr_o),
+		.m_cti_o(programmer_plug_wb_master_0_cti_o),
+		.m_cyc_o(programmer_plug_wb_master_0_cyc_o),
+		.m_dat_i(programmer_plug_wb_master_0_dat_i),
+		.m_dat_o(programmer_plug_wb_master_0_dat_o),
+		.m_sel_o(programmer_plug_wb_master_0_sel_o),
+		.m_stb_o(programmer_plug_wb_master_0_stb_o),
+		.m_we_o(programmer_plug_wb_master_0_we_o),
+		.reset(programmer_plug_reset_0_reset_i),
 		.status_i()
 	);
  wb_single_port_ram #(
@@ -305,17 +305,17 @@ module ram_test #(
  
 
  
- 	assign  programer_plug_clk_0_clk_i = ss_socket_clk_0_clk_o;
- 	assign  programer_plug_wb_master_0_ack_i = bus_socket_wb_master_0_ack_o;
- 	assign  bus_socket_wb_master_0_adr_i  = programer_plug_wb_master_0_adr_o;
- 	assign  bus_socket_wb_master_0_cti_i  = programer_plug_wb_master_0_cti_o;
- 	assign  bus_socket_wb_master_0_cyc_i  = programer_plug_wb_master_0_cyc_o;
- 	assign  programer_plug_wb_master_0_dat_i = bus_socket_wb_master_0_dat_o[programer_DW-1           :  0];
- 	assign  bus_socket_wb_master_0_dat_i  = programer_plug_wb_master_0_dat_o;
- 	assign  bus_socket_wb_master_0_sel_i  = programer_plug_wb_master_0_sel_o;
- 	assign  bus_socket_wb_master_0_stb_i  = programer_plug_wb_master_0_stb_o;
- 	assign  bus_socket_wb_master_0_we_i  = programer_plug_wb_master_0_we_o;
- 	assign  programer_plug_reset_0_reset_i = ss_socket_reset_0_reset_o;
+ 	assign  programmer_plug_clk_0_clk_i = ss_socket_clk_0_clk_o;
+ 	assign  programmer_plug_wb_master_0_ack_i = bus_socket_wb_master_0_ack_o;
+ 	assign  bus_socket_wb_master_0_adr_i  = programmer_plug_wb_master_0_adr_o;
+ 	assign  bus_socket_wb_master_0_cti_i  = programmer_plug_wb_master_0_cti_o;
+ 	assign  bus_socket_wb_master_0_cyc_i  = programmer_plug_wb_master_0_cyc_o;
+ 	assign  programmer_plug_wb_master_0_dat_i = bus_socket_wb_master_0_dat_o[programmer_DW-1           :  0];
+ 	assign  bus_socket_wb_master_0_dat_i  = programmer_plug_wb_master_0_dat_o;
+ 	assign  bus_socket_wb_master_0_sel_i  = programmer_plug_wb_master_0_sel_o;
+ 	assign  bus_socket_wb_master_0_stb_i  = programmer_plug_wb_master_0_stb_o;
+ 	assign  bus_socket_wb_master_0_we_i  = programmer_plug_wb_master_0_we_o;
+ 	assign  programmer_plug_reset_0_reset_i = ss_socket_reset_0_reset_o;
 
  
  	assign  ram_plug_clk_0_clk_i = ss_socket_clk_0_clk_o;

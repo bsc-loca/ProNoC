@@ -83,7 +83,7 @@ sub add_module_to_soc{
 	
 	my $rr=$soc->soc_add_instance_param($instance_id,\%param_default);
 	if($rr == 0){
-		my $info_text= "Failed to add defualt parameter to \"$instance_id\".  $instance_id does not exist exist.";	 
+		my $info_text= "Failed to add default parameter to \"$instance_id\".  $instance_id does not exist exist.";	 
 		show_info($info,$info_text); 
 		return;
 	}
@@ -144,7 +144,7 @@ sub get_module_parameter{
 	
 	$table->attach (gen_label_in_left("Parameter name"),0, 2, $row, $row+1,$at0,$at1,2,2);
 	$table->attach (gen_label_in_left("Value"),2, 3, $row, $row+1,$at0,$at1,2,2);
-	my $param_info='Define how parameter will be included in the SoC/Tile top module containig this IP core. If you define it as "Parameter", its value can be changed at SoC/tile  instantiation time. So multiple different instancitaions of single SoC/tile can be used in MpSoC where each has its own parameter value';
+	my $param_info='Define how parameter will be included in the SoC/Tile top module containing this IP core. If you define it as "Parameter", its value can be changed at SoC/tile  instantiation time. So multiple different instancitaions of single SoC/tile can be used in MPSoC where each has its own parameter value';
 	$table->attach (gen_label_help($param_info,"Type"),3, 4, $row, $row+1,$at0,$at1,2,2);
     
 	$row++;
@@ -388,7 +388,7 @@ sub gen_instance{
 		my $warn=def_image_button("icons/warning.png");
 		$table->attach  ($warn,1,2,$offset+2,$offset+3,'expand','shrink',2,2);  #$box2->pack_start($warn, FALSE, FALSE, 3);  
 		$warn->signal_connect (clicked => sub{
-			message_dialog("Warning: ${module}'s version (V.$old_v) missmatches with the one exsiting in librray (V.$new_v). The generated system may not work correctly.  Please remove and then add $module again to update it with current version")
+			message_dialog("Warning: ${module}'s version (V.$old_v) mismatches with the one existing in library (V.$new_v). The generated system may not work correctly.  Please remove and then add $module again to update it with current version")
 				
 		});	
 
@@ -464,8 +464,8 @@ sub gen_instance{
 			
 			my %connect_list= $soc->get_modules_have_this_socket($matched_soket);
 			foreach my $id(sort keys %connect_list ){
-				if($instance_id ne $id){ # assum its forbidden to connect the socket and plug of same ip to each other
-					#generate soket list
+				if($instance_id ne $id){ # assume its forbidden to connect the socket and plug of same ip to each other
+					#generate socket list
 					my $name=$soc->soc_get_instance_name($id);
 					#check if its a number or parameter
 					my $param=$connect_list{$id};
@@ -554,7 +554,7 @@ sub gen_instance{
 						foreach my $p (sort keys %connected_plugs) {
 							#%pp{$instance_id}=$plug
 							$soc->soc_add_instance_plug_conection($p,$connected_plugs{$p},$connected_plug_nums{$p},'IO');
-							my $info_text="$id\:$socket\[$num\] support only single connection.  The previouse connection to $p:$connected_plugs{$p}\[$connected_plug_nums{$p}] has been removed.";
+							my $info_text="$id\:$socket\[$num\] support only single connection.  The previous connection to $p:$connected_plugs{$p}\[$connected_plug_nums{$p}] has been removed.";
 							show_info($info, $info_text);
 						}
 						
@@ -1433,7 +1433,7 @@ sub check_instances_version{
     foreach my $instance_id (@all_instances){
 	my ($old_v,$new_v)=  get_old_new_ip_version ($soc,$ip,$instance_id);
 	my $differences='';
-	$differences="$differences \t The $instance_id version (V.$old_v) missmatches with the one exsiting in the library (V.$new_v).\n " if($old_v != $new_v);
+	$differences="$differences \t The $instance_id version (V.$old_v) mismatches with the one existing in the library (V.$new_v).\n " if($old_v != $new_v);
 		
 	
 	message_dialog("Warning: The generated system may not work correctly: \n $differences Please remove and then add the aforementioned instance(s) to update them with current version(s)") if(length($differences)>1);
@@ -1520,7 +1520,7 @@ sub software_edit_soc {
 
 	
 
-    my $ram = def_image_button('icons/info.png',"Reqired BRAMs\' size",FALSE,1);
+    my $ram = def_image_button('icons/info.png',"Required BRAMs\' size",FALSE,1);
     my $linker = def_image_button('icons/setting.png','LD Linker',FALSE,1);
 	my $make = def_image_button('icons/gen.png','Compile');
 	my $regen= def_image_button('icons/refresh.png','Regenerate main.c');
@@ -1536,7 +1536,7 @@ sub software_edit_soc {
                                       'destroy-with-parent',
                                       'question', # message type
                                       'yes-no', # which set of buttons?
-                                      "Are you sure you want to regenaret the main.c file? Note that any changes you have made will be lost");
+                                      "Are you sure you want to regenerate the main.c file? Note that any changes you have made will be lost");
   		my $response = $dialog->run;
   		if ($response eq 'yes') {
       			
@@ -1573,7 +1573,7 @@ sub software_edit_soc {
 		my $bash_file="$target_dir/sw/program.sh";
 		my $jtag_intfc="$sw/jtag_intfc.sh";
 
-		add_info($tview,"Programe the board using quartus_pgm and $bash_file file\n");
+		add_info($tview,"Program the board using quartus_pgm and $bash_file file\n");
 		#check if the programming file exists
 		unless (-f $bash_file) {
 			add_colored_info($tview,"\tThe $bash_file does not exists! \n", 'red');
@@ -1591,15 +1591,15 @@ sub software_edit_soc {
 		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
 		if(length $stderr>1){			
 			add_colored_info($tview,"$stderr\n",'red');
-			add_colored_info($tview,"Memory was not programed successfully!\n",'red');
+			add_colored_info($tview,"Memory was not programmed successfully!\n",'red');
 		}else {
 
 			if($exit){
 				add_colored_info($tview,"$stdout\n",'red');
-				add_colored_info($tview,"Memory was not programed successfully!\n",'red');
+				add_colored_info($tview,"Memory was not programmed successfully!\n",'red');
 			}else{
 				add_info($tview,"$stdout\n");
-				add_colored_info($tview,"Memory is programed successfully!\n",'blue');
+				add_colored_info($tview,"Memory is programmed successfully!\n",'blue');
 
 			}
 			
@@ -1642,7 +1642,7 @@ source ./jtag_intfc.sh
 
 
 
-#programe the memory
+#Program the memory
 
 	bash write_memory.sh 
 
@@ -1709,7 +1709,7 @@ sub check_soc_name{
 	
 	my $error = check_verilog_identifier_syntax($name);
 	if ( defined $error ){
-		message_dialog("The \"$name\" is given with an unacceptable formatting. This name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
+		message_dialog("The \"$name\" is given with an unacceptable formatting. This name will be used as top level Verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
 		return 1;
 	}
 	return 0;	
@@ -1774,10 +1774,10 @@ sub socgen_main{
 	my $soc = soc->soc_new();
 	set_gui_status($soc,"ideal",0);
 		
-	#  The main table containg the lib tree, selected modules and info section 
+	#  The main table containing the lib tree, selected modules and info section 
 	my $main_table = Gtk2::Table->new (20, 12, FALSE);
 	
-	# The box which holds the info, warning, error ...  mesages
+	# The box which holds the info, warning, error ...  messages
 	my ($infobox,$info)= create_text();	
 		
 	
@@ -1873,7 +1873,7 @@ sub socgen_main{
 		                              'destroy-with-parent',
 		                              'question', # message type
 		                              'yes-no', # which set of buttons?
-		                              "Processing Tile  \"$name\" has been created successfully at $target_dir/.  In order to include this tile in MPSoC Generator you need to restar the ProNoC. Do you ant to reset the ProNoC now?");
+		                              "Processing Tile  \"$name\" has been created successfully at $target_dir/.  In order to include this tile in MPSoC Generator you need to restart the ProNoC. Do you ant to reset the ProNoC now?");
 	  		my $response = $dialog->run;
 	  		if ($response eq 'yes') {
 	      			exec($^X, $0, @ARGV);# reset ProNoC to apply changes	
@@ -1942,7 +1942,7 @@ sub socgen_main{
 
 
 
-	#check soc status every 0.5 second. referesh device table if there is any changes 
+	#check soc status every 0.5 second. refresh device table if there is any changes 
 	Glib::Timeout->add (100, sub{ 
 	 	my ($state,$timeout)= get_gui_status($soc);
 		

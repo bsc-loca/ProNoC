@@ -53,9 +53,9 @@ Linker script and memory map
                 0x0000000000001ca4                ni_receive
                 0x0000000000001d18                timer_int_init
                 0x0000000000001d40                delay
-                0x0000000000001d74                error_handelling_function
+                0x0000000000001d74                error_handling_function
                 0x0000000000001ef4                ni_isr
-                0x0000000000001f44                got_packet_funtion
+                0x0000000000001f44                got_packet_function
  .text          0x0000000000002050      0x108 ./liborlib.a(cache.o)
                 0x0000000000002050                _cache_init
  .text          0x0000000000002158       0xc8 ./liborlib.a(exceptions.o)

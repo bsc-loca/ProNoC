@@ -123,7 +123,7 @@ module  pck_dst_gen  #(
 ); 
  
  
-    localparam      ADDR_DIMENTION =   (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS") ? 2 : 1;  // "RING" and FULLY_CONNECT 
+    localparam      ADDR_DIMENSION =   (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS") ? 2 : 1;  // "RING" and FULLY_CONNECT 
  
  
     function integer log2;
@@ -148,9 +148,9 @@ module  pck_dst_gen  #(
  
  
      generate 
-     if ( ADDR_DIMENTION == 2) begin :two_dim
+     if ( ADDR_DIMENSION == 2) begin :two_dim
      
-        two_dimention_pck_dst_gen #(
+        two_dimension_pck_dst_gen #(
         	.T1(T1),
         	.T2(T2),
         	.T3(T3),
@@ -168,7 +168,7 @@ module  pck_dst_gen  #(
         	.HOTSPOT_CORE_5(HOTSPOT_CORE_5),
         	.HOTSPOT_SEND_EN(HOTSPOT_SEND_EN)
         )
-        the_two_dimention_pck_dst_gen
+        the_two_dimension_pck_dst_gen
         (
         	.reset(reset),
         	.clk(clk),
@@ -182,7 +182,7 @@ module  pck_dst_gen  #(
         
      end else begin : one_dim
       
-        one_dimention_pck_dst_gen #(
+        one_dimension_pck_dst_gen #(
             .T1(T1),
             .T2(T2),
             .T3(T3),
@@ -200,7 +200,7 @@ module  pck_dst_gen  #(
             .HOTSPOT_CORE_5(HOTSPOT_CORE_5),
             .HOTSPOT_SEND_EN(HOTSPOT_SEND_EN)
         )
-        the_one_dimention_pck_dst_gen
+        the_one_dimension_pck_dst_gen
         (
             .reset(reset),
             .clk(clk),
@@ -219,7 +219,7 @@ module  pck_dst_gen  #(
  
  
  
-module two_dimention_pck_dst_gen  #(
+module two_dimension_pck_dst_gen  #(
     parameter T1 = 4,
     parameter T2 = 4,
     parameter T3 = 4,
@@ -500,7 +500,7 @@ endmodule
 ************/
 
 
-module one_dimention_pck_dst_gen #(
+module one_dimension_pck_dst_gen #(
     parameter T1 = 4,
     parameter T2 = 4,
     parameter T3 = 4,

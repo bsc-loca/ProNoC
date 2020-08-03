@@ -14,7 +14,7 @@ void delay ( unsigned int num ){
 	return;
 }
 
-void error_handelling_function(){
+void error_handling_function(){
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
 			if(ni_ERROR_FLAGS_REG(i)){
@@ -29,7 +29,7 @@ void error_handelling_function(){
 }
 
 unsigned int reseived_counter=0;
-void got_packet_funtion(){
+void got_packet_function(){
 //this function sends packet saving command to the NI. It doese not wait until the packet saving is finished. Once the packet is completely saved, the  software will be notified using SAVE_DONE_ISR intrrupt or it can check by using ni_packet_is_saved(v) function.
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
@@ -40,7 +40,7 @@ void got_packet_funtion(){
 	}
 }
 
-void check_packet_funtion(){// in this example we just print the packet content
+void check_packet_function(){// in this example we just print the packet content
 	unsigned int i,size,j;
 	struct SRC_INFOS  src_info;
 	for (i=0;i<ni_NUM_VCs;i++){
@@ -61,17 +61,17 @@ void ni_isr(void){
 	//place your interrupt code here 
 	if( ni_STATUS2_REG & ERRORS_ISR ){
 	// An error ocures 
-		error_handelling_function();
+		error_handling_function();
 		ni_ack_errors_isr();
 	}
 	if( ni_STATUS2_REG & SAVE_DONE_ISR ){
-	//check which VC has finished saving the packet. This function must be called before got_packet_funtion
-		check_packet_funtion();
+	//check which VC has finished saving the packet. This function must be called before got_packet_function
+		check_packet_function();
 		ni_ack_save_done_isr(); 
 	}
 	if( ni_STATUS2_REG & GOT_PCK_ISR ){
 	//check which VC got a packet and send the save command to NI to start saving the packet. 
-		got_packet_funtion();
+		got_packet_function();
 	//Please note that the whole of the packet may not yet be in the memory when the code reaches here. Once the packet is completely saved the  software will be notified using SAVE_DONE_ISR flag  
 		ni_ack_got_pck_isr();
 	}

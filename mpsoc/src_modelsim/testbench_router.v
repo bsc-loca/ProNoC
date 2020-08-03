@@ -206,9 +206,9 @@ endgenerate
 				destport = {x,y,a,b};
 					x= (dest_x  > current_x);   
 					y= (dest_y  > current_y);
-					a= if is one packet can be sent from x dimention to reach its destination 
-					b= if is one packet can be sent from y dimention to reach its destination   
-					   if both a and b are packet can be delivered from any of x or y dimention    						
+					a= if is one packet can be sent from x dimension to reach its destination 
+					b= if is one packet can be sent from y dimension to reach its destination   
+					   if both a and b are packet can be delivered from any of x or y dimension    						
 					   if both a and b one zero packet will be delivered to local port.
 				
 					e.g destport={4'b1111}:    destination is located at east_south quarter and packet can sent from any of these two ports

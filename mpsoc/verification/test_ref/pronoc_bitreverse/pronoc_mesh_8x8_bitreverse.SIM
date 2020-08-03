@@ -469,7 +469,7 @@ $simulate = bless( {
                      'P2Received' => {
                                        'ratio' => '2',
                                        'type' => '3D_bar',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'sample1' => {
                                     'worst_delay_sent_result' => {
@@ -796,7 +796,7 @@ $simulate = bless( {
                      'P1Received' => {
                                        'type' => '3D_bar',
                                        'ratio' => '2',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'P1' => {
                                'active' => 'Received'

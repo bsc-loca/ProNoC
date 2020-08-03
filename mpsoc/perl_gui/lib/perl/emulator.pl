@@ -567,7 +567,7 @@ sub get_status_gif{
 			          ($width>=1200)? "icons/hamster_m.gif": "icons/hamster_s.gif"; 
 				  
 			return show_gif ($image);			
-		} elsif ($status eq 'programer_failed') {
+		} elsif ($status eq 'programmer_failed') {
 			return show_gif ("icons/Error.png");			
 		}
 	
@@ -620,7 +620,7 @@ sub run_emulator {
 #	my $usb_blaster=$matches[0];
 # 	if (!defined $usb_blaster){
 #		add_info($info, "jtagconfig could not find any USB blaster cable: $stdout \n");
-#		$emulate->object_add_attribute('status',undef,'programer_failed');
+#		$emulate->object_add_attribute('status',undef,'programmer_failed');
 #		set_gui_status($emulate,"ref",2);
 #		#/***/
 #		return;	
@@ -638,23 +638,23 @@ sub run_emulator {
 		my $sof=get_sof_file_full_addr($emulate,$sample);	
 		add_info($info, "Programe FPGA device using $sof.sof\n");
 		my ($name,$path,$suffix) = fileparse("$sof",qr"\..[^.]*$");
-		my $programer="$path/program_device.sh";
+		my $programmer="$path/program_device.sh";
 		my $jtag_intfc="$path/jtag_intfc.sh";
-		if((-f $programer)==0){
-			add_colored_info ($info, " Error: file  \"$programer\"  dose not exist. \n",'red'); 
-			$emulate->object_add_attribute('status',undef,'programer_failed');
+		if((-f $programmer)==0){
+			add_colored_info ($info, " Error: file  \"$programmer\"  dose not exist. \n",'red'); 
+			$emulate->object_add_attribute('status',undef,'programmer_failed');
 			$emulate->object_add_attribute ($sample,"status","failed");	
 			set_gui_status($emulate,"ref",2);
 			last;		
 		}
 		if((-f $jtag_intfc)==0){
 			add_colored_info ($info, " Error: file  \"$jtag_intfc\"  dose not exist. \n",'red'); 
-			$emulate->object_add_attribute('status',undef,'programer_failed');
+			$emulate->object_add_attribute('status',undef,'programmer_failed');
 			$emulate->object_add_attribute ($sample,"status","failed");	
 			set_gui_status($emulate,"ref",2);
 			last;		
 		}
-		my $cmd =  "bash $programer $sof.sof";
+		my $cmd =  "bash $programmer $sof.sof";
 		
 		
 		#my $Quartus_bin=  $ENV{QUARTUS_BIN};
@@ -667,7 +667,7 @@ sub run_emulator {
 		#/***/
 		my ($stdout,$exit)=run_cmd_in_back_ground_get_stdout("$cmd");	
 		if($exit){#programming FPGA board has failed
-			$emulate->object_add_attribute('status',undef,'programer_failed');
+			$emulate->object_add_attribute('status',undef,'programmer_failed');
 			add_colored_info($info, "$stdout\n",'red');
 			$emulate->object_add_attribute ($sample,"status","failed");	
 			set_gui_status($emulate,"ref",2);
@@ -1192,7 +1192,7 @@ sub emulator_main{
 		{page_name=>" Avg. throughput/latency", page_num=>0},
 		{page_name=>" Injected Packet ", page_num=>1},
 		{page_name=>" Worst-Case Delay ",page_num=>2},
-		{page_name=>" Executaion Time ",page_num=>3},
+		{page_name=>" Execution Time ",page_num=>3},
 	);
 
 	my @charts = (

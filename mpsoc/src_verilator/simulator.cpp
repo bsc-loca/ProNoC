@@ -539,9 +539,9 @@ printf	 ("\nclass : %d  \n",i);
 	for (i=0;i<NE;i++) {
 		printf	 ("\n\nCore %d\n",i);
 			printf	 ("\n\ttotal number of received packets: %u\n",rsvd_core_total_pck_num[i]);
-			printf	 ("\n\tworst-case-delay of received pckets (clks): %u\n",rsvd_core_worst_delay[i] );
+			printf	 ("\n\tworst-case-delay of received packets (clks): %u\n",rsvd_core_worst_delay[i] );
 			printf	 ("\n\ttotal number of sent packets: %u\n",traffic[i]->pck_number);
-			printf	 ("\n\tworst-case-delay of sent pckets (clks): %u\n",sent_core_worst_delay[i] );
+			printf	 ("\n\tworst-case-delay of sent packets (clks): %u\n",sent_core_worst_delay[i] );
 	}
 }
 

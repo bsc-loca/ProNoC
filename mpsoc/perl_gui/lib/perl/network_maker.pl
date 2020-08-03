@@ -557,7 +557,7 @@ sub get_instance_to_node_name {
 ##############
 sub create_tree_view {
    my ($self,$source,$src_port,$info)=@_;  
-   my $window = def_popwin_size(30,85,"Select Connetion Element and Port",'percent');
+   my $window = def_popwin_size(30,85,"Select Connection Element and Port",'percent');
      
    my $model = Gtk2::TreeStore->new ('Glib::String', 'Glib::String', 'Glib::Scalar', 'Glib::Boolean');
    my $tree_view = Gtk2::TreeView->new;
@@ -731,13 +731,13 @@ sub connection_page{
 		}   
 		$col=0;
 			                            
-		#($row,$col)=add_param_widget ($self,"$instance","CNNT", undef,"Combo-box",$list,"router instance name", $table,$row,$col,1,"ENDP_$i",1,'ref','horizental');
+		#($row,$col)=add_param_widget ($self,"$instance","CNNT", undef,"Combo-box",$list,"router instance name", $table,$row,$col,1,"ENDP_$i",1,'ref','horizontal');
 		# my $connect_r= $self->object_get_attribute("ENDP_$i","CNNT");
 		# if( defined $connect_r){
 		# 	print "cponnection is $R{$connect_r}\n";
 		# 	my $conr= $R{$connect_r};
 		# 	my $p=0;
-		# 	($row,$col)=add_param_widget ($self,"P$p","P_$p", undef,"Combo-box",$list,undef, $table,$row,$col,1,"ENDP_$i",1,'ref','horizental');
+		# 	($row,$col)=add_param_widget ($self,"P$p","P_$p", undef,"Combo-box",$list,undef, $table,$row,$col,1,"ENDP_$i",1,'ref','horizontal');
 		 	
 		 	
 		 	
@@ -753,7 +753,7 @@ sub connection_page{
 		 for ( my $j=0;$j<$n; $j++){
 			my $pnum=	 $self->object_get_attribute("ROUTER${i}_$j",'PNUM');
 			 for ( my $p=0;$p<$pnum; $p++){
-			 	#	($row,$col)=add_param_widget ($self,"P$p","P_$p", undef,"Combo-box",$list,undef, $table,$row,$col,1,"ROUTER${i}_$j",1,'ref','horizental');
+			 	#	($row,$col)=add_param_widget ($self,"P$p","P_$p", undef,"Combo-box",$list,undef, $table,$row,$col,1,"ROUTER${i}_$j",1,'ref','horizontal');
 		 	
 			 }
 			  $row++;$col=0;
@@ -1017,7 +1017,7 @@ sub get_adjacent_router_in_a_path{
 	my @result;
 	my @path=@{$ref};
 	shift @path; #remove source node from the path
-	pop @path; #remove the estination node from the path
+	pop @path; #remove the destination node from the path
 	
 	
 	my $old_r;	
@@ -1125,7 +1125,7 @@ sub routing_summary{
    {label => "The Minimum number that a router is used in routing",  value =>"$min_r", name =>"$min_r_name" },  
    {label => "The Maximum number that a link is used in routing ",  value =>"$max_l", name =>"$max_l_name"}, # The maximum number that a node-2-node link is located in all paths between all source-destination pair in this routing algorithm.
    {label => "The Minimum number that a link is used in routing",  value =>"$min_l", name =>"$min_l_name" },  
-   {label => "Link usgae standard devision ",  value =>"$std_l" } 
+   {label => "Link usage  standard deviation ",  value =>"$std_l" } 
   );
 	
 	
@@ -1504,7 +1504,7 @@ sub get_forbiden_turns {
 	
 	my ($self,$info)=@_;
 	my @forbiden_turn;
-	add_info($info,"Calculate forbiden turns to avoid deadlock \n");
+	add_info($info,"Calculate forbidden turns to avoid deadlock \n");
 	#step 1: get the list of all  minimal paths between all source and destination pairs
 	my $graph='';
 	my $graph_coded='';
@@ -1577,7 +1577,7 @@ sub get_forbiden_turns {
 			
 	# check if the output file is generated 
 	if (-f $out ){
-		add_colored_info($info,"$out file has been selected as it has the minimum number of edfge removal of $line_num \n",'blue');
+		add_colored_info($info,"$out file has been selected as it has the minimum number of edge removal of $line_num \n",'blue');
 		
 	} else {
 		add_colored_info($info,"could not find a paths_graph_coded_removed*.edges file.  Please make sure $cmd has been run successfully\n",'red');
@@ -1880,7 +1880,7 @@ sub generate_topology{
     my $error = check_verilog_identifier_syntax($name);
     if ( defined $error ){
         #message_dialog("The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
-        my $message = "The \"$name\" is given with an unacceptable formatting. The topology name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
+        my $message = "The \"$name\" is given with an unacceptable formatting. The topology name will be used as top level Verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
         add_colored_info($info, $message,'red' );
         return 0;
     }
@@ -1889,7 +1889,7 @@ sub generate_topology{
     if ( defined $error ){
         #message_dialog("The \"$rname\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
         $rname='Undefined' if(!defined $rname);
-        my $message = "The \"$name\" is given with an unacceptable formatting. The routing name will be used as routing verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
+        my $message = "The \"$name\" is given with an unacceptable formatting. The routing name will be used as routing Verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
         add_colored_info($info, $message,'red' );
         return 0;
     }
@@ -2005,7 +2005,7 @@ sub build_network_maker_gui {
 	$self->object_add_attribute ("process_notebook","currentpage",0);
 	my $main_table= def_table(2,10,FALSE);
 	#my ($scwin_info)= create_text();	
-	# The box which holds the info, warning, error ...  mesages
+	# The box which holds the info, warning, error ...  messages
     my ($infobox,$info)= create_text();
 	my $notebook = topology_maker_notebook($self,$info);
 	my $draw=custom_topology_diagram($self);
@@ -2107,7 +2107,7 @@ sub build_network_maker_gui {
 	
 	my $h2=gen_hpaned($w1,.15,$w2);
 	
-	#check soc status every 0.5 second. referesh device table if there is any changes 
+	#check soc status every 0.5 second. refresh device table if there is any changes 
 	Glib::Timeout->add (100, sub{ 
 	   
 		my ($state,$timeout)= get_gui_status($self);

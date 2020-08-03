@@ -312,7 +312,7 @@ sub set_path_env{
 			mkpath("$pronoc_work/tmp",1,01777) unless -d "$pronoc_work/tmp";			
 	}}
 	
-	#add quartus_bin to PATH linux envirement if it does not exist in PATH
+	#add quartus_bin to PATH linux environment if it does not exist in PATH
 	my $add;
 	if( defined $quartus){
 		my @q =split  (/:/,$ENV{'PATH'});
@@ -891,7 +891,7 @@ sub run_cmd_in_back_ground
   {
     $alive = $proc->alive;
 
-    # This while loop will cause Gtk2 to conti processing events, if
+    # This while loop will cause Gtk2 to continue processing events, if
     # there are events pending... *which there are...
     while (Gtk2->events_pending) {
       Gtk2->main_iteration;

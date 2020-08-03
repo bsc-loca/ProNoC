@@ -11,7 +11,7 @@
 
 $simulate = bless( {
                      'P1Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'status' => 'ideal',
@@ -129,7 +129,7 @@ $simulate = bless( {
                                'active' => 'Received'
                              },
                      'P2Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'file_name' => undef,

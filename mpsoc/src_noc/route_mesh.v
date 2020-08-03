@@ -610,7 +610,7 @@ endmodule
     /************************************
 
         Duato’s Fully Adaptive
-The packet which can travel in both x & y dimention can not use the reserved VC in y axies
+The packet which can travel in both x & y dimension can not use the reserved VC in y axies
     *************************************/    
     
     

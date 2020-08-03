@@ -1158,7 +1158,7 @@ $param
 **	wishbone bus(es)  info
 ****************************
 	#slave interfaces:
-	#instance name,  interface name, connected to, base address, boundray address 	
+	#instance name,  interface name, connected to, base address, boundary address 	
 $wb_slaves
 
 	#master interfaces:

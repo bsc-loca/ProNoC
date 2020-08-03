@@ -59,7 +59,7 @@ $simulate = bless( {
                                'active' => '-'
                              },
                      'P1Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'P0Throughput' => {
@@ -120,7 +120,7 @@ $simulate = bless( {
                      'file_name' => undef,
                      'P2Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'samples' => undef,
                      'P1' => {

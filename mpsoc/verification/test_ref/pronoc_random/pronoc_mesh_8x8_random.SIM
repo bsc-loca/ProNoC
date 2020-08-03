@@ -9771,7 +9771,7 @@ $simulate = bless( {
                                   },
                      'P2Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'ratio' => '12'
                                      },
                      'P0SD latency' => {
@@ -19707,7 +19707,7 @@ $simulate = bless( {
                      'simulate_name' => 'pronoc_mesh_8x8_random',
                      'P1Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '2D',
+                                       'dimension' => '2D',
                                        'ratio' => '2'
                                      },
                      'process_notebook' => {

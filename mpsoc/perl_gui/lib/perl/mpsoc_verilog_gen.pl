@@ -219,7 +219,7 @@ sub add_jtag_ctrl {
 		my $r = $jtag_info{0}{'inst'};
 		my @array = (defined $r)? @{$r} :();	
 		my $inst=join ("\n\t",@array);
-		add_colored_info($txview,"Found JTAG comminication ports from differnt FPGA vendors:\n$inst.",'red');			
+		add_colored_info($txview,"Found JTAG communication ports from different FPGA vendors:\n$inst.",'red');			
 	}
 	elsif($altera>0){
 		$jtag_v=$jtag_v."	

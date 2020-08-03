@@ -28,7 +28,7 @@
 
 module   test_noc_genvar #(  
     	parameter TOPOLOGY = "test",
-	parameter ROUTE_NAME = "test_DETERMINSTIC",
+	parameter ROUTE_NAME = "test_DETERMINISTIC",
 	parameter B  = 4,
 	parameter V  = 2,
 	parameter C  = 2,

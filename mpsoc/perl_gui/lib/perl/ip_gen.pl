@@ -114,14 +114,14 @@ sub ip_file_box {
 	my $browse= def_image_button("icons/browse.png","Browse");
 	my $file= $ipgen->ipgen_get("file_name");
 	if(defined $file){$entry->set_text($file);}
-    else {show_info($info,"Please select the verilog file containig the top level IP core\n");}
+    else {show_info($info,"Please select the verilog file containing the top level IP core\n");}
 
 	
 	my $entry2=gen_label_info(" IP name:",gen_entry_object($ipgen,'ip_name',undef,undef,undef,undef));
 
 
 
-	#show_info($info,"Please select the verilog file containig the ip module\n");
+	#show_info($info,"Please select the verilog file containing the ip module\n");
 	$browse->signal_connect("clicked"=> sub{
 		my $entry_ref=$_[1];
  		my $file;
@@ -250,8 +250,8 @@ sub select_module{
 	});	
 	$header_h->signal_connect("clicked"=> sub{
 		my %page_info;
-		my $help1="The files and folder that selected here will be copied in genertated processing tile SW folder.";
-		my $help2="The file listed here can contain some variable with \${var_name} format. The file genertor will replace them with their values during file generation. The variable can be selected from above listed global vairables";
+		my $help1="The files and folder that selected here will be copied in generated processing tile SW folder.";
+		my $help2="The file listed here can contain some variable with \${var_name} format. The file generator will replace them with their values during file generation. The variable can be selected from above listed global variables";
 		my $help3='Define the header file for this peripheral device. You can use global variables listed at the top.  This file contains peripheral device functions\' deceleration, memory-mapped register address definition,  definitions of data types, and  C preprocessor commands. Do not put function definitions in the header file. Functions should be defined in add to tile.c section. 
   		
 header file example 
@@ -264,13 +264,13 @@ header file example
  #define ${IP}_READ_REG1()  	${IP}_REG_1	    
   ';	
   
-  my $help4='Define peripheral device\'s functions in this file. You can use global vriables listed at the top.  
+  my $help4='Define peripheral device\'s functions in this file. You can use global variables listed at the top.  
 ';	
   
 
-		$page_info{0}{page_name} = "_Add exsiting file/folder";
+		$page_info{0}{page_name} = "_Add existing file/folder";
 		$page_info{0}{filed_name}= "sw_files";
-		$page_info{0}{filed_type}= "exsiting_file/folder";
+		$page_info{0}{filed_type}= "existing_file/folder";
 		$page_info{0}{rename_file}=undef; 
 		$page_info{0}{folder_en}=1;
 		$page_info{0}{help}=$help1;
@@ -311,9 +311,9 @@ header file example
 		my $help3='The content here will be added to the generated tile.v file. You can define functions/tasks etc...';
 		  
 		my %page_info;
-		$page_info{0}{page_name} = "_Add exsiting HDL file/folder";
+		$page_info{0}{page_name} = "_Add existing HDL file/folder";
 		$page_info{0}{filed_name}= "hdl_files";
-		$page_info{0}{filed_type}= "exsiting_file/folder";
+		$page_info{0}{filed_type}= "existing_file/folder";
 		$page_info{0}{rename_file}=undef;
 		$page_info{0}{folder_en}=1; 
 		$page_info{0}{help}=$help1;
@@ -489,7 +489,7 @@ sub get_parameter_setting {
 	
 	my $file= $ipgen->ipgen_get("file_name");
 	if (!defined $file) {
-			message_dialog("The input verilog file is empty");
+			message_dialog("The input Verilog file is empty");
 			#return;
 			
 	}		
@@ -533,7 +533,7 @@ For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
 	$title[3]=gen_label_help($content_info,"Widget content");
 	$title[4]=gen_label_help($param_info,"Type");
 	$title[5]=gen_label_help($redefine_info,"");
-	$title[6]=gen_label_help("You can add aditional information about this parameter.","info");
+	$title[6]=gen_label_help("You can add additional information about this parameter.","info");
 	$title[7]=gen_label_in_center("add/remove");
 	
 	
@@ -753,7 +753,7 @@ sub get_def_setting {
 	$scrwin->set_policy( "automatic", "automatic" );
 	$scrwin->add_with_viewport($table2);
 
-	my $label=gen_label_help("You ","Selecet the Verilog file containig the definitions."); 
+	my $label=gen_label_help("You ","Select the Verilog file containing the definitions."); 
 	my $brows=def_image_button("icons/browse.png",' Browse');
 	$table->attach_defaults($label,0,10,0,1);
 	$table->attach($brows,10,12,1,2,'expand','shrink',2,2);
@@ -779,7 +779,7 @@ sub get_Description{
 	my ($scrwin,$text_view)=create_text();
 	#my $buffer = $textbox->get_buffer();
 	my $ok=def_image_button("icons/select.png",' Ok ');
-	$table->attach_defaults(gen_label_help("User can open the PDF file when oppening IP parameter setting","IP Documentation file in PDF"),0,7,0,1);
+	$table->attach_defaults(gen_label_help("User can open the PDF file when opening IP parameter setting","IP Documentation file in PDF"),0,7,0,1);
 	$table->attach_defaults(gen_label_help("Description will be shown on IP generator text view when selecting this IP","Short Description"),5,10,1,2);
 	$table->attach_defaults(get_file_name_object ( $ipgen, 'description_pdf',undef,"pdf",undef),7,15,0,1);
 	$table->attach_defaults($scrwin,0,15,2,14);
@@ -1593,7 +1593,7 @@ sub generate_ip{
                                       'destroy-with-parent',
                                       'question', # message type
                                       'yes-no', # which set of buttons?
-                                      "No hdl library file has been set for this IP. Do you want to generate this IP?");
+                                      "No HDL library file has been set for this IP. Do you want to generate this IP?");
   			my $response = $dialog->run;
   			if ($response eq 'yes') {
 	      			write_ip($ipgen);
@@ -1679,13 +1679,13 @@ sub get_source_file{
 		
 	my $var_list='${parameter_name}: Verilog module parameter values.
  
-${CORE_ID} Each wishbone bus based SoC will have a unique CORE_ID that represents its location in NoC topology. CORE_ID=((y * number_of_nodes_in_x_ dimension) + x) where (x,y) are the node location in x and y axises. If the generated tile is used as top level module CORE_ID will take the default value of zero.
+${CORE_ID} Each wishbone bus based SoC will have a unique CORE_ID that represents its location in NoC topology. CORE_ID=((y * number_of_nodes_in_x_ dimension) + x) where (x,y) are the node location in x and y axes. If the generated tile is used as top level module CORE_ID will take the default value of zero.
       
 ${IP}: is the peripheral device instance name.
 
 ${CORE}: is the peripheral device module name.
 
-${BASE}: is the wishbone base addresse(s) and will be added during soc generation to system.h. If more than one slave wishbone bus are used  define them as ${BASE0}, ${BASE1}... . 
+${BASE}: is the wishbone base address(s) and will be added during soc generation to system.h. If more than one slave wishbone bus are used  define them as ${BASE0}, ${BASE1}... . 
 '
 ;
 	my $var_help=gen_button_message($var_list,"icons/info.png","Global variables");
@@ -1716,7 +1716,7 @@ sub source_notebook{
 	my %page_info=%{$page_info_ref};
 	foreach my $p (sort keys %page_info){
 		my $page_ref;
-		$page_ref=get_file_folder($ipgen,$info,$window,$p,$page_info_ref) if($page_info{$p}{filed_type} eq "exsiting_file/folder"); 
+		$page_ref=get_file_folder($ipgen,$info,$window,$p,$page_info_ref) if($page_info{$p}{filed_type} eq "existing_file/folder"); 
 		$page_ref=get_file_folder($ipgen,$info,$window,$p,$page_info_ref) if($page_info{$p}{filed_type} eq "file_with_variables"); 
 		$page_ref=get_file_content($ipgen,$info,$window,$page_info{$p},$page_info_ref) if($page_info{$p}{filed_type} eq "file_content"); 
 		$notebook->append_page ($page_ref,Gtk2::Label->new_with_mnemonic ($page_info{$p}{page_name}));
@@ -1742,7 +1742,7 @@ sub get_file_folder{
 	my $tick = $page_info{$page}{'tick'};
 	my ($scrwin,$ok)=gen_file_list($ipgen,$page_info{$page}{filed_name},$window,$page_info{$page}{rename_file},$tick);
 	
-	my $label=gen_label_in_left("Selecet file(s):"); 
+	my $label=gen_label_in_left("Select file(s):"); 
 	my $brows=def_image_button("icons/browse.png",' Browse');
 	$table->attach ($label,2,4,0,1,'expand','shrink',2,2);
 	$table->attach($brows,4,6,0,1,'expand','shrink',2,2);
@@ -1770,7 +1770,7 @@ sub get_file_folder{
             		@files = $dialog->get_filenames;            		
             		@sw_dir=$ipgen->ipgen_get_list($page_info{$page}{filed_name});
             		foreach my $p (@files){
-            			#remove $project_dir form beginig of each file
+            			#remove $project_dir form beginning of each file
             			$p =~ s/$project_dir//; 
 				my ($name,$path,$suffix) = fileparse("$p",qr"\..[^.]*$");
 				$p=$p.'frename_sep_t'.$name.$suffix if (defined $page_info{$page}{rename_file}); 
@@ -1786,7 +1786,7 @@ sub get_file_folder{
 	} );# # ,\$entry);
 	
 	if($page_info{$page}{folder_en} eq 1){
-		my $label2=gen_label_in_left("Selecet folder(s):"); 
+		my $label2=gen_label_in_left("Select folder(s):"); 
 		my $brows2=def_image_button("icons/browse.png",' Browse');
 		$table->attach($label2,7,9,0,1,'expand','shrink',2,2);
 		$table->attach($brows2,9,11,0,1,'expand','shrink',2,2);
@@ -1812,7 +1812,7 @@ sub get_file_folder{
 		    		
 		    		@sw_dir=$ipgen->ipgen_get_list($page_info{$page}{filed_name});
 		    		foreach my $p (@files){
-		    			#remove $project_dir form beginig of each file
+		    			#remove $project_dir form beginning of each file
 		    			$p =~ s/$project_dir//;  
 		    			if(! grep (/^$p$/,@sw_dir)){push(@sw_dir,$p)};
 		    			
@@ -1975,7 +1975,7 @@ sub ipgen_main{
 	if(!defined $ipgen) { $ipgen=ip_gen->ip_gen_new();}
 	set_gui_status($ipgen,"ideal",0);	
 	
-	#  The main table containg the lib tree, selected modules and info section 
+	#  The main table containing the lib tree, selected modules and info section 
 	my $main_table = def_table (15, 12, FALSE);
 
 
@@ -2058,7 +2058,7 @@ sub ipgen_main{
 	$main_table->attach ($generate, 6, 8, 14,15,'expand','shrink',2,2);
 	$main_table->attach ($open,0, 1, 14,15,'expand','shrink',2,2);
 
-	#check soc status every 0.5 second. referesh device table if there is any changes 
+	#check soc status every 0.5 second. refresh device table if there is any changes 
 Glib::Timeout->add (100, sub{ 
 	 
 		my ($state,$timeout)= get_gui_status($ipgen);

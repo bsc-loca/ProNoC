@@ -63,7 +63,7 @@ $simulate = bless( {
                                        },
                      'P1Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'status' => 'ideal',
                      'gui_status' => {
@@ -120,7 +120,7 @@ $simulate = bless( {
                                            },
                      'P2Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'samples' => undef,
                      'P1' => {

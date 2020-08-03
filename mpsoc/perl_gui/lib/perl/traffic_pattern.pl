@@ -29,7 +29,7 @@ sub getBit{
 	return ($num >> $b) & 1;
 }
 
-# number; b:bit location;  W: number width log2(num); v: 1 assert the bit, 0 deassert the bit; 
+# number; b:bit location;  W: number width log2(num); v: 1 assert the bit, 0 de-assert the bit; 
 sub setBit{
 	my ($num ,$b,$W,$v)=@_;
 	while($b<0) {$b=$b+$W;}
@@ -37,7 +37,7 @@ sub setBit{
 		
     my $mask = 1 << $b;
     if ($v == 0) {$$num  = $$num & ~$mask;} # assert bit
-    else {$$num = $$num | $mask;} #deassert bit      
+    else {$$num = $$num | $mask;} #de-assert bit      
 }
 
 sub pck_dst_gen_2D {

@@ -34,7 +34,7 @@ $simulate = bless( {
                                       'TOPOLOGY' => '"MESH"'
                                     },
                      'P1Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'P0Throughput' => {
@@ -181,7 +181,7 @@ $simulate = bless( {
                                              'va' => '0'
                                            },
                      'P2Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      }
                    }, 'emulator' );

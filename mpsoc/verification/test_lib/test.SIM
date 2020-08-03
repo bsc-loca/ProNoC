@@ -121,14 +121,14 @@ $simulate = bless( {
                      'simulate_name' => 'test',
                      'P1Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'emulation_column' => {
                                              'va' => '0',
                                              'ha' => '0'
                                            },
                      'P2Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'P0' => {

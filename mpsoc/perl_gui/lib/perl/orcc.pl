@@ -231,7 +231,7 @@ sub load_orcc_csv{
 		add_colored_info($info,"Could not find any actor in $file\n",'red');
 		return;
 	}
-	add_info($info,"total of $num acotrs have found:\n\t");
+	add_info($info,"total of $num actors have found:\n\t");
 	my $n=1;
 	foreach my $act (@actors){
 		add_colored_info($info,"$n-$act ",'blue');
@@ -278,7 +278,7 @@ sub update_merge_actor_list{
 		
 	}
 	
-	#update groaped_list
+	#update group  list
 	my $group_num=$self->object_get_attribute("grouping",'group_num');
 	my $gname=$self->object_get_attribute("grouping",'group_name_root');
 	for(my $i=0;$i<$group_num;$i=$i+1){
@@ -302,10 +302,10 @@ sub update_merge_actor_list{
 		$mpsoc_name = 'tmp' if (!defined $mpsoc_name);
 		my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
 		
-		#setp 1 : find local commiunication ports in merged actor
+		#setp 1 : find local communication ports in merged actor
 		foreach my $actor (@grouped) {
 			my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
-			#Where does it transffer?
+			#Where does it transfer?
 			foreach my $inject (@injectors) {
 				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
 				)=get_trace($self,'raw',$inject);
@@ -525,9 +525,9 @@ sub genereate_output_orcc{
 		my $main_fifo_assign="";
 		my $main_fifo_rst_ptr="void rest_all_fifo_ptr(void){\n";
 		
-		my $all_got_packet_funtion="";	
-		my $all_sent_packet_done_funtion="";	
-		my $all_check_packet_funtion="";
+		my $all_got_packet_function="";	
+		my $all_sent_packet_done_function="";	
+		my $all_check_packet_function="";
 		my $all_update_credit=""; 
 		my $all_init_actor="";
 		my $all_run_actor="";
@@ -562,18 +562,18 @@ sub genereate_output_orcc{
 	
 		
 			my $actor_got_pck_func= "
-char ${actor}_got_packet_funtion( unsigned char iport, unsigned int v){	
+char ${actor}_got_packet_function( unsigned char iport, unsigned int v){	
 ";
 			my $actor_update_credit= "
 char ${actor}_update_credit (unsigned int credit_port,unsigned int credit_value){
 ";
 
 			my $actor_check_pck_func= "
-char ${actor}_check_packet_funtion (unsigned char iport,unsigned int size){
+char ${actor}_check_packet_function (unsigned char iport,unsigned int size){
 ";	
 
 			my $actor_sent_pck_done_func= "
-char ${actor}_sent_packet_done_funtion (unsigned char oport){
+char ${actor}_sent_packet_done_function (unsigned char oport){
 ";	
 
 			my $actor_init="
@@ -773,7 +773,7 @@ static unsigned int index_${dst_port}_sender;
 	if( ${dst_port}_has_credit_to_send){
 		if((${ni_name}_send_is_busy(${dst_port}_credit_v)==0) && (oport_array[${dst_port}_credit_v]==255) ){  // (${ni_name}_packet_is_sent(${dst_port}_credit_v)==0)){
 		
-			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significent 16 bits ondicates the port, list  significent 16 bits are credit in word 
+			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significant 16 bits indicates the port, list  significant 16 bits are credit in word 
 			
 			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index_in_byte, ${dst_port}_credit_dest_phy_addr, 5,${dst_port}_credit_dest_port, &tmp1,&tmp2 ) ){
 				index_${dst_port}_sender=index_${dst_port};					
@@ -812,21 +812,21 @@ static unsigned int index_${dst_port}_sender;
 $actor_h=$actor_h."void ${actor}_initialize(schedinfo_t *);\n";
 $actor_h=$actor_h."void ${actor}_scheduler(schedinfo_t *);\n";		
 		
-$actor_h=$actor_h."char ${actor}_got_packet_funtion(unsigned char , unsigned int);\n";		
-$all_got_packet_funtion=$all_got_packet_funtion."\t\t\t\t${actor}_got_packet_funtion(iport,i);\n";		
+$actor_h=$actor_h."char ${actor}_got_packet_function(unsigned char , unsigned int);\n";		
+$all_got_packet_function=$all_got_packet_function."\t\t\t\t${actor}_got_packet_function(iport,i);\n";		
 $actor_got_pck_func=$actor_got_pck_func."
 	return 0;
 }	
 ";
 
-$actor_h=$actor_h."char ${actor}_check_packet_funtion(unsigned char,unsigned int);\n";
-$all_check_packet_funtion = $all_check_packet_funtion."\t\t\t\t${actor}_check_packet_funtion(iport,size);\n";
+$actor_h=$actor_h."char ${actor}_check_packet_function(unsigned char,unsigned int);\n";
+$all_check_packet_function = $all_check_packet_function."\t\t\t\t${actor}_check_packet_function(iport,size);\n";
 $actor_check_pck_func=$actor_check_pck_func."
 	return 0;
 }	
 ";
-$actor_h=$actor_h."char ${actor}_sent_packet_done_funtion(unsigned char);\n";
-$all_sent_packet_done_funtion = $all_sent_packet_done_funtion."\t\t\t\t${actor}_sent_packet_done_funtion(oport);\n";
+$actor_h=$actor_h."char ${actor}_sent_packet_done_function(unsigned char);\n";
+$all_sent_packet_done_function = $all_sent_packet_done_function."\t\t\t\t${actor}_sent_packet_done_function(oport);\n";
 $actor_sent_pck_done_func=$actor_sent_pck_done_func."
 	return 0;
 }
@@ -923,7 +923,7 @@ extern unsigned char oport_array [${ni_name}_NUM_VCs];
   my $origen_fuctions=""; 
   
    
-	#read actor file name and remove unnesserly codes. comment every files start with #include and extern
+	#read actor file name and remove unnecessarily codes. comment every files start with #include and extern
 	open my $fh, "<", $actor_file or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($tview,"Could not open $actor_file: $r",'red');
@@ -1104,7 +1104,7 @@ unsigned char iport_array[${ni_name}_NUM_VCs];
 unsigned char oport_array[${ni_name}_NUM_VCs];
 unsigned int credit_buff[${ni_name}_NUM_VCs];
 	
-void got_packet_funtion(void){
+void got_packet_function(void){
 	unsigned int i ;
 	unsigned char iport;
 	for (i=0;i<${ni_name}_NUM_VCs;i++){
@@ -1114,40 +1114,40 @@ void got_packet_funtion(void){
 			if(iport==0){ //a credit update packet is recived;
 				${ni_name}_receive (i, (unsigned int)& credit_buff[i] , 4, 0);	
 			}else{
-$all_got_packet_funtion
+$all_got_packet_function
 			}			
 			${ni_name}_ack_got_pck_isr(i); 
 		}//If ${ni_name} got packet
 	}//for	
-}// got_packet_funtion
+}// got_packet_function
 ";	
 		
 		
 
 
-	my $sent_packet_done_funtion = "
-void sent_packet_done_funtion (void){
+	my $sent_packet_done_function = "
+void sent_packet_done_function (void){
 	unsigned char oport;
 	unsigned int i;
 	for (i=0;i<${ni_name}_NUM_VCs;i++){
 		if(${ni_name}_packet_is_sent(i)) {
 			oport= oport_array[i];
-			if(oport==0){ // a credit update packet has sentout
+			if(oport==0){ // a credit update packet has sent out
 				
 			}else{	
-$all_sent_packet_done_funtion
+$all_sent_packet_done_function
 			}
 			oport_array[i]=255;
 			${ni_name}_ack_send_done_isr(i); 			
 		}//If ${ni_name}_packet_is_sent
 	}//for		
-}//sent_packet_done_funtion		
+}//sent_packet_done_function		
 ";
 
 
 	
 	my $check_pck_func ="		
-void check_packet_funtion (void){
+void check_packet_function (void){
 	unsigned char iport;
 	unsigned int i ,size ;
 	unsigned int credit_value,credit_port;
@@ -1158,17 +1158,17 @@ void check_packet_funtion (void){
 			size=${ni_name}_RECEIVE_DATA_SIZE_REG(i); //size in byte
 			//iport= iport_array[i];
 			iport= src_info.r;
-			if(iport==0){ // a credit update packet has been recived
+			if(iport==0){ // a credit update packet has been received
 				credit_port  = credit_buff[i] >> 16; //output port num
 				credit_value = (credit_buff[i] & 0xFFFF); // credit value in word
 $all_update_credit
 			}else{	
-$all_check_packet_funtion
+$all_check_packet_function
 			}
 			${ni_name}_ack_save_done_isr(i); 
 		}//If ${ni_name}_packet_is_saved
 	}//for	
-}// check_packet_funtion
+}// check_packet_function
 				
 ";	
 	
@@ -1216,7 +1216,7 @@ $ni_isr=$ni_isr.'
 
     if(data_size> credit) data_size =  credit; // we dont want to send more data than the receiver credit
 
-    if((start_addr_in_Q + data_size)> queue_size) data_size =  queue_size-start_addr_in_Q; // we only send data until end of the queque. The rest will be sent in next round starting from begining of the queue   
+    if((start_addr_in_Q + data_size)> queue_size) data_size =  queue_size-start_addr_in_Q; // we only send data until end of the queue. The rest will be sent in next round starting from beginning of the queue   
 ';
 
 $ni_isr=$ni_isr."
@@ -1234,7 +1234,7 @@ $ni_isr=$ni_isr."
 
 	
 	
-void error_handelling_function(){
+void error_handling_function(){
 	unsigned int i;
 	for (i=0;i<${ni_name}_NUM_VCs;i++){
 		if(${ni_name}_got_buff_ovf(i)) {
@@ -1269,22 +1269,22 @@ void ${ni_name}_isr(void){
 
 	if(${ni_name}_any_err_isr_is_asserted()  ){
 		// An error ocure 
-		error_handelling_function();	
+		error_handling_function();	
 	}
 	
 	if( ${ni_name}_any_sent_done_isr_is_asserted()  ){
 		//check which VC has finished sending the packet. 
-		sent_packet_done_funtion();		
+		sent_packet_done_function();		
 	}
 
 	if( ${ni_name}_any_save_done_isr_is_asserted()){
-		//check which VC has finished saving the packet. This function must be called before got_packet_funtion
-		check_packet_funtion();		
+		//check which VC has finished saving the packet. This function must be called before got_packet_function
+		check_packet_function();		
 	}
 
 	if(${ni_name}_any_got_pck_isr_is_asserted() ){
 		//check which VC got packet
-		got_packet_funtion();		
+		got_packet_function();		
 	}
 	return;
 }
@@ -1309,12 +1309,12 @@ int main(){
 $all_init_actor	
 	general_int_init();
 	general_int_add(${ni_name}_INT_PIN, ${ni_name}_isr, 0); //${ni_name}_INT_PIN
-	// Enable ${ni_name} interrupt (its connected to inttruupt pin 0)
+	// Enable ${ni_name} interrupt (its connected to interrupt pin 0)
 	general_int_enable(${ni_name}_INT_PIN);
 	general_cpu_int_en();
 	// hw interrupt enable function:
 	// ${ni_name}_initial (burst_size,  errors_int_en,  send_int_en,  save_int_en,  got_pck_int_en)
-	${ni_name}_initial (16,1,1,1,1); //enable the intrrupt when a packet is recived, saved or got any error
+	${ni_name}_initial (16,1,1,1,1); //enable the interrupt when a packet is received, saved or got any error
 	$opr
 	delay(100);
 	while(1){
@@ -1361,7 +1361,7 @@ $got_pck_func
 
 $check_pck_func  
 
-$sent_packet_done_funtion     
+$sent_packet_done_function     
 
 $ni_isr
 

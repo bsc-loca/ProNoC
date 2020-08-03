@@ -28,7 +28,7 @@
 
 module   ll_noc #(  
     	parameter TOPOLOGY = "ll",
-	parameter ROUTE_NAME = "ll_DETERMINSTIC",
+	parameter ROUTE_NAME = "ll_DETERMINISTIC",
 	parameter V  = 2,
 	parameter B  = 4,
 	parameter C  = 2,

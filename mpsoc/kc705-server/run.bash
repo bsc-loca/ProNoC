@@ -7,11 +7,17 @@
 function login_in_server {
 	sshpass -p "123qwe@#" ssh -X "alireza@84.88.52.232"
 	source /opt/Xilinx/Vivado/2018.1/settings64.sh
-	export XILINXD_LICENSE_FILE=4100@bsc-caos-gw.bsc.es
+	#export XILINXD_LICENSE_FILE=4100@bsc-caos-gw.bsc.es
+	export XILINXD_LICENSE_FILE=4100@epi03.bsc.es      # 192.168.10.36
 	export PRONOC_WORK=~
 }
 
 
+function check_fpga_exist_on_server {
+   xsct
+   connect 
+   jtag targets
+}
 
 server="alireza@84.88.52.232"
 
@@ -22,20 +28,18 @@ server="alireza@84.88.52.232"
 #source_path="/home/alireza/work/hca_git/mpsoc_work/SOC/mor1k_soc_kc"
 
 server_folder_name="kc07_mesh12"
-source_path="/home/alireza/work/hca_git/mpsoc_work/MPSOC/kc07_mesh12"
+source_path="/home/alireza/work/git/hca_git/mpsoc_work/MPSOC/kc07_mesh12"
 
 
 
 
 
-my_array=( \	
-	"$source_path/src_verilog "
+my_array=("$source_path/src_verilog "
 	"$source_path/sw "
-	#"$source_path/xilinx_compile "
+	"$source_path/xilinx_compile "
 	"$source_path/xilinx_mem "
 	"$source_path/*.tcl "
-	"$source_path/*.xdc "
-)
+	"$source_path/*.xdc ")
 
 
 
@@ -60,15 +64,15 @@ function copy_sources_sw {
 
 function copy_uart_terminal {
 	echo "copy uart_terminal on server"
-	sshpass -p "123qwe@#" scp -r "/home/alireza/work/hca_git/ProNoC/mpsoc/src_c/jtag/uart_xsct_terminal" "$server:mpsoc/"
-	sshpass -p "123qwe@#" scp -r "/home/alireza/work/hca_git/ProNoC/mpsoc/src_c/jtag/jtag_xilinx_xsct" "$server:mpsoc/"
+	sshpass -p "123qwe@#" scp -r "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_c/jtag/uart_xsct_terminal" "$server:mpsoc/"
+	sshpass -p "123qwe@#" scp -r "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_c/jtag/jtag_xilinx_xsct" "$server:mpsoc/"
 
 }
 
 
 function copy_board_files {
 	echo "copy board files"
-	sshpass -p "123qwe@#" scp -r "/home/alireza/work/hca_git/mpsoc_work/toolchain/board_files" "$server:mpsoc/"
+	sshpass -p "123qwe@#" scp -r "/home/alireza/work/git/hca_git/mpsoc_work/toolchain/board_files" "$server:mpsoc/"
 	# update  board_part_repo_paths manulay in $server:mpsoc/$server_folder_name/board_property.tcl file with new addr:    " /mnt/SSD-2TB/alireza/mpsoc/board_files "
 }
 
@@ -77,6 +81,10 @@ function update_jtag_xilinx_xsct {
 	# should be run inside the server
 	cd ~/mpsoc/jtag_xilinx_xsct/; make
 	cp ~/mpsoc/jtag_xilinx_xsct/jtag_xilinx_xsct ~/toolchain/bin/
+
+	cd ~/mpsoc/uart_xsct_terminal/; make
+        cp ~/mpsoc/uart_xsct_terminal/uart ~/toolchain/bin/
+
 
 }
 
@@ -96,7 +104,7 @@ function program_fpga {
 
 function run_uart {
 	cd ~/toolchain/bin
-	./uart -a 2 -b 36 -t 3 -n 126,125
+	./uart -a 2 -b 36 -t 3 -n 126,125,124,123,122,121,120,119,118,117,116,115
 
 }
 
@@ -111,7 +119,7 @@ function copy_back_from_server {
 	sshpass -p "123qwe@#" scp -r  "$server:mpsoc/$server_folder_name/xilinx_compile/*"  "$source_path/xilinx_compile/"
 }
 
-copy_sources_all
+#copy_sources_all
 
 
 # copy_board_files
@@ -122,5 +130,5 @@ copy_sources_all
 
 
 
-#copy_sources_sw
+copy_sources_sw
 

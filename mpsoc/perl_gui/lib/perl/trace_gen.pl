@@ -70,7 +70,7 @@ sub trace_pad_ctrl{
 	my $draw = def_image_button('icons/diagram.png');
 	set_tip($draw,'View Task Graph');
 	my $auto = def_image_button('icons/refresh.png');
-	set_tip($auto,'Automatically calculate the traces burst size and injection ratio according to their bandwith');
+	set_tip($auto,'Automatically calculate the traces burst size and injection ratio according to their bandwidth');
 	my $box=def_pack_hbox(FALSE,FALSE,$add,$draw,$remove,$auto);
 	
 	#my $auto = def_image_button('icons/setting.png');
@@ -86,7 +86,7 @@ sub trace_pad_ctrl{
 	#add_param_widget($self,"Auto inject rate \& burst size",'Auto_inject', 0,"Check-box",1,$info, $table,$row,$col,1,'Auto',0,'ref',"vertical");
 	$row++;	
 	$col=0;	
-	my $info1="If hard-bulid QoS is enabled in NoC by using Wieghted round robin arbiter (WRRA) instead of RRA, then the initial weights allow QoS support in NoC as in presence of contention, packets with higher initial weights receive higher bandwidth and lower worst case delay compared to others." ;
+	my $info1="If hard-build QoS is enabled in NoC by using Weighted round robin arbiter (WRRA) instead of RRA, then the initial weights allow QoS support in NoC as in presence of contention, packets with higher initial weights receive higher bandwidth and lower worst case delay compared to others." ;
 	
 	#my $selects="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot"; 
 	my $min=$self->object_get_attribute('select_multiple','min_pck_size');
@@ -152,7 +152,7 @@ sub trace_pad_ctrl{
 			$self->set_gui_status('ref',0);
 		});
 		if($any_selected){
-			($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},$d->{new_status},"horizental");
+			($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},$d->{new_status},"horizontal");
 			$table->attach  ($apply , $col, $col+1,  $row,$row+1,'shrink','shrink',2,2);$row++;$col=0;
 		#	$row=noc_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status});
 		}
@@ -232,7 +232,7 @@ sub trace_map_ctrl{
 	set_tip($drawmap,'View Task Mapping Diagram');
 	set_tip($diagram,'View Topology Diagram');
 	my $auto = def_image_button('icons/refresh.png');
-	set_tip($auto,'Automatically set the network dimentions according to the task number');	
+	set_tip($auto,'Automatically set the network dimensions according to the task number');	
 	my $clean = def_image_button('icons/clear.png');
 	set_tip($clean,'Remove mapping');	
 	
@@ -261,10 +261,10 @@ sub trace_map_ctrl{
 	my @info = ($mode eq 'task')? (
   #	{ label=>'Routers per Row', param_name=>'T1', type=>"Spin-button", default_val=>2, content=>"2,64,1", info=>undef, param_parent=>'noc_param', ref_delay=>1,placement=>'vertical'},
 	#{ label=>"Routers per Column", param_name=>"T2", type=>"Spin-button", default_val=>2, content=>"1,64,1", info=>undef, param_parent=>'noc_param',ref_delay=>1, placement=>'vertical'},
-	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizental'},
+	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
 	) :
 	
-	(	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizental'},
+	(	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
 	);
 	
 	foreach my $d (@info) {
@@ -458,7 +458,7 @@ sub trace_pad{
 	("Load a task graph");
 	}
 	else{
-		@titles = (scalar @traces ) ? (" # "," Source "," Destination "," Bandwidth(MB) ", " Initial weight#", "Virtul channel#", "Message class#"):
+		@titles = (scalar @traces ) ? (" # "," Source "," Destination "," Bandwidth(MB) ", " Initial weight#", "Virtual channel#", "Message class#"):
 	("Load an ORCC file");
 	}
 	
@@ -652,7 +652,7 @@ sub map_info {
   {label => "Average distance",  value =>"$avg"}, 
   {label => "Max distance",  value =>"$max" },  
   {label => "Min distance",value => "$min"},    
-  {label => "Normlized data per hop", value =>"$norm" }
+  {label => "Normalized data per hop", value =>"$norm" }
   );
 	
 	
@@ -1352,7 +1352,7 @@ sub find_min_neighbor_tile	{
 
 	#my $centered_tile= get_tile_name($self,$x_mid ,$y_mid);
 	#Select the tile located in center as the max-neighbor if its not locked for any other task
-	#therwise select the tile with the min manhatan distance to center tile
+	#otherwise select the tile with the min Manhattan distance to center tile
 	my @tiles=get_nlock_tiles($self);
 	my $min=1000000;
 	my $min_neighbors_tile_id;
@@ -2084,7 +2084,7 @@ sub build_trace_gui {
 	
 	
 	
-	#check soc status every 0.5 second. referesh device table if there is any changes 
+	#check soc status every 0.5 second. refresh device table if there is any changes 
 	Glib::Timeout->add (100, sub{ 
 	   
 		my ($state,$timeout)= get_gui_status($self);

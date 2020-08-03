@@ -58,7 +58,7 @@ my $head="######################################################################
 ##	This file is part of ProNoC $ProNOC::VERSION 
 ##
 ## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
-##	MAY CAUSE UNEXPECTED BEHAIVOR.
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
 ################################################################################
 
 ";

@@ -26,7 +26,7 @@ sub generate_topology_top_v {
 
    
     my $param_str ="\tparameter TOPOLOGY = \"$name\",
-\tparameter ROUTE_NAME = \"${name}_DETERMINSTIC\"";
+\tparameter ROUTE_NAME = \"${name}_DETERMINISTIC\"";
 
    my @parameters=@{$self->object_get_attribute ('Verilog','Router_param')};
    my @ports= @{$self->object_get_attribute('Verilog','Router_ports')}; 
@@ -320,7 +320,7 @@ sub generate_topology_top_genvar_v{
 
    
     my $param_str ="\tparameter TOPOLOGY = \"$name\",
-\tparameter ROUTE_NAME = \"${name}_DETERMINSTIC\"";
+\tparameter ROUTE_NAME = \"${name}_DETERMINISTIC\"";
 
    my @parameters=@{$self->object_get_attribute ('Verilog','Router_param')};
    my @ports= @{$self->object_get_attribute('Verilog','Router_ports')}; 
@@ -703,7 +703,7 @@ sub generate_routing_v {
 	
 	my $route_str="\talways@(*)begin
 \t\tdestport=0;
-\t\tcase(src_e_addr) //source address of each individual NI is fixed. So this CASE will be optimized by the sybthesizer for each endpoint. 
+\t\tcase(src_e_addr) //source address of each individual NI is fixed. So this CASE will be optimized by the synthesizer for each endpoint. 
 ";
 	
 	foreach my $src (@ends){
@@ -777,7 +777,7 @@ add_info($info,"$top file is created\n  ");
 
 	$route_str="\talways@(*)begin
 \t\tdestport=0;
-\t\tcase(current_r_addr) //current_r_addr of each individual router is fixed. So this CASE will be optimized by the sybthesizer for each router. 
+\t\tcase(current_r_addr) //current_r_addr of each individual router is fixed. So this CASE will be optimized by the synthesizer for each router. 
 ";
 
 
@@ -1022,7 +1022,7 @@ add_info($info,"$top file is created\n  ");
 
 	$route_str="\talways@(*)begin
 \t\tdestport=0;
-\t\tcase(current_r_addr) //current_r_addr of each individual router is fixed. So this CASE will be optimized by the sybthesizer for each router. 
+\t\tcase(current_r_addr) //current_r_addr of each individual router is fixed. So this CASE will be optimized by the synthesizer for each router. 
 ";
 
 $route_str="\tgenerate\n";

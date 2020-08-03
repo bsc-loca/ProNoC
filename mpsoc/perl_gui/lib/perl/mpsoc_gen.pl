@@ -114,7 +114,7 @@ sub b_box{
 
 sub get_conflict_decision{
     my ($mpsoc,$name,$inserted,$conflicts,$msg)=@_;
-    $msg="\tThe inserted tile number(s) have been mapped previously to \n\t\t\"$msg\".\n\tDo you want to remove the conflicted tiles number(s) in newly \n\tinsterd range or remove them from the previous ones? ";
+    $msg="\tThe inserted tile number(s) have been mapped previously to \n\t\t\"$msg\".\n\tDo you want to remove the conflicted tiles number(s) in newly \n\tinserted range or remove them from the previous ones? ";
     
     my $wind=def_popwin_size(10,30,"warning",'percent');
     my $label= gen_label_in_left($msg);    
@@ -178,13 +178,13 @@ sub check_inserted_ip_nums{
         my @range=split(':',$p);
         my $size= scalar @range;
         if($size==1){ # its a number
-            if ( grep( /^$range[0]$/, @all_num ) ) { message_dialog ("Multiple definition for Ip number $range[0]" ); return; }
+            if ( grep( /^$range[0]$/, @all_num ) ) { message_dialog ("Multiple definition for IP number $range[0]" ); return; }
             push(@all_num,$range[0]);
         }elsif($size ==2){# its a range
             my($min,$max)=@range;
             if($min>$max) {message_dialog ("invalid range: [$p]",'error' ); return;} 
             for (my $i=$min; $i<=$max; $i++){
-                if ( grep( /^$i$/, @all_num ) ) { message_dialog ("Multiple definition for Ip number $i in $p" ); return; }
+                if ( grep( /^$i$/, @all_num ) ) { message_dialog ("Multiple definition for IP number $i in $p" ); return; }
                 push(@all_num,$i);
                 
             }
@@ -530,7 +530,7 @@ sub noc_topology_setting_gui {
 		$default= '2';
 	    $content=($topology eq '"MESH"' || $topology eq '"TORUS"') ? '2,16,1':
 		($topology eq '"FATTREE"' || $topology eq '"TREE"' )? '2,6,1':'2,64,1';
-	    $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"' )? 'number of last level individual router`s endpoints.' :'Number of NoC routers in row (X dimention)';
+	    $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"' )? 'number of last level individual router`s endpoints.' :'Number of NoC routers in row (X dimension)';
 	    $type= 'Spin-button';             
 	    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
 
@@ -541,7 +541,7 @@ sub noc_topology_setting_gui {
         $param= 'T2';
         $default='2';
         $content='2,16,1';
-        $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'Fattree layer number (The height of FT)':'Number of NoC routers in column (Y dimention)';
+        $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'Fattree layer number (The height of FT)':'Number of NoC routers in column (Y dimension)';
         $type= 'Spin-button';             
         ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
     } else {
@@ -789,7 +789,7 @@ if($topology ne '"CUSTOM"' ){
     $default='"COMB_NONSPEC"';
     $content='"BASELINE","COMB_SPEC1","COMB_SPEC2","COMB_NONSPEC"';
     $type='Combo-box';
-    $info="The joint VC/ switch allocator type. using canonical combination is not recommanded";   
+    $info="The joint VC/ switch allocator type. using canonical combination is not recommended";   
     if ($router_type eq '"VC_BASED"'){                 
         ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);                   
     } else{
@@ -840,7 +840,7 @@ if($topology ne '"CUSTOM"' ){
     #simulation debuge enable     
     $label='Debug enable';
     $param='DEBUG_EN';
-    $info= "Add extra verilog code for debuging NoC for simulation";
+    $info= "Add extra Verilog code for debugging NoC for simulation";
     $default='0';
     $content='0,1';
     $type='Combo-box';
@@ -853,7 +853,7 @@ if($topology ne '"CUSTOM"' ){
     $type="Check-box";
     $content=1;
     $default="1\'b0";
-    $info="If enabeled it adds a pipline register at the output port of the router.";
+    $info="If is enabled it adds a pipeline register at the output port of the router.";
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param');
     
     
@@ -884,10 +884,10 @@ arbiters external priority enable';
     $default='"RRA"';
     $content='"RRA","WRRA"'; #,"WRRA_CLASSIC"';
     $type='Combo-box';
-    $info="Switch allocator arbitertion type: 
+    $info="Switch allocator arbiter type: 
     RRA: Round robin arbiter. Only local fairness in a router. 
     WRRA: Weighted round robin arbiter. Results in global fairness in the NoC. 
-          Switch allocation requests are grated acording to their weight which increases due to contention"; 
+          Switch allocation requests are grated according to their weight which increases due to contention"; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',1);
     
           
@@ -1243,7 +1243,7 @@ sub check_mpsoc_name {
     my $error = check_verilog_identifier_syntax($name);
     if ( defined $error ){
         #message_dialog("The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error");
-        my $message = "The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
+        my $message = "The \"$name\" is given with an unacceptable formatting. The mpsoc name will be used as top level Verilog module name so it must follow Verilog identifier declaration formatting:\n $error";
         add_colored_info($info, $message,'red' );
         return 1;
     }
@@ -1514,7 +1514,7 @@ sub get_tile{
         @list=('Default','Custom');
         $pos=(defined $param_setting)? get_scolar_pos($param_setting,@list): 0;
         my $nn=(defined $soc_name)? $soc_name : 'soc';
-        my ($box2,$combo2)=gen_combo_help("Defualt: the tail will get  defualt parameter setting of $nn.\n Custom: it will allow custom parameter  setting for this tile only." , \@list, $pos);
+        my ($box2,$combo2)=gen_combo_help("Default: the tail will get the default parameter setting of $nn.\n Custom: it will allow custom parameter  setting for this tile only." , \@list, $pos);
         my $lable2=gen_label_in_left("  Parameter Setting:");
         $table->attach_defaults($lable2,0,3,$row,$row+1);
         $table->attach_defaults($box2,3,7,$row,$row+1);$row++;
@@ -1846,11 +1846,11 @@ sub linker_setting{
 	$table-> attach  (gen_label_in_center("Width"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
 	$table-> attach  (gen_label_in_center("(%)"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
 	
-	$table-> attach  (gen_label_in_center("Begining"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
+	$table-> attach  (gen_label_in_center("Beginning"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
 	$table-> attach  (gen_label_in_center("End"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
 	$table-> attach  (gen_label_in_center("Size"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
 	
-	$table-> attach  (gen_label_in_center("Begining"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
+	$table-> attach  (gen_label_in_center("Beginning"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
 	$table-> attach  (gen_label_in_center("End"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
 	$table-> attach  (gen_label_in_center("Size"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++;
 	
@@ -2089,7 +2089,7 @@ sub software_edit_mpsoc {
 	my $prog= def_image_button('icons/write.png','Program FPGA\'s BRAMs');
     my $linker = def_image_button('icons/setting.png','LD Linker',FALSE,1);
     my $make = def_image_button('icons/gen.png','_Compile',FALSE,1);
-    my $ram = def_image_button('icons/info.png',"Reqired BRAMs\' size",FALSE,1);
+    my $ram = def_image_button('icons/info.png',"Required BRAMs\' size",FALSE,1);
             
     $table->attach ($ram,0, 1, 1,2,'shrink','shrink',0,0);
     $table->attach ($linker,4, 5, 1,2,'shrink','shrink',0,0);
@@ -2137,7 +2137,7 @@ sub software_edit_mpsoc {
         my $bash_file="$sw/program.sh";
         my $jtag_intfc="$sw/jtag_intfc.sh";
         
-        add_info($tview,"Programe the board using quartus_pgm and $bash_file file\n");
+        add_info($tview,"Program the board using quartus_pgm and $bash_file file\n");
         #check if the programming file exists
         unless (-f $bash_file) {
             add_colored_info($tview,"\tThe $bash_file does not exists! \n", 'red');
@@ -2155,15 +2155,15 @@ sub software_edit_mpsoc {
         my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
         if(length $stderr>1){            
             add_colored_info($tview,"$stderr\n",'red');
-            add_colored_info($tview,"Memory was not programed successfully!\n",'red');
+            add_colored_info($tview,"Memory was not programmed successfully!\n",'red');
         }else {
 
             if($exit){
                 add_colored_info($tview,"$stdout\n",'red');
-                add_colored_info($tview,"Memory was not programed successfully!\n",'red');
+                add_colored_info($tview,"Memory was not programmed successfully!\n",'red');
             }else{
                 add_info($tview,"$stdout\n");
-                add_colored_info($tview,"Memory is programed successfully!\n",'blue');
+                add_colored_info($tview,"Memory is programmed successfully!\n",'blue');
 
             }
             
@@ -2216,7 +2216,7 @@ sub load_mpsoc{
             clone_obj($mpsoc,$pp);
             #read save mpsoc socs
             my @oldsocs=$mpsoc->mpsoc_get_soc_list();
-            #add exsiting SoCs and add them to mpsoc
+            #add existing SoCs and add them to mpsoc
             
             my $error;
             #print "old: @oldsocs\n new @newsocs \n"; 
@@ -2224,7 +2224,7 @@ sub load_mpsoc{
                 #print "$p\n";
                 my @num= $mpsoc->mpsoc_get_soc_tiles_num($p);
                 if (scalar @num && ( grep (/^$p$/,@newsocs)==0)){
-                    my $m="Processing tile $p that has been used for ties  @num but is not located in librray anymore\n";
+                    my $m="Processing tile $p that has been used for ties  @num but is not located in library anymore\n";
                      $error = (defined $error ) ? "$error $m" : $m;
                 } 
                 $mpsoc->mpsoc_remove_soc ($p) if (grep (/^$p$/,@newsocs)==0); 
@@ -2269,7 +2269,7 @@ sub clk_setting_win1{
 	my %all = ($type eq 'mpsoc') ? get_all_tiles_clk_sources_list($self): get_soc_clk_source_list($self) ;
 	foreach my $s (@sources){
 		 my $spin;	
-		 ($row,$column,$spin)=  add_param_widget($self,"$s number","${s}_number", 1,'Spin-button',"1,1024,1","Define total number of ${s} input ports  mpsoc", $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+		 ($row,$column,$spin)=  add_param_widget($self,"$s number","${s}_number", 1,'Spin-button',"1,1024,1","Define total number of ${s} input ports  mpsoc", $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
 		 
 		 my $w=get_source_assignment_win($self,$s,$all{$s},$type);
 		 my $box=def_hbox(FALSE,0);
@@ -2338,7 +2338,7 @@ sub get_source_assignment_win{
 		my $box=def_hbox(FALSE,0);
 		$box->pack_start( $enter, FALSE, FALSE, 0);	
 
-		($row,$column,$entry)=  add_param_widget($mpsoc,"$n-","${s}_${n}_name", "${s}$n",'Entry',undef,undef, $table1,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+		($row,$column,$entry)=  add_param_widget($mpsoc,"$n-","${s}_${n}_name", "${s}$n",'Entry',undef,undef, $table1,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
 	    $table1->attach  ($box,$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column++;
 	       
 		$enter->signal_connect ("clicked"  => sub{
@@ -2374,18 +2374,18 @@ sub get_clk_constrain_widget {
 	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
 	return ($column,$row);
 	my $frequency;	
-	($row,$column,$frequency)=  add_param_widget($self,"Frequency(MHz)","${s}_${n}_mhz", 100,'Spin-button',"1,1024,0.01",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+	($row,$column,$frequency)=  add_param_widget($self,"Frequency(MHz)","${s}_${n}_mhz", 100,'Spin-button',"1,1024,0.01",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
 	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
 	my $period;
-	($row,$column,$period)=  add_param_widget($self,"Period(ns)","${s}_${n}_period", 10,'Spin-button',"0,1024,0.01",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+	($row,$column,$period)=  add_param_widget($self,"Period(ns)","${s}_${n}_period", 10,'Spin-button',"0,1024,0.01",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
 	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
 	my $rise;	
-	($row,$column,$rise)=  add_param_widget($self,"rising edge(%)","${s}_${n}_rise", 0,'Spin-button',"0,100,0.1",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+	($row,$column,$rise)=  add_param_widget($self,"rising edge(%)","${s}_${n}_rise", 0,'Spin-button',"0,100,0.1",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
 	my $r_lab=gen_label_in_center('=0 ns');
 	$table->attach  ($r_lab,$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column+=1;
 	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
 	my $fall;	
-	($row,$column,$fall)=  add_param_widget($self,"falling edge(%)","${s}_${n}_fall", 50,'Spin-button',"0,100,0.1",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizental');
+	($row,$column,$fall)=  add_param_widget($self,"falling edge(%)","${s}_${n}_fall", 50,'Spin-button',"0,100,0.1",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
 	my $f_lab=gen_label_in_center('=5 ns');
 	$table->attach  ($f_lab,$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column+=1;
 	update_wave_form($period,$rise,$fall,$r_lab,$f_lab);
@@ -2428,7 +2428,7 @@ sub get_source_assignment_win2{
 	my $n=0;
 	my($row,$column)=(0,0);
 	if($type eq 'mpsoc' ) {
-		add_param_widget($mpsoc,"    NoC $s","NoC_${s}", $default,'Combo-box',$contents,undef, $table2,$row,$column,1,'SOURCE_SET_CONNECT',undef,undef,'horizental');
+		add_param_widget($mpsoc,"    NoC $s","NoC_${s}", $default,'Combo-box',$contents,undef, $table2,$row,$column,1,'SOURCE_SET_CONNECT',undef,undef,'horizontal');
 		($row,$column)=(1,0);
 	}	
 
@@ -2437,7 +2437,7 @@ sub get_source_assignment_win2{
    		foreach my $q (@array){
    			my $param="${p}_$q"; 
    			my $lable="  ${p}_$q";    			  			
-   			($row,$column)=  add_param_widget($mpsoc,$lable,$param, $default,'Combo-box',$contents,undef, $table2,$row,$column,1,'SOURCE_SET_CONNECT',undef,undef,'horizental');
+   			($row,$column)=  add_param_widget($mpsoc,$lable,$param, $default,'Combo-box',$contents,undef, $table2,$row,$column,1,'SOURCE_SET_CONNECT',undef,undef,'horizontal');
    			if((($n+1) % 4)==0){$column=0;$row++;}$n++;
    		}		
 	}
@@ -2583,7 +2583,7 @@ sub add_module_to_mpsoc{
 	
 	my ($instance_id,$id)= get_instance_id($soc,$category,$module);
 	
-	#add module instanance
+	#add module instance
 	my $result=$soc->soc_add_instance($instance_id,$category,$module,$ip);
 	
 	if($result == 0){
@@ -2602,7 +2602,7 @@ sub add_module_to_mpsoc{
 	
 	my $rr=$soc->soc_add_instance_param($instance_id,\%param_default);
 	if($rr == 0){
-		my $info_text= "Failed to add defualt parameter to \"$instance_id\".  $instance_id does not exist exist.";	 
+		my $info_text= "Failed to add default parameter to \"$instance_id\".  $instance_id does not exist.";	 
 		show_info($info,$info_text); 
 		return;
 	}
@@ -2814,7 +2814,7 @@ sub add_mpsoc_to_device{
 	
 	my $rr=$soc->soc_add_instance_param($instance_id,\%param_default);
 	if($rr == 0){
-		my $info_text= "Failed to add defualt parameter to \"$instance_id\".  $instance_id does not exist.";	 
+		my $info_text= "Failed to add default parameter to \"$instance_id\".  $instance_id does not exist.";	 
 	#	show_info($info,$info_text); 
 		return;
 	}
@@ -2932,7 +2932,7 @@ sub mpsocgen_main{
     set_gui_status($mpsoc,"ideal",0);
     my $main_table = Gtk2::Table->new (25, 12, FALSE);
     
-    # The box which holds the info, warning, error ...  mesages
+    # The box which holds the info, warning, error ...  messages
     my ($infobox,$info)= create_text();    
         
     my $noc_conf_box=get_config ($mpsoc,$info);
@@ -2956,7 +2956,7 @@ sub mpsocgen_main{
     #$main_table->attach_defaults ($ctrl,0, 12, 24,25);
     $main_table->attach ($ctrl,0, 12, 24,25, 'fill','fill',2,2);
 
-    #check soc status every 0.5 second. referesh device table if there is any changes 
+    #check soc status every 0.5 second. refresh device table if there is any changes 
     Glib::Timeout->add (100, sub{ 
         my ($state,$timeout)= get_gui_status($mpsoc);
         if ($timeout>0){

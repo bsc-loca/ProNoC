@@ -261,12 +261,12 @@ $simulate = bless( {
                                              'LINEw' => 3
                                            },
                      'P1Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'P2Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'P3' => {
                                'active' => '-'

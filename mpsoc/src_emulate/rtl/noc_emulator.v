@@ -160,7 +160,7 @@ module  noc_emulator #(
         .TIMSTMP_FIFO_NUM(TIMSTMP_FIFO_NUM),
         .PCK_CNTw(PCK_CNTw),  // 1 G packets
         .PCK_SIZw(PCK_SIZw),   // 16 K flit
-        .MAX_EAw(MAX_EAw),   // 16 nodes in x dimention
+        .MAX_EAw(MAX_EAw),   // 16 nodes in x dimension
         .MAX_Cw(MAX_Cw)   // 16 message class            
     )
     the_traffic_gen

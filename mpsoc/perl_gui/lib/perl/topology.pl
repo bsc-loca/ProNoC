@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#this fle contains NoC topology related subfunctions
+#this file contains NoC topology related sub-functions
 
 use Glib qw/TRUE FALSE/;
 use strict;

@@ -37,7 +37,7 @@ function get_compilation_result(){
 	      break
 	      ;;
 	   *$p*)
-	      echo "'$line' contains successfull!. Exiting loop"
+	      echo "'$line' contains successful!. Exiting loop"
               cresult="pass"
 	      break
 	      ;;
@@ -116,7 +116,7 @@ function gen_verilator_model(){
                 echo "compilation failed"
 		return 1;
 	fi
-	#echo "successfull";
+	#echo "successful";
 		return 0;
 }
 
@@ -230,7 +230,7 @@ function run_pronoc1(){
 	sleep 1
 #gen_verilator_model
 if [ "$gen_model" == "yes" ]; then
-	if gen_verilator_model $1; then echo "successfull"; else return; fi
+	if gen_verilator_model $1; then echo "successful"; else return; fi
 	sleep 1
 fi	
 	

@@ -227,7 +227,7 @@ my @ginfo = (
 
 my $content=join( ',', @selects);
 
-my $dimention=gen_combobox_object ($self,$graph_id,"dimention","2D,3D","3D",'ref',2);
+my $dimension=gen_combobox_object ($self,$graph_id,"dimension","2D,3D","3D",'ref',2);
 my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0],'ref',2);
 
 
@@ -323,7 +323,7 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 	my $graph_w=$width*$image_scale;
 	my $graph_h=$hight*$image_scale;
 	my $graph = new GD::Graph::bars3d($graph_w, $graph_h);
-	my $dim = $self->object_get_attribute (${graph_id},"dimention");
+	my $dim = $self->object_get_attribute (${graph_id},"dimension");
 	#my $dir = $self->object_get_attribute ($graph_name,"direction"); 
 	my $over= ($dim eq "2D")? 0 : 1;
 	$graph->set(
@@ -355,7 +355,7 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 		
 		 # Draw bars with width 3 pixels
     bar_width   => 3,
-    # Sepearte the bars with 4 pixels
+    # Separate the bars with 4 pixels
     bar_spacing => 10,
     # Show the grid
     #long_ticks  => 1,
@@ -446,7 +446,7 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 		$table->attach (gen_label_in_center('Injection-Ratio'), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 		$table->attach ($ratio_combx, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 		$table->attach ($active_page, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
-		$table->attach ($dimention, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+		$table->attach ($dimension, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 		
 		#$table->attach ($plus , 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 		#$table->attach ($minues, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
@@ -803,7 +803,7 @@ sub my_get_image {
 	my $loader = Gtk2::Gdk::PixbufLoader->new;
 	
 	
-	#cut the upper side of the image to remove the stright line created by chaanging large results to ymax
+	#cut the upper side of the image to remove the straight line created by changing large results to ymax
        
 	
 	my $gd1=  GD::Image->new($gd2->getBounds);

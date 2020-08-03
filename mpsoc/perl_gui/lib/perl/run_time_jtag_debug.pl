@@ -175,7 +175,7 @@ sub source_probe_ctrl {
 	if ($vendor eq "Xilinx" ) {
 	
 		my $w=gen_combobox_object ($self,'CTRL','RESET_CHAIN',"4,3,2,1","4",undef,undef);
-		my $h=gen_button_message ("The JTAG remote reset/enable is connected to the Jtag tab chain with the largets chain number in each tile.  ","icons/help.png");
+		my $h=gen_button_message ("The JTAG remote reset/enable is connected to the Jtag tab chain with the largest chain number in each tile.  ","icons/help.png");
 		my $b= def_pack_hbox(FALSE,0,(Gtk2::Label->new  ("CPU(s) Chain:"),$w,$h));
 		$table->attach ($b ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col+=1;
 	
@@ -199,7 +199,7 @@ sub source_probe_ctrl {
 	});	
 	
 	
-	my $scrolled_win=gen_scr_win_with_adjst ($self,"recive_box");
+	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
 	$scrolled_win->add_with_viewport($table);
 	return $scrolled_win;		
 }
@@ -214,7 +214,7 @@ sub source_probe_ctrl {
 sub soure_probe_widgets_old {
 	my $self=shift;
 	my $table= def_table(2,10,FALSE);	
-	my $scrolled_win=gen_scr_win_with_adjst ($self,"recive_box");
+	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
 	$scrolled_win->add_with_viewport($table);
 	my $num = $self->object_get_attribute('CTRL','SP_NUM');
 	
@@ -305,7 +305,7 @@ sub write_mem_specefic_addr {
 sub soure_probe_widgets {
 	my ($self,$tview)=@_;
 	my $table= def_table(2,10,FALSE);	
-	my $scrolled_win=gen_scr_win_with_adjst ($self,"recive_box");
+	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
 	$scrolled_win->add_with_viewport($table);
 	my $num = $self->object_get_attribute('CTRL','SP_NUM');
 	$num = 1 if (!defined $num);
@@ -330,8 +330,8 @@ sub soure_probe_widgets {
 			my $n=$i+1;
 			my $status=0;
 			#$table->attach (gen_label_in_left("  $n-address "), $x, $x+1 , $y, $y+1,'shrink','shrink',2,2); $x++;
-		#	($y,$x,$addr)=add_param_widget  ($self,"$n-", "$n-address", 0, "Spin-button", "0,99999999,1", undef, $table,$y,$x,1, "JTAG_WB", undef, undef, 'horizental');
-		   # ($y,$x,$entry)=add_param_widget  ($self,undef, "$n-value", 0, "Entry", undef, undef, $table,$y,$x,1, "JTAG_WB", undef, undef, 'horizental');
+		#	($y,$x,$addr)=add_param_widget  ($self,"$n-", "$n-address", 0, "Spin-button", "0,99999999,1", undef, $table,$y,$x,1, "JTAG_WB", undef, undef, 'horizontal');
+		   # ($y,$x,$entry)=add_param_widget  ($self,undef, "$n-value", 0, "Entry", undef, undef, $table,$y,$x,1, "JTAG_WB", undef, undef, 'horizontal');
 		    
 		    my $addr = gen_entry(0);
 		    my $entry =gen_entry('xxxxxxxx');	   
@@ -502,7 +502,7 @@ sub get_file_in_name{
 			$dialog->destroy;
 			$self->object_add_attribute('FILE_VIEW','IN_FILE',$file);
 				
-			#get offsset address;
+			#get offset address;
 			my $window = def_popwin_size (30,20,'Get Offset Address','percent');
 			my $table= def_table(2,10,FALSE);	
 			my $d=
@@ -715,7 +715,7 @@ sub read_write_widget {
 sub read_write_bin_file {
 	my ($self,$tview)=@_;
 	my $table= def_table(2,10,FALSE);	
-	my $scrolled_win=gen_scr_win_with_adjst ($self,"recive_box");
+	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
 	$scrolled_win->add_with_viewport($table);
 	my @data;
 	
@@ -793,7 +793,7 @@ sub read_write_bin_file {
 	}	
 	
 	
-	#row address lables
+	#row address labels
 	for (my $x=1; $x<=$MAX_X; $x++){
 		my $addr=$base_addr+($x-1) * $MAX_Y;
 		

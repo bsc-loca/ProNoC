@@ -205,7 +205,7 @@ $nwmaker = bless( {
                     'P0# Router in all Paths' => {
                                                    'type' => '3D_bar',
                                                    'ratio' => '-',
-                                                   'dimention' => '3D'
+                                                   'dimension' => '3D'
                                                  },
                     'Route' => {
                                  'ENDP_1::ENDP_2' => [
@@ -424,7 +424,7 @@ $nwmaker = bless( {
                                           },
                     'P1# Links in all paths' => {
                                                   'ratio' => '-',
-                                                  'dimention' => '3D',
+                                                  'dimension' => '3D',
                                                   'type' => '3D_bar'
                                                 },
                     'ROUTER2' => {

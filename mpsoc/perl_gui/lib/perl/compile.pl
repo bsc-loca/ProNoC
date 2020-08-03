@@ -23,7 +23,7 @@ use List::MoreUtils qw( minmax );
 
 
 ################
-#	Comile
+#	Compile
 #################
 
 
@@ -344,7 +344,7 @@ sub select_board {
 	
 	$col=0;
 	$self->object_add_attribute('compile',$bin_name,$Fpga_bin) if (!defined $bin && defined $Fpga_bin);
-	$table->attach(gen_label_help("Path to $vendor/bin directory. You can set a default path as $env envirement variable in ~/.bashrc file.
+	$table->attach(gen_label_help("Path to $vendor/bin directory. You can set a default path as $env environment variable in ~/.bashrc file.
 e.g:  export $env=/home/alireza/$compiler/bin","$env:"),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
 	$table->attach(get_dir_in_object ($self,'compile',$bin_name,undef,undef,undef),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$row++;
 	
@@ -374,7 +374,7 @@ sub select_model_path {
 	my $modelsim_bin=  $ENV{MODELSIM_BIN};
 	$col=0;
 	$self->object_add_attribute('compile','modelsim_bin',$modelsim_bin) if (!defined $bin && defined $modelsim_bin);
-	$table->attach(gen_label_help("Path to modelsim/bin directory. You can set a default path as MODELSIM_BIN envirement variable in ~/.bashrc file.
+	$table->attach(gen_label_help("Path to modelsim/bin directory. You can set a default path as MODELSIM_BIN environment variable in ~/.bashrc file.
 e.g.  export MODELSIM_BIN=/home/alireza/altera/modeltech/bin",'Modelsim  bin:'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
 	$table->attach(get_dir_in_object ($self,'compile','modelsim_bin',undef,undef,undef),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$row++;
 	
@@ -456,7 +456,7 @@ sub add_new_fpga_board{
 	
 	if($vendor eq 'Altera'){
 	    my $auto=def_image_button('icons/advance.png','Auto-fill'); 
-	    set_tip($auto, "Auto-fill JTAG configuration. The board must be powered on and be connecred to the PC."); 
+	    set_tip($auto, "Auto-fill JTAG configuration. The board must be powered on and be connected to the PC."); 
 		$mtable->attach($auto,5,6,9,10,'shrink','shrink',2,2);
 		$auto-> signal_connect("clicked" => sub{ 
 			my $pid;
@@ -513,7 +513,7 @@ sub add_new_fpga_board{
 						add_colored_info($tview,"Detected Hardware: $hw\n",'blue');
 						my $qsf=$self->object_get_attribute('compile','board_confg_file');	
 						if(!defined $qsf ){
-							add_colored_info ($tview,"Cannot detect devce location in JTAG chin. Please enter the QSF file or fill in manually \n",'red'); 
+							add_colored_info ($tview,"Cannot detect device location in JTAG chin. Please enter the QSF file or fill in manually \n",'red'); 
 											
 						}else{
 							#search for device name in qsf file
@@ -584,18 +584,18 @@ sub add_new_xilinx_fpga_board_widgets{
 	my $row=0;
 		
 	my $help1="Your given FPGA Board name. Do not use any space in given name";
-	my $help2="Path to FPGA board xdc file. In your Xilinx board installation CD or in the Internet, search for a xdc file containing your FPGA device pin assigment constrain).";
-	my $help3="Path to FPGA_board_top.v file. A verilog file containing all your FPGA device IO ports.";
+	my $help2="Path to FPGA board xdc file. In your Xilinx board installation CD or in the Internet, search for a xdc file containing your FPGA device pin assignment constrain).";
+	my $help3="Path to FPGA_board_top.v file. A Verilog file containing all your FPGA device IO ports.";
 	my $help4="Your Board name (Board PART) e.g. digilentinc.com:arty-z7-20:part0:1.0";
 	my $help5="Your FPGA device name (PART) e.g. xc7z020clg400-1 ";
-	my $help6="The order number of target device in jtag chain. Run jtag targets after \"connect\" command in xsct terminal to list all availble targets ";
-	my $help7="Path to Vivado board files repository. E.g download the repo from https://github.com/Digilent/vivado-boards and save in \$ProNoC_work/toolchain  ";
+	my $help6="The order number of target device in jtag chain. Run jtag targets after \"connect\" command in xsct terminal to list all available targets.";
+	my $help7="Path to Vivado board files repository. E.g download the repo from https://github.com/Digilent/vivado-boards and save in \$ProNoC_work/toolchain folder.";
 	my $help8="Hardware device name e.g. xc7z020_1. To find it you can connect your FPGA board to your PC. In tcl terminal run 
 		open_hw  
 		connect_hw_server 
 		open_hw_target
 		get_hw_devices
-It supposed to show the list of your hardware devices in your FPGA. Select the name represent your FPGA devivce		
+It supposed to show the list of your hardware devices in your FPGA. Select the name represent your FPGA device		
 		";
 	
 	
@@ -638,7 +638,7 @@ It supposed to show the list of your hardware devices in your FPGA. Select the n
    	{ label=>"FPGA part name:",       param_name=>'fpga_part', type=>"Entry",     default_val=>undef, content=>undef, info=>$help5, param_parent=>'compile', ref_delay=> undef},  
     { label=>"FPGA Hardware device name:", param_name=>'fpga_hw_device', type=>"Entry", default_val=>undef, content=>undef, info=>$help8, param_parent=>'compile', ref_delay=> undef},  
   	{ label=>'FPGA board xdc file:',    param_name=>'board_confg_file',   type=>"FILE_path", default_val=>undef, content=>"xdc", info=>$help2, param_parent=>'compile', ref_delay=>undef},
-	{ label=>"FPGA board golden top verilog file", param_name=>'fpga_board_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef},
+	{ label=>"FPGA board golden top Verilog file", param_name=>'fpga_board_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef},
 	{ label=>"Target device JTAG chain order number", param_name=>'fpga_board_order',  type=>"Spin-button", default_val=>1, content=>"0,256,1", info=>$help6, param_parent=>'compile',ref_delay=>undef},
 	);
 	
@@ -697,10 +697,10 @@ sub add_new_altera_fpga_board_widgets{
 		
 	my $help1="FPGA Board name. Do not use any space in given name";
 	my $help2="Path to FPGA board qsf file. In your Altra board installation CD or in the Internet search for a QSF file containing your FPGA device name with other necessary global project setting including the pin assignments (e.g DE10_Nano_golden_top.qsf).";
-	my $help3="Path to FPGA_board_top.v file. In your Altra board installation CD or in the Internet search for a verilog file containing all your FPGA device IO ports (e.g DE10_Nano_golden_top.v).";
-	my $help4="FPGA Board USB-Blaster product ID (PID). Power on your FPGA board and connect it to your PC. Then press Auto-fill button to find PID. Optinally you can run mpsoc/
+	my $help3="Path to FPGA_board_top.v file. In your Altra board installation CD or in the Internet search for a Verilog file containing all your FPGA device IO ports (e.g DE10_Nano_golden_top.v).";
+	my $help4="FPGA Board USB-Blaster product ID (PID). Power on your FPGA board and connect it to your PC. Then press Auto-fill button to find PID. Optionally you can run mpsoc/
 src_c/jtag/jtag_libusb/list_usb_dev to find your USB-Blaster PID. Search for PID of a device having 9fb (altera) Vendor ID (VID)";
-	my $help5="Power on your FPGA board and connect it to your PC. Then press Auto-fill button to find your hardware name. Optinally you can run \$QUARTUS_BIN/jtagconfig to find your programming hardware name. 
+	my $help5="Power on your FPGA board and connect it to your PC. Then press Auto-fill button to find your hardware name. Optionally you can run \$QUARTUS_BIN/jtagconfig to find your programming hardware name. 
 an example of output from the 'jtagconfig' command:
 \t  1) ByteBlasterMV on LPT1
 \t       090010DD   EPXA10
@@ -710,7 +710,7 @@ or
 \t       48A00477   SOCVHP5 
 \t       02D020DC   5CS(EBA6ES|XFC6c6ES)   
 ByteBlasterMV \& DE-SoC are the programming hardware name.";
-my $help6="Power on your FPGA board and connect it to your PC. Then press Auto-fill button to find your devive location in jtag chain. Optinally you can run \$QUARTUS_BIN/jtagconfig to find your target device location in jtag chain."; 
+my $help6="Power on your FPGA board and connect it to your PC. Then press Auto-fill button to find your device location in jtag chain. Optionally you can run \$QUARTUS_BIN/jtagconfig to find your target device location in jtag chain."; 
 		   
 
 
@@ -718,7 +718,7 @@ my $help6="Power on your FPGA board and connect it to your PC. Then press Auto-f
 	my @info = (
 	{ label=>"FPGA Board Name:",                   param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef},
   	{ label=>'FPGA Board Golden top QSF file:',    param_name=>'board_confg_file',   type=>"FILE_path", default_val=>undef, content=>"qsf", info=>$help2, param_parent=>'compile', ref_delay=>undef},
-	{ label=>"FPGA Board Golden top verilog file", param_name=>'fpga_board_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef },
+	{ label=>"FPGA Board Golden top Verilog file", param_name=>'fpga_board_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef },
 	);
 	
 	my @usb = (
@@ -1018,7 +1018,7 @@ sub  get_pin_assignment{
 	
 	my $row=0;
 	my $col=0;
-	my @lables= ('Port Direction','Port Range     ','Port name      ','Assigment Type','Board Port name ','Board Port Range');
+	my @lables= ('Port Direction','Port Range     ','Port name      ','Assignment Type','Board Port name ','Board Port Range');
 	foreach my $p (@lables){
 		my $l=gen_label_in_left($p);		
 		$l->set_markup("<b>  $p    </b>");
@@ -1170,7 +1170,7 @@ sub fpga_compilation{
                                       'destroy-with-parent',
                                       'question', # message type
                                       'yes-no', # which set of buttons?
-                                      "Are you sure you want to regenaret the Top.v file? Note that any changes you have made will be lost");
+                                      "Are you sure you want to regenerate the Top.v file? Note that any changes you have made will be lost");
   		my $response = $dialog->run;
   		if ($response eq 'yes') {
       			gen_top_v($self,$board,$name,$top);
@@ -1253,7 +1253,7 @@ exit
 	
 	#run vivado using program_board.tcl
 	my $error =run_vivado ($self,$target_dir,$tview,"$target_dir/program_board.tcl");	
-	add_colored_info($tview,"Board is programed successfully!\n",'blue') if($error==0);
+	add_colored_info($tview,"Board is programmed successfully!\n",'blue') if($error==0);
 	
 	
 }	
@@ -1267,7 +1267,7 @@ sub quartus_program_the_board{
 	my $sof_file="$target_dir/output_files/${name}.sof";
 	my $bash_file="$target_dir/program_device.sh";
 
-	add_info($tview,"Programe the board using quartus_pgm and $sof_file file\n");
+	add_info($tview,"Program the board using Quartus_pgm and $sof_file file\n");
 	#check if the programming file exists
 	unless (-f $sof_file) {
 		add_colored_info($tview,"\tThe $sof_file does not exists! Make sure you have compiled the code successfully.\n", 'red');
@@ -1284,14 +1284,14 @@ sub quartus_program_the_board{
 	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
 	if(length $stderr>1){			
 		add_colored_info($tview,"$stderr\n",'red');
-		add_colored_info($tview,"Board was not programed successfully!\n",'red');
+		add_colored_info($tview,"Board was not programmed successfully!\n",'red');
 	}else {
 		if($exit){
 			add_colored_info($tview,"$stdout\n",'red');
-			add_colored_info($tview,"Board was not programed successfully!\n",'red');
+			add_colored_info($tview,"Board was not programmed successfully!\n",'red');
 		}else{
 			add_info($tview,"$stdout\n");
-			add_colored_info($tview,"Board is programed successfully!\n",'blue');
+			add_colored_info($tview,"Board is programmed successfully!\n",'blue');
 		}
 			
 	}		
@@ -1651,7 +1651,7 @@ sub modelsim_compilation{
 
 
 	my ($app,$table,$tview,$window) = software_main("$target_dir/Modelsim",'testbench.v');
-	add_info($tview,"creat Modelsim dir in $target_dir\n");
+	add_info($tview,"create Modelsim dir in $target_dir\n");
 	$table->attach($back,1,2,1,2,'shrink','shrink',2,2);
 	$table->attach($regen,4,5,1,2,'shrink','shrink',2,2);
 	$table->attach ($run,9, 10, 1,2,'shrink','shrink',0,0);
@@ -1663,7 +1663,7 @@ sub modelsim_compilation{
                                       'destroy-with-parent',
                                       'question', # message type
                                       'yes-no', # which set of buttons?
-                                      "Are you sure you want to regenaret the testbench.v file? Note that any changes you have made will be lost");
+                                      "Are you sure you want to regenerate the testbench.v file? Note that any changes you have made will be lost");
   		my $response = $dialog->run;
   		if ($response eq 'yes') {
       			gen_modelsim_soc_testbench ($self,$name,$top,$target_dir);
@@ -1696,7 +1696,7 @@ vmap work rtl_work
 ";
 
 #Get the list of  all verilog files in src_verilog folder
-	add_info($tview,"Get the list of all verilog files in src_verilog folder\n");
+	add_info($tview,"Get the list of all Verilog files in src_verilog folder\n");
 	my @files = File::Find::Rule->file()
 		->name( '*.v','*.V','*.sv' )
 		->in( "$target_dir/src_verilog" );
@@ -1762,7 +1762,7 @@ sub verilator_compilation {
 	
 	my %tops = %{$top_ref};
 	#creat verilator dir
-	add_info($outtext,"creat verilator dir in $target_dir\n");
+	add_info($outtext,"create verilator dir in $target_dir\n");
 	my $verilator="$target_dir/verilator";
 	rmtree("$verilator/rtl_work");
 	rmtree("$verilator/processed_rtl");
@@ -2726,7 +2726,7 @@ sub verilator_testbench{
                                       'destroy-with-parent',
                                       'question', # message type
                                       'yes-no', # which set of buttons?
-                                      "Are you sure you want to regenaret the testbench.cpp file? Note that any changes you have made will be lost");
+                                      "Are you sure you want to regenerate the testbench.cpp file? Note that any changes you have made will be lost");
   		my $response = $dialog->run;
   		if ($response eq 'yes') {
   			my $n= $self->object_get_attribute('soc_name',undef);

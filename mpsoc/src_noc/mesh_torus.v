@@ -318,7 +318,7 @@ localparam
         /* verilator lint_off WIDTH */ 
         if ( ROUTE_NAME == "XY" || ROUTE_NAME  == "TRANC_XY") begin :xy
         /* verilator lint_on WIDTH */ 
-            if (SW_LOC == NORTH  ) begin : nort_p // The port located in y axsis does not send packets to x dimention
+            if (SW_LOC == NORTH  ) begin : nort_p // The port located in y axsis does not send packets to x dimension
                 assign dest_port_out[N_LOCAL]= dest_port_in[N_LOCAL]; 
                 assign dest_port_out[N_EAST]= 1'b0; // mask east port
                 assign dest_port_out[N_WEST]= 1'b0; // mask west port   
@@ -657,10 +657,10 @@ module mesh_torus_port_selector #(
  
 // check if EVC is allowed to be used     
     
-        // Using of all EVCs located in y dimention are restricted when the packet can be sent into both x&y direction 
+        // Using of all EVCs located in y dimension are restricted when the packet can be sent into both x&y direction 
         assign y_evc_forbiden = a&b;
         
-        //there is no restriction in using EVCs located in x dimention
+        //there is no restriction in using EVCs located in x dimension
         assign x_evc_forbiden = 1'b0; 
         //assign route_subfunc_violated = a&b;
     /* verilator lint_off WIDTH */     

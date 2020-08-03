@@ -663,14 +663,14 @@ $nwmaker = bless( {
                                    'NUM' => 0
                                  },
                     'P1# Links in all paths' => {
-                                                  'dimention' => '3D',
+                                                  'dimension' => '3D',
                                                   'ratio' => '-',
                                                   'type' => '3D_bar'
                                                 },
                     'P0# Router in all Paths' => {
                                                    'type' => '3D_bar',
                                                    'ratio' => '-',
-                                                   'dimention' => '3D'
+                                                   'dimension' => '3D'
                                                  },
                     '-' => {}
                   }, 'ProNOC' );

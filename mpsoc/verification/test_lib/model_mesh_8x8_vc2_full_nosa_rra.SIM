@@ -25,7 +25,7 @@ $simulate = bless( {
                                     'soc_path' => 'lib/soc'
                                   },
                      'P2Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'file_name' => undef,
@@ -151,7 +151,7 @@ $simulate = bless( {
                                          'type' => '2D_line'
                                        },
                      'P1Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'status' => 'ideal',

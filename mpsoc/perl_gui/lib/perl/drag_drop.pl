@@ -246,7 +246,7 @@ sub target_drag_data_received {
         
         
    
-# check if the maximum number of droped item is recived
+# check if the maximum number of dropped item is received
 $limit =655350 if(!defined $limit);
 if( scalar @array >= $limit){    
     stop_drag_dest( $widget);
@@ -338,7 +338,7 @@ sub add_drop_source {
     my $r=$self->object_get_attribute("$name","$param");
     my    @array = defined ($r)? @{$r}:();
     $widget->drag_dest_set('all', ['copy'], @target_table);
-    # check if the maximum number of droped item is recived
+    # check if the maximum number of dropped item is received
 	$limit =655350 if(!defined $limit);
 	if( scalar @array >= $limit){    
 	    stop_drag_dest( $widget);

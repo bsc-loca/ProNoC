@@ -19,7 +19,7 @@ void delay ( unsigned int num ){
 	return;
 }
 
-void error_handelling_function(){
+void error_handling_function(){
 	unsigned int i;
 	for (i=0;i<ni_NUM_VCs;i++){
 			if(ni_ERROR_FLAGS_REG(i)){
@@ -41,7 +41,7 @@ void ni_isr(void){
 	//place your interrupt code here 
 	if( ni_STATUS2_REG & ERRORS_ISR ){
 	// An error ocures 
-		error_handelling_function();
+		error_handling_function();
 		ni_ack_errors_isr();
 	}
 	

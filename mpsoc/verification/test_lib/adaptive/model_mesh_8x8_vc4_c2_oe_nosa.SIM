@@ -17,7 +17,7 @@ $simulate = bless( {
                      'samples' => undef,
                      'P1Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'simulate_name' => 'model_mesh_8x8_vc4_c2_oe_nosa',
                      'no_name' => {},
@@ -183,7 +183,7 @@ $simulate = bless( {
                                            },
                      'P2Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'noc_type' => {
                                      'ROUTER_TYPE' => '"VC_BASED"'

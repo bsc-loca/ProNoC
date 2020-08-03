@@ -114,7 +114,7 @@ sub generate_sim_bin_file {
 		add_colored_info($info_text,"Veriator model has been generated successfully!\n",'blue');
 	}else {
 		add_colored_info($info_text,"Verilator compilation failed!\n","red"); 
-		$simulate->object_add_attribute('status',undef,'programer_failed');
+		$simulate->object_add_attribute('status',undef,'programmer_failed');
 		set_gui_status($simulate,"ref",1);
 		print "gen-ended!\n";
 		return;
@@ -143,7 +143,7 @@ sub generate_sim_bin_file {
 	$result = run_make_file("$obj_dir/",$info_text,'lib');	
 	
 	if ($result ==0){
-		$simulate->object_add_attribute('status',undef,'programer_failed');
+		$simulate->object_add_attribute('status',undef,'programmer_failed');
 		set_gui_status($simulate,"ref",1);
 		print "gen-ended!\n";
 		return;
@@ -151,7 +151,7 @@ sub generate_sim_bin_file {
 	
 	run_make_file("$obj_dir/",$info_text);	
 	if ($result ==0){
-		$simulate->object_add_attribute('status',undef,'programer_failed');
+		$simulate->object_add_attribute('status',undef,'programmer_failed');
 		set_gui_status($simulate,"ref",1);
 		print "gen-ended!\n";
 		return;
@@ -179,7 +179,7 @@ sub generate_sim_bin_file {
 	if ((-e $bin)==0) {#something goes wrong 		
     	#message_dialog("Verilator compilation was unsuccessful please check the $path/$name.log files for more information",'error'); 
     	add_colored_info($info_text,"Verilator compilation failed!\n","red"); 
-    	$simulate->object_add_attribute('status',undef,'programer_failed');
+    	$simulate->object_add_attribute('status',undef,'programmer_failed');
 		set_gui_status($simulate,"ref",1);
 		print "gen-ended!\n";
 		return;
@@ -415,7 +415,7 @@ sub check_hotspot_parameters{
 					
 		}
 		if ($acuum > 100){
-			$result="Error: The traffic sumation of all hotspot nodes is $acuum. The hotspot sumation must be <=100";
+			$result="Error: The traffic summation of all hotspot nodes is $acuum. The hotspot summation must be <=100";
 			
 		}
 	}
@@ -497,7 +497,7 @@ sub get_simulator_noc_configuration{
 		my @synthinfo = (
 		
 		
-		{ label=>'Configuration name:', param_name=>'line_name', type=>'Entry', default_val=>$sample, content=>undef, info=>"NoC configration name. This name will be shown in load-latency graph for this configuration", param_parent=>$sample, ref_delay=> undef, new_status=>undef},
+		{ label=>'Configuration name:', param_name=>'line_name', type=>'Entry', default_val=>$sample, content=>undef, info=>"NoC configuration name. This name will be shown in load-latency graph for this configuration", param_parent=>$sample, ref_delay=> undef, new_status=>undef},
 	
 		
 	
@@ -510,7 +510,7 @@ sub get_simulator_noc_configuration{
 		
 		{ label=>"Avg. Packet size:", param_name=>'PCK_SIZE', type=>'Combo-box', default_val=>$avg, content=>"$avg", info=>undef, param_parent=>$sample, ref_delay=>undef},
 	
-		{ label=>"Total packet number limit:", param_name=>'PCK_NUM_LIMIT', type=>'Spin-button', default_val=>200000, content=>"2,$max_pck_num,1", info=>"Simulation will stop when total numbr of sent packets by all nodes reaches packet number limit  or total simulation clock reach its limit", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
+		{ label=>"Total packet number limit:", param_name=>'PCK_NUM_LIMIT', type=>'Spin-button', default_val=>200000, content=>"2,$max_pck_num,1", info=>"Simulation will stop when total number of sent packets by all nodes reaches packet number limit  or total simulation clock reach its limit", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
 	
 		{ label=>"Simulator clocks limit:", param_name=>'SIM_CLOCK_LIMIT', type=>'Spin-button', default_val=>100000, content=>"2,$max_sim_clk,1", info=>"Each node stops sending packets when it reaches packet number limit  or simulation clock number limit", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
 		
@@ -531,9 +531,9 @@ sub get_simulator_noc_configuration{
 			my $d= { label=>'number of Hot Spot nodes:', param_name=>'HOTSPOT_NUM', type=>'Spin-button', default_val=>1,  content=>"1,256,1", info=>"Number of hot spot nodes in the network",			  param_parent=>$sample, ref_delay=> 1, new_status=>'ref_set_win'};
 			($row,$coltmp)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status});
 				
-				my $l1=gen_label_help("Defne the tile number which is  hotspt. All other nodes will send [Hot Spot traffic percentage] of their traffic to this node","  Hot Spot tile number \%");
+				my $l1=gen_label_help("Define the tile number which is  hotspt. All other nodes will send [Hot Spot traffic percentage] of their traffic to this node","  Hot Spot tile number \%");
 				my $l2=gen_label_help("If it is set as \"n\" then each node sends n % of its traffic to each hotspot node","  Hot Spot traffic \%");
-				my $l3=gen_label_help("If it is checked then hot spot node also sends packets to other nodes otherwise it only recieves packets from other nodes","  send enable");
+				my $l3=gen_label_help("If it is checked then hot spot node also sends packets to other nodes otherwise it only receives packets from other nodes","  send enable");
 				
 				$htable->attach  ($l1 , 0, 1,  $row,$row+1,'fill','shrink',2,2);
 				$htable->attach  ($l2 , 1, 2,  $row,$row+1,'fill','shrink',2,2);
@@ -561,7 +561,7 @@ sub get_simulator_noc_configuration{
 			
 		
 		}
-		my $l= "Define injection ratios. You can define individual ratios seprating by comma (\',\') or define a range of injection ratios with \$min:\$max:\$step format.
+		my $l= "Define injection ratios. You can define individual ratios separating by comma (\',\') or define a range of injection ratios with \$min:\$max:\$step format.
 			As an example defining 2,3,4:10:2 will result in (2,3,4,6,8,10) injection ratios." ;
 		my $u=get_injection_ratios ($self,$sample,"ratios");
 		
@@ -602,7 +602,7 @@ sub get_simulator_noc_configuration{
 		my @custominfo = (
 		#{ label=>"Verilated Model", param_name=>'sof_file', type=>'Combo-box', default_val=>undef, content=>$exe_files, info=>"Select the the verilator simulation file. Different NoC simulators can be generated using Generate NoC configuration tab.", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
 		
-		{ label=>'Configuration name:', param_name=>'line_name', type=>'Entry', default_val=>$sample, content=>undef, info=>"NoC configration name. This name will be shown in load-latency graph for this configuration", param_parent=>$sample, ref_delay=> undef, new_status=>undef},
+		{ label=>'Configuration name:', param_name=>'line_name', type=>'Entry', default_val=>$sample, content=>undef, info=>"NoC configuration name. This name will be shown in load-latency graph for this configuration", param_parent=>$sample, ref_delay=> undef, new_status=>undef},
 	
 	  	{ label=>"Number of Files", param_name=>"TRAFFIC_FILE_NUM", type=>'Spin-button', default_val=>1, content=>"1,100,1", info=>"Select number of input files", param_parent=>$sample, ref_delay=>1, new_status=>'ref_set_win'},
 		
@@ -762,9 +762,9 @@ sub run_synthetic_simulation {
 			my $total_time =capture_number_after("simulation clock cycles:",$stdout);
 			
 			my %packet_rsvd_per_core = capture_cores_data("total number of received packets:",$stdout);
-			my %worst_rsvd_delay_per_core = capture_cores_data('worst-case-delay of received pckets \(clks\):',$stdout);
+			my %worst_rsvd_delay_per_core = capture_cores_data('worst-case-delay of received packets \(clks\):',$stdout);
 			my %packet_sent_per_core = capture_cores_data("total number of sent packets:",$stdout);
-			my %worst_sent_delay_per_core = capture_cores_data('worst-case-delay of sent pckets \(clks\):',$stdout);
+			my %worst_sent_delay_per_core = capture_cores_data('worst-case-delay of sent packets \(clks\):',$stdout);
 			#my $avg = sprintf("%.1f", $avg);
 	    		
 		    	
@@ -830,9 +830,9 @@ sub run_custom_simulation{
 			my $sd_latency =capture_number_after("standard_dev =",$stdout);
 			my $avg_thput =capture_number_after("Avg throughput is:",$stdout);
 			my %packet_rsvd_per_core = capture_cores_data("total number of received packets:",$stdout);
-			my %worst_rsvd_delay_per_core = capture_cores_data('worst-case-delay of received pckets \(clks\):',$stdout);
+			my %worst_rsvd_delay_per_core = capture_cores_data('worst-case-delay of received packets \(clks\):',$stdout);
 			my %packet_sent_per_core = capture_cores_data("total number of sent packets:",$stdout);
-			my %worst_sent_delay_per_core = capture_cores_data('worst-case-delay of sent pckets \(clks\):',$stdout);
+			my %worst_sent_delay_per_core = capture_cores_data('worst-case-delay of sent packets \(clks\):',$stdout);
 			my $total_time =capture_number_after("simulation clock cycles:",$stdout);
 			#my $avg = sprintf("%.1f", $avg);
 	    		
@@ -870,7 +870,7 @@ sub get_sim_bin_path {
 	unless (-d $bin_path){
 		my $path= $self->object_get_attribute ("sim_param","BIN_DIR");
 		if(-d $path){
-			add_colored_info($info, "Warning: The given path ($bin_path) for searcing $sample bin file does not exist. The system search in default $path instead.\n",'green');
+			add_colored_info($info, "Warning: The given path ($bin_path) for searching $sample bin file does not exist. The system search in default $path instead.\n",'green');
 			$bin_path=$path;
 		}
 	}	
@@ -894,7 +894,7 @@ sub check_sim_sample{
 		my ($name,$path,$suffix) = fileparse("$sof",qr"\..[^.]*$");
 		my $sof_info= "$path$name.inf";
 		if(!(-f $sof_info)){
-			add_info($info, "Could not find $name.inf file in $path. An information file is required for each sof file containig the device name and  NoC configuration. Press F3 for more help.\n");
+			add_info($info, "Could not find $name.inf file in $path. An information file is required for each sof file containing the device name and  NoC configuration. Press F3 for more help.\n");
 			$self->object_add_attribute ($sample,"status","failed");	
 			$status=0;
 		}else { #add info
@@ -951,7 +951,7 @@ my @pages =(
 	{page_name=>" Avg. throughput/latency", page_num=>0},
 	{page_name=>" Injected Packet ", page_num=>1},
 	{page_name=>" Worst-Case Delay ",page_num=>2},
-	{page_name=>" Executaion Time ",page_num=>3},
+	{page_name=>" Execution Time ",page_num=>3},
 );
 
 
@@ -1018,7 +1018,7 @@ my @charts = (
 	});	
 
 
-	#check soc status every 0.5 second. referesh device table if there is any changes 
+	#check soc status every 0.5 second. refresh device table if there is any changes 
 	Glib::Timeout->add (100, sub{ 
 	 
 		my ($state,$timeout)= get_gui_status($simulate);

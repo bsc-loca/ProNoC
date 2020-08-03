@@ -28,7 +28,7 @@
 
 module   muli_noc_genvar #(  
     	parameter TOPOLOGY = "muli",
-	parameter ROUTE_NAME = "muli_DETERMINSTIC",
+	parameter ROUTE_NAME = "muli_DETERMINISTIC",
 	parameter V  = 2,
 	parameter B  = 4,
 	parameter C  = 2,

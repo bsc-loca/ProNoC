@@ -28,7 +28,7 @@
 
 module   l_noc_genvar #(  
     	parameter TOPOLOGY = "l",
-	parameter ROUTE_NAME = "l_DETERMINSTIC",
+	parameter ROUTE_NAME = "l_DETERMINISTIC",
 	parameter V  = 2,
 	parameter B  = 4,
 	parameter C  = 2,

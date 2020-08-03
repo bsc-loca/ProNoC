@@ -441,8 +441,8 @@ Determine the next router address based on the packet destination port
 
 module next_router_addr_selector_onehot #(
     parameter P = 5,
-    parameter RXw = 3,  // The router's x dimention adress width in bits
-    parameter RYw = 3  // The router's y dimention adress width in bits
+    parameter RXw = 3,  // The router's x dimension adress width in bits
+    parameter RYw = 3  // The router's y dimension adress width in bits
     )
     (
     destport_onehot,
@@ -494,8 +494,8 @@ endmodule
 
 module next_router_addr_selector_bin #(
     parameter P = 5,
-    parameter RXw = 3,  // The router's x dimention adress width in bits
-    parameter RYw = 3  // The router's y dimention adress width in bits
+    parameter RXw = 3,  // The router's x dimension adress width in bits
+    parameter RYw = 3  // The router's y dimension adress width in bits
     )
     (
     destport_bin,

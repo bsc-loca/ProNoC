@@ -63,7 +63,7 @@ sub create_rsv_box {
 sub receive_boxes{
 	my $self=shift;
 	my $table= def_table(2,10,FALSE);	
-	my $scrolled_win=gen_scr_win_with_adjst ($self,"recive_box");
+	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
 	$scrolled_win->add_with_viewport($table);
 	my $num = $self->object_get_attribute('CTRL','UART_NUM');
 	my $dim_y = floor(sqrt($num));
@@ -170,7 +170,7 @@ sub select_uart_board {
 		$init="$name";	
 	}
 	my $button=def_image_button("$path/icons/help.png");
-	my $help1= "The list of supported boards are obtained from \"mpsoc/boards/$vendor\" path. You can add your boards by adding its required files in aformentioned path";
+	my $help1= "The list of supported boards are obtained from \"mpsoc/boards/$vendor\" path. You can add your boards by adding its required files in aforementioned path";
 	$button->signal_connect("clicked" => sub {message_dialog($help1);});	
 	my $combo=gen_combobox_object ($self,'compile','board',$fpgas,$init,undef,undef);	
 	$table->attach(gen_label_in_left('Targeted Board:'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
@@ -225,7 +225,7 @@ sub capture_altera_jtag_info {
 		
 	}
 	
-	$info = "There are total pf $i devices in JTAG chain:\n $info. Select the coresponding Jtag device number which the serial port is connected to\n";
+	$info = "There are total pf $i devices in JTAG chain:\n $info. Select the corresponding Jtag device number which the serial port is connected to\n";
 		
 	
 	my $names = join (',',@devs);
@@ -249,7 +249,7 @@ sub show_all_xilinx_targets{
 	
 	#check if $xsct exits
 	unless(-f $xsct){
-		add_colored_info($tview,"Error xsct not found. Please add the path to xilinx/SDK/bin to your \$PATH envirement\n",'red');
+		add_colored_info($tview,"Error xsct not found. Please add the path to xilinx/SDK/bin to your \$PATH environment\n",'red');
 		return 0;	
 	}	
 	my @cat = ( $xsct );
@@ -302,7 +302,7 @@ sub sender_box{
 			my $st =$self->object_get_attribute("CTRL","RUN");
 			my $index =$self->object_get_attribute("CTRL","SEND_TO_INDEX");
 			if ($st eq 'OFF'){
-				add_colored_info($main_tview,"Error: Cannot send the data. Jtag connection is not stablished yet.\n",'red');
+				add_colored_info($main_tview,"Error: Cannot send the data. Jtag connection is not established yet.\n",'red');
 				return;
 			}
 			my $text_buffer = $tview->get_buffer;
@@ -440,7 +440,7 @@ sub start_stp{
 	
 	#check if $xsct exits
 	unless(-f $stp){
-		add_colored_info($tview,"Error quartus_stp not found. Please add the path to QuartusII/bin to your \$PATH envirement\n",'red');
+		add_colored_info($tview,"Error quartus_stp not found. Please add the path to QuartusII/bin to your \$PATH environment\n",'red');
 		return 0;	
 	}	
 	my @run = ( "$stp" );
@@ -626,7 +626,7 @@ sub start_xsct{
 	
 	#check if $xsct exits
 	unless(-f $xsct){
-		add_colored_info($tview,"Error xsct not found. Please add the path to xilinx/SDK/bin to your \$PATH envirement\n",'red');
+		add_colored_info($tview,"Error xsct not found. Please add the path to xilinx/SDK/bin to your \$PATH environment\n",'red');
 		return 0;	
 	}	
 	my @cat = ( $xsct );

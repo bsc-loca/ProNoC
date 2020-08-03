@@ -54,7 +54,7 @@ $simulate = bless( {
                                'active' => 'Received'
                              },
                      'P1Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'simulate_name' => 'model_mesh_8x8_vc4_c2_xy_nosa',
@@ -69,7 +69,7 @@ $simulate = bless( {
                                'active' => 'Received'
                              },
                      'P2Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'noc_type' => {

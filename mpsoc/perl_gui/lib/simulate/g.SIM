@@ -121,7 +121,7 @@ $simulate = bless( {
                                            'currentpage' => 0
                                          },
                      'P1Received' => {
-                                       'dimention' => '3D',
+                                       'dimension' => '3D',
                                        'type' => '3D_bar'
                                      },
                      'graph_save' => {
@@ -144,7 +144,7 @@ $simulate = bless( {
                                      },
                      'P2Received' => {
                                        'type' => '3D_bar',
-                                       'dimention' => '3D'
+                                       'dimension' => '3D'
                                      },
                      'process_notebook' => {
                                              'currentpage' => 0

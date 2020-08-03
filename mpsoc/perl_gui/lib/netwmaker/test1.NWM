@@ -874,7 +874,7 @@ $nwmaker = bless( {
                     'P1# Links in all paths' => {
                                                   'type' => '3D_bar',
                                                   'ratio' => '-',
-                                                  'dimention' => '3D'
+                                                  'dimension' => '3D'
                                                 },
                     'active_setting' => undef,
                     'ROUTER5' => {
@@ -962,7 +962,7 @@ $nwmaker = bless( {
                                    },
                     'P0# Router in all Paths' => {
                                                    'ratio' => '-',
-                                                   'dimention' => '3D',
+                                                   'dimension' => '3D',
                                                    'type' => '3D_bar'
                                                  },
                     'id' => 1,
