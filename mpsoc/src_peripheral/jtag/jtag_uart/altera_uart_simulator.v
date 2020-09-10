@@ -248,7 +248,7 @@ module RxD_fifo  #(
     input          wr_en;   // Write enable
     input          rd_en;   // Read the next word
 
-    output reg [Dw-1:0]  dout;    // Data out
+    output  [Dw-1:0]  dout;    // Data out
     output         full;
     output         nearly_full;
     output         empty;
@@ -268,15 +268,11 @@ always @(posedge clk)
 begin
    if (wr_en)
       queue[wr_ptr] <= din;
-   if (rd_en)
-      dout <=
-//synthesis translate_off
-//synopsys  translate_off
-          #1
-//synopsys  translate_on
-//synthesis translate_on  
-          queue[rd_ptr];
+   
+     
 end
+
+ assign dout = queue[rd_ptr];
 
 always @(posedge clk)
 begin

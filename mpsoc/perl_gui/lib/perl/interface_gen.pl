@@ -602,7 +602,7 @@ sub get_intfc_description{
 	my $description = $intfc_gen->intfc_get_description();	
 	my $table = Gtk2::Table->new (15, 15, TRUE);
 	my $window=def_popwin_size(50,50,"Add description",'percent');
-	my ($scrwin,$text_view)=create_text();
+	my ($scrwin,$text_view)=create_txview();
 	#my $buffer = $textbox->get_buffer();
 	my $ok=def_image_button("icons/select.png",' Ok ');
 	
@@ -672,7 +672,7 @@ sub intfc_main{
 	$main_table->set_row_spacings (4);
 	$main_table->set_col_spacings (1);
 	# The box which holds the info, warning, error ...  mesages
-	my ($infobox,$info)= create_text();	
+	my ($infobox,$info)= create_txview();	
 	
 	
 	my $refresh = Gtk2::Button->new_from_stock('ref');

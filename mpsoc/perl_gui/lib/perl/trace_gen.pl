@@ -1999,7 +1999,7 @@ sub build_trace_gui {
 	}
 	
 	
-	my ($scwin_info,$tview)= create_text();	
+	my ($scwin_info,$tview)= create_txview();	
 	my $notebook = trace_maker_notebook($self,$mode,$tview);	
 	my $v2=gen_vpaned($notebook,.65,$scwin_info);
 	

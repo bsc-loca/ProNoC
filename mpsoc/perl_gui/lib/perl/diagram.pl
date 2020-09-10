@@ -348,7 +348,7 @@ sub show_text_in_scrolled_win {
 	my ($self,$scrolled_win,$table, $text)=@_;
 	$scrolled_win->destroy;			
  	my $tview;
-	($scrolled_win,$tview)=create_text();
+	($scrolled_win,$tview)=create_txview();
 	$table->attach_defaults ($scrolled_win, 0, 20, 1, 20); 
 	show_info($tview, $text);
 	$scrolled_win->show_all();		

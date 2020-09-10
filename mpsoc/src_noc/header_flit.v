@@ -36,7 +36,7 @@ module header_flit_generator  #(
     parameter DSTPw=4,  
     parameter C = 4,    //  number of flit class 
     parameter WEIGHTw = 4, // WRRA weight width
-    parameter DATA_w = 9, // header flit can carry Optional data. The data will be placed after contol data.  Fpay >= DATA_w + CTRL_BITS_w  
+    parameter DATA_w = 9, // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
     parameter BYTE_EN = 0
 )(
     

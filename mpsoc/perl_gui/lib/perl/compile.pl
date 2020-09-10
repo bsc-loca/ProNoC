@@ -412,7 +412,7 @@ sub add_new_fpga_board{
 	$mtable->attach($next,8,9,9,10,'shrink','shrink',2,2);
 	
 	
-	my ($Twin,$tview)=create_text();
+	my ($Twin,$tview)=create_txview();
 	
 	
 	my $widgets=
@@ -589,7 +589,7 @@ sub add_new_xilinx_fpga_board_widgets{
 	my $help4="Your Board name (Board PART) e.g. digilentinc.com:arty-z7-20:part0:1.0";
 	my $help5="Your FPGA device name (PART) e.g. xc7z020clg400-1 ";
 	my $help6="The order number of target device in jtag chain. Run jtag targets after \"connect\" command in xsct terminal to list all available targets.";
-	my $help7="Path to Vivado board files repository. E.g download the repo from https://github.com/Digilent/vivado-boards and save in \$ProNoC_work/toolchain folder.";
+	my $help7="Path to Vivado board files repository. E.g download the repo from https://github.com/Digilent/vivado-boards and save in \$ProNoC_work/toolchain/board_files folder.";
 	my $help8="Hardware device name e.g. xc7z020_1. To find it you can connect your FPGA board to your PC. In tcl terminal run 
 		open_hw  
 		connect_hw_server 
@@ -599,59 +599,100 @@ It supposed to show the list of your hardware devices in your FPGA. Select the n
 		";
 	
 	
-	my $d=	{ label=>"FPGA board display name:",        param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef};	
-	($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,'vertical');
-	$col=0;
-	
 	my $repo ="$ENV{PRONOC_WORK}/toolchain/board_files";
-	$d={ label=>"Set board repo:", param_name=>'fpga_board_repo',  type=>"DIR_path", default_val=>"$repo", content=>undef, info=>$help7, param_parent=>'compile',ref_delay=>undef};
-	($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,'vertical');
-	$col=0;
 	
 	
+	$row++;
 	
-	my $label1= gen_label_in_left(" FPGA board part name:" );	
-	my $button1=gen_button_message ($help4,"icons/help.png");
+	my @info = ( 
+	{ label=>"FPGA board display name:",        param_name=>'fpga_board', type=>"Entry",     default_val=>undef, content=>undef, info=>$help1, param_parent=>'compile', ref_delay=> undef},  	
+   	{ label=>"Set board repo:", param_name=>'fpga_board_repo',  type=>"DIR_path", default_val=>"$repo", content=>undef, info=>$help7, param_parent=>'compile',ref_delay=>undef},	
+   	{ label=>"FPGA board part name:", param_name=>'fpga_board_part', type=>"EntryCombo",default_val=>undef, content=>undef, info =>$help4, param_parent=>'compile', ref_delay=> undef},
+   	{ label=>"FPGA part name:",       param_name=>'fpga_part', type=>"Entry",     default_val=>undef, content=>undef, info=>$help5, param_parent=>'compile', ref_delay=> undef},  
+    { label=>"FPGA Hardware device name:", param_name=>'fpga_hw_device', type=>"EntryCombo", default_val=>undef, content=>undef, info=>$help8, param_parent=>'compile', ref_delay=> undef},  
+  	{ label=>"Target device JTAG chain order number", param_name=>'fpga_board_order',  type=>"Spin-button", default_val=>1, content=>"0,256,1", info=>$help6, param_parent=>'compile',ref_delay=>undef},  	
+  	{ label=>'FPGA board xdc file:',    param_name=>'board_confg_file',   type=>"FILE_path", default_val=>undef, content=>"xdc", info=>$help2, param_parent=>'compile', ref_delay=>undef},
+	{ label=>"FPGA board golden top Verilog file", param_name=>'fpga_board_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef},
+		);
+	my %widgets;
+	my %rows;
+	foreach my $d (@info) {
+		$rows{$d->{param_name}} =$row; 
+		($row,$col,$widgets{$d->{param_name}})=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,'vertical');
+	}
+	
+	my $icon = 'icons/advance.png';
+	my $search=def_image_button($icon,undef); 
+	my $search_board=def_image_button ($icon,undef); 
+	my $search_dev=def_image_button ($icon,undef);
+	my $search_chain=def_image_button ($icon,undef);  
+	
+	$table->attach($search,4,5,$rows{'fpga_board_part'},$rows{'fpga_board_part'}+1,'fill','shrink',2,2); 
+	$table->attach($search_board,4,5,$rows{'fpga_part'},$rows{'fpga_part'}+1,'fill','shrink',2,2); 
+	$table->attach($search_dev,4,5,$rows{'fpga_hw_device'},$rows{'fpga_hw_device'}+1,'fill','shrink',2,2);
+	$table->attach($search_chain,4,5,$rows{'fpga_board_order'},$rows{'fpga_board_order'}+1,'fill','shrink',2,2);
 	
 	
-	my $entry= gen_comboentry_object ($self,'compile','fpga_board_part',undef,undef,undef);	
-	my $search=def_image_button('icons/refresh.png',undef); 
-	$table->attach( $label1,0,1,$row,$row+1,'fill','shrink',2,2); 
-	$table->attach( $button1,1,2,$row,$row+1,'fill','shrink',2,2); 
-	$table->attach( $entry,2,3,$row,$row+1,'fill','shrink',2,2); 
-	$table->attach( $search,4,5,$row,$row+1,'fill','shrink',2,2); 
-	my $srow=$row;
 	$search->signal_connect("clicked" => sub{
 			my $load= show_gif("icons/load.gif");
-			$table->attach ($load,5, 6, $srow,$srow+ 1,'shrink','shrink',0,0);
+			$table->attach ($load,5, 6, $rows{'fpga_board_part'},$rows{'fpga_board_part'}+ 1,'shrink','shrink',0,0);
 			$table->show_all;
 			my $result=	set_xilinx_board_from_repo($self,$tview);
-			$entry->destroy;
-			$entry= gen_comboentry_object ($self,'compile','fpga_board_part',$result,undef,undef);	
-			$table->attach( $entry,2,3,$srow,$srow+1,'fill','shrink',2,2); 
+			update_combo_entry_content($widgets{'fpga_board_part'}, $result);
 			$load->destroy;
 			$table->show_all;
 		}); 
-	$row++;
 	
-	my @info = (
-   	{ label=>"FPGA part name:",       param_name=>'fpga_part', type=>"Entry",     default_val=>undef, content=>undef, info=>$help5, param_parent=>'compile', ref_delay=> undef},  
-    { label=>"FPGA Hardware device name:", param_name=>'fpga_hw_device', type=>"Entry", default_val=>undef, content=>undef, info=>$help8, param_parent=>'compile', ref_delay=> undef},  
-  	{ label=>'FPGA board xdc file:',    param_name=>'board_confg_file',   type=>"FILE_path", default_val=>undef, content=>"xdc", info=>$help2, param_parent=>'compile', ref_delay=>undef},
-	{ label=>"FPGA board golden top Verilog file", param_name=>'fpga_board_v',     type=>"FILE_path", default_val=>undef, content=>"v", info=>$help3, param_parent=>'compile',ref_delay=>undef},
-	{ label=>"Target device JTAG chain order number", param_name=>'fpga_board_order',  type=>"Spin-button", default_val=>1, content=>"0,256,1", info=>$help6, param_parent=>'compile',ref_delay=>undef},
-	);
 	
-	foreach my $d (@info) {
-	
-		($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,'vertical');
+	$search_board->signal_connect("clicked" => sub{
+			my $load= show_gif("icons/load.gif");
+			$table->attach ($load,5, 6, $rows{'fpga_part'},$rows{'fpga_part'}+1, 'shrink','shrink',0,0);
+			$table->show_all;
+			my $result=	get_xilinx_board_part($self,$tview);
+			$widgets{'fpga_part'}->set_text($result);			
+			#print "result = $result\n";
+			$load->destroy;
+			$table->show_all;
+		}); 
+	$search_dev->signal_connect("clicked" => sub{
+			my $load= show_gif("icons/load.gif");
+			$table->attach ($load,5, 6, $rows{'fpga_hw_device'},$rows{'fpga_hw_device'}+ 1,'shrink','shrink',0,0);
+			$table->show_all;
+			my $result=	get_xilinx_device_names($self,$tview);
+			update_combo_entry_content($widgets{'fpga_hw_device'}, $result);
+			$load->destroy;
+			$table->show_all;
+		}); 
+	$search_chain->signal_connect("clicked" => sub{
+		my $targets = show_all_xilinx_targets($self,$tview);
+		if(!defined $targets){
+			add_info($tview,"Unable to find the FPGA board target list. Make sure you have connected your FPGA board to your PC first and it is powered on.\n");
+			return;
+		}
 		
-	}
-	
-	
+		my @lines=split(/\r?\n/,$targets);
+		my @list1;
+		my @list2;
+		foreach my $p (@lines){
+			$p =~ s/^\s+//;#left trim
+			my @words=split(/\s+/,$p);
+			push (@list1,$words[0]);
+			push (@list2,$words[1]);
+		}
+		my $hw =  $self->object_get_attribute('compile','fpga_hw_device');
+		if( !defined $hw){
+			add_colored_info($tview,"Please define the FPGA hardware device name first!\n",'red');
+			return;
+		}
+		my $pos = find_the_most_similar_position ($hw ,@list2);
+		add_info($tview,"$hw matched with target $list1[$pos] $list2[$pos]  ");
+		$widgets{'fpga_board_order'}->set_value($list1[$pos]);
+	});
 	
 	return ($row, $col, $table);	
 }
+
+
 	
 sub set_xilinx_board_from_repo{
 	my ($self,$tview)=@_;
@@ -659,37 +700,78 @@ sub set_xilinx_board_from_repo{
 	my $vivado =(defined $bin)?  "${bin}/vivado" :  "vivado";
 	my $result;
 	my $repo= $self->object_get_attribute('compile','fpga_board_repo');	
-	
-	
 	my $tcl= get_project_dir()."/mpsoc/perl_gui/lib/tcl/vivado_get_boards.tcl -tclargs $repo";
 	my $command = "cd $ENV{PRONOC_WORK}/tmp;   $vivado -mode tcl -source $tcl";
 	
 	add_info($tview,"$command\n");
-	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($command);
-	if(length $stderr>1){			
-			add_colored_info($tview,"$stderr\n",'red');
-			add_colored_info($tview,"$command was not run successfully!\n",'red');
-	}else {
-		if($exit){
-			add_colored_info($tview,"$stdout\n",'red');
-			add_colored_info($tview,"$command was not run successfully!\n",'red');
-		}else{
-			add_info($tview,"$stdout\n");
-			my @boards=split(/\s+/,$stdout);
-			my $r=0;
-			foreach my $board (@boards){
-				my @pp=split(':',$board);
-				if(scalar @pp  == 4 && $pp[1] =~ /[a-zA-Z]+/) {
-					$r=1;
-					$result= (!defined $result)? "$board" : $result.",$board";
-				} 
-			}
-			add_colored_info($tview,"$stdout\n",'red') if($r==0);
-		}		
-	
+	my $stdout=run_cmd_textview_errors($command,$tview);
+	return if (!defined $stdout); 
+	add_info($tview,"$stdout\n");
+	my @boards=split(/\s+/,$stdout);
+	my $r=0;
+	foreach my $board (@boards){
+		my @pp=split(':',$board);
+		if(scalar @pp  == 4 && $pp[1] =~ /[a-zA-Z]+/) {
+			$r=1;
+			$result= (!defined $result)? "$board" : $result.",$board";
+		} 
 	}
+	add_colored_info($tview,"$stdout\n",'red') if($r==0);
 	return $result;
 }	
+
+
+sub get_xilinx_device_names{
+	my ($self,$tview)=@_;
+	my $bin =  $self->object_get_attribute('compile',"vivado bin");
+	my $vivado =(defined $bin)?  "${bin}/vivado" :  "vivado";
+	my $result;
+	my $repo= $self->object_get_attribute('compile','fpga_board_repo');	
+	my $tcl= get_project_dir()."/mpsoc/perl_gui/lib/tcl/vivado_get_hw_device.tcl -tclargs";
+	my $command = "cd $ENV{PRONOC_WORK}/tmp;   $vivado -mode tcl -source $tcl";
+	
+	add_info($tview,"$command\n");
+	my $stdout=run_cmd_textview_errors($command,$tview);
+	if (!defined $stdout){
+		add_info($tview,"Unable to find the FPGA board devices list. Make sure you have connected your FPGA board to your PC first and it is powered on.\n");
+		return;
+	} 
+	add_info($tview,"$stdout\n");
+	my $devices =  capture_string_between ('\n\*RESULT:',$stdout,"\n");	
+	my @D=split(/\s+/,$devices);
+	return join ',', @D;
+}	
+
+
+
+
+
+
+sub get_xilinx_board_part{
+	my ($self,$tview)=@_;
+	my $bin =  $self->object_get_attribute('compile',"vivado bin");
+	my $vivado =(defined $bin)?  "${bin}/vivado" :  "vivado";
+	my $result;
+	my $repo= $self->object_get_attribute('compile','fpga_board_repo');	
+	my $board_part= $self->object_get_attribute('compile' ,'fpga_board_part');
+	if (!defined $board_part  ){
+		add_colored_info($tview,"Please define the FPGA board part name first!\n",'red');
+		return;
+	}
+	
+	my $tcl= get_project_dir()."/mpsoc/perl_gui/lib/tcl/vivado_get_part.tcl -tclargs $board_part $repo ";
+	
+	
+	my $command = "cd $ENV{PRONOC_WORK}/tmp;   $vivado -mode tcl -source $tcl";
+	
+	add_info($tview,"$command\n");
+	my $stdout=run_cmd_textview_errors($command,$tview);
+	return if (!defined $stdout); 
+	add_info($tview,"$stdout\n");
+	return capture_string_between ('\n\*RESULT:',$stdout,"\n");	
+}	
+
+
 	
 sub add_new_altera_fpga_board_widgets{
 	my ($self,$name,$top,$target_dir,$end_func,$vendor)=@_;	
@@ -1903,7 +1985,7 @@ sub verilator_compilation_win {
 	my ($self,$name,$top,$target_dir,$vendor)=@_;
 	my $window = def_popwin_size(80,80,"Step 2: Compile",'percent');
 	my $mtable = def_table(10, 10, FALSE);
-	my ($outbox,$outtext)= create_text();
+	my ($outbox,$outtext)= create_txview();
 	
 	
 	my $next=def_image_button('icons/run.png','Next');
@@ -2085,13 +2167,23 @@ sub gen_verilator_soc_testbench {
 	my $dir="$verilator/";
 	my $soc_top= $self->soc_get_top ();
 	
+	my $include='#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+';
 	my @intfcs=$soc_top->top_get_intfc_list();
 	my %PP;
+	my %rxds;
 	my $top_port_info="IO type\t  port_size\t  port_name\n";
 	foreach my $intfc (@intfcs){
 		my $key= ( $intfc eq 'plug:clk[0]')? 'clk' : 
 			 ( $intfc eq 'plug:reset[0]')? 'reset':
-			 ( $intfc eq 'plug:enable[0]')? 'en' : 'other';
+			 ( $intfc eq 'plug:enable[0]')? 'en' : 
+			 ( $intfc eq  'socket:RxD_sim[0]')? 'rxd':
+			 'other';
+		 
+			 
 		my $key1="${key}1";
 		my $key0="${key}0";
 
@@ -2102,27 +2194,45 @@ sub gen_verilator_soc_testbench {
 			$PP{$key0}= (defined $PP{$key0})? "$PP{$key0} top->$p=0;\n" : "top->$p=0;\n";	
 			$top_port_info="$top_port_info $type  $range  top->$p \n";
 		}
-		
+		if($key eq 'rxd'){
+			my @ports=$soc_top->top_get_intfc_ports_list($intfc);
+			foreach my $p (@ports){
+				my($id,$range,$type,$intfc_name,$intfc_port)= $soc_top->top_get_port($p);
+				my @q =split  (/RxD_ready_si/,$p);
+				$rxds{$id}{p}=$q[0]  if( defined $q[1]);
+				$rxds{$id}{top}='top'  if( defined $q[1]);
+			}			
+		}
 
 	}
-	my $main_c=get_license_header("testbench.cpp");
+	
+
+ my ($rxd_info, $rxd_num, $rxd_wr_cal,$rxd_cap_cal, $include1)=rxd_testbench_verilator_gen (\%rxds,$dir);
+ my $include2="";
+ $include2 .= '#include "RxDsim.h" // Header file for sending charactor to UART from STDIN' if($rxd_num > 0);
+	
+my $main_c=get_license_header("testbench.cpp");
+
+
+
 $main_c="$main_c
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
+$include
+$include1
 #include <verilated.h>          // Defines common routines
 #include \"Vtop.h\"               // From Verilating \"$name.v\" file
-
 Vtop		 	*top;
+$include2
 /*
 $top_port_info
 */
+
+
 
 int reset,clk;
 unsigned int main_time = 0; // Current simulation time
 
 int main(int argc, char** argv) {
+	$rxd_info
 	Verilated::commandArgs(argc, argv);   // Remember args
 	top	= new Vtop;
 
@@ -2135,6 +2245,7 @@ int main(int argc, char** argv) {
 	main_time=0;
 	printf(\"Start Simulation\\n\");
 	while (!Verilated::gotFinish()) {
+		$rxd_cap_cal
 	    if ((main_time & 0x3FF)==0) fflush(stdout); // fflush \$dispaly command each 1024 clock cycle 
 		if (main_time >= 10 ) { 
 			$PP{reset0}
@@ -2144,7 +2255,7 @@ int main(int argc, char** argv) {
 		if ((main_time & 1) == 0) {
 			$PP{clk1}      // Toggle clock
 			// you can change the inputs and read the outputs here in case they are captured at posedge of clock 
-
+			$rxd_wr_cal
 
 
 		}//if
@@ -2168,7 +2279,7 @@ double sc_time_stamp () {       // Called by \$time in Verilog
 }
 ";
 	save_file("$dir/testbench.cpp",$main_c);
-
+   
 	
 
 }
@@ -2185,6 +2296,113 @@ sub eval_soc{
 	} 
 	return $soc;	
 }
+
+sub rxd_testbench_verilator_gen {
+my 	($rxds_ref,$dir)=@_;
+
+my $rxd_info='';
+my $rxd_num=0;
+my $rxd_func='';
+my $rxd_wr_cal='';
+my $rxd_cap_cal='';
+my $include='';
+
+my %rxds=%{$rxds_ref};
+	
+foreach my $rxd (sort keys %rxds){
+	my $n=$rxds{$rxd}{p};
+	my $top=$rxds{$rxd}{top};
+	$rxd_info.="\\t$rxd_num : ${n}\\n";
+	
+	$rxd_func.="
+	// we have a character to send to interface $rxd_num
+	if (sent_table[$rxd_num]!=0 &&  $top->${n}RxD_ready_sim){ 
+		$top->${n}RxD_din_sim=sent_table[$rxd_num]; 
+        $top->${n}RxD_wr_sim=1; 
+        sent_table[$rxd_num]=0;
+	}else {
+		$top->${n}RxD_wr_sim=0; 
+	}
+";
+	$rxd_num++;
+} 
+
+
+
+if($rxd_num>0){	
+$rxd_func="
+#ifndef RXD_SIM_H
+#define RXD_SIM_H
+	#define RXD_NUM  $rxd_num  // number of rxd input interfaces
+	char sent_table[RXD_NUM]={0};	
+	unsigned char active_rxd_num=0;	
+	void write_char_on_RXD( ) {			
+		$rxd_func	
+	}
+	
+	int kbhit(void) {
+	  struct termios oldt, newt;
+	  int ch;
+	  int oldf;
+	 
+	  tcgetattr(STDIN_FILENO, &oldt);
+	  newt = oldt;
+	  newt.c_lflag &= ~(ICANON | ECHO);
+	  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+	  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+	  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+	 
+	  ch = getchar();	 
+	  
+	  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+	  fcntl(STDIN_FILENO, F_SETFL, oldf);
+	 
+	  if(ch != EOF)
+	  {
+	    ungetc(ch, stdin);
+	    return 1;
+	  }	 
+	  return 0;
+	}
+	
+	void capture_char_on_RXD (){
+		char c;
+		if(kbhit()){
+			c=getchar();
+			if(c=='+'){
+				active_rxd_num++;				
+				if(active_rxd_num>=$rxd_num) active_rxd_num=0;
+				printf(\"The active input interface num is \%u\\n\",active_rxd_num);
+			}else if(c=='-'){
+				active_rxd_num--;				
+				if(active_rxd_num>=$rxd_num) active_rxd_num=($rxd_num-1);
+				printf(\"The active input interface num is \%u\\n\",active_rxd_num);
+			}else{
+				sent_table[active_rxd_num]=c;
+			}			
+  			
+		}	
+	}
+#endif	
+	";
+	
+	
+	$include .='#include <termios.h>
+#include <fcntl.h>
+';
+	$rxd_wr_cal="write_char_on_RXD( );";
+	$rxd_cap_cal="capture_char_on_RXD( );"; 
+	$rxd_info="printf(\"There are total of $rxd_num RXD (UART) interface ports in the top module:\\n${rxd_info}The default interfce is 0. You can switc to different interfaces by pressing + or - key.\\n\");"	
+}
+
+	my $rxsim_c=get_license_header("RxDsim.h");
+	$rxsim_c.="$rxd_func";
+	save_file("$dir/RxDsim.h",$rxsim_c) if($rxd_num > 0);
+
+	return ($rxd_info, $rxd_num, $rxd_wr_cal,$rxd_cap_cal, $include);
+	
+}
+
 
 
 sub gen_verilator_mpsoc_testbench {
@@ -2220,6 +2438,8 @@ sub gen_verilator_mpsoc_testbench {
 	my $tile_en="";		
 	my $top_port_info="IO type\t  port_size\t  port_name\n";	
 	my $no_connected='';
+	my %rxds;
+	
 	
 	for (my $endp=0; $endp<$ne;$endp++){	
 		
@@ -2265,9 +2485,10 @@ sub gen_verilator_mpsoc_testbench {
 				foreach my $intfc (@intfcs){
 					my $key=($intfc eq 'plug:clk[0]')? 'clk' : 
 			 				 ($intfc eq 'plug:reset[0]')? 'reset':
-			 				 ($intfc eq 'plug:enable[0]')? 'en' : 
+			 				 ($intfc eq 'plug:enable[0]')? 'en' :
+			 				 ($intfc eq 'socket:RxD_sim[0]')? 'rxd': 
 			 				 'other';
-			 			 
+			 			
 			 		my @ports=$soc_top->top_get_intfc_ports_list($intfc);
 					foreach my $p (@ports){
 						my($inst,$range,$type,$intfc_name,$intfc_port)= $soc_top->top_get_port($p);
@@ -2276,6 +2497,17 @@ sub gen_verilator_mpsoc_testbench {
 						$tile_en=$tile_en."\t\ttile${endp}->$p=enable;\n" if $key eq 'en';	;		
 						$top_port_info="$top_port_info $type  $range  tile${endp}->$p \n";
 					}#ports
+					
+					if($key eq 'rxd'){
+						my @ports=$soc_top->top_get_intfc_ports_list($intfc);
+						foreach my $p (@ports){
+							my($id,$range,$type,$intfc_name,$intfc_port)= $soc_top->top_get_port($p);
+							my @q =split  (/RxD_ready_si/,$p);
+							$rxds{$endp.$id}{p}=$q[0]  if( defined $q[1]);
+							$rxds{$endp.$id}{top}="tile$endp"  if( defined $q[1]);
+						}			
+					}
+					
 			 				
 				}#interface
 		
@@ -2291,6 +2523,11 @@ sub gen_verilator_mpsoc_testbench {
 		
 	
 	}
+	
+	my ($rxd_info, $rxd_num, $rxd_wr_cal,$rxd_cap_cal, $include1)=rxd_testbench_verilator_gen (\%rxds,$dir);
+	my $include2="";
+	$include2 .= '#include "RxDsim.h" // Header file for sending charactor to UART from STDIN' if($rxd_num > 0);
+	
 	my $main_c=get_license_header("testbench.cpp");
 	
 $main_c="$main_c
@@ -2298,6 +2535,7 @@ $main_c="$main_c
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+$include1
 #include <verilated.h>          // Defines common routines
 
 #include \"Vnoc.h\"
@@ -2309,7 +2547,7 @@ int reset,clk,enable;
 
 
 #include \"parameter.h\"
-
+$include2
 
 /*
 $top_port_info
@@ -2323,7 +2561,7 @@ void update_all_instances_inputs(void);
 
 int main(int argc, char** argv) {
 	int i,j,x,y;
-	
+	$rxd_info
 	Verilated::commandArgs(argc, argv);   // Remember args
 	Vrouter_new();             // Create instance
 	noc								= new Vnoc;
@@ -2344,6 +2582,7 @@ $tile_addr
 	main_time=0;
 	printf(\"Start Simulation\\n\");
 	while (!Verilated::gotFinish()) {
+	    $rxd_cap_cal
 	    if ((main_time & 0x3FF)==0) fflush(stdout); // fflush \$dispaly command each 1024 clock cycle 
 		if (main_time >= 10 ) { 
 			reset=0;
@@ -2353,7 +2592,7 @@ $tile_addr
 		if ((main_time % 5) == 0) {
 			clk = 1;       // Toggle clock
 			// you can change the inputs and read the outputs here in case they are captured at posedge of clock 
-		
+			$rxd_wr_cal
 		}
 		else{
 			clk = 0;       // Toggle clock			
@@ -2753,6 +2992,7 @@ sub verilator_testbench{
 		$app->do_save();
 		copy("$dir/testbench.cpp", "$verilator/processed_rtl/obj_dir/testbench.cpp"); 
 		copy("$dir/parameter.h", "$verilator/processed_rtl/obj_dir/parameter.h") if(-f "$dir/parameter.h"); 
+		copy("$dir/RxDsim.h", "$verilator/processed_rtl/obj_dir/RxDsim.h") if(-f "$dir/RxDsim.h");
 		
 		my $tops_ref=$self->object_get_attribute('verilator','libs');
 		my %tops=%{$tops_ref};

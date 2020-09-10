@@ -42,7 +42,7 @@ exit uart_stand_alone() unless caller;
 
 sub create_rsv_box {
 	my ($self,$num)=@_;
-	my ($sw,$tview) =create_text(); 
+	my ($sw,$tview) =create_txview(); 
     $sw->set_policy('never','automatic');
     $sw->set_border_width(3);
     my($width,$hight)=max_win_size();
@@ -103,7 +103,7 @@ sub ctrl_boxes{
 	$uname = 'ProNoC_XILINX_UART' if(!defined $uname);
 	if ($uname eq "ProNoC_XILINX_UART" ) {
 		push (@info,{ label=>" JTAG CHAIN ", param_name=>'JTAG_CHAIN', type=>"Combo-box", default_val=>3, content=>"1,2,3,4", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_ctrl', loc=>'vertical'}) ;
-		push (@info,{ label=>" JTAG TARGET ", param_name=>'JTAG_TARGET', type=>"Spin-button", default_val=>3, content=>"1,128,1", info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_ctrl', loc=>'vertical'}) ;
+		push (@info,{ label=>" JTAG TARGET ", param_name=>'JTAG_TARGET', type=>"Spin-button", default_val=>3, content=>"1,128,1", info=>"The FPGA device target number in the Jtag chain. Click on the front magnifier Icon to see the list of devices in your board JTAG chain.", param_parent=>'CTRL', ref_delay=> 1, new_status=>'ref_ctrl', loc=>'vertical'}) ;
 	}elsif ($uname eq "ProNoC_ALTERA_UART" ) {
 		my $list= $self->object_get_attribute('CTRL','quartus_device_list');
 		push (@info,{ label=>" Hardware Name", param_name=>'quartus_hardware', type=>"Entry", default_val=>undef, content=>undef, info=>undef, param_parent=>'CTRL', ref_delay=> 1, new_status=>undef, loc=>'vertical'}) ;
@@ -225,7 +225,7 @@ sub capture_altera_jtag_info {
 		
 	}
 	
-	$info = "There are total pf $i devices in JTAG chain:\n $info. Select the corresponding Jtag device number which the serial port is connected to\n";
+	$info = "There are total of $i devices in JTAG chain:\n $info. Select the corresponding Jtag device number which the serial port is connected to\n";
 		
 	
 	my $names = join (',',@devs);
@@ -265,8 +265,13 @@ sub show_all_xilinx_targets{
     return 0 unless run_xsct_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
     $in = "set R [jtag targets]\n puts \$R \n";
     return 0 unless run_xsct_pipe($self,\$pipe,\$in,\$out,\$err,$tview);
-	add_colored_info($tview,"targets are:\n $out .\n",'blue');
+    if (length ($out)> 10){
+    	add_colored_info($tview,"targets are:\n $out .\n",'blue');    	
+    }else {
+    	add_colored_info($tview,"No Jtag target is detected. Make sure your FPGA board is connected to the PC and it is powered on.\n",'red');
+    } 
 	close_xsct($self,\$pipe,$tview,\$in, \$out, \$err);
+	return $out;
 }
 
 
@@ -275,7 +280,7 @@ sub sender_box{
 	my ($self,$main_tview)=@_;
 	my $table= def_table(2,10,FALSE);	
 	my $scrolled_win=add_widget_to_scrolled_win ($table);
-	my ($sw,$tview) =create_text(); 
+	my ($sw,$tview) =create_txview(); 
     $sw->set_policy('never','automatic');
     $sw->set_border_width(3);
     my($width,$hight)=max_win_size();
@@ -553,6 +558,7 @@ sub run_stp_jtag_scaner{
 		my $l=length $txt;
 		if ($l){
 			$send_char = substr $txt, 0,1;
+			$send_char = ord($send_char); #convert a character to a number
 			$txt =  substr $txt, 1,$l;
 			$self->object_add_attribute("SEND","TXT_$index",$txt );
 		}
@@ -740,6 +746,7 @@ sub run_xsct_jtag_scaner{
 		my $l=length $txt;
 		if ($l){
 			$send_char = substr $txt, 0,1;
+			$send_char = ord($send_char); #convert a character to a number
 			$txt =  substr $txt, 1,$l;
 			$self->object_add_attribute("SEND","TXT_$index",$txt );
 		}
@@ -770,8 +777,14 @@ sub run_xsct_jtag_scaner{
 			$char =hex_to_ascii(substr $hex, 0, 2);	
 			append_to_textview($tviews[$i],$char) if(defined $tviews[$i]);
 		}
+		
+		
+		
 	}
 }
+
+
+
 
 ############
 #	main
@@ -783,7 +796,7 @@ sub uart_main {
 	my $self = __PACKAGE__->new(); 
 	set_gui_status($self,"ideal",0);
 	my $window = def_popwin_size (85,85,'UART Terminal','percent');
-	my ($sw,$tview) =create_text();# a textveiw for showing the info, erro messages etc
+	my ($sw,$tview) =create_txview();# a textveiw for showing the info, erro messages etc
 	my $ctrl= ctrl_boxes($self,$tview);
 	my ($rsv,$tv_ref) = receive_boxes($self);
 	my ($send,$send_tv) =	sender_box($self,$tview);

@@ -100,8 +100,22 @@ sub custom_topology_diagram {
 	}		
 	my $auto= ($state eq 'ON')? def_colored_button('ON',17): def_colored_button('OFF',4);
 	
+	
+	my $gtype=$self->object_get_attribute("tile_diagram","gtype");
+	if (!defined $gtype){
+		$gtype='comp' ;
+		$self->object_add_attribute("tile_diagram","gtype",$state);
+	}		
+	my $graph_type= ($gtype eq 'comp')? def_colored_button('comp',17): def_colored_button('simple',4);
+	
+	
+	
+	
+	
+	
 	$table->attach (Gtk2::Label->new  ("Auto Draw") ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($auto ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
+	$table->attach ($graph_type ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($plus ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($minues,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($save,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
@@ -138,6 +152,15 @@ sub custom_topology_diagram {
 			set_gui_status($self,"ref",1);		
 		});	
 	
+	$graph_type-> signal_connect("clicked" => sub{ 
+			my $state=$self->object_get_attribute("tile_diagram","gtype");
+			
+			
+			my $new = ($state eq "simple")? "comp" : "simple";
+			$self->object_add_attribute("tile_diagram","gtype",$new);	
+			set_gui_status($self,"ref",1);		
+		});	
+	
 	
 	return $table;
 }
@@ -158,7 +181,7 @@ sub gen_right_paned {
 
 
 
-sub endp_node_dot {
+sub endp_node_dot_comp {
 	my ($T,$instance)=@_;
 	
 	
@@ -175,7 +198,7 @@ sub endp_node_dot {
 ";	
 }
 
-sub router_node_dot{
+sub router_node_dot_comp{
 	my ($Pnum,$R,$instance)=@_;	
 	$Pnum=1 if(!defined $Pnum);
 	my $label =
@@ -205,8 +228,58 @@ sub router_node_dot{
 
 }
 
+sub router_node_dot_sim{
+	my ($Pnum,$R,$instance)=@_;	
+	$Pnum=1 if(!defined $Pnum);
+	my $label =	 "$instance";
+		
+	
+	return 
+	"$R\[
+	label = \"$label\"
+    shape=circle
+	color=blue
+	style=filled
+	fillcolor=blue
+];
+";
+
+}
+
+
+sub endp_node_dot_sim {
+	my ($T,$instance)=@_;
+	
+	
+	return 
+	"
+	$T\[
+	label = \"$instance\"
+    shape=circle
+    margin=0
+	color=orange
+	style=filled
+	fillcolor=orange
+];
+";	
+}
+
+
+
+
+
+
+
+
+
+
+
+
 sub generate_custom_topology_dot_file{
 	my $self=shift;
+	
+	my $gtype=$self->object_get_attribute("tile_diagram","gtype");
+	$gtype = "simple" if (!defined $gtype);
 		
 	my $dotfile=
 "digraph G {
@@ -219,7 +292,7 @@ sub generate_custom_topology_dot_file{
 	foreach my $p (@nodes){
 		my $instance= $self->object_get_attribute("$p","NAME");
 		$instance = "T$i" if(!defined $instance);
-		$dotfile=$dotfile.endp_node_dot($p,$instance);		
+		$dotfile.= ($gtype eq 'simple')? endp_node_dot_sim($p,$instance) : endp_node_dot_comp($p,$instance);		
 		$i++;
 	}
 	
@@ -232,7 +305,7 @@ sub generate_custom_topology_dot_file{
 		my $instance= $self->object_get_attribute("$p","NAME");
 		$instance = "R$i" if(!defined $instance);
 		my $pnum=$self->object_get_attribute("$p",'PNUM');
-		$dotfile=$dotfile.router_node_dot($pnum,$p,$instance);	
+		$dotfile.=($gtype eq 'simple')? router_node_dot_sim($pnum,$p,$instance): router_node_dot_comp($pnum,$p,$instance);	
 		$i++;
 	}
 		
@@ -261,9 +334,19 @@ sub generate_custom_topology_dot_file{
 	   	   		    my ($cp)= sscanf("Port[%u]","$pnode");
 	   	   		    # my $cinst=$self->object_get_attribute("$node",'NAME');
 	   	   		    my $ctype = $self->object_get_attribute("$node",'TYPE');
-	   	   		  	my $t2 = ($type eq "ENDP" )? "\"$p\"" : "\"$p\" : \"p$i\"";
-	   	   		  	my $t1 = ($ctype eq "ENDP" )? "\"$node\"" : "\"$node\" : \"p$cp\"";
-	   	   		
+	   	   		  
+	   	   		  
+	   	   		  
+	   	   		  	my ($t2, $t1);
+	   	   		  	
+	   	   		  	if ($gtype eq 'simple'){
+	   	   		  		$t2 =  "\"$p\""; 
+	   	   		  		$t1 =  "\"$node\"";
+	   	   		  	} else {
+	   	   		  		$t2 = ($type eq "ENDP" )? "\"$p\"" : "\"$p\" : \"p$i\"";
+	   	   		  	    $t1 = ($ctype eq "ENDP" )? "\"$node\"" : "\"$node\" : \"p$cp\"";
+	   	   		  		
+	   	   		  	}
 	   	   			my $t= "$t1 -> $t2 [ dir=none];\n"; 
 	   	   			$dotfile=$dotfile."$t";
 				}
@@ -2004,9 +2087,9 @@ sub build_network_maker_gui {
 	set_gui_status($self,"ideal",0);
 	$self->object_add_attribute ("process_notebook","currentpage",0);
 	my $main_table= def_table(2,10,FALSE);
-	#my ($scwin_info)= create_text();	
+	#my ($scwin_info)= create_txview();	
 	# The box which holds the info, warning, error ...  messages
-    my ($infobox,$info)= create_text();
+    my ($infobox,$info)= create_txview();
 	my $notebook = topology_maker_notebook($self,$info);
 	my $draw=custom_topology_diagram($self);
 	my $h1=gen_hpaned($notebook,.35,$draw);

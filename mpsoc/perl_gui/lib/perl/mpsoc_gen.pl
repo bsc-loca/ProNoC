@@ -1179,7 +1179,7 @@ sub generate_soc_files{
                  copy ("$f","$target_dir/src_verilog/lib");                     
          }            
     }
-    show_info($info,$warnings)             if(defined $warnings); 
+    show_colored_info($info,$warnings,'green')             if(defined $warnings); 
     
     
     
@@ -1191,7 +1191,7 @@ sub generate_soc_files{
                  copy ("$f","$target_dir/src_sim");                     
          }            
     }
-    show_info($info,$warnings)             if(defined $warnings2); 
+    show_colored_info($info,$warnings2,'green')             if(defined $warnings2); 
     
     
     #save project hdl file/folder list
@@ -1297,11 +1297,11 @@ sub generate_mpsoc{
 	$file_ref=\@n;
   	  		
 	copy_file_and_folders($file_ref,$project_dir,"$hw_dir/lib");
-	show_info($info,$warnings)     		if(defined $warnings);			
+	show_colored_info($info,$warnings,'green')     		if(defined $warnings);			
 	add_to_project_file_list($file_ref,"$hw_dir/lib/",$hw_dir);
 	
 	copy_file_and_folders($sim_ref,$project_dir,"$hw_dir/../src_sim");
-	show_info($info,$warnings2)     if(defined $warnings2);			
+	show_colored_info($info,$warnings2,'green')     if(defined $warnings2);			
 	add_to_project_file_list($sim_ref,"$hw_dir/../src_sim",$hw_dir);
     		
 	
@@ -1835,7 +1835,7 @@ sub linker_setting{
 	
 	$table-> attach  (gen_label_in_center("Tile"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
 	$table-> attach  (gen_label_in_center("Memory Addr"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
-	$table-> attach  (gen_label_in_center("ROM/RAM"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
+	$table-> attach  (gen_label_in_center("ROM/(ROM+RAM)"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col+=1;
 	
 	$table-> attach  (gen_label_in_center("ROM index addr (hex)"), $col, $col+2,  $row, $row+1,'shrink','shrink',2,2); $col+=3;
 	$table-> attach  (gen_label_in_center("RAM index addr (hex)"), $col, $col+2,  $row, $row+1,'shrink','shrink',2,2); $col+=3;
@@ -1947,9 +1947,9 @@ sub linker_setting{
 		    $ram_width->signal_connect("value_changed" => sub{
 				my $w=$ram_width->get_value();
 				$self->object_add_attribute('MEM'.$tile_num,'width',$w);
-				
 				$size->set_label (metric_conversion(1<<($w+2)). "B") ;
 				$size->show_all;
+				$enter->clicked; 
 			});	
 		    $percent->signal_connect("value_changed" => sub{
 		    	$self->object_add_attribute('MEM'.$tile_num,'percent',$percent->get_value());
@@ -1962,7 +1962,7 @@ sub linker_setting{
 			
 			$enter-> signal_connect ( 'clicked' , sub {
 				my $w=$ram_width->get_value();
-				my $s =(1<<($w+2)) ;
+				my $s =(1<<($w+2));
 				my $p = $percent->get_value();
 				
 				my $rom_start_v = 0;
@@ -2933,7 +2933,7 @@ sub mpsocgen_main{
     my $main_table = Gtk2::Table->new (25, 12, FALSE);
     
     # The box which holds the info, warning, error ...  messages
-    my ($infobox,$info)= create_text();    
+    my ($infobox,$info)= create_txview();    
         
     my $noc_conf_box=get_config ($mpsoc,$info);
     my $noc_tiles=gen_tiles($mpsoc);

@@ -1,6 +1,9 @@
 #include "spr-defs.h"
 #include "board.h" // For timer rate (IN_CLK, TICKS_PER_SEC)
 #include <or1k-support-defs.h>
+
+extern int main();
+
 /* For writing into SPR. */
 void 
 mtspr(unsigned long spr, unsigned long value)

@@ -69,7 +69,7 @@ sub build_gui {
 	$hpaned -> pack2 ($scwin_text, TRUE, TRUE);
 	
 
-	my ($scwin_info,$tview)= create_text();
+	my ($scwin_info,$tview)= create_txview();
 	
 	$vpaned-> pack1 ($hpaned, TRUE, TRUE);
 	$vpaned ->set_position ($hight*.5);

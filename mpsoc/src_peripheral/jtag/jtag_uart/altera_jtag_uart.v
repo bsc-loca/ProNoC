@@ -23,7 +23,8 @@ module altera_jtag_uart #(
     s_ack_o,
     RxD_din_sim,
     RxD_wr_sim,
-    RxD_ready_sim    
+    RxD_ready_sim 
+    
 
 );
 
@@ -56,13 +57,19 @@ module altera_jtag_uart #(
     output RxD_ready_sim;
     
 
+    `ifdef MODEL_TECH 
+    	`define RUN_SIM
+    `endif
+    `ifdef VERILATOR
+    	`define RUN_SIM
+    `endif
 
+    
 
+`ifdef RUN_SIM
 
-`ifdef VERILATOR
-
-	// code for simulation with verilator
-  
+	// code for simulation with verilator/mpdelsim
+    // synthesis translate_off
 	altera_uart_simulator #(
 		.BUFFER_SIZE(SIM_BUFFER_SIZE),  
     		.WAIT_COUNT(SIM_WAIT_COUNT)    
@@ -86,34 +93,9 @@ module altera_jtag_uart #(
 
 
 	);
+	// synthesis translate_on
 `else 
- `ifdef MODEL_TECH
-	// code for simulation with modelsim
-  
-	altera_simulator_UART #(
-		.BUFFER_SIZE(SIM_BUFFER_SIZE),  
-    		.WAIT_COUNT(SIM_WAIT_COUNT)    
-	)
-	Suart
-	(
-		.reset(reset),
-		.clk(clk),
-		.s_dat_i(s_dat_i),
-		.s_sel_i(s_sel_i),
-		.s_addr_i(s_addr_i),  
-		.s_cti_i(s_cti_i),
-		.s_stb_i(s_stb_i),
-		.s_cyc_i(s_cyc_i),
-		.s_we_i(s_we_i),    
-		.s_dat_o(s_dat_o),
-		.s_ack_o(s_ack_o),
-		.RxD_din(RxD_din_sim),
-		.RxD_wr(RxD_wr_sim),
-		.RxD_ready(RxD_ready_sim)
-
-
-	);
- `else 
+ `
 // code for synthesis
 
 	altera_jtag_uart_wb_hw Juart(
@@ -135,7 +117,7 @@ module altera_jtag_uart #(
 
 
 `endif
-`endif
+
 
 endmodule
 

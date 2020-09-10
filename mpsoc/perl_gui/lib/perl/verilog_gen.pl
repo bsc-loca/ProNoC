@@ -274,7 +274,8 @@ sub get_io_nc_info  {
 
 
 sub gen_module_inst {
-	my ($id,$soc,$top_ip,$intfc,$wires)=@_;
+	my ($id,$soc,$top_ip,$intfc,$wires, $sim_only)=@_;
+	$sim_only = 0 if (!defined $sim_only);
 	my ($io_sim_v,$top_io_short,$param_as_in_v,$param_pass_v,$system_v);
 	my $top_io_pass;
 	my $src_io_short;
@@ -353,7 +354,7 @@ sub gen_module_inst {
 				 my $port_def=($r==1 )? 	"\t$type\t [ $new_range    ] $assigned_port;\n": "\t$type\t\t\t$assigned_port;\n";	
 				 $io_full_v=$io_full_v.$port_def;
 				 
-				 if ($i_name eq 'RxD_sim' ){
+				 if ($i_name eq 'RxD_sim' && $sim_only == 0){
 				 	#do notthing 
 				 }
 				 elsif($i_name eq 'enable'){
@@ -1215,7 +1216,7 @@ sub soc_generate_verilatore{
 	
 	foreach my $id (@instances){
 		my ($param_v, $local_param_v, $wire_def_v, $inst_v, $plugs_assign_v, $sockets_assign_v,$io_full_v,$io_top_full_v,$io_sim_v,
-		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass,$src_io_short, $src_io_full)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires);
+		$top_io_short,$param_as_in_v,$param_pass_v,$system_v,$assigned_ports,$top_io_pass,$src_io_short, $src_io_full)=gen_module_inst($id,$soc,$top_ip,$intfc,$wires,1);
 		my $inst   	= $soc->soc_get_instance_name($id);
 		add_text_to_string(\$body_v,"/*******************\n*\n*\t$inst\n*\n*\n*********************/\n");
 		add_text_to_string(\$param_as_in_v_all,",\n$param_as_in_v")   	if(defined ($param_as_in_v)); 

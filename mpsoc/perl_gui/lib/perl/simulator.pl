@@ -943,7 +943,7 @@ sub simulator_main{
 	
 
 	my $main_table = Gtk2::Table->new (25, 12, FALSE);
-	my ($infobox,$info)= create_text();	
+	my ($infobox,$info)= create_txview();	
 	
 	
 

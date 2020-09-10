@@ -380,7 +380,7 @@ sub gen_emulation_column {
 			 	$emulate->object_add_attribute('noc_param','TOPOLOGY',$topology);
 			 	my $pattern=get_synthetic_traffic_pattern($emulate, $sample);
 			 	my $window = def_popwin_size(40,40,"Traffic pattern",'percent');
-			 	my ($outbox,$tview)= create_text();
+			 	my ($outbox,$tview)= create_txview();
 			 	show_info($tview,"$pattern");
 			 	$window->add ($outbox);
 				$window->show_all();	 
@@ -1185,7 +1185,7 @@ sub emulator_main{
 	my $left_table = Gtk2::Table->new (25, 6, FALSE);
 	my $right_table = Gtk2::Table->new (25, 6, FALSE);
 	my $main_table = Gtk2::Table->new (25, 12, FALSE);
-	my ($infobox,$info)= create_text();
+	my ($infobox,$info)= create_txview();
 	
 		
 	my @pages =(

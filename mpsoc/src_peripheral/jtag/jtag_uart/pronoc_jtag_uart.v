@@ -49,7 +49,13 @@ module  pronoc_jtag_uart #(
   
   //jtag 
   wb_to_jtag,
-  jtag_to_wb
+  jtag_to_wb,
+  
+  //rx interface for simulation
+  RxD_din_sim,
+  RxD_wr_sim,
+  RxD_ready_sim 
+  
 );
     
     //wb
@@ -68,6 +74,11 @@ module  pronoc_jtag_uart #(
     //jtag
     output [WB2Jw-1  : 0] wb_to_jtag;
     input  [J2WBw-1 : 0] jtag_to_wb; 
+    
+    input [7:0 ] RxD_din_sim;
+    input RxD_wr_sim;
+    output RxD_ready_sim;
+    
 
 `ifdef MODEL_TECH 
     `define RUN_SIM
@@ -96,9 +107,9 @@ module  pronoc_jtag_uart #(
         .s_we_i(wb_we_i),    
         .s_dat_o(wb_dat_o),
         .s_ack_o(wb_ack_o),
-        .RxD_din(8'd0),
-        .RxD_wr(8'd0),
-        .RxD_ready( )
+        .RxD_din(RxD_din_sim),
+        .RxD_wr(RxD_wr_sim),
+        .RxD_ready(RxD_ready_sim)
     );
 
 

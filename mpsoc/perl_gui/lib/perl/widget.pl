@@ -195,7 +195,15 @@ sub gen_combo_entry{
 	return $combo_box_entry;
 }
 
-
+sub update_combo_entry_content {
+	my ($self,$content,$pos)=@_;
+	my @combo_list=split(/\s*,\s*/,$content) if(defined $content);
+	foreach my $p (@combo_list){
+		$self->append_text($p);
+	}
+	$pos=0 if(! defined $pos ); 
+	$self->set_active($pos);	
+}
 
 ###########
 # checkbutton
@@ -788,7 +796,7 @@ sub gen_hpaned {
 # text_view 
 ############
 
-sub create_text {
+sub create_txview {
   my $scrolled_window = Gtk2::ScrolledWindow->new;
   $scrolled_window->set_policy ('automatic', 'automatic');
   $scrolled_window->set_shadow_type ('in');
@@ -800,7 +808,16 @@ sub create_text {
   $tview->set_pixels_above_lines (2);
   $tview->set_pixels_below_lines (2);
   # $scrolled_window->set_placement('bottom_left' );
-  add_colors_to_textview($tview);	
+  add_colors_to_textview($tview);
+  my $buffer =  $tview->get_buffer;
+  $buffer->create_mark( 'end', $buffer->get_end_iter, FALSE );
+  $buffer->signal_connect(insert_text => sub {
+       $tview->scroll_to_mark( $buffer->get_mark('end'), 0.0, TRUE, 0, 0.5 );
+    }
+   );
+  
+  
+  	
   return ($scrolled_window,$tview);
 }
 

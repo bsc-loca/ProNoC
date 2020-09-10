@@ -7,33 +7,25 @@ require "mpsoc_gen.pl";
 use FindBin;
 use lib $FindBin::Bin;
 use Glib qw(TRUE FALSE);
-use HexSpin;
-use mpsoc;
 
 
-   use Gtk2 qw(-init);
+my $st='
+# set parts [get_parts [get_property PART_NAME [current_board_part]]]
+# puts "*RESULT:$parts"
+*RESULT:xc7z020clg400-1
+# exit
+INFO: [Common 17-206] Exiting Vivado at Mon Aug 24 14:47:43 2020...
+"';
 
- 
+    my @q =split  (/\n\*RESULT:/,$st);
+	my @d = split (/"\n"/,$q[1]);
+	my $r= $d[0];
 
+    $r=capture_string_between ('\n\*RESULT:',$st,"\n");
 
-my ($infobox,$info)= create_text();    
-
- my $self= mpsoc->mpsoc_new();
-$self->object_add_attribute('mpsoc_name','tmp');
-$self->object_add_attribute('noc_param','TOPOLOGY','MESH');
-$self->object_add_attribute('noc_param','T1',2);
-$self->object_add_attribute('noc_param','T2',2);
-$self->object_add_attribute('noc_param','T3',1);
-$self->object_add_attribute('noc_param','V',1);
-$self->object_add_attribute('noc_param','Fpay',32);
-
-linker_setting($self,$info);
+print "r=$r **";
 
 
-
-
-Gtk2->main;
-exit ();
 
 
 

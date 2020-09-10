@@ -776,7 +776,7 @@ sub get_Description{
 	my $description = $ipgen->ipgen_get("description");	
 	my $table = Gtk2::Table->new (15, 15, FALSE);
 	my $window =  def_popwin_size(40,40, "Add description",'percent');
-	my ($scrwin,$text_view)=create_text();
+	my ($scrwin,$text_view)=create_txview();
 	#my $buffer = $textbox->get_buffer();
 	my $ok=def_image_button("icons/select.png",' Ok ');
 	$table->attach_defaults(gen_label_help("User can open the PDF file when opening IP parameter setting","IP Documentation file in PDF"),0,7,0,1);
@@ -916,7 +916,7 @@ sub get_param_info{
 	my ($ipgen,$saved_info)=@_;
 	my $table = Gtk2::Table->new (15, 15, FALSE);
 	my $window =  def_popwin_size(50,50,"Add description",'percent');
-	my ($scrwin,$text_view)=create_text();
+	my ($scrwin,$text_view)=create_txview();
 	my $ok=def_image_button("icons/select.png",' Ok ');
 	
 	$table->attach_defaults($scrwin,0,15,0,14);
@@ -1859,7 +1859,7 @@ sub get_file_content{
 	#my $hdr = $ipgen->ipgen_get_hdr();
 	my  $hdr = $ipgen-> ipgen_get($page_info{filed_name});	
 	my $table = Gtk2::Table->new (14, 15, FALSE);
-	my ($scrwin,$text_view)=create_text();
+	my ($scrwin,$text_view)=create_txview();
 
 	my $help=gen_label_help($page_info{help}); 
 	$table->attach ($help,0,8,0,1,'expand','shrink',2,2);
@@ -2005,7 +2005,7 @@ sub ipgen_main{
 
 	
 	# The box which holds the info, warning, error ...  mesages
-	my ($infobox,$info)= create_text();	
+	my ($infobox,$info)= create_txview();	
 	
 	
 	my $refresh_dev_win = Gtk2::Button->new_from_stock('ref');

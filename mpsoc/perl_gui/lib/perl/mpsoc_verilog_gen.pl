@@ -469,8 +469,8 @@ sub gen_noc_v{
 	
 	my $noc_clk   =  $mpsoc->object_get_attribute('SOURCE_SET_CONNECT',"NoC_clk");
 	my $noc_reset =  $mpsoc->object_get_attribute('SOURCE_SET_CONNECT',"NoC_reset");
-	$noc_clk   = 'clk'   if(!defined $noc_clk  );
-	$noc_reset = 'reset' if(!defined $noc_reset);
+	$noc_clk   = 'clk0'   if(!defined $noc_clk  );
+	$noc_reset = 'reset0' if(!defined $noc_reset);
 	
 	
 	$noc_v=$noc_v."
@@ -707,7 +707,7 @@ sub   gen_soc_v{
 				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
 				$soc_v=$soc_v.',' if ($i);	
 				my $src =  $mpsoc->object_get_attribute('SOURCE_SET_CONNECT',"T${tile_num}_$p");				
-				$src = 'clk' if(!defined $src);
+				$src = 'clk0' if(!defined $src);
 				$soc_v=$soc_v."\n\t\t.$p($src)";					
 			    $i=1;	
 				
@@ -720,7 +720,7 @@ sub   gen_soc_v{
 				my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);
 				$soc_v=$soc_v.',' if ($i);	
 				my $src =  $mpsoc->object_get_attribute('SOURCE_SET_CONNECT',"T${tile_num}_$p");
-				$src = 'reset' if(!defined $src);
+				$src = 'reset0' if(!defined $src);
 				$soc_v=$soc_v."\n\t\t.$p(${src} )";#| jtag_system_reset)";				
 			    $i=1;		
 				
@@ -993,104 +993,7 @@ sub log2{
 	return  $log;  
 }
 
-
-
-sub gen_emulate_top_v{
-		my $emulate=shift;	
-		my ($localparam, $pass_param)=gen_noc_param_v( $emulate);
-		my $global_localparam=get_golal_param_v();	
-		my $top_v="
-		
-module  emulator_top (
-	output [0:0]LEDR,
-	output [0:0]LEDG,
-	input  [0:0]KEY,
-	input  CLOCK_50
-); 
-		
-	$global_localparam
-			
-	$localparam
-
-
-	wire reset_in,jtag_reset,reset,reset_sync;
-
-	assign	reset_in	=	~KEY[0];
-	assign  LEDG[0]		=	reset;
-	assign  reset		=	(jtag_reset | reset_in);
-	wire done;
-	reg[31:0]time_cnt;
-
-	// a reset source which can be controled using jtag
-	jtag_source_probe #(
-		.VJTAG_INDEX(127),
-	 	.Dw(1)	//source/probe width in bits
- 	)the_reset(
-		.probe(done),
-		.source(jtag_reset)
-	);
-
-	altera_reset_synchronizer rst_sync
-	(
-		.reset_in(reset), 
-		.clk(CLOCK_50),
-		.reset_out(reset_sync)
-	);
 	
-	
-	
-	noc_emulator #(
-	 	$pass_param
-    
-		    // simulation
-		   // parameter MAX_PCK_NUM=2560000,
-		   // parameter MAX_SIM_CLKs=1000000,
-		  //  parameter MAX_PCK_SIZ=10,
-		 //   parameter TIMSTMP_FIFO_NUM=16
-	)
-	emulate_top
-	(
-		.reset(reset_sync),
-		.clk(CLOCK_50),
-		.done(done)
-	);
-	
-	
-	 jtag_source_probe #(
-		.VJTAG_INDEX(126),
-	 	.Dw(32)	//source/probe width in bits
-		
-    
-    	) 
-	src_pb
-    	(
-		.probe(time_cnt),
-		.source()
-     	);
-	
-	
-	always @(posedge CLOCK_50 or posedge reset)begin
-		if(reset) begin
-			time_cnt<=0;
-		end else begin
-			 if(!done) time_cnt<=time_cnt+1;			
-		end	
-	end
-	
-
- assign LEDR[0]=done;
- 
-
-endmodule
-			
-		
-		";
-		return $top_v;
-		
-	
-	   
-	
-}	
 
 
 1

@@ -170,7 +170,16 @@ localparam
             MAX_P_CUSTOM; 
     /* verilator lint_on WIDTH */         
  
- 
+ /*
+    localparam 
+    	NON_HDR_Fw = 2+V+Fpay, //non header flit width;        
+    	HCw        = (C>1)? log2(C) : 0,
+    	HWw		   = (SWA_ARBITER_TYPE== "WRRA")? WEIGHTw : 0,
+    	HBEw       = (BYTE_EN==1)? BEw : 0,
+    	HDR_Fw     = (2 * EAw) + DSTPw + HCw + HWw + HBEw;
+   */     
+      
+            
    
  `endif
 

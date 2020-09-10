@@ -879,7 +879,7 @@ sub source_probe_main {
 	
 	set_gui_status($self,"ideal",0);
 	my $window = def_popwin_size (85,85,'Run time JTAG debug','percent');
-	my ($sw,$tview) =create_text();# a textveiw for showing the info, erro messages etc
+	my ($sw,$tview) =create_txview();# a textveiw for showing the info, erro messages etc
 	my $ctrl = source_probe_ctrl($self,$tview);
 	my $sp= soure_probe_widgets ($self,$tview);
 	my $bin_f = read_write_bin_file($self,$tview);

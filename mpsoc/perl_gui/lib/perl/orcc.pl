@@ -68,7 +68,7 @@ sub select_orcc_generated_srcs {
 	
 	
 	$table->attach($add,$col,$col+1,$row,$row+1,'shrink','shrink',2,2);$col++;
-    my ($infobox,$info)= create_text();   
+    my ($infobox,$info)= create_txview();   
     
     
     

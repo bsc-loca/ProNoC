@@ -835,12 +835,12 @@ sub generate_soc{
 			$file_ref=\@n;
 					
 			copy_file_and_folders($file_ref,$project_dir,$hw_lib);
-			show_info($info,$warnings)     		if(defined $warnings);			
+			show_colored_info($info,$warnings,'green')     		if(defined $warnings);			
 			add_to_project_file_list($file_ref,$hw_lib,$hw_path);
 			
 			
 			copy_file_and_folders($sim_ref,$project_dir,$hw_sim  );
-			show_info($info,$warnings2)     if(defined $warnings2);			
+			show_colored_info($info,$warnings2,'green')     if(defined $warnings2);			
 			add_to_project_file_list($sim_ref,$hw_sim,$hw_path);
 			    
 			  
@@ -856,11 +856,11 @@ sub generate_soc{
   			
   				
 			copy_file_and_folders($file_ref,$project_dir,$hw_lib);
-			show_info($info,$warnings)     		if(defined $warnings);			
+			show_colored_info($info,$warnings,'green')     		if(defined $warnings);			
 			add_to_project_file_list($file_ref,$hw_lib,$hw_path);
 			
 			copy_file_and_folders($sim_ref,$project_dir,$hw_sim  );
-			show_info($info,$warnings2)     if(defined $warnings2);			
+			show_colored_info($info,$warnings2,'green')     if(defined $warnings2);			
 			add_to_project_file_list($sim_ref,$hw_sim,$hw_path);
     		
 			#copy jtag control files 
@@ -885,7 +885,7 @@ sub generate_soc{
 		# Copy Software files
 		my ($file_ref,$warnings)= get_all_files_list($soc,"sw_files");
 		copy_file_and_folders($file_ref,$project_dir,$sw_path);
-		
+		show_colored_info($info,$warnings,'green')     		if(defined $warnings);	
 		
 		my @new_file_ref;
 		foreach my $f(@{$file_ref}){
@@ -1778,7 +1778,7 @@ sub socgen_main{
 	my $main_table = Gtk2::Table->new (20, 12, FALSE);
 	
 	# The box which holds the info, warning, error ...  messages
-	my ($infobox,$info)= create_text();	
+	my ($infobox,$info)= create_txview();	
 		
 	
 	# A tree view for holding a library

@@ -98,6 +98,24 @@ int jtag_scanint(int *num);
                                                  'intfc_port' => 'jwb_i',
                                                  'type' => 'input'
                                                },
+'RxD_wr_sim' => {
+                                                 'intfc_port' => 'RxD_wr_sim',
+                                                 'type' => 'input',
+                                                 'range' => '',
+                                                 'intfc_name' => 'socket:RxD_sim[0]'
+                                               },
+ 'RxD_din_sim' => {
+                                                  'intfc_port' => 'RxD_din_sim',
+                                                  'type' => 'input',
+                                                  'range' => '7:0 ',
+                                                  'intfc_name' => 'socket:RxD_sim[0]'
+                                                },
+ 'RxD_ready_sim' => {
+                                                    'type' => 'output',
+                                                    'intfc_port' => 'RxD_ready_sim',
+                                                    'intfc_name' => 'socket:RxD_sim[0]',
+                                                    'range' => ''
+                                                  },
                                'wb_dat_i' => {
                                                'intfc_port' => 'dat_i',
                                                'type' => 'input',
@@ -115,6 +133,7 @@ int jtag_scanint(int *num);
                                                         'sel_i'
                                                       ]
                               },
+ 
                   'category' => 'Communication',
                   'plugs' => {
                                'wb_slave' => {
@@ -288,7 +307,10 @@ For XILINX FPGAs define it as "XILINX_JTAG_WB". In this case, the UART uses BSCA
                                      'wb_we_i',
                                      'wb_dat_i',
                                      'wb_to_jtag',
-                                     'jtag_to_wb'
+                                     'jtag_to_wb',
+									 'RxD_din_sim',
+                                     'RxD_wr_sim',
+                                     'RxD_ready_sim'
                                    ],
                   'version' => 11,
                   'description' => 'A jtag uart module. Controled using Altera Vjtag or Xilinx BSCANE2.',
@@ -317,7 +339,16 @@ For XILINX FPGAs define it as "XILINX_JTAG_WB". In this case, the UART uses BSCA
                                   '/mpsoc/src_processor/src_lib/simple-printf'
                                 ],
                   'sockets' => {
-                                 'jtag_to_wb' => {
+ 'RxD_sim' => {
+                                                'connection_num' => 'single connection',
+                                                'value' => 1,
+                                                'type' => 'num',
+                                                '0' => {
+                                                         'name' => 'RxD_sim'
+                                                       }
+                                              },                                 
+
+'jtag_to_wb' => {
                                                    'value' => 1,
                                                    'type' => 'num',
                                                    '0' => {

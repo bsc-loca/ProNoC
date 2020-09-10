@@ -23,7 +23,7 @@
 ** 	License along with ProNoC. If not, see <http:**www.gnu.org/licenses/>.
 **
 **
-**	Description: multi-channel DMA-based network interace for 
+**	Description: multi-channel DMA-based network interface for 
 **	handling packetizing/depacketizing data to/form NoC. 
 **	Can support CRC32 
 **	
@@ -40,7 +40,7 @@ module  ni_master #(
     parameter MAX_BURST_SIZE =256, // in words
     parameter CRC_EN= "NO",// "YES","NO" if CRC is enable then the CRC32 of all packet data is calculated and sent via tail flit. 
     parameter HDATA_PRECAPw=0,  
-    // The headr Data pre capture width. It Will be enabled when it is larger than zero. The header data can optionally carry a short width Data. This data can be pre-captured (completely/partially) 
+    // The header Data pre capture width. It Will be enabled when it is larger than zero. The header data can optionally carry a short width Data. This data can be pre-captured (completely/partially) 
     // by the NI before saving the packet in a memory buffer. This can give some hints to the software regarding the incoming 
     // packet such as its type, or source port so the software can store the packet in its appropriate buffer.
     parameter DEBUG_EN = 1, 
@@ -111,7 +111,7 @@ module  ni_master #(
     m_receive_we_o,
     m_receive_ack_i,
     
-    //intruupt interface
+    //interrupt interface
     irq    
 
 );
@@ -181,31 +181,31 @@ module  ni_master #(
         BURST_SIZE_w= log2(MAX_BURST_SIZE+1),
         STATUS1w=  2 * CHw + 4;
     
-/*   wishbone slave adderess :
+/*   Wishbone bus slave address :
  
- VC specefic registers       
+ VC specific registers       
        address bits       
  [4+Vw:4]      [3:0]                     
-                1  :   CTRL_FLAGS    :  {invalid_send_req_err,burst_size_err_isr,send_data_size_err_isr,crc_miss_match_isr,rcive_buff_ovrflw_err_isr,got_packet_isr, packet_is_saved_isr, packet_is_sent_isr,got_any_errorint_en,_got_packet_int_en, packet_is_saved_int_en, packet_is_sent_int_en,receive_is_busy, send_is_busy}; 
+                1  :   CTRL_FLAGS    :  {invalid_send_req_err,burst_size_err_isr,send_data_size_err_isr,crc_miss_match_isr,rcive_buff_ovrflw_err_isr,got_packet_isr, packet_is_saved_isr, packet_is_sent_isr,got_any_errorint_en,got_packet_int_en, packet_is_saved_int_en, packet_is_sent_int_en,receive_is_busy, send_is_busy}; 
         
                 2  :   SEND_DEST_WB_ADDR        // The destination router address
-                3  :   SEND_POINTER_WB_ADDR,    // The address of data to be sent   in byte 
- Virtual        4  :   SEND_DATA_SIZE_WB_ADDR,  // The size of data to be sent in byte  
- channel        5  :   SEND_HDR_DATA_WB_ADDR    //  The heder data address
+                3  :   SEND_POINTER_WB_ADDR,    // The address of data to be sent in byte 
+ Virtual        4  :   SEND_DATA_SIZE,          // The size of data to be sent in byte  
+ channel        5  :   SEND_HDR_DATA            // The short width data that can be sent by header flit  
  number        
                 8  :   RECEIVE_SRC_WB_ADDR       // The source router (the router which is sent this packet).
-                9  :   RECEIVE_POINTER_WB_ADDR   // The address pointer of reciever memory in byte
-                10 :   RECEIVE_DATA_SIZE_WB_ADDR // The size of recieved data in byte
-                11 :   RECEIVE_MAX_BUFF_SIZ      // The reciver allocated buffer size in words. If the packet size is bigger than the buffer size the rest of ot will be discarred
-                12 :   RECEIVE_START_INDEX_WB_ADDR  // The recived data is wrriten on RECEIVE_POINTER_WB_ADDR + RECEIVE_START_INDEX_WB_ADDR. If the write address reach to the end of buffer pointer, it starts at the RECEIVE_POINTER_WB_ADDR.   
-                13 :   RECEIVE_CTRL_WB_ADDR      // The NI reciever control register 
-                14 :   RECEIVE_PRECAP_DATA_ADDR  // The port address to the header filit data which can be precaptured befor buffering the actual data. 
+                9  :   RECEIVE_POINTER_WB_ADDR   // The address pointer of receiver memory in byte
+                10 :   RECEIVE_DATA_SIZE_WB_ADDR // The size of received data in byte
+                11 :   RECEIVE_MAX_BUFF_SIZ      // The receiver allocated buffer size in words. If the packet size is bigger than the buffer size the rest of it will be discarded
+                12 :   RECEIVE_START_INDEX_WB_ADDR  // The received data is written on RECEIVE_POINTER_WB_ADDR + RECEIVE_START_INDEX_WB_ADDR. If the write address reach to the end of buffer pointer, it starts at the RECEIVE_POINTER_WB_ADDR.   
+                13 :   RECEIVE_CTRL_WB_ADDR      // The NI receiver control register 
+                14 :   RECEIVE_PRECAP_DATA_ADDR  // The port address to the header flit data which can be pre-captured before buffering the actual data. 
  
  Shared registers for all VCs
     address bits       
       [5:0]   
-       0:    STATUS1_WB_ADDR     // status1:  {send_vc_enable_binary, receive_vc_enable_binary, receive_vc_is_busy, send_vc_is_busy};  
-       16:   BURST_SIZE_WB_ADDR  // The busrt size in words        
+       0:    STATUS_WB_ADDR     // status1:  {send_vc_enable_binary, receive_vc_enable_binary, any_err_isr_en,any_got_packet_isr_en,any_packet_is_saved_isr_en,any_packet_is_sent_isr_en}  
+       16:   BURST_SIZE_WB_ADDR  // The burst size in words        
        32: reserved 
       
 */
@@ -230,7 +230,7 @@ module  ni_master #(
         GENERAL_REGS_WB_ADDR=0,
         CTRL_FLAGS_WB_ADDR=1,
         RECEIVE_SRC_WB_ADDR =8,         // The source router (the router which is sent this packet).
-        RECEIVE_DATA_SIZE_WB_ADDR = 10,  // The size of recieved data in byte  
+        RECEIVE_DATA_SIZE_WB_ADDR = 10,  // The size of received data in byte  
         RECEIVE_PRECAP_DATA_ADDR=14;
   
     
