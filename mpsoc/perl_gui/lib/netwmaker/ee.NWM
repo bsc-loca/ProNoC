@@ -1,0 +1,729 @@
+#######################################################################
+##	File: ee.NWM
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
+################################################################################
+
+$nwmaker = bless( {
+                    'P1' => {
+                              'active' => '# Links in all paths'
+                            },
+                    'ROUTER2_8' => {
+                                     'PNUM' => 2,
+                                     'RNUM' => 8,
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_8,Port[0]'
+                                                   },
+                                     'NAME' => 'R8',
+                                     'TYPE' => 'ROUTER'
+                                   },
+                    'Route' => {},
+                    'ROUTER2_1' => {
+                                     'TYPE' => 'ROUTER',
+                                     'NAME' => 'R1',
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_1,Port[0]'
+                                                   },
+                                     'RNUM' => 1,
+                                     'PNUM' => 2
+                                   },
+                    'P1# Links in all paths_param' => {
+                                                        'legend_placement' => 'BL',
+                                                        'legend_font' => 'MediumBold',
+                                                        'LINEw' => 3,
+                                                        'Y_Title' => 'The total number that a link is used in the routing',
+                                                        'Y_MIN' => 0,
+                                                        'label_font' => 'MediumBold',
+                                                        'X_MIN' => 0,
+                                                        'X_Title' => 'Connection Link',
+                                                        'x_axis_font' => 'MediumBold',
+                                                        'X_MAX' => 100
+                                                      },
+                    'tile_diagram' => {
+                                        'auto_draw' => 'ON',
+                                        'gtype' => 'ON'
+                                      },
+                    'id' => 1,
+                    'chart_notebook' => {
+                                          'currentpage' => 0
+                                        },
+                    'ROUTER7' => {
+                                   'NUM' => 0
+                                 },
+                    'ROUTER2_16' => {
+                                      'PNUM' => 2,
+                                      'NAME' => 'R16',
+                                      'PCONNECT' => {},
+                                      'RNUM' => 16,
+                                      'TYPE' => 'ROUTER'
+                                    },
+                    'ROUTER2_2' => {
+                                     'TYPE' => 'ROUTER',
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_2,Port[0]'
+                                                   },
+                                     'RNUM' => 2,
+                                     'NAME' => 'R2',
+                                     'PNUM' => 2
+                                   },
+                    'ROUTER2_15' => {
+                                      'PNUM' => 2,
+                                      'TYPE' => 'ROUTER',
+                                      'NAME' => 'R15',
+                                      'RNUM' => 15,
+                                      'PCONNECT' => {}
+                                    },
+                    'ROUTER2_10' => {
+                                      'PNUM' => 2,
+                                      'TYPE' => 'ROUTER',
+                                      'PCONNECT' => {},
+                                      'RNUM' => 10,
+                                      'NAME' => 'R10'
+                                    },
+                    'ROUTER2_4' => {
+                                     'PNUM' => 2,
+                                     'TYPE' => 'ROUTER',
+                                     'RNUM' => 4,
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_4,Port[0]'
+                                                   },
+                                     'NAME' => 'R4'
+                                   },
+                    'ENDP_18' => {
+                                   'TYPE' => 'ENDP',
+                                   'PCONNECT' => {},
+                                   'NAME' => 'T18',
+                                   'PNUM' => 1
+                                 },
+                    'graph_save' => {
+                                      'save_all_result' => 0
+                                    },
+                    'active_setting' => undef,
+                    'ENDP_9' => {
+                                  'TYPE' => 'ENDP',
+                                  'NAME' => 'T9',
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_9,Port[0]'
+                                                },
+                                  'PNUM' => 1
+                                },
+                    'gui_status' => {
+                                      'timeout' => 0,
+                                      'status' => 'ideal'
+                                    },
+                    'ENDP_3' => {
+                                  'TYPE' => 'ENDP',
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_3,Port[0]'
+                                                },
+                                  'NAME' => 'T3',
+                                  'PNUM' => 1
+                                },
+                    'ROUTER2_18' => {
+                                      'TYPE' => 'ROUTER',
+                                      'NAME' => 'R18',
+                                      'RNUM' => 18,
+                                      'PCONNECT' => {},
+                                      'PNUM' => 2
+                                    },
+                    'P1# Links in all paths' => {
+                                                  'dimension' => '3D',
+                                                  'type' => '3D_bar'
+                                                },
+                    'ROUTER3' => {
+                                   'NUM' => 0
+                                 },
+                    'ROUTER2_13' => {
+                                      'PNUM' => 2,
+                                      'TYPE' => 'ROUTER',
+                                      'RNUM' => 13,
+                                      'PCONNECT' => {},
+                                      'NAME' => 'R13'
+                                    },
+                    'ENDP_2' => {
+                                  'PNUM' => 1,
+                                  'TYPE' => 'ENDP',
+                                  'NAME' => 'T2',
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_2,Port[0]'
+                                                }
+                                },
+                    'ENDP_11' => {
+                                   'TYPE' => 'ENDP',
+                                   'NAME' => 'T11',
+                                   'PCONNECT' => {},
+                                   'PNUM' => 1
+                                 },
+                    'ROUTER8' => {
+                                   'NUM' => 0
+                                 },
+                    'ROUTER2_7' => {
+                                     'PNUM' => 2,
+                                     'NAME' => 'R7',
+                                     'RNUM' => 7,
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_7,Port[0]'
+                                                   },
+                                     'TYPE' => 'ROUTER'
+                                   },
+                    'ROUTER2_0' => {
+                                     'PNUM' => 2,
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_0,Port[0]'
+                                                   },
+                                     'RNUM' => 0,
+                                     'NAME' => 'R0',
+                                     'TYPE' => 'ROUTER'
+                                   },
+                    'parameters_order' => {
+                                            'ENDP_9' => [
+                                                          'NAME'
+                                                        ],
+                                            'ENDP_6' => [
+                                                          'NAME'
+                                                        ],
+                                            'ENDP_17' => [
+                                                           'NAME'
+                                                         ],
+                                            'ROUTER2_17' => [
+                                                              'NAME'
+                                                            ],
+                                            'ENDP_18' => [
+                                                           'NAME'
+                                                         ],
+                                            'ROUTER2_15' => [
+                                                              'NAME'
+                                                            ],
+                                            'ENDP_19' => [
+                                                           'NAME'
+                                                         ],
+                                            'ROUTER2_10' => [
+                                                              'NAME'
+                                                            ],
+                                            'ROUTER2_4' => [
+                                                             'NAME'
+                                                           ],
+                                            'ENDP_1' => [
+                                                          'NAME'
+                                                        ],
+                                            'ROUTER12' => [
+                                                            'NUM'
+                                                          ],
+                                            'ROUTER7' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER2_16' => [
+                                                              'NAME'
+                                                            ],
+                                            'ROUTER2_2' => [
+                                                             'NAME'
+                                                           ],
+                                            'ROUTER9' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER2_8' => [
+                                                             'NAME'
+                                                           ],
+                                            'ROUTER2_5' => [
+                                                             'NAME'
+                                                           ],
+                                            'ENDP_16' => [
+                                                           'NAME'
+                                                         ],
+                                            'ROUTER10' => [
+                                                            'NUM'
+                                                          ],
+                                            'ROUTER2_1' => [
+                                                             'NAME'
+                                                           ],
+                                            'ENDP_15' => [
+                                                           'NAME'
+                                                         ],
+                                            'ENDP_8' => [
+                                                          'NAME'
+                                                        ],
+                                            'ENDP' => [
+                                                        'NUM'
+                                                      ],
+                                            'ROUTER4' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER2_14' => [
+                                                              'NAME'
+                                                            ],
+                                            'ENDP_4' => [
+                                                          'NAME'
+                                                        ],
+                                            'samples' => [
+                                                           'sample0'
+                                                         ],
+                                            'ROUTER6' => [
+                                                           'NUM'
+                                                         ],
+                                            'ENDP_7' => [
+                                                          'NAME'
+                                                        ],
+                                            'ROUTER2_19' => [
+                                                              'NAME'
+                                                            ],
+                                            'ROUTER5' => [
+                                                           'NUM'
+                                                         ],
+                                            'ENDP_0' => [
+                                                          'NAME'
+                                                        ],
+                                            'ENDP_14' => [
+                                                           'NAME'
+                                                         ],
+                                            'ENDP_12' => [
+                                                           'NAME'
+                                                         ],
+                                            'ENDP_13' => [
+                                                           'NAME'
+                                                         ],
+                                            'ROUTER2_9' => [
+                                                             'NAME'
+                                                           ],
+                                            'ROUTER2_6' => [
+                                                             'NAME'
+                                                           ],
+                                            'ROUTER2_7' => [
+                                                             'NAME'
+                                                           ],
+                                            'ROUTER2_0' => [
+                                                             'NAME'
+                                                           ],
+                                            'ENDP_5' => [
+                                                          'NAME'
+                                                        ],
+                                            'ROUTER2_13' => [
+                                                              'NAME'
+                                                            ],
+                                            'ENDP_2' => [
+                                                          'NAME'
+                                                        ],
+                                            'ENDP_11' => [
+                                                           'NAME'
+                                                         ],
+                                            'ROUTER2_12' => [
+                                                              'NAME'
+                                                            ],
+                                            'ROUTER2_3' => [
+                                                             'NAME'
+                                                           ],
+                                            'ROUTER8' => [
+                                                           'NUM'
+                                                         ],
+                                            'ROUTER2' => [
+                                                           'NUM'
+                                                         ],
+                                            'ENDP_10' => [
+                                                           'NAME'
+                                                         ],
+                                            'ROUTER2_11' => [
+                                                              'NAME'
+                                                            ],
+                                            'ROUTER11' => [
+                                                            'NUM'
+                                                          ],
+                                            'ROUTER3' => [
+                                                           'NUM'
+                                                         ],
+                                            'ENDP_3' => [
+                                                          'NAME'
+                                                        ],
+                                            'ROUTER2_18' => [
+                                                              'NAME'
+                                                            ]
+                                          },
+                    'SELECT_PATH' => {},
+                    'ENDP_13' => {
+                                   'PNUM' => 1,
+                                   'TYPE' => 'ENDP',
+                                   'NAME' => 'T13',
+                                   'PCONNECT' => {}
+                                 },
+                    'map_info' => {
+                                    'va' => '0',
+                                    'ha' => '0'
+                                  },
+                    'ENDP_14' => {
+                                   'TYPE' => 'ENDP',
+                                   'NAME' => 'T14',
+                                   'PCONNECT' => {},
+                                   'PNUM' => 1
+                                 },
+                    'ROUTER2_14' => {
+                                      'PNUM' => 2,
+                                      'TYPE' => 'ROUTER',
+                                      'NAME' => 'R14',
+                                      'PCONNECT' => {},
+                                      'RNUM' => 14
+                                    },
+                    'ENDP_4' => {
+                                  'TYPE' => 'ENDP',
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_4,Port[0]'
+                                                },
+                                  'NAME' => 'T4',
+                                  'PNUM' => 1
+                                },
+                    'ROUTER6' => {
+                                   'NUM' => 0
+                                 },
+                    'ENDP_0' => {
+                                  'NAME' => 'T0',
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_0,Port[0]'
+                                                },
+                                  'TYPE' => 'ENDP',
+                                  'PNUM' => 1
+                                },
+                    'ROUTER2_5' => {
+                                     'PNUM' => 2,
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_5,Port[0]'
+                                                   },
+                                     'RNUM' => 5,
+                                     'NAME' => 'R5',
+                                     'TYPE' => 'ROUTER'
+                                   },
+                    'ENDP_16' => {
+                                   'PCONNECT' => {},
+                                   'NAME' => 'T16',
+                                   'TYPE' => 'ENDP',
+                                   'PNUM' => 1
+                                 },
+                    'ROUTER10' => {
+                                    'NUM' => 0
+                                  },
+                    'ROUTER9' => {
+                                   'NUM' => 0
+                                 },
+                    'ENDP_19' => {
+                                   'NAME' => 'T19',
+                                   'PCONNECT' => {},
+                                   'TYPE' => 'ENDP',
+                                   'PNUM' => 1
+                                 },
+                    'Verilog' => {
+                                   'Router_ports' => [
+                                                       {
+                                                         'endp' => 'yes',
+                                                         'connect' => 'flit_out_all',
+                                                         'pwidth' => 'Fw',
+                                                         'width' => 'PFw',
+                                                         'name' => 'flit_in_all',
+                                                         'pname' => 'flit_in',
+                                                         'type' => 'input',
+                                                         'pconnect' => 'flit_out'
+                                                       },
+                                                       {
+                                                         'endp' => 'yes',
+                                                         'connect' => 'flit_out_wr_all',
+                                                         'pwidth' => 1,
+                                                         'width' => 'P',
+                                                         'pname' => 'flit_in_wr',
+                                                         'name' => 'flit_in_wr_all',
+                                                         'type' => 'input',
+                                                         'pconnect' => 'flit_out_wr'
+                                                       },
+                                                       {
+                                                         'pname' => 'congestion_in',
+                                                         'name' => 'congestion_in_all',
+                                                         'width' => 'CONG_ALw',
+                                                         'pwidth' => 'CONGw',
+                                                         'pconnect' => 'congestion_out',
+                                                         'type' => 'input',
+                                                         'endp' => 'no',
+                                                         'connect' => 'congestion_out_all'
+                                                       },
+                                                       {
+                                                         'endp' => 'yes',
+                                                         'connect' => 'credit_in_all',
+                                                         'name' => 'credit_out_all',
+                                                         'pname' => 'credit_out',
+                                                         'width' => 'PV',
+                                                         'pwidth' => 'V',
+                                                         'type' => 'output',
+                                                         'pconnect' => 'credit_in'
+                                                       }
+                                                     ],
+                                   'Router_param' => [
+                                                       {
+                                                         'value' => 2,
+                                                         'param_name' => 'V '
+                                                       },
+                                                       {
+                                                         'param_name' => 'B ',
+                                                         'value' => 4
+                                                       },
+                                                       {
+                                                         'value' => 2,
+                                                         'param_name' => 'C '
+                                                       },
+                                                       {
+                                                         'param_name' => 'Fpay ',
+                                                         'value' => 32
+                                                       },
+                                                       {
+                                                         'value' => '"ONE_HOT"',
+                                                         'param_name' => 'MUX_TYPE'
+                                                       },
+                                                       {
+                                                         'value' => '"NONATOMIC"',
+                                                         'param_name' => 'VC_REALLOCATION_TYPE '
+                                                       },
+                                                       {
+                                                         'param_name' => 'COMBINATION_TYPE',
+                                                         'value' => '"COMB_NONSPEC"'
+                                                       },
+                                                       {
+                                                         'param_name' => 'FIRST_ARBITER_EXT_P_EN ',
+                                                         'value' => 1
+                                                       },
+                                                       {
+                                                         'param_name' => 'CONGESTION_INDEX ',
+                                                         'value' => 7
+                                                       },
+                                                       {
+                                                         'param_name' => 'DEBUG_EN',
+                                                         'value' => 0
+                                                       },
+                                                       {
+                                                         'value' => 0,
+                                                         'param_name' => 'AVC_ATOMIC_EN'
+                                                       },
+                                                       {
+                                                         'param_name' => 'ADD_PIPREG_AFTER_CROSSBAR',
+                                                         'value' => 0
+                                                       },
+                                                       {
+                                                         'value' => '(C==0)? V : C * V',
+                                                         'param_name' => 'CVw'
+                                                       },
+                                                       {
+                                                         'param_name' => 'CLASS_SETTING ',
+                                                         'value' => '{CVw{1\'b1}}'
+                                                       },
+                                                       {
+                                                         'param_name' => 'SSA_EN',
+                                                         'value' => '"NO"'
+                                                       },
+                                                       {
+                                                         'param_name' => 'SWA_ARBITER_TYPE ',
+                                                         'value' => '"RRA"'
+                                                       },
+                                                       {
+                                                         'param_name' => 'WEIGHTw ',
+                                                         'value' => 7
+                                                       },
+                                                       {
+                                                         'param_name' => 'MIN_PCK_SIZE',
+                                                         'value' => 2
+                                                       },
+                                                       {
+                                                         'value' => 0,
+                                                         'param_name' => 'BYTE_EN'
+                                                       }
+                                                     ]
+                                 },
+                    'ENDP_1' => {
+                                  'TYPE' => 'ENDP',
+                                  'NAME' => 'T1',
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_1,Port[0]'
+                                                },
+                                  'PNUM' => 1
+                                },
+                    'ROUTER12' => {
+                                    'NUM' => 0
+                                  },
+                    'ENDP_17' => {
+                                   'PNUM' => 1,
+                                   'NAME' => 'T17',
+                                   'PCONNECT' => {},
+                                   'TYPE' => 'ENDP'
+                                 },
+                    'ROUTER2_17' => {
+                                      'RNUM' => 17,
+                                      'PCONNECT' => {},
+                                      'NAME' => 'R17',
+                                      'TYPE' => 'ROUTER',
+                                      'PNUM' => 2
+                                    },
+                    'ENDP_6' => {
+                                  'PNUM' => 1,
+                                  'NAME' => 'T6',
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_6,Port[0]'
+                                                },
+                                  'TYPE' => 'ENDP'
+                                },
+                    'P0# Router in all Paths_param' => {
+                                                         'label_font' => 'MediumBold',
+                                                         'Y_MIN' => 0,
+                                                         'X_MIN' => 0,
+                                                         'x_axis_font' => 'MediumBold',
+                                                         'X_Title' => 'Router Name',
+                                                         'X_MAX' => 100,
+                                                         'legend_placement' => 'BL',
+                                                         'legend_font' => 'MediumBold',
+                                                         'LINEw' => 3,
+                                                         'Y_Title' => 'The total number that a router is used in the routing'
+                                                       },
+                    'topology_diagram' => {
+                                            'scale' => '0.9'
+                                          },
+                    'save_as' => 'ee',
+                    'P0# Router in all Paths' => {
+                                                   'dimension' => '3D',
+                                                   'type' => '3D_bar',
+                                                   'ratio' => '-'
+                                                 },
+                    'ROUTER2_11' => {
+                                      'TYPE' => 'ROUTER',
+                                      'NAME' => 'R11',
+                                      'RNUM' => 11,
+                                      'PCONNECT' => {},
+                                      'PNUM' => 2
+                                    },
+                    'ENDP_10' => {
+                                   'TYPE' => 'ENDP',
+                                   'NAME' => 'T10',
+                                   'PCONNECT' => {},
+                                   'PNUM' => 1
+                                 },
+                    'ROUTER11' => {
+                                    'NUM' => 0
+                                  },
+                    'sample0' => {
+                                   'color' => 1,
+                                   'link_all_paths_result' => undef,
+                                   'router_all_paths_result' => {
+                                                                  '-' => {
+                                                                           'R13' => 0,
+                                                                           'R19' => 0,
+                                                                           'R1' => 0,
+                                                                           'R9' => 0,
+                                                                           '' => 0,
+                                                                           'R6' => 0,
+                                                                           'R15' => 0,
+                                                                           'R17' => 0,
+                                                                           'R7' => 0,
+                                                                           'R16' => 0,
+                                                                           'R12' => 0,
+                                                                           'R2' => 0,
+                                                                           'R4' => 0,
+                                                                           'R8' => 0,
+                                                                           'R0' => 0,
+                                                                           'R14' => 0,
+                                                                           'R5' => 0,
+                                                                           'R10' => 0,
+                                                                           'R18' => 0,
+                                                                           'R11' => 0,
+                                                                           'R3' => 0
+                                                                         }
+                                                                }
+                                 },
+                    'ROUTER2_12' => {
+                                      'PNUM' => 2,
+                                      'TYPE' => 'ROUTER',
+                                      'RNUM' => 12,
+                                      'PCONNECT' => {},
+                                      'NAME' => 'R12'
+                                    },
+                    'ROUTER2_3' => {
+                                     'PNUM' => 2,
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_3,Port[0]'
+                                                   },
+                                     'RNUM' => 3,
+                                     'NAME' => 'R3',
+                                     'TYPE' => 'ROUTER'
+                                   },
+                    'ROUTER2' => {
+                                   'NUM' => '20'
+                                 },
+                    'ROUTER2_6' => {
+                                     'TYPE' => 'ROUTER',
+                                     'RNUM' => 6,
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_6,Port[0]'
+                                                   },
+                                     'NAME' => 'R6',
+                                     'PNUM' => 2
+                                   },
+                    'ENDP_5' => {
+                                  'PNUM' => 1,
+                                  'NAME' => 'T5',
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_5,Port[0]'
+                                                },
+                                  'TYPE' => 'ENDP'
+                                },
+                    'ENDP_12' => {
+                                   'PNUM' => 1,
+                                   'TYPE' => 'ENDP',
+                                   'NAME' => 'T12',
+                                   'PCONNECT' => {}
+                                 },
+                    'ROUTER2_9' => {
+                                     'TYPE' => 'ROUTER',
+                                     'PCONNECT' => {
+                                                     'Port[0]' => 'ENDP_9,Port[0]'
+                                                   },
+                                     'RNUM' => 9,
+                                     'NAME' => 'R9',
+                                     'PNUM' => 2
+                                   },
+                    'process_notebook' => {
+                                            'currentpage' => 2
+                                          },
+                    'ENDP_7' => {
+                                  'PNUM' => 1,
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_7,Port[0]'
+                                                },
+                                  'NAME' => 'T7',
+                                  'TYPE' => 'ENDP'
+                                },
+                    'ROUTER2_19' => {
+                                      'TYPE' => 'ROUTER',
+                                      'NAME' => 'R19',
+                                      'RNUM' => 19,
+                                      'PCONNECT' => {},
+                                      'PNUM' => 2
+                                    },
+                    'ROUTER5' => {
+                                   'NUM' => 0
+                                 },
+                    'ENDP_8' => {
+                                  'TYPE' => 'ENDP',
+                                  'NAME' => 'T8',
+                                  'PCONNECT' => {
+                                                  'Port[0]' => 'ROUTER2_8,Port[0]'
+                                                },
+                                  'PNUM' => 1
+                                },
+                    'ENDP_15' => {
+                                   'TYPE' => 'ENDP',
+                                   'NAME' => 'T15',
+                                   'PCONNECT' => {},
+                                   'PNUM' => 1
+                                 },
+                    'ENDP' => {
+                                'NUM' => '20'
+                              },
+                    'ROUTER4' => {
+                                   'NUM' => 0
+                                 },
+                    'P0' => {
+                              'active' => '# Router in all Paths'
+                            }
+                  }, 'ProNOC' );

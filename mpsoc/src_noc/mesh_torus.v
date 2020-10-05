@@ -1233,7 +1233,9 @@ module  mesh_tori_addr_encoder #(
     generate 
     for(i=0; i< NE; i=i+1) begin : endpoints
         //Endpoint decoded address
+       /* verilator lint_off WIDTH */
         localparam [EAw-1 : 0] ENDP= addrencode(i,NX,NXw,NL,NYw);
+       /* verilator lint_on WIDTH */
         assign codes[i] = ENDP;            
     end
     endgenerate

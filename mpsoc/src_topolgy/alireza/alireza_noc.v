@@ -6,7 +6,7 @@
 
 
 /**********************************************************************
-**	File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_topolgy/test/test_noc.v
+**	File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_topolgy/alireza/alireza_noc.v
 **    
 **	Copyright (C) 2014-2019  Alireza Monemi
 **    
@@ -26,9 +26,9 @@
 ** 	License along with ProNoC. If not, see <http:**www.gnu.org/licenses/>.
 ******************************************************************************/ 
 
-module   test_noc #(  
-    	parameter TOPOLOGY = "test",
-	parameter ROUTE_NAME = "test_DETERMINISTIC",
+module   alireza_noc #(  
+    	parameter TOPOLOGY = "alireza",
+	parameter ROUTE_NAME = "alireza_DETERMINISTIC",
 	parameter V  = 2,
 	parameter B  = 4,
 	parameter C  = 2,
@@ -352,15 +352,15 @@ module   test_noc #(
 	wire R0_clk;
 	wire R0_reset;
 	wire [RAw-1 :  0] R0_current_r_addr;
-	wire [(3*RAw)-1:  0] R0_neighbors_r_addr;
-	wire [(3*Fw)-1 : 0] R0_flit_in_all;
-	wire [(3*Fw)-1 : 0] R0_flit_out_all;
-	wire [(3*1)-1 : 0] R0_flit_in_wr_all;
-	wire [(3*1)-1 : 0] R0_flit_out_wr_all;
-	wire [(3*CONGw)-1 : 0] R0_congestion_in_all;
-	wire [(3*CONGw)-1 : 0] R0_congestion_out_all;
-	wire [(3*V)-1 : 0] R0_credit_out_all;
-	wire [(3*V)-1 : 0] R0_credit_in_all;
+	wire [(5*RAw)-1:  0] R0_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R0_flit_in_all;
+	wire [(5*Fw)-1 : 0] R0_flit_out_all;
+	wire [(5*1)-1 : 0] R0_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R0_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R0_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R0_congestion_out_all;
+	wire [(5*V)-1 : 0] R0_credit_out_all;
+	wire [(5*V)-1 : 0] R0_credit_in_all;
 
 	/*******************
 	*		R1
@@ -368,15 +368,15 @@ module   test_noc #(
 	wire R1_clk;
 	wire R1_reset;
 	wire [RAw-1 :  0] R1_current_r_addr;
-	wire [(3*RAw)-1:  0] R1_neighbors_r_addr;
-	wire [(3*Fw)-1 : 0] R1_flit_in_all;
-	wire [(3*Fw)-1 : 0] R1_flit_out_all;
-	wire [(3*1)-1 : 0] R1_flit_in_wr_all;
-	wire [(3*1)-1 : 0] R1_flit_out_wr_all;
-	wire [(3*CONGw)-1 : 0] R1_congestion_in_all;
-	wire [(3*CONGw)-1 : 0] R1_congestion_out_all;
-	wire [(3*V)-1 : 0] R1_credit_out_all;
-	wire [(3*V)-1 : 0] R1_credit_in_all;
+	wire [(5*RAw)-1:  0] R1_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R1_flit_in_all;
+	wire [(5*Fw)-1 : 0] R1_flit_out_all;
+	wire [(5*1)-1 : 0] R1_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R1_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R1_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R1_congestion_out_all;
+	wire [(5*V)-1 : 0] R1_credit_out_all;
+	wire [(5*V)-1 : 0] R1_credit_in_all;
 
 	/*******************
 	*		R2
@@ -384,15 +384,15 @@ module   test_noc #(
 	wire R2_clk;
 	wire R2_reset;
 	wire [RAw-1 :  0] R2_current_r_addr;
-	wire [(3*RAw)-1:  0] R2_neighbors_r_addr;
-	wire [(3*Fw)-1 : 0] R2_flit_in_all;
-	wire [(3*Fw)-1 : 0] R2_flit_out_all;
-	wire [(3*1)-1 : 0] R2_flit_in_wr_all;
-	wire [(3*1)-1 : 0] R2_flit_out_wr_all;
-	wire [(3*CONGw)-1 : 0] R2_congestion_in_all;
-	wire [(3*CONGw)-1 : 0] R2_congestion_out_all;
-	wire [(3*V)-1 : 0] R2_credit_out_all;
-	wire [(3*V)-1 : 0] R2_credit_in_all;
+	wire [(5*RAw)-1:  0] R2_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R2_flit_in_all;
+	wire [(5*Fw)-1 : 0] R2_flit_out_all;
+	wire [(5*1)-1 : 0] R2_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R2_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R2_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R2_congestion_out_all;
+	wire [(5*V)-1 : 0] R2_credit_out_all;
+	wire [(5*V)-1 : 0] R2_credit_in_all;
 
 	/*******************
 	*		R3
@@ -400,15 +400,15 @@ module   test_noc #(
 	wire R3_clk;
 	wire R3_reset;
 	wire [RAw-1 :  0] R3_current_r_addr;
-	wire [(3*RAw)-1:  0] R3_neighbors_r_addr;
-	wire [(3*Fw)-1 : 0] R3_flit_in_all;
-	wire [(3*Fw)-1 : 0] R3_flit_out_all;
-	wire [(3*1)-1 : 0] R3_flit_in_wr_all;
-	wire [(3*1)-1 : 0] R3_flit_out_wr_all;
-	wire [(3*CONGw)-1 : 0] R3_congestion_in_all;
-	wire [(3*CONGw)-1 : 0] R3_congestion_out_all;
-	wire [(3*V)-1 : 0] R3_credit_out_all;
-	wire [(3*V)-1 : 0] R3_credit_in_all;
+	wire [(5*RAw)-1:  0] R3_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R3_flit_in_all;
+	wire [(5*Fw)-1 : 0] R3_flit_out_all;
+	wire [(5*1)-1 : 0] R3_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R3_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R3_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R3_congestion_out_all;
+	wire [(5*V)-1 : 0] R3_credit_out_all;
+	wire [(5*V)-1 : 0] R3_credit_in_all;
 
 	/*******************
 	*		R4
@@ -416,15 +416,15 @@ module   test_noc #(
 	wire R4_clk;
 	wire R4_reset;
 	wire [RAw-1 :  0] R4_current_r_addr;
-	wire [(4*RAw)-1:  0] R4_neighbors_r_addr;
-	wire [(4*Fw)-1 : 0] R4_flit_in_all;
-	wire [(4*Fw)-1 : 0] R4_flit_out_all;
-	wire [(4*1)-1 : 0] R4_flit_in_wr_all;
-	wire [(4*1)-1 : 0] R4_flit_out_wr_all;
-	wire [(4*CONGw)-1 : 0] R4_congestion_in_all;
-	wire [(4*CONGw)-1 : 0] R4_congestion_out_all;
-	wire [(4*V)-1 : 0] R4_credit_out_all;
-	wire [(4*V)-1 : 0] R4_credit_in_all;
+	wire [(5*RAw)-1:  0] R4_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R4_flit_in_all;
+	wire [(5*Fw)-1 : 0] R4_flit_out_all;
+	wire [(5*1)-1 : 0] R4_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R4_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R4_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R4_congestion_out_all;
+	wire [(5*V)-1 : 0] R4_credit_out_all;
+	wire [(5*V)-1 : 0] R4_credit_in_all;
 
 	/*******************
 	*		R5
@@ -432,15 +432,15 @@ module   test_noc #(
 	wire R5_clk;
 	wire R5_reset;
 	wire [RAw-1 :  0] R5_current_r_addr;
-	wire [(4*RAw)-1:  0] R5_neighbors_r_addr;
-	wire [(4*Fw)-1 : 0] R5_flit_in_all;
-	wire [(4*Fw)-1 : 0] R5_flit_out_all;
-	wire [(4*1)-1 : 0] R5_flit_in_wr_all;
-	wire [(4*1)-1 : 0] R5_flit_out_wr_all;
-	wire [(4*CONGw)-1 : 0] R5_congestion_in_all;
-	wire [(4*CONGw)-1 : 0] R5_congestion_out_all;
-	wire [(4*V)-1 : 0] R5_credit_out_all;
-	wire [(4*V)-1 : 0] R5_credit_in_all;
+	wire [(5*RAw)-1:  0] R5_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R5_flit_in_all;
+	wire [(5*Fw)-1 : 0] R5_flit_out_all;
+	wire [(5*1)-1 : 0] R5_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R5_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R5_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R5_congestion_out_all;
+	wire [(5*V)-1 : 0] R5_credit_out_all;
+	wire [(5*V)-1 : 0] R5_credit_in_all;
 
 	/*******************
 	*		R6
@@ -448,15 +448,15 @@ module   test_noc #(
 	wire R6_clk;
 	wire R6_reset;
 	wire [RAw-1 :  0] R6_current_r_addr;
-	wire [(4*RAw)-1:  0] R6_neighbors_r_addr;
-	wire [(4*Fw)-1 : 0] R6_flit_in_all;
-	wire [(4*Fw)-1 : 0] R6_flit_out_all;
-	wire [(4*1)-1 : 0] R6_flit_in_wr_all;
-	wire [(4*1)-1 : 0] R6_flit_out_wr_all;
-	wire [(4*CONGw)-1 : 0] R6_congestion_in_all;
-	wire [(4*CONGw)-1 : 0] R6_congestion_out_all;
-	wire [(4*V)-1 : 0] R6_credit_out_all;
-	wire [(4*V)-1 : 0] R6_credit_in_all;
+	wire [(5*RAw)-1:  0] R6_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R6_flit_in_all;
+	wire [(5*Fw)-1 : 0] R6_flit_out_all;
+	wire [(5*1)-1 : 0] R6_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R6_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R6_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R6_congestion_out_all;
+	wire [(5*V)-1 : 0] R6_credit_out_all;
+	wire [(5*V)-1 : 0] R6_credit_in_all;
 
 	/*******************
 	*		R7
@@ -464,15 +464,15 @@ module   test_noc #(
 	wire R7_clk;
 	wire R7_reset;
 	wire [RAw-1 :  0] R7_current_r_addr;
-	wire [(4*RAw)-1:  0] R7_neighbors_r_addr;
-	wire [(4*Fw)-1 : 0] R7_flit_in_all;
-	wire [(4*Fw)-1 : 0] R7_flit_out_all;
-	wire [(4*1)-1 : 0] R7_flit_in_wr_all;
-	wire [(4*1)-1 : 0] R7_flit_out_wr_all;
-	wire [(4*CONGw)-1 : 0] R7_congestion_in_all;
-	wire [(4*CONGw)-1 : 0] R7_congestion_out_all;
-	wire [(4*V)-1 : 0] R7_credit_out_all;
-	wire [(4*V)-1 : 0] R7_credit_in_all;
+	wire [(5*RAw)-1:  0] R7_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R7_flit_in_all;
+	wire [(5*Fw)-1 : 0] R7_flit_out_all;
+	wire [(5*1)-1 : 0] R7_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R7_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R7_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R7_congestion_out_all;
+	wire [(5*V)-1 : 0] R7_credit_out_all;
+	wire [(5*V)-1 : 0] R7_credit_in_all;
 
 	/*******************
 	*		R8
@@ -480,15 +480,15 @@ module   test_noc #(
 	wire R8_clk;
 	wire R8_reset;
 	wire [RAw-1 :  0] R8_current_r_addr;
-	wire [(4*RAw)-1:  0] R8_neighbors_r_addr;
-	wire [(4*Fw)-1 : 0] R8_flit_in_all;
-	wire [(4*Fw)-1 : 0] R8_flit_out_all;
-	wire [(4*1)-1 : 0] R8_flit_in_wr_all;
-	wire [(4*1)-1 : 0] R8_flit_out_wr_all;
-	wire [(4*CONGw)-1 : 0] R8_congestion_in_all;
-	wire [(4*CONGw)-1 : 0] R8_congestion_out_all;
-	wire [(4*V)-1 : 0] R8_credit_out_all;
-	wire [(4*V)-1 : 0] R8_credit_in_all;
+	wire [(5*RAw)-1:  0] R8_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R8_flit_in_all;
+	wire [(5*Fw)-1 : 0] R8_flit_out_all;
+	wire [(5*1)-1 : 0] R8_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R8_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R8_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R8_congestion_out_all;
+	wire [(5*V)-1 : 0] R8_credit_out_all;
+	wire [(5*V)-1 : 0] R8_credit_in_all;
 
 	/*******************
 	*		R9
@@ -496,15 +496,15 @@ module   test_noc #(
 	wire R9_clk;
 	wire R9_reset;
 	wire [RAw-1 :  0] R9_current_r_addr;
-	wire [(4*RAw)-1:  0] R9_neighbors_r_addr;
-	wire [(4*Fw)-1 : 0] R9_flit_in_all;
-	wire [(4*Fw)-1 : 0] R9_flit_out_all;
-	wire [(4*1)-1 : 0] R9_flit_in_wr_all;
-	wire [(4*1)-1 : 0] R9_flit_out_wr_all;
-	wire [(4*CONGw)-1 : 0] R9_congestion_in_all;
-	wire [(4*CONGw)-1 : 0] R9_congestion_out_all;
-	wire [(4*V)-1 : 0] R9_credit_out_all;
-	wire [(4*V)-1 : 0] R9_credit_in_all;
+	wire [(5*RAw)-1:  0] R9_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R9_flit_in_all;
+	wire [(5*Fw)-1 : 0] R9_flit_out_all;
+	wire [(5*1)-1 : 0] R9_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R9_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R9_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R9_congestion_out_all;
+	wire [(5*V)-1 : 0] R9_credit_out_all;
+	wire [(5*V)-1 : 0] R9_credit_in_all;
 
 	/*******************
 	*		R10
@@ -512,15 +512,15 @@ module   test_noc #(
 	wire R10_clk;
 	wire R10_reset;
 	wire [RAw-1 :  0] R10_current_r_addr;
-	wire [(4*RAw)-1:  0] R10_neighbors_r_addr;
-	wire [(4*Fw)-1 : 0] R10_flit_in_all;
-	wire [(4*Fw)-1 : 0] R10_flit_out_all;
-	wire [(4*1)-1 : 0] R10_flit_in_wr_all;
-	wire [(4*1)-1 : 0] R10_flit_out_wr_all;
-	wire [(4*CONGw)-1 : 0] R10_congestion_in_all;
-	wire [(4*CONGw)-1 : 0] R10_congestion_out_all;
-	wire [(4*V)-1 : 0] R10_credit_out_all;
-	wire [(4*V)-1 : 0] R10_credit_in_all;
+	wire [(5*RAw)-1:  0] R10_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R10_flit_in_all;
+	wire [(5*Fw)-1 : 0] R10_flit_out_all;
+	wire [(5*1)-1 : 0] R10_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R10_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R10_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R10_congestion_out_all;
+	wire [(5*V)-1 : 0] R10_credit_out_all;
+	wire [(5*V)-1 : 0] R10_credit_in_all;
 
 	/*******************
 	*		R11
@@ -528,15 +528,15 @@ module   test_noc #(
 	wire R11_clk;
 	wire R11_reset;
 	wire [RAw-1 :  0] R11_current_r_addr;
-	wire [(4*RAw)-1:  0] R11_neighbors_r_addr;
-	wire [(4*Fw)-1 : 0] R11_flit_in_all;
-	wire [(4*Fw)-1 : 0] R11_flit_out_all;
-	wire [(4*1)-1 : 0] R11_flit_in_wr_all;
-	wire [(4*1)-1 : 0] R11_flit_out_wr_all;
-	wire [(4*CONGw)-1 : 0] R11_congestion_in_all;
-	wire [(4*CONGw)-1 : 0] R11_congestion_out_all;
-	wire [(4*V)-1 : 0] R11_credit_out_all;
-	wire [(4*V)-1 : 0] R11_credit_in_all;
+	wire [(5*RAw)-1:  0] R11_neighbors_r_addr;
+	wire [(5*Fw)-1 : 0] R11_flit_in_all;
+	wire [(5*Fw)-1 : 0] R11_flit_out_all;
+	wire [(5*1)-1 : 0] R11_flit_in_wr_all;
+	wire [(5*1)-1 : 0] R11_flit_out_wr_all;
+	wire [(5*CONGw)-1 : 0] R11_congestion_in_all;
+	wire [(5*CONGw)-1 : 0] R11_congestion_out_all;
+	wire [(5*V)-1 : 0] R11_credit_out_all;
+	wire [(5*V)-1 : 0] R11_credit_in_all;
 
 	/*******************
 	*		R12
@@ -608,7 +608,7 @@ module   test_noc #(
 	*		R0
 	*******************/
 	router #(
-		.P(3),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -659,22 +659,32 @@ module   test_noc #(
 		assign  R0_flit_in_wr_all [0] = T0_flit_in_wr ;
 		assign  R0_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T0_credit_out = R0_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R0 port 1 to  R9 port 2
-		assign  R0_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R9_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R0_flit_in_wr_all [1] = R9_flit_out_wr_all [2];
-		assign  R0_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R9_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R9_credit_in_all [(3*V)-1 :	 2*V ]= R0_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R0 port 2 to  R11 port 3
-		assign  R0_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R11_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R0_flit_in_wr_all [2] = R11_flit_out_wr_all [3];
-		assign  R0_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R11_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R11_credit_in_all [(4*V)-1 :	 3*V ]= R0_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R0 port 1 to  R6 port 4
+		assign  R0_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R6_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R0_flit_in_wr_all [1] = R6_flit_out_wr_all [4];
+		assign  R0_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R6_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R6_credit_in_all [(5*V)-1 :	 4*V ]= R0_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R0 port 2 to  R13 port 1
+		assign  R0_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R13_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R0_flit_in_wr_all [2] = R13_flit_out_wr_all [1];
+		assign  R0_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R13_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R13_credit_in_all [(2*V)-1 :	 1*V ]= R0_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R0 port 3 to  R8 port 2
+		assign  R0_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R8_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R0_flit_in_wr_all [3] = R8_flit_out_wr_all [2];
+		assign  R0_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R8_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R8_credit_in_all [(3*V)-1 :	 2*V ]= R0_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R0 port 4 to  R1 port 3
+		assign  R0_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R1_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R0_flit_in_wr_all [4] = R1_flit_out_wr_all [3];
+		assign  R0_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R1_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R1_credit_in_all [(4*V)-1 :	 3*V ]= R0_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R1
 	*******************/
 	router #(
-		.P(3),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -725,22 +735,32 @@ module   test_noc #(
 		assign  R1_flit_in_wr_all [0] = T1_flit_in_wr ;
 		assign  R1_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T1_credit_out = R1_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R1 port 1 to  R14 port 4
-		assign  R1_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R14_flit_out_all [(5*Fw)-1 :	 4*Fw ];
-		assign  R1_flit_in_wr_all [1] = R14_flit_out_wr_all [4];
-		assign  R1_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R14_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
-		assign  R14_credit_in_all [(5*V)-1 :	 4*V ]= R1_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R1 port 2 to  R9 port 3
-		assign  R1_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R9_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R1_flit_in_wr_all [2] = R9_flit_out_wr_all [3];
-		assign  R1_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R9_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R9_credit_in_all [(4*V)-1 :	 3*V ]= R1_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R1 port 1 to  R2 port 3
+		assign  R1_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R2_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R1_flit_in_wr_all [1] = R2_flit_out_wr_all [3];
+		assign  R1_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R2_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R2_credit_in_all [(4*V)-1 :	 3*V ]= R1_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R1 port 2 to  R6 port 3
+		assign  R1_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R6_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R1_flit_in_wr_all [2] = R6_flit_out_wr_all [3];
+		assign  R1_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R6_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R6_credit_in_all [(4*V)-1 :	 3*V ]= R1_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R1 port 3 to  R0 port 4
+		assign  R1_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R0_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R1_flit_in_wr_all [3] = R0_flit_out_wr_all [4];
+		assign  R1_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R0_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R0_credit_in_all [(5*V)-1 :	 4*V ]= R1_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R1 port 4 to  R4 port 4
+		assign  R1_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R4_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R1_flit_in_wr_all [4] = R4_flit_out_wr_all [4];
+		assign  R1_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R4_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R4_credit_in_all [(5*V)-1 :	 4*V ]= R1_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R2
 	*******************/
 	router #(
-		.P(3),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -791,22 +811,32 @@ module   test_noc #(
 		assign  R2_flit_in_wr_all [0] = T2_flit_in_wr ;
 		assign  R2_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T2_credit_out = R2_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R2 port 1 to  R10 port 3
-		assign  R2_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R10_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R2_flit_in_wr_all [1] = R10_flit_out_wr_all [3];
-		assign  R2_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R10_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R10_credit_in_all [(4*V)-1 :	 3*V ]= R2_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R2 port 2 to  R3 port 2
-		assign  R2_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R3_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R2_flit_in_wr_all [2] = R3_flit_out_wr_all [2];
-		assign  R2_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R3_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R3_credit_in_all [(3*V)-1 :	 2*V ]= R2_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R2 port 1 to  R12 port 4
+		assign  R2_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R12_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R2_flit_in_wr_all [1] = R12_flit_out_wr_all [4];
+		assign  R2_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R12_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R12_credit_in_all [(5*V)-1 :	 4*V ]= R2_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R2 port 2 to  R4 port 2
+		assign  R2_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R4_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R2_flit_in_wr_all [2] = R4_flit_out_wr_all [2];
+		assign  R2_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R4_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R4_credit_in_all [(3*V)-1 :	 2*V ]= R2_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R2 port 3 to  R1 port 1
+		assign  R2_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R1_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R2_flit_in_wr_all [3] = R1_flit_out_wr_all [1];
+		assign  R2_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R1_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R1_credit_in_all [(2*V)-1 :	 1*V ]= R2_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R2 port 4 to  R8 port 1
+		assign  R2_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R8_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R2_flit_in_wr_all [4] = R8_flit_out_wr_all [1];
+		assign  R2_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R8_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R8_credit_in_all [(2*V)-1 :	 1*V ]= R2_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R3
 	*******************/
 	router #(
-		.P(3),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -857,22 +887,32 @@ module   test_noc #(
 		assign  R3_flit_in_wr_all [0] = T3_flit_in_wr ;
 		assign  R3_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T3_credit_out = R3_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R3 port 1 to  R10 port 1
-		assign  R3_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R10_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R3_flit_in_wr_all [1] = R10_flit_out_wr_all [1];
-		assign  R3_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R10_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R10_credit_in_all [(2*V)-1 :	 1*V ]= R3_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R3 port 2 to  R2 port 2
-		assign  R3_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R2_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R3_flit_in_wr_all [2] = R2_flit_out_wr_all [2];
-		assign  R3_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R2_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R2_credit_in_all [(3*V)-1 :	 2*V ]= R3_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R3 port 1 to  R6 port 2
+		assign  R3_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R6_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R3_flit_in_wr_all [1] = R6_flit_out_wr_all [2];
+		assign  R3_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R6_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R6_credit_in_all [(3*V)-1 :	 2*V ]= R3_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R3 port 2 to  R7 port 4
+		assign  R3_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R7_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R3_flit_in_wr_all [2] = R7_flit_out_wr_all [4];
+		assign  R3_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R7_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R7_credit_in_all [(5*V)-1 :	 4*V ]= R3_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R3 port 3 to  R5 port 4
+		assign  R3_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R5_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R3_flit_in_wr_all [3] = R5_flit_out_wr_all [4];
+		assign  R3_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R5_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R5_credit_in_all [(5*V)-1 :	 4*V ]= R3_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R3 port 4 to  R9 port 4
+		assign  R3_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R9_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R3_flit_in_wr_all [4] = R9_flit_out_wr_all [4];
+		assign  R3_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R9_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R9_credit_in_all [(5*V)-1 :	 4*V ]= R3_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R4
 	*******************/
 	router #(
-		.P(4),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -923,27 +963,32 @@ module   test_noc #(
 		assign  R4_flit_in_wr_all [0] = T4_flit_in_wr ;
 		assign  R4_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T4_credit_out = R4_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R4 port 1 to  R10 port 2
-		assign  R4_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R10_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R4_flit_in_wr_all [1] = R10_flit_out_wr_all [2];
-		assign  R4_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R10_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R10_credit_in_all [(3*V)-1 :	 2*V ]= R4_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R4 port 2 to  R11 port 2
-		assign  R4_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R11_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R4_flit_in_wr_all [2] = R11_flit_out_wr_all [2];
-		assign  R4_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R11_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R11_credit_in_all [(3*V)-1 :	 2*V ]= R4_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R4 port 3 to  R8 port 3
-		assign  R4_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R8_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R4_flit_in_wr_all [3] = R8_flit_out_wr_all [3];
-		assign  R4_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R8_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R8_credit_in_all [(4*V)-1 :	 3*V ]= R4_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R4 port 1 to  R15 port 3
+		assign  R4_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R15_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R4_flit_in_wr_all [1] = R15_flit_out_wr_all [3];
+		assign  R4_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R15_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R15_credit_in_all [(4*V)-1 :	 3*V ]= R4_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R4 port 2 to  R2 port 2
+		assign  R4_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R2_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R4_flit_in_wr_all [2] = R2_flit_out_wr_all [2];
+		assign  R4_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R2_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R2_credit_in_all [(3*V)-1 :	 2*V ]= R4_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R4 port 3 to  R9 port 2
+		assign  R4_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R9_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R4_flit_in_wr_all [3] = R9_flit_out_wr_all [2];
+		assign  R4_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R9_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R9_credit_in_all [(3*V)-1 :	 2*V ]= R4_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R4 port 4 to  R1 port 4
+		assign  R4_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R1_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R4_flit_in_wr_all [4] = R1_flit_out_wr_all [4];
+		assign  R4_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R1_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R1_credit_in_all [(5*V)-1 :	 4*V ]= R4_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R5
 	*******************/
 	router #(
-		.P(4),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -994,27 +1039,32 @@ module   test_noc #(
 		assign  R5_flit_in_wr_all [0] = T5_flit_in_wr ;
 		assign  R5_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T5_credit_out = R5_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R5 port 1 to  R12 port 2
-		assign  R5_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R12_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R5_flit_in_wr_all [1] = R12_flit_out_wr_all [2];
-		assign  R5_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R12_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R12_credit_in_all [(3*V)-1 :	 2*V ]= R5_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R5 port 2 to  R7 port 2
-		assign  R5_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R7_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R5_flit_in_wr_all [2] = R7_flit_out_wr_all [2];
-		assign  R5_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R7_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R7_credit_in_all [(3*V)-1 :	 2*V ]= R5_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R5 port 3 to  R6 port 3
-		assign  R5_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R6_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R5_flit_in_wr_all [3] = R6_flit_out_wr_all [3];
-		assign  R5_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R6_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R6_credit_in_all [(4*V)-1 :	 3*V ]= R5_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R5 port 1 to  R7 port 3
+		assign  R5_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R7_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R5_flit_in_wr_all [1] = R7_flit_out_wr_all [3];
+		assign  R5_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R7_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R7_credit_in_all [(4*V)-1 :	 3*V ]= R5_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R5 port 2 to  R14 port 1
+		assign  R5_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R14_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R5_flit_in_wr_all [2] = R14_flit_out_wr_all [1];
+		assign  R5_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R14_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R14_credit_in_all [(2*V)-1 :	 1*V ]= R5_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R5 port 3 to  R10 port 1
+		assign  R5_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R10_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R5_flit_in_wr_all [3] = R10_flit_out_wr_all [1];
+		assign  R5_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R10_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R10_credit_in_all [(2*V)-1 :	 1*V ]= R5_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R5 port 4 to  R3 port 3
+		assign  R5_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R3_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R5_flit_in_wr_all [4] = R3_flit_out_wr_all [3];
+		assign  R5_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R3_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R3_credit_in_all [(4*V)-1 :	 3*V ]= R5_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R6
 	*******************/
 	router #(
-		.P(4),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -1065,27 +1115,32 @@ module   test_noc #(
 		assign  R6_flit_in_wr_all [0] = T6_flit_in_wr ;
 		assign  R6_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T6_credit_out = R6_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R6 port 1 to  R12 port 3
-		assign  R6_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R12_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R6_flit_in_wr_all [1] = R12_flit_out_wr_all [3];
-		assign  R6_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R12_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R12_credit_in_all [(4*V)-1 :	 3*V ]= R6_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R6 port 2 to  R14 port 2
-		assign  R6_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R14_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R6_flit_in_wr_all [2] = R14_flit_out_wr_all [2];
-		assign  R6_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R14_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R14_credit_in_all [(3*V)-1 :	 2*V ]= R6_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R6 port 3 to  R5 port 3
-		assign  R6_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R5_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R6_flit_in_wr_all [3] = R5_flit_out_wr_all [3];
-		assign  R6_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R5_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R5_credit_in_all [(4*V)-1 :	 3*V ]= R6_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R6 port 1 to  R12 port 1
+		assign  R6_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R12_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R6_flit_in_wr_all [1] = R12_flit_out_wr_all [1];
+		assign  R6_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R12_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R12_credit_in_all [(2*V)-1 :	 1*V ]= R6_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R6 port 2 to  R3 port 1
+		assign  R6_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R3_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R6_flit_in_wr_all [2] = R3_flit_out_wr_all [1];
+		assign  R6_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R3_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R3_credit_in_all [(2*V)-1 :	 1*V ]= R6_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R6 port 3 to  R1 port 2
+		assign  R6_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R1_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R6_flit_in_wr_all [3] = R1_flit_out_wr_all [2];
+		assign  R6_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R1_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R1_credit_in_all [(3*V)-1 :	 2*V ]= R6_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R6 port 4 to  R0 port 1
+		assign  R6_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R0_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R6_flit_in_wr_all [4] = R0_flit_out_wr_all [1];
+		assign  R6_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R0_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R0_credit_in_all [(2*V)-1 :	 1*V ]= R6_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R7
 	*******************/
 	router #(
-		.P(4),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -1136,27 +1191,32 @@ module   test_noc #(
 		assign  R7_flit_in_wr_all [0] = T7_flit_in_wr ;
 		assign  R7_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T7_credit_out = R7_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R7 port 1 to  R13 port 4
-		assign  R7_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R13_flit_out_all [(5*Fw)-1 :	 4*Fw ];
-		assign  R7_flit_in_wr_all [1] = R13_flit_out_wr_all [4];
-		assign  R7_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R13_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
-		assign  R13_credit_in_all [(5*V)-1 :	 4*V ]= R7_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R7 port 2 to  R5 port 2
-		assign  R7_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R5_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R7_flit_in_wr_all [2] = R5_flit_out_wr_all [2];
-		assign  R7_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R5_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R5_credit_in_all [(3*V)-1 :	 2*V ]= R7_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R7 port 3 to  R11 port 1
-		assign  R7_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R11_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R7_flit_in_wr_all [3] = R11_flit_out_wr_all [1];
-		assign  R7_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R11_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R11_credit_in_all [(2*V)-1 :	 1*V ]= R7_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R7 port 1 to  R12 port 2
+		assign  R7_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R12_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R7_flit_in_wr_all [1] = R12_flit_out_wr_all [2];
+		assign  R7_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R12_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R12_credit_in_all [(3*V)-1 :	 2*V ]= R7_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R7 port 2 to  R15 port 4
+		assign  R7_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R15_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R7_flit_in_wr_all [2] = R15_flit_out_wr_all [4];
+		assign  R7_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R15_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R15_credit_in_all [(5*V)-1 :	 4*V ]= R7_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R7 port 3 to  R5 port 1
+		assign  R7_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R5_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R7_flit_in_wr_all [3] = R5_flit_out_wr_all [1];
+		assign  R7_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R5_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R5_credit_in_all [(2*V)-1 :	 1*V ]= R7_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R7 port 4 to  R3 port 2
+		assign  R7_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R3_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R7_flit_in_wr_all [4] = R3_flit_out_wr_all [2];
+		assign  R7_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R3_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R3_credit_in_all [(3*V)-1 :	 2*V ]= R7_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R8
 	*******************/
 	router #(
-		.P(4),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -1207,27 +1267,32 @@ module   test_noc #(
 		assign  R8_flit_in_wr_all [0] = T8_flit_in_wr ;
 		assign  R8_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T8_credit_out = R8_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R8 port 1 to  R14 port 3
-		assign  R8_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R14_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R8_flit_in_wr_all [1] = R14_flit_out_wr_all [3];
-		assign  R8_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R14_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R14_credit_in_all [(4*V)-1 :	 3*V ]= R8_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R8 port 2 to  R15 port 4
-		assign  R8_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R15_flit_out_all [(5*Fw)-1 :	 4*Fw ];
-		assign  R8_flit_in_wr_all [2] = R15_flit_out_wr_all [4];
-		assign  R8_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R15_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
-		assign  R15_credit_in_all [(5*V)-1 :	 4*V ]= R8_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R8 port 3 to  R4 port 3
-		assign  R8_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R4_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R8_flit_in_wr_all [3] = R4_flit_out_wr_all [3];
-		assign  R8_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R4_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R4_credit_in_all [(4*V)-1 :	 3*V ]= R8_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R8 port 1 to  R2 port 4
+		assign  R8_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R2_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R8_flit_in_wr_all [1] = R2_flit_out_wr_all [4];
+		assign  R8_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R2_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R2_credit_in_all [(5*V)-1 :	 4*V ]= R8_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R8 port 2 to  R0 port 3
+		assign  R8_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R0_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R8_flit_in_wr_all [2] = R0_flit_out_wr_all [3];
+		assign  R8_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R0_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R0_credit_in_all [(4*V)-1 :	 3*V ]= R8_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R8 port 3 to  R13 port 3
+		assign  R8_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R13_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R8_flit_in_wr_all [3] = R13_flit_out_wr_all [3];
+		assign  R8_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R13_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R13_credit_in_all [(4*V)-1 :	 3*V ]= R8_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R8 port 4 to  R11 port 2
+		assign  R8_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R11_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R8_flit_in_wr_all [4] = R11_flit_out_wr_all [2];
+		assign  R8_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R11_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R11_credit_in_all [(3*V)-1 :	 2*V ]= R8_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R9
 	*******************/
 	router #(
-		.P(4),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -1278,27 +1343,32 @@ module   test_noc #(
 		assign  R9_flit_in_wr_all [0] = T9_flit_in_wr ;
 		assign  R9_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T9_credit_out = R9_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R9 port 1 to  R15 port 3
-		assign  R9_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R15_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R9_flit_in_wr_all [1] = R15_flit_out_wr_all [3];
-		assign  R9_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R15_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R15_credit_in_all [(4*V)-1 :	 3*V ]= R9_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R9 port 2 to  R0 port 1
-		assign  R9_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R0_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R9_flit_in_wr_all [2] = R0_flit_out_wr_all [1];
-		assign  R9_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R0_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R0_credit_in_all [(2*V)-1 :	 1*V ]= R9_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R9 port 3 to  R1 port 2
-		assign  R9_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R1_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R9_flit_in_wr_all [3] = R1_flit_out_wr_all [2];
-		assign  R9_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R1_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R1_credit_in_all [(3*V)-1 :	 2*V ]= R9_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R9 port 1 to  R15 port 2
+		assign  R9_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R15_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R9_flit_in_wr_all [1] = R15_flit_out_wr_all [2];
+		assign  R9_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R15_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R15_credit_in_all [(3*V)-1 :	 2*V ]= R9_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R9 port 2 to  R4 port 3
+		assign  R9_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R4_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R9_flit_in_wr_all [2] = R4_flit_out_wr_all [3];
+		assign  R9_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R4_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R4_credit_in_all [(4*V)-1 :	 3*V ]= R9_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R9 port 3 to  R10 port 2
+		assign  R9_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R10_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R9_flit_in_wr_all [3] = R10_flit_out_wr_all [2];
+		assign  R9_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R10_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R10_credit_in_all [(3*V)-1 :	 2*V ]= R9_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R9 port 4 to  R3 port 4
+		assign  R9_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R3_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R9_flit_in_wr_all [4] = R3_flit_out_wr_all [4];
+		assign  R9_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R3_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R3_credit_in_all [(5*V)-1 :	 4*V ]= R9_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R10
 	*******************/
 	router #(
-		.P(4),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -1349,27 +1419,32 @@ module   test_noc #(
 		assign  R10_flit_in_wr_all [0] = T10_flit_in_wr ;
 		assign  R10_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T10_credit_out = R10_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R10 port 1 to  R3 port 1
-		assign  R10_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R3_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R10_flit_in_wr_all [1] = R3_flit_out_wr_all [1];
-		assign  R10_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R3_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R3_credit_in_all [(2*V)-1 :	 1*V ]= R10_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R10 port 2 to  R4 port 1
-		assign  R10_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R4_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R10_flit_in_wr_all [2] = R4_flit_out_wr_all [1];
-		assign  R10_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R4_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R4_credit_in_all [(2*V)-1 :	 1*V ]= R10_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R10 port 3 to  R2 port 1
-		assign  R10_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R2_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R10_flit_in_wr_all [3] = R2_flit_out_wr_all [1];
-		assign  R10_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R2_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R2_credit_in_all [(2*V)-1 :	 1*V ]= R10_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R10 port 1 to  R5 port 3
+		assign  R10_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R5_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R10_flit_in_wr_all [1] = R5_flit_out_wr_all [3];
+		assign  R10_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R5_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R5_credit_in_all [(4*V)-1 :	 3*V ]= R10_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R10 port 2 to  R9 port 3
+		assign  R10_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R9_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R10_flit_in_wr_all [2] = R9_flit_out_wr_all [3];
+		assign  R10_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R9_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R9_credit_in_all [(4*V)-1 :	 3*V ]= R10_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R10 port 3 to  R14 port 4
+		assign  R10_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R14_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R10_flit_in_wr_all [3] = R14_flit_out_wr_all [4];
+		assign  R10_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R14_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R14_credit_in_all [(5*V)-1 :	 4*V ]= R10_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R10 port 4 to  R11 port 4
+		assign  R10_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R11_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R10_flit_in_wr_all [4] = R11_flit_out_wr_all [4];
+		assign  R10_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R11_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R11_credit_in_all [(5*V)-1 :	 4*V ]= R10_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R11
 	*******************/
 	router #(
-		.P(4),
+		.P(5),
 		.T1(16),
 		.T2(16),
 		.T3(5),
@@ -1420,21 +1495,26 @@ module   test_noc #(
 		assign  R11_flit_in_wr_all [0] = T11_flit_in_wr ;
 		assign  R11_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T11_credit_out = R11_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R11 port 1 to  R7 port 3
-		assign  R11_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R7_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R11_flit_in_wr_all [1] = R7_flit_out_wr_all [3];
-		assign  R11_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R7_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R7_credit_in_all [(4*V)-1 :	 3*V ]= R11_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R11 port 2 to  R4 port 2
-		assign  R11_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R4_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R11_flit_in_wr_all [2] = R4_flit_out_wr_all [2];
-		assign  R11_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R4_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R4_credit_in_all [(3*V)-1 :	 2*V ]= R11_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R11 port 3 to  R0 port 2
-		assign  R11_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R0_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R11_flit_in_wr_all [3] = R0_flit_out_wr_all [2];
-		assign  R11_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R0_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R0_credit_in_all [(3*V)-1 :	 2*V ]= R11_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R11 port 1 to  R14 port 2
+		assign  R11_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R14_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R11_flit_in_wr_all [1] = R14_flit_out_wr_all [2];
+		assign  R11_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R14_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R14_credit_in_all [(3*V)-1 :	 2*V ]= R11_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R11 port 2 to  R8 port 4
+		assign  R11_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R8_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R11_flit_in_wr_all [2] = R8_flit_out_wr_all [4];
+		assign  R11_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R8_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R8_credit_in_all [(5*V)-1 :	 4*V ]= R11_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R11 port 3 to  R13 port 4
+		assign  R11_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R13_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R11_flit_in_wr_all [3] = R13_flit_out_wr_all [4];
+		assign  R11_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R13_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R13_credit_in_all [(5*V)-1 :	 4*V ]= R11_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R11 port 4 to  R10 port 4
+		assign  R11_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R10_flit_out_all [(5*Fw)-1 :	 4*Fw ];
+		assign  R11_flit_in_wr_all [4] = R10_flit_out_wr_all [4];
+		assign  R11_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R10_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
+		assign  R10_credit_in_all [(5*V)-1 :	 4*V ]= R11_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R12
@@ -1491,26 +1571,26 @@ module   test_noc #(
 		assign  R12_flit_in_wr_all [0] = T12_flit_in_wr ;
 		assign  R12_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T12_credit_out = R12_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R12 port 1 to  R13 port 1
-		assign  R12_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R13_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R12_flit_in_wr_all [1] = R13_flit_out_wr_all [1];
-		assign  R12_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R13_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R13_credit_in_all [(2*V)-1 :	 1*V ]= R12_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R12 port 2 to  R5 port 1
-		assign  R12_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R5_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R12_flit_in_wr_all [2] = R5_flit_out_wr_all [1];
-		assign  R12_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R5_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R5_credit_in_all [(2*V)-1 :	 1*V ]= R12_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R12 port 3 to  R6 port 1
-		assign  R12_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R6_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R12_flit_in_wr_all [3] = R6_flit_out_wr_all [1];
-		assign  R12_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R6_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R6_credit_in_all [(2*V)-1 :	 1*V ]= R12_credit_out_all [(4*V)-1 : 		 3*V ];
-//Connect R12 port 4 to  R15 port 2
-		assign  R12_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R15_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R12_flit_in_wr_all [4] = R15_flit_out_wr_all [2];
-		assign  R12_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R15_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R15_credit_in_all [(3*V)-1 :	 2*V ]= R12_credit_out_all [(5*V)-1 : 		 4*V ];
+//Connect R12 port 1 to  R6 port 1
+		assign  R12_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R6_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R12_flit_in_wr_all [1] = R6_flit_out_wr_all [1];
+		assign  R12_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R6_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R6_credit_in_all [(2*V)-1 :	 1*V ]= R12_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R12 port 2 to  R7 port 1
+		assign  R12_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R7_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R12_flit_in_wr_all [2] = R7_flit_out_wr_all [1];
+		assign  R12_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R7_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R7_credit_in_all [(2*V)-1 :	 1*V ]= R12_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R12 port 3 to  R15 port 1
+		assign  R12_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R15_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R12_flit_in_wr_all [3] = R15_flit_out_wr_all [1];
+		assign  R12_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R15_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R15_credit_in_all [(2*V)-1 :	 1*V ]= R12_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R12 port 4 to  R2 port 1
+		assign  R12_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R2_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R12_flit_in_wr_all [4] = R2_flit_out_wr_all [1];
+		assign  R12_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R2_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R2_credit_in_all [(2*V)-1 :	 1*V ]= R12_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R13
@@ -1567,26 +1647,26 @@ module   test_noc #(
 		assign  R13_flit_in_wr_all [0] = T13_flit_in_wr ;
 		assign  R13_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T13_credit_out = R13_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R13 port 1 to  R12 port 1
-		assign  R13_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R12_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R13_flit_in_wr_all [1] = R12_flit_out_wr_all [1];
-		assign  R13_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R12_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R12_credit_in_all [(2*V)-1 :	 1*V ]= R13_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R13 port 2 to  R14 port 1
-		assign  R13_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R14_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R13_flit_in_wr_all [2] = R14_flit_out_wr_all [1];
-		assign  R13_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R14_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R14_credit_in_all [(2*V)-1 :	 1*V ]= R13_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R13 port 3 to  R15 port 1
-		assign  R13_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R15_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R13_flit_in_wr_all [3] = R15_flit_out_wr_all [1];
-		assign  R13_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R15_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R15_credit_in_all [(2*V)-1 :	 1*V ]= R13_credit_out_all [(4*V)-1 : 		 3*V ];
-//Connect R13 port 4 to  R7 port 1
-		assign  R13_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R7_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R13_flit_in_wr_all [4] = R7_flit_out_wr_all [1];
-		assign  R13_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R7_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R7_credit_in_all [(2*V)-1 :	 1*V ]= R13_credit_out_all [(5*V)-1 : 		 4*V ];
+//Connect R13 port 1 to  R0 port 2
+		assign  R13_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R0_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R13_flit_in_wr_all [1] = R0_flit_out_wr_all [2];
+		assign  R13_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R0_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R0_credit_in_all [(3*V)-1 :	 2*V ]= R13_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R13 port 2 to  R14 port 3
+		assign  R13_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R14_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R13_flit_in_wr_all [2] = R14_flit_out_wr_all [3];
+		assign  R13_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R14_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R14_credit_in_all [(4*V)-1 :	 3*V ]= R13_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R13 port 3 to  R8 port 3
+		assign  R13_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R8_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R13_flit_in_wr_all [3] = R8_flit_out_wr_all [3];
+		assign  R13_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R8_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R8_credit_in_all [(4*V)-1 :	 3*V ]= R13_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R13 port 4 to  R11 port 3
+		assign  R13_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R11_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R13_flit_in_wr_all [4] = R11_flit_out_wr_all [3];
+		assign  R13_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R11_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R11_credit_in_all [(4*V)-1 :	 3*V ]= R13_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R14
@@ -1643,26 +1723,26 @@ module   test_noc #(
 		assign  R14_flit_in_wr_all [0] = T14_flit_in_wr ;
 		assign  R14_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T14_credit_out = R14_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R14 port 1 to  R13 port 2
-		assign  R14_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R13_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R14_flit_in_wr_all [1] = R13_flit_out_wr_all [2];
-		assign  R14_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R13_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R13_credit_in_all [(3*V)-1 :	 2*V ]= R14_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R14 port 2 to  R6 port 2
-		assign  R14_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R6_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R14_flit_in_wr_all [2] = R6_flit_out_wr_all [2];
-		assign  R14_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R6_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R6_credit_in_all [(3*V)-1 :	 2*V ]= R14_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R14 port 3 to  R8 port 1
-		assign  R14_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R8_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R14_flit_in_wr_all [3] = R8_flit_out_wr_all [1];
-		assign  R14_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R8_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R8_credit_in_all [(2*V)-1 :	 1*V ]= R14_credit_out_all [(4*V)-1 : 		 3*V ];
-//Connect R14 port 4 to  R1 port 1
-		assign  R14_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R1_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R14_flit_in_wr_all [4] = R1_flit_out_wr_all [1];
-		assign  R14_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R1_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R1_credit_in_all [(2*V)-1 :	 1*V ]= R14_credit_out_all [(5*V)-1 : 		 4*V ];
+//Connect R14 port 1 to  R5 port 2
+		assign  R14_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R5_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R14_flit_in_wr_all [1] = R5_flit_out_wr_all [2];
+		assign  R14_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R5_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R5_credit_in_all [(3*V)-1 :	 2*V ]= R14_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R14 port 2 to  R11 port 1
+		assign  R14_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R11_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R14_flit_in_wr_all [2] = R11_flit_out_wr_all [1];
+		assign  R14_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R11_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R11_credit_in_all [(2*V)-1 :	 1*V ]= R14_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R14 port 3 to  R13 port 2
+		assign  R14_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R13_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R14_flit_in_wr_all [3] = R13_flit_out_wr_all [2];
+		assign  R14_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R13_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R13_credit_in_all [(3*V)-1 :	 2*V ]= R14_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R14 port 4 to  R10 port 3
+		assign  R14_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R10_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R14_flit_in_wr_all [4] = R10_flit_out_wr_all [3];
+		assign  R14_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R10_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R10_credit_in_all [(4*V)-1 :	 3*V ]= R14_credit_out_all [(5*V)-1 : 		 4*V ];
 	
 	/*******************
 	*		R15
@@ -1719,26 +1799,26 @@ module   test_noc #(
 		assign  R15_flit_in_wr_all [0] = T15_flit_in_wr ;
 		assign  R15_congestion_in_all [(1*CONGw)-1 : 		 0*CONGw ] = 0;
 		assign  T15_credit_out = R15_credit_out_all [(1*V)-1 : 		 0*V ];
-//Connect R15 port 1 to  R13 port 3
-		assign  R15_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R13_flit_out_all [(4*Fw)-1 :	 3*Fw ];
-		assign  R15_flit_in_wr_all [1] = R13_flit_out_wr_all [3];
-		assign  R15_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R13_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
-		assign  R13_credit_in_all [(4*V)-1 :	 3*V ]= R15_credit_out_all [(2*V)-1 : 		 1*V ];
-//Connect R15 port 2 to  R12 port 4
-		assign  R15_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R12_flit_out_all [(5*Fw)-1 :	 4*Fw ];
-		assign  R15_flit_in_wr_all [2] = R12_flit_out_wr_all [4];
-		assign  R15_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R12_congestion_out_all [(5*CONGw)-1 :	 4*CONGw ];
-		assign  R12_credit_in_all [(5*V)-1 :	 4*V ]= R15_credit_out_all [(3*V)-1 : 		 2*V ];
-//Connect R15 port 3 to  R9 port 1
-		assign  R15_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R9_flit_out_all [(2*Fw)-1 :	 1*Fw ];
-		assign  R15_flit_in_wr_all [3] = R9_flit_out_wr_all [1];
-		assign  R15_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R9_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
-		assign  R9_credit_in_all [(2*V)-1 :	 1*V ]= R15_credit_out_all [(4*V)-1 : 		 3*V ];
-//Connect R15 port 4 to  R8 port 2
-		assign  R15_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R8_flit_out_all [(3*Fw)-1 :	 2*Fw ];
-		assign  R15_flit_in_wr_all [4] = R8_flit_out_wr_all [2];
-		assign  R15_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R8_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
-		assign  R8_credit_in_all [(3*V)-1 :	 2*V ]= R15_credit_out_all [(5*V)-1 : 		 4*V ];
+//Connect R15 port 1 to  R12 port 3
+		assign  R15_flit_in_all [(2*Fw)-1 : 		 1*Fw ] = R12_flit_out_all [(4*Fw)-1 :	 3*Fw ];
+		assign  R15_flit_in_wr_all [1] = R12_flit_out_wr_all [3];
+		assign  R15_congestion_in_all [(2*CONGw)-1 : 		 1*CONGw ] = R12_congestion_out_all [(4*CONGw)-1 :	 3*CONGw ];
+		assign  R12_credit_in_all [(4*V)-1 :	 3*V ]= R15_credit_out_all [(2*V)-1 : 		 1*V ];
+//Connect R15 port 2 to  R9 port 1
+		assign  R15_flit_in_all [(3*Fw)-1 : 		 2*Fw ] = R9_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R15_flit_in_wr_all [2] = R9_flit_out_wr_all [1];
+		assign  R15_congestion_in_all [(3*CONGw)-1 : 		 2*CONGw ] = R9_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R9_credit_in_all [(2*V)-1 :	 1*V ]= R15_credit_out_all [(3*V)-1 : 		 2*V ];
+//Connect R15 port 3 to  R4 port 1
+		assign  R15_flit_in_all [(4*Fw)-1 : 		 3*Fw ] = R4_flit_out_all [(2*Fw)-1 :	 1*Fw ];
+		assign  R15_flit_in_wr_all [3] = R4_flit_out_wr_all [1];
+		assign  R15_congestion_in_all [(4*CONGw)-1 : 		 3*CONGw ] = R4_congestion_out_all [(2*CONGw)-1 :	 1*CONGw ];
+		assign  R4_credit_in_all [(2*V)-1 :	 1*V ]= R15_credit_out_all [(4*V)-1 : 		 3*V ];
+//Connect R15 port 4 to  R7 port 2
+		assign  R15_flit_in_all [(5*Fw)-1 : 		 4*Fw ] = R7_flit_out_all [(3*Fw)-1 :	 2*Fw ];
+		assign  R15_flit_in_wr_all [4] = R7_flit_out_wr_all [2];
+		assign  R15_congestion_in_all [(5*CONGw)-1 : 		 4*CONGw ] = R7_congestion_out_all [(3*CONGw)-1 :	 2*CONGw ];
+		assign  R7_credit_in_all [(3*V)-1 :	 2*V ]= R15_credit_out_all [(5*V)-1 : 		 4*V ];
 
     
     //Connect T0 output ports 0 to  R0 input ports 0

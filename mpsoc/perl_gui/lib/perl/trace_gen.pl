@@ -1225,7 +1225,19 @@ sub get_task_give_tile{
 }
 
 	
+sub network_3dim_cal{
+	my $n_tasks= shift;
 	
+	my $dim_x = floor($n_tasks**(1/3));
+	
+	my ($dim_y,$dim_z)=network_dim_cal(ceil($n_tasks/$dim_x));
+	 
+	
+	
+	return ($dim_x,$dim_y,$dim_z);
+
+	
+}	
 	
 
 

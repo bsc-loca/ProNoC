@@ -95,7 +95,47 @@ module custom_ni_routing  #(
     
     end	
     
+     
+	//do not modify this line ===TalirezaRwww===
+    if(TOPOLOGY == "alireza" && ROUTE_NAME== "www" ) begin : TalirezaRwww
+    
+        TalirezaRwww_ni_conventional_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_conventional_routing
+        (
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport)        
+        );    
+    
+    end	
+    
+     
+	//do not modify this line ===TtestRtest1===
+    if(TOPOLOGY == "test" && ROUTE_NAME== "test1" ) begin : TtestRtest1
+    
+        TtestRtest1_ni_conventional_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_conventional_routing
+        (
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport)        
+        );    
+    
+    end	
+    
     endgenerate
+    	
+ 
+    	
+ 
     	
  
     	

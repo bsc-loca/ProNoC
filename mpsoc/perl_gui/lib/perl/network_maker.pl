@@ -88,7 +88,8 @@ sub custom_topology_diagram {
 	my $plus = def_image_button('icons/plus.png',undef,TRUE);
 	my $minues = def_image_button('icons/minus.png',undef,TRUE);
 	my $save = def_image_button('icons/save.png',undef,TRUE);
-	
+	my $dot_file = def_image_button('icons/add-notes.png',undef,TRUE);	
+	set_tip($dot_file, "Show dot file.");
 	
 	my $scale=$self->object_get_attribute("tile_diagram","scale");
 	$scale= 1 if (!defined $scale);	
@@ -119,6 +120,10 @@ sub custom_topology_diagram {
 	$table->attach ($plus ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($minues,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($save,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
+	$table->attach ($dot_file,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
+	
+	$table->attach_defaults ($scrolled_win, 1, 20, 0, 20); #,'fill','shrink',2,2);
+	
  	($col,$row)=(1,0);
 	while ($row<20){		
 		my $tmp=gen_label_in_left('');
@@ -128,21 +133,23 @@ sub custom_topology_diagram {
 	$plus  -> signal_connect("clicked" => sub{ 
 		$scale*=1.1 if ($scale <10);
 		$self->object_add_attribute("topology_diagram","scale", $scale );
-		show_custom_topology_diagram ($self,$scrolled_win,$table,"topology_diagram");
+		show_custom_topology_diagram ($self,$scrolled_win,"topology_diagram");
 	});	
 	$minues  -> signal_connect("clicked" => sub{ 
 		$scale*=.9  if ($scale >0.1); ;
 		$self->object_add_attribute("topology_diagram","scale", $scale );
-		show_custom_topology_diagram ($self,$scrolled_win,$table,"topology_diagram");
+		show_custom_topology_diagram ($self,$scrolled_win,"topology_diagram");
 	});
 	$save-> signal_connect("clicked" => sub{ 
 			save_inline_diagram_as ($self);
 		});	
 	
+	$dot_file-> signal_connect("clicked" => sub{ 
+			my $dotfile = generate_custom_topology_dot_file($self);
+			show_text_in_scrolled_win($self,$scrolled_win, $dotfile);		
+	});
 	
-	#if(gen_custom_diagram($self,'custom_topology')){
-		show_custom_topology_diagram ($self,$scrolled_win,$table,"topology_diagram");
-	#}
+	
 	$auto -> signal_connect("clicked" => sub{ 
 			my $state=$self->object_get_attribute("tile_diagram","auto_draw");
 			
@@ -161,8 +168,14 @@ sub custom_topology_diagram {
 			set_gui_status($self,"ref",1);		
 		});	
 	
+	if ($state eq 'ON'){
+		show_custom_topology_diagram ($self,$scrolled_win,"topology_diagram");
+	}
 	
-	return $table;
+	my $scrolled_win2 = new Gtk2::ScrolledWindow (undef, undef);	
+	$scrolled_win2->set_policy( "automatic", "automatic" );	
+	$scrolled_win2->add_with_viewport($table);
+	return $scrolled_win2;
 }
 
 
@@ -283,7 +296,7 @@ sub generate_custom_topology_dot_file{
 		
 	my $dotfile=
 "digraph G {
-	graph [rankdir = LR , splines = true]; 	
+	graph [layout = twopi, rankdir = RL , splines = true, overlap = false]; 	
 	node[shape=record];	
 	";	
 	#Add endpoints
@@ -379,96 +392,21 @@ sub get_connection_port_num_between_two_nodes{
 
 
 sub show_custom_topology_diagram {
-	my ($self,$scrolled_win,$table, $name)=@_;
-	if(defined $scrolled_win){
-		$scrolled_win->destroy;
-		$scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
-		$scrolled_win->set_policy( "automatic", "automatic" );
-		$table->attach_defaults ($scrolled_win, 1, 20, 0, 20); #,'fill','shrink',2,2);		
-	}
-	my $scale=$self->object_get_attribute($name,"scale");
-	$scale= 1 if (!defined $scale);	
-	my $diagram;
+	my ($self,$scrolled_win, $name)=@_;
+	
 	my $state=$self->object_get_attribute("tile_diagram","auto_draw");
 	if( $state eq "ON") {
 		my $dotfile = generate_custom_topology_dot_file($self);
-		my $cmd;
-		#$cmd=  "dot  $tmp_dir/diagram.txt | neato -n  -Tpng -o $tmp_dir/diagram.png" if ($type eq 'tile' || $type eq 'trace'  );
-		#$cmd = "twopi  $tmp_dir/diagram.txt -Kfdp -n -Tpng -o $tmp_dir/diagram.png" if ( $type eq 'map' || $type eq 'topology' || $type eq 'custom_topology' );	
-		$cmd =  " dot  -Goverlap=false -Kfdp    -Tjpg " ;
-		#$cmd =  " dot  | neato -Goverlap=false -n  -Tpng " ;
-		
-	    $cmd = "echo \'$dotfile\' | $cmd";
-		my ($stdout,$exit,$stderr)= run_cmd_in_back_ground_get_stdout ($cmd);
-		if ( length( $stderr || '' ) !=0)  {
-			message_dialog("$stderr\nHave you installed graphviz? If not run \n \t \"sudo apt-get install graphviz\" \n in terminal",'error');
-		}
-	     $diagram =open_inline_image( $stdout,70*$scale,70*$scale,'percent');
+		generate_and_show_graph_using_graphviz($self,$scrolled_win,$dotfile,$name);
 	}
-	else{
-		 my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
-		 $diagram=open_image("$tmp_dir/saved_diagram.png",70*$scale,70*$scale,'percent');		
-	}	
-		
-	
-	
-		if(defined $scrolled_win){
-			$scrolled_win->add_with_viewport($diagram);
-			$scrolled_win->show_all();	
+	else {
+		my @list = $scrolled_win->get_children();
+		foreach my $l (@list){ 
+			$scrolled_win->remove($l);			
 		}
-		
-		my $save=$self->object_get_attribute("graph_save","enable");
-		$save=0 if(!defined $save);
-		if($save==1){
-			my $file = $self->object_get_attribute("graph_save","name");
-			my $ext  = $self->object_get_attribute("graph_save","extension");
-			my $pixbuff= $diagram->get_pixbuf;
-		    $pixbuff->save ("$file.$ext", "$ext");	
-		    $self->object_add_attribute("graph_save","enable",'0');	
-		}	
-		
-		
-}
-
-
-sub topology_maker_notebook{
-	my ($self,$info)=@_;		
-	my $notebook = Gtk2::Notebook->new;
-	$notebook->set_tab_pos ('left');
-	$notebook->set_scrollable(TRUE);
-	$notebook->can_focus(FALSE);
-	my $page1=take_node_num_page($self);
-	$notebook->append_page ($page1,Gtk2::Label->new  (" Nodes #"));
-	my $page2=take_instance_page($self);
-	$notebook->append_page ($page2,Gtk2::Label->new  ("Instance"));
-	my $page3=connection_page($self,$info);
-	$notebook->append_page ($page3,Gtk2::Label->new  ("Connection"));
-	my $page4=routing_page($self,$info);
-	$notebook->append_page ($page4,Gtk2::Label->new  ("Route Selection"));
+	}
 	
-	
-	
-	
-	$notebook->show_all;
-		
-	my $first=1;
-	my $page_num=$self->object_get_attribute ("process_notebook","currentpage");		
-	$notebook->set_current_page ($page_num) if(defined $page_num);
-	$notebook->signal_connect( 'switch-page'=> sub{			
-		$self->object_add_attribute ("process_notebook","currentpage",$_[2]);	#save the new pagenumber
-	});	
-	$notebook->signal_connect("switch-page" => sub{ 		
-		if(!$first){
-			
-			set_gui_status($self,"ref",1);
-		}else {
-			set_gui_status($self,"ref",1);
-		}
-		$first=0;		
-	});
-	
-	return $notebook;
-	
+	return;
 }
 
 
@@ -490,10 +428,7 @@ sub take_node_num_page{
 		$table->attach (def_icon('icons/r.png'),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col++;
 		($row,$col)=add_param_widget ($self,"# $i-Port Routers","NUM", 0,'Spin-button','0,1024,1',undef, $table,$row,$col,1,"ROUTER${i}",10,'redraw');$col=0;		
 	}	
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($table);
-	return $sc_win;
+	return $table;
 }
 
 
@@ -502,8 +437,12 @@ sub take_instance_page{
 	my ($self)=@_;		
 	my $table= def_table(2,10,FALSE);
 	
+	initial_node_info($self);
+	
 	my $row=0;
 	my $col=0;
+	
+	
 	$table->attach (def_label(' Network Element '),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col+=2;
 	$table->attach (def_label(' Instance name '),$col,$col+1,$row,$row+1,'fill','shrink',2,2);
 	$row++;$col=0;
@@ -512,8 +451,7 @@ sub take_instance_page{
 	my $EN= $self->object_get_attribute('ENDP','NUM');
 	$EN = 0 if(!defined $EN);
 	for (my $i=0;$i<$EN; $i++){	
-		 $self->object_add_attribute("ENDP_$i",'PNUM',1);
-		 $self->object_add_attribute("ENDP_$i",'TYPE',"ENDP");
+		
 		 my $d=get_default_instance_name($self,"ENDP_$i");	                            
 		($row,$col)=add_param_widget ($self,"Endpoint $i","NAME",$d ,'Entry',undef,"router instance name", $table,$row,$col,1,"ENDP_$i",10,'redraw');$col=0;
 		
@@ -525,22 +463,52 @@ sub take_instance_page{
 		my $n= $self->object_get_attribute("ROUTER${i}","NUM");
 		$n=0 if(!defined $n);
 		 for ( my $j=0;$j<$n; $j++){
-		 	 $self->object_add_attribute("ROUTER${i}_$j",'PNUM',${i});
-			 $self->object_add_attribute("ROUTER${i}_$j",'RNUM',$Rnum);
-			 $self->object_add_attribute("ROUTER${i}_$j",'TYPE',"ROUTER");
-		 	 my $d=get_default_instance_name($self,"ROUTER${i}_$j");
-		 	
-			($row,$col)=add_param_widget ($self,"Router $Rnum","NAME", "$d",'Entry',undef,"router instance name", $table,$row,$col,1,"ROUTER${i}_$j",10,'redraw');$col=0;
-			
-			 
+		 	my $d=get_default_instance_name($self,"ROUTER${i}_$j");
+		 	($row,$col)=add_param_widget ($self,"Router $Rnum","NAME", "$d",'Entry',undef,"router instance name", $table,$row,$col,1,"ROUTER${i}_$j",10,'redraw');$col=0;
+					 
 			 $Rnum++;
 		 }
 	}	
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($table);
-	return $sc_win;
+	return $table;
+	
 }
+
+sub initial_node_info {
+	my ($self)=@_;		
+	
+	my $EN= $self->object_get_attribute('ENDP','NUM');
+	$EN = 0 if(!defined $EN);
+	for (my $i=0;$i<$EN; $i++){	
+		 $self->object_add_attribute("ENDP_$i",'PNUM',1);
+		 $self->object_add_attribute("ENDP_$i",'TYPE',"ENDP");
+		 my $inst=$self->object_get_attribute("ENDP_$i",'NAME');
+		 if(!defined $inst){
+		 	$inst=get_default_instance_name ($self,"ENDP_$i");
+		 	$self->object_add_attribute("ENDP_$i",'NAME',$inst);
+		 }
+	}	
+	
+	#routers
+	my $Rnum=0;
+	for ( my $i=2;$i<=12; $i++){
+		my $n= $self->object_get_attribute("ROUTER${i}","NUM");
+		$n=0 if(!defined $n);
+		 for ( my $j=0;$j<$n; $j++){
+		 	 $self->object_add_attribute("ROUTER${i}_$j",'PNUM',${i});
+			 $self->object_add_attribute("ROUTER${i}_$j",'RNUM',$Rnum);
+			 $self->object_add_attribute("ROUTER${i}_$j",'TYPE',"ROUTER");
+			 my $inst=$self->object_get_attribute("ROUTER${i}_$j",'NAME');
+			 if(!defined $inst){
+			 	$inst=get_default_instance_name ($self,"ROUTER${i}_$j");
+			 	$self->object_add_attribute("ROUTER${i}_$j",'NAME',$inst);
+			 }
+		 	 $Rnum++;
+		 }
+	}	
+	
+}
+
+
 
 
 sub get_default_instance_name {
@@ -753,6 +721,42 @@ sub connect_nodes {
 	
 }
 
+sub remove_all_connection {
+	my ($self)=@_;
+	my @all_nodes=get_list_of_all_nodes($self);
+	foreach  my $node  (@all_nodes ){
+		$self->{$node}{'PCONNECT'}=undef;	
+	}	
+	set_gui_status($self,"ref",1);
+}
+
+sub list_node_all_port{
+	my ($self,$node)=@_;
+	my @l;
+	my $pnum =  $self->object_get_attribute($node,'PNUM');
+	for (my $i=0;$i<$pnum; $i++){
+		push(@l,"Port[${i}]");
+	}
+	return @l;
+}
+
+
+
+sub list_node_connected_port {
+	my ($self,$node)=@_;
+	my $r = $self->{$node}{'PCONNECT'};
+	my %c =(defined $r)? %{$r} : undef;
+	return sort keys %c;
+}
+
+sub list_node_unconnected_port {
+	my ($self,$node)=@_;
+	my @p = list_node_all_port($self,$node);
+	my @cp = list_node_connected_port ($self,$node);
+	#@p - @cp;
+    my @np =get_diff_array(\@p,\@cp);
+	return @np;
+}
 
 
 sub connection_page{
@@ -760,6 +764,10 @@ sub connection_page{
 	my $table= def_table(2,10,FALSE);
 	my $row=0;
 	my $col=0;
+	
+	initial_node_info($self);
+	
+	
 	
 	my $eq = def_table(1,8,TRUE);
 	
@@ -844,9 +852,7 @@ sub connection_page{
 		 }
 	}	
 	
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($table);
+	
 	
 	
 	#add lables
@@ -856,7 +862,7 @@ sub connection_page{
 		$table->attach (def_label(" P$i "),$col,$col+1,$row,$row+1,'fill','shrink',2,2);$col+=4;
 		
 	}
-	return $sc_win;
+	return $table;
 	
 }
 
@@ -971,35 +977,279 @@ add_info($info,"$string") if (defined $info);
 		
 }	
 	
+###########
+# connection_page_auto
+##########	
 	
-	
-
-
-
-sub routing_page{
+sub connection_page_auto{
 	my ($self,$info)=@_;		
 	my $table= def_table(2,10,FALSE);
 	my $row=0;
 	my $col=0;
 	
+	initial_node_info($self);
+	
+	my $help1 =  "Define the minimum number of endpoints that can be connected to a single router. Routers in the topology will have either at least a minum endpoint number or they will have no endpoints at all.";
+	my $help2 =  "Define the manimum number of endpoints that can be connected to a single router."; 
+	my $help3 =  undef; 
+	
+	
+	
+	my @widgets = (
+	{ label=>"Minimum Endp per Router",        param_name=>'MIN_ENDP_PER_ROUTER',   type=>"Spin-button",     default_val=>1, content=>"1,1024,1", info=>$help1, param_parent=>'connection_auto', ref_delay=> undef},
+	{ label=>"Maximum Endp per Router",        param_name=>'MAX_ENDP_PER_ROUTER',   type=>"Spin-button",     default_val=>1, content=>"1,1024,1", info=>$help2, param_parent=>'connection_auto', ref_delay=> undef},
+	{ label=>"Endp per Router distribution",   param_name=>'ENDP_PER_ROUTER_DIST',   type=>"Combo-box",     default_val=>"uniform", content=>"uniform,random", info=>$help3, param_parent=>'connection_auto', ref_delay=> undef},
+	{ label=>"Topology Dimention",             param_name=>'DIMENTION',   type=>"Combo-box",     default_val=>"2D", content=>"2D,3D", info=>undef, param_parent=>'connection_auto', ref_delay=> undef},
+	
+		);	
+	
+	
+
+	foreach my $d (@widgets) {
+		my $w;
+		($row,$col,$w)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,"vertical");
+		
+	}#foreach
+	
+	
+	
+	
+	my $auto = def_image_button('icons/gen.png','Auto Connect');
+	$table->attach ($auto,1, 2,  $row, $row+1,'fill','fill',2,2);
+	$auto-> signal_connect("clicked" => sub{
+			auto_connect($self,$info);	
+	});
+	
+	my $clean = def_image_button('icons/clear.png','Remove All Connection');
+	$table->attach ($clean,0,1 ,  $row, $row+1,'fill','fill',2,2);
+	$clean-> signal_connect("clicked" => sub{
+			remove_all_connection($self); 
+	});
+	
+	
+	
+	return $table;	
+}
+
+sub get_new_val_based_on_dist {
+	my ($total_router,$total_endp, $router_Pnum,$min_endp,$max_endp,$dist_endp)=@_;
+
+	if($dist_endp eq "uniform"){
+		my $a = int($total_endp/$total_router);
+		return $a if($a >= $min_endp && $a <$router_Pnum ); 
+		return $min_endp if($a < $min_endp  );       
+		return $router_Pnum -1 if($a >= $router_Pnum ) ;                                
+	}		
+	#random distribution	
+	my $a = int(rand($max_endp - $min_endp +1)) + $min_endp;
+	return $a if($a >= $min_endp && $a <$router_Pnum ); 
+	return $min_endp if($a < $min_endp  );       
+	return $router_Pnum -1 if($a >= $router_Pnum) ;	
+}
+
+
+sub assign_endp_num_based_on_dist {
+	my ($self,$routers_ref,$total_endp, $min_endp,$max_endp,$dist_endp,$info)=@_;
+	my @routers = @{$routers_ref};
+	my %assigned;
+	my $total_router = scalar @routers;
+	my $valid=1;
+	while ($total_endp > 0 && $valid ==1){
+		$valid =0;
+		foreach my $r (reverse @routers) {
+			my $router_Pnum=$self->object_get_attribute("$r",'PNUM');
+			my $val  = $assigned{$r};
+			if (!defined $val) {
+				$val=0;
+				$assigned{$r}=0;
+			}
+			if ($min_endp >=$router_Pnum || $total_endp ==0 ){
+				
+			} else{      
+		    	my $new =get_new_val_based_on_dist ($total_router,$total_endp, $router_Pnum,$min_endp,$max_endp,$dist_endp);
+				$new =$val + $total_endp  if(($new - $val) > $total_endp);
+				if  ($new<$min_endp){
+					
+				}
+				elsif ($new > $val){
+					$assigned{$r} = $new;
+					$total_endp-=($new - $val);
+					$valid = 1;				
+				} elsif ($val < $router_Pnum-2 && $val +1 <=$max_endp ){
+					$assigned{$r} = $val +1;
+					$total_endp-=1;
+					$valid = 1;				
+				}
+			}#else
+		}#for		
+		
+	}#while
+	  
+	if ($total_endp > 0) {
+		add_colored_info($info, "Error: Unable to assign all endpoits to routers using requested configuration. Total of $total_endp endpoints left unconnected\n",'red');
+		return (\%assigned,0);
+	}
+	
+	return (\%assigned,1);
+
+}
+
+#list the manhatan distance of all nodes in dimention ($xd,$yd,$zd) to the node located in ($xm,$ym,$zm)
+sub list_manhatan_distance {
+	my ($xd,$yd,$zd,$xm,$ym,$zm)=@_;
+	my %manhatan;
+	for( my $x=0; $x<$xd;$x++){
+		for( my $y=0; $y<$yd;$y++){
+			for( my $z=0; $z<$zd;$z++){
+				$manhatan{"$x,$y,$z"} = abs($x-$xm) + abs($y-$ym) + abs($z-$zm);
+			}
+		}
+	} 
+	return %manhatan;
+}
+
+
+
+sub auto_connect {
+	my ($self,$info)=@_;
+	show_colored_info($info, "Start auto connecting Nodes\n",'blue');
+	add_info($info, "Step 1: Connect endpoints to the routers:\n");
+	
+	                                     
+	my $min_endp  = $self->object_get_attribute('connection_auto','MIN_ENDP_PER_ROUTER');                     
+	my $max_endp  = $self->object_get_attribute('connection_auto','MAX_ENDP_PER_ROUTER');    
+	my $dist_endp = $self->object_get_attribute('connection_auto','ENDP_PER_ROUTER_DIST');
+	my $dimention = $self->object_get_attribute('connection_auto','DIMENTION');
+	
+	 
+	#check min and max is correct
+	if($min_endp > $max_endp ){
+		add_colored_info($info, "Error: Invalid Min & Max range for endpoint router numbr per router. MAX_ENDP_PER_ROUTER shuld >= MIN_ENDP_PER_ROUTER\n",'red');
+	}                                     
+	
+	initial_node_info($self);
+	
+	my @all_endpoints=get_list_of_all_endpoints($self);
+	my @routers=get_list_of_all_routers($self);
+	
+	#connect endpoints
+	my ($ref,$result)  = assign_endp_num_based_on_dist ($self,\@routers,scalar @all_endpoints, $min_endp,$max_endp,$dist_endp,$info);
+	my %assign = %{$ref};
+	my %router_free_port;
+	foreach my $r (reverse @routers) {		
+		$router_free_port{$r}=$self->object_get_attribute("$r",'PNUM');
+		my $num = $assign{$r};
+		for (my $p=0; $p<$num;$p++){
+			my $e = pop (@all_endpoints);
+			connect_nodes ($self,$r,"Port[$p]",$e,"Port[0]",$info);
+			my $rinst=$self->object_get_attribute("$r",'NAME');
+			my $einst=$self->object_get_attribute("$e",'NAME');
+			add_info($info,"\t connect $rinst-Port[$p] -> $einst-Port[0]\n",$info);
+			$router_free_port{$r}=$router_free_port{$r}-1;
+		}		
+	}
+	
+	#get dimention 
+	my $routers_num =scalar @routers;
+	my ($xd,$yd,$zd)=(1,1,1);
+	($xd,$yd)= network_dim_cal ($routers_num) if ($dimention eq '2D');
+	($xd,$yd,$zd)=network_3dim_cal ($routers_num) if ($dimention eq '3D');
+	add_info($info, "Step 2: Map $routers_num routers in (x=$xd , y=$yd , z=$zd) dimention. Routers with higher number of free ports located in center:\n");
+	
+	#obtain routers location 
+	#center loc
+	my $xmid =int($xd/2); 
+	my $ymid =int($yd/2);
+	my $zmid =int($zd/2);
+	
+	#sort location based on manhatan distanc from the center
+	my %manhatan = list_manhatan_distance ($xd,$yd,$zd,$xmid,$ymid,$zmid);
+	my @sort_locs = (sort { $manhatan{$a} <=> $manhatan{$b} } keys %manhatan);
+	
+	#sort routers based on avilable ports
+	my @sort_routers = (sort { $router_free_port{$b} <=> $router_free_port{$a} } keys %router_free_port);
+	
+	#assign sorted routers to sorted locations 
+	my %locations;
+	foreach my $r (@sort_routers){
+    	my $loc = shift @sort_locs;
+    	my $inst=$self->object_get_attribute("$r",'NAME');
+    	add_info($info, "\t $inst with $router_free_port{$r} free port placed in $loc location\n");
+    	$self->object_add_attribute("$r",'LOC_ASIC',$loc);
+    	$locations{$loc}=$r;    	
+	}
+	
+	#start from the center and connect each router to the N nearest router
+	add_info($info,"Step3 : start from the center and connect each router to the N nearest router\n",$info);
+	foreach my $r (@sort_routers){
+		
+		my $avb_P_num =$router_free_port{$r};
+		my @up = list_node_unconnected_port($self,$r);
+		my @cp = list_node_connected_port ($self,$r);
+		my $loc = $self->object_get_attribute("$r",'LOC_ASIC');
+		my ($xc,$yc,$zc)=split(',',$loc);
+		my %manhatan = list_manhatan_distance ($xd,$yd,$zd,$xc,$yc,$zc);
+		my @sort_locs = (sort { $manhatan{$a} <=> $manhatan{$b} } keys %manhatan);
+		
+		while (scalar @up && scalar @sort_locs){
+			#select one unconnected port from current router
+			my $p = shift @up;
+			my $cr;
+			my $cp;
+			while (scalar @sort_locs && !defined $cp){			
+				#select the nearest router to current one
+				my $cl =shift @sort_locs;
+				$cr=$locations{$cl};
+				next if(!defined $cr);
+				next if ($cr eq $r); #thes two routers are identical
+				#check if they are not connected
+				my $line =get_connection_port_num_between_two_nodes($self,$r,$cr);
+				next if (defined $line); #these two routers are already connected
+				my @up_cr = list_node_unconnected_port($self,$cr);	
+				next if (scalar @up_cr == 0); # the target router has no free port
+				$cp=$up_cr[0];
+			}
+			last if(!defined $cp);
+			my $rinst=$self->object_get_attribute("$r",'NAME');
+			my $einst=$self->object_get_attribute("$cr",'NAME');
+			add_info($info,"\t connect $rinst-$p -> $einst-$cp\n",$info);
+			connect_nodes ($self,$r,"$p",$cr,"$cp",$info);
+		}	
+		
+	}	
+	
+	
+	
+	
+	
+	
+	set_gui_status($self,"ref",1);
+	
+	  
+	
+	
+	
+}
+
+sub routing_page_auto{
+	my ($self,$info)=@_;		
+	my $table= def_table(2,10,FALSE);
+	my $row=0;
+	my $col=0;
+	
+	
+	$self->object_add_attribute('routing','type','turn_model');
+	
+	
+	
 	my $auto = def_image_button('icons/gen.png','AutoGenerate');
-	$table->attach ($auto,0, 10,  $row, $row+1,'fill','fill',2,2);
+	#$table->attach ($auto,0, 1,  $row, $row+1,'fill','fill',2,2);
 	my $clear = def_image_button('icons/clear.png','Clear');
-	$table->attach ($clear,10, 20,  $row, $row+1,'fill','fill',2,2);$row++;
+	#$table->attach ($clear,2,3 ,  $row, $row+1,'fill','fill',2,2);$row++;
 	
+	my $box= def_pack_hbox( FALSE, 0 , $auto,$clear);
+	$table->attach ($box,0,5 ,  $row, $row+1,'fill','fill',2,2);$row++;
 	
-	
-	$table->attach (Gtk2::HSeparator->new,0, 200,  $row, $row+1,'fill','fill',2,2);$row++;	
-
-	$table->attach (gen_colored_icon('Not selected',17),5,10,$row,$row+1,'fill','shrink',2,2);	
-	$table->attach (gen_colored_icon('Selected',0),10,15,$row,$row+1,'fill','shrink',2,2);	
-	$table->attach (gen_colored_icon('Not Existed',11),15,20,$row,$row+1,'fill','shrink',2,2);	
-	$row++;	
-	
-	$table->attach (def_label(' source -> destination '),10,15,$row,$row+1,'fill','shrink',2,2);	
-    $row++;	
-
-
 	$auto-> signal_connect("clicked" => sub{
 			auto_route($self,$info);	
 	});
@@ -1008,6 +1258,164 @@ sub routing_page{
 			clean_route($self,$info);	
 	});
 	
+	my $manual = get_route_manual ($self,$info);
+	
+	my $mtable= def_table(2,2,FALSE);
+	
+	$mtable->attach_defaults ($table  , 0, 1, 0,1);
+	$mtable->attach_defaults ($manual  , 0, 1, 1,2);
+	
+	return $mtable;
+}
+
+sub update_acycle_model {
+	my ($self,$alg_name,$info)=@_; 
+	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
+	my $model_file = "$tmp_dir/$alg_name.alg";	
+	my ($pp,$r,$err) = regen_object($model_file);
+	if ($r){        
+		add_colored_info($info,"**Error: cannot open $model_file file: $err\n",'red');
+		$self->object_add_attribute('routing_auto','acyclic_turns_model',undef);
+		return;
+	} else {
+		add_info($info,"Use $alg_name algorithm for obtaing acyclic paths\n");
+	}
+
+	my @acyclic_turns = @{$pp};			
+	$self->object_add_attribute('routing_auto','acyclic_turns_model',\@acyclic_turns);
+			
+}			
+
+
+sub routing_page_manual{
+	my ($self,$info)=@_;		
+	my $table= def_table(2,10,FALSE);
+	my $row=0;
+	my $col=0;
+	
+	$self->object_add_attribute('routing','type','minimal');
+	
+	initial_node_info($self);
+	my $help1 =  "Define the offset path value that is the maximum difference between the lentght of all paths which are extracted for any specefic source-destination endpoints pair. Define this valuse as zero for Minimal-path (MIN) routing algorithms.";  
+	my $help2 =  "Define the maximum number of routers (path length) paths which should be extracted for any specefic source-destination endpoints pair."; 
+	my $help3 =  "Define how to extract paths between two endpoints: all-paths: extract all paths between two specific endpoints that match the offset size and maximum size parameters. Cycle-free: only paths which do not generate a cyclic dependency in routing graph are extracted.";
+	
+	
+	my @widgets = (
+	{ label=>"Route path offset size ",        param_name=>'OFFSET',   type=>"Spin-button",     default_val=>1, content=>"0,1024,1", info=>$help1, param_parent=>'routing_auto', ref_delay=>"1",ref_state=> undef},
+	{ label=>"Route path maximum size",        param_name=>'MAX_LENGTH',   type=>"Spin-button",     default_val=>1000, content=>"1,1024,1", info=>$help2, param_parent=>'routing_auto', ref_delay=>"1",ref_state=> undef},
+	{ label=>"Route paths select",        param_name=>'PATH_SELECT',   type=>"Combo-box",     default_val=>"Cycle-free paths", content=>"all-paths,Cycle-free paths", info=>$help3, param_parent=>'routing_auto', ref_delay=>"1",ref_state=> undef },
+	
+	);	
+	
+		
+	foreach my $d (@widgets) {
+		my $w;
+		($row,$col,$w)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},$d->{ref_state},"vertical");
+		
+	}#foreach
+	my $offset = $self->object_get_attribute('routing_auto','OFFSET');
+	my $max_len = $self->object_get_attribute('routing_auto','MAX_LENGTH');	
+	
+	my $auto = def_image_button('icons/gen.png','AutoGenerate');
+	
+	my $path_select= $self->object_get_attribute("routing_auto",'PATH_SELECT');
+	if($path_select eq "Cycle-free paths") {
+		my %algorithms;
+		my $ref  =$self->object_get_attribute('routing_auto','acyclic_algorithms');
+		%algorithms = %{$ref} if defined $ref;
+		my @algs = sort { $algorithms{$a} <=> $algorithms{$b} } keys(%algorithms);
+		my ($content,$default);
+		foreach my $alg (@algs){
+			$content.="$alg  --  $algorithms{$alg},";
+			$default= "$alg  --  $algorithms{$alg};";
+						
+		}
+		if (!defined $content){
+			$content='-';
+			$default='-';
+			
+		}
+		
+		my $alg;
+		($row,$col,$alg)=add_param_widget ($self,"cycle-remove algorithm:" , "CYCLE_FREE_ALG",$default , "Combo-box", $content, undef, $table,$row,$col,1,'routing_auto', undef,undef,"vertical");
+		
+		$alg->signal_connect("changed" => sub{
+			my $comb_text = $alg->get_active_text();
+			my ($alg_name,$line) = split (/\s+--\s+/,$comb_text);
+			update_acycle_model ($self,$alg_name,$info);
+			#print "bbbb:@acyclic_turns\n";	
+		});
+		
+		$auto-> signal_connect("clicked" => sub{
+			auto_route($self,$info);	
+		});
+		
+		
+	}
+	
+	
+	
+	
+	my $clear = def_image_button('icons/clear.png','Clear');
+	my $gen_cycle_free = def_image_button('icons/turn.png','Generate Cycle-free Paths');
+	
+	if($path_select eq 'Cycle-free paths') {
+		$table->attach ($gen_cycle_free,0,2 ,  $row, $row+1,'fill','fill',2,2);$row++;
+		$table->attach ($auto,2, 3,  $row, $row+1,'fill','fill',2,2);
+		
+	}
+	$table->attach ($clear,0,2 ,  $row, $row+1,'fill','fill',2,2);$row++;		
+	
+	
+	$clear-> signal_connect("clicked" => sub{
+			clean_route($self,$info);	
+	});
+	
+	$gen_cycle_free -> signal_connect("clicked" => sub{
+			gen_aciclic_turn_graph($self,$info);
+			my %algorithms;
+			my $ref  =$self->object_get_attribute('routing_auto','acyclic_algorithms');
+			%algorithms = %{$ref} if defined $ref;
+			my @algs = sort { $algorithms{$a} <=> $algorithms{$b} } keys(%algorithms);
+			update_acycle_model ($self,$algs[0],$info);
+			set_gui_status($self,'ref',1);		
+	});
+	
+	my $manual = get_route_manual ($self,$info);
+	
+	my $mtable= def_table(2,2,FALSE);
+	
+	$mtable->attach_defaults ($table  , 0, 1, 0,1);
+	$mtable->attach_defaults ($manual  , 0, 1, 1,2);
+	
+	return $mtable;
+}
+
+
+
+
+sub get_route_manual {
+	my ($self,$info)=@_;	
+	
+	my $row=0;
+	my $col=0;
+		
+	my $table= def_table(2,10,FALSE);
+	
+	$table->attach (Gtk2::HSeparator->new,0, 200,  $row, $row+1,'fill','fill',2,2);$row++;
+	
+	my $refresh = def_image_button('icons/refresh.png','Refresh');
+	$table->attach ($refresh,0,5 ,  $row, $row+1,'fill','fill',2,2);$row++;
+		
+
+	$table->attach (gen_colored_icon('Not selected',17),5,10,$row,$row+1,'fill','shrink',2,2);	
+	$table->attach (gen_colored_icon('Selected',0),10,15,$row,$row+1,'fill','shrink',2,2);	
+	$table->attach (gen_colored_icon('Not Existed',11),15,20,$row,$row+1,'fill','shrink',2,2);	
+	$row++;	
+	
+	$table->attach (def_label(' source -> destination '),10,15,$row,$row+1,'fill','shrink',2,2);	
+    $row++;	
 	
 		
 	my @all_endpoints=get_list_of_all_endpoints($self);
@@ -1018,40 +1426,96 @@ sub routing_page{
 			my $dst_inst=$self->object_get_attribute("$dst",'NAME');
 		   	my $select = $self->object_get_attribute('Route',"${src}::$dst");
 		   	
-		   	my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps($self,$src, $dst);
+		  	#my ($paths_to_dst,$ports_to_dst); #= get_all_paths_between_two_endps($self,$src, $dst);
+		  	#my $color =(scalar @{$paths_to_dst}==0)? 11 :  (defined $select)? 0 : 17;		   		   	
+		   	#my $button = ($src_inst ne $dst_inst )?  def_colored_button("${src_inst}->$dst_inst",$color): gen_label_in_center(' - ');	
 		   	
-		  
-		   	
-		   	my $color =(scalar @{$paths_to_dst}==0)? 11 :  (defined $select)? 0 : 17;		   		   	
+		   	my $color = (defined $select)? 0 :17;		   		   	
 		   	my $button = ($src_inst ne $dst_inst )?  def_colored_button("${src_inst}->$dst_inst",$color): gen_label_in_center(' - ');	
+		   
+		   	
 		   	attach_widget_to_table ($table,$row,undef,undef,$button,$col);  $col+=4;	
 		   	
 		   	
 		   	
 		   	$button->signal_connect("clicked" => sub {
 		   		$self->object_add_attribute("SELECT_PATH","src",$src);
-		   		$self->object_add_attribute("SELECT_PATH","dst",$dst);
+		   		$self->object_add_attribute("SELECT_PATH","dst",$dst);		   		
 		   		set_gui_status($self,"redraw",1);
-				
 				
 			}) if($src_inst ne $dst_inst );	
 		   		
    	   
 		}$row++;$col=0;
-	}   	
-   	   	
-		
-	
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($table);
+	} 
 	
 	
-	
-	return $sc_win;
-	
+	$refresh->signal_connect("clicked" => sub{
+			refresh_route_manual($self,$info);	
+	});
+			
+	return $table;
 }
 
+
+sub refresh_route_manual {
+	my ($self,$info)=@_;
+	my @all_endpoints=get_list_of_all_endpoints($self);
+	
+	my $path_select= $self->object_get_attribute("routing_auto",'PATH_SELECT');
+	my @acyclic_turns;	
+
+
+	if ($path_select ne "all-paths"){
+		 my $ref = $self->object_get_attribute('routing_auto','acyclic_turns_model'); 
+		 if(defined $ref) {
+		 	@acyclic_turns = @{$ref};
+		 }else{
+		 	add_colored_info($info,"Info:No acyclic route model is selected\n",'green');
+		 		 	
+		 }	
+	}
+		
+	foreach  my $src  (@all_endpoints ){	
+		foreach  my $dst  (@all_endpoints ){	
+			my $src_inst=$self->object_get_attribute("$src",'NAME');
+			my $dst_inst=$self->object_get_attribute("$dst",'NAME');
+		   	my $select = $self->object_get_attribute('Route',"${src}::$dst");
+		   	
+		   	my ($ref1,$ref2)= ($path_select eq "all-paths")? get_all_paths_between_two_endps($self,$src, $dst) : get_all_paths_between_two_endps_using_accyclic_turn($self,$src, $dst,\@acyclic_turns) ;
+			my @paths = @{$ref1};
+			if (defined $select){
+				#check if select exist in @paths
+				my $match=0;
+			
+				foreach  my $p (@paths ){
+					my @a1 = @{$p};
+					my @a2 = @{$select};
+					my $st1=join('->',@a1);
+					my $st2=join('->',@a2);
+					if($st1 eq $st2){
+						$match=1;
+					}
+				}#foreach
+				#remove it from the selected path
+				if ($match ==0){
+					my $selp;
+					foreach my $q ( @{$select}){
+						my $inst=$self->object_get_attribute("$q",'NAME');
+						$selp= (defined $selp)? $selp."->$inst" : $inst;
+					}
+					
+					add_info ($info,"$selp does not exist in path list anymore and it has been removed\n"); 
+					$self->object_add_attribute('Route',"${src}::$dst",undef);
+				}#if 
+			}#if 
+		}#foreach
+	}#foreach	   	
+		   	
+	
+	set_gui_status($self,"ref",1);
+	
+}		
 
 
 sub route_info_window{
@@ -1326,6 +1790,20 @@ sub show_paths_between_two_endps{
 	my $src = $self->object_get_attribute("SELECT_PATH","src");
 	my $dst = $self->object_get_attribute("SELECT_PATH","dst");
 	
+	my @acyclic_turns;
+	my $path_select= $self->object_get_attribute("routing_auto",'PATH_SELECT');
+	if ($path_select ne "all-paths"){
+		 my $ref = $self->object_get_attribute('routing_auto','acyclic_turns_model'); 
+		 if(defined $ref) {
+		 	@acyclic_turns = @{$ref};
+		 }else{
+		 	add_colored_info($info,"Info:No acyclic route model is selected\n",'green');
+		 		 	
+		 }	
+	}
+	
+	
+	
 	
 	
 	if(defined $src && defined $dst ){
@@ -1334,7 +1812,10 @@ sub show_paths_between_two_endps{
 		$table->attach (def_label("Select path between $s to $d" ),$col,$col+10,$row,$row+1,'fill','shrink',2,2);
 		add_info($info,"get list of all paths between $s to $d \n") if (defined $info);
 		$row=1;
-		my ($ref1,$ref2)= get_all_paths_between_two_endps($self,$src, $dst);
+		my ($ref1,$ref2)= ($path_select eq "all-paths") ?  get_all_paths_between_two_endps($self,$src, $dst):
+		get_all_paths_between_two_endps_using_accyclic_turn($self,$src, $dst,\@acyclic_turns);
+		
+		
 		my @paths = @{$ref1};
 		my @ports= @{$ref2};
 		my $n=0;
@@ -1475,7 +1956,8 @@ sub get_all_paths_between_two_endps{
 	my @proceed_nodes;
 	my @head_nodes;
 	
-	
+	my $offset = $self->object_get_attribute('routing_auto','OFFSET');
+	my $max_len = $self->object_get_attribute('routing_auto','MAX_LENGTH');	
 	
 	push (@head_nodes,$src);
 	push (@proceed_nodes,$src);
@@ -1513,7 +1995,10 @@ sub get_all_paths_between_two_endps{
 					#add connected nodes to head_nodes if they are not in path before
 					if(!defined get_scolar_pos($node,@new_path)){
 						my $size=scalar @new_path;
-						if ($min_dist > $size){
+						#if ($min_dist > $size){
+						if( ($min_dist+$offset) > $size &&   $max_len>=$size){
+							
+							
 							push (@new_path,$node);
 							push (@new_ports,$pnode);
 							push (@paths,\@new_path);
@@ -1521,7 +2006,7 @@ sub get_all_paths_between_two_endps{
 							if($node eq $dst){
 								push(@paths_to_dst,\@new_path);
 								push(@ports_to_dst,\@new_ports); 
-								$min_dist=$size+1;
+								$min_dist=$size+1 if ($min_dist > $size);
 							} 
 						}
 					} #if
@@ -1531,15 +2016,150 @@ sub get_all_paths_between_two_endps{
 		$n++;
 	}while( defined $paths[$n]);
 	
+	#print "\@paths_to_dst". Dumper(@paths_to_dst). "\n \@ports_to_dst". Dumper(@ports_to_dst) . "\n" ;
+	
 	return (\@paths_to_dst,\@ports_to_dst);
 
 }
 
+sub get_path_from_turns {
+	my ($self,$ref)=@_;
+	my @new_turn = @{$ref} if(defined $ref);
+	my @path_nodes;
+	my @path_ports;
+	my $st2;
+	foreach my $code (@new_turn){
+		my $pn2  =  $code & 0xF;
+		$code >>=4;
+		my $rn2  = $code & 0xFFF;
+		$code >>=12;
+		my $pn1 =$code & 0xF;
+		$code >>=4;
+		my $rn1=$code;	
+		my $st1 = ($pn1==1)? "ENDP_${rn1}" : "ROUTER${pn1}_${rn1}";
+		$st2 = ($pn2==1)? "ENDP_${rn2}"    : "ROUTER${pn2}_${rn2}";
+		push(@path_nodes,$st1);		
+	}
+	push(@path_nodes,$st2);	
+	
+	@path_ports=(0);
+	for (my $i=0; $i<scalar @path_nodes-1; $i++){
+		my ($p1,$p2) =get_connection_port_num_between_two_nodes($self,$path_nodes[$i],$path_nodes[$i+1]);
+		push(@path_ports,"Port[$p2]");
+	}
+	
+	return (\@path_nodes,\@path_ports);
+		
+}
+
+sub get_all_paths_between_two_endps_using_accyclic_turn{
+	my ($self,$src, $dst,$ref)=@_;
+	my @proceed_turns;
+	my @head_turns;
+	my @accyclic_turn= @{$ref};
+	
+	my $offset = $self->object_get_attribute('routing_auto','OFFSET');
+	my $max_len = $self->object_get_attribute('routing_auto','MAX_LENGTH');	
+	
+	my @paths_to_dst;
+	my @ports_to_dst;
+	
+	my %graph;
+	
+	foreach my $str (@accyclic_turn){
+		my ($s1,$s2) = split /\s/, $str;
+		push(@{$graph{$s1}},$s2);			
+	}	
+
+	my $start_turns;
+	my $ended_turns;
+	my $src_port = "Port[0]";
+	my $connect = $self->{$src}{'PCONNECT'}{$src_port};	
+	if(defined $connect){
+		my ($node,$pnode)=split(/\s*,\s*/,$connect);
+		$start_turns = 	get_turn_code("${src}::${node}");
+	}
+	
+	$connect = $self->{$dst}{'PCONNECT'}{$src_port};	
+	if(defined $connect){
+		my ($node,$pnode)=split(/\s*,\s*/,$connect);
+		$ended_turns = 	get_turn_code("${node}::${dst}");
+	}
+	
+	push (@head_turns,$start_turns);
+    push (@proceed_turns,$start_turns);
+
+	
+	
+	
+	
+	my @turns;
+	my @ports;
+	my @turns_to_dst;
+	my @first_turn=($start_turns);
+	
+	$turns[0]=\@first_turn;
+	
+	
+	# select one path
+	my $n=0;
+	my $min_dist=1000000;
+	do{	
+		my @current_turn= @{$turns[$n]};
+		# get head node
+		my $head_turn = 	$current_turn[-1];
+		if(defined $head_turn){
+			#get all turns 
+			my @all_fwd_turns = @{$graph{$head_turn}} if (defined $graph{$head_turn});	
+					
+			foreach my $fwd_turn (@all_fwd_turns){
+				my @new_turn=@current_turn;
+				#add new turn to head_turns if they are not in turns before
+				if(!defined get_scolar_pos($fwd_turn,@new_turn)){	
+					my $size=scalar @new_turn;	
+					#if ($min_dist > $size){
+					if( ($min_dist+$offset) > $size &&   $max_len>=$size){
+						push (@new_turn,$fwd_turn);
+						push (@turns,\@new_turn);
+						if($fwd_turn eq $ended_turns){
+							push(@turns_to_dst,\@new_turn);	
+							my ($path_ref,$port_ref) = get_path_from_turns($self,\@new_turn); 				
+							push(@paths_to_dst,$path_ref);
+							push(@ports_to_dst,$port_ref);
+							$min_dist=$size+1 if ($min_dist > $size);
+						} #if
+						
+					}#if
+				}#if
+			}#foreach
+		}#if
+	$n++;
+	}while( defined $turns[$n]);			
+					
+		
+					
+	#print "\@paths_to_dst". Dumper(@paths_to_dst). "\n \@ports_to_dst". Dumper(@ports_to_dst) . "\n" ;
+	
+	
+	return (\@paths_to_dst,\@ports_to_dst);
+	
+}
+
+
+
+
 sub get_turn_code {
 	my $turn =shift;
 	my ($pn1,$rn1,$pn2,$rn2)= sscanf( "ROUTER%u_%u::ROUTER%u_%u",$turn);
-	my $code = ($rn1<<20)+ ($pn1<<16) +  ($rn2<< 4) +  $pn2;
-	return $code;	
+	if(defined $rn1){
+		return ( ($rn1<<20)+ ($pn1<<16) +  ($rn2<< 4) +  $pn2);
+	}
+	($rn1,$pn2,$rn2)= sscanf( "ENDP_%u::ROUTER%u_%u",$turn);
+	if(defined $rn1){
+		return ( ($rn1<<20)+ (1<<16) +  ($rn2<< 4) +  $pn2);
+	}	
+	($pn1,$rn1,$rn2)= sscanf( "ROUTER%u_%u::ENDP_%u",$turn);
+	return ( ($rn1<<20)+ ($pn1<<16) +  ($rn2<< 4) +  1);
 }
 
 sub get_turn_str {
@@ -1551,7 +2171,10 @@ sub get_turn_str {
 	my $pn1 =$code & 0xF;
 	$code >>=4;
 	my $rn1=$code;	
-	return   "ROUTER${pn1}_${rn1}::ROUTER${pn2}_${rn2}";
+	my $st1 = ($pn1==1)? "ENDP_${rn1}" : "ROUTER${pn1}_${rn1}";
+	my $st2 = ($pn2==1)? "ENDP_${rn2}" : "ROUTER${pn2}_${rn2}";
+	
+	return   "${st1}::${st2}";
 }
 
 sub get_turn_involved_routrs{
@@ -1563,28 +2186,30 @@ sub get_turn_involved_routrs{
 }
 
 sub get_path_edges_graph_file{
-	my (@a_nodes) = @_;	
-	my $str1='';
-	my $str2='';
+	my ($ref1,$ref2) = @_;	
+	my @a_nodes = @{$ref1};
+	my %graph   = %{$ref2};
+	
 	my $old_r;	
 	foreach my $r (@a_nodes){
 		
 		if(defined $old_r){
-			$str1 = $str1 ."$old_r $r\n" ;
+			my $str1 = "$old_r $r";
 			my $n1  = get_turn_code($old_r);
 			my $n2  = get_turn_code($r); 
-			$str2 = $str2 ."$n1 $n2\n";			
+			my $str2 = "$n1 $n2";
+			$graph{$str2}=$str1;			
 		}
 		$old_r=$r;
 	}
-	return ($str1,$str2);
+	return %graph;
 }	
 
 
 
 
-sub get_forbiden_turns {
-	
+sub get_forbiden_turns_old {
+#sub gen_aciclic_turn_graph {	
 	my ($self,$info)=@_;
 	my @forbiden_turn;
 	add_info($info,"Calculate forbidden turns to avoid deadlock \n");
@@ -1592,6 +2217,8 @@ sub get_forbiden_turns {
 	my $graph='';
 	my $graph_coded='';
 	my @all_endpoints=get_list_of_all_endpoints($self);
+	
+	my %edge_graph;
 	foreach  my $src  (@all_endpoints ){	
 		foreach  my $dst  (@all_endpoints ){
 			if($src ne $dst){	
@@ -1599,16 +2226,23 @@ sub get_forbiden_turns {
 				foreach my $path (@{$paths_to_dst}) {
 					if (defined $path){
 						#path counting
-						my @a_nodes= 	get_adjacent_router_in_a_path($path);
-						my ($str1,$str2) = get_path_edges_graph_file (@a_nodes);
-						$graph  =$graph. $str1;
-						$graph_coded = $graph_coded . $str2;
+						my @a_nodes= 	get_adjacent_node_in_a_path($path);#get_adjacent_router_in_a_path($path);
+						print "@a_nodes = \@a_nodes \n";
+						%edge_graph = get_path_edges_graph_file (\@a_nodes,\%edge_graph);
+						#$graph  =$graph. $str1;
+						#$graph_coded = $graph_coded . $str2;
 					}#defined path	
 				}#foreach	
 			}#if			
 		}#froeach				
 			
-	}#froeach			
+	}#froeach	
+	
+	foreach my $p (sort keys %edge_graph){
+		$graph_coded  .="$p\n";
+		$graph .= "$edge_graph{$p}\n";
+	}
+			
 	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
 	save_file ("$tmp_dir/paths_graph.edges",$graph);
 	save_file ("$tmp_dir/paths_graph_coded.edges",$graph_coded);
@@ -1652,11 +2286,7 @@ sub get_forbiden_turns {
 			$line_num=$n; 
 		}		
 	}			
-	
-	
-	
-	
-	
+		
 			
 	# check if the output file is generated 
 	if (-f $out ){
@@ -1682,6 +2312,7 @@ sub get_forbiden_turns {
     
 	while (my $line = <$fh>) {
     	chomp $line;
+    	$line=~ s/^\s+|\s+$//g; 
     	my ($s1,$s2) = split /\s/, $line;
         $s1  = get_turn_str($s1);  
   		$s2  = get_turn_str($s2);
@@ -1695,6 +2326,254 @@ sub get_forbiden_turns {
   return @forbiden_turn;
   
 }
+
+
+sub gen_turn_graph{
+	my $self=shift;
+	my %edge_graph;
+	my @all_nodes=get_list_of_all_nodes($self);
+	foreach  my $node1  (@all_nodes ){	
+		my $pnum1=$self->object_get_attribute("$node1",'PNUM');
+		for (my $i=0;$i<$pnum1; $i++){ 
+   	   		my $port1 = "Port[${i}]";
+   	   		my $connect1 = $self->{$node1}{'PCONNECT'}{$port1};
+			if (defined $connect1) {
+				my ($node2,$Rport2)=split(/\s*,\s*/,$connect1);
+				my $pnum2=$self->object_get_attribute("$node2",'PNUM');
+				for (my $j=0;$j<$pnum2; $j++){ 
+					my $port2 = "Port[${j}]";
+					my $connect2 = $self->{$node2}{'PCONNECT'}{$port2};
+					if (defined $connect2) {
+						my ($node3,$Rport3)=split(/\s*,\s*/,$connect2);
+						if($node1 ne $node3){
+							my @a_nodes= 	("${node1}::${node2}","${node2}::${node3}");
+							%edge_graph = get_path_edges_graph_file (\@a_nodes,\%edge_graph);
+						}
+					
+					}#if	
+				}#for		
+			}#if
+		}#for	 
+	}	
+	return %edge_graph;
+}
+
+sub gen_aciclic_turn_graph {
+	
+	my ($self,$info)=@_;
+	
+	#my @forbiden_turn;
+	
+	add_info($info,"Generate an acyclic turn graph to avoid deadlock \n");
+	#step 1: get the list of turn in topology. A turn is a path that include three nodes.
+	my $graph='';
+	my $graph_coded='';
+	
+	my %edge_graph =gen_turn_graph($self);
+	
+		
+	foreach my $p (sort keys %edge_graph){
+		$graph_coded  .="$p\n";
+		$graph .= "$edge_graph{$p}\n";
+	}
+			
+	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
+	save_file ("$tmp_dir/paths_graph.edges",$graph);
+	save_file ("$tmp_dir/paths_graph_coded.edges",$graph_coded);
+	
+	
+	#remove old files 
+	my @files = File::Find::Rule->file()
+                            ->name( 'paths_graph_coded_removed*.edges')
+                            ->in( "$tmp_dir" );	
+	foreach my $f (@files){
+		unlink  $f if (-f "$f");		
+	}			
+	
+	# run remove_cycle_edges_by_dfs on coded graph 
+	my $remover_dire = get_project_dir()."/mpsoc/remove_cycle/";
+	my $cmd  =  "cd $remover_dire; 
+	python  break_cycles.py  -g $tmp_dir/paths_graph_coded.edges;
+	python remove_cycle_edges_by_dfs.py -g $tmp_dir/paths_graph_coded.edges; 
+	python remove_cycle_edges_by_minimum_feedback_arc_set_greedy.py  -g $tmp_dir/paths_graph_coded.edges";	
+	#sort paths_graph_coded.edges | uniq > newfile.db
+	
+	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+	if(length $stderr>1){			
+		add_colored_info($info,"$stderr\n",'red');
+	}else {
+		add_info($info,"$stdout\n");
+	}	
+	# find the files with the list edges removal
+	@files = File::Find::Rule->file()
+                         ->name( 'paths_graph_coded_removed*.edges')
+                         ->in( "$tmp_dir" );		                       
+	my $line_num;
+	my $out;
+	my %all_outs;
+	foreach my $f (@files){
+		
+		my $n =count_file_line_num ($f);
+		$all_outs{$f}=$n;
+		
+	}			
+	
+	my @graph_array=sort keys %edge_graph;
+	my @acyclic_turns;
+	my @removed_edge;
+	my $result=0;
+	
+	my %algorithms;
+	
+	foreach my $file  (sort {$all_outs{$a} <=> $all_outs{$b}} keys %all_outs) {
+		$line_num = $all_outs{$file};
+		$out=$file;
+		add_info($info,"check if $file file $line_num edges removal results in a connected graph\n");
+		
+		@removed_edge=();			
+		open(FILE,$file);
+		if (tell FILE ){
+			add_colored_info($info,"Cannot open $file to read: $!\n",'red');
+			return;
+		}
+    	while (my $line = <FILE>) {
+    		chomp($line);
+    	   	$line=~ s/^\s+|\s+$//g; 
+	   		push(@removed_edge,$line);
+		}
+    	close FILE;
+		
+		@acyclic_turns = get_diff_array ( \@graph_array , \@removed_edge );
+		
+		
+				
+		$result = check_diff_graph_be_connected ($self,\@acyclic_turns,$info);
+		if($result == 1){			
+			my $alg = capture_string_between ('paths_graph_coded_removed_by_',$file,".edges");
+			$algorithms{$alg}=$line_num;
+			#save @acyclic_turns for this algorithm
+			open(F,  ">$tmp_dir/$alg.alg") || die "Can not creat: $!";
+    		print F perl_file_header("$alg.alg");
+    		print F Data::Dumper->Dump([\@acyclic_turns],['turn']);
+    		close(F ) || die "Error closing file: $!";			
+		}
+			
+		 
+	}
+
+	$self->object_add_attribute('routing_auto','acyclic_algorithms',\%algorithms);
+	
+
+    if (scalar (keys %algorithms) == 0){
+		add_colored_info($info,"Unable to find any directed acyclic graph for routing\n",'red');
+		return;
+    }
+	
+	return;
+	#add_colored_info($info,"$out file has been selected as it has the minimum number of edge removal of $line_num and its connected\n",'blue');
+		
+	
+	    
+    #add_colored_info($info,"List of forbidden turns: \n",'blue');
+    
+	foreach my $line (@removed_edge) {
+    	chomp $line;
+    	my ($s1,$s2) = split /\s/, $line;
+        $s1  = get_turn_str($s1);  
+  		$s2  = get_turn_str($s2);
+  		my @turn = get_turn_involved_routrs($s1,$s2);
+  		my $str = get_path_instance_string($self,\@turn);
+  		my $string=join('->',@turn);
+  #		push (@forbiden_turn, $string);
+  		add_info($info,"$str\n");  
+
+  	}
+  	
+ # $self->object_add_attribute('routing_auto','acyclic_turns',\@acyclic_turns);
+  	
+#  return @forbiden_turn;
+  
+}
+
+
+
+sub check_diff_graph_be_connected {
+	my ($self,$ref,$info)=@_;
+	my @diff = @{$ref};
+	my %all_turns;
+	my %graph;
+	
+	foreach my $str (@diff){
+		my ($s1,$s2) = split /\s/, $str;
+		$all_turns{$s1}=1;
+		$all_turns{$s2}=1;
+		push(@{$graph{$s1}},$s2);
+			
+	}
+	
+	my @all_endpoints=get_list_of_all_endpoints($self);
+	my @start_turns;
+	my @ended_turns;
+	foreach my $endp (@all_endpoints){
+				
+				my $src_port = "Port[0]";
+		   	   	my $connect = $self->{$endp}{'PCONNECT'}{$src_port};	
+				if(defined $connect){
+					my ($node,$pnode)=split(/\s*,\s*/,$connect);
+					push (@start_turns, 	get_turn_code("${endp}::${node}"));
+					push (@ended_turns, 	get_turn_code("${node}::${endp}"));
+				}
+	}
+	
+	my $k=0;
+	foreach my $s (@start_turns){# we should see all @ended_turns
+	
+		my @seen_turns=($s,$ended_turns[$k]);# put connect to itself connection as seen node.  
+		$k++;
+		my @next_turns =@{$graph{$s}};
+		
+		while (scalar @next_turns>0){
+		
+		
+			#print "\@next_nodes = @next_nodes\n";
+			#print "\@seen_nodes = @seen_nodes\n";
+			my $n = pop (@next_turns);
+			#print "\$n  = $n \n";
+			my @nn;
+			@nn = @{$graph{$n}} if (defined $graph{$n}); 		
+			#print "\@nn  = @nn \n";
+			push (@seen_turns, $n);
+			@diff = get_diff_array ( \@nn , \@seen_turns );
+			#print "\@diff  = @diff \n";
+			push (@next_turns,@diff);
+				
+		}
+		
+		my @sep = get_diff_array (\@ended_turns,\@seen_turns);
+		
+		if( scalar @sep > 0) {
+			my $s1  = get_turn_str($s);
+			my ($a1,$a2) = split ('::',$s1); 
+			my $n1=$self->object_get_attribute("$a1",'NAME');
+			
+			$s1  = get_turn_str($sep[0]);
+			my($a3,$a4) = split ('::',$s1); 
+			my $n2=$self->object_get_attribute("$a4",'NAME');
+				
+			add_info($info,"\t $n1 is not connected to $n2. \n");  
+			return 0;
+		}
+	
+			
+	}
+	
+		
+	add_info($info,"\t All endpoints are connected in channel dpenedency graph. \n");  
+	return 1;
+
+}
+
+
 	
 sub get_path_instance_string {
 	my ($self,$path_ref)=@_;
@@ -1725,7 +2604,7 @@ sub remove_cycle_paths {
 		#print "$string\n";	
 		$remove=0;
 		foreach my $t (@fturns){
-			 if ($string =~ /$t/){
+			 if ($string =~ /$t-/){
 			 	$remove=1;
 			 	$turn=$t;
 			 	last;
@@ -1751,17 +2630,35 @@ sub remove_cycle_paths {
 sub auto_route {
 	my ($self,$info)=@_;
 	my %Psize;
+	my $alg = $self->object_get_attribute('routing_auto', 'CYCLE_FREE_ALG'); 	
+	my ($alg_name,$line) = split (/\s+--\s+/,$alg);
 	
-	my @forbiden_turn =get_forbiden_turns ($self,$info);
+	if(!defined $line){
+		add_colored_info($info,"No acyclic turn model is selected. click on Generate Cycle-free and make sure it runs successfully!\n",'red');
+        return; 
+	}
+	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
+	my $model_file = "$tmp_dir/$alg_name.alg";	
+	my ($pp,$r,$err) = regen_object($model_file);
+    if ($r){        
+    	add_colored_info($info,"**Error: cannot open $model_file file: $err\n",'red');
+   		return;
+    } else {
+    	add_info($info,"Use $alg_name algorithm for obtaing acyclic paths\n");
+    }
+	
+	my @acyclic_turns = @{$pp};
+	
+	
 	
 	#step 1: calculate all minimal paths between all source and destination pairs
-	add_info($info,"Calculate all minimal paths between all source and destination pairs\n");
+	add_info($info,"Calculate all  paths between all source and destination pairs\n");
 	my @all_endpoints=get_list_of_all_endpoints($self);
 	foreach  my $src  (@all_endpoints ){	
 		foreach  my $dst  (@all_endpoints ){
 			if($src ne $dst){	
-				my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps($self,$src, $dst);
-				my @cyle_free_paths=remove_cycle_paths($self,$info,$paths_to_dst, \@forbiden_turn);
+				my ($paths_to_dst,$ports_to_dst) =  get_all_paths_between_two_endps_using_accyclic_turn($self,$src, $dst,\@acyclic_turns);
+				my @cyle_free_paths= @{$paths_to_dst} if (defined $paths_to_dst);
 				my $size = scalar  @cyle_free_paths;
 				$Psize{"${src}::$dst"} = $size;
 			}
@@ -1778,26 +2675,35 @@ sub auto_route {
 	my @keys = sort { $Psize{$a} <=> $Psize{$b} } keys(%Psize);
 	for my $key ( @keys) {
 		my $size=$Psize{$key};
-		#print "$size\n";
+		#print "size = $size\n";
 		next if(defined $self->object_get_attribute('Route',$key));
 		
        # print "($key)->($Psize{$key})\n";
         my ($src , $dst)=split ('::',$key);
-        my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps($self,$src, $dst);
-        my @cyle_free_paths=remove_cycle_paths($self,$info,$paths_to_dst, \@forbiden_turn);
+        my ($paths_to_dst,$ports_to_dst) = get_all_paths_between_two_endps_using_accyclic_turn($self,$src, $dst,\@acyclic_turns);
+        #my @cyle_free_paths=remove_cycle_paths($self,$info,$paths_to_dst, \@forbiden_turn);
+        my @cyle_free_paths= @{$paths_to_dst} if (defined $paths_to_dst);
         my @sort_paths=sort_paths_based_on_link_usage($self,\@cyle_free_paths);
         my $path;
         my $n=0;
         foreach my $p (@sort_paths ){
         	if(check_cyclick_loop($self,$p)==0){
         		$path=$p;
+        		#my @rrr=($p);
+        		#remove_cycle_paths($self,$info,\@rrr, \@forbiden_turn);
+        		
         		last;
-        	}  
+        	}  else {
+        		print "***Error  something goes wrong in acyclic turns model  ****************************\n";
+        	}
         	$n++;      	
         }
         if(!defined $path){
+        	#extract path from acyclic turn graph. This graph is connected so there must be atleast a path between each endpoint pairs there. however this path does not match the offset or size lentgh
+        	
+        	
         	set_gui_status($self,"ref",1);
-        	add_colored_info($info,"Failed to find an acyclic routing paths for all nodes!\n",'red');
+        	add_colored_info($info,"Failed to find an acyclic routing paths for $key nodes!\n",'red');
         	return FALSE ;
         	
         }
@@ -1990,7 +2896,7 @@ sub generate_topology{
 	$self->object_add_attribute("graph_save","extension",'png');
 	$self->object_add_attribute("graph_save","enable",1);
 	
-	show_custom_topology_diagram ($self,undef,undef,"topology_diagram");
+	show_custom_topology_diagram ($self,undef,"topology_diagram");
 	
 	
 	
@@ -2087,25 +2993,63 @@ sub build_network_maker_gui {
 	set_gui_status($self,"ideal",0);
 	$self->object_add_attribute ("process_notebook","currentpage",0);
 	my $main_table= def_table(2,10,FALSE);
-	#my ($scwin_info)= create_txview();	
-	# The box which holds the info, warning, error ...  messages
+	
     my ($infobox,$info)= create_txview();
-	my $notebook = topology_maker_notebook($self,$info);
+	
+	
+	my $notebook = Gtk2::Notebook->new;
+	$notebook->set_tab_pos ('left');
+	$notebook->set_scrollable(TRUE);
+	$notebook->can_focus(FALSE);
+	
+	
+	my $page0_win = new Gtk2::ScrolledWindow (undef, undef);$page0_win->set_policy( "automatic", "automatic" );
+    my $page1_win = new Gtk2::ScrolledWindow (undef, undef);$page1_win->set_policy( "automatic", "automatic" );
+    my $page2_win = new Gtk2::ScrolledWindow (undef, undef);$page2_win->set_policy( "automatic", "automatic" );
+    my $page3_win = new Gtk2::ScrolledWindow (undef, undef);$page3_win->set_policy( "automatic", "automatic" );
+    my $page4_win = new Gtk2::ScrolledWindow (undef, undef);$page4_win->set_policy( "automatic", "automatic" );
+#	my $page5_win = new Gtk2::ScrolledWindow (undef, undef);$page4_win->set_policy( "automatic", "automatic" );
+	
+    
+    $notebook->append_page ($page0_win,Gtk2::Label->new  (" Nodes #"));
+	$notebook->append_page ($page1_win,Gtk2::Label->new  ("Instance"));
+	$notebook->append_page ($page2_win,Gtk2::Label->new  ("Connection Auto"));
+	$notebook->append_page ($page3_win,Gtk2::Label->new  ("Connection Manual"));
+	$notebook->append_page ($page4_win,Gtk2::Label->new  ("Route Select"));
+	#$notebook->append_page ($page5_win,Gtk2::Label->new  ("Route Select Auto"));
+		
+	
+	my $page0=take_node_num_page($self);
+	my $page1=take_instance_page($self);
+	my $page2=connection_page_auto($self,$info);
+	my $page3=connection_page($self,$info);
+	my $page4=routing_page_manual($self,$info);
+	#my $page5=routing_page_auto($self,$info);
+	
+	
+	
+	$page0_win->add_with_viewport($page0);
+	$page1_win->add_with_viewport($page1);
+	$page2_win->add_with_viewport($page2);
+	$page3_win->add_with_viewport($page3);
+	$page4_win->add_with_viewport($page4);
+#	$page5_win->add_with_viewport($page5);
+	
+	
+	
+	$notebook->signal_connect( 'switch-page'=> sub{ # rebulid the current page		
+		$self->object_add_attribute ("process_notebook","currentpage",$_[2]);	#save the new pagenumber
+		set_gui_status($self,"ref",1);	
+	});	
+	
+		
 	my $draw=custom_topology_diagram($self);
 	my $h1=gen_hpaned($notebook,.35,$draw);
 	
 	
 	my $v2=gen_vpaned($h1,.65,$infobox);
 	
-	
-	
-#	my $h1=gen_hpaned($traces_ctrl,.25,$traces);
-#	my $h2=gen_hpaned($map_ctrl,.25,$map);
-#	my $h3=gen_hpaned($h2,.65,$map_info);
 
-	#my $v1=gen_vpaned($h1,.3,$h3);
-	#my $v2=gen_vpaned($v1,.6,$scwin_info);
-	
 	my $generate = def_image_button('icons/gen.png','Generate');
 	my $open = def_image_button('icons/browse.png','Load');	
 	
@@ -2157,8 +3101,8 @@ sub build_network_maker_gui {
 		
 		
 		
-		load_net_maker($self,$info);
-		my $n=0;
+	load_net_maker($self,$info);
+	my $n=0;
     my $sample="sample$n";
 	$n++;
 	$self->object_add_attribute("id",undef,$n);
@@ -2208,16 +3152,52 @@ sub build_network_maker_gui {
 		
 		if($state eq "ref" || $state eq "redraw"){
 			my $back= $h2;
+			my $page_num=$self->object_get_attribute ("process_notebook","currentpage");
 			if($state eq "ref"){
-				$notebook->destroy;
-				$notebook = topology_maker_notebook($self,$info);
-				$h1 -> pack1($notebook, TRUE, TRUE); 
+				if($page_num==0){
+					$page0->destroy;
+					$page0=take_node_num_page($self);
+					$page0_win->add_with_viewport($page0);
+					$page0_win->show_all;
+					
+				}
+				if($page_num==1){
+					$page1->destroy;
+					$page1=take_instance_page($self);
+					$page1_win->add_with_viewport($page1);
+					$page1_win->show_all;
+				}
+				if($page_num==2){
+					$page2->destroy;
+					$page2=connection_page_auto($self,$info);
+					$page2_win->add_with_viewport($page2);
+					$page2_win->show_all;
+				}
+				if($page_num==3){
+					$page3->destroy;
+					$page3=connection_page($self,$info);
+					$page3_win->add_with_viewport($page3);
+					$page3_win->show_all;
+				}
+				if($page_num==4){
+					$page4->destroy;
+					$page4=routing_page_manual($self,$info);
+					$page4_win->add_with_viewport($page4);
+					$page4_win->show_all;
+				}
+			#	if($page_num==5){
+			#		$page5->destroy;
+			#		$page5=routing_page_auto($self,$info);
+			#		$page5_win->add_with_viewport($page5);
+			#		$page5_win->show_all;
+			#	}
+				
 			}
 			$draw->destroy;
 			$w1 ->destroy;
 			$w2 ->destroy;
-			my $page_num=$self->object_get_attribute ("process_notebook","currentpage");
-			if($page_num==3){
+			
+			if($page_num==4  ){
 				
 				$w1 = show_paths_between_two_endps($self,$info);
 				$w2 = routing_summary($self,$info);

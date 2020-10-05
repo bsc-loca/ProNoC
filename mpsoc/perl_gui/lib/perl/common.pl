@@ -1030,4 +1030,49 @@ sub object_remove_attribute{
 }
 
 
+#############
+#  graphviz
+#############
+
+
+sub generate_and_show_graph_using_graphviz {
+	my ($self,$scrolled_win,$dotfile, $graph_name)=@_;
+	
+	
+	#empty the scrolled win 
+	if(defined $scrolled_win){
+		my @list = $scrolled_win->get_children();
+		foreach my $l (@list){ 
+			$scrolled_win->remove($l);			
+		}
+	}
+	
+	my $scale=$self->object_get_attribute($graph_name,"scale");
+	$scale= 1 if (!defined $scale);	
+	my $diagram;
+	
+	my $cmd = "echo \'$dotfile\' | dot -Tpng";
+	my ($stdout,$exit,$stderr)= run_cmd_in_back_ground_get_stdout ($cmd);
+	if ( length( $stderr || '' ) !=0)  {
+		message_dialog("$stderr\nHave you installed graphviz? If not run \n \t \"sudo apt-get install graphviz\" \n in terminal",'error');
+	}
+	$diagram =open_inline_image( $stdout,70*$scale,70*$scale,'percent');
+	if(defined $scrolled_win){
+		$scrolled_win->add_with_viewport($diagram);
+		$scrolled_win->show_all();	
+	}
+    my $save=$self->object_get_attribute("graph_save","enable");
+	$save=0 if(!defined $save);
+	if($save==1){
+		my $file = $self->object_get_attribute("graph_save","name");
+		my $ext  = $self->object_get_attribute("graph_save","extension");
+		my $pixbuff= $diagram->get_pixbuf;
+	    $pixbuff->save ("$file.$ext", "$ext");	
+	    $self->object_add_attribute("graph_save","enable",'0');	
+	}	
+		
+		
+}
+
+
 1	 

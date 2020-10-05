@@ -150,6 +150,8 @@ sub show_tile_diagram {
 	my $save = def_image_button('icons/save.png',undef,TRUE);
 	my $clk = gen_check_box_object ($self,"tile_diagram","show_clk",0,undef,undef);
 	my $reset = gen_check_box_object ($self,"tile_diagram","show_reset",0,undef,undef);
+	my $dot_file = def_image_button('icons/add-notes.png',undef,TRUE);	
+	set_tip($dot_file, "Show dot file.");
 	#my $save = def_image_button('icons/save.png',undef,TRUE);
 
 	my $scale=$self->object_get_attribute("tile_diagram","scale");
@@ -168,48 +170,81 @@ sub show_tile_diagram {
 	$table->attach ($clk,  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach (gen_label_in_left("     Remove Reset Interfaces"),  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach ($reset,  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
+	$table->attach ($dot_file,  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
+	
 	while ($col<20){
 		
 		my $tmp=gen_label_in_left('');
 		$table->attach_defaults ($tmp, $col,  $col+1,0,1);$col++;
 	}
 	
+	$table->attach_defaults ($scrolled_win, 0, 20, 1, 20); #,'fill','shrink',2,2);	
+	
 	$plus  -> signal_connect("clicked" => sub{ 
 		$scale*=1.1 if ($scale <10);
 		$self->object_add_attribute("tile_diagram","scale", $scale );
-		show_diagram ($self,$scrolled_win,$table,"tile_diagram");
+		gen_show_diagram($self,$scrolled_win,'tile',"tile_diagram");	
 	});	
 	$minues  -> signal_connect("clicked" => sub{ 
 		$scale*=.9  if ($scale >0.1); ;
 		$self->object_add_attribute("tile_diagram","scale", $scale );
-		show_diagram ($self,$scrolled_win,$table,"tile_diagram");
+		gen_show_diagram($self,$scrolled_win,'tile',"tile_diagram");	
 	});
 	$save-> signal_connect("clicked" => sub{ 
-			save_diagram_as ($self);
+			save_inline_diagram_as ($self);
+			show_tile_diagram($self);
+			$window->destroy;
 		});	
 	$unused-> signal_connect("toggled" => sub{
-		if(gen_diagram($self,'tile')){
-			show_diagram ($self,$scrolled_win,$table,"tile_diagram");
-		}
+		gen_show_diagram($self,$scrolled_win,'tile',"tile_diagram");	
 
 	});
 	$clk-> signal_connect("toggled" => sub{
-		if(gen_diagram($self,'tile')){
-			show_diagram ($self,$scrolled_win,$table,"tile_diagram");
-	}
+		gen_show_diagram($self,$scrolled_win,'tile',"tile_diagram");	
 
 	});
 	$reset-> signal_connect("toggled" => sub{
-		if(gen_diagram($self,'tile')){
-			show_diagram ($self,$scrolled_win,$table,"tile_diagram");
-		}
+		
+		gen_show_diagram($self,$scrolled_win,'tile',"tile_diagram");		
 
 	});
 	
-	if(gen_diagram($self,'tile')){
-		show_diagram ($self,$scrolled_win,$table,"tile_diagram");
-	}
+	$dot_file-> signal_connect("clicked" => sub{ 
+			my $dotfile = get_dot_file_text($self,'tile');	
+			show_text_in_scrolled_win($self,$scrolled_win, $dotfile);			
+	});
+	
+	
+	gen_show_diagram($self,$scrolled_win,'tile',"tile_diagram");	
 	$window->show_all();
+}
+
+
+sub gen_show_diagram{
+	my ($self,$scrolled_win,$type,$name)=@_;
+	
+	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
+	if ($type eq 'topology' && $topology eq '"CUSTOM"'){
+		
+		 my $name=$self->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
+		 $name=~s/["]//gs;        		
+		 my $image=  get_project_dir()."/mpsoc/src_topolgy/$name/$name.png";
+		 my $tmp  = "$ENV{'PRONOC_WORK'}/tmp/diagram.png";
+		
+		 unlink $tmp; 
+		 return 0 unless (-f "$image");
+		 copy ($image,$tmp);
+		 return 0 unless (-f "$tmp");
+		 show_diagram ($self,$scrolled_win,$name);
+		 return 1;
+	}
+	
+	
+	
+	my $dotfile = get_dot_file_text($self,$type);	
+   	
+   	generate_and_show_graph_using_graphviz ($self,$scrolled_win,$dotfile, $name);	
+	
 }
 
 
@@ -227,6 +262,8 @@ sub show_topology_diagram {
 	my $plus = def_image_button('icons/plus.png',undef,TRUE);
 	my $minues = def_image_button('icons/minus.png',undef,TRUE);
 	my $save = def_image_button('icons/save.png',undef,TRUE);
+	my $dot_file = def_image_button('icons/add-notes.png',undef,TRUE);	
+	set_tip($dot_file, "Show dot file.");
 	
 	my $scale=$self->object_get_attribute("tile_diagram","scale");
 	$scale= 1 if (!defined $scale);
@@ -238,6 +275,7 @@ sub show_topology_diagram {
 	$table->attach ($plus ,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach ($minues,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach ($save,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
+	$table->attach ($dot_file,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	#$table->attach (gen_label_in_left("     Remove unconnected Interfaces"),  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
 	#$table->attach (gen_label_in_left("     Remove Clk Interfaces"),  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
 	#$table->attach (gen_label_in_left("     Remove Reset Interfaces"),  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
@@ -246,24 +284,33 @@ sub show_topology_diagram {
 		$table->attach_defaults ($tmp, $col,  $col+1,0,1);$col++;
 	}
 	
+	$table->attach_defaults ($scrolled_win, 0, 20, 1, 20); #,'fill','shrink',2,2);	
+	
 	$plus  -> signal_connect("clicked" => sub{ 
 		$scale*=1.1 if ($scale <10);
 		$self->object_add_attribute("topology_diagram","scale", $scale );
-		show_diagram ($self,$scrolled_win,$table,"topology_diagram");
+		gen_show_diagram($self,$scrolled_win,'topology',"topology_diagram");	
+		
 	});	
 	$minues  -> signal_connect("clicked" => sub{ 
 		$scale*=.9  if ($scale >0.1); ;
 		$self->object_add_attribute("topology_diagram","scale", $scale );
-		show_diagram ($self,$scrolled_win,$table,"topology_diagram");
+		gen_show_diagram($self,$scrolled_win,'topology',"topology_diagram");	
 	});
 	$save-> signal_connect("clicked" => sub{ 
-			save_diagram_as ($self);
-		});	
+			save_inline_diagram_as ($self);			
+			show_topology_diagram($self);
+			$window->destroy;
+	});	
+	
+	$dot_file-> signal_connect("clicked" => sub{ 
+			my $dot_file=get_dot_file_text($self,'topology');
+			show_text_in_scrolled_win($self,$scrolled_win, $dot_file);			
+	});
 	
 	
-	if(gen_diagram($self,'topology')){
-		show_diagram ($self,$scrolled_win,$table,"topology_diagram");
-	}
+	
+	gen_show_diagram($self,$scrolled_win,'topology',"topology_diagram");	
 	$window->show_all();
 }
 
@@ -302,12 +349,7 @@ sub gen_diagram {
 	my $dotfile = get_dot_file_text(@_);									
 	
 	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
-	#mkpath("$tmp_dir/",1,01777);
-	#open(FILE,  ">$tmp_dir/diagram.txt") || die "Can not open: $!";
-	#print FILE $dotfile;
-	#close(FILE) || die "Error closing file: $!";
 	
-	#unlink "$tmp_dir/diagram.png";
 
 	my $cmd;
 	#$cmd=  "dot  $tmp_dir/diagram.txt | neato -n  -Tpng -o $tmp_dir/diagram.png" if ($type eq 'tile' || $type eq 'trace'  );
@@ -328,12 +370,14 @@ sub gen_diagram {
 
 
 sub show_diagram {
-	my ($self,$scrolled_win,$table, $name)=@_;
-
-	$scrolled_win->destroy;
-	$scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$table->attach_defaults ($scrolled_win, 0, 20, 1, 20); #,'fill','shrink',2,2);		
+	my ($self,$scrolled_win,$name)=@_;	
+	
+	my @list = $scrolled_win->get_children();
+	foreach my $l (@list){ 
+		$scrolled_win->remove($l);			
+	}
+	
+		
 	my $scale=$self->object_get_attribute($name,"scale");
 	$scale= 1 if (!defined $scale);
 	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
@@ -345,12 +389,17 @@ sub show_diagram {
 }
 
 sub show_text_in_scrolled_win {
-	my ($self,$scrolled_win,$table, $text)=@_;
-	$scrolled_win->destroy;			
- 	my $tview;
-	($scrolled_win,$tview)=create_txview();
-	$table->attach_defaults ($scrolled_win, 0, 20, 1, 20); 
+	my ($self,$scrolled_win, $text)=@_;
+	my @list = $scrolled_win->get_children();
+	foreach my $l (@list){ 
+		$scrolled_win->remove($l);			
+	}
+		
+ 	
+	my ($u,$tview)=create_txview();
+	
 	show_info($tview, $text);
+	$scrolled_win->add_with_viewport($u);
 	$scrolled_win->show_all();		
 }
 
@@ -447,9 +496,10 @@ sub save_inline_diagram_as {
 			my $ext = $dialog->get_filter;
 			$ext=$ext->get_name;
 			my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
+			
 			$file = ($suffix eq ".$ext" )? $file : "$file.$ext";
 			
-			$self->object_add_attribute("graph_save","name",$file);
+			$self->object_add_attribute("graph_save","name","$path/$name");
 			$self->object_add_attribute("graph_save","extension",$ext);
 			$self->object_add_attribute("graph_save","enable",1);
 			set_gui_status($self,"ref",5);				
@@ -463,7 +513,7 @@ sub generate_trace_dot_file{
 	my $self=shift;
 	my $dotfile=
 "digraph G {
-	graph [rankdir = LR , splines=polyline, overlap = false]; 
+	graph [ layout = neato, rankdir = LR , splines=polyline, overlap = false]; 
 	
 ";
 	
@@ -488,7 +538,7 @@ sub generate_map_dot_file{
 	my $self=shift;
 	my $dotfile=
 "digraph G {
-	graph [rankdir = LR ,splines=spline,  overlap = false]; 
+	graph [layout = neato, rankdir = LR ,splines=spline,  overlap = false]; 
 	node[shape=record];
 	
 	";
@@ -551,8 +601,7 @@ sub show_trace_diagram {
 	my $plus = def_image_button('icons/plus.png',undef,TRUE);
 	my $minues = def_image_button('icons/minus.png',undef,TRUE);
 	my $save = def_image_button('icons/save.png',undef,TRUE);
-	my $dot_file = def_image_button('icons/add-notes.png',undef,TRUE);
-	
+	my $dot_file = def_image_button('icons/add-notes.png',undef,TRUE);	
 	set_tip($dot_file, "Show dot file.");
 	
 	
@@ -568,6 +617,7 @@ sub show_trace_diagram {
 	$table->attach ($minues,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach ($save,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach ($dot_file,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
+	$table->attach_defaults ($scrolled_win, 0, 20, 1, 20); #,'fill','shrink',2,2);	
 	
 	while ($col<20){	
 		my $tmp=gen_label_in_left('');
@@ -577,35 +627,29 @@ sub show_trace_diagram {
 	$plus  -> signal_connect("clicked" => sub{ 
 		$scale*=1.1 if ($scale <10);
 		$self->object_add_attribute("${type}_diagram","scale", $scale );
-		show_diagram ($self,$scrolled_win,$table, "${type}_diagram");
+		my $dotfile = get_dot_file_text($self,$type);
+		generate_and_show_graph_using_graphviz ($self,$scrolled_win,$dotfile, "${type}_diagram");
 	});	
 	$minues  -> signal_connect("clicked" => sub{ 
 		$scale*=.9  if ($scale >0.1); ;
 		$self->object_add_attribute("${type}_diagram","scale", $scale );
-		show_diagram ($self,$scrolled_win,$table, "${type}_diagram");
+		gen_show_diagram ($self,$scrolled_win,$type,"${type}_diagram");
 	});
 	$save-> signal_connect("clicked" => sub{ 
-			save_diagram_as ($self);
+			save_inline_diagram_as ($self);
+			show_trace_diagram($self,$type);
+			$window->destroy;
 		});	
 	
 	$dot_file-> signal_connect("clicked" => sub{ 
-			my $dot_file=get_dot_file_text($self,$type);
-			show_text_in_scrolled_win($self,$scrolled_win,$table, $dot_file);			
+		my $dotfile = get_dot_file_text($self,$type);	
+		show_text_in_scrolled_win($self,$scrolled_win, $dotfile);		
+			
 	});
 
-
-	if(gen_diagram($self,$type)){
-		show_diagram ($self,$scrolled_win,$table, "${type}_diagram");
-	}
-	
-	
-	
+	gen_show_diagram ($self,$scrolled_win,$type,"${type}_diagram");
 	
 	$window->show_all();
-
-	
-
-
 }	
 
 
@@ -636,94 +680,6 @@ sub node_connection2{
 }
 
 
-sub generate_mesh_dot_file_old{
-	my $self=shift;
-	my $dotfile=
-"digraph G {
-	graph [rankdir = LR , splines = true, overlap = true]; 
-	
-	
-	
-	node[shape=record];
-	
-	";
-		
-#five_port_router [
-#	label="{ |2| } | {3|R0|1} | { |4|0}"
-#	shape=record
-#	color=blue
-#	style=filled
-#	fillcolor=blue
-#];	
-	
-#add nodes
-	my $nx=$self->object_get_attribute('noc_param','T1');
-	my $ny=$self->object_get_attribute('noc_param','T2');
-	my $nc= $nx * $ny;
-	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
-	my $btrace= ($topology eq '"TORUS"' || $topology eq '"RING"');
-	my $oned = ($topology eq '"RING"' || $topology eq '"LINE"');	
-	for(my $y=0; $y<$ny; $y++){ 		
-				for(my $x=0; $x<$nx; $x++){
-					my $id=$y*$nx+$x;
-					
-									
-					my $n =    "R${id}" ;
-					my $node = "${x}_$y";					
-					my $label =  ($oned)?
-					 "\{ |<p2>| \} | \{<p3>2|$n|<p1>1\} | \{ |<p4>|<p0>0\}"
-					:  "\{ |<p2>2| \} | \{<p3>3|$n|<p1>1\} | \{ |<p4>4|<p0>0\}";
-					my $xx=$x*2.5;
-					my $yy=($ny-$y-1)*2.5+1;
-					my $tx=$xx+0.75;
-					my $ty=$yy-1;
-					$dotfile=$dotfile."
-\"R$node\"\[
-	label = \"$label\"
-    pos = \"$xx,$yy!\"
-    shape=record
-	color=blue
-	style=filled
-	fillcolor=blue
-];
-
-T$node\[
-	label = \"Tile_$id($node)\"
-    pos = \"$tx,$ty!\"
-    shape=record
-	color=orange
-	style=filled
-	fillcolor=orange
-];";					
-
-;									
-		}
-				
-	}					
-	
-
-	$dotfile=$dotfile."\n\n";
-	
-	#add connections
-	for(my $y=0; $y<$ny; $y++){ 		
-		for(my $x=0; $x<$nx; $x++){
-			 $dotfile=$dotfile.node_connection('R',$x,$y,1,'R',($x+1),$y,3) if($x <$nx-1);	
-			 $dotfile=$dotfile.node_connection('R',$x,$y,1,'R',0,$y,3) if($x == ($nx-1) && $btrace);
-			 $dotfile=$dotfile.node_connection('R',$x,$y,2,'R',$x,($y-1),4)if($y>0) ; 
-             $dotfile=$dotfile.node_connection('R',$x,$y,2,'R',$x,($ny-1),4)   if($y ==0 && $btrace && !$oned);
-             $dotfile=$dotfile.node_connection('R',$x,$y,0,'T',$x,$y);
-                
-              
-	
-	}}
-
-
-
-	
-	$dotfile=$dotfile."\n}\n";
-	return $dotfile;
-	
-}
 
 
 ##################################
@@ -735,7 +691,7 @@ sub generate_mesh_dot_file{
 	my $self=shift;
 	my $dotfile=
 "digraph G {
-	graph [rankdir = RL , splines = true, overlap = true]; 
+	graph [layout = neato, rankdir = RL , splines = true, overlap = true]; 
 		
 	
 	node[shape=record];
@@ -887,7 +843,7 @@ sub generate_fattree_dot_file{
 		
 	my $dotfile=
 "digraph G {
-	graph [rankdir = LR , splines = true, overlap = true]; 	
+	graph [layout = neato, rankdir = LR , splines = true, overlap = true]; 	
 	node[shape=record];	
 	";
 		
@@ -1015,7 +971,7 @@ sub generate_tree_dot_file{
 		
 	my $dotfile=
 "digraph G {
-	graph [rankdir = LR , splines = true, overlap = true]; 	
+	graph [layout = neato, rankdir = LR , splines = true, overlap = true]; 	
 	node[shape=record];	
 	";
 		
