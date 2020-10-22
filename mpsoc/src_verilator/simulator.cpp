@@ -339,7 +339,7 @@ int main(int argc, char** argv) {
 		{
 
 			clk = 0;
-#if (NR<=64)
+#if (NE<=64)
 			noc->ni_flit_in_wr =0;
 #else
 			for(j=0;j<(sizeof(noc->ni_flit_in_wr)/sizeof(noc->ni_flit_in_wr[0])); j++) noc->ni_flit_in_wr[j]=0;

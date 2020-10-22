@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Glib qw(TRUE FALSE);
-use Gtk2 '-init';
+
 use Cwd 'abs_path';
 use base 'Class::Accessor::Fast';
 require "widget.pl"; 
@@ -76,8 +76,7 @@ sub custom_topology_diagram {
 	
 	
 	my $table=def_table(20,20,FALSE);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
-	$scrolled_win->set_policy( "automatic", "automatic" );	
+	my $scrolled_win = add_widget_to_scrolled_win();	
 	
 	
 	my ($col,$row)=(0,0);
@@ -114,7 +113,7 @@ sub custom_topology_diagram {
 	
 	
 	
-	$table->attach (Gtk2::Label->new  ("Auto Draw") ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
+	$table->attach (gen_label_in_center  ("Auto Draw") ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($auto ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($graph_type ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($plus ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;
@@ -172,10 +171,8 @@ sub custom_topology_diagram {
 		show_custom_topology_diagram ($self,$scrolled_win,"topology_diagram");
 	}
 	
-	my $scrolled_win2 = new Gtk2::ScrolledWindow (undef, undef);	
-	$scrolled_win2->set_policy( "automatic", "automatic" );	
-	$scrolled_win2->add_with_viewport($table);
-	return $scrolled_win2;
+	return add_widget_to_scrolled_win ($table);
+	
 }
 
 
@@ -610,12 +607,9 @@ sub create_tree_view {
    my ($self,$source,$src_port,$info)=@_;  
    my $window = def_popwin_size(30,85,"Select Connection Element and Port",'percent');
      
-   my $model = Gtk2::TreeStore->new ('Glib::String', 'Glib::String', 'Glib::Scalar', 'Glib::Boolean');
-   my $tree_view = Gtk2::TreeView->new;
-   $tree_view->set_model ($model);
-   my $selection = $tree_view->get_selection;
-   $selection->set_mode ("single");
-   
+
+   my ($model,$tree_view,$column) =create_tree_model_network_maker();
+      
    my @all_nodes=get_list_of_all_nodes($self);
  
    unshift(@all_nodes,"-");
@@ -644,9 +638,7 @@ sub create_tree_view {
 		}	
    }
 	
-   my $cell = Gtk2::CellRendererText->new;
-   $cell->set ('style' => 'italic');
-   my $column = Gtk2::TreeViewColumn->new_with_attributes ("select", $cell, 'text' => 0, 'style_set' => 3);
+  
    $tree_view->append_column ($column);
    
    
@@ -694,12 +686,9 @@ sub create_tree_view {
 
   #$tree_view->expand_all;
 
-  my $scrolled_window = Gtk2::ScrolledWindow->new;
-  $scrolled_window->set_policy ('automatic', 'automatic');
-  $scrolled_window->set_shadow_type ('in');
-  $scrolled_window->add($tree_view);
+  my $scrolled_window = add_widget_to_scrolled_win($tree_view);
 
-  my $hbox = Gtk2::HBox->new (FALSE, 0);
+  my $hbox = def_hbox (FALSE, 0);
   $hbox->pack_start ( $scrolled_window, TRUE, TRUE, 0);
   $window ->add($hbox);
   $window->show_all;
@@ -772,7 +761,7 @@ sub connection_page{
 	my $eq = def_table(1,8,TRUE);
 	
 	my $label = gen_label_help("Eg: R[i]P[0]->T[i]P[0];i[0,10,1]","Equation:");
-	my $entry = Gtk2::Entry->new;
+	my $entry = gen_entry();
 	my $open= def_image_button("icons/enter.png",undef,TRUE);
 	$eq->attach ($label,0,2,  $row, $row+1,'fill','fill',2,2);
 	$eq->attach_defaults ($entry,2, 9,  $row, $row+1);
@@ -788,7 +777,7 @@ sub connection_page{
 	
 	
 	
-	$table->attach (Gtk2::HSeparator->new,0, 20,  $row, $row+1,'fill','fill',2,2);$row++;	
+	add_Hsep_to_table($table,0, 20,  $row);$row++;	
 	my $savr=$row;$row++;	
 	
 	my $maxp=1;	
@@ -808,11 +797,11 @@ sub connection_page{
 		for (my $i=0;$i<$pnum; $i++){ 
 			my $pname= "Port[${i}]";
 			my $connect = $self->{$p}{'PCONNECT'}{$pname};
-			my $button =  Gtk2::Button->new_from_stock(" -> ");
+			my $button =  def_button(" -> ");
 			if (defined $connect) { 
 				my ($node,$pnode)=split(/\s*,\s*/,$connect);
 		    	my $e=$self->object_get_attribute("$node",'NAME');
-				$button = Gtk2::Button->new_from_stock("$e->$pnode") if(defined $e);
+				$button = def_button("$e->$pnode") if(defined $e);
 			}
 			$button->signal_connect("clicked" => sub {
 				create_tree_view($self,$p,$pname,$info);
@@ -1403,15 +1392,15 @@ sub get_route_manual {
 		
 	my $table= def_table(2,10,FALSE);
 	
-	$table->attach (Gtk2::HSeparator->new,0, 200,  $row, $row+1,'fill','fill',2,2);$row++;
+	add_Hsep_to_table ($table,0, 200,  $row);$row++;
 	
 	my $refresh = def_image_button('icons/refresh.png','Refresh');
 	$table->attach ($refresh,0,5 ,  $row, $row+1,'fill','fill',2,2);$row++;
 		
 
-	$table->attach (gen_colored_icon('Not selected',17),5,10,$row,$row+1,'fill','shrink',2,2);	
-	$table->attach (gen_colored_icon('Selected',0),10,15,$row,$row+1,'fill','shrink',2,2);	
-	$table->attach (gen_colored_icon('Not Existed',11),15,20,$row,$row+1,'fill','shrink',2,2);	
+	$table->attach (gen_colored_label('Not selected',17),5,10,$row,$row+1,'fill','shrink',2,2);	
+	$table->attach (gen_colored_label('Selected',0),10,15,$row,$row+1,'fill','shrink',2,2);	
+	$table->attach (gen_colored_label('Not Existed',11),15,20,$row,$row+1,'fill','shrink',2,2);	
 	$row++;	
 	
 	$table->attach (def_label(' source -> destination '),10,15,$row,$row+1,'fill','shrink',2,2);	
@@ -1659,8 +1648,8 @@ sub routing_summary{
 	my ($self,$info)= @_;		
 	
 	my $sc_win = gen_scr_win_with_adjst($self,'map_info');
-	my $table= def_table(10,10,FALSE);
-	$sc_win->add_with_viewport($table);
+	#my $table= def_table(10,10,FALSE);
+	
 	
 	my $row=0;
 	my $col=0;
@@ -1668,84 +1657,33 @@ sub routing_summary{
 	
 	
 	my @data = (
-   {label => "The Maximum number that a router is used in routing",  value =>"$max_r", name =>"$max_r_name"}, # The maximum number that a router is located in all paths between all source-destination pair in this routing algorithm.
-   {label => "The Minimum number that a router is used in routing",  value =>"$min_r", name =>"$min_r_name" },  
-   {label => "The Maximum number that a link is used in routing ",  value =>"$max_l", name =>"$max_l_name"}, # The maximum number that a node-2-node link is located in all paths between all source-destination pair in this routing algorithm.
-   {label => "The Minimum number that a link is used in routing",  value =>"$min_l", name =>"$min_l_name" },  
-   {label => "Link usage  standard deviation ",  value =>"$std_l" } 
+   {0 => "The Maximum number that a router is used in routing",  1 =>"$max_r", 2 =>"$max_r_name"}, # The maximum number that a router is located in all paths between all source-destination pair in this routing algorithm.
+   {0 => "The Minimum number that a router is used in routing",  1 =>"$min_r", 2 =>"$min_r_name" },  
+   {0 => "The Maximum number that a link is used in routing ",  1 =>"$max_l", 2 =>"$max_l_name"}, # The maximum number that a node-2-node link is located in all paths between all source-destination pair in this routing algorithm.
+   {0 => "The Minimum number that a link is used in routing",  1=>"$min_l", 2 =>"$min_l_name" },  
+   {0 => "Link usage  standard deviation ",  1 =>"$std_l" } 
   );
 	
-	
-	
-  # create list store
-  my $store = Gtk2::ListStore->new (#'Glib::Boolean', # => G_TYPE_BOOLEAN
-                                    #'Glib::Uint',    # => G_TYPE_UINT
-                                    'Glib::String',  # => G_TYPE_STRING
+	  
+ 
+	my @clmn_type = ('Glib::String',  # => G_TYPE_STRING
                                     'Glib::String',
                                     'Glib::String'); # you get the idea
 
-  # add data to the list store
-  foreach my $d (@data) {
-      my $iter = $store->append;
-      $store->set ($iter,
-		   0, $d->{label},
-		   1, $d->{value},
-		   2, $d->{name},
-      );
-  }
+	my @clmns = ("Routing Summary", " ", " ");
 
- my $treeview = Gtk2::TreeView->new ($store);
-    $treeview->set_rules_hint (TRUE);
- 
+	my $list=	gen_list_store (\@data,\@clmn_type,\@clmns);
 
-	$treeview->set_search_column (1);
 
-   
-    # add columns to the tree view
-   my $renderer = Gtk2::CellRendererToggle->new;
-   $renderer->signal_connect (toggled => \&fixed_toggled, $store);
-
- 
-
-  # column for severities
-  $renderer = Gtk2::CellRendererText->new;
-  my $column = Gtk2::TreeViewColumn->new_with_attributes ("Routing Summary",
-						       $renderer,
-						       text => 0);
-  $column->set_sort_column_id (0);
-  $treeview->append_column ($column);
-
-  # column for description
-  $renderer = Gtk2::CellRendererText->new;
-  $column = Gtk2::TreeViewColumn->new_with_attributes (" ",
-						       $renderer,
-						       text => 1);
-  $column->set_sort_column_id (1);
-  $treeview->append_column ($column);
-  
-  
-  # column for description
-  $renderer = Gtk2::CellRendererText->new;
-  $column = Gtk2::TreeViewColumn->new_with_attributes (" ",
-						       $renderer,
-						       text => 2);
-  $column->set_sort_column_id (2);
-  $treeview->append_column ($column);
-
+	$sc_win->add_with_viewport($list);
 	
-	$table-> attach  ($treeview, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
-	#$table-> attach  (gen_label_in_left("Max distance:  $max  "), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
-	#$table-> attach  (gen_label_in_left("Min distance: $min   "), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
-	#$table-> attach  (gen_label_in_left("Normlized data per hop: $norm"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
-		
 	my $charts =  gen_routing_charts($self,$info);
 	
 	my $v1=gen_vpaned($sc_win,.25,$charts);
 	
+	$sc_win->show_all;
 	
-	
-	return $v1;
-	
+	return $v1;	
 	
 }
 
@@ -1782,8 +1720,7 @@ my @charts = (
 sub show_paths_between_two_endps{
 	my ($self,$info)= @_;
 	my $table=def_table(20,20,FALSE);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
-	$scrolled_win->set_policy( "automatic", "automatic" );	
+		
 	my $row-=0;
 	my $col=0;
 	
@@ -1836,7 +1773,7 @@ sub show_paths_between_two_endps{
 			}
 			
 				
-			my $check= Gtk2::CheckButton->new();
+			my $check= gen_checkbutton();
 			#print "if($select eq $path)";
 			if(defined $select && defined $scal && defined $selp) {if($selp eq $scal) {$check->set_active(TRUE);}}
 			else {$check->set_active(FALSE);}
@@ -1864,8 +1801,8 @@ sub show_paths_between_two_endps{
 		
 	}
 	
-	$scrolled_win->add_with_viewport($table);
-	return $scrolled_win;
+	return add_widget_to_scrolled_win($table);
+	
 }
 
 
@@ -1910,17 +1847,9 @@ sub get_all_endp_ids{
 sub load_net_maker{
     my ($self,$info)=@_;
     my $file;
-    my $dialog = Gtk2::FileChooserDialog->new(
-                'Select a File', undef,
-                'open',
-                'gtk-cancel' => 'cancel',
-                'gtk-ok'     => 'ok',
-            );
-
-    my $filter = Gtk2::FileFilter->new();
-    $filter->set_name("NETMAKER");
-    $filter->add_pattern("*.NWM");
-    $dialog->add_filter ($filter);
+	my $dialog =  gen_file_dialog (undef, 'NWM');
+   
+    
     my $dir = Cwd::getcwd();
     $dialog->set_current_folder ("$dir/lib/netwmaker")    ;
    
@@ -2152,14 +2081,14 @@ sub get_turn_code {
 	my $turn =shift;
 	my ($pn1,$rn1,$pn2,$rn2)= sscanf( "ROUTER%u_%u::ROUTER%u_%u",$turn);
 	if(defined $rn1){
-		return ( ($rn1<<20)+ ($pn1<<16) +  ($rn2<< 4) +  $pn2);
+		return ( ($rn1 << 20)+ ($pn1 << 16) +  ($rn2 << 4) +  $pn2);
 	}
 	($rn1,$pn2,$rn2)= sscanf( "ENDP_%u::ROUTER%u_%u",$turn);
 	if(defined $rn1){
-		return ( ($rn1<<20)+ (1<<16) +  ($rn2<< 4) +  $pn2);
+		return ( ($rn1 << 20)+ (1 << 16) +  ($rn2 << 4) +  $pn2);
 	}	
 	($pn1,$rn1,$rn2)= sscanf( "ROUTER%u_%u::ENDP_%u",$turn);
-	return ( ($rn1<<20)+ ($pn1<<16) +  ($rn2<< 4) +  1);
+	return ( ($rn1 << 20)+ ($pn1 << 16) +  ($rn2 << 4) +  1);
 }
 
 sub get_turn_str {
@@ -2997,45 +2926,31 @@ sub build_network_maker_gui {
     my ($infobox,$info)= create_txview();
 	
 	
-	my $notebook = Gtk2::Notebook->new;
+	my $notebook = gen_notebook();
 	$notebook->set_tab_pos ('left');
 	$notebook->set_scrollable(TRUE);
-	$notebook->can_focus(FALSE);
 	
 	
-	my $page0_win = new Gtk2::ScrolledWindow (undef, undef);$page0_win->set_policy( "automatic", "automatic" );
-    my $page1_win = new Gtk2::ScrolledWindow (undef, undef);$page1_win->set_policy( "automatic", "automatic" );
-    my $page2_win = new Gtk2::ScrolledWindow (undef, undef);$page2_win->set_policy( "automatic", "automatic" );
-    my $page3_win = new Gtk2::ScrolledWindow (undef, undef);$page3_win->set_policy( "automatic", "automatic" );
-    my $page4_win = new Gtk2::ScrolledWindow (undef, undef);$page4_win->set_policy( "automatic", "automatic" );
-#	my $page5_win = new Gtk2::ScrolledWindow (undef, undef);$page4_win->set_policy( "automatic", "automatic" );
-	
-    
-    $notebook->append_page ($page0_win,Gtk2::Label->new  (" Nodes #"));
-	$notebook->append_page ($page1_win,Gtk2::Label->new  ("Instance"));
-	$notebook->append_page ($page2_win,Gtk2::Label->new  ("Connection Auto"));
-	$notebook->append_page ($page3_win,Gtk2::Label->new  ("Connection Manual"));
-	$notebook->append_page ($page4_win,Gtk2::Label->new  ("Route Select"));
-	#$notebook->append_page ($page5_win,Gtk2::Label->new  ("Route Select Auto"));
-		
 	
 	my $page0=take_node_num_page($self);
 	my $page1=take_instance_page($self);
 	my $page2=connection_page_auto($self,$info);
 	my $page3=connection_page($self,$info);
 	my $page4=routing_page_manual($self,$info);
-	#my $page5=routing_page_auto($self,$info);
 	
+	my $page0_win = add_widget_to_scrolled_win($page0);
+	my $page1_win = add_widget_to_scrolled_win($page1);
+	my $page2_win = add_widget_to_scrolled_win($page2);
+	my $page3_win = add_widget_to_scrolled_win($page3);
+	my $page4_win = add_widget_to_scrolled_win($page4);
+
 	
-	
-	$page0_win->add_with_viewport($page0);
-	$page1_win->add_with_viewport($page1);
-	$page2_win->add_with_viewport($page2);
-	$page3_win->add_with_viewport($page3);
-	$page4_win->add_with_viewport($page4);
-#	$page5_win->add_with_viewport($page5);
-	
-	
+	$notebook->append_page ($page0_win,gen_label_in_center  (" Nodes #"));
+	$notebook->append_page ($page1_win,gen_label_in_center  ("Instance"));
+	$notebook->append_page ($page2_win,gen_label_in_center  ("Connection Auto"));
+	$notebook->append_page ($page3_win,gen_label_in_center  ("Connection Manual"));
+	$notebook->append_page ($page4_win,gen_label_in_center  ("Route Select"));
+
 	
 	$notebook->signal_connect( 'switch-page'=> sub{ # rebulid the current page		
 		$self->object_add_attribute ("process_notebook","currentpage",$_[2]);	#save the new pagenumber
@@ -3081,9 +2996,7 @@ sub build_network_maker_gui {
 	$main_table->attach ($generate, 6, 9, 24,25,'expand','shrink',2,2);
 	
 
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($main_table);
+	my $sc_win = add_widget_to_scrolled_win($main_table);
 	
 	
 	#setting for graphs

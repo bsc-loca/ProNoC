@@ -48,7 +48,7 @@ sub get_dot_file{
 			foreach my $num (@nums){
 				my $name= $self->soc_get_socket_name ($instance_id,$socket,$num);
 				my  ($s_type,$s_value,$s_connection_num)=$self->soc_get_socket_of_instance($instance_id,$socket);
-				my $v=$self->soc_get_module_param_value($instance_id,$s_value);
+				my $v=(defined $s_value) ? $self->soc_get_module_param_value($instance_id,$s_value) : 1;
 				$v=1 if ( length( $v || '' ) ==0);
 				#for(my $i=$v-1; $i>=0; $i--) {
 				for(my $i=0; $i<$v; $i++) {
@@ -139,8 +139,7 @@ sub show_tile_diagram {
 	my $table=def_table(20,20,FALSE);
 	
 	my $window=def_popwin_size(80,80,"Processing Tile functional block diagram",'percent');	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
-	$scrolled_win->set_policy( "automatic", "automatic" );
+	my $scrolled_win = add_widget_to_scrolled_win();
 	
 	$window->add ($table);
 	
@@ -254,11 +253,10 @@ sub show_topology_diagram {
 	my $table=def_table(20,20,FALSE);
 	
 	my $window=def_popwin_size(80,80,"NoC-based MPSoC topology block diagram",'percent');	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
-	$scrolled_win->set_policy( "automatic", "automatic" );
+	my $scrolled_win = add_widget_to_scrolled_win();
 	
 	$window->add ($table);
-	
+
 	my $plus = def_image_button('icons/plus.png',undef,TRUE);
 	my $minues = def_image_button('icons/minus.png',undef,TRUE);
 	my $save = def_image_button('icons/save.png',undef,TRUE);
@@ -416,30 +414,12 @@ sub save_diagram_as {
 
 	my @extensions=('png');
 	my $open_in=undef;
-	my $dialog = Gtk2::FileChooserDialog->new(
-            	'Save file', undef,
-            	'save',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-	# if(defined $extension){
-		
-		foreach my $ext (@extensions){
-			my $filter = Gtk2::FileFilter->new();
-			$filter->set_name($ext);
-			$filter->add_pattern("*.$ext");
-			$dialog->add_filter ($filter);
-		}
-		
-	# }
-	  if(defined  $open_in){
-		$dialog->set_current_folder ($open_in); 
-		# print "$open_in\n";
-		 
-	}
+	my $dialog = save_file_dialog  ( 'Save file',@extensions);
+	$dialog->set_current_folder ($open_in) if(defined  $open_in); 
+	
 		
 	if ( "ok" eq $dialog->run ) {
-	    		$file = $dialog->get_filename;
+	    	$file = $dialog->get_filename;
 			my $ext = $dialog->get_filter;
 			$ext=$ext->get_name;
 			my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
@@ -452,8 +432,8 @@ sub save_diagram_as {
 
 
 					
-	      		 }
-	     		$dialog->destroy;
+	}
+	$dialog->destroy;
 }
 
 
@@ -469,27 +449,9 @@ sub save_inline_diagram_as {
 
 	my @extensions=('png','jpeg');
 	my $open_in=undef;
-	my $dialog = Gtk2::FileChooserDialog->new(
-            	'Save file', undef,
-            	'save',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-	# if(defined $extension){
-		
-		foreach my $ext (@extensions){
-			my $filter = Gtk2::FileFilter->new();
-			$filter->set_name($ext);
-			$filter->add_pattern("*.$ext");
-			$dialog->add_filter ($filter);
-		}
-		
-	# }
-	  if(defined  $open_in){
-		$dialog->set_current_folder ($open_in); 
-		# print "$open_in\n";
-		 
-	}
+	my $dialog = save_file_dialog  ('Save file',@extensions);
+	$dialog->set_current_folder ($open_in) if(defined  $open_in);
+	
 		
 	if ( "ok" eq $dialog->run ) {
 	    	$file = $dialog->get_filename;
@@ -593,8 +555,7 @@ sub show_trace_diagram {
 	my $table=def_table(20,20,FALSE);
 	
 	my $window=def_popwin_size(80,80,"Trace Diagram",'percent');	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);	
-	$scrolled_win->set_policy( "automatic", "automatic" );
+	my $scrolled_win =add_widget_to_scrolled_win();
 	
 	$window->add ($table);
 	

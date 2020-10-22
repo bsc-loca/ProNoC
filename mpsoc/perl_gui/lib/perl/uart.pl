@@ -1,24 +1,40 @@
 #!/usr/bin/perl -w
+
+
+
 use strict;
 use warnings;
 
+use FindBin;
+use lib $FindBin::Bin;
+
+require "widget.pl";
+
+
 use Glib qw(TRUE FALSE);
-use Gtk2 '-init';
-use Gtk2::SourceView2;
+
+
 use Data::Dumper;
 use File::Which;
 use File::Basename;
 
 use IPC::Run qw( harness start pump finish timeout );
-
-
-require "widget.pl";
-use FindBin;
-use lib $FindBin::Bin;
 use String::Scanf; # imports sscanf()
-
-
 use base 'Class::Accessor::Fast';
+
+
+use Consts;
+BEGIN {
+    my $module = (Consts::GTK_VERSION==2) ? 'Gtk2' : 'Gtk3';
+    my $file = $module;
+    $file =~ s[::][/]g;
+    $file .= '.pm';
+    require $file;
+    $module->import;
+}
+
+
+
 __PACKAGE__->mk_accessors(qw{
 	window
 	sourceview		
@@ -26,16 +42,18 @@ __PACKAGE__->mk_accessors(qw{
 
 my $NAME = 'Uart Terminal';
 my 	$path = "";
+
+
+
+
 sub uart_stand_alone(){
 	$path = "../../";
 	set_path_env();
-	Gtk2->init;
 	my $window=uart_main();
-	$window->signal_connect (delete_event => sub { Gtk2->main_quit });
-	Gtk2->main();
+	$window->signal_connect (delete_event => sub { gui_quite() });	
 }
 
-exit uart_stand_alone() unless caller;
+exit gtk_gui_run(\&uart_stand_alone) unless caller;
 
 
 
@@ -47,7 +65,7 @@ sub create_rsv_box {
     $sw->set_border_width(3);
     my($width,$hight)=max_win_size();
 	$sw->set_size_request($width/10,$hight/10);
-    my $frame = Gtk2::Frame->new;
+    my $frame = gen_frame();
 	$frame->set_shadow_type ('in');
 	$frame->add ($sw);
 	my $def = 126-$num;
@@ -285,7 +303,7 @@ sub sender_box{
     $sw->set_border_width(3);
     my($width,$hight)=max_win_size();
 	$sw->set_size_request($width/10,$hight/10);
-    my $frame = Gtk2::Frame->new;
+    my $frame = gen_frame();
 	$frame->set_shadow_type ('in');
 	$frame->add ($sw);
 	my $num = $self->object_get_attribute('CTRL','UART_NUM');
@@ -324,21 +342,6 @@ sub sender_box{
 		
 	return ($scrolled_win,$tview);	
 }
-
-
-
-
-
-
-
-
-sub refresh_gui{
-	while (Gtk2->events_pending) {
-      Gtk2->main_iteration;
-    }
-    Gtk2::Gdk->flush;
-}
-
 
 
 

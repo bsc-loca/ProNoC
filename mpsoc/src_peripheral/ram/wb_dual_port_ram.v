@@ -50,7 +50,8 @@ module wb_dual_port_ram #(
 	parameter 	TAGw   =   3,
 	parameter	SELw   =   Dw/8,
 	parameter	CTIw   =   3,
-	parameter	BTEw   =   2 
+	parameter	BTEw   =   2,
+    parameter   WB_Aw  =   20 // Wishbon bus reserved address with range. WB_Aw >=Aw 
 	
 	)
 	(
@@ -90,6 +91,18 @@ module wb_dual_port_ram #(
 	    sb_rty_o
 	    
 	);
+
+
+	// synthesis translate_off 
+     initial begin 
+		if(WB_Aw<Aw)begin
+			$display("Error: The wishbon bus reserved address range width (%d) should be larger than ram width (%d): %m",WB_Aw,Aw);  
+			$stop;
+		end
+	 end
+	// synthesis translate_on
+
+
 
 	function integer log2;
 	input integer number; begin   

@@ -16,18 +16,13 @@ use File::Copy::Recursive qw(dircopy);
 use Cwd 'abs_path';
 
 
-use Gtk2;
-use Gtk2::Pango;
-
-
-
 require "widget.pl"; 
 require "verilog_gen.pl";
 require "readme_gen.pl";
 require "hdr_file_gen.pl";
 require "diagram.pl";
 require "compile.pl";
-require  "software_editor.pl";
+require "software_editor.pl";
 
  
 
@@ -131,9 +126,8 @@ sub get_module_parameter{
 	my $window =  def_popwin_size(40,60, "Parameter setting for $module ",'percent');
 	my $table = def_table($table_size, 7, FALSE);
 	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win($table);
+
 	my $row=0;
 	my $column=0;
 	
@@ -155,7 +149,7 @@ sub get_module_parameter{
 			my $default_type=  "Localparam";
 			$default_type=$param_type{$p} if(defined $param_type{$p});
 			my $combo = gen_combobox_object($soc,'current_module_param_type',$p,"Parameter,Localparam",$default_type,undef,undef);
-			$table->attach ($combo,3, 4, $row, $row+1,$at0,$at1,2,2) if($vfile_param_type ne 'Parameter' && $category ne 'NoC' );
+			$table->attach ($combo,3, 4, $row, $row+1,$at0,$at1,2,2) if($vfile_param_type ne 'Parameter' && $category ne 'NoC' && $p ne 'WB_Aw' );
 		}
 		$default= $param_value{$p} if(defined $param_value{$p});
 		($row,$column)=add_param_widget($soc,$p,$p, $default,$type,$content,$info, $table,$row,$column,$show,'current_module_param',undef,undef,'vertical');
@@ -603,19 +597,11 @@ sub gen_instance{
 	}#for $plug_num
 		
 	}#foreach plug
-
-				
 	
 	
-	
-	
-	
-	
-	#$box->pack_start($table, FALSE, FALSE, 0);
-	my $separator = Gtk2::HSeparator->new;
-	#$box->pack_start($separator, FALSE, FALSE, 3);
 	if($row<3) {$row=3;}
-	$table->attach ($separator,0,5,$row+$offset,$row+$offset+1,'fill','fill',2,2);	$row++;
+	add_Hsep_to_table ($table,0,5,$row+$offset);$row++;
+
 	return ($offset+$row);
 }	
 
@@ -1017,9 +1003,7 @@ sub set_unset_infc{
 	my $soc =shift;
 	my $window = def_popwin_size(40,60,"Unconnected Socket Interfaces",'percent');
 	my $table = def_table(10,4, FALSE);	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 	my $row=0;
 	my $column=0;
 	
@@ -1063,7 +1047,7 @@ sub set_unset_infc{
 	}
 	
 	my $box1=def_hbox(FALSE, 1);
-	$box1->pack_start( Gtk2::VSeparator->new, FALSE, FALSE, 3);	
+	$box1->pack_start( gen_Vsep(), FALSE, FALSE, 3);	
 	$table->attach($box1,3,4,0,$row+1,'expand','fill',2,2);
 	my $ok = def_image_button('icons/select.png','OK');
 	$ok->signal_connect	( 'clicked'=> sub {
@@ -1094,9 +1078,7 @@ sub wb_address_setting {
 	my $window = def_popwin_size(80,50,"Wishbone slave port address setting",'percent');
 	my $table = def_table(10, 6, FALSE);
 	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 	my $row=0;
 	
 	#title
@@ -1145,11 +1127,8 @@ sub wb_address_setting {
 					my $number=$row-1;
 					my $label1= gen_label_in_left("$number: $instance_name");
 					my $label2= gen_label_in_left($connected_instance_name);
-					my $entry1= Gtk2::Entry->new_with_max_length (10);
-				    $entry1->set_text(sprintf("0x%08x", $base));
-						
-					my $entry2= Gtk2::Entry->new_with_max_length (10);
-					$entry2->set_text(sprintf("0x%08x", $end));
+					my $entry1= gen_entry_new_with_max_length (10,sprintf("0x%08x", $base));						
+					my $entry2= gen_entry_new_with_max_length (10,sprintf("0x%08x", $end));
 												
 					my ($box,$valid) =addr_box_gen(sprintf("0x%08x", $base), sprintf("0x%08x", $end),\@newbase,\@newend,\@connects,$number);
 					$status_all[$number]=$valid;
@@ -1315,11 +1294,15 @@ sub get_parameter_final_value{
 	my %sim_params;
 	foreach my $p (@ordered_param){
 		my $value=$soc->soc_get_module_param_value($id,$p);
+		#print "\n$value=\$soc->soc_get_module_param_value($id,$p)\n";
 		foreach my $q (sort keys %sim_params){
+			
 			$value=replace_value($value,$q,$sim_params{$q}) if (defined $value);
+			
+			
 		}
 		$sim_params{$p}=$value;
-		#print "$sim_params{$p}=$value;\n";
+		#print "\$sim_params{$p}=$value;\n";
 	}
 	return $sim_params{$param};
 }	
@@ -1334,8 +1317,9 @@ sub replace_value{
 	#print "$new_range\n";
 	my $new_param= $value;
 	($new_string=$new_string)=~ s/\b$param\b/$new_param/g;
-	return eval $new_string;
-
+	my $new_val = eval $new_string;
+	return $new_val if (defined $new_val);
+	return $string;
 		
 }	
 
@@ -1344,37 +1328,37 @@ sub replace_value{
 
 
 sub check_entered_address{
-my 	($base_ref,$end_ref,$connect_ref,$number)=@_;
-my @bases=@{$base_ref};
-my @ends=@{$end_ref};
-my @connects=@{$connect_ref};
+	my 	($base_ref,$end_ref,$connect_ref,$number)=@_;
+	my @bases=@{$base_ref};
+	my @ends=@{$end_ref};
+	my @connects=@{$connect_ref};
 
-my $current_base=$bases[$number];
-my $current_end=$ends[$number];
+	my $current_base=$bases[$number];
+	my $current_end=$ends[$number];
 
-if($current_base>  $current_end) {
+	if($current_base>  $current_end) {
+			
+	return "Error: the given base address is bigger than the End address!";	
+		}
+
+	my $size= scalar @bases; 
+	my $conflicts;
+	foreach (my $i=0; $i<$size; $i++){
+		if($i != $number){ #if not same row
+			if	($connects[$i] eq $connects[$number]) {#same bus
+					my $ok=(($bases[$i]< $bases[$number] && $bases[$i] < $ends[$number])||($bases[$i]> $bases[$number] && $bases[$i] > $ends[$number]));
+					if($ok==0) {
+						$conflicts=(defined $conflicts )? "$conflicts,$i": $i;
+					}
+			}	
 		
-return "Error: the given base address is bigger than the End address!";	
-	}
-
-my $size= scalar @bases; 
-my $conflicts;
-foreach (my $i=0; $i<$size; $i++){
-	if($i != $number){ #if not same row
-		if	($connects[$i] eq $connects[$number]) {#same bus
-				my $ok=(($bases[$i]< $bases[$number] && $bases[$i] < $ends[$number])||($bases[$i]> $bases[$number] && $bases[$i] > $ends[$number]));
-			    if($ok==0) {
-					$conflicts=(defined $conflicts )? "$conflicts,$i": $i;
-				}
-		}	
-	
-	
-	}
-	
-	
-}	
-if (defined $conflicts){ return " The given address range has conflict with rows:$conflicts"; }
-return;
+		
+		}
+		
+		
+	}	
+	if (defined $conflicts){ return " The given address range has conflict with rows:$conflicts"; }
+	return;
 	
 	
 }	
@@ -1386,19 +1370,9 @@ return;
 sub load_soc{
 	my ($soc,$info,$ip)=@_;
 	my $file;
-	my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-
-	my $filter = Gtk2::FileFilter->new();
-	$filter->set_name("SoC");
-	$filter->add_pattern("*.SOC");
-	$dialog->add_filter ($filter);
+	my $dialog =  gen_file_dialog (undef, 'SOC');	
 	my $dir = Cwd::getcwd();
-	$dialog->set_current_folder ("$dir/lib/soc")	;		
+	$dialog->set_current_folder ("$dir/lib/soc");		
 
 
 	if ( "ok" eq $dialog->run ) {
@@ -1418,11 +1392,9 @@ sub load_soc{
      }
      $dialog->destroy;
 
-   
-
-	
-
 }
+
+
 
 
 sub check_instances_version{
@@ -1474,9 +1446,7 @@ sub get_ram_init{
 	my $window = def_popwin_size(80,50,"Memory initial file setting setting",'percent');
 	my $table = def_table(10, 6, FALSE);
 	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 	my $row=0;
 	my $col=0;
 	my @instances=$soc->soc_get_all_instances();
@@ -1532,19 +1502,11 @@ sub software_edit_soc {
 	$table->attach ($make,5, 6, 1,2,'shrink','shrink',0,0);
 	$table->attach ($prog,9, 10, 1,2,'shrink','shrink',0,0); 
 	$regen -> signal_connect ("clicked" => sub{
-		my $dialog = Gtk2::MessageDialog->new (my $window,
-                                      'destroy-with-parent',
-                                      'question', # message type
-                                      'yes-no', # which set of buttons?
-                                      "Are you sure you want to regenerate the main.c file? Note that any changes you have made will be lost");
-  		my $response = $dialog->run;
-  		if ($response eq 'yes') {
-      			
+		my $response =  yes_no_dialog("Are you sure you want to regenerate the main.c file? Note that any changes you have made will be lost");
+		if ($response eq 'yes') {      			
 			save_file ("$sw/main.c",main_c_template($name));
 			$app->load_source("$sw/main.c");	
   		}		
-		$dialog->destroy;
-
 	});
     
     my $load;
@@ -1775,7 +1737,7 @@ sub socgen_main{
 	set_gui_status($soc,"ideal",0);
 		
 	#  The main table containing the lib tree, selected modules and info section 
-	my $main_table = Gtk2::Table->new (20, 12, FALSE);
+	my $main_table = def_table (20, 12, FALSE);
 	
 	# The box which holds the info, warning, error ...  messages
 	my ($infobox,$info)= create_txview();	
@@ -1869,24 +1831,16 @@ sub socgen_main{
 		
 		my $has_ni= check_for_ni($soc);
 		if($has_ni){
-			my $dialog = Gtk2::MessageDialog->new (my $window,
-		                              'destroy-with-parent',
-		                              'question', # message type
-		                              'yes-no', # which set of buttons?
-		                              "Processing Tile  \"$name\" has been created successfully at $target_dir/.  In order to include this tile in MPSoC Generator you need to restart the ProNoC. Do you ant to reset the ProNoC now?");
-	  		my $response = $dialog->run;
-	  		if ($response eq 'yes') {
+			my $message = "Processing Tile  \"$name\" has been created successfully at $target_dir/.  In order to include this tile in MPSoC Generator you need to restart the ProNoC. Do you ant to reset the ProNoC now?";
+			my $response =  yes_no_dialog ($message);
+			if ($response eq 'yes') {
 	      			exec($^X, $0, @ARGV);# reset ProNoC to apply changes	
 	  		}
-	  		$dialog->destroy;
+	  		
 		} else {
 			message_dialog("Processing Tile  \"$name\" has been created successfully at $target_dir/.");
 
 		}
-	
-
-
-
 	});
 
 	$software -> signal_connect("clicked" => sub{
@@ -1936,9 +1890,7 @@ sub socgen_main{
 	
 	});	
 
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-		$sc_win->set_policy( "automatic", "automatic" );
-		$sc_win->add_with_viewport($main_table);
+	my $sc_win = add_widget_to_scrolled_win($main_table);
 
 
 

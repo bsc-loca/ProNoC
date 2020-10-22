@@ -464,7 +464,13 @@ generate
 	end
 endgenerate
 
-
+// synthesis translate_off 
+always @(posedge clk) begin // A master seding a request to an unregistered address
+	if ((|m_cyc_i_all==1'b1) && (|s_sel_one_hot==1'b0)) begin 
+		$display ("Warnning: A master seding a request to an unregistered wishbone address range: %h.  %m",m_grant_addr);
+	end
+end
+// synthesis translate_on
 
 endmodule
 

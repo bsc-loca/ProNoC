@@ -6,8 +6,6 @@ use warnings;
 use FindBin;
 use lib $FindBin::Bin;
 
-use Gtk2;
-use Gtk2::Ex::Graph::GD;
 use GD::Graph::Data;
 use emulator;
 
@@ -90,7 +88,7 @@ sub check_inserted_ratios {
 
 sub get_injection_ratios{
 		my ($emulate,$atrebute1,$atrebute2)=@_;
-		my $box = Gtk2::HBox->new( FALSE, 0 );
+		my $box =def_hbox(FALSE, 0);
 		my $init=$emulate->object_get_attribute($atrebute1,$atrebute2);
 		my $entry=gen_entry($init);
 		my $button=def_image_button("icons/right.png",'Check');		
@@ -257,9 +255,7 @@ As an example defining 2,3,4:10:2 will result in (2,3,4,6,8,10) injection ratios
 		
 	attach_widget_to_table ($table,$row,gen_label_in_left("Injection ratios:"),gen_button_message ($l,"icons/help.png") , $u); $row++;
 	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 		
 	my $ok = def_image_button('icons/select.png','OK');
 	my $mtable = def_table(10, 1, TRUE);
@@ -319,9 +315,7 @@ sub gen_emulation_column {
 	my $title_l =($mode eq "simulate" ) ? "NoC Simulator" : "NoC Emulator";
 	my $title=gen_label_in_center($title_l);
 	$table->attach ($title , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
-	my $separator = Gtk2::HSeparator->new;	
-	$table->attach ($separator , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
-	
+	add_Hsep_to_table($table,0,10,$row);$row++;
 
 	my @positions=(0,1,2,3,4,5,6,7);
 	my $col=0;
@@ -431,8 +425,8 @@ sub gen_emulation_column {
 			$color_num = (scalar @samples) +1;
 			$emulate->object_add_attribute($sample,"color",$color_num);
 		}
-		my $color=def_colored_button("    ",$color_num);
-		$table->attach ($color, $positions[$col], $positions[$col+1], $row, $row+1,'expand','shrink',2,2);$col++;
+		my $color=def_colored_button("   ",$color_num);
+		$table->attach ($color, $positions[$col], $positions[$col+1], $row, $row+1,'fill','fill',2,2);$col++;
 		
 		
 		
@@ -579,24 +573,17 @@ sub get_status_gif{
 sub gen_noc_status_image {
 	my ($emulate,$sample)=@_;
 	my   $status= $emulate->object_get_attribute ($sample,"status");	
-	 $status='' if(!defined  $status);
+	$status='' if(!defined  $status);
 	my $image;
-	my $vbox = Gtk2::HBox->new (TRUE,1);
-	$image = Gtk2::Image->new_from_file ("icons/load.gif") if($status eq "run");
+	my $box = def_hbox(TRUE,1);
+	$image = new_image_from_file ("icons/load.gif") if($status eq "run");
 	$image = def_icon("icons/button_ok.png") if($status eq "done");
 	$image = def_icon("icons/warning.png") if($status eq "failed");
-	#$image_file = "icons/load.gif" if($status eq "run");
-	
-	if (defined $image) {
-		my $align = Gtk2::Alignment->new (0.5, 0.5, 0, 0);
-     	my $frame = Gtk2::Frame->new;
-		$frame->set_shadow_type ('in');
-		# Animation
-		$frame->add ($image);
-		$align->add ($frame);
-		$vbox->pack_start ($align, FALSE, FALSE, 0);
+		
+	if (defined $image) {		
+		$box->pack_start (add_frame_to_image($image), FALSE, FALSE, 0);
 	}
-	return $vbox;
+	return $box;
 	
 }
 
@@ -714,29 +701,24 @@ sub run_emulator {
 
 sub process_notebook_gen{
 		my ($emulate,$info,$mode,@charts)=@_;
-		my $notebook = Gtk2::Notebook->new;
+		my $notebook = gen_notebook();
 		$notebook->set_tab_pos ('left');
 		$notebook->set_scrollable(TRUE);
-		$notebook->can_focus(FALSE);
+		#$notebook->can_focus(FALSE);
 
 		
 		my ($page1,$set_win)=gen_emulation_column($emulate, $mode,10,$info,@charts);
-		$notebook->append_page ($page1,Gtk2::Label->new_with_mnemonic ("  _Run emulator  ")) if($mode eq "emulate");
-		$notebook->append_page ($page1,Gtk2::Label->new_with_mnemonic ("  _Run simulator ")) if($mode eq "simulate");
+		$notebook->append_page ($page1,gen_label_with_mnemonic ("  _Run emulator  ")) if($mode eq "emulate");
+		$notebook->append_page ($page1,gen_label_with_mnemonic ("  _Run simulator ")) if($mode eq "simulate");
 		
 		
 		my $page2=get_noc_setting_gui ($emulate,$info,$mode);
 		my $tt=($mode eq "emulate")? "  _Generate NoC \nEmulation Model" : "  _Generate NoC \nSimulation Model" ;
-		$notebook->append_page ($page2,Gtk2::Label->new_with_mnemonic ($tt));
+		$notebook->append_page ($page2,gen_label_with_mnemonic ($tt));
 		
-		#if($mode eq "simulate"){
-			#my $page3=gen_custom_traffic ($emulate,$info,$mode);
-			#$notebook->append_page ($page3,Gtk2::Label->new_with_mnemonic ("_Generate Custom\n Traffic Pattern"));
-		#}		
 		
-		my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-		$scrolled_win->set_policy( "automatic", "automatic" );
-		$scrolled_win->add_with_viewport($notebook);
+		
+		my $scrolled_win = add_widget_to_scrolled_win($notebook);
 		$scrolled_win->show_all;	
 		my $page_num=$emulate->object_get_attribute ("process_notebook","currentpage");		
 		$notebook->set_current_page ($page_num) if(defined $page_num);
@@ -1059,20 +1041,9 @@ sub save_emulation {
 sub load_emulation {
 	my ($emulate,$info)=@_;
 	my $file;
-	my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-
-	my $filter = Gtk2::FileFilter->new();
-	$filter->set_name("EML");
-	$filter->add_pattern("*.EML");
-	$dialog->add_filter ($filter);
+	my $dialog =  gen_file_dialog (undef, 'EML');	
 	my $dir = Cwd::getcwd();
-	$dialog->set_current_folder ("$dir/lib/emulate");		
-
+	$dialog->set_current_folder ("$dir/lib/emulate");			
 
 	if ( "ok" eq $dialog->run ) {
 		$file = $dialog->get_filename;
@@ -1182,10 +1153,11 @@ sub emulator_main{
 	my $emulate= emulator->emulator_new();
 	set_gui_status($emulate,"ideal",0);
 	$emulate->object_add_attribute('compile','compilers',"QuartusII");
-	my $left_table = Gtk2::Table->new (25, 6, FALSE);
-	my $right_table = Gtk2::Table->new (25, 6, FALSE);
-	my $main_table = Gtk2::Table->new (25, 12, FALSE);
+	my $left_table = def_table (25, 6, FALSE);
+	my $right_table =def_table (25, 6, FALSE);
+	my $main_table = def_table (25, 12, FALSE);
 	my ($infobox,$info)= create_txview();
+	
 	
 		
 	my @pages =(
@@ -1298,11 +1270,9 @@ sub emulator_main{
 		set_gui_status($emulate,"ref",5);
 	});	
 
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($main_table);	
+	
 
-	return $sc_win;
+	return add_widget_to_scrolled_win($main_table);
 }
 
 

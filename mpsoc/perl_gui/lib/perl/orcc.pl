@@ -102,18 +102,11 @@ sub select_orcc_generated_srcs {
 	$add->signal_connect ( 'clicked'=> sub{
 		
  		my $file;
-        my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select the ORCC generated CSV File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
+        my $dialog = gen_file_dialog('Select the ORCC generated CSV File','csv');
+            	
         	
         
-        	my $filter = Gtk2::FileFilter->new();
-			$filter->set_name("csv");
-			$filter->add_pattern("*.csv");
-			$dialog->add_filter ($filter);
+        	
 		
 
         	if ( "ok" eq $dialog->run ) {
@@ -135,19 +128,8 @@ sub select_orcc_generated_srcs {
 sub load_orcc_file{
 	my($self,$tview)=@_;
  		my $file;
-        my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-        	
-        	my $filter = Gtk2::FileFilter->new();
-			$filter->set_name("csv");
-			$filter->add_pattern("*.csv");
-			$dialog->add_filter ($filter);
-		
-
+        my $dialog = gen_file_dialog( undef,"csv");
+			
         	if ( "ok" eq $dialog->run ) {
             		$file = $dialog->get_filename;
 					load_orcc_csv($self,$file,$tview);
@@ -476,6 +458,9 @@ sub genereate_output_orcc{
    		my $actor=get_task_assigned_to_tile($self,$tile_num); 
         my $soc_name=$soc_names{$actor_tile_id};
 		my $ni_name=$ni_names{$actor_tile_id};
+        my $max_dst_port_num=0;
+        
+        
         
         #remove old orcc lib folder
    		rmtree("$target_orccdir");
@@ -705,7 +690,7 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 		
 		
 		
-		#6-Where the packet come from? we need to update the sender with the remaining credit 
+		#6-Where the packet comes from? we need to update the sender with the remaining credit 
 		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor,'raw');
 		foreach my $sink (@sinkers){
 			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
@@ -745,7 +730,7 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 ";
 		
 	my $dstportnum = get_port_num($self,\%dstp_number,$dst,$dst_port); 
-	
+	$max_dst_port_num=$dstportnum if($dstportnum > $max_dst_port_num );
 			
 	$Hw_fifo_define=$Hw_fifo_define."
 //	Receiver port  ${dst_port} port definitions:
@@ -754,7 +739,7 @@ static unsigned int index_${dst_port}_sender;
 #define ${dst_port}_credit_w  1
 #define ${dst_port}_credit_v  0   //Alternatively it can be another VC				
 #define ${dst_port}_credit_class_num  0 //Alternatively it can be another class
-#define ${dst_port}_credit_dest_port  0 //0 is rec=served for credit
+#define ${dst_port}_credit_dest_port  0 //0 is reserved for credit
 #define ${dst_port}_credit_pointer (unsigned int)&credit_send_buff
 #define ${dst_port}_credit_size_in_byte  4
 #define ${dst_port}_credit_start_index  0
@@ -808,7 +793,9 @@ static unsigned int index_${dst_port}_sender;
 			
 		} #sink
 		
-		
+	
+	
+	
 $actor_h=$actor_h."void ${actor}_initialize(schedinfo_t *);\n";
 $actor_h=$actor_h."void ${actor}_scheduler(schedinfo_t *);\n";		
 		
@@ -1325,10 +1312,22 @@ $all_run_actor
 			
 ";		
 	
-	
+my $log2=log2($max_dst_port_num +1);	
 	
 print $fd "	
 $main_include
+
+#define MAX_DST_PORT_NUM  $max_dst_port_num 
+
+// make sure that the HDATA_PRECAPw widh is >= log2(MAX_DST_PORT_NUM) 	
+#if ( $log2 > ${ni_name}_HDATA_PRECAPw )
+	#error \" The value of HDATA_PRECAPw should be defined at least $log2. Open the processing tile generator and increase the NI HDATA_PRECAPw value >= $log2\"
+#endif
+
+//make dure Byte_En is asserted in NI 
+#if (${ni_name}_BYTE_EN == 0)
+	#error \" The NI NI BYTE_EN parameter should be set as one for correct data comminication between cores. \"
+#endif
 
 
 // a simple delay function

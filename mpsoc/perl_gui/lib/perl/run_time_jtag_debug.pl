@@ -3,21 +3,33 @@ use strict;
 use warnings;
 
 use Glib qw(TRUE FALSE);
-use Gtk2 '-init';
-use Gtk2::SourceView2;
+
+use FindBin;
+use lib $FindBin::Bin;
+
 use Data::Dumper;
 use File::Which;
 use File::Basename;
 
 use IPC::Run qw( harness start pump finish timeout );
 
+use Consts;
+BEGIN {
+    my $module = (Consts::GTK_VERSION==2) ? 'Gtk2' : 'Gtk3';
+    my $file = $module;
+    $file =~ s[::][/]g;
+    $file .= '.pm';
+    require $file;
+    $module->import;
+}
+
+
 
 require "widget.pl";
 require "uart.pl";
 require "compile.pl";
 
-use FindBin;
-use lib $FindBin::Bin;
+
 use String::Scanf; # imports sscanf()
 
 
@@ -42,13 +54,11 @@ my %status;
 sub source_probe_stand_alone(){
 	$path = "../../";
 	set_path_env();
-	Gtk2->init;
 	my $window=source_probe_main();
-	$window->signal_connect (delete_event => sub { Gtk2->main_quit });
-	Gtk2->main();
+	$window->signal_connect (delete_event => sub { gui_quite() });	
 }
 
-exit source_probe_stand_alone() unless caller;
+exit gtk_gui_run(\&source_probe_stand_alone) unless caller;
 
 
 sub get_jtag_intfc_rst_cmd {
@@ -151,8 +161,8 @@ sub source_probe_ctrl {
 	
 	}	
 	
-	
-	 $table->attach ( Gtk2::VSeparator->new, 5, 6 , 0, $row+1,'fill','fill',2,2);
+	 
+	 $table->attach (  gen_Vsep(), 5, 6 , 0, $row+1,'fill','fill',2,2);
 	
 	#Column 2
 	$row=0;$col=0;
@@ -176,11 +186,11 @@ sub source_probe_ctrl {
 	
 		my $w=gen_combobox_object ($self,'CTRL','RESET_CHAIN',"4,3,2,1","4",undef,undef);
 		my $h=gen_button_message ("The JTAG remote reset/enable is connected to the Jtag tab chain with the largest chain number in each tile.  ","icons/help.png");
-		my $b= def_pack_hbox(FALSE,0,(Gtk2::Label->new  ("CPU(s) Chain:"),$w,$h));
+		my $b= def_pack_hbox(FALSE,0,(gen_label_in_center  ("CPU(s) Chain:"),$w,$h));
 		$table->attach ($b ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col+=1;
 	
 	}else{	
-		$table->attach (Gtk2::Label->new  ("CPU(s)") ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col+=1;
+		$table->attach (gen_label_in_center  ("CPU(s)") ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col+=1;
 	}
 	
 	$table->attach ($reset ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col+=1;
@@ -224,7 +234,7 @@ sub soure_probe_widgets_old {
 	$table->attach (gen_label_in_center(" Source "), 0, 3 , $y, $y+1,'shrink','shrink',2,2); 
 	$table->attach (gen_label_in_center(" Probe  "), 4, 7 , $y, $y+1,'shrink','shrink',2,2); 
 	$y++;
-	$table->attach ( Gtk2::HSeparator->new, 0, 7 , $y, $y+1, 'fill','shrink',2,2); 
+	$table->attach ( gen_Hsep(), 0, 7 , $y, $y+1, 'fill','shrink',2,2); 
 	
 	$y++;
 	my @sources;
@@ -251,7 +261,7 @@ sub soure_probe_widgets_old {
 	        $probe_label->set_markup("<span  foreground= 'red' ><b>XXXX</b></span>") if(!defined $probe_val );	
 	        $probe_label->set_markup("<span  foreground= 'blue' ><b></b>    ${probe_val}   </span>") unless(!defined $probe_val );	
 	        
-	        my $frame = Gtk2::Frame->new;
+	        my $frame = gen_frame();
 			$frame->set_shadow_type ('in');
 			# Animation
 			$frame->add ($probe_label);
@@ -262,13 +272,13 @@ sub soure_probe_widgets_old {
 	        $table->attach ($read, $x, $x+1 , $y, $y+1,'shrink','shrink',2,2); $x++;
 	        
 	        $y++; $x=0; 
-	        $table->attach ( Gtk2::HSeparator->new, 0, 7 , $y, $y+1, 'fill','shrink',2,2); 
+	        $table->attach (gen_Hsep(), 0, 7 , $y, $y+1, 'fill','shrink',2,2); 
 	        $y++;	     
 	        
 	}	
 	
-	  $table->attach ( Gtk2::VSeparator->new, 3, 4 , 0, $y+1,'fill','fill',2,2);
-	  $table->attach ( Gtk2::VSeparator->new, 6, 7 , 0, $y+1,'fill','fill',2,2);
+	  $table->attach ( gen_Vsep(), 3, 4 , 0, $y+1,'fill','fill',2,2);
+	  $table->attach ( gen_Vsep(), 6, 7 , 0, $y+1,'fill','fill',2,2);
 	
 	return ($scrolled_win,\@sources);
 }
@@ -321,7 +331,7 @@ sub soure_probe_widgets {
 	$table->attach (gen_label_in_center(" Action "), 4, 6 , $y, $y+1,'shrink','shrink',2,2); 
 	$y++;
 	
-	$table->attach ( Gtk2::HSeparator->new, 0, 6 , $y, $y+1, 'fill','shrink',2,2); 
+	$table->attach ( gen_Hsep(), 0, 6 , $y, $y+1, 'fill','shrink',2,2); 
 	
 	$y++;
 	$x= 0; 	
@@ -350,7 +360,7 @@ sub soure_probe_widgets {
 			my $sx=7; 
 			        
 	        $y++; $x=0; 
-	        $table->attach ( Gtk2::HSeparator->new, 0, $sx , $y, $y+1, 'fill','shrink',2,2); 
+	        $table->attach ( gen_Hsep(), 0, $sx , $y, $y+1, 'fill','shrink',2,2); 
 	        $y++;
 	        
 	      
@@ -366,9 +376,7 @@ sub soure_probe_widgets {
 	        	my $val =read_mem_specefic_addr($self,$address,$tview);
 	        	$entry->set_text($val) if (defined $val);
 	        	$status =1;
-	        	my ($red,$green,$blue) = get_color(-1);
-		   		my $color = Gtk2::Gdk::Color->new ($red,$green,$blue);
-		   		$entry->modify_text('normal' , $color); 
+	        	entry_set_text_color($entry,-1);
 	        	$load->destroy;
 	        });
 	        
@@ -383,9 +391,7 @@ sub soure_probe_widgets {
 				$table->show_all();
 	        	write_mem_specefic_addr($self,$address,$value,$tview);
 	        	$status =1;
-	        	my ($red,$green,$blue) = get_color(-1);
-		   		my $color = Gtk2::Gdk::Color->new ($red,$green,$blue);
-		   		$entry->modify_text('normal' , $color); 
+	        	entry_set_text_color($entry,-1);
 	        	$load->destroy;
 	        	
 	        });
@@ -394,9 +400,7 @@ sub soure_probe_widgets {
 				if($status==0 || $status==1 ){
 					$status =2;#modified
 					#change color to red
-					my ($red,$green,$blue) = get_color(11);
-		   			my $color = Gtk2::Gdk::Color->new ($red,$green,$blue);
-					$entry->modify_text('normal' , $color); 
+					entry_set_text_color($entry,11);
 					
 				}
 				my $in = $entry->get_text();
@@ -415,9 +419,9 @@ sub soure_probe_widgets {
 	        
 	}	
 	
-	$table->attach ( Gtk2::VSeparator->new, 1, 2 , 0, $y+1,'fill','fill',2,2);
-	$table->attach ( Gtk2::VSeparator->new, 3, 4 , 0, $y+1,'fill','fill',2,2);
-	$table->attach ( Gtk2::VSeparator->new, 6, 7 , 0, $y+1,'fill','fill',2,2);
+	$table->attach ( gen_Vsep(), 1, 2 , 0, $y+1,'fill','fill',2,2);
+	$table->attach ( gen_Vsep(), 3, 4 , 0, $y+1,'fill','fill',2,2);
+	$table->attach ( gen_Vsep(), 6, 7 , 0, $y+1,'fill','fill',2,2);
 		
 	return $scrolled_win;
 }
@@ -481,7 +485,7 @@ sub fill_memory_array_from_file{
 	close(F);
 	
 	add_info($tview,"Load $fname\n"); 
-	$ct=($ct<<2);
+	$ct=($ct << 2);
 	add_info($tview,"address $offset to $ct\n"); 
 }
 
@@ -490,13 +494,8 @@ sub get_file_in_name{
 	
 	my $file;
 	my $title ='select bin file';
-	my $dialog = Gtk2::FileChooserDialog->new(
-           	'Select a File', undef,
-           	'open',
-           	'gtk-cancel' => 'cancel',
-           	'gtk-ok'     => 'ok',
-    );
-	
+	my $dialog = gen_file_dialog ($title);
+		
 	if ( "ok" eq $dialog->run ) {
 	    	$file = $dialog->get_filename;
 			$dialog->destroy;
@@ -785,7 +784,7 @@ sub read_write_bin_file {
 	
 	#column address labels
 	for (my $y=1; $y<=$MAX_Y; $y++){
-		my $addr=(($y-1)<<2);
+		my $addr=(($y-1) << 2);
 		$addr =($format eq 'Hexadecimal')? sprintf("%x", $addr) : $addr;
 		
 		my $l=gen_label_in_center (" $addr ");
@@ -797,7 +796,7 @@ sub read_write_bin_file {
 	for (my $x=1; $x<=$MAX_X; $x++){
 		my $addr=$base_addr+($x-1) * $MAX_Y;
 		
-		$addr = ($format eq 'Hexadecimal')? sprintf("%x",($addr<<2))   : ($addr<<2);
+		$addr = ($format eq 'Hexadecimal')? sprintf("%x",($addr << 2))   : ($addr << 2);
 		
 		
 		my $l=gen_label_in_left (" $addr ");
@@ -812,18 +811,17 @@ sub read_write_bin_file {
 			my $state=0;# not modified
 			
 			my $addr =$base_addr+ (($x-1) * $MAX_Y ) + $y-1;
-			my $addr_tip=($format eq 'Hexadecimal')? sprintf("0x%x",($addr<<2))   : ($addr<<2);
+			my $addr_tip=($format eq 'Hexadecimal')? sprintf("0x%x",($addr << 2))   : ($addr << 2);
 			
 			my $v= $memory{$addr};
 			my $s = $status{$addr};
 			
 			$v= "xxxxxxxx" if (!defined $v);
-			$s = 0 if (!defined $s); #0 dontcare
+			$s = 0 if (!defined $s); #0 dontcare			
 			
-			
-			
-			
+						
 			my $entry =gen_entry($v );
+			
 			$entry->set_max_length (8);
 			$entry->set_width_chars(8);
 			set_tip($entry,"$addr_tip");
@@ -831,18 +829,14 @@ sub read_write_bin_file {
 			
 			if($s==2 ){
 				#change color to red
-				my ($red,$green,$blue) = get_color(11);
-		   		my $color = Gtk2::Gdk::Color->new ($red,$green,$blue);
-				$entry->modify_text('normal' , $color); 
+				entry_set_text_color($entry,11);
 			}
 			
 			$entry->signal_connect("changed" => sub{
 				if($s==0 || $s==1 ){
 					$status{$addr} =2;#modified
 					#change color to red
-					my ($red,$green,$blue) = get_color(11);
-		   			my $color = Gtk2::Gdk::Color->new ($red,$green,$blue);
-					$entry->modify_text('normal' , $color); 
+					entry_set_text_color($entry,11);
 					
 				}
 				my $in = $entry->get_text();

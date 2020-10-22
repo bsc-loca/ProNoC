@@ -10,13 +10,14 @@ use wb_addr;
 use interface;
 use intfc_gen;
 use ip_gen;
+use ip;
 use rvp;
 use Cwd 'abs_path';
 
 use File::Basename;
 use File::Path qw/make_path/;
 
-use Gtk2;
+
 
 
 require "widget.pl"; 
@@ -109,7 +110,7 @@ sub save_ports_all{
 sub ip_file_box {
 	my ($ipgen,$info,$table,$row)=@_;
 	my $label = gen_label_in_left(" Select file:");
-	my $entry = Gtk2::Entry->new;
+	my $entry = gen_entry();
 	#my $open= def_image_button("icons/select.png","Open");
 	my $browse= def_image_button("icons/browse.png","Browse");
 	my $file= $ipgen->ipgen_get("file_name");
@@ -125,37 +126,15 @@ sub ip_file_box {
 	$browse->signal_connect("clicked"=> sub{
 		my $entry_ref=$_[1];
  		my $file;
-        my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-        	
-        	my $filter = Gtk2::FileFilter->new();
-			$filter->set_name("Verilog");
-			$filter->add_pattern("*.v");
-			my $filter2 = Gtk2::FileFilter->new();
-			$filter2->set_name("IP");
-			$filter2->add_pattern("*.IP");
-			$dialog->add_filter ($filter);
-			$dialog->add_filter ($filter2);
-
-        	if ( "ok" eq $dialog->run ) {
+		my $dialog = gen_file_dialog (undef, 'v','IP');
+           	if ( "ok" eq $dialog->run ) {
             		$file = $dialog->get_filename;
 					$$entry_ref->set_text($file);
-					check_input_file($file,$ipgen,$info);
-            		#print "file = $file\n";
+					check_input_file($file,$ipgen,$info);            		
        		 }
        		$dialog->destroy;
-       		
-
-
 	} , \$entry);
-	
-	
-	
-	
+		
 	$entry->signal_connect("activate"=>sub{
 		my $file_name=$entry->get_text();
 		check_input_file($file_name,$ipgen,$info);
@@ -381,9 +360,9 @@ sub file_info_box {
 	my $table2=def_table(1,11,FALSE);
 	ip_file_box ($ipgen,$info,$table1,0);
 	select_module($ipgen,$info,$table2,0);
-	$table->attach_defaults($table1,0,11,0,1);
-	$table->attach_defaults($table2,0,11,1,2);
-	return $table;
+	$table->attach($table1,0,11,0,1,'fill','shrink',2,2);
+	$table->attach($table2,0,11,1,2,'fill','shrink',2,2);
+	return add_widget_to_scrolled_win($table);
 	
 	
 }
@@ -391,40 +370,13 @@ sub file_info_box {
 
 
 
-sub show_file_info{
-	my($ipgen,$info,$refresh_ref)=@_;
-	my $table = file_info_box($ipgen,$info,$info);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "never" );
-	$scrolled_win->add_with_viewport($table);
-	
 
-
-	$$refresh_ref-> signal_connect("clicked" => sub{ 
-		$table->destroy;
-		$table = file_info_box($ipgen,$info,$info);
-		
-		$scrolled_win->add_with_viewport($table);
-		$table->show;
-		$scrolled_win->show_all;
-			
-		
-		
-	});
-	
-	return $scrolled_win;
-	
-	
-	
-}	
 
 
 sub show_port_info{
 	my($intfc,$ipgen,$info,$refresh_ref)=@_;
 	my $table = port_info_box($intfc,$ipgen,$info,$info);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 	
 
 
@@ -445,33 +397,6 @@ sub show_port_info{
 	
 }
 
-
-sub show_interface_info{
-	my($intfc,$ipgen,$info,$refresh_ref)=@_;
-	my $table = interface_info_box($intfc,$ipgen,$info,$info);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
-	
-
-
-	$$refresh_ref-> signal_connect("clicked" => sub{ 
-		$table->destroy;
-		select(undef, undef, undef, 0.1); #wait 10 ms
-		$table = interface_info_box($intfc,$ipgen,$info,$info);
-		
-		$scrolled_win->add_with_viewport($table);
-		$table->show;
-		$scrolled_win->show_all;
-		
-		
-	});
-	
-	return $scrolled_win;
-	
-	
-	
-}		
 
 
 
@@ -522,7 +447,7 @@ For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
 	If checked, the defined parameter/localparam in SoC will be passed to the IP core';
 
 	#TABLE
-	my $table = Gtk2::Table->new (12, 8, FALSE);
+	my $table = def_table(12,8,FALSE);
 	my @positions=(0,1,2,3,4,5,6,7,8);
 	my $col=0;
 	#title
@@ -590,18 +515,10 @@ For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
 
 
 		#$check_param->set_active($vfile_param_type) if(defined $vfile_param_type );
-		my $check_redefine= Gtk2::CheckButton->new('Redefine');
+		my $check_redefine= gen_checkbutton('Redefine');
 		$check_redefine->set_active(1) ;
 		$check_redefine->set_active($redefine_param) if(defined $redefine_param );		
 		
-
-
-
-
-		#my $check= Gtk2::CheckButton->new;
-		#$check->set_active($vfile_param_type) if(defined $vfile_param_type );
-
-
 		my $info=def_image_button("icons/add_info.png");
 		#print "\$vfile_param_type =$vfile_param_type\n";
 		
@@ -686,9 +603,7 @@ For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
 
 
 	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 
 
 
@@ -745,13 +660,12 @@ For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
 ##########
 sub get_def_setting { 
 	my ($ipgen,$info)=@_;
-	my $table = Gtk2::Table->new (15, 15, TRUE);
-	my $table2 = Gtk2::Table->new (15, 15, TRUE);
-	my $window =  def_popwin_size(70,70,"Add definition file",'percent');
+	my $table  = def_table (15, 15, TRUE);
+	my $table2 = def_table (15, 15, TRUE);
+	my $window = def_popwin_size(70,70,"Add definition file",'percent');
 	my $ok=def_image_button("icons/select.png",' Ok ');
-	my $scrwin=  new Gtk2::ScrolledWindow (undef, undef);
-	$scrwin->set_policy( "automatic", "automatic" );
-	$scrwin->add_with_viewport($table2);
+
+	my $scrwin = add_widget_to_scrolled_win($table2);
 
 	my $label=gen_label_help("You ","Select the Verilog file containing the definitions."); 
 	my $brows=def_image_button("icons/browse.png",' Browse');
@@ -774,7 +688,7 @@ sub get_def_setting {
 sub get_Description{
 	my ($ipgen,$info)=@_;
 	my $description = $ipgen->ipgen_get("description");	
-	my $table = Gtk2::Table->new (15, 15, FALSE);
+	my $table = def_table (15, 15, FALSE);
 	my $window =  def_popwin_size(40,40, "Add description",'percent');
 	my ($scrwin,$text_view)=create_txview();
 	#my $buffer = $textbox->get_buffer();
@@ -815,11 +729,9 @@ sub gen_file_list{
 	
 
 	my $table=def_table(10,10,FALSE);#	my ($row,$col,$homogeneous)=@_;
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
 	my $ok=def_image_button("icons/select.png",' Ok ');
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
 	$table->attach  (gen_label_in_center("File path"), 0, 5 , 0, 1,'expand','shrink',2,2);
    	$table->attach (gen_label_help("The target name can contain any of Global variables e.g \$IP\$.h","Copy as"), 5, 9 , 0, 1,'expand','shrink',2,2) if(defined $rename_file_en);
 	$table->attach  (gen_label_in_center("$tick"), 9, 10 , 0, 1,'expand','shrink',2,2) if (defined $tick);
@@ -836,7 +748,7 @@ sub gen_file_list{
 			$table->attach  ($entry, 0, 5 , $row, $row+1,'fill','shrink',2,2);
 			$table->attach  ($entry2, 5, 9 , $row, $row+1,'fill','shrink',2,2) if(defined $rename_file_en);
 			$table->attach ($remove, 10,11 , $row, $row+1,'expand','shrink',2,2);
-			my $check= Gtk2::CheckButton->new;
+			my $check= gen_checkbutton();
 			if (defined $tick){				
 				$table->attach ($check, 9,10 , $row, $row+1,'expand','shrink',2,2);
 				$check-> signal_connect("toggled" => sub{
@@ -889,9 +801,7 @@ sub gen_file_list{
 			
 			});
 		
-			#my $seph = Gtk2::HSeparator->new;
-			#$table->attach_defaults ($seph, 0, 10 , $row, $row+1);
-			#$row++;		
+				
 		
 	}
 	
@@ -914,7 +824,7 @@ sub gen_file_list{
 
 sub get_param_info{
 	my ($ipgen,$saved_info)=@_;
-	my $table = Gtk2::Table->new (15, 15, FALSE);
+	my $table = def_table (15, 15, FALSE);
 	my $window =  def_popwin_size(50,50,"Add description",'percent');
 	my ($scrwin,$text_view)=create_txview();
 	my $ok=def_image_button("icons/select.png",' Ok ');
@@ -1109,13 +1019,9 @@ sub interface_info_box {
 		
 			
 		$row++;
-	}	
+	}		
 	
-	
-	
-	
-	
-	return $table;
+	return add_widget_to_scrolled_win($table);
 	
 }	
 ########
@@ -1129,11 +1035,7 @@ sub get_intfc_setting{
 	my $table=def_table(7,6,FALSE);
 	my $ok = def_image_button('icons/select.png','OK');
 	
-	
-	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 	
 	#title
 	my $lable1=gen_label_in_left("interface name");
@@ -1522,7 +1424,7 @@ sub port_info_box {
 	
 	
 	
-	return $table;
+	return add_widget_to_scrolled_win($table);
 	
 	
 }
@@ -1549,18 +1451,11 @@ sub write_ip{
 	print FILE Data::Dumper->Dump([\%$ipgen],["ipgen"]);
 	close(FILE) || die "Error closing file: $!";
 	my $message="IP $ip_name has been generated successfully. In order to see the generated IP in processing tile generator you need to reset the ProNoC. Do you want to reset the ProNoC now?" ;
-			
-	my $dialog = Gtk2::MessageDialog->new (my $window,
-                     'destroy-with-parent',
-                     'question', # message type
-                     'yes-no', # which set of buttons?
-                     "$message");
-  	my $response = $dialog->run;
-  	if ($response eq 'yes') {
-      		exec($^X, $0, @ARGV);# reset ProNoC to apply changes	
+		
+	my $response =  yes_no_dialog($message);
+	if ($response eq 'yes') {
+			exec($^X, $0, @ARGV);# reset ProNoC to apply changes	
   	}
-  	$dialog->destroy;
-
 }
 
 
@@ -1589,29 +1484,18 @@ sub generate_ip{
 		my @l=$ipgen->ipgen_get_list("hdl_files");
 		if( scalar @l ==0){
 			my $mwindow;
-			my $dialog = Gtk2::MessageDialog->new ($mwindow,
-                                      'destroy-with-parent',
-                                      'question', # message type
-                                      'yes-no', # which set of buttons?
-                                      "No HDL library file has been set for this IP. Do you want to generate this IP?");
-  			my $response = $dialog->run;
-  			if ($response eq 'yes') {
+			my $response =  yes_no_dialog("No HDL library file has been set for this IP. Do you want to generate this IP?");
+			
+			if ($response eq 'yes') {
 	      			write_ip($ipgen);
-				
-				
   			}
-  			$dialog->destroy;
-
-
-  			#$dialog->show_all;
 			
 		}else{
-
 			write_ip($ipgen);
 		}
 	}else{
 		my $message;
-		if(!defined ($name)){ $message="Input file has not been selected yet.\nNothing has been generated!" ;}
+		if(!defined ($name)){ $message="Input file has not been selected yet.\nNothing has been generated!";}
 		elsif(!defined ($category)){ $message="Category must be defined!" ;}
 		message_dialog($message);
 		
@@ -1633,20 +1517,9 @@ return 1;
 sub load_ip{
 	my ($ipgen)=@_;
 	my $file;
-	my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-
-	my $filter = Gtk2::FileFilter->new();
-	$filter->set_name("IP");
-	$filter->add_pattern("*.IP");
-	$dialog->add_filter ($filter);
+	my $dialog =  gen_file_dialog (undef, 'IP');
 	my $dir = Cwd::getcwd();
-	$dialog->set_current_folder ("$dir/lib/ip")	;			
-
+	$dialog->set_current_folder ("$dir/lib/ip");		
 
 	if ( "ok" eq $dialog->run ) {
 		$file = $dialog->get_filename;
@@ -1657,13 +1530,7 @@ sub load_ip{
 		}					
      }
      $dialog->destroy;
-
-	
-
 }
-
-
-
 
 
 
@@ -1712,14 +1579,14 @@ ${BASE}: is the wishbone base address(s) and will be added during soc generation
 
 sub source_notebook{
 	my($ipgen,$info,$window,$page,$dest,$page_info_ref)=@_;
-	my $notebook = Gtk2::Notebook->new;
+	my $notebook = gen_notebook();
 	my %page_info=%{$page_info_ref};
 	foreach my $p (sort keys %page_info){
 		my $page_ref;
 		$page_ref=get_file_folder($ipgen,$info,$window,$p,$page_info_ref) if($page_info{$p}{filed_type} eq "existing_file/folder"); 
 		$page_ref=get_file_folder($ipgen,$info,$window,$p,$page_info_ref) if($page_info{$p}{filed_type} eq "file_with_variables"); 
 		$page_ref=get_file_content($ipgen,$info,$window,$page_info{$p},$page_info_ref) if($page_info{$p}{filed_type} eq "file_content"); 
-		$notebook->append_page ($page_ref,Gtk2::Label->new_with_mnemonic ($page_info{$p}{page_name}));
+		$notebook->append_page ($page_ref,gen_label_with_mnemonic ($page_info{$p}{page_name}));
 
 	}	
 	$notebook->show_all;	
@@ -1736,7 +1603,7 @@ sub get_file_folder{
 	my ($ipgen,$info,$window,$page,$page_info_ref)=@_;
 	my %page_info=%{$page_info_ref};
 	my @sw_dir = $ipgen->ipgen_get_list($page_info{$page}{filed_name});
-	my $table = Gtk2::Table->new (15, 15, FALSE);	
+	my $table = def_table (15, 15, FALSE);	
 	my $help=gen_label_help($page_info{$page}{help});	
 	$table->attach ($help,0,2,0,1,'expand','shrink',2,2);	
 	my $tick = $page_info{$page}{'tick'};
@@ -1753,36 +1620,27 @@ sub get_file_folder{
 	
 	$brows->signal_connect("clicked"=> sub {
 		my @files;
-        my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', 
-            	 undef,
-            	 'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-        	
-        	my $filter = Gtk2::FileFilter->new();
-			my $dir = Cwd::getcwd();
-			$dialog->set_current_folder ("$dir/..")	;	
-			$dialog->set_select_multiple(TRUE);
+		my $dialog =  gen_file_dialog (undef);
+		my $dir = Cwd::getcwd();
+		$dialog->set_current_folder ("$dir/..")	;	
+		$dialog->set_select_multiple(TRUE);
 
-        	if ( "ok" eq $dialog->run ) {
-            		@files = $dialog->get_filenames;            		
-            		@sw_dir=$ipgen->ipgen_get_list($page_info{$page}{filed_name});
-            		foreach my $p (@files){
-            			#remove $project_dir form beginning of each file
-            			$p =~ s/$project_dir//; 
-				my ($name,$path,$suffix) = fileparse("$p",qr"\..[^.]*$");
-				$p=$p.'frename_sep_t'.$name.$suffix if (defined $page_info{$page}{rename_file}); 
-            			if(! grep (/^$p$/,@sw_dir)){push(@sw_dir,$p)};
-            			
-            		}            		
-            		$ipgen->ipgen_add($page_info{$page}{filed_name},\@sw_dir);
-            		get_source_file($ipgen,$info,$page,"Add software file(s)","SW",$page_info_ref);
-            		$window->destroy;
+       	if ( "ok" eq $dialog->run ) {
+           		@files = get_filenames_from_dialog($dialog);	
+           		@sw_dir=$ipgen->ipgen_get_list($page_info{$page}{filed_name});
+           		foreach my $p (@files){
+           			#remove $project_dir form beginning of each file
+					$p =~ s/$project_dir//; 
+					my ($name,$path,$suffix) = fileparse("$p",qr"\..[^.]*$");
+					$p=$p.'frename_sep_t'.$name.$suffix if (defined $page_info{$page}{rename_file}); 
+					if(! grep (/^$p$/,@sw_dir)){push(@sw_dir,$p)};           			
+           		}            		
+           		$ipgen->ipgen_add($page_info{$page}{filed_name},\@sw_dir);
+           		get_source_file($ipgen,$info,$page,"Add software file(s)","SW",$page_info_ref);
+           		$window->destroy;
             		
-       		 }
-       		$dialog->destroy;
+      	 }
+       	$dialog->destroy;
 	} );# # ,\$entry);
 	
 	if($page_info{$page}{folder_en} eq 1){
@@ -1793,22 +1651,13 @@ sub get_file_folder{
 
 		$brows2->signal_connect("clicked"=> sub {
 			my @files;
-		
-			 my $dialog = Gtk2::FileChooserDialog->new(
-		    	'Select Folder(s)', 
-		    	undef,
-					'select-folder',
-		    	'gtk-cancel' => 'cancel',
-		    	'gtk-ok'     => 'ok',
-			);
-	       		
-			my $filter = Gtk2::FileFilter->new();
-				my $dir = Cwd::getcwd();
-				$dialog->set_current_folder ("$dir/..")	;	
-				$dialog->set_select_multiple(TRUE);
+			my $dialog =  gen_folder_dialog ('Select Folder(s)');
+			my $dir = Cwd::getcwd();
+			$dialog->set_current_folder ("$dir/..")	;	
+			$dialog->set_select_multiple(TRUE);
 
 			if ( "ok" eq $dialog->run ) {
-		    		@files = $dialog->get_filenames;
+		    		@files = get_filenames_from_dialog($dialog);
 		    		
 		    		@sw_dir=$ipgen->ipgen_get_list($page_info{$page}{filed_name});
 		    		foreach my $p (@files){
@@ -1858,7 +1707,7 @@ sub get_file_content{
 	my %page_info=%{$page_info_ref};
 	#my $hdr = $ipgen->ipgen_get_hdr();
 	my  $hdr = $ipgen-> ipgen_get($page_info{filed_name});	
-	my $table = Gtk2::Table->new (14, 15, FALSE);
+	my $table = def_table (14, 15, FALSE);
 	my ($scrwin,$text_view)=create_txview();
 
 	my $help=gen_label_help($page_info{help}); 
@@ -1979,36 +1828,10 @@ sub ipgen_main{
 	my $main_table = def_table (15, 12, FALSE);
 
 
-
-
 	
-	#my $vpaned = Gtk2::VPaned -> new;
-	#$table->attach_defaults ($vpaned,0, 10, 0,1);
-	#my $make = def_image_button('icons/run.png','Compile');
-	#$table->attach ($make,9, 10, 1,2,'shrink','shrink',0,0);
-	#$make -> signal_connect("clicked" => sub{
-		#$self->do_save();
-		#run_make_file($sw,$tview);	
-
-	#});
-
-	#$window -> add ( $table);
-
-	#my($width,$hight)=max_win_size();
-	
-	#my $scwin_dirs = Gtk2::ScrolledWindow -> new;
-	#$scwin_dirs -> set_policy ('automatic', 'automatic');
-	
-
-
-
-
 	
 	# The box which holds the info, warning, error ...  mesages
 	my ($infobox,$info)= create_txview();	
-	
-	
-	my $refresh_dev_win = Gtk2::Button->new_from_stock('ref');
 	my $generate = def_image_button('icons/gen.png','Generate');
 	
 	
@@ -2026,9 +1849,9 @@ sub ipgen_main{
 	my $tree_box = create_tree  ($ipgen,'Interfaces list',$info,\%tree_text,\&show_interface_description  ,\&add_plug_interface_from_tree);
 
 
-	my $file_info=show_file_info($ipgen,$info,\$refresh_dev_win);
-	my $port_info=show_port_info($intfc,$ipgen,$info,\$refresh_dev_win);
-	my $intfc_info=show_interface_info($intfc,$ipgen,$info,\$refresh_dev_win);
+	my $file_info=file_info_box($ipgen,$info);
+	my $port_info=port_info_box($intfc,$ipgen,$info);
+	my $intfc_info=interface_info_box($intfc,$ipgen,$info);
 	
 	
 	my $open = def_image_button('icons/browse.png','Load IP');
@@ -2037,7 +1860,7 @@ sub ipgen_main{
 	$main_table->set_row_spacings (4);
 	$main_table->set_col_spacings (1);
 	
-	#my  $device_win=show_active_dev($soc,$lib,$infc,\$refresh_dev_win,$info);
+	
 	
 	
 	#$table->attach_defaults ($event_box, $col, $col+1, $row, $row+1);
@@ -2047,13 +1870,7 @@ sub ipgen_main{
 	my $h1=gen_hpaned($tree_box,.15,$v2);
 	my $v3=gen_vpaned($h1,.6,$infobox);
 
-
-	#$main_table->attach_defaults ($tree_box , 0, 2, 0, 13);
-	#$main_table->attach_defaults ($file_info , 2, 12, 0, 2);
-	#$main_table->attach_defaults ($intfc_info , 2, 12, 2, 6);
 	
-	#$main_table->attach_defaults ($port_info  , 2, 12, 6,13);
-	#$main_table->attach_defaults ($infobox  , 0, 12, 13,14);
 	$main_table->attach_defaults  ($v3, 0, 12, 0,14);
 	$main_table->attach ($generate, 6, 8, 14,15,'expand','shrink',2,2);
 	$main_table->attach ($open,0, 1, 14,15,'expand','shrink',2,2);
@@ -2087,7 +1904,18 @@ Glib::Timeout->add (100, sub{
 			
 		}
 		elsif( $state ne "ideal" ){
-			$refresh_dev_win->clicked;
+			$file_info->destroy;
+			$port_info->destroy;
+			$intfc_info->destroy;
+			$file_info=file_info_box($ipgen,$info);
+			$port_info=port_info_box($intfc,$ipgen,$info);
+			$intfc_info=interface_info_box($intfc,$ipgen,$info);
+			
+			$v1 -> pack1($file_info, TRUE, TRUE);     
+            $v1 -> pack2($intfc_info, TRUE, TRUE); 
+			$v2 -> pack2($port_info, TRUE, TRUE);      
+			$v1->show_all;
+			$v2->show_all;
 			set_gui_status($ipgen,"ideal",0);
 			
 			
@@ -2095,6 +1923,10 @@ Glib::Timeout->add (100, sub{
 		return TRUE;
 		
 		} );
+
+
+
+
 	$open-> signal_connect("clicked" => sub{ 
 		load_ip($ipgen);
 	
@@ -2104,24 +1936,11 @@ Glib::Timeout->add (100, sub{
 		get_unused_intfc_ports_list ($intfc,$ipgen,$info);
 		generate_ip($ipgen);
 		
-		$refresh_dev_win->clicked;
+		set_gui_status($ipgen,"ref",1);
 	
-});
+	});
 
-	#show_selected_dev($info,\@active_dev,\$dev_list_refresh,\$dev_table);
-
-
-
-#$box->show;
-	#$window->add ($main_table);
-	#$window->show_all;
-	#return $main_table;
-my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-		$sc_win->set_policy( "automatic", "automatic" );
-		$sc_win->add_with_viewport($main_table);	
-
-	return $sc_win;
-	
+	return add_widget_to_scrolled_win($main_table);
 
 }
 

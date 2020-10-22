@@ -454,7 +454,8 @@ sub soc_get_module_param{
 		{
 			foreach my $p (sort keys %{$self->{instances}{$instance_id}{parameters}})
 			{
-				$param{$p}=$self->{instances}{$instance_id}{parameters}{$p}{value};
+				my $value =	$self->{instances}{$instance_id}{parameters}{$p}{value};			
+				$param{$p}=$value if (defined $value);
 			}
 		}		
 		return %param; 
@@ -468,7 +469,8 @@ sub soc_get_module_param_type{
 		{
 			foreach my $p (sort keys %{$self->{instances}{$instance_id}{parameters}})
 			{
-				$param_type{$p}=$self->{instances}{$instance_id}{parameters_type}{$p}{value};
+				my $value = $self->{instances}{$instance_id}{parameters_type}{$p}{value};
+				$param_type{$p}=$value if (defined $value);
 			}
 		}		
 		return %param_type; 
@@ -479,6 +481,7 @@ sub soc_get_module_param_type{
 
 sub soc_get_module_param_value{
 		my ($self,$instance_id,$param)=@_;
+		return undef if(!defined $param);
 		my $value;
 		if(exists ($self->{instances}{$instance_id}{parameters}{$param})){
 			$value= $self->{instances}{$instance_id}{parameters}{$param}{value};

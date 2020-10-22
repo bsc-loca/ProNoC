@@ -1,5 +1,4 @@
 use Glib qw/TRUE FALSE/;
-#use Gtk2 '-init';
 
 use lib 'lib/perl';
 
@@ -575,6 +574,7 @@ sub gen_parameter_v{
 			$top_ip->top_add_localparam($id,$inst_param,$params{$param},$type,$content,$info,$vfile_param_type,$redefine_param);
 		}
 		elsif($vfile_param_type eq "Parameter"){
+			#print "$inst_param($inst_param)\n";
 			$param_v="$param_v\tparameter\t$inst_param=$params{$param};\n"; 
 			$$param_pass_v =(defined ($$param_pass_v ))? "$$param_pass_v,\n\t\t.$inst_param($inst_param)": "\t\t.$inst_param($inst_param)";
 			$$param_as_in_v=(defined ($$param_as_in_v))? "$$param_as_in_v ,\n\tparameter\t$inst_param=$params{$param}":
@@ -1191,7 +1191,7 @@ $jtag
 #   soc_generate_verilog
 #####################
 
-sub soc_generate_verilatore{ 
+sub soc_generate_verilator{ 
 	my ($soc,$sw_path,$name,$params_ref)= @_;
 	my $soc_name=$soc->object_get_attribute('soc_name');
 	my $top_ip=ip_gen->top_gen_new();
@@ -1205,7 +1205,7 @@ sub soc_generate_verilatore{
 	my $param_as_in_v_all="\tparameter\tCORE_ID=$core_id,
 \tparameter\tSW_LOC=\"$sw_path\"\n,";
 
-	my $param_pass_v="\t.CORE_ID(CORE_ID),\n\t.SW_LOC(SW_LOC)";
+	my $param_pass_v_all="\t\t.CORE_ID(CORE_ID),\n\t\t.SW_LOC(SW_LOC)";
 	my $body_v;
 	
 	my ($param_v_all, $local_param_v_all, $wire_def_v_all, $inst_v_all, $plugs_assign_v_all, $sockets_assign_v_all,$io_full_v_all,$top_io_full_all,$system_v_all);
@@ -1221,6 +1221,7 @@ sub soc_generate_verilatore{
 		add_text_to_string(\$body_v,"/*******************\n*\n*\t$inst\n*\n*\n*********************/\n");
 		add_text_to_string(\$param_as_in_v_all,",\n$param_as_in_v")   	if(defined ($param_as_in_v)); 
 		add_text_to_string(\$local_param_v_all,"$local_param_v\n")   	if(defined($local_param_v)); 
+		add_text_to_string(\$param_pass_v_all,",\n$param_pass_v")       if(defined($param_pass_v));
 		add_text_to_string(\$wire_def_v_all,"$wire_def_v\n")		 	if(defined($wire_def_v));
 		add_text_to_string(\$inst_v_all,$inst_v)					 	if(defined($inst_v));
 		add_text_to_string(\$plugs_assign_v_all,"$plugs_assign_v\n") 	if(defined($plugs_assign_v));
@@ -1234,6 +1235,7 @@ sub soc_generate_verilatore{
 		#print  "$param_v $local_param_v $wire_def_v $inst_v $plugs_assign_v $sockets_assign_v $io_full_v";
 			
 	}	
+	
 	
 		
 	my ($addr_map,$addr_localparam,$module_addr_localparam)= generate_address_cmp($soc,$wires);
@@ -1286,7 +1288,7 @@ sub soc_generate_verilatore{
 *********************/
 	
 module ${name} (\n $top_io_short_all\n);\n";
-	my $ins= gen_soc_instance_v_no_modfy($soc,$soc_name,$param_pass_v);
+	my $ins= gen_soc_instance_v_no_modfy($soc,$soc_name,$param_pass_v_all);
 	add_text_to_string(\$verilator_v,$functions_all);	
 	add_text_to_string(\$verilator_v,$params_v."\n".$top_io_full_all);
 	add_text_to_string(\$verilator_v,$ins);

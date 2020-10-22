@@ -3,8 +3,8 @@ use strict;
 use warnings;
 
 use Glib qw(TRUE FALSE);
-use Gtk2 '-init';
-use Gtk2::SourceView2;
+
+
 use Data::Dumper;
 use List::Util 'shuffle';
 use File::Path;
@@ -57,7 +57,7 @@ sub trace_pad_ctrl{
 	my ($self,$tview,$mode)=@_;
 		
 	my $table= def_table(2,10,FALSE);
-	#my $separator = Gtk2::HSeparator->new;	
+	
 	my $row=0;
 	my $col=0;
 	#$table->attach ($separator , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;	
@@ -141,7 +141,7 @@ sub trace_pad_ctrl{
 	}	
 	
 	if($any_selected){
-		$table->attach (Gtk2::HSeparator->new,0, 10,  $row, $row+1,'fill','fill',2,2);$row++;	
+        add_Hsep_to_table($table,0, 10,  $row);$row++;
 		$table->attach (gen_label_in_center('Apply to all selected traces'),0, 10,  $row, $row+1,'fill','fill',2,2);$row++;	
 	}
 	
@@ -184,9 +184,7 @@ sub trace_pad_ctrl{
 	});
 	
 	
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($table);
+	my $sc_win = add_widget_to_scrolled_win($table);
 	
 	
 	return $sc_win;
@@ -195,26 +193,15 @@ sub trace_pad_ctrl{
 
 sub load_task_file{
 	my($self,$project_dir,$tview)=@_;
- 		my $file;
-        my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-        	my $open_in	  = abs_path("${project_dir}/perl_gui/lib/simulate/embedded_app_graphs");
-        	$dialog->set_current_folder ($open_in); 
-        	my $filter = Gtk2::FileFilter->new();
-			$filter->set_name("app");
-			$filter->add_pattern("*.app");
-			$dialog->add_filter ($filter);
-		
-
-        	if ( "ok" eq $dialog->run ) {
-            		$file = $dialog->get_filename;
-					$self->load_tarce_file($file,$tview);
-            }
-       		$dialog->destroy;	
+	my $file;
+	my $dialog = gen_file_dialog(undef,'app');
+	my $open_in	  = abs_path("${project_dir}/perl_gui/lib/simulate/embedded_app_graphs");
+	$dialog->set_current_folder ($open_in); 
+	if ( "ok" eq $dialog->run ) {
+		$file = $dialog->get_filename;
+		$self->load_tarce_file($file,$tview);
+	}
+	$dialog->destroy;	
 }
 
 ######
@@ -314,11 +301,9 @@ sub trace_map_ctrl{
 		set_gui_status($self,"ref",1);	
 	});
 	
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($table);
+	return add_widget_to_scrolled_win($table);
 	
-	return $sc_win;
+	
 }
 
 
@@ -362,12 +347,10 @@ sub trace_group_ctrl{
 	});
 	
 	
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($table);
+	return add_widget_to_scrolled_win($table);
 	
 	
-	return $sc_win;
+	
 }
 
 
@@ -385,7 +368,7 @@ sub trace_group_ctrl{
 sub trace_pad{
 	my ($self,$tview,$mode)=@_;
 	my $table= def_table(10,10,FALSE);
-	#my $separator = Gtk2::HSeparator->new;	
+	
 	my $row=0;
 	my $col=0;
 		
@@ -637,11 +620,17 @@ sub group_info {
 #######
 
 
+
+########
+# map_info
+#######
+
+
 sub map_info {
 	my ($self)=@_;
 	my $sc_win = gen_scr_win_with_adjst($self,'map_info');
 	my $table= def_table(10,10,FALSE);
-	$sc_win->add_with_viewport($table);
+	
 	
 	my $row=0;
 	my $col=0;
@@ -649,68 +638,23 @@ sub map_info {
 	
 	
 	my @data = (
-  {label => "Average distance",  value =>"$avg"}, 
-  {label => "Max distance",  value =>"$max" },  
-  {label => "Min distance",value => "$min"},    
-  {label => "Normalized data per hop", value =>"$norm" }
+  {0 => "Average distance", 1 =>"$avg"}, 
+  {0 => "Max distance"    , 1 =>"$max" },  
+  {0 => "Min distance"    , 1 => "$min"},    
+  {0 => "Normalized data per hop", 1 =>"$norm" }
   );
 	
 	
 	
-  # create list store
-  my $store = Gtk2::ListStore->new (#'Glib::Boolean', # => G_TYPE_BOOLEAN
-                                    #'Glib::Uint',    # => G_TYPE_UINT
-                                    'Glib::String',  # => G_TYPE_STRING
-                                    'Glib::String'); # you get the idea
-
-  # add data to the list store
-  foreach my $d (@data) {
-      my $iter = $store->append;
-      $store->set ($iter,
-		   0, $d->{label},
-		   1, $d->{value},
-      );
-  }
-
-	my $treeview = Gtk2::TreeView->new ($store);
-    $treeview->set_rules_hint (TRUE);
- 
-
-	$treeview->set_search_column (1);
-
-   
-    # add columns to the tree view
-   my $renderer = Gtk2::CellRendererToggle->new;
-   $renderer->signal_connect (toggled => \&fixed_toggled, $store);
-
- 
-
-  # column for severities
-  $renderer = Gtk2::CellRendererText->new;
-  my $column = Gtk2::TreeViewColumn->new_with_attributes ("Mapping summary",
-						       $renderer,
-						       text => 0);
-  $column->set_sort_column_id (0);
-  $treeview->append_column ($column);
-
-  # column for description
-  $renderer = Gtk2::CellRendererText->new;
-  $column = Gtk2::TreeViewColumn->new_with_attributes (" ",
-						       $renderer,
-						       text => 1);
-  $column->set_sort_column_id (1);
-  $treeview->append_column ($column);
-
-	
-	$table-> attach  ($treeview, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
-	#$table-> attach  (gen_label_in_left("Max distance:  $max  "), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
-	#$table-> attach  (gen_label_in_left("Min distance: $min   "), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
-	#$table-> attach  (gen_label_in_left("Normlized data per hop: $norm"), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
-		
-	
+	# create list store
+	my @clmn_type =  ('Glib::String',  'Glib::String'); 
+	my @clmns = ("Mapping Summary", " ");
+	$sc_win->add_with_viewport(	gen_list_store (\@data,\@clmn_type,\@clmns));
+	$sc_win->show_all;
 	return $sc_win;
 
 }
+
 
 
 
@@ -818,20 +762,9 @@ sub load_workspace {
 	my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
 	
 	my $file;
-	my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-
-	my $filter = Gtk2::FileFilter->new();
-	$filter->set_name("TRC");
-	$filter->add_pattern("*.TRC");
-	$dialog->add_filter ($filter);
+	my $dialog = gen_file_dialog(undef,'TRC');
 	my $dir = Cwd::getcwd();
 	$dialog->set_current_folder ("$dir/lib/simulate");		
-
 	
 	if ( "ok" eq $dialog->run ) {
 		$file = $dialog->get_filename;
@@ -1817,7 +1750,7 @@ sub trace_merger{
 	my $m= ($mode eq 'task')? "Task" :"Actor";
 	
 	
-	my $label = Gtk2::Label->new;
+	my $label = gen_label_in_center(' ');
     $label->set_markup ("<u>Group ${m}s</u>      ");	
 	$table->attach ($label,$col, $col+5,  $row, $row+1,'shrink','shrink',2,2);$col+=5;	
 	my ($Ebox,$entry)=def_h_labeled_entry ("New group name:",undef);
@@ -1837,10 +1770,8 @@ sub trace_merger{
 	#}
 	
 	
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($table);
-	return $sc_win;	
+	return add_widget_to_scrolled_win($table);
+	
 }
 
 
@@ -1857,16 +1788,16 @@ sub select_trace_file {
 
 sub trace_maker_notebook{
 	my ($self,$mode,$tview)=@_;		
-	my $notebook = Gtk2::Notebook->new;
+	my $notebook = gen_notebook();
 	my $lb= ($mode eq 'orcc')?  'Actor' : 'Trace';
 	my $group_num=16;
 	
 	
 	$notebook->set_tab_pos ('left');
 	$notebook->set_scrollable(TRUE);
-	$notebook->can_focus(FALSE);
+	
 	my $page1=select_trace_file($self,$tview,$mode);
-	$notebook->append_page ($page1,Gtk2::Label->new  ("1-Select $mode file"));
+	$notebook->append_page ($page1,gen_label_in_center  ("1-Select $mode file"));
 	
 	my ($NE, $NR, $RAw, $EAw, $Fw)=get_topology_info($self);
 	
@@ -1881,7 +1812,7 @@ sub trace_maker_notebook{
 		
 	my @tasks=get_all_tasks($self,'raw');
 	my $page2=drag_and_drop_page($self,$tview,'grouping',\@tasks,$group_ctrl);
-	$notebook->append_page ($page2,Gtk2::Label->new  ("2-Group ${lb}s   "));
+	$notebook->append_page ($page2,gen_label_in_center  ("2-Group ${lb}s   "));
 	
 	#map tasks	
 	$self->object_add_attribute('mapping','group_name_root','tile');	
@@ -1903,13 +1834,13 @@ sub trace_maker_notebook{
 	
 	
 	my $page3=drag_and_drop_page($self,$tview,'mapping',\@merged_tasks,$map_ctrl);
-	$notebook->append_page ($page3,Gtk2::Label->new  ("3-Map ${lb}s"));
+	$notebook->append_page ($page3,gen_label_in_center  ("3-Map ${lb}s"));
 	
 	
 	
 	
 	#my $page4=routing_page($self,$tview);
-	#$notebook->append_page ($page4,Gtk2::Label->new  ("Route Selection"));
+	#$notebook->append_page ($page4,gen_label_in_center ("Route Selection"));
 	
 	
 	
@@ -2012,8 +1943,10 @@ sub build_trace_gui {
 	
 	
 	my ($scwin_info,$tview)= create_txview();	
-	my $notebook = trace_maker_notebook($self,$mode,$tview);	
-	my $v2=gen_vpaned($notebook,.65,$scwin_info);
+	my $notebook = trace_maker_notebook($self,$mode,$tview);
+	my $tt = ($mode eq 'task') ? 0.65 : 0.55;
+		
+	my $v2=gen_vpaned($notebook,$tt,$scwin_info);
 	
 	
 	
@@ -2065,9 +1998,7 @@ sub build_trace_gui {
 	$main_table->attach ($generate, 6, 9, 24,25,'expand','shrink',2,2);
 	
 
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-	$sc_win->set_policy( "automatic", "automatic" );
-	$sc_win->add_with_viewport($main_table);
+	my $sc_win =add_widget_to_scrolled_win($main_table);
 	
 	
 	

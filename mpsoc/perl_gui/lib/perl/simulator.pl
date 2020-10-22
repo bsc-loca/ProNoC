@@ -5,8 +5,8 @@ use warnings;
 use FindBin;
 use lib $FindBin::Bin;
 
-use Gtk2;
-use Gtk2::Ex::Graph::GD;
+
+
 use GD::Graph::Data;
 use emulator;
 use GD::Graph::colour qw/:colours/;
@@ -246,17 +246,8 @@ sub save_simulation {
 sub load_simulation {
 	my ($simulate,$info)=@_;
 	my $file;
-	my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-
-	my $filter = Gtk2::FileFilter->new();
-	$filter->set_name("SIM");
-	$filter->add_pattern("*.SIM");
-	$dialog->add_filter ($filter);
+	my $dialog =  gen_file_dialog (undef, 'SIM');	
+	
 	my $dir = Cwd::getcwd();
 	$dialog->set_current_folder ("$dir/lib/simulate");		
 
@@ -291,17 +282,15 @@ sub gen_custom_traffic {
 	my ($self,$info,$mode)=@_;
 		
 	my $table=def_table(20,10,FALSE);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win ($table);
 	my $row=0;
 	
 	#page title	
 	my $title_l =  "Custom Traffic  Generator";
 	my $title=gen_label_in_center($title_l);
 	$table->attach ($title , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
-	my $separator = Gtk2::HSeparator->new;	
-	$table->attach ($separator , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;	
+	add_Hsep_to_table($table,0,10,$row);$row++;	
+	
 	    
 	#fileds title
 	my @positions=(0,1,2,3,4,5,6);
@@ -429,9 +418,7 @@ sub get_simulator_noc_configuration{
 	my $table=def_table(10,2,FALSE);
 	my $row=0;
 	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win ($table);
 		
 	my $ok = def_image_button('icons/select.png','OK');
 	my $mtable = def_table(10, 1, TRUE);
@@ -942,7 +929,8 @@ sub simulator_main{
 	set_gui_status($simulate,"ideal",0);
 	
 
-	my $main_table = Gtk2::Table->new (25, 12, FALSE);
+	my $main_table = def_table (25, 12, FALSE);
+	$main_table->show_all;
 	my ($infobox,$info)= create_txview();	
 	
 	
@@ -976,6 +964,7 @@ my @charts = (
 
 	$main_table->set_row_spacings (4);
 	$main_table->set_col_spacings (1);
+	
 	
 	#my  $device_win=show_active_dev($soc,$soc,$infc,$soc_state,\$refresh,$info);
 	
@@ -1104,11 +1093,8 @@ my @charts = (
 		
 	});	
 
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-		$sc_win->set_policy( "automatic", "automatic" );
-		$sc_win->add_with_viewport($main_table);	
+	return add_widget_to_scrolled_win($main_table);	
 
-	return $sc_win;
-	
+		
 
 }

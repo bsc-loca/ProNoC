@@ -9,7 +9,7 @@ use lib $FindBin::Bin;
 use Data::Dumper;
 use intfc_gen;
 use rvp;
-use Gtk2;
+
 
 
 
@@ -67,7 +67,7 @@ sub check_input_intfc_file{
 sub file_box {
 	my ($intfc_gen,$info)=@_;
 	my $label = gen_label_in_left("Select file:");
-	my $entry = Gtk2::Entry->new;
+	my $entry = gen_entry();
 	my $open= def_image_button("icons/select.png","Open");
 	my $browse= def_image_button("icons/browse.png","Browse");
 	my $file= $intfc_gen->intfc_get_interface_file();
@@ -81,37 +81,18 @@ sub file_box {
 	
 	if(defined $file){$entry->set_text($file);}
 	else {show_info($info,"Please select the Verilog file containing the interface\n");}
+
+
 	$browse->signal_connect("clicked"=> sub{
 		my $entry_ref=$_[1];
  		my $file;
-        my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-
-			my $filter = Gtk2::FileFilter->new();
-			$filter->set_name("Verilog");
-			$filter->add_pattern("*.v");
-			my $filter2 = Gtk2::FileFilter->new();
-			$filter2->set_name("Interface");
-			$filter2->add_pattern("*.ITC");
-			$dialog->add_filter ($filter);
-			$dialog->add_filter ($filter2);
-
-
-        	if ( "ok" eq $dialog->run ) {
-            		$file = $dialog->get_filename;
-					$$entry_ref->set_text($file);
-					check_input_intfc_file($file,$intfc_gen,$info);
-					#read_file_modules($file,$intfc_gen,$info);
-            		#print "file = $file\n";
-       		 }
-       		$dialog->destroy;
-
-
-
+        my $dialog = gen_file_dialog (undef, 'v','ITC');
+		if ( "ok" eq $dialog->run ) {
+           		$file = $dialog->get_filename;
+				$$entry_ref->set_text($file);
+				check_input_intfc_file($file,$intfc_gen,$info);
+		}
+       	$dialog->destroy;
 	} , \$entry);
 	
 	$open->signal_connect("clicked"=> sub{
@@ -159,10 +140,7 @@ sub get_interface_ports {
 	my %port_range=get_ports_rang($vdb,$module);
 	
 	my $table=def_table(8,8,TRUE);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
-	
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 	
 	
 	my $title=gen_label_in_center("Select the ports included in the interface");
@@ -178,13 +156,10 @@ sub get_interface_ports {
 	$table->attach_defaults($title2, 1,4, $row, $row+1); 
 	$table->attach_defaults($title3, 4,7, $row, $row+1); 
 	$table->attach_defaults($title4, 7,8, $row, $row+1); 
-	
-	my $separator = Gtk2::HSeparator->new;
 	$row++;
 	
-	$table->attach_defaults($separator, 0,8, $row, $row+1); 
+	add_Hsep_to_table($table, 0, 8 , $row);	$row++;
 	
-	$row++;
 	$intfc_gen->intfc_remove_ports();
 	foreach my $p (sort keys %port_type){
 		my $port_id= $p;
@@ -201,7 +176,7 @@ sub get_interface_ports {
 		my $label3= gen_label_in_center($p);
 		$table->attach_defaults($label3, 4,7, $row, $row+1); 
 		
-		my $check= Gtk2::CheckButton->new;
+		my $check= gen_checkbutton();
 		$table->attach_defaults($check, 7,8, $row, $row+1); 
 		
 		$row++;
@@ -319,9 +294,8 @@ sub port_select{
 
 	my $size = keys %types;
 	if($size >0){
-		my $sep = Gtk2::HSeparator->new;
-		$table->attach ($sep, 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
 		
+		add_Hsep_to_table($table, 0, 10 , $row);	$row++;
 		
 		my $swap= def_image_button("icons/swap.png","swap");
 			
@@ -356,13 +330,15 @@ sub port_select{
 			
 		}	
 		
-		my $sep2 = Gtk2::HSeparator->new;
+	
 		
 		
 		$table->attach ($lab1, 1, 2 , $row, $row+1,'expand','shrink',2,2);
 		$table->attach ($swap, 3, 4 , $row, $row+1,'expand','shrink',2,2);
 		$table->attach ($lab2, 5, 6 , $row, $row+1,'expand','shrink',2,2);	$row++;		
-		$table->attach ($sep2, 0, 9 , $row, $row+1,'fill','fill',2,2);	$row++;
+		
+		
+		add_Hsep_to_table($table, 0, 9 , $row);	$row++;
 		
 		
 		my $lab3= gen_label_in_center("Type");
@@ -403,7 +379,7 @@ sub port_select{
 			my $combo1=gen_combo(\@ports_type,$pos);
 			my $entry2=gen_entry($range);
 			my $entry3=gen_entry($name);
-			my $separator = Gtk2::VSeparator->new;
+			
 			my $connect_type_lable= gen_label_in_center($connect_type);
 			my $entry4=gen_entry($connect_range);
 			my $entry5=gen_entry($connect_name);
@@ -416,11 +392,13 @@ sub port_select{
 			my @list=("Active low","Active high","Don't care");
 			
 			my $combentry=gen_combo_entry(\@list);
+			my $combochiled = combo_entry_get_chiled($combentry);
 			$pos2=get_scolar_pos($default_out,@list);		 
 			if( defined $pos2){
 				$combentry->set_active($pos2);
 			} else {
-				($combentry->child)->set_text($default_out); 
+				
+				$combochiled->set_text($default_out); 
 			} 
 			
 			
@@ -475,7 +453,7 @@ sub port_select{
 				set_gui_status($intfc_gen,"refresh",1);
 			
 			});
-			($combentry->child)->signal_connect('changed' => sub {
+			$combochiled->signal_connect('changed' => sub {
 				my ($entry) = @_;
 				$default_out=$entry->get_text();
 				$intfc_gen->intfc_add_port($id,$type,$range,$name,$connect_type,$connect_range,$connect_name,$outport_type,$default_out);
@@ -519,13 +497,9 @@ sub dev_box_show{
 		my $temp=gen_label_in_center(" ");
 		#$table->attach_defaults ($temp, 0, 1 , $i, $i+1);
 	}	
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
-	
 
 
-	
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 	
 	return $scrolled_win;
 	
@@ -569,16 +543,11 @@ sub generate_lib{
 		
 		my $message="Interface $name has been generated successfully. In order to see this interface in IP generator you need to reset the ProNoC. Do you want to reset the ProNoC now?" ;
 			
-		my $dialog = Gtk2::MessageDialog->new (my $window,
-			'destroy-with-parent',
-			'question', # message type
-			'yes-no', # which set of buttons?
-			"$message");
-		my $response = $dialog->run;
+		my $response =  yes_no_dialog($message);
 		if ($response eq 'yes') {
 			exec($^X, $0, @ARGV);# reset ProNoC to apply changes	
   		}
-  		$dialog->destroy;
+  		
 
 		
 	}else{
@@ -600,7 +569,7 @@ return 1;
 sub get_intfc_description{
 	my ($intfc_gen,$info)=@_;
 	my $description = $intfc_gen->intfc_get_description();	
-	my $table = Gtk2::Table->new (15, 15, TRUE);
+	my $table = def_table(15,15,TRUE);
 	my $window=def_popwin_size(50,50,"Add description",'percent');
 	my ($scrwin,$text_view)=create_txview();
 	#my $buffer = $textbox->get_buffer();
@@ -630,17 +599,7 @@ sub get_intfc_description{
 sub load_interface{
 	my ($intfc_gen)=@_;
 	my $file;
-	my $dialog = Gtk2::FileChooserDialog->new(
-            	'Select a File', undef,
-            	'open',
-            	'gtk-cancel' => 'cancel',
-            	'gtk-ok'     => 'ok',
-        	);
-
-	my $filter = Gtk2::FileFilter->new();
-	$filter->set_name("ITC");
-	$filter->add_pattern("*.ITC");
-	$dialog->add_filter ($filter);
+	my $dialog =  gen_file_dialog (undef, 'ITC');
 	my $dir = Cwd::getcwd();
 	$dialog->set_current_folder ("$dir/lib/interface")	;			
 
@@ -654,9 +613,6 @@ sub load_interface{
 		}					
      }
      $dialog->destroy;
-
-	
-
 }
 
 
@@ -668,14 +624,14 @@ sub intfc_main{
 	
 	my $intfc_gen= intfc_gen->interface_generator();
 	set_gui_status($intfc_gen,"ideal",0);	
-	my $main_table = Gtk2::Table->new (15, 12, FALSE);
+	my $main_table =def_table(15, 12, FALSE);
+
 	$main_table->set_row_spacings (4);
 	$main_table->set_col_spacings (1);
 	# The box which holds the info, warning, error ...  mesages
 	my ($infobox,$info)= create_txview();	
 	
 	
-	my $refresh = Gtk2::Button->new_from_stock('ref');
 	my $generate = def_image_button('icons/gen.png','Generate');
 	
 
@@ -705,25 +661,7 @@ sub intfc_main{
 	$openbox->pack_start($open,   FALSE, FALSE,0);
 	$main_table->attach ($openbox,0, 2, 14,15,'shrink','shrink',2,2);
 
-	#referesh the mpsoc generator 
-	$refresh-> signal_connect("clicked" => sub{ 
-		$devbox->destroy();
-		$fbox->destroy();
-		$sbox->destroy();
-		$v1->destroy();
-		select(undef, undef, undef, 0.1); #wait 10 ms
-		$devbox=dev_box_show($intfc_gen,$info);
-		$fbox=file_box($intfc_gen,$info);	
-		$sbox=module_select($intfc_gen,$info);
-		$v1=def_pack_vbox(TRUE,0,$fbox,$sbox);	
-		$v2->pack1($v1,TRUE, TRUE); 	
-		$v2->pack2($devbox,TRUE, TRUE); 	
-		$v3-> pack1($v2, TRUE, TRUE); 	
-		#$main_table->attach_defaults ($v3  , 0, 12, 0,14);
-				
-		$v3->show_all();
-		
-	});
+	
 
 
 
@@ -750,7 +688,20 @@ Glib::Timeout->add (100, sub{
 			
 		}
 		elsif( $state ne "ideal" ){
-			$refresh->clicked;
+			$devbox->destroy();
+			$fbox->destroy();
+			$sbox->destroy();
+			$v1->destroy();
+			select(undef, undef, undef, 0.1); #wait 10 ms
+			$devbox=dev_box_show($intfc_gen,$info);
+			$fbox=file_box($intfc_gen,$info);	
+			$sbox=module_select($intfc_gen,$info);
+			$v1=def_pack_vbox(TRUE,0,$fbox,$sbox);	
+			$v2->pack1($v1,TRUE, TRUE); 	
+			$v2->pack2($devbox,TRUE, TRUE); 	
+			$v3-> pack1($v2, TRUE, TRUE); 	
+			#$main_table->attach_defaults ($v3  , 0, 12, 0,14);				
+			$v3->show_all();
 			set_gui_status($intfc_gen,"ideal",0);
 			
 		}	
@@ -768,8 +719,8 @@ Glib::Timeout->add (100, sub{
 			generate_lib($intfc_gen); 
 			
 		}
+		set_gui_status($intfc_gen,"ref",1);
 		
-		$refresh->clicked;
 	
 });
 
@@ -782,12 +733,8 @@ Glib::Timeout->add (100, sub{
 	#$window->show_all;
 	#return $main_table;
 
-	my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-		$sc_win->set_policy( "automatic", "automatic" );
-		$sc_win->add_with_viewport($main_table);	
 
-	return $sc_win;
-	
+	return  add_widget_to_scrolled_win($main_table);
 
 }
 

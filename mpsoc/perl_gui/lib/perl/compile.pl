@@ -16,7 +16,7 @@ use File::Copy::Recursive qw(dircopy);
 use Cwd 'abs_path';
 use Verilog::EditFiles;
 
-use Gtk2;
+
 
 use List::MoreUtils qw( minmax );
 
@@ -35,33 +35,7 @@ sub is_capital_sensitive()
   $cell->set('sensitive', $sensitive);
 }
 
-sub gen_combo_model{
-	my $ref=shift;
-	my %inputs=%{$ref};
-	my $store = Gtk2::TreeStore->new('Glib::String');
-  	 for my $i (sort { $a cmp $b} keys %inputs ) {
-    	 	my $iter = $store->append(undef);
-		
-    	 	$store->set($iter, 0, $i);
-    		for my $capital (sort { $a cmp $b} keys %{$inputs{$i}}) {
-      			my $iter2 = $store->append($iter);
-       			$store->set($iter2, 0, $capital);
-    		}
- 	}
-	return $store;
 
-}
-
-sub gen_tree_combo{
-	my $model=shift;
-	my $combo = Gtk2::ComboBox->new_with_model($model);
-   	my $renderer = Gtk2::CellRendererText->new();
-    	$combo->pack_start($renderer, TRUE);
-    	$combo->set_attributes($renderer, "text", 0);
-    	$combo->set_cell_data_func($renderer, \&is_capital_sensitive);
-	return $combo;
-
-}
 
 sub get_range {
 	my ($board,$self,$porttype,$assignname,$portrange,$portname) =@_;
@@ -816,7 +790,7 @@ my $help6="Power on your FPGA board and connect it to your PC. Then press Auto-f
 		($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,"vertical");
 	}
 	
-	my $labl=def_pack_vbox(FALSE, 0,(Gtk2::HSeparator->new,gen_label_in_center("FPGA Board JTAG Configuration"),Gtk2::HSeparator->new));
+	my $labl=def_pack_vbox(FALSE, 0,(gen_Hsep(),gen_label_in_center("FPGA Board JTAG Configuration"),gen_Hsep()));
 		
 	$table->attach( $labl,0,3,$row,$row+1,'fill','shrink',2,2); $row++; $col=0;
 	
@@ -1042,9 +1016,7 @@ sub  get_pin_assignment{
 	my $window = def_popwin_size(80,80,"Step 2: Pin Assignment",'percent');
 
 	my $table = def_table(2, 2, FALSE);
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	my $scrolled_win = add_widget_to_scrolled_win($table);
 
 	my $mtable = def_table(10, 10, FALSE);	
 	my $next=def_image_button('icons/right.png','Next');
@@ -1168,7 +1140,7 @@ sub  get_pin_assignment{
 		my $loc=$row;
 		if(defined $saved) {
 			  my @indices=@{$saved};
-			  my $path = Gtk2::TreePath->new_from_indices(@indices);
+			  my $path = TreePath_new_from_indices(@indices);
 			  my $iter = $models{$type}->get_iter($path);
     			  undef $path;
     			  $combo->set_active_iter($iter);
@@ -1248,18 +1220,12 @@ sub fpga_compilation{
 	
 	
 	$regen-> signal_connect("clicked" => sub{
-		my $dialog = Gtk2::MessageDialog->new (my $window,
-                                      'destroy-with-parent',
-                                      'question', # message type
-                                      'yes-no', # which set of buttons?
-                                      "Are you sure you want to regenerate the Top.v file? Note that any changes you have made will be lost");
-  		my $response = $dialog->run;
-  		if ($response eq 'yes') {
-      			gen_top_v($self,$board,$name,$top);
+
+		my $response =  yes_no_dialog("Are you sure you want to regenerate the Top.v file? Note that any changes you have made will be lost");
+		if ($response eq 'yes') {
+			gen_top_v($self,$board,$name,$top);
 			$app->load_source("$board_top_file");	
-  		}
-  		$dialog->destroy;
-		
+  		}		
 	});
 	
 	
@@ -1741,18 +1707,11 @@ sub modelsim_compilation{
 	
 	
 	$regen-> signal_connect("clicked" => sub{
-		my $dialog = Gtk2::MessageDialog->new (my $window,
-                                      'destroy-with-parent',
-                                      'question', # message type
-                                      'yes-no', # which set of buttons?
-                                      "Are you sure you want to regenerate the testbench.v file? Note that any changes you have made will be lost");
-  		my $response = $dialog->run;
-  		if ($response eq 'yes') {
+		my $response =  yes_no_dialog("Are you sure you want to regenerate the testbench.v file? Note that any changes you have made will be lost");
+		if ($response eq 'yes') {
       			gen_modelsim_soc_testbench ($self,$name,$top,$target_dir);
 			$app->load_source("$target_dir/Modelsim/testbench.v");	
-  		}
-  		$dialog->destroy;
-		
+  		}		
 	});
 	
 	$back-> signal_connect("clicked" => sub{ 
@@ -2130,9 +2089,15 @@ sub  gen_mpsoc_verilator_model{
 		my @nis=get_NI_instance_list($top);
 		$soc->soc_add_instance_param($nis[0] ,\%y );
 		my %z;
+		
+		my %param_type=  $soc->soc_get_module_param_type($nis[0]); 
 		foreach my $p (sort keys %y){
-			$z{$p}="Parameter";
-		}		
+			$z{$p}=$param_type{$p}; #"Parameter";
+		}
+		
+		
+		
+				
 		$soc->soc_add_instance_param_type($nis[0] ,\%z );
 		
 		
@@ -2147,7 +2112,7 @@ sub  gen_mpsoc_verilator_model{
 				
 				
 		my $sw_path 	= "$sw_dir/tile$tile_num";
-		$verilator = $verilator.soc_generate_verilatore ($soc,$sw_path,"tile_$tile",\%params);	
+		$verilator = $verilator.soc_generate_verilator ($soc,$sw_path,"tile_$tile",\%params);	
 		$tops{"Vtile$tile_num"}= "tile_$tile.v";
 				
 	
@@ -2961,12 +2926,7 @@ sub verilator_testbench{
 	});
 
 	$regen-> signal_connect("clicked" => sub{
-		my $dialog = Gtk2::MessageDialog->new (my $window,
-                                      'destroy-with-parent',
-                                      'question', # message type
-                                      'yes-no', # which set of buttons?
-                                      "Are you sure you want to regenerate the testbench.cpp file? Note that any changes you have made will be lost");
-  		my $response = $dialog->run;
+		my $response = yes_no_dialog("Are you sure you want to regenerate the testbench.cpp file? Note that any changes you have made will be lost");
   		if ($response eq 'yes') {
   			my $n= $self->object_get_attribute('soc_name',undef);
 			if(defined $n){	#we are compiling a single tile as SoC
@@ -2978,14 +2938,12 @@ sub verilator_testbench{
 			}
   			      			
 			$app->load_source("$dir/testbench.cpp");	
-  		}
-  		$dialog->destroy;
-		
+  		}	
 	});
 	
 	
 	$make -> signal_connect("clicked" => sub{
-		$make->hide_all;
+		$make->hide;
 		my $load= show_gif("icons/load.gif");
 		$table->attach ($load,8, 9, 1,2,'shrink','shrink',0,0);
 		$table->show_all;

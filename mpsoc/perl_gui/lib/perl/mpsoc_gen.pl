@@ -12,19 +12,15 @@ use POSIX 'strtol';
 use File::Path;
 use File::Copy;
 use Cwd 'abs_path';
-use Gtk2;
-use Gtk2::Pango;
-use HexSpin;
 
 require "widget.pl"; 
 require "mpsoc_verilog_gen.pl";
 require "hdr_file_gen.pl";
 require "readme_gen.pl";
 require "soc_gen.pl";
+require "topology.pl";
 require "diagram.pl";
 require "orcc.pl";
-
-
 
 
 sub initial_default_param{
@@ -103,14 +99,7 @@ sub get_NI_instance_list {
 ####################
 # get_conflict_decision
 ###########################
-sub b_box{
-	# create a new button
-    my @label=@_;
-    my $button = Gtk2::Button->new_from_stock(@label);
-    my $box=def_vbox(FALSE,5);
-    $box->pack_start($button,   FALSE, FALSE,0);    
-    return ($box,$button);
-}
+
 
 sub get_conflict_decision{
     my ($mpsoc,$name,$inserted,$conflicts,$msg)=@_;
@@ -122,13 +111,14 @@ sub get_conflict_decision{
     $table->attach_defaults ($label , 0, 6, 0,1);
     $wind->add($table);
 
-    my ($box1,$b1)= b_box("Remove Previous");
-    my ($box2,$b2)= b_box("Remove Current");
-    my ($box3,$b3)= b_box("Cancel");
+    my $b1= def_button("Remove Previous");
+    my $b2= def_button("Remove Current");
+    my $b3= def_button("Cancel");
     
-    $table->attach_defaults ($box1 , 0, 1, 1,2);
-    $table->attach_defaults ($box2 , 3, 4, 1,2);
-    $table->attach_defaults ($box3 , 5, 6, 1,2);
+    $table->attach ($b1 , 0, 1, 1,2,'fill','fill',2,2);
+    $table->attach ($b2 , 3, 4, 1,2,'fill','fill',2,2);
+    $table->attach ($b3 , 5, 6, 1,2,'fill','fill',2,2);
+
 
     $wind->show_all();
     
@@ -243,9 +233,7 @@ sub get_soc_parameter_setting{
     my $window = (defined $tile)? def_popwin_size(40,40,"Parameter setting for $soc_name located in tile($tile) ",'percent'):def_popwin_size(40,40,"Default Parameter setting for $soc_name ",'percent');
     my $table = def_table(10, 7, FALSE);
     
-    my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-    $scrolled_win->set_policy( "automatic", "automatic" );
-    $scrolled_win->add_with_viewport($table);
+    my $scrolled_win = add_widget_to_scrolled_win($table);
     my $row=0;
     my $column=0;
     my $top=$mpsoc->mpsoc_get_soc($soc_name);
@@ -404,8 +392,8 @@ sub defualt_tilles_setting {
     my ($mpsoc,$table,$show,$row,$info)=@_;
         
     #title    
-    my $separator1 = Gtk2::HSeparator->new;
-    my $separator2 = Gtk2::HSeparator->new;
+    my $separator1 = gen_Hsep();
+    my $separator2 = gen_Hsep();
     my $title2=gen_label_in_center("Tile Configuration");
     my $box1=def_vbox(FALSE, 1);
     $box1->pack_start( $separator1, FALSE, FALSE, 3);
@@ -415,37 +403,26 @@ sub defualt_tilles_setting {
      
     
     my $label = gen_label_in_left("Tiles path:");
-    my $entry = Gtk2::Entry->new;
+    my $entry = gen_entry();
     my $browse= def_image_button("icons/browse.png");
     my $file= $mpsoc->object_get_attribute('setting','soc_path');
     if(defined $file){$entry->set_text($file);}
     
     
-    $browse->signal_connect("clicked"=> sub{
-        my $entry_ref=$_[1];
-         my $file;
-
-        my $dialog = Gtk2::FileChooserDialog->new(
-                'Select tile directory', undef,
-        #           'open',
-        'select-folder',
-                'gtk-cancel' => 'cancel',
-                'gtk-ok'     => 'ok',
-            );
-       
-            
-            if ( "ok" eq $dialog->run ) {
-                    $file = $dialog->get_filename;
+	$browse->signal_connect("clicked"=> sub{
+		my $entry_ref=$_[1];
+		my $file;
+		my $dialog = gen_folder_dialog('Select tile directory');
+		if ( "ok" eq $dialog->run ) {
+			$file = $dialog->get_filename;
             $$entry_ref->set_text($file);
             $mpsoc->object_add_attribute('setting','soc_path',$file);
             $mpsoc->mpsoc_remove_all_soc();
             set_gui_status($mpsoc,"ref",1);            
             #check_input_file($file,$socgen,$info);
                     #print "file = $file\n";
-                }
-               $dialog->destroy;
-               
-
+		}
+        $dialog->destroy;
 
     } , \$entry);
         
@@ -578,9 +555,8 @@ sub noc_config{
     my $row=0;
     my $title=gen_label_in_center("NoC Configuration");
     $table->attach ($title , 0, 4,  $row, $row+1,'expand','shrink',2,2); $row++;
-    my $separator = Gtk2::HSeparator->new;    
-    $table->attach ($separator , 0, 4 , $row, $row+1,'fill','fill',2,2);    $row++;
-
+	add_Hsep_to_table ($table,0,4,$row); $row++;
+   
     my $label;
     my $param;
     my $default;
@@ -1020,9 +996,7 @@ my $coltmp=0;
 sub get_config{
     my ($mpsoc,$info)=@_;
     my $table=def_table(20,10,FALSE);#    my ($row,$col,$homogeneous)=@_;
-    #my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-    #$scrolled_win->set_policy( "automatic", "automatic" );
-    #$scrolled_win->add_with_viewport($table);
+   
 
     #noc_setting
     my $row=noc_config ($mpsoc,$table,$info);
@@ -1490,9 +1464,7 @@ sub get_tile{
         my $window = def_popwin_size(40,40,"Parameter setting for Tile $tile ",'percent');
         my $table = def_table(6, 2, TRUE);
     
-        my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-        $scrolled_win->set_policy( "automatic", "automatic" );
-        $scrolled_win->add_with_viewport($table);
+        my $scrolled_win = add_widget_to_scrolled_win($table);
         my $row=0;
         my ($soc_name,$g,$t)=$mpsoc->mpsoc_get_tile_soc_name($tile);
        
@@ -1503,9 +1475,8 @@ sub get_tile{
         my $lable=gen_label_in_left("  Processing tile name:");
         $table->attach_defaults($lable,0,3,$row,$row+1);
         $table->attach_defaults($combo,3,7,$row,$row+1);$row++;
-        my $separator1 = Gtk2::HSeparator->new;
-        $table->attach_defaults($separator1,0,7,$row,$row+1);$row++;
-       
+		add_Hsep_to_table($table,0,7,$row);$row++;
+     
         my $ok = def_image_button('icons/select.png','OK');
         my $okbox=def_hbox(TRUE,0);
         $okbox->pack_start($ok, FALSE, FALSE,0);
@@ -1542,12 +1513,14 @@ sub get_tile{
         $window->show_all();
     
         $ok-> signal_connect("clicked" => sub{ 
-            $window->destroy;
+           
             set_gui_status($mpsoc,"refresh_soc",1);
             my $soc_name=$combo->get_active_text();
             my $setting=$combo2->get_active_text();
-            if ($soc_name ne ' ' && $setting ne 'Default'){
-            get_soc_parameter_setting ($mpsoc,$soc_name,$tile);
+			$window->destroy;    
+			if ($soc_name ne ' ' && $setting ne 'Default'){
+				        	
+				get_soc_parameter_setting ($mpsoc,$soc_name,$tile);
             
             }
             #save new values 
@@ -1676,7 +1649,7 @@ sub show_reqired_brams{
                                    'Glib::String',
                                    'Glib::String'); # you get the idea
 	
-	my $list=	gen_list_store ($self,\@data,\@clmn_type,\@clmns);
+	my $list=	gen_list_store (\@data,\@clmn_type,\@clmns);
 	$table-> attach  ($list, $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $row++; 
 	
 	$win->add($sc_win);
@@ -1756,7 +1729,7 @@ sub get_soc_peripheral_parameter {
 	my @instances=$soc->soc_get_all_instances();
 	foreach my $id (@instances){
 		if ($id =~/$peripheral[0-9]/){	
-			return $soc->soc_get_module_param_value ($id,$param_nam);		
+			return $soc->soc_get_module_param_value ($id,$param_nam) if (defined $param_nam);		
 		}
 	}	
 	return undef;
@@ -1780,7 +1753,7 @@ sub linker_initial_setting {
 	    	$self->object_add_attribute('MEM'.$tile_num,'width',$v);
 	    	$self->object_add_attribute('MEM'.$tile_num,'percent',75);
 	    	
-	    	my $s =(1<<($v+2)) ;
+	    	my $s =(1 << ($v+2)) ;
 			my $p = 75;
 			
 			my $rom_start = 0;
@@ -1804,7 +1777,7 @@ sub linker_initial_setting {
 		$v = 13 if (!defined $v);
 		$self->object_add_attribute('MEM0','width',$v);
 		$self->object_add_attribute('MEM0','percent',75);
-		my $s =(1<<($v+2)) ;
+		my $s =(1 << ($v+2)) ;
 		my $p = 75;
 			
 		my $rom_start = 0;
@@ -1886,7 +1859,7 @@ sub linker_setting{
 				$width = $self->object_get_attribute('MEM'.$tile_num,'width');
 			}
 			$ram_width->set_value($width);	
-			my $size =gen_label_in_center(metric_conversion(1<<15). "B") ;
+			my $size =gen_label_in_center(metric_conversion(1 << 15). "B") ;
 			
 			
 			$table-> attach  (def_pack_hbox('FALSE',0,$ram_width,$size), $col, $col+1,  $row, $row+1,'shrink','shrink',2,2); $col++; 
@@ -1947,7 +1920,7 @@ sub linker_setting{
 		    $ram_width->signal_connect("value_changed" => sub{
 				my $w=$ram_width->get_value();
 				$self->object_add_attribute('MEM'.$tile_num,'width',$w);
-				$size->set_label (metric_conversion(1<<($w+2)). "B") ;
+				$size->set_label (metric_conversion(1 << ($w+2)). "B") ;
 				$size->show_all;
 				$enter->clicked; 
 			});	
@@ -1962,7 +1935,7 @@ sub linker_setting{
 			
 			$enter-> signal_connect ( 'clicked' , sub {
 				my $w=$ram_width->get_value();
-				my $s =(1<<($w+2));
+				my $s =(1 << ($w+2));
 				my $p = $percent->get_value();
 				
 				my $rom_start_v = 0;
@@ -2186,17 +2159,7 @@ sub software_edit_mpsoc {
 sub load_mpsoc{
     my ($mpsoc,$info)=@_;
     my $file;
-    my $dialog = Gtk2::FileChooserDialog->new(
-                'Select a File', undef,
-                'open',
-                'gtk-cancel' => 'cancel',
-                'gtk-ok'     => 'ok',
-            );
-
-    my $filter = Gtk2::FileFilter->new();
-    $filter->set_name("MPSoC");
-    $filter->add_pattern("*.MPSOC");
-    $dialog->add_filter ($filter);
+    my $dialog =  gen_file_dialog (undef, 'MPSOC');	
     my $dir = Cwd::getcwd();
     $dialog->set_current_folder ("$dir/lib/mpsoc")    ;
     my @newsocs=$mpsoc->mpsoc_get_soc_list();
@@ -2257,9 +2220,9 @@ sub clk_setting_win1{
 	my @sources=('clk','reset');
 	
 	my $table = def_table(10, 7, FALSE);
-	my $notebook = Gtk2::Notebook->new;
+	my $notebook = gen_notebook();
 	$notebook->set_scrollable(TRUE);
-	$notebook->can_focus(FALSE);
+	#$notebook->can_focus(FALSE);
 	$notebook->set_tab_pos ('left'); 
 	
 	
@@ -2274,7 +2237,7 @@ sub clk_setting_win1{
 		 my $w=get_source_assignment_win($self,$s,$all{$s},$type);
 		 my $box=def_hbox(FALSE,0);
 		 $box->pack_start($w, TRUE, TRUE, 0);
-		 $notebook->append_page ($box,Gtk2::Label->new ($s)); 
+		 $notebook->append_page ($box,gen_label_in_center ($s)); 
 		 $spin->signal_connect("value_changed" => sub{
 		 	$self->object_add_attribute('SOURCE_SET',"REDEFINE_TOP",1);    
 		 	$w->destroy;
@@ -2371,19 +2334,19 @@ sub get_source_assignment_win{
 
 sub get_clk_constrain_widget {
 	my ($self,$table,$column,$row, $s,$n)=@_;
-	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
+	$table->attach (gen_Vsep() , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
 	return ($column,$row);
 	my $frequency;	
 	($row,$column,$frequency)=  add_param_widget($self,"Frequency(MHz)","${s}_${n}_mhz", 100,'Spin-button',"1,1024,0.01",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
-	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
+	$table->attach (gen_Vsep() , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
 	my $period;
 	($row,$column,$period)=  add_param_widget($self,"Period(ns)","${s}_${n}_period", 10,'Spin-button',"0,1024,0.01",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
-	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
+	$table->attach (gen_Vsep() , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
 	my $rise;	
 	($row,$column,$rise)=  add_param_widget($self,"rising edge(%)","${s}_${n}_rise", 0,'Spin-button',"0,100,0.1",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
 	my $r_lab=gen_label_in_center('=0 ns');
 	$table->attach  ($r_lab,$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column+=1;
-	$table->attach (Gtk2::VSeparator->new , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
+	$table->attach (gen_Vsep() , $column,$column+1,$row,$row+1,'fill','fill',2,2);$column+=1;
 	my $fall;	
 	($row,$column,$fall)=  add_param_widget($self,"falling edge(%)","${s}_${n}_fall", 50,'Spin-button',"0,100,0.1",undef, $table,$row,$column,1,'SOURCE_SET',undef,undef,'horizontal');
 	my $f_lab=gen_label_in_center('=5 ns');
@@ -2832,7 +2795,7 @@ sub add_mpsoc_to_device{
 
 sub ctrl_box{
 	my ($mpsoc,$info)=@_;
-	my $table = Gtk2::Table->new (1, 12, FALSE);	 
+	my $table = def_table (1, 12, FALSE);	 
 	my $generate = def_image_button('icons/gen.png','_Generate RTL',FALSE,1);
     my $open = def_image_button('icons/browse.png','_Load MPSoC',FALSE,1);
     my $compile  = def_image_button('icons/gate.png','_Compile RTL',FALSE,1);
@@ -2930,7 +2893,7 @@ sub mpsocgen_main{
     my $mpsoc= mpsoc->mpsoc_new();
        
     set_gui_status($mpsoc,"ideal",0);
-    my $main_table = Gtk2::Table->new (25, 12, FALSE);
+    my $main_table = def_table (25, 12, FALSE);
     
     # The box which holds the info, warning, error ...  messages
     my ($infobox,$info)= create_txview();    
@@ -2938,13 +2901,9 @@ sub mpsocgen_main{
     my $noc_conf_box=get_config ($mpsoc,$info);
     my $noc_tiles=gen_tiles($mpsoc);
 
-    my $scr_conf = new Gtk2::ScrolledWindow (undef, undef);
-    $scr_conf->set_policy( "automatic", "automatic" );
-    $scr_conf->add_with_viewport($noc_conf_box);
+    my $scr_conf = add_widget_to_scrolled_win($noc_conf_box);
     
-    my $scr_tile = new Gtk2::ScrolledWindow (undef, undef);
-    $scr_tile->set_policy( "automatic", "automatic" );
-    $scr_tile->add_with_viewport($noc_tiles);
+    my $scr_tile = add_widget_to_scrolled_win($noc_tiles);
 
     $main_table->set_row_spacings (4);
     $main_table->set_col_spacings (1);
@@ -2996,9 +2955,7 @@ sub mpsocgen_main{
         
     } );
     
-    my $sc_win = new Gtk2::ScrolledWindow (undef, undef);
-    $sc_win->set_policy( "automatic", "automatic" );
-    $sc_win->add_with_viewport($main_table);    
+    my $sc_win = add_widget_to_scrolled_win($main_table);    
 
     return $sc_win;
 }

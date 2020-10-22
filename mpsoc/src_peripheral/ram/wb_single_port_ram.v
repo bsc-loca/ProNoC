@@ -57,7 +57,8 @@ module wb_single_port_ram #(
     parameter JINDEXw=8,
     parameter JSTATUSw=8,
     parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+JDw+JAw : 1,
-    parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw  : 1
+    parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw  : 1,
+	parameter WB_Aw= 20 // Wishbon bus reserved address with range. WB_Aw >=Aw
     )
     (
         clk,
@@ -84,8 +85,14 @@ module wb_single_port_ram #(
         
     );
 
-
-     
+// synthesis translate_off 
+     initial begin 
+		if(WB_Aw<Aw)begin
+			$display("Error: The wishbon bus reserved address range width (%d) should be larger than ram width (%d): %m",WB_Aw,Aw);  
+			$stop;
+		end
+	 end
+// synthesis translate_on
 
     input                  clk;
     input                  reset;

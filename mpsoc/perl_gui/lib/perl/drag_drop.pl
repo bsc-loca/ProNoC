@@ -1,10 +1,9 @@
 #! /usr/bin/perl -w
 
 use strict;
-use Gtk2 '-init';
 use Glib qw/TRUE FALSE/;
-use Gtk2::SimpleList;
-use Gtk2::Gdk::Keysyms;
+
+
 use FindBin;
 use lib $FindBin::Bin;
 require "widget.pl";
@@ -23,9 +22,10 @@ use constant ID_ICONVIEW            => 48;
 
 
 
+
 sub drag_and_drop_page {
 	my ($self,$tview,$name,$items_ref, $ctrl_box)=@_;
-    my $vbox = Gtk2::VBox->new(FALSE,5);
+    my $vbox = def_vbox(FALSE,5);
 	my $group_num=$self->object_get_attribute($name,'group_num');
 	update_group_item_list($self,$group_num,$name,$items_ref);
 	my $ref_source = $self->object_get_attribute("$name",'ungrouped');
@@ -112,16 +112,11 @@ sub create_iconview {
     my $icon_string= undef;
     my $tree_model = create_iconview_model($self,$name,$ref);
 
-    my $icon_view = Gtk2::IconView->new_with_model($tree_model);
-   	
-                        
-       
-    $icon_view->set_markup_column(C_MARKUP);
-    $icon_view->set_pixbuf_column(C_PIXBUF);
+    my $icon_view = gen_iconview($tree_model,C_MARKUP,C_PIXBUF);
 
-
-    #Enable the Gtk2::IconView as a drag source
-    add_drag_source($icon_view);
+    #Enable the IconView as a drag source
+	
+    add_drag_source($icon_view,'STRING',[],ID_ICONVIEW);
     add_drop_source($icon_view,$tree_model,$name,$param,$self,$limit);
 
     #This is a nice to have. It changes the drag icon to that of the
@@ -134,13 +129,14 @@ sub create_iconview {
 				$saved=$iter;
                 #set the text and pixbuf
                 my $icon_pixbuf = $tree_model->get_value($iter,C_PIXBUF);
-                $icon_view->drag_source_set_icon_pixbuf ($icon_pixbuf);
+				drag_set_icon_pixbuf($icon_view,$icon_pixbuf);
+				$icon_view->show_all();
         } );
     });
 
     #set up the data which needs to be fed to the drag destination (drop)
     $icon_view->signal_connect ('drag-data-get' => sub { 
-		
+		return if(! defined $saved);
 		$icon_string = $tree_model->get_value($saved,C_MARKUP);		
 		#print "\$icon_string=$icon_string\n";
 		my $no_markup = $icon_string;
@@ -152,22 +148,21 @@ sub create_iconview {
 		source_drag_data_get(@_,$icon_string); 
 		my @array=remove_scolar_from_array($gref,$no_markup );
 		$self->object_add_attribute("$name",$param,\@array);
-		set_gui_status($self,"drag-data-get",1);
+		set_gui_status($self,"drag-data-get",0);
 		
 	} );
     
     #Standard scrolledwindow to allow growth
-    my $sw = Gtk2::ScrolledWindow->new(undef,undef);
+    my $sw = add_widget_to_scrolled_win($icon_view);
     $sw->set_policy('never','automatic');
-    $sw->add($icon_view);
     $sw->set_border_width(6);
     my($width,$hight)=max_win_size();
 	$sw->set_size_request($width/10,$hight/10);
     
-   # my $align = Gtk2::Alignment->new (0.5, 0.5, 0, 0);
-    my $frame = Gtk2::Frame->new;
+   
+    my $frame = gen_frame();
 	$frame->set_shadow_type ('in');
-		# Animation
+	# Animation
 	$frame->add ($sw);
 	#$align->add ($frame);
 	
@@ -181,33 +176,7 @@ sub create_iconview {
     return ($frame,$tree_model);
 }
 
-sub create_iconview_model {
-#----------------------------------------------------
-#The Iconview needs a Gtk2::Treemodel implementation-
-#containing at least a Glib::String and -------------
-#Gtk2::Gdk::Pixbuf type. The first is used for the --
-#text of the icon, and the last for the icon self----
-#Gtk2::ListStore is ideal for this ------------------
-#----------------------------------------------------
-	my ($self,$name,$ref)=@_;
-	my @sources= (defined $ref)? @{$ref}:(); 
-    my $list_store = Gtk2::ListStore->new(qw/Glib::String Gtk2::Gdk::Pixbuf Glib::String/);
 
-    #******************************************************
-    #we populate the Gtk2::ListStore with Gtk2::Stock icons
-    #******************************************************
-
-  #  my $icon_factory = Gtk2::IconFactory->new();
-
-    foreach my $val(@sources){
-        #get the iconset from the icon_factory
-        #my $iconset = $icon_factory->lookup_default($val);
-        #try and extract the icon from it
-        add_icon_to_tree($self,$name,$list_store,$val);
-    }
-
-    return $list_store;
-}
 
 
 
@@ -229,7 +198,9 @@ sub target_drag_data_received {
 
    
 
-        my $no_markup = $data->data;
+        my $no_markup = $data->get_text;
+		#print Dumper ($widget, $context, $x, $y, $data, $info, $time,$no_markup);
+
         $no_markup =~ s/<[^>]*>//g;       
 
 	
@@ -251,9 +222,9 @@ $limit =655350 if(!defined $limit);
 if( scalar @array >= $limit){    
     stop_drag_dest( $widget);
 }    
-#	print "stop_drag_dest( $icon_view);\n";
 
-    $context->finish (0, 0, $time);
+	call_gtk_drag_finish($context, 0, 0, $time);
+   # $context->finish (0, 0, $time);
 }
 
 sub source_drag_data_get {
@@ -266,19 +237,13 @@ sub source_drag_data_get {
     my ($widget, $context, $data, $info, $time,$string) = @_;
 
     $data->set_text($string,-1) if defined $string;
-    $data->set_text("Unknown-event-name",-1) unless defined $string
+    $data->set_text("Unknown-event-name",-1) unless defined $string;
+	
+	
+
 }
 
-sub get_icon_pixbuff{
-    my $icon_file=shift;
-	my $font_size=get_defualt_font_size();
-	my $size=($font_size==10)? 25:
-		     ($font_size==9 )? 22:
-			 ($font_size==8 )? 18:
-			 ($font_size==7 )? 15:12 ;
-	my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($icon_file,$size,$size,FALSE);
-	return $pixbuf;
-}
+
 
 
 sub add_icon_to_tree{
@@ -305,19 +270,6 @@ sub add_icon_to_tree{
 
 
 
-sub add_drag_source {
-	my $widget=shift;
-	$widget->drag_source_set (
-                                ['button1_mask', 'button3_mask'],
-                                ['copy'],
-                                {
-                                    'target' => 'STRING',
-                                    'flags' => [],
-                                    'info' => ID_ICONVIEW,
-                                },
-                        );
-}
-
 sub stop_drag_dest {
 	my $widget=shift;
 	$widget->drag_dest_unset ();
@@ -327,17 +279,13 @@ sub stop_drag_dest {
 sub add_drop_source {
 	my ($widget,$target,$name,$param,$self,$limit)=@_;	
 	
-	  #Create a target table to receive drops
-    my @target_table = (
-
-        {'target' => 'STRING',       'flags' => [], 'info' => ID_ICONVIEW   },
-        
-    );
+	#Create a target table to receive drops
+	add_drag_dest_set($widget, 'STRING',[],ID_ICONVIEW);
 
     #make this the drag destination (drop) for various drag sources
     my $r=$self->object_get_attribute("$name","$param");
     my    @array = defined ($r)? @{$r}:();
-    $widget->drag_dest_set('all', ['copy'], @target_table);
+    
     # check if the maximum number of dropped item is received
 	$limit =655350 if(!defined $limit);
 	if( scalar @array >= $limit){    
@@ -349,7 +297,7 @@ sub add_drop_source {
     my @params=($target,$name,$param,$self,$limit);
     $widget->signal_connect ('drag-data-received' => \&target_drag_data_received,\@params );
     $widget->signal_connect ('drag-data-get' => sub {
-    	 $widget->drag_dest_set('all', ['copy'], @target_table);
+		add_drag_dest_set($widget, 'STRING',[],ID_ICONVIEW);
     });
 	
 }

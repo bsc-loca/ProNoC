@@ -1,13 +1,15 @@
 #!/usr/bin/perl -w
+package HexSpin;
 
 use strict;
 use warnings;
+
 #use diagnostics;
 use Gtk2;
-package HexSpin;
+
 
 use Glib qw (TRUE FALSE);
-use Gtk2;
+
 
 use Glib::Object::Subclass
     Gtk2::Entry::,
@@ -214,13 +216,16 @@ sub new {
 	my ($class, $p_value, $p_min, $p_max, $step, $page ) = @_;
 	$step =1 if (!defined $step);
 	$page = 0xFF * $step if (!defined $page);
-	my $w_temp = Gtk2::Entry->new_with_max_length (8);
+	my $w_temp = Gtk2::Entry->new;
+
+	$w_temp->set_max_length (8);
+
+
 	$w_temp->set_editable ( TRUE );
 	$w_temp->set_size_request ( 140, -1 );
 	$w_temp->set_icon_from_pixbuf ( 'secondary', $arrow_xpm );
 	$w_temp->set_icon_activatable ( 'secondary', TRUE );
-	$w_temp->set_inner_border ( { 'left'=>4, 'right'=>0,
-                                                                'top'=>VERT_MARGIN, 'bottom'=>VERT_MARGIN } );
+	#$w_temp->set_inner_border ( { 'left'=>4, 'right'=>0,'top'=>VERT_MARGIN, 'bottom'=>VERT_MARGIN } );
 	$w_temp->signal_connect ( 'icon-press', \&SpinarrowHit, SPIN_MIDDLE );
 	$w_temp->signal_connect ( 'icon-release', \&SpinarrowHit, SPIN_MIDDLE );
 	$w_temp->signal_connect ( 'changed', \&SpinvalueCheck2 );

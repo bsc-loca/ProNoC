@@ -90,7 +90,7 @@ sub set_color {
         my $color = Gtk2::Gdk::Color->new ($params{red},
                                            $params{green},
                                            $params{blue});
-        $self->{colorbox}->get_colormap->alloc_color ($color, 0, 1);
+     #   $self->{colorbox}->get_colormap->alloc_color ($color, 0, 1);
         $self->{colorbox}->modify_bg ('normal', $color);
        # $self->{colorbox}->modify_bg ('active', $color);
        # $self->{colorbox}->modify_bg ('prelight', $color);

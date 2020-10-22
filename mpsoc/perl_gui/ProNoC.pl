@@ -2,20 +2,39 @@
 package ProNOC;
 
 
+
+
+
 #add home dir in perl 5.6
 use FindBin;
 use lib $FindBin::Bin;
 use Glib qw/TRUE FALSE/;
 
-use Gtk2;
+
 use strict;
 use warnings;
-use Getopt::Long;
-
 
 
 use lib 'lib/perl';
-require "widget.pl"; 
+use Consts;
+
+
+use Getopt::Long;
+use base 'Class::Accessor::Fast';
+
+
+BEGIN {
+    my $module = (Consts::GTK_VERSION==2) ? 'Gtk2' : 'Gtk3';
+    my $file = $module;
+    $file =~ s[::][/]g;
+    $file .= '.pm';
+    require $file;
+    $module->import;
+}
+
+
+require "widget.pl";
+require "readme_gen.pl";
 require "interface_gen.pl";
 require "ip_gen.pl";
 require "soc_gen.pl";
@@ -29,8 +48,14 @@ require "run_time_jtag_debug.pl";
 require "gdown.pl"; # google drive downlouder
 
 use File::Basename;
-our $VERSION = '1.9.1'; 
-our $END_YEAR= "2019";
+
+
+
+use POSIX qw(locale_h);
+use locale;
+setlocale(LC_CTYPE, "en_US.UTF-8");#set numeric format to dot english
+
+
 
 sub main{
 	# check if envirement variables are defined
@@ -83,9 +108,10 @@ sub main_window{
 		
 			
 	my ($notebook,$noteref) = generate_main_notebook('Generator');
+	
+
 	my $window = def_win_size($width-100,$hight-100,"ProNoC");
-	my $navIco = gen_pixbuf("./icons/ProNoC.png");        
-	$window->set_default_icon($navIco); 
+	set_pronoc_icon($window);
 
 
  my @menu_items = (
@@ -94,7 +120,7 @@ sub main_window{
 #  [ "/File/Global Parameters",  "<control>G", sub { global_param(); },  0,  undef ],
   [ "/File/_Quit",       "<control>Q", sub { gui_quite(); },  0, "<StockItem>", 'gtk-quit' ],
   
-  
+  [ "/Tools",            undef,        undef,          0, "<Branch>" ],
   [ "/Tools/_UART Terminal", "<control>U", sub { uart(0); },  0,  undef ],
   [ "/Tools/Run time JTAG debuger", "<control>P", sub { source_probe(0); },  0,  undef ],
   [ "/Tools/Add New Altera FPGA Board", undef, sub { add_altera_board(); },  0,  undef ],
@@ -102,13 +128,13 @@ sub main_window{
   
  
   [ "/_View",                  undef, undef,         0, "<Branch>" ],
-  [ "/_View/_ProNoC System Generator",  "<control>1", 	sub{ open_page($notebook,$noteref,$table,'Generator'); } ,	0,	undef ],
-  [ "/_View/_ProNoC Simulator",  "<control>2", 	sub{ open_page($notebook,$noteref,$table,'Simulator'); } ,	0,	undef ],
+  [ "/_View/_ProNoC System Generator",  "<control>1", 	sub{ ($notebook,$noteref)=open_page($notebook,$noteref,$table,'Generator'); } ,	0,	undef ],
+  [ "/_View/_ProNoC Simulator",  "<control>2", 	sub{ ($notebook,$noteref)=open_page($notebook,$noteref,$table,'Simulator'); } ,	0,	undef ],
  
 
 
   [ "/_Help", 		undef,		undef,          0, 	"<Branch>" ],
-  [ "/_Help/_About",  	"F1", 		sub{about($VERSION)} ,	0,	undef ],
+  [ "/_Help/_About",  	"F1", 		sub{about(Consts::VERSION,$window)} ,	0,	undef ],
   [ "/_Help/_ProNoC System Overview",  	"F2", 		\&overview ,	0,	undef ],  
   [ "/_Help/_ProNoC User Manual",  "F3",		\&user_help, 	0,	undef ],
  
@@ -117,7 +143,7 @@ sub main_window{
 	my $menubar=gen_MenuBar($window,@menu_items);    
 	$table->attach ($menubar,0, 1, 0,1,,'fill','fill',0,0); #,'expand','shrink',2,2);
     
-    my $tt = Gtk2::Tooltips->new();
+   
 
 
 	
@@ -127,22 +153,23 @@ sub main_window{
 	my $rbtn_simulator = gen_radiobutton ($rbtn_generator,'Simulator','icons/simulator.png', "ProNoC Simulator");
 	my $rbtn_networkgen= gen_radiobutton ($rbtn_generator,'Network maker','icons/diagram.png', "ProNoC Topology Maker");
 	
+	
+
 	my $dt=creating_detachable_toolbar($rbtn_generator,$rbtn_simulator,$rbtn_networkgen);
-	
-	
+		
 	$rbtn_generator->signal_connect('toggled', sub{
-		open_page($notebook,$noteref,$table,'Generator');				
+		($notebook,$noteref)=open_page($notebook,$noteref,$table,'Generator');				
 	});
 	
 	$rbtn_simulator->signal_connect('toggled', sub{
-		open_page($notebook,$noteref,$table,'Simulator');		
+		($notebook,$noteref)=open_page($notebook,$noteref,$table,'Simulator');		
 	});
 	
 	$rbtn_networkgen->signal_connect('toggled', sub{
-		open_page($notebook,$noteref,$table,'Networkgen');		
+		($notebook,$noteref)=open_page($notebook,$noteref,$table,'Networkgen');		
 	});	
  
-   $table->attach ($dt,1, 2, 0,1,'fill','fill',0,0);
+   $table->attach ($dt,1, 2, 0,1,'shrink','fill',0,0);
    
    
    
@@ -157,9 +184,11 @@ sub main_window{
 sub open_page{
 	my ( $notebook,$noteref,$table,$page_name)=@_;
 	$notebook->destroy;
+	
 	($notebook,$noteref) = generate_main_notebook($page_name);
 	$table->attach_defaults( $notebook, 0, 2, 1,2);	
 	$table->show_all;
+	return ($notebook,$noteref);
 
 }
 
@@ -202,16 +231,16 @@ sub setting{
 	
 	my $table=def_table(10,10,FALSE);	
 	my $set_win=def_popwin_size(50,80,"Configuration setting",'percent');
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table);
+	
+	my $scrolled_win = add_widget_to_scrolled_win($table);
+	
+
 	my $row=0; my $col=0;
 	
 	#title1		
 	my $title1=gen_label_in_center("Path setting");
 	$table->attach ($title1 , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
-	my $separator = Gtk2::HSeparator->new;	
-	$table->attach ($separator , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
+	add_Hsep_to_table($table, 0, 10 , $row);	$row++;
     $table->attach_defaults (get_path_envirement_gui($self,$set_win,$reset) , 0, 10 , $row, $row+1);	$row++;
    
   
@@ -219,8 +248,8 @@ sub setting{
 	#title2		
 	my $title2=gen_label_in_center("Toolchain");
 	$table->attach ($title2 , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
-	my $separator2 = Gtk2::HSeparator->new;	
-	$table->attach ($separator2 , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
+	
+	add_Hsep_to_table($table, 0, 10 , $row);	$row++;
 
 	#check which toolchain is available in the system
 	$table->attach_defaults (check_toolchains($self,$set_win,$reset) , 0, 10 , $row, $row+1);	$row++;
@@ -230,7 +259,7 @@ sub setting{
 		
 	#title3
 	$table->attach (gen_label_in_center("Tools") , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
-	$table->attach ( Gtk2::HSeparator->new , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
+	add_Hsep_to_table($table, 0, 10 , $row);	$row++;
 
 	#check which toolchain is available in the system
 	$table->attach_defaults (check_tools($self,$set_win,$reset) , 0, 10 , $row, $row+1);$row++;
@@ -341,13 +370,9 @@ sub update_bashrc_file {
 	my $pronoc_work = $self->object_get_attribute("PATH","PRONOC_WORK");
 	my $quartus = $self->object_get_attribute("PATH","QUARTUS_BIN");
 	my $modelsim = $self->object_get_attribute("PATH","MODELSIM_BIN");
-	my $dialog = Gtk2::MessageDialog->new (my $window,
-                                      'destroy-with-parent',
-                                      'question', # message type
-                                      'yes-no', # which set of buttons?
-                                      "ProNoC variable has been changed. Do you want to update ~/.bashrc file with new ones?");
-	my $response = $dialog->run;
-  	if ($response eq 'yes') {
+	
+	my $response =  yes_no_dialog("ProNoC variable has been changed. Do you want to update ~/.bashrc file with new ones?");
+	if ($response eq 'yes') {
      			make_undef_as_string(\$pronoc_work,\$quartus,\$modelsim);
 				append_text_to_file ("$ENV{HOME}/.bashrc", "\nexport PRONOC_WORK=$pronoc_work\n") if(($old_pronoc_work ne $pronoc_work) || !defined $ENV{PRONOC_WORK}); 
 				#append_text_to_file ("$ENV{HOME}/.bashrc", "export QUARTUS_BIN=$quartus\n") if($old_quartus ne $quartus) ;
@@ -356,7 +381,7 @@ sub update_bashrc_file {
   	
   	
   	}
-  	$dialog->destroy;	
+  
 }
 
 
@@ -519,16 +544,14 @@ sub global_param{
 	
 	my $table1=def_table(10,10,FALSE);	
 	my $set_win=def_popwin_size(60,80,"Configuration setting",'percent');
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );
-	$scrolled_win->add_with_viewport($table1);
+	my $scrolled_win= add_widget_to_scrolled_win($table1);
+
+
 	my $row=0; my $col=0;
 	#title1		
 	my $title1=gen_label_in_center("Global Parameters setting");
 	$table1->attach ($title1 , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
-	my $separator = Gtk2::HSeparator->new;	
-	$table1->attach ($separator , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
-	
+	add_Hsep_to_table($table1, 0, 10 , $row);	$row++;
 	
     
     my @parameters = object_get_attribute_order($self,'Parameters');
@@ -560,13 +583,8 @@ sub global_param{
 	#title1		
 	$title1=gen_label_in_center("Add new Global Parameter");
 	$table2->attach ($title1 , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
-	$separator = Gtk2::HSeparator->new;	
-	$table2->attach ($separator , 0, 10 , $row, $row+1,'fill','fill',2,2);	$row++;
-	my $scrolled_win2 = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win2->set_policy( "automatic", "automatic" );
-	$scrolled_win2->add_with_viewport($table2);
-	
-	
+	add_Hsep_to_table($table2, 0, 10 , $row);	$row++;	
+	my $scrolled_win2= add_widget_to_scrolled_win($table2);
 	
 	my @widget_type_list=("Fixed","Entry","Combo-box","Spin-button");
     my $type_info="Define the parameter type: 
@@ -685,20 +703,6 @@ For Spin button define it as "minimum, maximum, step" e.g 0,10,1.';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 sub add_altera_board{
 	
 	__PACKAGE__->mk_accessors(qw{
@@ -727,27 +731,27 @@ sub add_xilinx_board{
 sub generate_main_notebook {
 	my $mode =shift;
 	
-	my $notebook = Gtk2::Notebook->new;
+	my $notebook = gen_notebook();
 	$notebook->show_all;
 	if($mode eq 'Generator'){
 		my $intfc_gen=  intfc_main();
 		my $lable1=def_image_label("icons/intfc.png"," _Interface generator ",1);
-		$notebook->append_page ($intfc_gen,$lable1);#Gtk2::Label->new_with_mnemonic ("  _Interface generator  "));
+		$notebook->append_page ($intfc_gen,$lable1);
 		$lable1->show_all;
 
-		my $ipgen=ipgen_main();
+		my $ipgen= ipgen_main();
 		my $lable2=def_image_label("icons/ip.png"," I_P generator ",1);
-		$notebook->append_page ($ipgen,$lable2);#Gtk2::Label->new_with_mnemonic ("  _IP generator  "));
+		$notebook->append_page ($ipgen,$lable2);
 		$lable2->show_all;
 
-		my $socgen=socgen_main();
+		my $socgen= socgen_main();
 		my $lable3=def_image_label("icons/tile.png"," P_rocessing tile generator ",1);			
-		$notebook->append_page ($socgen,$lable3 );#,Gtk2::Label->new_with_mnemonic ("  _Processing tile generator  "));
+		$notebook->append_page ($socgen,$lable3 );
 		$lable3->show_all;		
 
-		my $mpsocgen =mpsocgen_main();
+		my $mpsocgen =  mpsocgen_main();
 		my $lable4=def_image_label("icons/noc.png"," _NoC based MPSoC generator ",1);	
-		$notebook->append_page ($mpsocgen,$lable4);#Gtk2::Label->new_with_mnemonic ("  _NoC based MPSoC generator  "));	
+		$notebook->append_page ($mpsocgen,$lable4);
 		$lable4->show_all;	
 		
 	
@@ -755,7 +759,7 @@ sub generate_main_notebook {
 	
 		my $networkgen = network_maker_main();
 		my $lable5=def_image_label("icons/trace.png"," Network Maker ");	
-		$notebook->append_page ($networkgen,$lable5);#Gtk2::Label->new_with_mnemonic ("  _NoC based MPSoC generator  "));	
+		$notebook->append_page ($networkgen,$lable5);
 		$lable5->show_all;	
 	
 	
@@ -764,24 +768,24 @@ sub generate_main_notebook {
 		
 		my $trace_gen= trace_gen_main('task');
 		my $lable1=def_image_label("icons/trace.png"," _Trace generator ",1);
-		#my $lb=Gtk2::Label->new_with_mnemonic (" _Trace generator   ");
+
 		set_tip($lable1, "Generate trace file from application task graph");
 		
 		$notebook->append_page ($trace_gen,$lable1);		
 		$lable1->show_all;
 		$trace_gen->show_all;
 		
-		my $simulator =simulator_main();
+		my $simulator = simulator_main();
 		my $lable2=def_image_label("icons/sim.png"," _NoC simulator ",1);
 		
 		
-		$notebook->append_page ($simulator,$lable2);#Gtk2::Label->new_with_mnemonic (" _NoC simulator   "));		
+		$notebook->append_page ($simulator,$lable2);
 		$lable2->show_all;
 		$simulator->show_all;		
 
-		my $emulator =emulator_main();
+		my $emulator = emulator_main();
 		my $lable3=def_image_label("icons/emul.png"," _NoC emulator ",1);
-		$notebook->append_page ($emulator,$lable3);#Gtk2::Label->new_with_mnemonic (" _NoC emulator"));				
+		$notebook->append_page ($emulator,$lable3);
 		$lable3->show_all;
 		$emulator->show_all;	
 
@@ -794,6 +798,6 @@ sub generate_main_notebook {
 
 
 
-Gtk2->init;
-main;
-Gtk2->main();
+	gtk_gui_run(\&main);
+
+

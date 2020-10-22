@@ -3,9 +3,12 @@
 use strict;
 use warnings;
 
+use FindBin;
+use lib $FindBin::Bin;
+use Consts;
+
 use Glib qw(TRUE FALSE);
-use Gtk2 '-init';
-use Gtk2::SourceView2;
+
 use Data::Dumper;
 
 
@@ -41,7 +44,7 @@ sub software_main {
 	my $main_c=(defined $file)? "$sw/$file" : "$sw/main.c";
 	$app->load_source($main_c) if (-f $main_c );
 
-	#Gtk2->main();
+	
 
 	return ($app,$table,$tview,$widget);
 }
@@ -51,46 +54,27 @@ sub build_gui {
 	my ($self,$sw,$pages_ref,$lable_ref) = @_;
 
 	
-	my $table= def_table(2,10,FALSE);
-	my $hpaned = Gtk2::HPaned -> new;
-	my $vpaned = Gtk2::VPaned -> new;
-	$table->attach_defaults ($vpaned,0, 10, 0,1);
-	  
-
-	my($width,$hight)=max_win_size();
+	my $table= def_table(2,10,FALSE);	
 	
-	my $scwin_dirs = Gtk2::ScrolledWindow -> new;
-	$scwin_dirs -> set_policy ('automatic', 'automatic');
-	$hpaned -> pack1 ($scwin_dirs, TRUE, TRUE);
-	$hpaned -> set_position ($width*.15);
-
-	my $scwin_text = Gtk2::ScrolledWindow -> new;
-	$scwin_text -> set_policy ('automatic', 'automatic');
-	$hpaned -> pack2 ($scwin_text, TRUE, TRUE);
-	
+	my $vbox = def_vbox(FALSE, 0);
+	my $scwin_text = add_widget_to_scrolled_win($vbox);
 
 	my ($scwin_info,$tview)= create_txview();
-	
-	$vpaned-> pack1 ($hpaned, TRUE, TRUE);
-	$vpaned ->set_position ($hight*.5);
-	$vpaned-> pack2 ($scwin_info, TRUE, TRUE);
-
-
 	my ($tree_view,$tree_store) =$self->build_tree_view($sw);
-	$scwin_dirs -> add($tree_view);
+	my $scwin_dirs = add_widget_to_scrolled_win($tree_view);
 
 
+	my $hpaned = gen_hpaned($scwin_dirs,0.15,$scwin_text);
+	my $vpaned = gen_vpaned($hpaned,0.5,$scwin_info);
 
+	$table->attach_defaults ($vpaned,0, 10, 0,1);
 
-#print "$sw/\n";
-
-	
 	my $window = def_popwin_size (80,80,'Source Editor','percent');
 	
 	
 	if (defined $pages_ref){
 		#first page is software editor
-		my $notebook = Gtk2::Notebook->new;
+		my $notebook = gen_notebook();
 		
 		my $lable1=def_image_label("icons/binary.png","Software Editor",1);
 		$notebook->append_page ($table,$lable1);
@@ -107,6 +91,7 @@ sub build_gui {
 			$i++;	
 		}
 		$notebook->show_all;
+		$notebook->set_current_page(0);
 		$window -> add ( $notebook);
 	}else {
 		$window -> add ( $table);
@@ -114,19 +99,15 @@ sub build_gui {
 	
 	$self->window($window);
 
-	my $vbox = Gtk2::VBox->new(FALSE, 0);
-	$scwin_text->add_with_viewport($vbox);
+	
 
-	$vbox->pack_start($self->build_menu("$sw/",$table,$tree_view,$tree_store,$scwin_dirs), FALSE, FALSE, 0);
+	$vbox->pack_start($self->build_menu("$sw/",$window,$tree_view,$tree_store,$scwin_dirs), FALSE, FALSE, 0);
 	$vbox->pack_start($self->build_search_box, FALSE, FALSE, 0);
 
-	my $scroll = Gtk2::ScrolledWindow->new();
-	$scroll->set_policy('automatic', 'automatic');
-	$scroll->set_shadow_type('in');
-	$vbox->pack_start($scroll, TRUE, TRUE, 0);
+	
 
-	my $buffer = $self->create_buffer();
-	my $sourceview = Gtk2::SourceView2::View->new_with_buffer($buffer);
+	my $buffer = $self->create_SourceView_buffer();
+	my $sourceview = gen_SourceView_with_buffer($buffer);
 	$sourceview->set_show_line_numbers(TRUE);
 	$sourceview->set_tab_width(2);
 	$sourceview->set_indent_on_tab(TRUE);
@@ -134,7 +115,7 @@ sub build_gui {
 #	$sourceview->set_draw_spaces(['tab', 'newline']);
 
 	#
-	# Fix Gtk2::TextView's annoying paste behaviour when pasting with the mouse
+	# Fix TextView's annoying paste behaviour when pasting with the mouse
 	# (middle button click). By default gtk will scroll the text view to the
 	# original place where the cursor is.
 	#
@@ -172,17 +153,21 @@ sub build_gui {
 		$buffer->delete_mark($mark);
 	});
 
+	my $scroll = add_widget_to_scrolled_win($sourceview);
+	$vbox->pack_start($scroll, TRUE, TRUE, 0);
 
-	$scroll->add($sourceview);
+
+	
 	$self->sourceview($sourceview);
 	$self->buffer($sourceview->get_buffer);
 
 	$window->signal_connect(delete_event => sub {
-		Gtk2->main_quit();
+		gui_quite();
 		return TRUE;
 	});
 
 	$window->show_all();
+	
 	return ($table,$tview,$window);
 }
 
@@ -193,39 +178,35 @@ sub build_tree_view{
 	my ($self,$sw)=@_;
 
 	# Directory name, full path
-my $tree_store = Gtk2::TreeStore->new('Glib::String', 'Glib::String');
-my $tree_view = Gtk2::TreeView->new($tree_store);
-my $column = Gtk2::TreeViewColumn->new_with_attributes('', Gtk2::CellRendererText->new(), text => "0");
-$tree_view->append_column($column);
-$tree_view->set_headers_visible(FALSE);
-$tree_view->signal_connect (button_release_event => sub{
-	my $tree_model = $tree_view->get_model();
- 	my $selection = $tree_view->get_selection();
- 	my $iter = $selection->get_selected();
- 	if(defined $iter){
-		my $path = $tree_model->get($iter, 1) ;
-		$path= substr $path, 0, -1;
-		$self->do_save();
-		#print "open $path\n";
-		 $self->load_source($path) if(-f $path);
-	}
-	 return;
-});
+	my ($tree_store,$tree_view) =file_edit_tree();
+	$tree_view->signal_connect (button_release_event => sub{
+		my $tree_model = $tree_view->get_model();
+	 	my $selection = $tree_view->get_selection();
+	 	my $iter = $selection->get_selected();
+	 	if(defined $iter){
+			my $path = $tree_model->get($iter, 1) ;
+			$path= substr $path, 0, -1;
+			$self->do_save();
+			#print "open $path\n";
+			 $self->load_source($path) if(-f $path);
+		}
+		 return;
+	});
 
 
-$tree_view->signal_connect ('row-expanded' => sub {
-	my ($tree_view, $iter, $tree_path) = @_;
- 	my $tree_model = $tree_view->get_model();
-	my ($dir, $path) = $tree_model->get($iter);
+	$tree_view->signal_connect ('row-expanded' => sub {
+		my ($tree_view, $iter, $tree_path) = @_;
+	 	my $tree_model = $tree_view->get_model();
+		my ($dir, $path) = $tree_model->get($iter);
 
-	# for each of $iter's children add any subdirectories
-	my $child = $tree_model->iter_children ($iter);
-	while ($child) {
-  		my ($dir, $path) = $tree_model->get($child, 0, 1);
-  		add_to_tree($tree_view,$tree_store, $child, $dir, $path);
-  		$child = $tree_model->iter_next ($child);
- 	}
-	 return;
+		# for each of $iter's children add any subdirectories
+		my $child = $tree_model->iter_children ($iter);
+		while ($child) {
+	  		my ($dir, $path) = $tree_model->get($child, 0, 1);
+	  		add_to_tree($tree_view,$tree_store, $child, $dir, $path);
+	  		treemodel_next_iter($child , $tree_model);
+	 	}
+		 return;
 });
 
 my $child = $tree_store->append(undef);
@@ -241,26 +222,29 @@ sub build_search_box {
 	my $self = shift;
 
 	# Elements of the search box
-	my $hbox = Gtk2::HBox->new(FALSE, 0);
+	my $hbox = def_hbox(FALSE, 0);
 
-	my $search_entry = Gtk2::Entry->new();
+	my $search_entry = gen_entry();
 	$search_entry->signal_connect(activate => sub {$self->do_search()});
 	$search_entry->signal_connect(icon_release => sub {$self->do_search()});
 	$self->search_entry($search_entry);
 
-	my $search_regexp = Gtk2::CheckButton->new('RegExp');
+	my $search_regexp = gen_checkbutton('RegExp');
 	$search_regexp->signal_connect(toggled => sub {
 		$self->search_regexp($search_regexp->get_active);
 	});
 
-	my $search_case = Gtk2::CheckButton->new('Case');
+	my $search_case = gen_checkbutton('Case');
 	$search_case->signal_connect(toggled => sub {
 		$self->search_case($search_case->get_active);
 	});
 
-	my $search_icon = Gtk2::Button->new_from_stock('gtk-find');
+	
+	
+	my $search_icon = def_image_button("icons/browse.png");
 	$search_entry->set_icon_from_stock(primary => 'gtk-find');
 
+	
 	$hbox->pack_start($search_entry, TRUE, TRUE , 0);
 	$hbox->pack_start($search_regexp, FALSE, FALSE, 0);
 	$hbox->pack_start($search_case, FALSE, FALSE, 0);
@@ -269,44 +253,7 @@ sub build_search_box {
 }
 
 
-sub create_buffer {
-	my $self = shift;
-	my $tags = Gtk2::TextTagTable->new();
 
-	add_tag($tags, search => {
-			background => 'yellow',
-	});
-	add_tag($tags, goto_line => {
-			'paragraph-background' => 'orange',
-	});
-
-	my $buffer = Gtk2::SourceView2::Buffer->new($tags);
-	$buffer->signal_connect('notify::cursor-position' => sub {
-		$self->clear_highlighted();
-	});
-
-	return $buffer;
-}
-
-
-sub add_tag {
-	my ($tags, $name, $properties) = @_;
-
-	my $tag = Gtk2::TextTag->new($name);
-	$tag->set(%{ $properties });
-	$tags->add($tag);
-}
-
-
-sub detect_language {
-	my $self = shift;
-	my ($filename) = @_;
-
-	# Guess the programming language of the file
-	my $manager = Gtk2::SourceView2::LanguageManager->get_default;
-	my $language = $manager->guess_language($filename);
-	$self->buffer->set_language($language);
-}
 
 
 sub load_source {
@@ -390,7 +337,7 @@ sub do_search {
 
 	my @iters;
 	if ($self->search_regexp) {
-		# Gtk2::SourceView2 nor Gtk2::SourceView support regular expressions so we
+		# SourceView does not support regular expressions so we
 		# have to do the search by hand!
 
 		my $text = $self->get_text;
@@ -415,7 +362,7 @@ sub do_search {
 		# Use the builtin search mechanism
 		my $flags = $case ? [ ] : [ 'case-insensitive' ];
 		foreach my $iter (@start) {
-			@iters = Gtk2::SourceView2::Iter->forward_search($iter, $criteria, $flags);
+			#@iters = Gtk3::SourceView::Iter->forward_search($iter, $criteria, $flags);
 			last if @iters;
 		}
 	}
@@ -483,7 +430,7 @@ sub do_file_open {
 	my $self = shift;
 	my ($window, $action, $menu_item) = @_;
 
-	my $dialog = Gtk2::FileSelection->new("Open file...");
+	my $dialog = gen_file_dialog("Open file...");
 	$dialog->signal_connect(response => sub {
 		my ($dialog, $response) = @_;
 
@@ -500,36 +447,21 @@ sub do_file_open {
 
 
 sub do_show_about_dialog {
-	my $self = shift;
-
-	my $dialog = Gtk2::AboutDialog->new();
-	$dialog->set_authors("Emmanuel Rodriguez");
-	$dialog->set_comments("Gtk2::SourceView2 Demo");
-	$dialog->signal_connect(response => sub {
-		my ($dialog, $response) = @_;
-		$dialog->destroy();
-	});
-	$dialog->show();
+	 about(Consts::VERSION);
 }
 
 
 sub do_ask_goto_line {
 	my $self = shift;
-
-	my $dialog = Gtk2::Dialog->new_with_buttons(
-		"Goto to line",
-		$self->window,
-		[ 'modal' ],
-		'gtk-cancel' => 'cancel',
-		'gtk-ok'     => 'ok',
-	);
-
-	my $hbox = Gtk2::HBox->new(FALSE, 0);
+	
+	my $dialog=new_dialog_with_buttons($self);
+	
+	my $hbox =def_hbox(FALSE, 0);
 	$hbox->pack_start(
-		Gtk2::Label->new("Line number: "),
+		gen_label_in_left("Line number: "),
 		FALSE, FALSE, 0
 	);
-	my $entry = Gtk2::Entry->new();
+	my $entry = gen_entry();
 	$hbox->pack_start($entry, TRUE, TRUE, 0);
 
 	$dialog->get_content_area->add($hbox);
@@ -570,11 +502,7 @@ sub do_save_as {
 
 	# If no file is associated with the editor then ask the user for a file where
 	# to save the contents of the buffer.
-	my $dialog = Gtk2::FileChooserDialog->new(
-		"Save file", $self->window, 'save',
-		'gtk-cancel' => 'cancel',
-		'gtk-save'   => 'ok',
-	);
+	my $dialog = save_file_dialog('Save file');
 	if(defined  $sw){
 		$dialog->set_current_folder ($sw); 
 		#print "open_in:$sw\n";
@@ -628,101 +556,29 @@ sub do_save {
 sub build_menu {
 	my ($self,$sw,$window,$tree_view,$tree_store,$scwin_dirs) = @_;
 
-	my $entries = [
-		# name, stock id, label
-		[ "FileMenu",  undef, "_File" ],
-		[ "SearchMenu",  undef, "_Search" ],
-		[ "HelpMenu",  undef, "_Help" ],
 
-		# name, stock id, label, accelerator, tooltip, method
-		[
-			"New",
-			'gtk-new',
-			"_New",
-			"<control>N",
-			"Create a new file",
-			sub { $self->do_file_new($sw,$window,$tree_view,$tree_store,$scwin_dirs) }
-		],
-		[
-			"Open",
-			'gtk-open',
-			"_Open",
-			"<control>O",
-			"Open a file",
-			sub { $self->do_file_open(@_) }
-		],
-		[
-			"Save",
-			'gtk-save',
-			"_Save",
-			"<control>S",
-			"Save current file",
-			sub { $self->do_save(@_) }
-		],
-		[
-			"SaveAs",
-			'gtk-save',
-			"Save _As...",
-			"<control><shift>S",
-			"Save to a file",
-			sub { $self->do_save_as($sw,$window,$tree_view,$tree_store,$scwin_dirs) }
-		],
-		[
-			"Quit",
-			'gtk-quit',
-			"_Quit",
-			"<control>Q",
-			"Quit",
-			sub { $self->do_quit($window) }
-		],
-		[
-			"About",
-			'gtk-about',
-			"_About",
-			undef,
-			"About",
-			sub { $self->do_show_about_dialog(@_) }
-		],
-		[
-			"GotoLine",
-			undef,
-			"Goto to _Line",
-			"<control>L",
-			"Go to line",
-			sub { $self->do_ask_goto_line(@_) }
-		],
-	];
 
-	my $actions = Gtk2::ActionGroup->new("Actions");
-	$actions->add_actions($entries, undef);
+ my @menu_items = (
+  [ "/_File",            undef,        undef,          0, "<Branch>" ],
+  [ "/File/_New",       "<control>N", sub { $self->do_file_new($sw,$window,$tree_view,$tree_store,$scwin_dirs); },  0,  undef ],
+  [ "/File/_Open",      "<control>O", sub { $self->do_file_open(@_) },  0, undef  ],
+  [ "/File/_Save",      "<control>S", sub { $self->do_save(@_)      },  0, undef  ],
+  [ "/File/_SaveAs",	"<control><shift>S", sub { $self->do_save_as($sw,$window,$tree_view,$tree_store,$scwin_dirs)} , 0, undef],
+  [ "/File/_Quit",		"<control>Q", sub { $self->do_quit($window) },  0, undef  ],
+		
+  [ "/_Search",           undef,        undef,          0, "<Branch>" ],
+  [ "/Search/_Goto a Line",  "<control>L", 	sub { $self->do_ask_goto_line(@_)},  0, undef  ],
 
-	my $ui = Gtk2::UIManager->new();
-	$ui->insert_action_group($actions, 0);
-	$ui->add_ui_from_string(<<'__UI__');
-<ui>
-	<menubar name='MenuBar'>
-		<menu action='FileMenu'>
-			<menuitem action='New'/>
-			<menuitem action='Open'/>
-			<separator/>
-			<menuitem action='Save'/>
-			<menuitem action='SaveAs'/>
-			<separator/>
-			<menuitem action='Quit'/>
-		</menu>
-		<menu action='SearchMenu'>
-			<menuitem action='GotoLine'/>
-		</menu>
-		<menu action='HelpMenu'>
-			<menuitem action='About'/>
-		</menu>
-	</menubar>
-</ui>
-__UI__
+  [ "/_Help", 		undef,		undef,          0, 	"<Branch>" ],
+  [ "/_Help/_About",  	"F1", 		sub { $self->do_show_about_dialog(@_) } ,	0,	undef ],
+ 
 
-	$self->window->add_accel_group($ui->get_accel_group);
 
-	return $ui->get_widget('/MenuBar');
+);
+	
+
+	return gen_MenuBar($window,@menu_items);    
+		
 }
 
 
