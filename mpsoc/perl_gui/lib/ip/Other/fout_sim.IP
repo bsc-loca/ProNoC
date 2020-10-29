@@ -1,0 +1,203 @@
+#######################################################################
+##	File: fout_sim.IP
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
+################################################################################
+
+$ipgen = bless( {
+                  'system_c' => '
+FILE file_ptr [50];
+FILE *  fopen   (const char *filename, const char *mode){
+	//alloacte a new pointer;
+	static int file_prtr=0;
+	file_prtr++;  
+
+  file_ptr[file_prtr]=file_prtr;
+	//write file pointer
+	${IP}_GET_FLE_PTR = file_prtr;
+	while (*filename!=0){
+		 fout_GET_FILE_NAME = *filename; 
+		 filename++;
+	}
+	 ${IP}_GET_FILE_NAME = 0; // activate the Verilog Fwrite command
+	
+	return (& file_ptr[file_prtr]); 
+}
+
+
+void foutbyte( char c){	
+	//write content
+	${IP}_GET_FILE_CONTENT = c;	
+}
+
+void fout_select (char * f){
+ 	//write file pointer
+	${IP}_GET_FLE_PTR = *f;
+}
+
+#include "simple-printf/sim_fprintf.c" 
+',
+                  'parameters' => {
+                                    'BUFFER_SIZE' => {
+                                                       'content' => '10,1024,1',
+                                                       'info' => 'Buffer width for getting for getting fle name.',
+                                                       'default' => '255  ',
+                                                       'redefine_param' => 1,
+                                                       'global_param' => 'Parameter',
+                                                       'type' => 'Spin-button'
+                                                     }
+                                  },
+                  'ports' => {
+                               's_sel_i' => {
+                                              'intfc_port' => 'sel_i',
+                                              'range' => '3     :   0',
+                                              'type' => 'input',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               'reset' => {
+                                            'range' => '',
+                                            'type' => 'input',
+                                            'intfc_port' => 'reset_i',
+                                            'intfc_name' => 'plug:reset[0]'
+                                          },
+                               's_dat_i' => {
+                                              'intfc_port' => 'dat_i',
+                                              'type' => 'input',
+                                              'range' => '31       :   0',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               's_ack_o' => {
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'type' => 'output',
+                                              'range' => '',
+                                              'intfc_port' => 'ack_o'
+                                            },
+                               's_cyc_i' => {
+                                              'range' => '',
+                                              'type' => 'input',
+                                              'intfc_port' => 'cyc_i',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               's_addr_i' => {
+                                               'intfc_port' => 'adr_i',
+                                               'range' => '2 : 0',
+                                               'type' => 'input',
+                                               'intfc_name' => 'plug:wb_slave[0]'
+                                             },
+                               's_we_i' => {
+                                             'intfc_name' => 'plug:wb_slave[0]',
+                                             'intfc_port' => 'we_i',
+                                             'type' => 'input',
+                                             'range' => ''
+                                           },
+                               's_dat_o' => {
+                                              'intfc_name' => 'plug:wb_slave[0]',
+                                              'intfc_port' => 'dat_o',
+                                              'type' => 'output',
+                                              'range' => '31       :   0'
+                                            },
+                               's_cti_i' => {
+                                              'type' => 'input',
+                                              'range' => '2     :   0',
+                                              'intfc_port' => 'cti_i',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               's_stb_i' => {
+                                              'intfc_port' => 'stb_i',
+                                              'type' => 'input',
+                                              'range' => '',
+                                              'intfc_name' => 'plug:wb_slave[0]'
+                                            },
+                               'clk' => {
+                                          'intfc_name' => 'plug:clk[0]',
+                                          'intfc_port' => 'clk_i',
+                                          'type' => 'input',
+                                          'range' => ''
+                                        }
+                             },
+                  'parameters_order' => [
+                                          'BUFFER_SIZE'
+                                        ],
+                  'modules' => {
+                                 'fout_simulator' => {}
+                               },
+                  'unused' => {
+                                'plug:wb_slave[0]' => [
+                                                        'err_o',
+                                                        'rty_o',
+                                                        'bte_i',
+                                                        'tag_i'
+                                                      ]
+                              },
+                  'description' => 'A simple module to replicate the fprintf/fopen  instructions in simulator enviremets. ',
+                  'sw_files' => [
+                                  '/mpsoc/src_processor/src_lib/simple-printf'
+                                ],
+                  'gui_status' => {
+                                    'timeout' => 0,
+                                    'status' => 'ideal'
+                                  },
+                  'hdl_files' => [
+                                   '/mpsoc/src_peripheral/Other/fout_simulator.v'
+                                 ],
+                  'ports_order' => [
+                                     'reset',
+                                     'clk',
+                                     's_dat_i',
+                                     's_sel_i',
+                                     's_addr_i',
+                                     's_cti_i',
+                                     's_stb_i',
+                                     's_cyc_i',
+                                     's_we_i',
+                                     's_dat_o',
+                                     's_ack_o'
+                                   ],
+                  'category' => 'Other',
+                  'version' => 17,
+                  'plugs' => {
+                               'clk' => {
+                                          '0' => {
+                                                   'name' => 'clk'
+                                                 },
+                                          'value' => 1,
+                                          'type' => 'num'
+                                        },
+                               'reset' => {
+                                            'type' => 'num',
+                                            'value' => 1,
+                                            '0' => {
+                                                     'name' => 'reset'
+                                                   }
+                                          },
+                               'wb_slave' => {
+                                               '0' => {
+                                                        'width' => 4,
+                                                        'name' => 'wb_slave',
+                                                        'addr' => '0x9000_0000	0x90ff_ffff		UART16550 Controller'
+                                                      },
+                                               'value' => 1,
+                                               'type' => 'num'
+                                             }
+                             },
+                  'file_name' => '/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_peripheral/Other/fout_simulator.v',
+                  'module_name' => 'fout_simulator',
+                  'hdl_files_ticked' => [],
+                  'ip_name' => 'fout_sim',
+                  'system_h' => '#include "simple-printf/sim_fprintf.h" 
+
+#define ${IP}_GET_FLE_PTR					(*((volatile unsigned int *) ($BASE)))
+#define ${IP}_GET_FILE_NAME				(*((volatile unsigned int *) ($BASE+4)))
+#define ${IP}_GET_FILE_CONTENT			(*((volatile unsigned int *) ($BASE+8)))
+
+#define FILE  char
+
+FILE * fopen   (const char *filename, const char *mode);
+void foutbyte(char c);
+void fout_select(FILE * f);'
+                }, 'ip_gen' );

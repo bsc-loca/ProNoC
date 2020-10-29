@@ -27,8 +27,8 @@ server="alireza@84.88.52.232"
 #server_folder_name="mor1k_soc_kc"
 #source_path="/home/alireza/work/hca_git/mpsoc_work/SOC/mor1k_soc_kc"
 
-server_folder_name="kc07_mesh12"
-source_path="/home/alireza/work/git/hca_git/mpsoc_work/MPSOC/kc07_mesh12"
+server_folder_name="kc07_mesh6"
+source_path="/home/alireza/work/git/hca_git/mpsoc_work/MPSOC/kc07_mesh6"
 
 
 
@@ -96,7 +96,7 @@ function compile_vivado {
 }
 
 function program_fpga {
-        cd ~/mpsoc/kc07_mesh12/
+        cd ~/mpsoc/kc07_mesh6/
 	vivado  -mode tcl -source program_board.tcl
 
 }
@@ -119,7 +119,7 @@ function copy_back_from_server {
 	sshpass -p "123qwe@#" scp -r  "$server:mpsoc/$server_folder_name/xilinx_compile/*"  "$source_path/xilinx_compile/"
 }
 
-#copy_sources_all
+copy_sources_all
 
 
 # copy_board_files
@@ -130,5 +130,5 @@ function copy_back_from_server {
 
 
 
-copy_sources_sw
+#copy_sources_sw
 

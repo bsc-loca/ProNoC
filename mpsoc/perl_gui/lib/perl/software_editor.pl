@@ -112,6 +112,8 @@ sub build_gui {
 	$sourceview->set_tab_width(2);
 	$sourceview->set_indent_on_tab(TRUE);
 	$sourceview->set_highlight_current_line(TRUE);
+	
+	
 #	$sourceview->set_draw_spaces(['tab', 'newline']);
 
 	#
@@ -204,7 +206,7 @@ sub build_tree_view{
 		while ($child) {
 	  		my ($dir, $path) = $tree_model->get($child, 0, 1);
 	  		add_to_tree($tree_view,$tree_store, $child, $dir, $path);
-	  		treemodel_next_iter($child , $tree_model);
+	  		$child=treemodel_next_iter($child , $tree_model);
 	 	}
 		 return;
 });

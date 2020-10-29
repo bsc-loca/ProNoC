@@ -815,7 +815,7 @@ sub add_widget_to_scrolled_win{
 	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
 	$scrolled_win->set_policy( "automatic", "automatic" );		
 	$scrolled_win->add_with_viewport($widget) if(defined $widget);	
-	$scrolled_win->set_shadow_type('in');
+	#$scrolled_win->set_shadow_type('in');
 	#$scrolled_win->show_all;	
 	return $scrolled_win;
 }

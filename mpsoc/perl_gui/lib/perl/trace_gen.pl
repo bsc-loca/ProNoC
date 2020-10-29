@@ -216,8 +216,11 @@ sub trace_map_ctrl{
 	my $run_map= def_image_button("icons/enter.png",undef);
 	my $drawmap = def_image_button('icons/trace.png');
 	my $diagram = def_image_button('icons/diagram.png');
-	set_tip($drawmap,'View Task Mapping Diagram');
-	set_tip($diagram,'View Topology Diagram');
+	set_tip($drawmap,'View actor Mapping Diagram') if($mode eq 'orcc');
+	set_tip($drawmap,'View Task Mapping Diagram') if($mode eq 'task');
+	set_tip($diagram,'View Topology Diagram') if($mode eq 'task');
+	set_tip($diagram,'View actor connection Diagram') if($mode eq 'orcc');
+	
 	my $auto = def_image_button('icons/refresh.png');
 	set_tip($auto,'Automatically set the network dimensions according to the task number');	
 	my $clean = def_image_button('icons/clear.png');
@@ -225,7 +228,7 @@ sub trace_map_ctrl{
 	
 	my $box;
 	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$diagram,$clean,$auto) if($mode eq 'task');
-	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$clean) if($mode eq 'orcc');	
+	$box=def_pack_hbox(FALSE,FALSE,$drawmap,$diagram,$clean) if($mode eq 'orcc');	
 	
 	my $col=0;
 	my $row=0;
@@ -236,12 +239,21 @@ sub trace_map_ctrl{
 		($row,$col) =noc_topology_setting_gui($self,$table,$tview,$row,1);
 		
 		$diagram-> signal_connect("clicked" => sub{ 
-        	show_topology_diagram ($self);
+        	show_topology_diagram ($self) ;
     	});
 		
 		
 	}
 	
+	if($mode eq 'orcc'){
+			
+		$diagram-> signal_connect("clicked" => sub{ 
+        	
+        	show_trace_diagram ($self,'merge-actor');
+    	});
+		
+		
+	}
 	
 	
 	

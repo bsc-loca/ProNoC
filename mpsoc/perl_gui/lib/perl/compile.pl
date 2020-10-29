@@ -2104,11 +2104,11 @@ sub  gen_mpsoc_verilator_model{
 		my $tile=$tile_num;
 		my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile);
 		my %params;
-		if ($setting eq 'Custom'){
+		#if ($setting eq 'Custom'){
 			 %params= $top->top_get_custom_soc_param($tile);
-		}else{
-			 %params=$top->top_get_default_soc_param();
-		}
+		#}else{
+		#	 %params=$top->top_get_default_soc_param();
+		#}
 				
 				
 		my $sw_path 	= "$sw_dir/tile$tile_num";

@@ -627,6 +627,21 @@ sub top_add_custom_soc_param{
 		#print"$self->{parameters}{$p}=$l{$p};\n";
 	}	
 }	
+
+
+sub top_get_custom_tile_list{
+	my ($self)=@_;
+	my %tiles_hash;
+	%tiles_hash=%{$self->{'tiles'}} if(defined $self->{'tiles'} );
+	my @tiles = sort keys %tiles_hash;
+	return  @tiles;	 
+}	
+
+
+
+	
+	
+	
 	
 sub top_get_custom_soc_param{
 	my ($self,$tile)=@_;

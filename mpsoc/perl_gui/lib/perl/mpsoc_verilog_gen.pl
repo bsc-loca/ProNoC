@@ -296,11 +296,11 @@ sub  gen_soc_param {
 	my $top=$mpsoc->mpsoc_get_soc($soc_name);
 	my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile_num);
 	my %params;
-	if ($setting eq 'Custom'){
-		 %params= $top->top_get_custom_soc_param($tile_num);
-	}else{
-		 %params=$top->top_get_default_soc_param();
-	}
+	#if ($setting eq 'Custom'){
+	%params= $top->top_get_custom_soc_param($tile_num);
+	#}else{
+	#	 %params=$top->top_get_default_soc_param();
+	#}
 	my $params="\n\t //Parameter setting for $soc_name  located in tile: $tile_num \n";
 	$params{'CORE_ID'}=$tile_num;
 	foreach my $p (get_param_list_in_order(\%params)){
@@ -754,11 +754,11 @@ sub   gen_soc_v{
 			
 			my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile_num);
 			my %topparams;
-			if ($setting eq 'Custom'){
+			#if ($setting eq 'Custom'){
 				 %topparams= $top->top_get_custom_soc_param($tile_num);
-			}else{
-				 %topparams=$top->top_get_default_soc_param();
-			}
+		#	}else{
+			#	 %topparams=$top->top_get_default_soc_param();
+			#}
 		
 		
 			#my $JTAG_CONNECT=$soc->soc_get_module_param_value ($id,'JTAG_CONNECT');

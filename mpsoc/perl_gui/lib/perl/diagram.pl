@@ -319,7 +319,8 @@ sub get_dot_file_text {
 	$dotfile=   get_dot_file($self) if ($type eq 'tile');
 	$dotfile=   get_topology_dot_file($self) if ($type eq 'topology');
 	$dotfile=   generate_custom_topology_dot_file($self) if ($type eq 'custom_topology');	
-	$dotfile=   generate_trace_dot_file($self) if ($type eq 'trace');	
+	$dotfile=   generate_trace_dot_file($self) if ($type eq 'trace');
+	$dotfile=   generate_merge_actor_dot_file	($self) if ($type eq 'merge-actor');
 	$dotfile=   generate_map_dot_file($self) if ($type eq 'map');
 	return $dotfile;	
 }
@@ -551,7 +552,6 @@ $node\[
 
 sub show_trace_diagram {
 	my ($self,$type)=@_;
-
 	my $table=def_table(20,20,FALSE);
 	
 	my $window=def_popwin_size(80,80,"Trace Diagram",'percent');	
@@ -1048,7 +1048,38 @@ sub get_topology_dot_file{
 }
 
 
+sub generate_merge_actor_dot_file{
+	my $self=shift;
+	my $dotfile=
+"digraph G {
+	graph [ layout = neato, rankdir = LR , splines=polyline, overlap = false]; 
+	
+";
+	
 
+	
+#add connections
+
+	my @traces= get_trace_list($self,'merge');
+	my %src_dst;
+	my %dests= get_destport_constant_list ($self,'merge');
+	my %srcs = get_srcport_constant_list  ($self,'merge');
+	
+	
+	
+	foreach my $p (@traces){
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class)
+				=get_trace($self,'merge',$p);
+				
+		
+						
+		$dotfile=$dotfile."\"$src\" -> \"$dst\"  [label=\"$srcs{$src}{$src_port}{$channel}->$dests{$dst}{$dst_port}\" ];\n";	
+	}
+	
+	$dotfile=$dotfile."\n}\n";
+	return $dotfile;
+	
+}
 
 
 

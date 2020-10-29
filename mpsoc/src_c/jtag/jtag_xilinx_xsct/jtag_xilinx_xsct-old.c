@@ -325,14 +325,14 @@ void read_multi_sequence (unsigned * buffer, unsigned int num, unsigned int memo
 
 
 
-int send_binary_file_parts(unsigned * buffer,unsigned int num,unsigned int memory_offset_in_word, unsigned * comp_buff){
-	//FILE *fp;
+int send_binary_file(){
+	FILE *fp;
 	int i=0;	
 	unsigned out;
-	//unsigned int file_size=0;
-	//unsigned int num=0;
-	//unsigned int mem_size;
-	//unsigned int memory_offset_in_word;
+	unsigned int file_size=0;
+	unsigned int num=0;
+	unsigned int mem_size;
+	unsigned int memory_offset_in_word;
 	unsigned * small_buff;
 	int words= (BYTE_NUM % sizeof(unsigned )) ? (BYTE_NUM / sizeof(unsigned ) )+1 : (BYTE_NUM / sizeof(unsigned ));
 
@@ -340,15 +340,22 @@ int send_binary_file_parts(unsigned * buffer,unsigned int num,unsigned int memor
 	unsigned *  read_buff;
 	read_buff  = (unsigned *) calloc(words , sizeof(unsigned ) );
 	
+
 	
-	/*
+	fp = fopen(binary_file_name,"rb");
+	if (!fp) {
+		fprintf (stderr,"Error: can not open %s file in read mode\n",binary_file_name);
+		return -1;
+	}
+	unsigned * buffer;
+	buffer=read_file (fp, &file_size);
 	mem_size=memory_boundary-memory_offset;
 	if(file_size>mem_size){
 		printf("\n\n Warning:  %s file size (%x) is larger than the given memory size (%x). I will stop writing on end of memory address\n\n",binary_file_name,file_size,mem_size);
 		file_size=mem_size;
 	}
 	fclose(fp);
-*/
+
 	//disable the cpu
 	jtag_vir(RD_WR_STATUS);
 	jtag_vdr(BIT_NUM, 0x1, &out);
@@ -357,9 +364,9 @@ int send_binary_file_parts(unsigned * buffer,unsigned int num,unsigned int memor
 	//printf("cpu is disabled.\n");
 
 	// change memory sizes from byte to word	
-	//memory_offset_in_word=memory_offset /BYTE_NUM;
+	memory_offset_in_word=memory_offset /BYTE_NUM;
 	//size of buffer
-	//num= (BYTE_NUM < sizeof(unsigned )) ? file_size /BYTE_NUM : file_size /sizeof(unsigned );
+	num= (BYTE_NUM < sizeof(unsigned )) ? file_size /BYTE_NUM : file_size /sizeof(unsigned );
 
 	
 
@@ -389,13 +396,12 @@ int send_binary_file_parts(unsigned * buffer,unsigned int num,unsigned int memor
 	}
 
 	if(write_verify){
-		/*		
 		if(!(fp = fopen(binary_file_name,"rb"))){  
 			fprintf (stderr,"Error: can not open %s file in read mode\n",binary_file_name);
 			return -1;
 		}
 		buffer=read_file (fp, &file_size);
-		*/
+
 		//fclose(fp);
 		jtag_vir(UPDATE_WB_RD_DATA);
 		jtag_vdr(BIT_NUM,memory_offset_in_word+0, &out);
@@ -405,7 +411,7 @@ int send_binary_file_parts(unsigned * buffer,unsigned int num,unsigned int memor
 		//create jseq for all memory
 		if(BYTE_NUM <= sizeof(unsigned )){
 
-			read_multi_sequence ( comp_buff,  num,  memory_offset_in_word );
+			read_multi_sequence ( buffer,  num,  memory_offset_in_word );
 
 		}
 		else{
@@ -413,8 +419,8 @@ int send_binary_file_parts(unsigned * buffer,unsigned int num,unsigned int memor
 			for(i=2*words;i<num; i+=words){
 				read_buff[0]= memory_offset_in_word+i/words;
 				jtag_vdr_long(BIT_NUM, read_buff, small_buff, words);
-				reorder_buffer(&comp_buff[i-2*words],words);
-				compare_values(&comp_buff[i-2*words],small_buff,words,i/words);
+				reorder_buffer(&buffer[i-2*words],words);
+				compare_values(&buffer[i-2*words],small_buff,words,i/words);
 				 
 			}
 
@@ -469,12 +475,10 @@ int send_binary_file_parts(unsigned * buffer,unsigned int num,unsigned int memor
 			read_multi_sequence ( buffer,  num,  memory_offset_in_word );
 			if(miss != 0){
 						printf ("Error: write verification is failed!\n");
-						return -1;
 			}
 
 		}else{
 			printf ("Error: verification is failed!\n");
-			return -1;
 		}
 
 
@@ -485,50 +489,9 @@ int send_binary_file_parts(unsigned * buffer,unsigned int num,unsigned int memor
 	jtag_vir(RD_WR_STATUS);
 	jtag_vdr(BIT_NUM, 0, &out);
 	//printf ("status=%x\n",out);
-	//free(buffer);
-	return 0;
-}
-
-
-
-int send_binary_file(){
-	FILE *fp;
-	unsigned int file_size=0;
-	unsigned int mem_size;
-	
-	fp = fopen(binary_file_name,"rb");
-	if (!fp) {
-		fprintf (stderr,"Error: can not open %s file in read mode\n",binary_file_name);
-		return -1;
-	}
-	unsigned * buffer;
-	buffer=read_file (fp, &file_size);
-	mem_size=memory_boundary-memory_offset;
-	if(file_size>mem_size){
-		printf("\n\n Warning:  %s file size (%x) is larger than the given memory size (%x). I will stop writing on end of memory address\n\n",binary_file_name,file_size,mem_size);
-		file_size=mem_size;
-	}
-	fclose(fp);
-	
-    unsigned int i,j;
-	unsigned int num,sec;
- 	num= (BYTE_NUM < sizeof(unsigned )) ? file_size /BYTE_NUM : file_size /sizeof(unsigned );
-	
-	unsigned int memory_offset_in_word_sec;
-	memory_offset_in_word_sec=memory_offset /BYTE_NUM;
-	unsigned comp_buff [8192];
-	
-
-	for(i=0;i<num; i+=8192){
-		sec = (num -i)> 8192 ? 8192 : (num -i); 
-		for(j=0;j<sec; j++) comp_buff[j] = buffer[i+j];  
-		if(send_binary_file_parts(&buffer[i], sec, memory_offset_in_word_sec,comp_buff) ==-1) return -1;
-		memory_offset_in_word_sec+=sec;
-	}
-	
 	free(buffer);
 	return 0;
-}	
+}
 
 
 int read_mem(){

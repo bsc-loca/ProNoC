@@ -70,6 +70,9 @@ sub get_soc_list {
                 if($category eq 'NoC') 
                 {
                     my $name=$soc->object_get_attribute('soc_name');            
+                    #get old tile parameter setting 
+                    my $old_top = $mpsoc->mpsoc_get_soc($name);
+                    copy_back_custom_soc_param($top,$old_top) if(defined $old_top);
                     $mpsoc->mpsoc_add_soc($name,$top);
                     #print" $name\n";
                 }        
@@ -83,6 +86,15 @@ sub get_soc_list {
     return $mpsoc->mpsoc_get_soc_list;
 }
 
+sub copy_back_custom_soc_param{
+	my ($new,$old)=@_;
+	my @tiles = $old->top_get_custom_tile_list();
+	foreach my $tile (@tiles){
+		my %l =$old->top_get_custom_soc_param($tile);
+		$new->top_add_custom_soc_param (\%l,$tile);
+	}
+	 
+}	
 
 sub get_NI_instance_list {
     my $top=shift;
@@ -133,8 +145,9 @@ sub get_conflict_decision{
             }
         }
         $mpsoc->mpsoc_add_soc_tiles_num($name,$inserted) if(defined $inserted  );
-        set_gui_status($mpsoc,"ref",1);        
-        $wind->destroy();
+        #set_gui_status($mpsoc,"ref",1);        
+        $wind->destroy();        
+        get_soc_parameter_setting($mpsoc,$name, $inserted)if(defined $inserted  );
             
     });
     
@@ -142,14 +155,15 @@ sub get_conflict_decision{
         my @new= get_diff_array($inserted,$conflicts);    
         $mpsoc->mpsoc_add_soc_tiles_num($name,\@new) if(scalar @new  );
         $mpsoc->mpsoc_add_soc_tiles_num($name,undef) if(scalar @new ==0 );
-        set_gui_status($mpsoc,"ref",1);        
-        $wind->destroy();        
+        #set_gui_status($mpsoc,"ref",1);        
+        $wind->destroy(); 
+        get_soc_parameter_setting($mpsoc,$name, \@new) if(scalar @new  );       
         
     });
     
     $b3->signal_connect( "clicked"=> sub{
         $wind->destroy();        
-            
+        
     });        
 }    
 
@@ -212,14 +226,22 @@ sub check_inserted_ip_nums{
         }#if
     }
     if (defined $conflicts_msg) {
-        get_conflict_decision($mpsoc,$name,\@all_num,\@conflicts,$conflicts_msg);
+       get_conflict_decision($mpsoc,$name,\@all_num,\@conflicts,$conflicts_msg);
+       
         
     }else {
         #save the entered ips
-        if( scalar @all_num>0){ $mpsoc->mpsoc_add_soc_tiles_num($name,\@all_num);}
-        else {$mpsoc->mpsoc_add_soc_tiles_num($name,undef);}
-        set_gui_status($mpsoc,"ref",1);
+        if( scalar @all_num>0){ 
+        	$mpsoc->mpsoc_add_soc_tiles_num($name,\@all_num);
+        	return \@all_num;
+        }
+        else {
+        	$mpsoc->mpsoc_add_soc_tiles_num($name,undef);
+        	return undef;
+        }
+        #set_gui_status($mpsoc,"ref",1);
     }
+    return undef;
 }
 
 
@@ -227,10 +249,25 @@ sub check_inserted_ip_nums{
 # get_soc_parameter_setting
 ################
 
+
+
+
 sub get_soc_parameter_setting{
-    my ($mpsoc,$soc_name,$tile)=@_;
-    
-    my $window = (defined $tile)? def_popwin_size(40,40,"Parameter setting for $soc_name located in tile($tile) ",'percent'):def_popwin_size(40,40,"Default Parameter setting for $soc_name ",'percent');
+    my ($mpsoc,$soc_name,$tiles_ref)=@_;
+    my @tiles = @{$tiles_ref} if defined ($tiles_ref);
+    my $string = join (',',@tiles );
+    my $window =  def_popwin_size(40,40,"Parameter setting for $soc_name mapped to tile( $string ) ",'percent');
+    my $table = get_soc_parameter_setting_table($mpsoc,$soc_name,$window,$tiles_ref);
+	$window->add($table);
+	$window->show_all;
+}
+
+
+sub get_soc_parameter_setting_table{
+    my ($mpsoc,$soc_name,$window,$tiles_ref)=@_;
+    my @tiles;
+    @tiles = @{$tiles_ref} if defined ($tiles_ref);
+   # my $window =  def_popwin_size(40,40,"Parameter setting for $soc_name mapped to tile(@tiles) ",'percent');
     my $table = def_table(10, 7, FALSE);
     
     my $scrolled_win = add_widget_to_scrolled_win($table);
@@ -239,7 +276,7 @@ sub get_soc_parameter_setting{
     my $top=$mpsoc->mpsoc_get_soc($soc_name);
     
     #read soc parameters
-    my %param_value=(defined $tile) ? $top->top_get_custom_soc_param($tile)  : $top->top_get_default_soc_param();
+    my %param_value=(scalar @tiles ==1 ) ? $top->top_get_custom_soc_param($tiles[0])  : $top->top_get_default_soc_param();
     $mpsoc->object_add_attribute('current_tile_param',undef,\%param_value);
      
     my @insts=$top->top_get_all_instances();
@@ -308,29 +345,30 @@ sub get_soc_parameter_setting{
     $mtable->attach_defaults($scrolled_win,0,1,0,9);
     $mtable->attach_defaults($okbox,0,1,9,10);
     
-    $window->add ($mtable);
-    $window->show_all();
+   
     
     $ok-> signal_connect("clicked" => sub{ 
-        $window->destroy;
+        $window->destroy if(defined $window);
         #save new values 
         my $ref=$mpsoc->object_get_attribute('current_tile_param');
 		%param_value=%{$ref};
              
-        if(!defined $tile ) {
-            $top->top_add_default_soc_param(\%param_value);
-            $mpsoc->object_add_attribute('soc_param',"default",\%param_value);      
-        }
-        else {
+       # if(!defined $tile ) {
+        #    $top->top_add_default_soc_param(\%param_value);
+        #    $mpsoc->object_add_attribute('soc_param',"default",\%param_value);      
+       # }
+       # else {
+       	foreach my $tile (@tiles){
             $top->top_add_custom_soc_param(\%param_value,$tile);
             $mpsoc->object_add_attribute('soc_param',"custom_${soc_name}",\%param_value);            
         }
         $mpsoc->object_add_attribute('current_tile_param',undef,undef);
-        #set_gui_status($mpsoc,"refresh_soc",1);
-        #$$refresh_soc->clicked;        
+        set_gui_status($mpsoc,"refresh_soc",1);
+             
         
         });  
-    
+    $mtable->show_all();    
+    return  $mtable;    
 }
 
 ################
@@ -349,14 +387,19 @@ sub tile_set_widget{
     my $remove= def_image_button('icons/cancel.png');
     #my $setting= def_image_button('icons/setting.png','setting');
                 
-    my $button = def_colored_button($soc_name,$num);
+                
+    my $button = def_colored_button($soc_name,$num);    
     $button->signal_connect("clicked"=> sub{
-        get_soc_parameter_setting($mpsoc,$soc_name,undef);        
+       # get_soc_parameter_setting($mpsoc,$soc_name,undef);        
     });        
     
     $set->signal_connect("clicked"=> sub{
         my $data=$entry->get_text();
-        check_inserted_ip_nums($mpsoc,$soc_name,$data);        
+        my $r=check_inserted_ip_nums($mpsoc,$soc_name,$data);
+        if(defined $r){
+        	my @all_num = @{$r};
+        	get_soc_parameter_setting($mpsoc,$soc_name,\@all_num);
+        }        
     });
     
     $remove->signal_connect("clicked"=> sub{
@@ -461,7 +504,8 @@ sub defualt_tilles_setting {
     
     my $lab2=gen_label_help('Define the tile numbers that each IP is mapped to.
 you can add individual numbers or ranges as follow 
-    eg: 0,2,5:10
+    e.g. individual numbers: 5,6,7,8,9,10
+    e.g. range: 5:10 
     ', ' Tile numbers ');
     if($show){
         $table->attach_defaults ($lab1 ,0,1, $row,$row+1);
@@ -1461,8 +1505,34 @@ sub get_tile{
     }
     
     $button->signal_connect("clicked" => sub{ 
-        my $window = def_popwin_size(40,40,"Parameter setting for Tile $tile ",'percent');
-        my $table = def_table(6, 2, TRUE);
+       get_tile_setting ($mpsoc,$tile);
+    });    
+  
+    #$button->show_all;
+    return $button;
+}
+
+sub define_empty_param_setting {
+	my ($mpsoc,$window)=@_;
+	my $ok = def_image_button('icons/select.png','OK');
+    my $okbox=def_hbox(TRUE,0);
+    $okbox->pack_start($ok, FALSE, FALSE,0);
+    $ok-> signal_connect("clicked" => sub{ 
+             set_gui_status($mpsoc,"refresh_soc",1);
+             $window->destroy;          
+        
+     });
+     my $param_table = def_table(1, 1, TRUE);
+	 $param_table->attach_defaults($okbox,0,1,3,4);
+	 return $param_table;
+	
+	
+}
+
+sub get_tile_setting {
+		my($mpsoc,$tile)=@_;
+		my $window = def_popwin_size(50,40,"Parameter setting for Tile $tile ",'percent');
+        my $table = def_table(6, 2, FALSE);
     
         my $scrolled_win = add_widget_to_scrolled_win($table);
         my $row=0;
@@ -1473,66 +1543,35 @@ sub get_tile{
         my $pos=(defined $soc_name)? get_scolar_pos($soc_name,@list): 0;
         my $combo=gen_combo(\@list, $pos);
         my $lable=gen_label_in_left("  Processing tile name:");
-        $table->attach_defaults($lable,0,3,$row,$row+1);
-        $table->attach_defaults($combo,3,7,$row,$row+1);$row++;
-		add_Hsep_to_table($table,0,7,$row);$row++;
+        $table->attach($lable,0,2,$row,$row+1,'shrink','shrink',2,2);
+        $table->attach($combo,2,3,$row,$row+1,'shrink','shrink',2,2);$row++;
+		add_Hsep_to_table($table,0,3,$row);$row++;
+		$soc_name = ' ' if (!defined $soc_name);
+        my $param_table =  ($soc_name eq ' ')? define_empty_param_setting($mpsoc,$window) :
+     		  get_soc_parameter_setting_table($mpsoc,$soc_name,$window,[$tile]); 
      
-        my $ok = def_image_button('icons/select.png','OK');
-        my $okbox=def_hbox(TRUE,0);
-        $okbox->pack_start($ok, FALSE, FALSE,0);
-        
-        my $param_setting=$mpsoc->mpsoc_get_tile_param_setting($tile);
-        @list=('Default','Custom');
-        $pos=(defined $param_setting)? get_scolar_pos($param_setting,@list): 0;
-        my $nn=(defined $soc_name)? $soc_name : 'soc';
-        my ($box2,$combo2)=gen_combo_help("Default: the tail will get the default parameter setting of $nn.\n Custom: it will allow custom parameter  setting for this tile only." , \@list, $pos);
-        my $lable2=gen_label_in_left("  Parameter Setting:");
-        $table->attach_defaults($lable2,0,3,$row,$row+1);
-        $table->attach_defaults($box2,3,7,$row,$row+1);$row++;
-        $combo2->signal_connect('changed'=>sub{
-            my $in=$combo2->get_active_text();
-            $mpsoc->mpsoc_set_tile_param_setting($tile,$in);
-                
-        
-        });
-       
-        $combo->signal_connect('changed'=>sub{
+     	$table->attach_defaults($param_table,0,3,2,3);
+     	
+     	
+     	$combo->signal_connect('changed'=>sub{
             my $new_soc=$combo->get_active_text();
             if ($new_soc eq ' '){
                 #unconnect tile
                 $mpsoc->mpsoc_set_tile_free($tile);
+                $param_table->destroy;
+                $param_table=  define_empty_param_setting($mpsoc,$window); 
+                $table->attach_defaults($param_table,0,3,2,3);
+                $window->show_all;
             }else {
                 $mpsoc->mpsoc_set_tile_soc_name($tile,$new_soc);
+                $param_table->destroy;
+                $param_table =  get_soc_parameter_setting_table($mpsoc,$new_soc,$window,[$tile]); 
+                $table->attach_defaults($param_table,0,3,2,3);
+                $window->show_all;
             }
         });
-     
-        my $mtable = def_table(10, 1, TRUE);
-        $mtable->attach_defaults($scrolled_win,0,1,0,9);
-        $mtable->attach_defaults($okbox,0,1,9,10);
-        $window->add ($mtable);
-        $window->show_all();
-    
-        $ok-> signal_connect("clicked" => sub{ 
-           
-            set_gui_status($mpsoc,"refresh_soc",1);
-            my $soc_name=$combo->get_active_text();
-            my $setting=$combo2->get_active_text();
-			$window->destroy;    
-			if ($soc_name ne ' ' && $setting ne 'Default'){
-				        	
-				get_soc_parameter_setting ($mpsoc,$soc_name,$tile);
-            
-            }
-            #save new values 
-            #$top->top_add_default_soc_param(\%param_value);
-            #set_gui_status($mpsoc,"refresh_soc",1);
-            #$$refresh_soc->clicked;
-        
-            });
-    });    
-  
-    #$button->show_all;
-    return $button;
+        $window->add($scrolled_win);
+        $window->show_all;
 }
 
 
@@ -1711,11 +1750,11 @@ sub get_tile_peripheral_patameter {
 				
 				my  %params;
 				my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile_num);
-				if ($setting eq 'Custom'){
+				#if ($setting eq 'Custom'){
 					%params= $top->top_get_custom_soc_param($tile_num);
-				}else{
-					%params=$top->top_get_default_soc_param();
-				}
+				#}else{
+				#	%params=$top->top_get_default_soc_param();
+				#}
 				return $params{"${name}_$param_name"};
 			}	
 		}
@@ -2692,11 +2731,11 @@ my ($NE, $NR, $RAw, $EAw, $Fw)= get_topology_info ($mpsoc);
 			
 			
 		my $setting=$mpsoc->mpsoc_get_tile_param_setting($tile_num);
-		if ($setting eq 'Custom'){
+		#if ($setting eq 'Custom'){
 			 %params= $top->top_get_custom_soc_param($tile_num);
-		}else{
-			 %params=$top->top_get_default_soc_param();
-		}
+		#}else{
+		#	 %params=$top->top_get_default_soc_param();
+		#}
 		
 		foreach my $p (sort keys %params){
 			$params{$p}=add_instantc_name_to_parameters(\%params,"T$tile_num",$params{$p});	
