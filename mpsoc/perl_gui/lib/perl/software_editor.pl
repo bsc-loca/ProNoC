@@ -65,11 +65,11 @@ sub build_gui {
 
 
 	my $hpaned = gen_hpaned($scwin_dirs,0.15,$scwin_text);
-	my $vpaned = gen_vpaned($hpaned,0.5,$scwin_info);
+	my $vpaned = gen_vpaned($hpaned,0.6,$scwin_info);
 
 	$table->attach_defaults ($vpaned,0, 10, 0,1);
 
-	my $window = def_popwin_size (80,80,'Source Editor','percent');
+	my $window = def_popwin_size (84,84,'Source Editor','percent');
 	
 	
 	if (defined $pages_ref){
@@ -156,6 +156,14 @@ sub build_gui {
 	});
 
 	my $scroll = add_widget_to_scrolled_win($sourceview);
+	
+	
+	
+	
+	
+	
+	
+	
 	$vbox->pack_start($scroll, TRUE, TRUE, 0);
 
 
@@ -181,10 +189,13 @@ sub build_tree_view{
 
 	# Directory name, full path
 	my ($tree_store,$tree_view) =file_edit_tree();
+	
 	$tree_view->signal_connect (button_release_event => sub{
+		
 		my $tree_model = $tree_view->get_model();
 	 	my $selection = $tree_view->get_selection();
 	 	my $iter = $selection->get_selected();
+	 		
 	 	if(defined $iter){
 			my $path = $tree_model->get($iter, 1) ;
 			$path= substr $path, 0, -1;
@@ -200,18 +211,26 @@ sub build_tree_view{
 		my ($tree_view, $iter, $tree_path) = @_;
 	 	my $tree_model = $tree_view->get_model();
 		my ($dir, $path) = $tree_model->get($iter);
-
+		
 		# for each of $iter's children add any subdirectories
 		my $child = $tree_model->iter_children ($iter);
-		while ($child) {
+		
+		
+		my $r;
+		$r=$tree_model->iter_is_valid($child);
+		while ($child && $r ==1) {
+						
 	  		my ($dir, $path) = $tree_model->get($child, 0, 1);
 	  		add_to_tree($tree_view,$tree_store, $child, $dir, $path);
 	  		$child=treemodel_next_iter($child , $tree_model);
+	  		$r=$tree_model->iter_is_valid($child);
+	  		
 	 	}
 		 return;
 });
 
 my $child = $tree_store->append(undef);
+	
 $tree_store->set($child, 0, $sw, 1, '/');
 add_to_tree($tree_view,$tree_store, $child, '/', "$sw/");
 return ($tree_view,$tree_store);
@@ -338,7 +357,8 @@ sub do_search {
 	push @start, $buffer->get_start_iter;
 
 	my @iters;
-	if ($self->search_regexp) {
+	#if ($self->search_regexp) {
+	if(1){	
 		# SourceView does not support regular expressions so we
 		# have to do the search by hand!
 
@@ -518,7 +538,7 @@ sub do_save_as {
 		$self->do_save();
 		$tree_view->destroy;
 		($tree_view,$tree_store) =$self->build_tree_view($sw);
-		$scwin_dirs->add($tree_view);
+		add_widget_to_scrolled_win($tree_view,$scwin_dirs);
 		$scwin_dirs->show_all;
 		$self->load_source($file);
 		
@@ -590,8 +610,10 @@ sub add_to_tree {
 my $tree_model = $tree_view->get_model();
 
 # If $parent already has children, then remove them first
+ 
  my $child = $tree_model->iter_children ($parent);
  while ($child) {
+  
   $tree_store->remove ($child);
   $child = $tree_model->iter_children ($parent);
  }
@@ -603,7 +625,10 @@ my $tree_model = $tree_view->get_model();
                                    # and -d $path.$subdir and -r $path.$subdir
 ) {
    my $child = $tree_store->append($parent);
-   $tree_store->set($child, 0, $subdir, 1, "$path$subdir/");
+ 
+   
+   $tree_store->set($child, 0, $subdir, 1, "$path$subdir/") ;
+   
   }
  }
  closedir(DIRHANDLE);
@@ -612,7 +637,7 @@ my $tree_model = $tree_view->get_model();
 
 # Directory expanded. Populate subdirectories in readiness.
 
-sub populate_tree {
+sub populate_treeo {
 
 # $iter has been expanded
  my ($tree_view,$tree_store, $iter, $tree_path) = @_;

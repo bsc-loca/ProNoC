@@ -465,11 +465,32 @@ generate
 endgenerate
 
 // synthesis translate_off 
-always @(posedge clk) begin // A master seding a request to an unregistered address
-	if ((|m_cyc_i_all==1'b1) && (|s_sel_one_hot==1'b0)) begin 
-		$display ("Warnning: A master seding a request to an unregistered wishbone address range: %h.  %m",m_grant_addr);
-	end
-end
+
+    wire sel_is_one_hot;
+    is_one_hot #(
+        .INw(S)
+    )
+    check_one_hot
+    (
+        .in(s_sel_one_hot),
+        .result(sel_is_one_hot)  
+    
+    );    
+
+
+    always @(posedge clk) begin //set error message when a master is seding a request to an unregistered address or multiple slaves match the address range
+	   if (|m_cyc_i_all==1'b1) begin 
+	       if (|s_sel_one_hot==1'b0) begin 
+		      $display ("Error: A master is seding a request to an unregistered wishbone address range: %h.  %m",m_grant_addr);
+	       end	else if(sel_is_one_hot==1'b0) begin 
+	          $display ("Error: Multiple slaves match with the given address range: %b.  %m",sel_is_one_hot);
+           end
+	   end
+    end
+    
+    
+   
+    
 // synthesis translate_on
 
 endmodule
@@ -532,6 +553,46 @@ module bus_arbiter # (
     );
 
 
+endmodule
 
+
+
+module  is_one_hot #(
+    parameter INw= 20
+)
+(
+    in,
+    result         
+);
+
+    function integer log2;
+      input integer number; begin   
+         log2=(number <=1) ? 1: 0;    
+         while(2**log2<number) begin    
+            log2=log2+1;    
+         end       
+      end   
+    endfunction // log2 
+    
+    
+    input [INw-1  :   0] in;
+    output result;
+    
+    localparam Aw = log2(INw+1);   
+  
+    reg [Aw-1 :   0] sum;   
+   
+  
+  // This is supposed to be synyhesized as "sum=in[0]+in[1]+...in[Num-1]"; 
+  // It works with Quartus, Verilator and Modelsim compilers  
+    integer k; 
+    always @(*)begin 
+        sum=0;
+        for (k=0;k<INw;k=k+1)begin        
+             sum= sum + {{(Aw-1){1'b0}},in[k]};        
+        end   
+    end
+    
+    assign result = (sum ==1);
 
 endmodule

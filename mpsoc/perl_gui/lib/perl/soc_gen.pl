@@ -660,7 +660,7 @@ sub show_active_dev{
 	my $box= def_table (1, 1, FALSE);
 	my $dev_table = generate_dev_table($soc,$ip,$infc,$info);
 	my $scrolled_win = gen_scr_win_with_adjst($soc,'device_win_adj');
-	$scrolled_win->add_with_viewport($dev_table);
+	add_widget_to_scrolled_win($dev_table,$scrolled_win);
 	return $scrolled_win;
 
 }	
@@ -975,7 +975,9 @@ sub get_wb_address	{
 			if (($base <= $taken_base && $end >= $taken_base ) || ($base <= $taken_end && $end >= $taken_end )){
 			#if (!(($base < $taken_base && $end < $taken_end ) || ($base > $taken_base && $end > $taken_end ))){
 				 $conflict=1;
-				 $base=$taken_end+1;
+				 $base+=(1 << $width)while($base<$taken_end);
+				# $base=$taken_end+1;
+				 
 				 $end= $base+(1 << $width)-1;				 
 				 last;
 				 
@@ -1516,6 +1518,13 @@ sub software_edit_soc {
 		$load= show_gif("icons/load.gif");
         $table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0);
         $load->show_all; 
+		unless (run_make_file($sw,$tview,'clean')){
+        	$load->destroy;    
+        	$load=def_icon("icons/cancel.png");
+        	$table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 
+        	$load->show_all; 
+        	return;
+        };
 		unless (run_make_file($sw,$tview)){
 			$load->destroy;    
         	$load=def_icon("icons/cancel.png");

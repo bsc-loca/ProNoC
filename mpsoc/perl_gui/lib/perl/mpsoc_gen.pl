@@ -1635,7 +1635,7 @@ sub show_reqired_brams{
 	my $win=def_popwin_size (50,50,"BRAM info", 'percent');
 	my $sc_win = gen_scr_win_with_adjst($self,'liststore');
 	my $table= def_table(10,10,FALSE);
-	$sc_win->add_with_viewport($table);	
+	add_widget_to_scrolled_win($table,$sc_win);	
 	my $row=0;
 	my $col=0;		
 	
@@ -2029,7 +2029,7 @@ sub linker_setting{
 	});
 	
 	
-	$sc_win->add_with_viewport($main_table);
+	add_widget_to_scrolled_win($main_table,$sc_win);
 	$win->add($sc_win);
 	$win->show_all();	
 	
@@ -2972,10 +2972,10 @@ sub mpsocgen_main{
         elsif( $state ne "ideal" ){
             $noc_conf_box->destroy();
             $noc_conf_box=get_config ($mpsoc,$info);
-            $scr_conf->add_with_viewport($noc_conf_box);
+            add_widget_to_scrolled_win($noc_conf_box,$scr_conf);
             $noc_tiles->destroy();
             $noc_tiles=gen_tiles($mpsoc);
-            $scr_tile->add_with_viewport($noc_tiles);
+            add_widget_to_scrolled_win($noc_tiles,$scr_tile);
             $h1 -> pack1($scr_conf, TRUE, TRUE);     
             $h1 -> pack2($scr_tile, TRUE, TRUE);         
             $v2-> pack1($h1, TRUE, TRUE);     

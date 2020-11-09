@@ -384,7 +384,7 @@ sub show_port_info{
 		$table->destroy;
 		$table = port_info_box($intfc,$ipgen,$info,$info);
 		
-		$scrolled_win->add_with_viewport($table);
+		add_widget_to_scrolled_win($table,$scrolled_win);
 		$table->show;
 		$scrolled_win->show_all;
 		

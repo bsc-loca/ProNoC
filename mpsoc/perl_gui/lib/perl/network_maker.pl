@@ -1675,7 +1675,7 @@ sub routing_summary{
 	my $list=	gen_list_store (\@data,\@clmn_type,\@clmns);
 
 
-	$sc_win->add_with_viewport($list);
+	add_widget_to_scrolled_win($list,$sc_win);
 	
 	my $charts =  gen_routing_charts($self,$info);
 	
@@ -2913,8 +2913,16 @@ sub save_topology_parameter_object_file{
 }
 
 
+sub get_path_route_widgets {
+	my 	($self,$info)=@_;
 
-
+	my 		$w1 = show_paths_between_two_endps($self,$info);
+	my		$w2 = routing_summary($self,$info);
+    my $h=gen_hpaned($w1,.15,$w2);
+    $h -> pack1($w1, TRUE, TRUE); 
+	$h -> pack2($w2, TRUE, TRUE); 
+	return $h;
+}
 
 
 sub build_network_maker_gui {
@@ -3042,10 +3050,7 @@ sub build_network_maker_gui {
 	
 	});	
 		
-	my $w1 = def_table(2,10,FALSE);
-	my $w2 = def_table(2,10,FALSE);
 	
-	my $h2=gen_hpaned($w1,.15,$w2);
 	
 	#check soc status every 0.5 second. refresh device table if there is any changes 
 	Glib::Timeout->add (100, sub{ 
@@ -3064,65 +3069,55 @@ sub build_network_maker_gui {
 		}
 		
 		if($state eq "ref" || $state eq "redraw"){
-			my $back= $h2;
+			
 			my $page_num=$self->object_get_attribute ("process_notebook","currentpage");
 			if($state eq "ref"){
 				if($page_num==0){
 					$page0->destroy;
 					$page0=take_node_num_page($self);
-					$page0_win->add_with_viewport($page0);
+					add_widget_to_scrolled_win($page0,$page0_win);
 					$page0_win->show_all;
 					
 				}
 				if($page_num==1){
 					$page1->destroy;
 					$page1=take_instance_page($self);
-					$page1_win->add_with_viewport($page1);
+					add_widget_to_scrolled_win($page1,$page1_win);
 					$page1_win->show_all;
 				}
 				if($page_num==2){
 					$page2->destroy;
 					$page2=connection_page_auto($self,$info);
-					$page2_win->add_with_viewport($page2);
+					add_widget_to_scrolled_win($page2,$page2_win);
 					$page2_win->show_all;
 				}
 				if($page_num==3){
 					$page3->destroy;
 					$page3=connection_page($self,$info);
-					$page3_win->add_with_viewport($page3);
+					add_widget_to_scrolled_win($page3,$page3_win);
 					$page3_win->show_all;
 				}
 				if($page_num==4){
 					$page4->destroy;
 					$page4=routing_page_manual($self,$info);
-					$page4_win->add_with_viewport($page4);
+					add_widget_to_scrolled_win($page4,$page4_win);
 					$page4_win->show_all;
 				}
-			#	if($page_num==5){
-			#		$page5->destroy;
-			#		$page5=routing_page_auto($self,$info);
-			#		$page5_win->add_with_viewport($page5);
-			#		$page5_win->show_all;
-			#	}
-				
+						
 			}
-			$draw->destroy;
-			$w1 ->destroy;
-			$w2 ->destroy;
+			
+			
+			
 			
 			if($page_num==4  ){
-				
-				$w1 = show_paths_between_two_endps($self,$info);
-				$w2 = routing_summary($self,$info);
-				
-				$back -> pack1($w1, TRUE, TRUE); 
-				$back -> pack2($w2, TRUE, TRUE); 
-				
-				$h1 -> pack2($back, TRUE, TRUE);   	
+				$draw->destroy;
+				$draw = get_path_route_widgets($self,$info);
+				$h1 -> pack2($draw, TRUE, TRUE);       	
 				
 				
 			}else{
-				$h2-> destroy; 
+				
+				$draw->destroy;
 				$draw=custom_topology_diagram($self);
 				$h1 -> pack2($draw, TRUE, TRUE);    
 			}			

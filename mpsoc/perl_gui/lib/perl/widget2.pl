@@ -5,6 +5,7 @@ use warnings;
 
 use Data::Dumper;
 use Gtk2::SourceView2;
+use Consts;
 
 require "common.pl"; 
 
@@ -19,7 +20,8 @@ use HexSpin2;
 use Gtk2::Pango;
 #use Tk::Animation;
 
-
+our $FONT_SIZE;
+our $ICON_SIZE;
 
 ##############
 # combo box
@@ -375,11 +377,13 @@ sub button_box{
 
 sub get_icon_pixbuff{
     my $icon_file=shift;
-	my $font_size=get_defualt_font_size();
-	my $size=($font_size==10)? 25:
-		     ($font_size==9 )? 22:
-			 ($font_size==8 )? 18:
-			 ($font_size==7 )? 15:12 ;
+	my $size;
+    if ($ICON_SIZE eq 'default'){
+   		my $font_size=get_defualt_font_size();
+		$size=($font_size *2.5);
+    }else{
+    	$size = int ($ICON_SIZE);
+    }
 	my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($icon_file,$size,$size,FALSE);
 	return $pixbuf;
 }
@@ -785,6 +789,8 @@ sub max_win_size{
 
 
 sub get_defualt_font_size{
+	return int($FONT_SIZE) if ($FONT_SIZE ne 'default');
+	
 	my($width,$hight)=max_win_size();
 	#print "($width,$hight)\n";
 	my $font_size=($width>=1600)? 10:
@@ -811,9 +817,11 @@ __
 
 
 sub add_widget_to_scrolled_win{
-	my $widget =shift;
-	my $scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );		
+	my ($widget,$scrolled_win) =@_;
+	if(! defined $scrolled_win){
+		$scrolled_win = new Gtk2::ScrolledWindow (undef, undef);
+		$scrolled_win->set_policy( "automatic", "automatic" );			
+	}	
 	$scrolled_win->add_with_viewport($widget) if(defined $widget);	
 	#$scrolled_win->set_shadow_type('in');
 	#$scrolled_win->show_all;	
@@ -1818,6 +1826,8 @@ sub about {
     $about->set_website('http://opencores.org/project,an-fpga-implementation-of-low-latency-noc-based-mpsoc');
     $about->set_comments('NoC based MPSoC generator.');
     $about->set_program_name('ProNoC');
+    my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale("icons/ProNoC.png",50,50,FALSE);
+    $about->set_logo($pixbuf);
 
     $about->set_license(
                  "This program is free software; you can redistribute it\n"

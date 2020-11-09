@@ -508,7 +508,7 @@ sub genereate_output_orcc{
 		my $main_def=""; 
 		my $main_fifo_def="";
 		my $main_fifo_assign="";
-		my $main_fifo_rst_ptr="void rest_all_fifo_ptr(void){\n";
+		my $main_fifo_rst_ptr="void reset_all_fifo_ptr(void){\n";
 		
 		my $all_got_packet_function="";	
 		my $all_sent_packet_done_function="";	
@@ -648,6 +648,9 @@ void ${actor}_init_actor (schedinfo_t * si) {
 #define ${src_port}_ch${channel}_start_index ${actor}_${src_port}->read_inds[$channel]
 #define ${src_port}_ch${channel}_start_index_in_byte (${src_port}_ch${channel}_start_index << ${actor}_${src_port}_size_shift)
 #define ${src_port}_ch${channel}_has_data_to_send    (${src_port}_end_index > ${src_port}_ch${channel}_start_index)	
+#define ${src_port}_ch${channel}_data_to_send_size   (${src_port}_end_index - ${src_port}_ch${channel}_start_index)	
+ 
+
 static unsigned int ${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in_byte;	
 static unsigned int ${src_port}_ch${channel}_send_data;
 ";
@@ -672,7 +675,11 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 	
 	if(oport == ${src_port}_ch${channel}_src_port_num){ 
 		${src_port}_ch${channel}_start_index= ${src_port}_ch${channel}_start_index+ (${src_port}_ch${channel}_send_data>>${actor}_${src_port}_size_shift);			
-		//${src_port}_ch${channel}_credit-=${src_port}_ch${channel}_send_data;
+		#ifdef ORC_DEBUG_EN
+		if (${src_port}_ch${channel}_data_to_send_size >  SIZE_${src_port}){
+			printf (\"Error the waiting data in ${src_port} quque (\%u) is larger than the queue size (\%u)\\n\",${src_port}_ch${channel}_data_to_send_size,SIZE_${src_port} );			  
+		}	
+		#endif
 		return 1;
 	}	
 	
@@ -751,15 +758,20 @@ static unsigned int index_${dst_port}_sender;
 #define ${dst_port}_queu_pointer (unsigned int)&tokens_${dst_port}[0]
 #define ${dst_port}_queue_size_in_byte  (SIZE_${dst_port} << ${actor}_${dst_port}_size_shift)	
 #define ${dst_port}_start_index_in_byte	((${actor}_${dst_port}->write_ind % SIZE_${dst_port})<< ${actor}_${dst_port}_size_shift)
+#define ${dst_port}_data_num_to_process (${actor}_${dst_port}->write_ind -${actor}_${dst_port}->read_inds[0]) 
 ";
 			
 			
 	$crdit_update=$crdit_update."
 	if( ${dst_port}_has_credit_to_send){
 		if((${ni_name}_send_is_busy(${dst_port}_credit_v)==0) && (oport_array[${dst_port}_credit_v]==255) ){  // (${ni_name}_packet_is_sent(${dst_port}_credit_v)==0)){
-		
-			credit_send_buff= ((${dst_port}_src_port_num <<16) |  (SIZE_$dst_port-(numTokens_${dst_port} - index_${dst_port}) )); // most significant 16 bits indicates the port, list  significant 16 bits are credit in word 
-			
+			credit_num  = (SIZE_${dst_port} - ${dst_port}_data_num_to_process)& 0xFFFF;				
+			credit_send_buff= ( (${dst_port}_src_port_num <<16) |  credit_num ); // most significant 16 bits indicates the port, list  significant 16 bits are credit in word 
+			#ifdef ORC_DEBUG_EN
+				if(${dst_port}_data_num_to_process > SIZE_${dst_port}){
+					printf(\"Error ${dst_port}_data_num_to_process (\%u) is larger than SIZE_${dst_port} (\%u)\\n\",${dst_port}_data_num_to_process,SIZE_${dst_port});
+				}
+			#endif
 			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index_in_byte, ${dst_port}_credit_dest_phy_addr, 5,${dst_port}_credit_dest_port, &tmp1,&tmp2 ) ){
 				index_${dst_port}_sender=index_${dst_port};					
 			}		 
@@ -777,6 +789,12 @@ static unsigned int index_${dst_port}_sender;
 	$actor_check_pck_func =$actor_check_pck_func."	
 	if(iport==${dst_port}_dst_port_num){
 		${actor}_${dst_port}->write_ind = ${actor}_${dst_port}->write_ind + (size >> ${actor}_${dst_port}_size_shift);								
+		#ifdef ORC_DEBUG_EN
+		unsigned int diff = ${actor}_${dst_port}->write_ind - ${actor}_${dst_port}->read_inds[0];
+		if(diff > SIZE_${dst_port})\{
+			printf (\"Error in ${actor}_${dst_port}: Write_index(\%u) - Read_index(\%u) is larger than queue size (\%u)\\n\",${actor}_${dst_port}->write_ind , ${actor}_${dst_port}->read_inds[0],SIZE_${dst_port});     
+		}
+		#endif
 		return 1; 		
 	}						
 	";
@@ -802,6 +820,9 @@ $actor_h=$actor_h."void ${actor}_scheduler(schedinfo_t *);\n";
 $actor_h=$actor_h."char ${actor}_got_packet_function(unsigned char , unsigned int);\n";		
 $all_got_packet_function=$all_got_packet_function."\t\t\t\t${actor}_got_packet_function(iport,i);\n";		
 $actor_got_pck_func=$actor_got_pck_func."
+	#ifdef ORC_DEBUG_EN
+	printf(\"Wrong got pck port \%u\\n\",iport);
+	#endif
 	return 0;
 }	
 ";
@@ -809,18 +830,27 @@ $actor_got_pck_func=$actor_got_pck_func."
 $actor_h=$actor_h."char ${actor}_check_packet_function(unsigned char,unsigned int);\n";
 $all_check_packet_function = $all_check_packet_function."\t\t\t\t${actor}_check_packet_function(iport,size);\n";
 $actor_check_pck_func=$actor_check_pck_func."
+	#ifdef ORC_DEBUG_EN
+	printf(\"Wrong check pck  port \%u\\n\",iport);
+	#endif
 	return 0;
 }	
 ";
 $actor_h=$actor_h."char ${actor}_sent_packet_done_function(unsigned char);\n";
 $all_sent_packet_done_function = $all_sent_packet_done_function."\t\t\t\t${actor}_sent_packet_done_function(oport);\n";
 $actor_sent_pck_done_func=$actor_sent_pck_done_func."
+	#ifdef ORC_DEBUG_EN
+	printf(\"Wrong sent done  port \%u\\n\",oport);
+	#endif
 	return 0;
 }
 ";
 $actor_h=$actor_h."char ${actor}_update_credit(unsigned int, unsigned int);\n";
 $all_update_credit=$all_update_credit."\t\t\t\t${actor}_update_credit(credit_port,credit_value);\n";
 $actor_update_credit =$actor_update_credit."	
+	#ifdef ORC_DEBUG_EN
+	printf(\"Wrong ${actor} Credit port \%u\\n\",credit_port);
+	#endif
 	return 0;
 }
 ";		
@@ -837,20 +867,25 @@ $actor_h=$actor_h."void ${actor}_run_actor(schedinfo_t * si);\n";
 $all_run_actor=$all_run_actor."\t\t${actor}_run_actor(&si);\n";	
 #$all_run_actor=$all_run_actor.$actor_local_connect if(defined $actor_local_connect);
 
+my $t = (length  $crdit_update > 10  )? "unsigned int tmp1,tmp2,credit_num;" : ""; 
+
 my $actor_run="
 void ${actor}_run_actor (schedinfo_t * si) { 
 	
 	unsigned int credit_send_buff;
 	
 	//run schedular
+	
+	// int_disable(${ni_name}_INT_PIN);
 $schedul
-		
+ 	
 	//check if input ports have credit update to send
-	unsigned int tmp1,tmp2;
+	$t
 	$crdit_update  
 		
 	//check if output port has data to send
-	$transfer_str 		
+	$transfer_str 
+	//int_enable(${ni_name}_INT_PIN);			
 }
 ";
 
@@ -892,6 +927,8 @@ $schedul
    
    print $fc " // Generated from $actor_file\n";
   
+   my $debug = 	$self->object_get_attribute("map_param","add_debug");
+   $debug = ($debug eq '1\'b1')? '#define ORC_DEBUG_EN' : " ";
    
    print $fc "  
 #include <stddef.h>    
@@ -899,8 +936,10 @@ $schedul
 #include \"orcc_lib.h\"
 #include \"../../phy_addr.h\"
 
+$debug
+
 extern unsigned int  transfer_manage (unsigned int, unsigned int, unsigned int, unsigned char, unsigned int, unsigned int, unsigned int,  unsigned int, unsigned int, unsigned int, unsigned char, unsigned int *, unsigned int *);
-extern unsigned char oport_array [${ni_name}_NUM_VCs];
+extern volatile unsigned char oport_array [${ni_name}_NUM_VCs];
 
 ";
   
@@ -970,7 +1009,7 @@ extern unsigned char oport_array [${ni_name}_NUM_VCs];
 	    	 		
 	    	 		$origen_fuctions= $origen_fuctions . "$line \n";
 	    	 		
-	    	 		  	 		
+	    	 		#$main_fifo_rst_ptr.="\t printf(\"${fifo_name} addr=%u\\n\", &${fifo_name}->contents[0]);\n";  	 		
 	    	 		
 	    	 		my $shift =
 	    	 			($type eq "i8"  || $type eq "u8")  ? 0 :
@@ -1087,8 +1126,8 @@ $actor_init
 	
 	
 	my $got_pck_func= "
-unsigned char iport_array[${ni_name}_NUM_VCs];
-unsigned char oport_array[${ni_name}_NUM_VCs];
+volatile unsigned char iport_array[${ni_name}_NUM_VCs];
+volatile unsigned char oport_array[${ni_name}_NUM_VCs];
 unsigned int credit_buff[${ni_name}_NUM_VCs];
 	
 void got_packet_function(void){
@@ -1292,7 +1331,7 @@ my $main="
 int main(){
 	schedinfo_t si;
 	
-	rest_all_fifo_ptr();
+	reset_all_fifo_ptr();
 $all_init_actor	
 	general_int_init();
 	general_int_add(${ni_name}_INT_PIN, ${ni_name}_isr, 0); //${ni_name}_INT_PIN

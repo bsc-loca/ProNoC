@@ -210,7 +210,7 @@ sub source_probe_ctrl {
 	
 	
 	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
-	$scrolled_win->add_with_viewport($table);
+	add_widget_to_scrolled_win($table,$scrolled_win);
 	return $scrolled_win;		
 }
 
@@ -225,7 +225,7 @@ sub soure_probe_widgets_old {
 	my $self=shift;
 	my $table= def_table(2,10,FALSE);	
 	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
-	$scrolled_win->add_with_viewport($table);
+	add_widget_to_scrolled_win($table,$scrolled_win);
 	my $num = $self->object_get_attribute('CTRL','SP_NUM');
 	
 	my $y= 0;
@@ -316,7 +316,7 @@ sub soure_probe_widgets {
 	my ($self,$tview)=@_;
 	my $table= def_table(2,10,FALSE);	
 	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
-	$scrolled_win->add_with_viewport($table);
+	add_widget_to_scrolled_win($table,$scrolled_win);
 	my $num = $self->object_get_attribute('CTRL','SP_NUM');
 	$num = 1 if (!defined $num);
 	my $y= 0;
@@ -715,7 +715,7 @@ sub read_write_bin_file {
 	my ($self,$tview)=@_;
 	my $table= def_table(2,10,FALSE);	
 	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
-	$scrolled_win->add_with_viewport($table);
+	add_widget_to_scrolled_win($table,$scrolled_win);
 	my @data;
 	
 	

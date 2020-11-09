@@ -638,8 +638,8 @@ sub get_simulator_noc_configuration{
 	}
 	
 	
+	add_widget_to_scrolled_win ($mtable,$set_win);
 	
-	$set_win->add ($mtable);
 	$set_win->show_all();	
 	
 	

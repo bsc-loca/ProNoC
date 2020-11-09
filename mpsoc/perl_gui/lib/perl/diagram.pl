@@ -382,7 +382,7 @@ sub show_diagram {
 	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
 	my $diagram=open_image("$tmp_dir/diagram.png",70*$scale,70*$scale,'percent');
 	
-	$scrolled_win->add_with_viewport($diagram);
+	add_widget_to_scrolled_win($diagram,$scrolled_win);
 	$scrolled_win->show_all();	
 		
 }
@@ -398,7 +398,7 @@ sub show_text_in_scrolled_win {
 	my ($u,$tview)=create_txview();
 	
 	show_info($tview, $text);
-	$scrolled_win->add_with_viewport($u);
+	add_widget_to_scrolled_win($u,$scrolled_win);
 	$scrolled_win->show_all();		
 }
 

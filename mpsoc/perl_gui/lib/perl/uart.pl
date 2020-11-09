@@ -82,7 +82,7 @@ sub receive_boxes{
 	my $self=shift;
 	my $table= def_table(2,10,FALSE);	
 	my $scrolled_win=gen_scr_win_with_adjst ($self,"receive_box");
-	$scrolled_win->add_with_viewport($table);
+	add_widget_to_scrolled_win($table,$scrolled_win);
 	my $num = $self->object_get_attribute('CTRL','UART_NUM');
 	my $dim_y = floor(sqrt($num));
 	my @tviews;

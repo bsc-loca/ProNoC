@@ -263,7 +263,12 @@ sub trace_map_ctrl{
 	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
 	) :
 	
-	(	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
+	(	
+	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
+	{ label=>"FIFO map Debug", param_name=>"add_debug", type=>"Check-box", default_val=>'1\'b0', content=>1, info=>"Add Actor FIFO debugging code to generated C codes to make sure FIFOs handshakings signals are handeled correctly between the source and destination cores", param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
+	
+	
+	
 	);
 	
 	foreach my $d (@info) {
@@ -516,7 +521,7 @@ sub trace_pad{
 	}
 	
 	my $sc_win = gen_scr_win_with_adjst($self,'trace_pad');
-	$sc_win->add_with_viewport($table);
+	$sc_win=add_widget_to_scrolled_win($table,$sc_win);
 	
 	return $sc_win;
 }
@@ -565,7 +570,7 @@ sub group_info {
 	
 	
 	my $sc_win = gen_scr_win_with_adjst($self,'trace_map');
-	$sc_win->add_with_viewport($table);
+	$sc_win=add_widget_to_scrolled_win($table,$sc_win);
 	
 	my $row=0;
 	my $col=0;
@@ -661,7 +666,7 @@ sub map_info {
 	# create list store
 	my @clmn_type =  ('Glib::String',  'Glib::String'); 
 	my @clmns = ("Mapping Summary", " ");
-	$sc_win->add_with_viewport(	gen_list_store (\@data,\@clmn_type,\@clmns));
+	add_widget_to_scrolled_win(gen_list_store (\@data,\@clmn_type,\@clmns),$sc_win);
 	$sc_win->show_all;
 	return $sc_win;
 
@@ -1903,7 +1908,7 @@ sub gen_mapping_ctrl_box{
 	my ($self,$tview,$mode)=@_;
 	my $map_ctrl= trace_map_ctrl($self,$tview,$mode);
 	my $map_info=map_info($self);
-	my $v_paned=gen_vpaned($map_ctrl,.5,$map_info);
+	my $v_paned=gen_vpaned($map_ctrl,.4,$map_info);
 	return $v_paned; 
 }
 
@@ -1915,7 +1920,7 @@ sub gen_group_ctrl_box{
 	#return $v_paned; 
 	
 	my $group_info = group_info ($self,$tview,$mode);
-	my $v_paned=gen_vpaned($group_ctrl,.3,$group_info);
+	my $v_paned=gen_vpaned($group_ctrl,0.2,$group_info);
 	return $v_paned; 
 	
 	#return $group_ctrl;

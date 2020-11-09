@@ -40,6 +40,7 @@ use constant VERSION  => '1.9.1';
 use constant END_YEAR => '2019';
 use constant GTK_VERSION => '$gtk_version';
 
+
 1;
 
 " > ${SCRPT_DIR_PATH}/perl_gui/lib/perl/Consts.pm

@@ -23,6 +23,10 @@ use Getopt::Long;
 use base 'Class::Accessor::Fast';
 
 
+our $FONT_SIZE='default';
+our $ICON_SIZE='default';
+
+
 BEGIN {
     my $module = (Consts::GTK_VERSION==2) ? 'Gtk2' : 'Gtk3';
     my $file = $module;
@@ -57,16 +61,20 @@ setlocale(LC_CTYPE, "en_US.UTF-8");#set numeric format to dot english
 
 
 
+
 sub main{
 	# check if envirement variables are defined
 	my $project_dir	  = get_project_dir(); #mpsoc dir addr
 	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/Paths";
 	if (-f 	$paths_file){#} && defined $ENV{PRONOC_WORK} ) {
 		my $paths= do $paths_file;
+		my %p=%{$paths};
+		$FONT_SIZE= $p{'GUI_SETTING'}{'FONT_SIZE'} if (defined $p{'GUI_SETTING'}{'FONT_SIZE'});
+		$ICON_SIZE= $p{'GUI_SETTING'}{'ICON_SIZE'} if (defined $p{'GUI_SETTING'}{'ICON_SIZE'});
 		main_window();		
 	}
 	else{
-		setting(1);
+		show_setting(1);
 	}	
 }
 
@@ -116,8 +124,8 @@ sub main_window{
 
  my @menu_items = (
   [ "/_File",            undef,        undef,          0, "<Branch>" ],
-  [ "/File/_Setting",       "<control>O", sub { setting(0); },  0,  undef ],
-#  [ "/File/Global Parameters",  "<control>G", sub { global_param(); },  0,  undef ],
+  [ "/File/_Setting",       "<control>O", sub { show_setting(0); },  0,  undef ],
+  [ "/File/_Restart",  "<control>R", sub { restart_Pronoc(); },  0,  undef ],
   [ "/File/_Quit",       "<control>Q", sub { gui_quite(); },  0, "<StockItem>", 'gtk-quit' ],
   
   [ "/Tools",            undef,        undef,          0, "<Branch>" ],
@@ -128,15 +136,16 @@ sub main_window{
   
  
   [ "/_View",                  undef, undef,         0, "<Branch>" ],
-  [ "/_View/_ProNoC System Generator",  "<control>1", 	sub{ ($notebook,$noteref)=open_page($notebook,$noteref,$table,'Generator'); } ,	0,	undef ],
-  [ "/_View/_ProNoC Simulator",  "<control>2", 	sub{ ($notebook,$noteref)=open_page($notebook,$noteref,$table,'Simulator'); } ,	0,	undef ],
+  [ "/View/_ProNoC System Generator",  "<control>1", 	sub{ ($notebook,$noteref)=open_page($notebook,$noteref,$table,'Generator'); } ,	0,	undef ],
+  [ "/View/_ProNoC Simulator",  "<control>2", 	sub{ ($notebook,$noteref)=open_page($notebook,$noteref,$table,'Simulator'); } ,	0,	undef ],
+ 
  
 
 
   [ "/_Help", 		undef,		undef,          0, 	"<Branch>" ],
-  [ "/_Help/_About",  	"F1", 		sub{about(Consts::VERSION,$window)} ,	0,	undef ],
-  [ "/_Help/_ProNoC System Overview",  	"F2", 		\&overview ,	0,	undef ],  
-  [ "/_Help/_ProNoC User Manual",  "F3",		\&user_help, 	0,	undef ],
+  [ "/Help/_About",  	"F1", 		sub{about(Consts::VERSION,$window)} ,	0,	undef ],
+  [ "/Help/_ProNoC System Overview",  	"F2", 		\&overview ,	0,	undef ],  
+  [ "/Help/_ProNoC User Manual",  "F3",		\&user_help, 	0,	undef ],
  
 );
 	
@@ -207,7 +216,7 @@ sub overview{
     return;
 }
 
-sub setting{
+sub show_setting{
 	my $reset=shift;
 	my $project_dir	  = get_project_dir(); #mpsoc dir addr
 	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/Paths";
@@ -264,6 +273,10 @@ sub setting{
 	#check which toolchain is available in the system
 	$table->attach_defaults (check_tools($self,$set_win,$reset) , 0, 10 , $row, $row+1);$row++;
 	
+	#title4
+	$table->attach (gen_label_in_center("GUI setting") , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
+	add_Hsep_to_table($table, 0, 10 , $row);	$row++;
+	$table->attach_defaults (get_gui_setting($self,$set_win,$reset) , 0, 10 , $row, $row+1);$row++;
 	
 	my $ok = def_image_button('icons/select.png','OK');
 	my $mtable = def_table(10, 1, FALSE);
@@ -295,6 +308,7 @@ sub setting{
 						
 		}
 		
+		
 	
 		set_path_env();
 		if($old_pronoc_work ne $pronoc_work ){
@@ -303,11 +317,27 @@ sub setting{
 
 		my  ($file_path,$text)=@_;
 		$set_win->destroy;
+		
+		my $new_fontsize = $self->object_get_attribute('GUI_SETTING', 'FONT_SIZE');
+		my $new_icon_size= $self->object_get_attribute('GUI_SETTING', 'ICON_SIZE');
+		if($new_fontsize ne $FONT_SIZE || $new_icon_size ne $ICON_SIZE){
+			restart_Pronoc ();
+		}
+		
 		main_window() if($reset);
+		
+		
+		
+		
 
 	});
 	
 }
+
+sub restart_Pronoc {
+	exec($^X, $0, @ARGV);# reset ProNoC to apply changes	
+}
+
 
 sub get_path_envirement_gui {
 	my($self,$set_win,$reset)=@_;
@@ -359,7 +389,7 @@ simulation models using Modelsim software", param_parent=>'PATH',ref_delay=>unde
 			}
 			set_path_env();		
 		    $set_win->destroy;
-			setting($reset);
+			show_setting($reset);
 	});
 	return $table;	
 }
@@ -457,7 +487,7 @@ sub check_toolchains{
 					$cmd = "chmod +x -Rf $pronoc_work/toolchain/";
 					return if(run_cmd_message_dialog_errors($cmd));
 					$set_win->destroy;
-					setting($reset);
+					show_setting($reset);
 				}				
 			});		
 								
@@ -478,7 +508,37 @@ sub Dir_isEmpty {
     return $count - 2;     #maybe not the best way of removing . and .
 }
 
+sub get_gui_setting{
+	my ($self,$set_win,$reset)=@_;
+	my $table = def_table(10, 1, FALSE);
+	
+	
 
+	my @gui=(
+	{ label=>'Font size:', param_name=>'FONT_SIZE', type=>'Combo-box', default_val=> $FONT_SIZE, 
+	  content=>"default,5,6,7,8,9,10,11,12,13,14,15", info=>undef, 
+	  param_parent=>"GUI_SETTING", ref_delay=> undef, new_status=>undef},
+	  { label=>'ICON size:', param_name=>'ICON_SIZE', type=>'Combo-box', default_val=> $ICON_SIZE, 
+	  content=>"default,11,14,17,20,23,26,29,32,35,38,41", info=>undef, 
+	  param_parent=>"GUI_SETTING", ref_delay=> undef, new_status=>undef}, 	  	  
+	
+	);
+	
+	my $row=0;
+	my $col=0;	
+	foreach my $d ( @gui) {
+		my $w;
+		($row,$col,$w)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status},'Horizental');
+		
+	}
+
+	return $table;
+	
+	
+}
+
+
+	
 sub check_tools{
 	my ($self,$set_win,$reset)=@_;
 	my $table = def_table(10, 1, FALSE);
@@ -489,7 +549,7 @@ sub check_tools{
 		$lable1=def_image_label("icons/warning.png","The tools directory is empty! You need to run the Make tools first.");	
 		
 	}else{
-		$lable1=gen_label_in_left("Regenerate the tools    ");
+		$lable1=gen_label_in_left("Regenerate ProNoC tools");
 		
 	}
 	$table->attach ($lable1 , 0, 1,  $row, $row+1,'shrink','shrink',2,2); 
@@ -507,7 +567,7 @@ sub check_tools{
 				return if(run_cmd_message_dialog_errors($cmd));
 				$load->destroy;
 				$set_win->destroy;
-				setting($reset);
+				show_setting($reset);
 		
 	});	
 	

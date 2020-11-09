@@ -105,7 +105,7 @@ module wb_bram_ctrl #(
     assign sa_ack_o =  sa_ack;
 
     generate if (BURST_MODE== "ENABLED") begin : burst_wb
-	assign byteena_a =  {SELw{1'b1}}; // byte enable has been supported by the bram controller 
+	//assign byteena_a = sa_sel_i;// {SELw{1'b1}}; // byte enable has been supported by the bram controller 
         wb_burst_bram_ctrl #(
          	.Dw(Dw),
          	.Aw(Aw),
@@ -120,6 +120,7 @@ module wb_bram_ctrl #(
          	.d(d),
          	.addr(addr),
          	.we(we),
+		.byteen(byteena_a),
          	.q(q),
          	.sa_dat_i(sa_dat_i),
          	.sa_sel_i(sa_sel_i),
@@ -199,6 +200,7 @@ module wb_burst_bram_ctrl #(
 	sa_rty_o,
 	
 	// BRAM interface 
+	byteen,
 	d,
 	addr,
 	we,
@@ -237,7 +239,7 @@ module wb_burst_bram_ctrl #(
 	output  reg                   sa_err_o;
 	output  reg                   sa_rty_o;
 
-	
+	output [SELw-1 : 0] byteen;
 
     //Burst Type Extension for Incrementing and Decrementing bursts
     localparam [1:0]
@@ -514,7 +516,7 @@ module wb_burst_bram_ctrl #(
 	assign addr=(write_enable)? write_address : read_address;
 	assign we 	= write_enable; 
 	assign data= q;
-	
+	assign byteen = ( delayed_write ) ? sa_sel_i_d : sa_sel_i;
 	
 	
 endmodule

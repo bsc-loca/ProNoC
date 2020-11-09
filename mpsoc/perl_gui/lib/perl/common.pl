@@ -966,7 +966,7 @@ sub generate_and_show_graph_using_graphviz {
 	}
 	$diagram =open_inline_image( $stdout,70*$scale,70*$scale,'percent');
 	if(defined $scrolled_win){
-		$scrolled_win->add_with_viewport($diagram);
+		add_widget_to_scrolled_win($diagram,$scrolled_win);
 		$scrolled_win->show_all();	
 	}
     my $save=$self->object_get_attribute("graph_save","enable");

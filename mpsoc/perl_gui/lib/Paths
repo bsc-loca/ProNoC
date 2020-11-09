@@ -6,21 +6,17 @@
 ##	This file is part of ProNoC 1.9.1 
 ##
 ## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
-##	MAY CAUSE UNEXPECTED BEHAIVOR.
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
 ################################################################################
 
 $setting = bless( {
                     'PATH' => {
-                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
-                                'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work',
                                 'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
-                                'MODELSIM_BIN' => undef,
-                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin'
+                                'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work',
+                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
+                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
+                                'MODELSIM_BIN' => undef
                               },
-                    'gui_status' => {
-                                      'status' => 'ref',
-                                      'timeout' => 10
-                                    },
                     'parameters_order' => {
                                             'PATH' => [
                                                         'PRONOC_WORK',
@@ -28,6 +24,18 @@ $setting = bless( {
                                                         'VIVADO_BIN',
                                                         'SDK_BIN',
                                                         'MODELSIM_BIN'
-                                                      ]
-                                          }
+                                                      ],
+                                            'GUI_SETTING' => [
+                                                               'FONT_SIZE',
+                                                               'ICON_SIZE'
+                                                             ]
+                                          },
+                    'gui_status' => {
+                                      'status' => 'ref',
+                                      'timeout' => 10
+                                    },
+                    'GUI_SETTING' => {
+                                       'FONT_SIZE' => 'default',
+                                       'ICON_SIZE' => 'default'
+                                     }
                   }, 'ProNOC' );

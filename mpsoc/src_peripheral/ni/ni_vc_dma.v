@@ -247,7 +247,7 @@ module ni_vc_dma #(
     reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter_next;    
     reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_index,receive_index_next ;      
     reg [MAX_TRANSACTION_WIDTH-1    :   0] receive_counter;   
-       
+    reg hdr_flit_is_received,hdr_flit_is_received_next;   
        
     wire last_data = (send_counter == send_data_size-1'b1);
    
@@ -348,7 +348,7 @@ module ni_vc_dma #(
     end
    
 
-     assign m_receive_sel_o  = receive_sel;  
+      assign m_receive_sel_o  = (hdr_flit_is_received)? receive_sel: {SELw{1'b0}};
         
    
  end else begin: nbe
@@ -482,8 +482,9 @@ module ni_vc_dma #(
        endcase      
     end//alays
     
+   reg header_ack,header_ack_next; 
+   always @(posedge clk) header_ack<= header_ack_next;
    
-    reg hdr_flit_is_received,hdr_flit_is_received_next;
  
  //receive state machine    
     always @ (*) begin 
@@ -499,6 +500,7 @@ module ni_vc_dma #(
         hdr_flit_is_received_next=hdr_flit_is_received;
         save_hdr_info=1'b0;
         rcive_buff_ovrflw_err=1'b0;
+        header_ack_next=1'b0;
             case(receive_ps)
                 RECEIVE_IDEAL: begin 
                     
@@ -518,6 +520,9 @@ module ni_vc_dma #(
                     end
                 end
                 
+               
+                
+                
                 
                 RECEIVE_ACTIVE: begin 
                      receive_is_active =1'b1; // this signal sends request to the receive_arbiter, the granted signal is receive_enable
@@ -534,15 +539,17 @@ module ni_vc_dma #(
   //                                  m_receive_cyc_o=1'b1; 
    //                             end
   //                          end else  
-                            m_receive_cyc_o=1'b1; //CRC_EN == "NO"
-                            
+                            m_receive_cyc_o =  hdr_flit_is_received;
+                            header_ack_next = !hdr_flit_is_received & (header_ack == 1'b0) ;
                          
                                   
                             
                             if (receive_fifo_empty) begin 
                                 m_receive_cti_o= END_OF_BURST;                             
                             end
-                            if (m_receive_ack_i) begin 
+                            
+                            
+                            if (m_receive_ack_i || header_ack) begin 
                                 hdr_flit_is_received_next=1'b1;
                                 if(! hdr_flit_is_received) save_hdr_info=1'b1;
                                 if(! receive_overflow && hdr_flit_is_received) begin 

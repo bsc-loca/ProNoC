@@ -72,7 +72,7 @@ sub file_box {
 	my $browse= def_image_button("icons/browse.png","Browse");
 	my $file= $intfc_gen->intfc_get_interface_file();
 	my $intfc_info= def_image_button("icons/add_info.png","Description");
-	my $table = def_table(1,10,TRUE);
+	my $table = def_table(1,10,FALSE);
 	$intfc_info->signal_connect("clicked"=> sub{
 		get_intfc_description($intfc_gen,$info);
 		
@@ -230,7 +230,7 @@ sub module_select{
 	my ($intfc_gen,$info)=@_;
 	#my $file= $intfc_gen->intfc_get_interface_file();
 	
-	my $table = def_table(1,10,TRUE);
+	my $table = def_table(1,10,FALSE);
 
 	
 	
@@ -646,9 +646,12 @@ sub intfc_main{
 	#$main_table->attach_defaults ($sbox , 0, 12, 1,2);
 	#$main_table->attach_defaults ($devbox , 0, 12, 2,12);
 	#$main_table->attach_defaults ($infobox  , 0, 12, 12,14);
-
-	my $v1=def_pack_vbox(TRUE,0,$fbox,$sbox);
-	my $v2=gen_vpaned($v1,.1,$devbox);
+    my $table=def_table(2,11,FALSE);
+    $table->attach($fbox,0,11,0,1,'fill','shrink',2,2);
+	$table->attach($sbox,0,11,1,2,'fill','shrink',2,2);
+    
+	#my $v1=def_pack_vbox(TRUE,0,$fbox,$sbox);
+	my $v2=gen_vpaned($table,.12,$devbox);
 	my $v3=gen_vpaned($v2,.6,$infobox);
 	$main_table->attach_defaults ($v3  , 0, 12, 0,14);
 
@@ -691,13 +694,14 @@ Glib::Timeout->add (100, sub{
 			$devbox->destroy();
 			$fbox->destroy();
 			$sbox->destroy();
-			$v1->destroy();
+			
 			select(undef, undef, undef, 0.1); #wait 10 ms
 			$devbox=dev_box_show($intfc_gen,$info);
 			$fbox=file_box($intfc_gen,$info);	
 			$sbox=module_select($intfc_gen,$info);
-			$v1=def_pack_vbox(TRUE,0,$fbox,$sbox);	
-			$v2->pack1($v1,TRUE, TRUE); 	
+			$table->attach($fbox,0,11,0,1,'fill','shrink',2,2);
+			$table->attach($sbox,0,11,1,2,'fill','shrink',2,2);
+			
 			$v2->pack2($devbox,TRUE, TRUE); 	
 			$v3-> pack1($v2, TRUE, TRUE); 	
 			#$main_table->attach_defaults ($v3  , 0, 12, 0,14);				

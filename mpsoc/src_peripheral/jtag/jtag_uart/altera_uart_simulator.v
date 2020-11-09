@@ -128,7 +128,7 @@ module  altera_uart_simulator #(
         RxD_rd_en=1'b0;
         s_dat_o = 32'hFFFF0000;
        
-        if ( counter >= WAIT_COUNT || ptr >= BUFFER_SIZE || buffer[ptr] == "\n") begin
+        if ( counter >= WAIT_COUNT || ptr >= BUFFER_SIZE || buffer[ptr-1] == "\n") begin
             counter_next = 0;  
             ptr_next =0;
             print_en =1;

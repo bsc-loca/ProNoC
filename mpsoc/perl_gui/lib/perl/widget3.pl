@@ -5,6 +5,7 @@ use warnings;
 
 use Data::Dumper;
 use Gtk3::SourceView;
+use Consts;
 
 require "common.pl"; 
 
@@ -17,7 +18,8 @@ use HexSpin3;
 
 #use Tk::Animation;
 
-
+our $FONT_SIZE;
+our $ICON_SIZE;
 
 ##############
 # combo box
@@ -385,11 +387,13 @@ sub button_box{
 
 sub get_icon_pixbuff{
     my $icon_file=shift;
-	my $font_size=get_defualt_font_size();
-	my $size=($font_size==10)? 25:
-		     ($font_size==9 )? 22:
-			 ($font_size==8 )? 18:
-			 ($font_size==7 )? 15:12 ;
+    my $size;
+    if ($ICON_SIZE eq 'default'){
+   		my $font_size=get_defualt_font_size();
+		$size=($font_size *2.5);
+    }else{
+    	$size = int ($ICON_SIZE);
+    }
 	my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file_at_scale($icon_file,$size,$size,FALSE);
 	return $pixbuf;
 }
@@ -598,7 +602,7 @@ sub def_colored_button{
 	
 	
 	my $button= Gtk3::Button->new();
-	my $label = gen_label_in_center($label_text);
+	my $label = gen_label_in_center($label_text) if(defined $label_text);
 		
 
 	# do custom css #####################################################
@@ -609,6 +613,12 @@ sub def_colored_button{
 	my $g =int ($green*100/65535);
 	my $b =int ($blue*100/65535);
 
+	
+	#select lable color based on backgorund 
+	my $lc = (($r*0.299 + $g*0.587 + $b*0.114) > 50)? 0 : 1; # use #000000 else use #ffffff
+	
+	$label->set_markup("<span  foreground= 'white' >$label_text</span>")  if(defined $label_text && $lc==1);	
+	
 	
 
 	$css_provider->load_from_data ([map ord, split //, "
@@ -623,7 +633,7 @@ button {
 	my $style_context = $button->get_style_context;
 	$style_context->add_provider ( $css_provider, Gtk3::STYLE_PROVIDER_PRIORITY_USER);
 
-	$button->add($label);
+	$button->add($label)  if(defined $label_text);
 	
 	$button->show_all;
 	return $button;
@@ -808,7 +818,7 @@ sub def_scrolled_window_box{
 	my $box=def_vbox(TRUE,5);
 	my $scrolled_window = new Gtk3::ScrolledWindow (undef, undef);
 	$scrolled_window->set_policy( "automatic", "automatic" );
-	$scrolled_window->add_with_viewport($box);
+	$scrolled_window->add($box);
 	$window->add($scrolled_window);
 	$window->show_all;
 	$box->show_all;
@@ -845,6 +855,8 @@ sub max_win_size{
 
 
 sub get_defualt_font_size{
+	return int($FONT_SIZE) if ($FONT_SIZE ne 'default');	
+	
 	my($width,$hight)=max_win_size();
 	#print "($width,$hight)\n";
 	my $font_size=($width>=1600)? 10:
@@ -858,7 +870,7 @@ sub get_defualt_font_size{
 
 sub set_defualt_font_size{
 	my $font_size=get_defualt_font_size();
-	$font_size= int (1.5*$font_size);
+	$font_size= int (1.35*$font_size);
 # do custom css #####################################################
 	my $css_provider = Gtk3::CssProvider->new;
 	$css_provider->load_from_data ([map ord, split //, "
@@ -892,13 +904,19 @@ sub set_defualt_font_size{
 }
 
 sub add_widget_to_scrolled_win{
-	my $widget =shift;
-	my $scrolled_win = new Gtk3::ScrolledWindow (undef, undef);
-	$scrolled_win->set_policy( "automatic", "automatic" );		
-	$scrolled_win->add_with_viewport($widget) if(defined $widget);	
-	$scrolled_win->set_shadow_type('in');
+	my ($widget,$scrolled_win) =@_;
+	if(! defined $scrolled_win){
+		$scrolled_win = new Gtk3::ScrolledWindow (undef, undef);
+		$scrolled_win->set_policy( "automatic", "automatic" );
+		$scrolled_win->set_shadow_type('in');
+	}else {
+		my @list = $scrolled_win->get_children ();
+		foreach my $c( @list){ $scrolled_win->remove($c);}
+	}		
+	#$scrolled_win->add_with_viewport($widget) if(defined $widget);
+	$scrolled_win->add($widget) if(defined $widget);	
 	$scrolled_win->show_all;	
-	return $scrolled_win;
+	return $scrolled_win ;
 }
 
 sub gen_scr_win_with_adjst {
@@ -923,6 +941,7 @@ sub gen_scr_win_with_adjst {
 
 sub save_scrolled_win_adj {
 	my ($self,$scrolled_win,$name)=@_;  	
+	return if (!defined $scrolled_win);
 	my $ha= $scrolled_win->get_hadjustment();
     my $va =$scrolled_win->get_vadjustment();
     return if(!defined $ha);
@@ -1050,7 +1069,7 @@ sub create_txview {
   $scrolled_window->set_shadow_type ('in');
   my $tview = Gtk3::TextView->new();
   $scrolled_window->add ($tview);
-  $tview->show_all;
+  
   # Make it a bit nicer for text.
   $tview->set_wrap_mode ('word');
   $tview->set_pixels_above_lines (2);
@@ -1058,13 +1077,16 @@ sub create_txview {
   # $scrolled_window->set_placement('bottom_left' );
   add_colors_to_textview($tview);
   my $buffer =  $tview->get_buffer;
+  #TODO scrolling to the end doesnt work in gtk3
   $buffer->create_mark( 'end', $buffer->get_end_iter, FALSE );
-  $buffer->signal_connect(insert_text => sub {
+  $buffer->signal_connect(insert_text => sub {  		
+  		 
        $tview->scroll_to_mark( $buffer->get_mark('end'), 0.0, TRUE, 0, 0.5 );
+      
     }
    );
   
-  
+  $scrolled_window->show_all;
   	
   return ($scrolled_window,$tview);
 }
@@ -1879,8 +1901,8 @@ sub gen_MenuBar{
 		$parent =~ s/_//;	
 
 
-		#print "\$parent= $parent **   \$m=$m\n";
-
+	#	print "\$parent= $parent **   \$m=$m\n";
+	#    print "   all_menus{$parent}  = $all_menus{$parent}\n";
 		my $menuitem = Gtk3::MenuItem->new_with_label($m);
 		
 		if(!defined $all_menus{$parent}){
@@ -1895,8 +1917,13 @@ sub gen_MenuBar{
 			my $pos = $all_menus{$parent}{'num'};
 			$menu->insert($menuitem,$pos);
 			$all_menus{$parent}{'num'}= $pos+1;
+			if(defined $type){
+			if($type eq "<Branch>"){
+				$all_menus{$name}{'menu'}=$menu;				
+				$all_menus{$name}{'num'}=0;
+			}}
 			
-}
+		}
 		if(defined $key){
 			$menuitem->add_accelerator('activate',$accel_group,Gtk3::accelerator_parse($key),'visible');
 		}
@@ -1945,11 +1972,13 @@ sub gtk_gui_run{
 }
 
 
+
+
 sub refresh_gui{
-	while (Gtk3->events_pending) {
-      Gtk3->main_iteration;
+	while (Gtk3::events_pending) {
+     Gtk3::main_iteration;
     }
-    Gtk3::Gdk->flush;
+    Gtk3::Gdk::flush;  
 }
 
 
@@ -1962,6 +1991,8 @@ sub about {
     $about->set_website('http://opencores.org/project,an-fpga-implementation-of-low-latency-noc-based-mpsoc');
     $about->set_comments('NoC based MPSoC generator.');
     $about->set_program_name('ProNoC');
+    my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file_at_scale("icons/ProNoC.png",50,50,FALSE);
+    $about->set_logo($pixbuf);
 
     $about->set_license(
                  "This program is free software; you can redistribute it\n"

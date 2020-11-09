@@ -263,7 +263,7 @@ As an example defining 2,3,4:10:2 will result in (2,3,4,6,8,10) injection ratios
 	$mtable->attach_defaults($scrolled_win,0,1,0,9);
 	$mtable-> attach ($ok , 0, 1,  9, 10,'expand','shrink',2,2); 
 	
-	$set_win->add ($mtable);
+	add_widget_to_scrolled_win ($mtable,$set_win);
 	$set_win->show_all();
 
 	$set_win ->signal_connect (destroy => sub{
@@ -308,7 +308,7 @@ sub gen_emulation_column {
 	
 	my $set_win=def_popwin_size(40,80,"NoC configuration setting",'percent');
 	my $scrolled_win = gen_scr_win_with_adjst ($emulate,"emulation_column");
-	$scrolled_win->add_with_viewport($table);	
+	add_widget_to_scrolled_win($table,$scrolled_win);	
 	my $row=0;
 	
 	#title	
@@ -737,7 +737,7 @@ sub get_noc_setting_gui {
 	my $table=def_table(20,10,FALSE);#	my ($row,$col,$homogeneous)=@_;
 	
 	my $scrolled_win = gen_scr_win_with_adjst ($emulate,"noc_setting_gui");
-	$scrolled_win->add_with_viewport($table);
+	add_widget_to_scrolled_win($table,$scrolled_win);
 	my $row=noc_config ($emulate,$table,$info_text);
 	    
 	my($label,$param,$default,$content,$type,$info);
