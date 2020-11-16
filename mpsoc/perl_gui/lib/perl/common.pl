@@ -848,7 +848,6 @@ sub capture_string_between {
 
 
 
-
 sub make_undef_as_string {
 	foreach my $p  (@_){
 		$$p= 'undef' if (! defined $$p);

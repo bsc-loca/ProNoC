@@ -258,14 +258,16 @@ sub trace_map_ctrl{
 	
 	
 	my @info = ($mode eq 'task')? (
-  #	{ label=>'Routers per Row', param_name=>'T1', type=>"Spin-button", default_val=>2, content=>"2,64,1", info=>undef, param_parent=>'noc_param', ref_delay=>1,placement=>'vertical'},
-	#{ label=>"Routers per Column", param_name=>"T2", type=>"Spin-button", default_val=>2, content=>"1,64,1", info=>undef, param_parent=>'noc_param',ref_delay=>1, placement=>'vertical'},
-	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
+  	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
 	) :
 	
 	(	
 	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
-	{ label=>"FIFO map Debug", param_name=>"add_debug", type=>"Check-box", default_val=>'1\'b0', content=>1, info=>"Add Actor FIFO debugging code to generated C codes to make sure FIFOs handshakings signals are handeled correctly between the source and destination cores", param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
+	{ label=>"FIFO map Debug", param_name=>"add_debug", type=>"Check-box", default_val=>'1\'b0', content=>1, info=>"Add Actor FIFO debugging code to generated C codes to make sure FIFOs handshakings signals are handeled correctly between the source and destination cores", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
+	{ label=>"Sent done interrupt", param_name=>"sent_done_int", type=>"Check-box", default_val=>'1\'b1', content=>1, info=>"If the sent done inttrupt is enabled then the cpu does not wait for sending the hle packet out and it will be informed later using interrupt.", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
+	{ label=>"Save done interrupt", param_name=>"save_done_int", type=>"Check-box", default_val=>'1\'b1', content=>1, info=>"If the save done inttrupt is enabled then the cpu does not wait for a packet to on the memory by the NI. It will be informed later using interrupt.", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
+	{ label=>"Got pck interrupt", param_name=>"got_pck_int", type=>"Check-box", default_val=>'1\'b1', content=>1, info=>"Enable the inttrupt on paket arival in NI. If the Got_pck inttrupt is not enabled then the cpu has to reqularly check the NI flag for getting information of the recived packet.", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
+	{ label=>"Got NI error interrupt", param_name=>"got_err_int", type=>"Check-box", default_val=>'1\'b1', content=>1, info=>"Enable the inttrupt once any of NI error flags is asserted.", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
 	
 	
 	
@@ -273,8 +275,10 @@ sub trace_map_ctrl{
 	
 	foreach my $d (@info) {
 		($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},'ref',$d->{placement});
-		if($d->{param_name} eq "Map_Algrm"){$table->attach  ($run_map , $col, $col+1,  $row,$row+1,'shrink','shrink',2,2);$row++;$col=0;}
-		
+		if($d->{param_name} eq "Map_Algrm"){
+			$table->attach  ($run_map , $col, $col+1,  $row,$row+1,'shrink','shrink',2,2);$row++;$col=0;
+			$table->attach  (gen_label_in_center  ("Enable/Disable flags:") , $col, $col+1,  $row,$row+1,'shrink','shrink',2,2);$row++;$col=0;
+		}
 	}
 
 	

@@ -331,20 +331,20 @@ module  ni_master #(
     wire [WEIGHTw-1 : 0] weight;  
     wire [HDw-1 : 0 ] hdr_data; 
    
-    wire [V-1 :0] vc_any_err_isr_en        ;
-    wire [V-1 :0] vc_got_packet_isr_en     ;
-    wire [V-1 :0] vc_packet_is_saved_isr_en; 
-    wire [V-1 :0] vc_packet_is_sent_isr_en ;   
+    wire [V-1 :0] vc_any_err_isr        ;
+    wire [V-1 :0] vc_got_packet_isr     ;
+    wire [V-1 :0] vc_packet_is_saved_isr; 
+    wire [V-1 :0] vc_packet_is_sent_isr ;   
     wire [PRE_Dw-1 : 0 ] recive_vc_precap_data [V-1 : 0];    
-    wire any_err_isr_en,any_got_packet_isr_en,any_packet_is_saved_isr_en,any_packet_is_sent_isr_en;
+    wire any_err_isr,any_got_packet_isr,any_packet_is_saved_isr,any_packet_is_sent_isr;
     
-    assign any_err_isr_en = |  vc_any_err_isr_en         ;
-    assign any_got_packet_isr_en = |  vc_got_packet_isr_en      ;
-    assign any_packet_is_saved_isr_en = |  vc_packet_is_saved_isr_en;
-    assign any_packet_is_sent_isr_en  = |  vc_packet_is_sent_isr_en;
+    assign any_err_isr = |  vc_any_err_isr         ;
+    assign any_got_packet_isr = |  vc_got_packet_isr      ;
+    assign any_packet_is_saved_isr = |  vc_packet_is_saved_isr;
+    assign any_packet_is_sent_isr  = |  vc_packet_is_sent_isr;
   //  assign status1= {vc_got_error_isr, receive_vc_got_packet_isr, receive_vc_packet_is_saved_isr, send_vc_packet_is_sent_isr};    
  //   assign status2= {vc_got_error_int_en, receive_vc_got_packet_int_en, receive_vc_packet_is_saved_int_en, send_vc_packet_is_sent_int_en};
-    assign status1= {send_vc_enable_binary, receive_vc_enable_binary, any_err_isr_en,any_got_packet_isr_en,any_packet_is_saved_isr_en,any_packet_is_sent_isr_en};
+    assign status1= {send_vc_enable_binary, receive_vc_enable_binary, any_err_isr,any_got_packet_isr,any_packet_is_saved_isr,any_packet_is_sent_isr};
       
     
     assign  irq =|vc_irq;
@@ -625,10 +625,10 @@ end
 	        .send_is_busy(send_vc_is_busy[i]),	        
 	        .ctrl_flags(vc_ctrl_flags[i]),
 	                                                         
-	        .any_err_isr_en          (vc_any_err_isr_en        [i]),
-	        .got_packet_isr_en       (vc_got_packet_isr_en     [i]),
-	        .packet_is_saved_isr_en  (vc_packet_is_saved_isr_en[i]),
-	        .packet_is_sent_isr_en   (vc_packet_is_sent_isr_en [i]),
+	        .any_err_isr          (vc_any_err_isr        [i]),
+	        .got_packet_isr       (vc_got_packet_isr     [i]),
+	        .packet_is_saved_isr  (vc_packet_is_saved_isr[i]),
+	        .packet_is_sent_isr   (vc_packet_is_sent_isr [i]),
 	        
 	        
 	        .irq(vc_irq[i]),

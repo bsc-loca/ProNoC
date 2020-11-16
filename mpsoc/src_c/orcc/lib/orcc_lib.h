@@ -125,7 +125,7 @@ typedef struct connection_s connection_t;
  */
 struct actor_s {
     char *name;
-    void (*init_func)();
+    void (*init_func)(schedinfo_t *);
     void (*sched_func)(schedinfo_t *);
     int num_inputs; /** number of input ports */
     int num_outputs; /** number of output ports */

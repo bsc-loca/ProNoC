@@ -1851,11 +1851,20 @@ sub verilator_compilation {
    	
    	
 	#run verilator
+	my $jobs=0; #a counter o limit the number of paralle process to 4
+	my $make_lib=""; 
+	my $vrun="#!/bin/bash
+cd \"$verilator/processed_rtl\"
+";
 	#my $cmd= "cd \"$verilator/processed_rtl\" \n xterm -e bash -c ' verilator  --cc $name.v --profile-cfuncs --prefix \"Vtop\" -O3  -CFLAGS -O3'";
 	foreach my $top (sort keys %tops) {
 		add_colored_info($outtext,"Generate $top Verilator model from $tops{$top} file\n",'green');
 		my $cmd= "cd \"$verilator/processed_rtl\" \n  verilator  --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3";
-		add_info($outtext,"$cmd\n");	
+		$vrun.="verilator  --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3\n";
+		add_info($outtext,"$cmd &\n");	
+		$make_lib.="make lib$jobs &\n";
+		$jobs++;
+		if($jobs%4==0){$vrun.="wait\n"; $make_lib.="wait\n"; }
 		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
 		if(length $stderr>1){			
 			add_info($outtext,"$stderr\n");
@@ -1863,10 +1872,22 @@ sub verilator_compilation {
 			add_info($outtext,"$stdout\n");
 		}			
 	}
+	$make_lib.="wait\n";
+	$vrun.="wait
+#check if verilator model has been generated 
+";  
 	
 
 	#check if verilator model has been generated 
 	foreach my $top (sort keys %tops) {
+		
+		$vrun.=" 
+if ! [ -f $verilator/processed_rtl/obj_dir/$top.cpp ]; then
+	echo  \"Failed to generate: $verilator/processed_rtl/obj_dir/$top.cpp \"
+	exit 1	
+fi
+";
+		
 		if (-f "$verilator/processed_rtl/obj_dir/$top.cpp"){#succsess
 			
 			
@@ -1876,6 +1897,20 @@ sub verilator_compilation {
 	}
 	#generate makefile
 	gen_verilator_makefile($top_ref,"$verilator/processed_rtl/obj_dir/Makefile");
+	
+$vrun.="	echo  \"Verilator modules are generated successfully\". 
+
+cd $verilator/processed_rtl/obj_dir/
+
+#run make file 
+$make_lib
+
+make sim
+#done
+";
+	
+	
+	save_file ("$verilator/verilate.sh",$vrun);
 	return 1;
 }
 
@@ -2277,7 +2312,7 @@ my %rxds=%{$rxds_ref};
 foreach my $rxd (sort keys %rxds){
 	my $n=$rxds{$rxd}{p};
 	my $top=$rxds{$rxd}{top};
-	$rxd_info.="\\t$rxd_num : ${n}\\n";
+	$rxd_info.="\\t$rxd_num : ${top}_${n}RXD\\n";
 	
 	$rxd_func.="
 	// we have a character to send to interface $rxd_num
@@ -2357,7 +2392,7 @@ $rxd_func="
 ';
 	$rxd_wr_cal="write_char_on_RXD( );";
 	$rxd_cap_cal="capture_char_on_RXD( );"; 
-	$rxd_info="printf(\"There are total of $rxd_num RXD (UART) interface ports in the top module:\\n${rxd_info}The default interfce is 0. You can switc to different interfaces by pressing + or - key.\\n\");"	
+	$rxd_info="printf(\"There are total of $rxd_num RXD (UART) interface ports in the top module:\\n${rxd_info}The default interfce is 0. You can switch to different interfaces by pressing + or - key.\\n\");"	
 }
 
 	my $rxsim_c=get_license_header("RxDsim.h");

@@ -6,193 +6,10 @@
 ##	This file is part of ProNoC 1.9.1 
 ##
 ## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
-##	MAY CAUSE UNEXPECTED BEHAIVOR.
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
 ################################################################################
 
 $ipgen = bless( {
-                  'version' => 24,
-                  'ports' => {
-                               'dwbm_cti_o' => {
-                                                 'type' => 'output',
-                                                 'intfc_name' => 'plug:wb_master[1]',
-                                                 'range' => '2:0',
-                                                 'intfc_port' => 'cti_o'
-                                               },
-                               'dwbm_adr_o' => {
-                                                 'intfc_port' => 'adr_o',
-                                                 'range' => '31:0',
-                                                 'intfc_name' => 'plug:wb_master[1]',
-                                                 'type' => 'output'
-                                               },
-                               'iwbm_dat_o' => {
-                                                 'range' => '31:0',
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'type' => 'output',
-                                                 'intfc_port' => 'dat_o'
-                                               },
-                               'iwbm_rty_i' => {
-                                                 'intfc_port' => 'rty_i',
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'range' => '',
-                                                 'type' => 'input'
-                                               },
-                               'irq_i' => {
-                                            'intfc_port' => 'int_i',
-                                            'type' => 'input',
-                                            'range' => '31:0',
-                                            'intfc_name' => 'socket:interrupt_peripheral[array]'
-                                          },
-                               'dwbm_stb_o' => {
-                                                 'range' => '',
-                                                 'intfc_name' => 'plug:wb_master[1]',
-                                                 'type' => 'output',
-                                                 'intfc_port' => 'stb_o'
-                                               },
-                               'rst' => {
-                                          'intfc_port' => 'reset_i',
-                                          'type' => 'input',
-                                          'range' => '',
-                                          'intfc_name' => 'plug:reset[0]'
-                                        },
-                               'iwbm_cyc_o' => {
-                                                 'range' => '',
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'type' => 'output',
-                                                 'intfc_port' => 'cyc_o'
-                                               },
-                               'dwbm_dat_o' => {
-                                                 'intfc_port' => 'dat_o',
-                                                 'type' => 'output',
-                                                 'range' => '31:0',
-                                                 'intfc_name' => 'plug:wb_master[1]'
-                                               },
-                               'iwbm_err_i' => {
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'range' => '',
-                                                 'type' => 'input',
-                                                 'intfc_port' => 'err_i'
-                                               },
-                               'dwbm_cyc_o' => {
-                                                 'type' => 'output',
-                                                 'intfc_name' => 'plug:wb_master[1]',
-                                                 'range' => '',
-                                                 'intfc_port' => 'cyc_o'
-                                               },
-                               'dwbm_ack_i' => {
-                                                 'intfc_name' => 'plug:wb_master[1]',
-                                                 'range' => '',
-                                                 'type' => 'input',
-                                                 'intfc_port' => 'ack_i'
-                                               },
-                               'cpu_en' => {
-                                             'intfc_port' => 'enable_i',
-                                             'type' => 'input',
-                                             'intfc_name' => 'plug:enable[0]',
-                                             'range' => ''
-                                           },
-                               'iwbm_sel_o' => {
-                                                 'range' => '3:0',
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'type' => 'output',
-                                                 'intfc_port' => 'sel_o'
-                                               },
-                               'dwbm_sel_o' => {
-                                                 'intfc_port' => 'sel_o',
-                                                 'type' => 'output',
-                                                 'intfc_name' => 'plug:wb_master[1]',
-                                                 'range' => '3:0'
-                                               },
-                               'dwbm_we_o' => {
-                                                'intfc_port' => 'we_o',
-                                                'range' => '',
-                                                'intfc_name' => 'plug:wb_master[1]',
-                                                'type' => 'output'
-                                              },
-                               'iwbm_cti_o' => {
-                                                 'type' => 'output',
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'range' => '2:0',
-                                                 'intfc_port' => 'cti_o'
-                                               },
-                               'iwbm_stb_o' => {
-                                                 'type' => 'output',
-                                                 'range' => '',
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'intfc_port' => 'stb_o'
-                                               },
-                               'iwbm_ack_i' => {
-                                                 'intfc_port' => 'ack_i',
-                                                 'type' => 'input',
-                                                 'range' => '',
-                                                 'intfc_name' => 'plug:wb_master[0]'
-                                               },
-                               'iwbm_adr_o' => {
-                                                 'range' => '31:0',
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'type' => 'output',
-                                                 'intfc_port' => 'adr_o'
-                                               },
-                               'clk' => {
-                                          'intfc_name' => 'plug:clk[0]',
-                                          'range' => '',
-                                          'type' => 'input',
-                                          'intfc_port' => 'clk_i'
-                                        },
-                               'iwbm_we_o' => {
-                                                'intfc_port' => 'we_o',
-                                                'intfc_name' => 'plug:wb_master[0]',
-                                                'range' => '',
-                                                'type' => 'output'
-                                              },
-                               'dwbm_bte_o' => {
-                                                 'intfc_port' => 'bte_o',
-                                                 'type' => 'output',
-                                                 'range' => '1:0',
-                                                 'intfc_name' => 'plug:wb_master[1]'
-                                               },
-                               'snoop_adr_i' => {
-                                                  'type' => 'input',
-                                                  'intfc_name' => 'plug:snoop[0]',
-                                                  'range' => '31:0',
-                                                  'intfc_port' => 'snoop_adr_i'
-                                                },
-                               'snoop_en_i' => {
-                                                 'intfc_port' => 'snoop_en_i',
-                                                 'type' => 'input',
-                                                 'intfc_name' => 'plug:snoop[0]',
-                                                 'range' => ''
-                                               },
-                               'iwbm_bte_o' => {
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'range' => '1:0',
-                                                 'type' => 'output',
-                                                 'intfc_port' => 'bte_o'
-                                               },
-                               'dwbm_err_i' => {
-                                                 'intfc_port' => 'err_i',
-                                                 'type' => 'input',
-                                                 'range' => '',
-                                                 'intfc_name' => 'plug:wb_master[1]'
-                                               },
-                               'iwbm_dat_i' => {
-                                                 'type' => 'input',
-                                                 'range' => '31:0',
-                                                 'intfc_name' => 'plug:wb_master[0]',
-                                                 'intfc_port' => 'dat_i'
-                                               },
-                               'dwbm_rty_i' => {
-                                                 'type' => 'input',
-                                                 'range' => '',
-                                                 'intfc_name' => 'plug:wb_master[1]',
-                                                 'intfc_port' => 'rty_i'
-                                               },
-                               'dwbm_dat_i' => {
-                                                 'intfc_name' => 'plug:wb_master[1]',
-                                                 'range' => '31:0',
-                                                 'type' => 'input',
-                                                 'intfc_port' => 'dat_i'
-                                               }
-                             },
                   'parameters_order' => [
                                           'OPTION_OPERAND_WIDTH',
                                           'IRQ_NUM',
@@ -200,64 +17,196 @@ $ipgen = bless( {
                                           'FEATURE_INSTRUCTIONCACHE',
                                           'FEATURE_DATACACHE',
                                           'FEATURE_IMMU',
-                                          'FEATURE_DMMU'
+                                          'FEATURE_DMMU',
+                                          'FEATURE_MULTIPLIER',
+                                          'FEATURE_DIVIDER',
+                                          'OPTION_SHIFTER'
                                         ],
-                  'modules' => {
-                                 'mor1k' => {}
-                               },
-                  'plugs' => {
-                               'clk' => {
-                                          'value' => 1,
-                                          '0' => {
-                                                   'name' => 'clk'
+                  'ip_name' => 'mor1kx',
+                  'parameters' => {
+                                    'OPTION_OPERAND_WIDTH' => {
+                                                                'info' => 'Parameter',
+                                                                'redefine_param' => 1,
+                                                                'default' => '32',
+                                                                'type' => 'Fixed',
+                                                                'content' => '',
+                                                                'global_param' => 'Localparam'
+                                                              },
+                                    'FEATURE_INSTRUCTIONCACHE' => {
+                                                                    'global_param' => 'Localparam',
+                                                                    'content' => '"NONE","ENABLED"',
+                                                                    'type' => 'Combo-box',
+                                                                    'default' => '"ENABLED"',
+                                                                    'redefine_param' => 1,
+                                                                    'info' => ''
+                                                                  },
+                                    'OPTION_DCACHE_SNOOP' => {
+                                                               'info' => '',
+                                                               'global_param' => 'Localparam',
+                                                               'content' => '"NONE","ENABLED"',
+                                                               'type' => 'Combo-box',
+                                                               'default' => '"NONE"',
+                                                               'redefine_param' => 1
+                                                             },
+                                    'FEATURE_DMMU' => {
+                                                        'type' => 'Combo-box',
+                                                        'content' => '"NONE","ENABLED"',
+                                                        'global_param' => 'Localparam',
+                                                        'default' => '"ENABLED"',
+                                                        'redefine_param' => 1,
+                                                        'info' => ''
+                                                      },
+                                    'FEATURE_DATACACHE' => {
+                                                             'info' => '',
+                                                             'type' => 'Combo-box',
+                                                             'content' => '"NONE","ENABLED"',
+                                                             'global_param' => 'Localparam',
+                                                             'default' => '"ENABLED"',
+                                                             'redefine_param' => 1
+                                                           },
+                                    'OPTION_SHIFTER' => {
+                                                          'info' => 'Specify the shifter implementation',
+                                                          'redefine_param' => 1,
+                                                          'default' => '"BARREL"',
+                                                          'content' => '"BARREL","SERIAL"',
+                                                          'type' => 'Combo-box',
+                                                          'global_param' => 'Localparam'
+                                                        },
+                                    'IRQ_NUM' => {
+                                                   'info' => undef,
+                                                   'default' => '32',
+                                                   'content' => '',
+                                                   'type' => 'Fixed',
+                                                   'global_param' => 'Localparam',
+                                                   'redefine_param' => 1
                                                  },
-                                          'type' => 'num'
-                                        },
-                               'snoop' => {
-                                            'type' => 'num',
-                                            'value' => 1,
-                                            '0' => {
-                                                     'name' => 'snoop'
-                                                   }
-                                          },
-                               'wb_master' => {
-                                                'value' => 2,
-                                                '0' => {
-                                                         'name' => 'iwb'
-                                                       },
-                                                '1' => {
-                                                         'name' => 'dwb'
-                                                       },
-                                                'type' => 'num'
-                                              },
-                               'enable' => {
-                                             'type' => 'num',
-                                             '0' => {
-                                                      'name' => 'enable'
-                                                    },
-                                             'value' => 1
-                                           },
-                               'reset' => {
-                                            'type' => 'num',
-                                            '0' => {
-                                                     'name' => 'reset'
-                                                   },
-                                            'value' => 1
-                                          }
-                             },
+                                    'FEATURE_DIVIDER' => {
+                                                           'info' => 'Specify the divider implementation',
+                                                           'redefine_param' => 1,
+                                                           'default' => '"SERIAL"',
+                                                           'content' => '"SERIAL","NONE"',
+                                                           'type' => 'Combo-box',
+                                                           'global_param' => 'Localparam'
+                                                         },
+                                    'FEATURE_MULTIPLIER' => {
+                                                              'default' => '"THREESTAGE"',
+                                                              'content' => '"THREESTAGE","PIPELINED","SERIAL","NONE"',
+                                                              'type' => 'Combo-box',
+                                                              'global_param' => 'Localparam',
+                                                              'redefine_param' => 1,
+                                                              'info' => 'Specify the multiplier implementation'
+                                                            },
+                                    'FEATURE_IMMU' => {
+                                                        'info' => '',
+                                                        'default' => '"ENABLED"',
+                                                        'content' => '"NONE","ENABLED"',
+                                                        'type' => 'Combo-box',
+                                                        'global_param' => 'Localparam',
+                                                        'redefine_param' => 1
+                                                      }
+                                  },
+                  'gen_sw_files' => [
+                                      '/mpsoc/src_processor/mor1kx-3.1/sw/march_flags.makfrename_sep_tmarch_flags.mak'
+                                    ],
+                  'module_name' => 'mor1k',
                   'sw_files' => [
                                   '/mpsoc/src_processor/mor1kx-3.1/sw/link.ld',
                                   '/mpsoc/src_processor/mor1kx-3.1/sw/Makefile',
                                   '/mpsoc/src_processor/mor1kx-3.1/sw/mor1kx'
                                 ],
+                  'system_c' => '',
                   'unused' => {
-                                'plug:wb_master[0]' => [
+                                'plug:wb_master[1]' => [
                                                          'tag_o'
                                                        ],
-                                'plug:wb_master[1]' => [
+                                'plug:wb_master[0]' => [
                                                          'tag_o'
                                                        ]
                               },
+                  'sockets' => {
+                                 'interrupt_peripheral' => {
+                                                             'value' => 'IRQ_NUM',
+                                                             '0' => {
+                                                                      'name' => 'interrupt_peripheral'
+                                                                    },
+                                                             'type' => 'param',
+                                                             'connection_num' => 'single connection'
+                                                           }
+                               },
+                  'file_name' => 'mpsoc/src_processor/mor1kx-3.1/rtl/mor1k.v',
+                  'ports_order' => [
+                                     'clk',
+                                     'rst',
+                                     'cpu_en',
+                                     'snoop_adr_i',
+                                     'snoop_en_i',
+                                     'iwbm_adr_o',
+                                     'iwbm_stb_o',
+                                     'iwbm_cyc_o',
+                                     'iwbm_sel_o',
+                                     'iwbm_we_o',
+                                     'iwbm_cti_o',
+                                     'iwbm_bte_o',
+                                     'iwbm_dat_o',
+                                     'iwbm_err_i',
+                                     'iwbm_ack_i',
+                                     'iwbm_dat_i',
+                                     'iwbm_rty_i',
+                                     'dwbm_adr_o',
+                                     'dwbm_stb_o',
+                                     'dwbm_cyc_o',
+                                     'dwbm_sel_o',
+                                     'dwbm_we_o',
+                                     'dwbm_cti_o',
+                                     'dwbm_bte_o',
+                                     'dwbm_dat_o',
+                                     'dwbm_err_i',
+                                     'dwbm_ack_i',
+                                     'dwbm_dat_i',
+                                     'dwbm_rty_i',
+                                     'irq_i'
+                                   ],
+                  'plugs' => {
+                               'snoop' => {
+                                            'type' => 'num',
+                                            '0' => {
+                                                     'name' => 'snoop'
+                                                   },
+                                            'value' => 1
+                                          },
+                               'clk' => {
+                                          'type' => 'num',
+                                          '0' => {
+                                                   'name' => 'clk'
+                                                 },
+                                          'value' => 1
+                                        },
+                               'wb_master' => {
+                                                '0' => {
+                                                         'name' => 'iwb'
+                                                       },
+                                                'value' => 2,
+                                                'type' => 'num',
+                                                '1' => {
+                                                         'name' => 'dwb'
+                                                       }
+                                              },
+                               'enable' => {
+                                             'value' => 1,
+                                             '0' => {
+                                                      'name' => 'enable'
+                                                    },
+                                             'type' => 'num'
+                                           },
+                               'reset' => {
+                                            '0' => {
+                                                     'name' => 'reset'
+                                                   },
+                                            'value' => 1,
+                                            'type' => 'num'
+                                          }
+                             },
+                  'version' => 26,
                   'system_h' => ' #include "mor1kx/system.h" 
 
  static inline void nop (){
@@ -289,82 +238,7 @@ int main(){
 	}
 }
 *******************************/',
-                  'gui_status' => {
-                                    'timeout' => 0,
-                                    'status' => 'ideal'
-                                  },
-                  'ip_name' => 'mor1kx',
-                  'file_name' => 'mpsoc/src_processor/mor1kx-3.1/rtl/mor1k.v',
                   'category' => 'Processor',
-                  'parameters' => {
-                                    'OPTION_DCACHE_SNOOP' => {
-                                                               'info' => '',
-                                                               'default' => '"NONE"',
-                                                               'redefine_param' => 1,
-                                                               'type' => 'Combo-box',
-                                                               'content' => '"NONE","ENABLED"',
-                                                               'global_param' => 'Localparam'
-                                                             },
-                                    'OPTION_OPERAND_WIDTH' => {
-                                                                'type' => 'Fixed',
-                                                                'global_param' => 'Localparam',
-                                                                'content' => '',
-                                                                'redefine_param' => 1,
-                                                                'info' => 'Parameter',
-                                                                'default' => '32'
-                                                              },
-                                    'FEATURE_DMMU' => {
-                                                        'global_param' => 'Localparam',
-                                                        'content' => '"NONE","ENABLED"',
-                                                        'type' => 'Combo-box',
-                                                        'redefine_param' => 1,
-                                                        'default' => '"ENABLED"',
-                                                        'info' => ''
-                                                      },
-                                    'FEATURE_DATACACHE' => {
-                                                             'info' => '',
-                                                             'default' => '"ENABLED"',
-                                                             'redefine_param' => 1,
-                                                             'type' => 'Combo-box',
-                                                             'global_param' => 'Localparam',
-                                                             'content' => '"NONE","ENABLED"'
-                                                           },
-                                    'FEATURE_INSTRUCTIONCACHE' => {
-                                                                    'global_param' => 'Localparam',
-                                                                    'content' => '"NONE","ENABLED"',
-                                                                    'type' => 'Combo-box',
-                                                                    'redefine_param' => 1,
-                                                                    'default' => '"ENABLED"',
-                                                                    'info' => ''
-                                                                  },
-                                    'FEATURE_IMMU' => {
-                                                        'default' => '"ENABLED"',
-                                                        'info' => '',
-                                                        'redefine_param' => 1,
-                                                        'content' => '"NONE","ENABLED"',
-                                                        'global_param' => 'Localparam',
-                                                        'type' => 'Combo-box'
-                                                      },
-                                    'IRQ_NUM' => {
-                                                   'default' => '32',
-                                                   'info' => undef,
-                                                   'redefine_param' => 1,
-                                                   'global_param' => 'Localparam',
-                                                   'content' => '',
-                                                   'type' => 'Fixed'
-                                                 }
-                                  },
-                  'system_c' => '',
-                  'sockets' => {
-                                 'interrupt_peripheral' => {
-                                                             '0' => {
-                                                                      'name' => 'interrupt_peripheral'
-                                                                    },
-                                                             'value' => 'IRQ_NUM',
-                                                             'type' => 'param',
-                                                             'connection_num' => 'single connection'
-                                                           }
-                               },
                   'hdl_files' => [
                                    '/mpsoc/src_processor/mor1kx-3.1/rtl/verilog/mor1kx.v',
                                    '/mpsoc/src_processor/mor1kx-3.1/rtl/verilog/mor1kx_branch_prediction.v',
@@ -407,37 +281,193 @@ int main(){
                                    '/mpsoc/src_processor/mor1kx-3.1/rtl/verilog/mor1kx_wb_mux_espresso.v',
                                    '/mpsoc/src_processor/mor1kx-3.1/rtl/mor1k.v'
                                  ],
-                  'ports_order' => [
-                                     'clk',
-                                     'rst',
-                                     'cpu_en',
-                                     'snoop_adr_i',
-                                     'snoop_en_i',
-                                     'iwbm_adr_o',
-                                     'iwbm_stb_o',
-                                     'iwbm_cyc_o',
-                                     'iwbm_sel_o',
-                                     'iwbm_we_o',
-                                     'iwbm_cti_o',
-                                     'iwbm_bte_o',
-                                     'iwbm_dat_o',
-                                     'iwbm_err_i',
-                                     'iwbm_ack_i',
-                                     'iwbm_dat_i',
-                                     'iwbm_rty_i',
-                                     'dwbm_adr_o',
-                                     'dwbm_stb_o',
-                                     'dwbm_cyc_o',
-                                     'dwbm_sel_o',
-                                     'dwbm_we_o',
-                                     'dwbm_cti_o',
-                                     'dwbm_bte_o',
-                                     'dwbm_dat_o',
-                                     'dwbm_err_i',
-                                     'dwbm_ack_i',
-                                     'dwbm_dat_i',
-                                     'dwbm_rty_i',
-                                     'irq_i'
-                                   ],
-                  'module_name' => 'mor1k'
+                  'ports' => {
+                               'dwbm_ack_i' => {
+                                                 'intfc_port' => 'ack_i',
+                                                 'intfc_name' => 'plug:wb_master[1]',
+                                                 'type' => 'input',
+                                                 'range' => ''
+                                               },
+                               'dwbm_dat_i' => {
+                                                 'range' => '31:0',
+                                                 'type' => 'input',
+                                                 'intfc_port' => 'dat_i',
+                                                 'intfc_name' => 'plug:wb_master[1]'
+                                               },
+                               'iwbm_rty_i' => {
+                                                 'range' => '',
+                                                 'type' => 'input',
+                                                 'intfc_port' => 'rty_i',
+                                                 'intfc_name' => 'plug:wb_master[0]'
+                                               },
+                               'iwbm_cyc_o' => {
+                                                 'type' => 'output',
+                                                 'range' => '',
+                                                 'intfc_name' => 'plug:wb_master[0]',
+                                                 'intfc_port' => 'cyc_o'
+                                               },
+                               'dwbm_stb_o' => {
+                                                 'type' => 'output',
+                                                 'range' => '',
+                                                 'intfc_name' => 'plug:wb_master[1]',
+                                                 'intfc_port' => 'stb_o'
+                                               },
+                               'rst' => {
+                                          'range' => '',
+                                          'type' => 'input',
+                                          'intfc_port' => 'reset_i',
+                                          'intfc_name' => 'plug:reset[0]'
+                                        },
+                               'iwbm_stb_o' => {
+                                                 'type' => 'output',
+                                                 'range' => '',
+                                                 'intfc_name' => 'plug:wb_master[0]',
+                                                 'intfc_port' => 'stb_o'
+                                               },
+                               'dwbm_adr_o' => {
+                                                 'type' => 'output',
+                                                 'range' => '31:0',
+                                                 'intfc_name' => 'plug:wb_master[1]',
+                                                 'intfc_port' => 'adr_o'
+                                               },
+                               'iwbm_err_i' => {
+                                                 'range' => '',
+                                                 'type' => 'input',
+                                                 'intfc_port' => 'err_i',
+                                                 'intfc_name' => 'plug:wb_master[0]'
+                                               },
+                               'dwbm_rty_i' => {
+                                                 'range' => '',
+                                                 'type' => 'input',
+                                                 'intfc_name' => 'plug:wb_master[1]',
+                                                 'intfc_port' => 'rty_i'
+                                               },
+                               'clk' => {
+                                          'type' => 'input',
+                                          'range' => '',
+                                          'intfc_port' => 'clk_i',
+                                          'intfc_name' => 'plug:clk[0]'
+                                        },
+                               'dwbm_dat_o' => {
+                                                 'range' => '31:0',
+                                                 'type' => 'output',
+                                                 'intfc_name' => 'plug:wb_master[1]',
+                                                 'intfc_port' => 'dat_o'
+                                               },
+                               'iwbm_sel_o' => {
+                                                 'intfc_port' => 'sel_o',
+                                                 'intfc_name' => 'plug:wb_master[0]',
+                                                 'range' => '3:0',
+                                                 'type' => 'output'
+                                               },
+                               'dwbm_cyc_o' => {
+                                                 'range' => '',
+                                                 'type' => 'output',
+                                                 'intfc_port' => 'cyc_o',
+                                                 'intfc_name' => 'plug:wb_master[1]'
+                                               },
+                               'dwbm_cti_o' => {
+                                                 'intfc_port' => 'cti_o',
+                                                 'intfc_name' => 'plug:wb_master[1]',
+                                                 'type' => 'output',
+                                                 'range' => '2:0'
+                                               },
+                               'iwbm_dat_i' => {
+                                                 'intfc_name' => 'plug:wb_master[0]',
+                                                 'intfc_port' => 'dat_i',
+                                                 'type' => 'input',
+                                                 'range' => '31:0'
+                                               },
+                               'dwbm_err_i' => {
+                                                 'intfc_port' => 'err_i',
+                                                 'intfc_name' => 'plug:wb_master[1]',
+                                                 'type' => 'input',
+                                                 'range' => ''
+                                               },
+                               'cpu_en' => {
+                                             'intfc_port' => 'enable_i',
+                                             'intfc_name' => 'plug:enable[0]',
+                                             'type' => 'input',
+                                             'range' => ''
+                                           },
+                               'iwbm_ack_i' => {
+                                                 'type' => 'input',
+                                                 'range' => '',
+                                                 'intfc_port' => 'ack_i',
+                                                 'intfc_name' => 'plug:wb_master[0]'
+                                               },
+                               'iwbm_cti_o' => {
+                                                 'intfc_name' => 'plug:wb_master[0]',
+                                                 'intfc_port' => 'cti_o',
+                                                 'type' => 'output',
+                                                 'range' => '2:0'
+                                               },
+                               'irq_i' => {
+                                            'intfc_name' => 'socket:interrupt_peripheral[array]',
+                                            'intfc_port' => 'int_i',
+                                            'range' => '31:0',
+                                            'type' => 'input'
+                                          },
+                               'iwbm_we_o' => {
+                                                'intfc_name' => 'plug:wb_master[0]',
+                                                'intfc_port' => 'we_o',
+                                                'range' => '',
+                                                'type' => 'output'
+                                              },
+                               'iwbm_adr_o' => {
+                                                 'type' => 'output',
+                                                 'range' => '31:0',
+                                                 'intfc_port' => 'adr_o',
+                                                 'intfc_name' => 'plug:wb_master[0]'
+                                               },
+                               'snoop_adr_i' => {
+                                                  'intfc_port' => 'snoop_adr_i',
+                                                  'intfc_name' => 'plug:snoop[0]',
+                                                  'type' => 'input',
+                                                  'range' => '31:0'
+                                                },
+                               'snoop_en_i' => {
+                                                 'type' => 'input',
+                                                 'range' => '',
+                                                 'intfc_name' => 'plug:snoop[0]',
+                                                 'intfc_port' => 'snoop_en_i'
+                                               },
+                               'dwbm_sel_o' => {
+                                                 'intfc_name' => 'plug:wb_master[1]',
+                                                 'intfc_port' => 'sel_o',
+                                                 'range' => '3:0',
+                                                 'type' => 'output'
+                                               },
+                               'dwbm_bte_o' => {
+                                                 'intfc_port' => 'bte_o',
+                                                 'intfc_name' => 'plug:wb_master[1]',
+                                                 'type' => 'output',
+                                                 'range' => '1:0'
+                                               },
+                               'dwbm_we_o' => {
+                                                'intfc_name' => 'plug:wb_master[1]',
+                                                'intfc_port' => 'we_o',
+                                                'type' => 'output',
+                                                'range' => ''
+                                              },
+                               'iwbm_dat_o' => {
+                                                 'range' => '31:0',
+                                                 'type' => 'output',
+                                                 'intfc_port' => 'dat_o',
+                                                 'intfc_name' => 'plug:wb_master[0]'
+                                               },
+                               'iwbm_bte_o' => {
+                                                 'intfc_port' => 'bte_o',
+                                                 'intfc_name' => 'plug:wb_master[0]',
+                                                 'range' => '1:0',
+                                                 'type' => 'output'
+                                               }
+                             },
+                  'gui_status' => {
+                                    'status' => 'ideal',
+                                    'timeout' => 0
+                                  },
+                  'modules' => {
+                                 'mor1k' => {}
+                               }
                 }, 'ip_gen' );

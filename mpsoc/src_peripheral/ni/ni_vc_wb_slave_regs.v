@@ -84,10 +84,10 @@ module ni_vc_wb_slave_regs #(
     receive_is_busy,
     send_is_busy,
     
-    any_err_isr_en,
-    got_packet_isr_en,
-    packet_is_saved_isr_en,
-    packet_is_sent_isr_en,
+    any_err_isr,
+    got_packet_isr,
+    packet_is_saved_isr,
+    packet_is_sent_isr,
     
     irq,  
     ctrl_flags,
@@ -118,18 +118,7 @@ module ni_vc_wb_slave_regs #(
     
  
     
-   task warning;
-   input [S_Aw-1:0] addr;
-   begin
-//synthesis translate_off
-//synopsys  translate_off    
-         $display("%t: warning: write on %d is not accepted as fsm was not free!",$time,addr);
-//synopsys  translate_on     
-//synthesis translate_on
-    
-   end
-   endtask
-    
+  
   
 /*
  s_dat_i : 
@@ -202,10 +191,10 @@ module ni_vc_wb_slave_regs #(
     output  reg [HDw-1 : 0] hdr_data;
     
     input  burst_size_err,  send_data_size_err, rcive_buff_ovrflw_err,crc_miss_match_err,invalid_send_req_err;
-    input receive_vc_got_hdr_flit_at_head;
+    input  receive_vc_got_hdr_flit_at_head;
     input  receive_is_busy,    send_is_busy;
    
-    output  any_err_isr_en ,got_packet_isr_en , packet_is_saved_isr_en, packet_is_sent_isr_en;
+    output  any_err_isr ,got_packet_isr , packet_is_saved_isr, packet_is_sent_isr;
    
    
     output  irq;
@@ -224,6 +213,8 @@ module ni_vc_wb_slave_regs #(
     input                           s_stb_i;
     input                           s_cyc_i;
     input                           s_we_i;
+    
+    wire  any_err_isr_en ,got_packet_isr_en , packet_is_saved_isr_en, packet_is_sent_isr_en;    
         
     reg  [EAw-1   :   0]  dest_e_addr_next;
     reg  [Cw-1   :   0]  pck_class_next;
@@ -292,7 +283,8 @@ module ni_vc_wb_slave_regs #(
         (crc_miss_match_isr & got_any_err_int_en) |
         (rcive_buff_ovrflw_err_isr & got_any_err_int_en) ;
    
-   
+   assign any_err_isr = (invalid_send_req_err_isr  | burst_size_err_isr  | send_data_size_err_isr  | crc_miss_match_isr  | rcive_buff_ovrflw_err_isr ) ;
+        
    assign got_packet_isr_en =     (got_packet_isr & got_packet_int_en);   
    assign packet_is_saved_isr_en =(packet_is_saved_isr & packet_is_saved_int_en);
    assign packet_is_sent_isr_en = (packet_is_sent_isr & packet_is_sent_int_en);   
@@ -375,19 +367,14 @@ module ni_vc_wb_slave_regs #(
                          if (send_fsm_is_ideal) begin 
                             send_pointer_addr_next={{OFFSETw{1'b0}},s_dat_i [Dw-1    : OFFSETw]};
                             send_pointer_addr_byte_offset_next = s_dat_i[OFFSETw-1: 0];
-                         end     else warning(s_addr_i); 
-
-
-   
-
-                         
+                         end                              
                          
                     end //SEND_POINTER_WB_ADDR
                     SEND_DATA_SIZE_WB_ADDR: begin 
                         if (send_fsm_is_ideal) begin 
                             send_data_size_next=s_dat_i [MAX_TRANSACTION_WIDTH + OFFSETw -1 :    OFFSETw];
                             send_data_size_byte_offset_next = s_dat_i[OFFSETw-1: 0];
-                        end  else warning(s_addr_i); 
+                        end   
                
                     end //DATA_SIZE_WB_ADDR
                     SEND_DEST_WB_ADDR: begin 
@@ -407,39 +394,35 @@ module ni_vc_wb_slave_regs #(
                             pck_class_next= s_dat_i[CLASS_LSB+Cw-1      :  CLASS_LSB];
                             weight_next = s_dat_i[ WEIGHT_LSB+WEIGHTw-1 :  WEIGHT_LSB]; 
                             send_start_next = 1'b1;
-                           end   else warning(s_addr_i); 
+                           end    
                              
                     end //SEND_DEST_WB_ADDR
                     
                     SEND_HDR_DATA_WB_ADDR: begin
                         if (send_fsm_is_ideal) hdr_data_next = s_dat_i [HDw-1 : 0];
-                        else warning(s_addr_i); 
+                        
                     end
                     RECEIVE_MAX_BUFF_SIZ: begin 
                         if (receive_fsm_is_ideal) receive_max_buff_siz_next = s_dat_i [MAX_TRANSACTION_WIDTH+ OFFSETw -1 :    OFFSETw]; 
-                        else warning(s_addr_i); 
                     end                    
                     
                     RECEIVE_POINTER_WB_ADDR: begin 
                         if (receive_fsm_is_ideal) receive_pointer_addr_next= {{OFFSETw{1'b0}},s_dat_i [Dw-1 :   OFFSETw]};
-                        else warning(s_addr_i); 
                     end //RECEIVE_POINTER_WB_ADDR
                     
                     RECEIVE_START_INDEX_WB_ADDR:begin 
                         if (receive_fsm_is_ideal) begin 
                             receive_start_index_next= s_dat_i [MAX_TRANSACTION_WIDTH+ OFFSETw -1 :    OFFSETw];
                             receive_start_index_offset_next= s_dat_i [OFFSETw-1 : 0];
-                        end
-                        else warning(s_addr_i); 
+                        end                        
                     end
                     
                     
                     
                     RECEIVE_CTRL_WB_ADDR: begin
                         if (receive_fsm_is_ideal) begin 
-                       	 	receive_en_next=1'b1;
-                         
-                        end else warning(s_addr_i); 
+                       	 	receive_en_next=1'b1;                         
+                        end 
                     end                 
                     
                     default :begin 
@@ -461,6 +444,27 @@ module ni_vc_wb_slave_regs #(
             
         
     end// always
+    
+       
+    //synthesis translate_off
+    //synopsys  translate_off    
+    always @(posedge clk) begin 
+        if(s_stb_i  &   s_cyc_i &  s_we_i & state_reg_enable & ~receive_fsm_is_ideal ) begin 
+            case(s_addr_i)
+            SEND_DEST_WB_ADDR, SEND_POINTER_WB_ADDR,       
+            SEND_DATA_SIZE_WB_ADDR,SEND_HDR_DATA_WB_ADDR:
+                if(~send_fsm_is_ideal) $display("%t: Warning: write on NI sent register %d was not accepted as fsm was not in ideal state. %m!",$time,s_addr_i);
+            RECEIVE_POINTER_WB_ADDR,  RECEIVE_MAX_BUFF_SIZ,  
+            RECEIVE_START_INDEX_WB_ADDR, RECEIVE_CTRL_WB_ADDR:  
+                if(~receive_fsm_is_ideal) $display("%t: Warning: write on NI receive register %d was not accepted as fsm was not in ideal state. %m!",$time,s_addr_i);
+            endcase    
+        end       
+    end
+    //synopsys  translate_on     
+    //synthesis translate_on
+    
+    
+    
    
     localparam [WEIGHTw-1 : 0] INIT_WEIGHT = 1;
  

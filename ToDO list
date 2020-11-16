@@ -1,2 +1,9 @@
-1- fix orcc textvew
-2- check presize befor orcc generation
+2: make warning when memory  initial en flag is zero
+
+3: add goto last line only to textview which specfied not all
+
+4: add intrrupt option to orcc
+
+5: desgin orcc intrrupt ctrl to hw
+
+
