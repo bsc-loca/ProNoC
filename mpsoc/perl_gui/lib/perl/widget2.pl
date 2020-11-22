@@ -542,9 +542,9 @@ sub def_image_button{
 
 sub def_button{
 	my ($label_text)=@_;
-	my $label = Gtk2::Label->new("$label_text");
+	my $label = Gtk2::Label->new("$label_text") if (defined $label_text);
 	my $button= Gtk2::Button->new();
-	$button->add($label);
+	$button->add($label) if (defined $label_text);
 	return $button;
 }	
 
@@ -704,6 +704,49 @@ sub yes_no_dialog {
 	return $response;
 }
 
+sub create_dialog {
+	my ($message_head,$message_body,$icon,@buttons)=@_;
+	# create a new dialog with some buttons - one stock, one not.
+	my %hash1;
+	my %hash2;
+	my $i=0;
+	foreach my $b (@buttons){
+		$hash1{$b}=$i;
+		$hash2{$i}=$b;
+		$i++;
+	}
+	
+  	my $dialog = Gtk2::Dialog->new (
+  		" ", 
+  		Gtk2::Window->new('toplevel'),
+  		[qw/modal destroy-with-parent/],
+        %hash1
+    );
+	my $content = $dialog->get_content_area ();
+	
+	my $table = def_table(1,3,TRUE);
+	$table->attach  (def_icon($icon) , 0, 1,  0, 2,'expand','expand',2,2) if(defined $icon);
+	if(defined $message_head){
+		my $hd=gen_label_in_left($message_head);
+		$hd->set_markup("<span  foreground= 'black' ><b>$message_head</b></span>");
+		$table->attach  ($hd , 1, 10,  0, 1,'fill','shrink',2,2);
+	}
+	if(defined $message_head){
+		$table->attach  (gen_label_in_left($message_body) , 2, 10,  1, 2,'fill','shrink',2,2);
+	}
+	
+	$content->add ($table);
+	$content->show_all;
+			
+	$dialog->set_transient_for (Gtk2::Window->new('toplevel'));#just to get rid of transient warning		
+	my $response = $dialog->run;
+	
+	$dialog->destroy;
+	return $hash2{$response};
+}
+
+
+
 ############
 # window
 ###########
@@ -752,7 +795,7 @@ sub def_popwin_size {
 	$window->set_position("center");
 	$window->set_default_size($x, $y);
 	$window->set_border_width(20);
-	$window->signal_connect (delete_event => sub { $window->destroy });
+	#$window->signal_connect (delete_event => sub { $window->destroy });
 	return $window;
 	
 }	
@@ -1807,6 +1850,7 @@ sub gtk_gui_run{
 	Gtk2->init;
 	&$main;
 	Gtk2->main();
+	return 1;
 }
 
 
@@ -2073,9 +2117,9 @@ sub row_activated_cb{
 sub file_edit_tree {
 	my $tree_store = Gtk2::TreeStore->new('Glib::String', 'Glib::String');
 	my $tree_view = Gtk2::TreeView->new($tree_store);
-	my $column = Gtk2::TreeViewColumn->new_with_attributes('', Gtk2::CellRendererText->new(), text => "0");
+	my $column = Gtk2::TreeViewColumn->new_with_attributes('Double-click to open', Gtk2::CellRendererText->new(), text => "0");
 	$tree_view->append_column($column);
-	$tree_view->set_headers_visible(FALSE);
+	$tree_view->set_headers_visible(TRUE);
 	return ($tree_store,$tree_view);
 }
 
@@ -2260,7 +2304,12 @@ sub detect_language {
 
 
 
-
+sub get_pressed_key{ 
+	my $event=shift;
+	
+	my $key = Gtk2::Gdk->keyval_name( $event->keyval );
+	return $key;
+}
 
 
 

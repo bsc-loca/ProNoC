@@ -2119,7 +2119,7 @@ sub software_edit_mpsoc {
         $load= show_gif("icons/load.gif");
         $table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 
         $load->show_all; 
-        $app->do_save();
+        $app->ask_to_save_changes();
         append_to_textview($tview,' ');
         unless (run_make_file($sw,$tview,'clean')){
         	$load->destroy;    

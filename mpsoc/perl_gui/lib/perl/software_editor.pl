@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 use strict;
 use warnings;
@@ -10,9 +10,22 @@ use Consts;
 use Glib qw(TRUE FALSE);
 
 use Data::Dumper;
-
+use File::Basename;
+use Cwd 'abs_path';
 
 use base 'Class::Accessor::Fast';
+
+use Consts;
+BEGIN {
+    my $module = (Consts::GTK_VERSION==2) ? 'Gtk2' : 'Gtk3';
+    my $file = $module;
+    $file =~ s[::][/]g;
+    $file .= '.pm';
+    require $file;
+    $module->import;
+}
+
+
 require "widget.pl"; 
 
 
@@ -26,12 +39,47 @@ __PACKAGE__->mk_accessors(qw{
 	search_entry
 	regexp
 	highlighted
+	open_list_ref
+	source_view_notebook
+	menue
+	modified
+	label
+	ask_to_save
+	close_b
 });
 
-my $NAME = 'Otec';
 
 
-exit main() unless caller;
+
+
+my $NAME = 'ProNoC';
+my 	$path = "";
+our $FONT_SIZE='default';
+our $ICON_SIZE='default';
+
+exit gtk_gui_run(\&software_main_stand_alone) unless caller;
+
+
+sub software_main_stand_alone(){
+	$path = "../../";
+	
+	set_path_env();
+	my $project_dir	  = get_project_dir(); #mpsoc dir addr
+	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/Paths";
+	if (-f 	$paths_file){#} && defined $ENV{PRONOC_WORK} ) {
+		my $paths= do $paths_file;
+		my %p=%{$paths};
+		$FONT_SIZE= $p{'GUI_SETTING'}{'FONT_SIZE'} if (defined $p{'GUI_SETTING'}{'FONT_SIZE'});
+		$ICON_SIZE= $p{'GUI_SETTING'}{'ICON_SIZE'} if (defined $p{'GUI_SETTING'}{'ICON_SIZE'});
+	}
+	
+	set_defualt_font_size();
+	my ($app,$table,$tview,$window) = software_main("../../../../../back/tmp",undef,) ;
+	$window->signal_connect (destroy => sub { gui_quite();});	
+}
+	
+ 
+
 
 
 sub software_main {
@@ -43,15 +91,18 @@ sub software_main {
 	my ($table,$tview,$widget)=$app->build_gui($sw,$pages_ref,$lable_ref);
 	my $main_c=(defined $file)? "$sw/$file" : "$sw/main.c";
 	$app->load_source($main_c) if (-f $main_c );
-
-	
+	my @tmp;
+	$app->open_list_ref(\@tmp);
+	$app->ask_to_save(def_button());
 
 	return ($app,$table,$tview,$widget);
 }
 
 
+
+
 sub build_gui {
-	my ($self,$sw,$pages_ref,$lable_ref) = @_;
+	my ($app,$sw,$pages_ref,$lable_ref) = @_;
 
 	
 	my $table= def_table(2,10,FALSE);	
@@ -60,7 +111,7 @@ sub build_gui {
 	my $scwin_text = add_widget_to_scrolled_win($vbox);
 
 	my ($scwin_info,$tview)= create_txview();
-	my ($tree_view,$tree_store) =$self->build_tree_view($sw);
+	my ($tree_view,$tree_store) =$app->build_tree_view($sw);
 	my $scwin_dirs = add_widget_to_scrolled_win($tree_view);
 
 
@@ -70,13 +121,14 @@ sub build_gui {
 	$table->attach_defaults ($vpaned,0, 10, 0,1);
 
 	my $window = def_popwin_size (84,84,'Source Editor','percent');
-	
-	
+		
+	my @menue_item=("$sw/",$window,$tree_view,$tree_store,$scwin_dirs);	
+	$app->menue(\@menue_item);	
 	if (defined $pages_ref){
 		#first page is software editor
 		my $notebook = gen_notebook();
 		
-		my $lable1=def_image_label("icons/binary.png","Software Editor",1);
+		my $lable1=def_image_label($path."icons/binary.png","Software Editor",1);
 		$notebook->append_page ($table,$lable1);
 		$lable1->show_all;
 		
@@ -97,25 +149,81 @@ sub build_gui {
 		$window -> add ( $table);
 	}
 	
-	$self->window($window);
+	$app->window($window);
 
 	
-
-	$vbox->pack_start($self->build_menu("$sw/",$window,$tree_view,$tree_store,$scwin_dirs), FALSE, FALSE, 0);
-	$vbox->pack_start($self->build_search_box, FALSE, FALSE, 0);
-
+	my $hbox = def_table(FALSE, 0);
+	my $source_view_notebook = gen_notebook();
+	$vbox->pack_start($hbox, FALSE, FALSE, 0);	
+	$vbox->pack_start($source_view_notebook, TRUE, TRUE, 0);
 	
+	
+	
+	
+	$app->source_view_notebook($source_view_notebook);
+    $window->show_all();
+	
+	$window->signal_connect ('delete_event'=> sub {
+		$app->ask_to_save_changes();		
+		return 0;
+		
+	}); 
+	
+	
+	
+	
+	
+	return ($table,$tview,$window);
+}
 
+sub ask_to_save_changes{
+	my $app=shift;
+	my $save = $app->ask_to_save();
+	$save->clicked;	
+}
+
+sub update_modified {
+	my $self=shift;
+	if($self->modified() ==2 ){
+		$self->set_source_label_modified(FALSE);
+		return;
+	}
+	elsif($self->modified() ==FALSE ){
+	   	#if ($buffer->get_modified()){
+	   		$self->set_source_label_modified(TRUE);
+	   	#}
+	}	
+}
+
+sub new_source_view{
+	my ($app,$filename)=@_;
+	
+    my $self = __PACKAGE__->new();
+    my ($name,$p,$suffix) = fileparse("$filename",qr"\..[^.]*$");	
+	my $label = gen_label_in_left ("${name}${suffix}");
+    $self->modified(2);#initial 
+	$self->label($label);
+	$self->filename($filename);
+	
+	my $hbox = def_table(FALSE, 0);
+	my $vbox = def_vbox(FALSE, 0);
+	my $ref =$app->menue();	
+	my ($sw,$window,$tree_view,$tree_store,$scwin_dirs) =@{$ref};	
+    $hbox->attach($self->build_menu($sw,$window,$tree_view,$tree_store,$scwin_dirs,$app), 0, 1, 0,1,'shrink','shrink',2,2);
+  	
+	$hbox->attach_defaults($self->build_search_box, 1,2,0,1);
+    $vbox->pack_start($hbox, FALSE, FALSE, 0);
+    
 	my $buffer = $self->create_SourceView_buffer();
 	my $sourceview = gen_SourceView_with_buffer($buffer);
+	$sourceview->signal_connect('key-press-event' => sub { handle_key( @_,$self ) } );
 	$sourceview->set_show_line_numbers(TRUE);
 	$sourceview->set_tab_width(2);
 	$sourceview->set_indent_on_tab(TRUE);
 	$sourceview->set_highlight_current_line(TRUE);
 	
 	
-#	$sourceview->set_draw_spaces(['tab', 'newline']);
-
+    #	$sourceview->set_draw_spaces(['tab', 'newline']);
 	#
 	# Fix TextView's annoying paste behaviour when pasting with the mouse
 	# (middle button click). By default gtk will scroll the text view to the
@@ -155,43 +263,82 @@ sub build_gui {
 		$buffer->delete_mark($mark);
 	});
 
+	$buffer->signal_connect('insert-text' => sub {
+		update_modified($self);		
+	});
+	$buffer->signal_connect('delete-range' => sub {
+		update_modified($self);		
+	});
+	
+
+
 	my $scroll = add_widget_to_scrolled_win($sourceview);
-	
-	
-	
-	
-	
-	
-	
-	
 	$vbox->pack_start($scroll, TRUE, TRUE, 0);
-
-
-	
 	$self->sourceview($sourceview);
 	$self->buffer($sourceview->get_buffer);
 
-	$window->signal_connect(delete_event => sub {
-		gui_quite();
-		return TRUE;
-	});
 
-	$window->show_all();
+	my $notebook = $app->source_view_notebook();
+	my $close = def_button('x');
 	
-	return ($table,$tview,$window);
+	my $box = def_hbox(FALSE,0);
+	$box->pack_start($label, TRUE, FALSE, 0);
+	$box->pack_start($close, TRUE, FALSE, 0);	
+	$notebook->append_page ($vbox,$box);
+	set_tip($box,"$filename");
+	$box->show_all;
+	$notebook->show_all();
+	my $n= $notebook->get_n_pages();
+	$notebook->set_current_page($n-1);
+	
+	$close->signal_connect("clicked" => sub {
+		#check if the file has been modified or not
+		if($self->modified()==TRUE){
+			my $r=create_dialog ("Save changes to documnet ${name}${suffix}?","If you do'nt save, changes will be permanently lost.",$path."icons/help.png","Save","Close without saving","Cancel");
+			return if ($r eq "Cancel");
+			if ($r eq "Save"){
+				$self->do_save();
+			}
+			
+		}
+		$vbox->destroy;
+		$box->destroy;
+		$self = undef;
+		my $ref =$app->open_list_ref();
+		my @new =remove_scolar_from_array($ref,$filename);
+		$app->open_list_ref(\@new);
+		
+	});
+	
+	my $save = $app->ask_to_save();
+    
+    $save->signal_connect("clicked" => sub {
+		#check if the file has been modified or not
+		return if(!defined $self);
+		if($self->modified()==TRUE){
+			my $r=create_dialog ("Save changes to documnet ${name}${suffix}?"," ",$path."icons/help.png","Save","Continue without saving");
+			return if ($r eq "Continue without saving");
+			if ($r eq "Save"){
+				$self->do_save();
+			}
+			
+		}		
+	});    
+		
+	$self->close_b($close);	
+	return $self;	
 }
 
 
 
-
 sub build_tree_view{
-	my ($self,$sw)=@_;
+	my ($app,$sw)=@_;
 
 	# Directory name, full path
 	my ($tree_store,$tree_view) =file_edit_tree();
 	
-	$tree_view->signal_connect (button_release_event => sub{
-		
+#	$tree_view->signal_connect (button_release_event => sub{
+	$tree_view->signal_connect (row_activated  => sub{
 		my $tree_model = $tree_view->get_model();
 	 	my $selection = $tree_view->get_selection();
 	 	my $iter = $selection->get_selected();
@@ -199,9 +346,9 @@ sub build_tree_view{
 	 	if(defined $iter){
 			my $path = $tree_model->get($iter, 1) ;
 			$path= substr $path, 0, -1;
-			$self->do_save();
+			#$self->do_save();
 			#print "open $path\n";
-			 $self->load_source($path) if(-f $path);
+			 $app->load_source($path) if(-f $path);
 		}
 		 return;
 	});
@@ -223,7 +370,7 @@ sub build_tree_view{
 	  		my ($dir, $path) = $tree_model->get($child, 0, 1);
 	  		add_to_tree($tree_view,$tree_store, $child, $dir, $path);
 	  		$child=treemodel_next_iter($child , $tree_model);
-	  		$r=$tree_model->iter_is_valid($child);
+	  		$r=$tree_model->iter_is_valid($child) if (defined $child);
 	  		
 	 	}
 		 return;
@@ -262,7 +409,7 @@ sub build_search_box {
 
 	
 	
-	my $search_icon = def_image_button("icons/browse.png");
+	my $search_icon = def_image_button($path."icons/browse.png");
 	$search_entry->set_icon_from_stock(primary => 'gtk-find');
 
 	
@@ -278,8 +425,32 @@ sub build_search_box {
 
 
 sub load_source {
-	my $self = shift;
-	my ($filename) = @_;
+	my $app = shift;
+	my ($filename) = abs_path(@_);
+	
+	
+	my $ref =$app->open_list_ref();
+	my @open_list;
+	@open_list = @{$ref} if(defined $ref); 
+	#check if the file is opend before activate its notebook win
+	my $pos=get_scolar_pos ($filename,@open_list);
+	
+	if (defined $pos){
+		my $notebook = $app->source_view_notebook();
+		$notebook->set_current_page($pos);
+		return;		
+	}
+	
+	
+	#create a new source view and load the file there
+	
+	my $self=new_source_view($app,"$filename");
+	
+	push(@open_list,$filename);
+	$app->open_list_ref(\@open_list);
+	
+	
+	
 	my $buffer = $self->buffer;
 
 	# Guess the programming language of the file
@@ -297,11 +468,16 @@ sub load_source {
 	$buffer->set_text($content);
 	$buffer->end_not_undoable_action();
 
-	$buffer->set_modified(FALSE);
+	#$buffer->set_modified(FALSE);
 	$buffer->place_cursor($buffer->get_start_iter);
 
-	$self->filename($filename);
-	$self->window->set_title("$filename - $NAME");
+	
+		
+	my $notebook = $app->source_view_notebook();
+	$notebook->show_all();
+	
+	
+	#$self->window->set_title("$filename - $NAME");
 }
 
 
@@ -363,7 +539,13 @@ sub do_search {
 		# have to do the search by hand!
 
 		my $text = $self->get_text;
-		my $regexp = $case ? qr/$criteria/m : qr/$criteria/im;
+		my $regexp;
+		if ($self->search_regexp){
+			$regexp = $case ? qr/$criteria/m : qr/$criteria/im;
+		}else {
+			$regexp = $case ? qr/\Q${criteria}\E/m : qr/\Q${criteria}\E/im;
+			
+		}
 
 		foreach my $iter (@start) {
 			# Tell Perl where to start the regexp lookup
@@ -427,30 +609,46 @@ sub show_highlighted {
 
 
 sub do_file_new {
-	my ($self,$sw,$window,$tree_view,$tree_store,$scwin_dirs) = @_;
-	my $buffer = $self->buffer;
+	my ($self,$sw,$window,$tree_view,$tree_store,$scwin_dirs,$app) = @_;
 	
+	my $dialog = save_file_dialog('New file');
+	if(defined  $sw){
+		$dialog->set_current_folder ($sw); 
+		#print "open_in:$sw\n";
+		 
+	}
 
-	# Set no language
-	$buffer->set_language(undef);
+	my $response = $dialog->run();
+	if ($response eq 'ok') {
+		my $file=$dialog->get_filename;
+		save_file($file,'');
+		$tree_view->destroy;
+		($tree_view,$tree_store) =$app->build_tree_view($sw);
+		add_widget_to_scrolled_win($tree_view,$scwin_dirs);
+		$scwin_dirs->show_all;
+		$app->load_source($file);	
+	}
+	$dialog->destroy();	
+}
 
-	# Showing a blank editor should not be undoable.
-	$buffer->begin_not_undoable_action();
-	$buffer->set_text('');
-	$buffer->end_not_undoable_action();
-
-	$buffer->set_modified(FALSE);
-	$buffer->place_cursor($buffer->get_start_iter);
-
-	$self->filename('');
-	$self->window->set_title("Untitled - $NAME");
-	$self->do_save_as($sw,$window,$tree_view,$tree_store,$scwin_dirs);
+sub do_remove{
+	my ($self,$sw,$window,$tree_view,$tree_store,$scwin_dirs,$app) = @_;
+	my $fname  = $self->filename;
+	my $r = yes_no_dialog ("Are you sure you want to permanently delete $fname file?");
+	return if $r eq 'no';
+	$self->close_b()->clicked;
+	unlink $fname;
+	$tree_view->destroy;
+	($tree_view,$tree_store) =$app->build_tree_view($sw);
+	add_widget_to_scrolled_win($tree_view,$scwin_dirs);
+	$scwin_dirs->show_all;
+	
+	
 }
 
 
 sub do_file_open {
-	my $self = shift;
-	my ($window, $action, $menu_item) = @_;
+	my ($self,$sw,$window,$tree_view,$tree_store,$scwin_dirs,$app) = @_;
 
 	my $dialog = gen_file_dialog("Open file...");
 	$dialog->signal_connect(response => sub {
@@ -459,7 +657,7 @@ sub do_file_open {
 		if ($response eq 'ok') {
 			my $file = $dialog->get_filename;
 			return if -d $file;
-			$self->load_source($file);
+			$app->load_source($file);
 		}
 
 		$dialog->destroy();
@@ -499,7 +697,7 @@ sub do_ask_goto_line {
 
 	# Run the dialog
 	my $response = $dialog->run();
-	$dialog->destroy();
+	
 	return unless $response eq 'ok';
 
 	return unless my ($line) = ($entry->get_text =~ /(\d+)/);
@@ -510,6 +708,7 @@ sub do_ask_goto_line {
 
 	$self->clear_highlighted();
 	$self->show_highlighted(goto_line => $start, $end);
+	$dialog->destroy();
 }
 
 
@@ -520,7 +719,7 @@ sub do_quit {
 
 
 sub do_save_as {
-	my ($self,$sw,$window,$tree_view,$tree_store,$scwin_dirs) = @_;
+	my ($self,$sw,$window,$tree_view,$tree_store,$scwin_dirs,$app) = @_;
 
 	# If no file is associated with the editor then ask the user for a file where
 	# to save the contents of the buffer.
@@ -534,13 +733,17 @@ sub do_save_as {
 	my $response = $dialog->run();
 	if ($response eq 'ok') {
 		my $file=$dialog->get_filename;
-		$self->filename($file);
-		$self->do_save();
+		
+		my $buffer = $self->buffer;
+		open my $handle, '>:encoding(UTF-8)', $file or die "Can't write to $file: $!";
+		print $handle $self->get_text;
+		close $handle;
+		
 		$tree_view->destroy;
-		($tree_view,$tree_store) =$self->build_tree_view($sw);
+		($tree_view,$tree_store) =$app->build_tree_view($sw);
 		add_widget_to_scrolled_win($tree_view,$scwin_dirs);
 		$scwin_dirs->show_all;
-		$self->load_source($file);
+		$app->load_source($file);
 		
 	
 	}
@@ -565,34 +768,50 @@ sub do_save {
 	open my $handle, '>:encoding(UTF-8)', $filename or die "Can't write to $filename: $!";
 	print $handle $self->get_text;
 	close $handle;
-
+	$self->set_source_label_modified(FALSE);
 	if (! $buffer->get_language) {
 		$self->detect_language($filename);
 	}
 }
 
 
-
-
+sub set_source_label_modified{
+	my ($self,$is_modified)=@_;
+	$self->modified($is_modified); 
+	my $buffer = $self->buffer;
+	$buffer->set_modified($is_modified); 
+	my $label=$self->label(); 
+    my $fname = $self->filename; 
+    my ($name,$p,$suffix) = fileparse("$fname",qr"\..[^.]*$");	
+   
+    if ($is_modified ==TRUE){
+    	$label->set_markup("<span  foreground= 'black' ><b>*${name}${suffix}</b></span>");
+    }else{	   
+    	$label->set_markup("<span  foreground= 'black' >${name}${suffix}</span>");
+    	
+    }	    
+	$label->show_all;		  
+}
 
 sub build_menu {
-	my ($self,$sw,$window,$tree_view,$tree_store,$scwin_dirs) = @_;
+	my ($self,$sw,$window,$tree_view,$tree_store,$scwin_dirs,$app) = @_;
 
 
 
  my @menu_items = (
   [ "/_File",            undef,        undef,          0, "<Branch>" ],
-  [ "/File/_New",       "<control>N", sub { $self->do_file_new($sw,$window,$tree_view,$tree_store,$scwin_dirs); },  0,  undef ],
-  [ "/File/_Open",      "<control>O", sub { $self->do_file_open(@_) },  0, undef  ],
-  [ "/File/_Save",      "<control>S", sub { $self->do_save(@_)      },  0, undef  ],
-  [ "/File/_SaveAs",	"<control><shift>S", sub { $self->do_save_as($sw,$window,$tree_view,$tree_store,$scwin_dirs)} , 0, undef],
+  [ "/File/_New",       "<control>N", sub { $self->do_file_new($sw,$window,$tree_view,$tree_store,$scwin_dirs,$app); },  0,  undef ],
+  [ "/File/_Open",      "<control>O", sub { $self->do_file_open($sw,$window,$tree_view,$tree_store,$scwin_dirs,$app) },  0, undef  ],
+  [ "/File/_Save",      "<control>S", sub { $self->do_save($sw,$window,$tree_view,$tree_store,$scwin_dirs,$app)      },  0, undef  ],
+  [ "/File/_SaveAs",	"<control><shift>S", sub { $self->do_save_as($sw,$window,$tree_view,$tree_store,$scwin_dirs,$app)} , 0, undef],
+  [ "/File/_Delete",	"<control>D", sub { $self->do_remove($sw,$window,$tree_view,$tree_store,$scwin_dirs,$app)} , 0, undef],
   [ "/File/_Quit",		"<control>Q", sub { $self->do_quit($window) },  0, undef  ],
 		
   [ "/_Search",           undef,        undef,          0, "<Branch>" ],
-  [ "/Search/_Goto a Line",  "<control>L", 	sub { $self->do_ask_goto_line(@_)},  0, undef  ],
+  [ "/Search/_Goto a Line",  "<control>L", 	sub { $self->do_ask_goto_line($sw,$window,$tree_view,$tree_store,$scwin_dirs,$app)},  0, undef  ],
 
   [ "/_Help", 		undef,		undef,          0, 	"<Branch>" ],
-  [ "/_Help/_About",  	"F1", 		sub { $self->do_show_about_dialog(@_) } ,	0,	undef ],
+  [ "/_Help/_About",  	"F1", 		sub { $self->do_show_about_dialog($sw,$window,$tree_view,$tree_store,$scwin_dirs,$app) } ,	0,	undef ],
  
 
 
@@ -694,6 +913,29 @@ sub run_make_file {
 
 }
 
+sub handle_key {
+    my ($widget, $event, $self) = @_;
+    my $key = get_pressed_key ($event);
+    my $buffer = $widget->get_buffer();
+    if ( ($key eq 'f') && control_pressed( $event ) ) {
+    	
+    	
+    	my ($start, $end) = $buffer->get_selection_bounds;
+    	if (defined $start && defined $end){
+    		my $string = $buffer->get_text ($start, $end, 0);
+        	#print "CTRL+F copy $string to serach box\n";
+        	$self->search_entry->set_text($string);
+    	}
+    }
+    
+    return FALSE; # FALSE -> means propagate key further
+}
+
+sub control_pressed {
+    my ( $event ) = @_;
+
+    return $event->state & 'control-mask';
+}
 
 
 

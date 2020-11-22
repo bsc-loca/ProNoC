@@ -462,7 +462,7 @@ module  ni_master #(
      wire [HDATA_PRECAPw-1 : 0 ] precap_din;
      wire [V-1 : 0] precap_hdr_flit_rd = (fifo_rd & received_flit_is_hdr) ?  receive_vc_enable : {V{1'b0}};
      wire [HDATA_PRECAPw-1 : 0 ] precap_dout  [V-1 : 0] ;    
-    
+     wire [V-1 : 0 ] precap_valid;
     
         
     //capture data before saving the actual flit in memory
@@ -545,13 +545,24 @@ end
             .dout(precap_dout[i]),
             .full( ),
             .nearly_full( ),
-            .recieve_more_than_0( ),
+            .recieve_more_than_0(precap_valid[i] ),
             .recieve_more_than_1( ),
             .reset(reset),
             .clk(clk)
           );
       
           assign recive_vc_precap_data[i] = precap_dout[i]; 
+      
+        //synthesis translate_off
+        //synopsys  translate_off  
+        always @(posedge clk)begin 
+             if(s_stb_i  &  ~s_we_i &  (vc_addr==i) & (vc_s_addr_i == RECEIVE_PRECAP_DATA_ADDR) )begin
+                    if( precap_valid[i] == 1'b0) $display( "Warning: Reading invalid precap-data %m");    
+             end           
+        end     
+        //synopsys  translate_on   
+        //synthesis translate_on 
+     
       
         end
            

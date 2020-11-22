@@ -1514,7 +1514,7 @@ sub software_edit_soc {
     my $load;
 	$make -> signal_connect("clicked" => sub{
 		$load->destroy   if(defined $load);
-		$app->do_save();
+		$app->ask_to_save_changes();
 		$load= show_gif("icons/load.gif");
         $table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0);
         $load->show_all; 

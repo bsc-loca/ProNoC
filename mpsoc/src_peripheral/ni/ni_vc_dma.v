@@ -544,12 +544,12 @@ module ni_vc_dma #(
                          
                                   
                             
-                            if (receive_fifo_empty) begin 
+                            if (receive_fifo_empty | received_flit_is_tail) begin 
                                 m_receive_cti_o= END_OF_BURST;                             
                             end
                             
                             
-                            if (m_receive_ack_i || header_ack) begin 
+                            if (m_receive_ack_i | header_ack) begin 
                                 hdr_flit_is_received_next=1'b1;
                                 if(! hdr_flit_is_received) save_hdr_info=1'b1;
                                 if(! receive_overflow && hdr_flit_is_received) begin 

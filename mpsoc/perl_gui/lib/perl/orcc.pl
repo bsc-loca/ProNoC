@@ -418,7 +418,7 @@ sub get_fifo_list{
 
 sub get_dest_channel_from_orcc_file{
 	my ($actor_file,$actor,$dst_port)=@_;
-	print ("-------------------\n");
+	#print ("-------------------\n");
 	my $str = "${actor}_${dst_port}->read_inds\\s*\\[";
 	my $txt = load_file($actor_file);
 	my $n = capture_number_after($str,$txt);
@@ -517,7 +517,12 @@ sub genereate_output_orcc{
 		my $main_def=""; 
 		my $main_fifo_def="";
 		my $main_fifo_assign="";
-		my $main_fifo_rst_ptr="void reset_all_fifo_ptr(void){\n";
+		my $main_fifo_rst_ptr="
+volatile unsigned char iport_array[${ni_name}_NUM_VCs];
+volatile unsigned char oport_array[${ni_name}_NUM_VCs];
+unsigned int credit_buff[${ni_name}_NUM_VCs];
+
+void reset_all_fifo_ptr(void){\n";
 		
 		my $all_got_packet_function="";	
 		my $all_sent_packet_done_function="";	
@@ -884,12 +889,12 @@ $actor_h=$actor_h."void ${actor}_run_actor(schedinfo_t *);\n";
 $all_run_actor=$all_run_actor."\t\t${actor}_run_actor(&si);\n";	
 #$all_run_actor=$all_run_actor.$actor_local_connect if(defined $actor_local_connect);
 
-my $t = (length  $crdit_update > 10  )? "unsigned int tmp1,tmp2,credit_num;" : ""; 
+my $t = (length  $crdit_update > 10  )? "unsigned int tmp1,tmp2,credit_num,credit_send_buff;" : ""; 
 
 my $actor_run="
 void ${actor}_run_actor (schedinfo_t * si) { 
 	
-	unsigned int credit_send_buff;
+	//unsigned int credit_send_buff;
 	
 	//run schedular
 	
@@ -962,11 +967,11 @@ $schedul
    my $defines="";
    my $pval = 	$self->object_get_attribute("map_param","add_debug");
    $defines .= ($pval eq '1\'b1')? "#define ORCC_DEBUG_EN\n" : "";
-   $pval = 	$self->object_get_attribute("map_param","sent_done_int");
+   $pval = 	$self->object_get_attribute("map_param","sent_int");
    $defines .= ($pval eq '1\'b1')? "#define ORCC_SENT_DONT_INT_EN  1\n" : "#define ORCC_SENT_DONT_INT_EN  0\n";
-   $pval = 	$self->object_get_attribute("map_param","save_done_int");
+   $pval = 	$self->object_get_attribute("map_param","receive_int");
    $defines .= ($pval eq '1\'b1')? "#define ORCC_SAVE_DONT_INT_EN  1\n" : "#define ORCC_SAVE_DONT_INT_EN  0\n";
-   $pval = 	$self->object_get_attribute("map_param","got_pck_int"); 
+   $pval = 	$self->object_get_attribute("map_param","receive_int"); 
    $defines .= ($pval eq '1\'b1')? "#define ORCC_GOT_PCK_INT_EN  1\n" : "#define ORCC_GOT_PCK_INT_EN  0\n";
    $pval = 	$self->object_get_attribute("map_param","got_err_int"); 
    $defines .= ($pval eq '1\'b1')? "#define ORCC_GOT_ERR_INT_EN  1\n" : "#define ORCC_GOT_ERR_INT_EN  0\n";
@@ -1054,7 +1059,7 @@ extern volatile unsigned char oport_array [${ni_name}_NUM_VCs];
 	    	 		
 	    	 		$origen_fuctions= $origen_fuctions . "$line \n";
 	    	 		
-	    	 		#$main_fifo_rst_ptr.="\t printf(\"${fifo_name} addr=%u\\n\", &${fifo_name}->contents[0]);\n";  	 		
+	    	 		#$main_fifo_rst_ptr.="\t printf(\"${fifo_name}_addr=%u\\n\", &${fifo_name}->contents[0]);\n";  	 		
 	    	 		
 	    	 		my $shift =
 	    	 			($type eq "i8"  || $type eq "u8")  ? 0 :
@@ -1156,7 +1161,8 @@ $actor_init
 	unsigned int  transfer_manage (unsigned int, unsigned int, unsigned int, unsigned char, unsigned int, unsigned int, unsigned int,  unsigned int, unsigned int, unsigned int, unsigned char, unsigned int *, unsigned int *);
 	void got_packet_function(void);
 	void check_packet_function (void);
-	void sent_packet_done_function (void);		
+	void sent_packet_done_function (void);	
+	void error_handling_function (void);	
 #endif
 ";
 			open my $fp, ">$target_actor_header" or $r = "$!\n";
@@ -1175,18 +1181,13 @@ $actor_init
 	
 	
 	
-	my $got_pck_func= "
-volatile unsigned char iport_array[${ni_name}_NUM_VCs];
-volatile unsigned char oport_array[${ni_name}_NUM_VCs];
-unsigned int credit_buff[${ni_name}_NUM_VCs];
-
-	
+	my $got_pck_func= "	
 void got_packet_function(void){
 	unsigned int i ;
 	unsigned char iport;
 	for (i=0;i<${ni_name}_NUM_VCs;i++){
-		if(${ni_name}_got_packet(i)) {
-			//while (ni_receive_is_busy(i)); // wait until receive VC is busy 
+		if((${ni_name}_got_packet(i)) & (iport_array[i]==255) & (ni_receive_is_busy(i)==0)) {
+			
 			iport =${ni_name}_RECEIVE_PRECAP_DATA_REG(i); 
 			iport_array[i]=iport;	
 			if(iport==0){ //a credit update packet is recived;
@@ -1233,13 +1234,22 @@ void check_packet_function (void){
 	unsigned char iport;
 	unsigned int i ,size ;
 	unsigned int credit_value,credit_port;
+	#ifdef ORCC_DEBUG_EN
 	struct SRC_INFOS  src_info;
+	#endif
 	for (i=0;i<${ni_name}_NUM_VCs;i++){
 		if(${ni_name}_packet_is_saved(i)) {
-			src_info=get_src_info(i);
+			
 			size=${ni_name}_RECEIVE_DATA_SIZE_REG(i); //size in byte
-			//iport= iport_array[i];
-			iport= src_info.r;
+			iport= iport_array[i];
+			
+			#ifdef ORCC_DEBUG_EN
+			src_info=get_src_info(i);
+			if(iport != src_info.r) printf (\"Error: iport missmatch \%u != \%u \\n\",iport, src_info.r );			  
+			#endif
+			
+			iport_array[i]=255;
+			
 			if(iport==0){ // a credit update packet has been received
 				credit_port  = credit_buff[i] >> 16; //output port num
 				credit_value = (credit_buff[i] & 0xFFFF); // credit value in word
@@ -1390,16 +1400,18 @@ my $v_val= $self->object_get_attribute('noc_param','V');
 my $opr ='';
 for (my $i=0;$i<$v_val; $i++){
 	$opr = $opr."\toport_array[$i]=255;\n"; 
+	$opr = $opr."\tiport_array[$i]=255;\n"; 
 }	
 	
-$main_fifo_rst_ptr.="}\n";	
+$main_fifo_rst_ptr.=
+"$opr
+}\n";	
 	
 	
 my $main="	
 int main(){
-	schedinfo_t si;
-	
-	reset_all_fifo_ptr();
+	schedinfo_t si;	
+	reset_all_fifo_ptr();	
 $all_init_actor	
 	general_int_init();
 	general_int_add(${ni_name}_INT_PIN, ${ni_name}_isr, 0); //${ni_name}_INT_PIN
@@ -1409,7 +1421,7 @@ $all_init_actor
 	// hw interrupt enable function:
 	// ${ni_name}_initial (burst_size,  errors_int_en,  send_int_en,  save_int_en,  got_pck_int_en)
 	${ni_name}_initial (16,ORCC_GOT_ERR_INT_EN,ORCC_SENT_DONT_INT_EN,ORCC_SAVE_DONT_INT_EN,ORCC_GOT_PCK_INT_EN); 
-	$opr
+	
 	delay(100);
 	while(1){
 $all_run_actor

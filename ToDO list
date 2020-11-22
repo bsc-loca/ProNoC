@@ -2,8 +2,11 @@
 
 3: add goto last line only to textview which specfied not all
 
-4: add intrrupt option to orcc
+
 
 5: desgin orcc intrrupt ctrl to hw
+
+6: fix modelsim run to search from current directory
+
 
 

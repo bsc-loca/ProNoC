@@ -1245,7 +1245,7 @@ sub fpga_compilation{
 		$load->show_all;
 		
 		set_gui_status($self,'save_project',1);
-		$app->do_save();
+		$app->ask_to_save_changes();
 		
 		quartus_run_compile ($self,$app,$tview,$target_dir,$name,$window,$end_func,$vendor) if($vendor eq 'Altera');
 		xilinx_run_compile ($self,$app,$tview,$target_dir,$name,$window,$end_func,$vendor)  if($vendor eq 'Xilinx');
@@ -1777,7 +1777,7 @@ run -all
 	
 	$run -> signal_connect("clicked" => sub{
 		set_gui_status($self,'save_project',1);
-		$app->do_save();
+		$app->ask_to_save_changes();
 		
 		
 		add_info($tview,"$cmd\n");
@@ -2982,7 +2982,7 @@ sub verilator_testbench{
 		my $load= show_gif("icons/load.gif");
 		$table->attach ($load,8, 9, 1,2,'shrink','shrink',0,0);
 		$table->show_all;
-		$app->do_save();
+		$app->ask_to_save_changes();
 		copy("$dir/testbench.cpp", "$verilator/processed_rtl/obj_dir/testbench.cpp"); 
 		copy("$dir/parameter.h", "$verilator/processed_rtl/obj_dir/parameter.h") if(-f "$dir/parameter.h"); 
 		copy("$dir/RxDsim.h", "$verilator/processed_rtl/obj_dir/RxDsim.h") if(-f "$dir/RxDsim.h");
