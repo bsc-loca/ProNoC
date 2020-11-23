@@ -24,6 +24,8 @@
 # 
 #######################################
 
+
+
 	.globl _crtinit
 	.align 2
 	.ent _crtinit
@@ -63,7 +65,7 @@ _crtinit:
     
 	addi	r6, r0, 0                       /* Initialize argc = 1 and argv = NULL and envp = NULL  */
 	addi	r7, r0, 0			
-      	brlid	r15, main                       /* Execute the program */
+      	brlid	r15, (__main)              /*initial_global_data first and then call main
     	addi	r5, r0, 0
 
         addik   r19, r3, 0                      /* Save return value */

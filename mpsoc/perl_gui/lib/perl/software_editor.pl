@@ -90,11 +90,10 @@ sub software_main {
 	my $app = __PACKAGE__->new();
 	my ($table,$tview,$widget)=$app->build_gui($sw,$pages_ref,$lable_ref);
 	my $main_c=(defined $file)? "$sw/$file" : "$sw/main.c";
-	$app->load_source($main_c) if (-f $main_c );
 	my @tmp;
 	$app->open_list_ref(\@tmp);
 	$app->ask_to_save(def_button());
-
+	$app->load_source($main_c) if (-f $main_c );
 	return ($app,$table,$tview,$widget);
 }
 

@@ -82,7 +82,7 @@ _start1:
 	brlid	r15, _crtinit               /* Initialize BSS and run program */
 	nop
 
-        brlid   r15, exit                   /* Call exit with the return value of main */
+        brlid   r15, _exit                   /* Call exit with the return value of main */
         addik   r5, r3, 0                   
 
         /* Control does not reach here */
@@ -96,5 +96,8 @@ _start1:
         .ent _exit
 _exit:
         bri     0
-	.end _exit     
-   
+	.end _exit    
+
+
+
+

@@ -1,9 +1,6 @@
 SOURCE_LIB =
 include SOURCE_LIB
 
-STACK_SIZE=${STACK_SIZE}
-HEAP_SIZE=${HEAP_SIZE}
-
 HDR_SOURCE_DIR=aemb
 
 TOOLCHAIN=$(PRONOC_WORK)/toolchain/aemb
@@ -20,36 +17,46 @@ MB_CC=$(MB_TOOL_PREFIX)g++
 MB_AR=$(MB_TOOL_PREFIX)ar
 MB_OBJDUMP=$(MB_TOOL_PREFIX)objdump
 MB_OBJCOPY=$(MB_TOOL_PREFIX)objcopy
+MB_LIB1=${TOOLCHAIN}/lib/gcc/microblaze-xilinx-elf/4.1.1
 
 ELFFILE=image
 XILFLAGS=-mtune=v5.00 -mxl-soft-div -msoft-float -mxl-barrel-shift -mno-xl-soft-mul
-CXXFLAGS=-O1
-LNKFLAGS=-Wl,-defsym -Wl,_STACK_SIZE=$(STACK_SIZE) -Wl,-defsym -Wl,_HEAP_SIZE=$(HEAP_SIZE)
+CXXFLAGS=-O1 
+#LNKFLAGS=-Wl,-defsym -Wl,_STACK_SIZE=$(STACK_SIZE) -Wl,-defsym -Wl,_HEAP_SIZE=$(HEAP_SIZE)
 LIBFLAGS=
 INCFLAGS=-Icc/
 
-LIBRARIES =  -L. -lorlib -lgcc
+LDFLAGS ?=    -Tlink.ld  -e 256 
+
+LIBRARIES = -L${MB_LIB1} -L. -L./$(HDR_SOURCE_DIR) -lorlib -lgcc
+#LIBRARIES =  -L. -lorlib -lgcc
 
 # Sources to go into the liborpsoc.a support library
-COMPILE_SRCS= $(SOURCE_LIB) $(HDR_SOURCE_DIR)/custom_crt/crt0.s $(HDR_SOURCE_DIR)/custom_crt/crtinit.s
+COMPILE_SRCS=     $(SOURCE_LIB)
+
+#$(HDR_SOURCE_DIR)/custom_crt/_interrupt_handler.s
+ASSEMBELS=    $(HDR_SOURCE_DIR)/__main.c  $(HDR_SOURCE_DIR)/custom_crt/_exception_handler.s   $(HDR_SOURCE_DIR)/custom_crt/_hw_exception_handler.s  
+
 
 
 all: image.ihex
 
 lib:
 #compile all source code
-	$(MB_CC) -Wall $(XILFLAGS) $(CXXFLAGS) $(LIBFLAGS) $(INCFLAGS) -c $(COMPILE_SRCS) 
+	$(MB_CC) -Wall $(XILFLAGS) $(CXXFLAGS) $(LIBFLAGS) $(INCFLAGS) -specs=aemb.specs -c $(COMPILE_SRCS) $(ASSEMBELS)
 #add them to liborlib.a
 	$(MB_AR) -cvq liborlib.a *.o
 
 
 #compile main file using liborlib.a
 main.o: lib main.c
-	$(MB_CC) -Wall $(XILFLAGS) $(CXXFLAGS) $(LIBFLAGS) $(INCFLAGS) -c main.c  -o main.o
-	
-image:  main.o   Makefile 
-	$(MB_CC) -Wall $(XILFLAGS) $(CXXFLAGS) $(LNKFLAGS) $(LIBFLAGS) $(INCFLAGS) -specs=aemb.specs main.o  -o $(ELFFILE) $(LIBRARIES)
-
+	$(MB_CC) -Wall $(XILFLAGS) $(CXXFLAGS) $(LIBFLAGS) $(INCFLAGS) -specs=aemb.specs -c main.c  -o main.o
+	$(MB_CC) -Wall $(XILFLAGS) $(CXXFLAGS) $(LIBFLAGS) $(INCFLAGS) -specs=aemb.specs -c $(HDR_SOURCE_DIR)/custom_crt/crt0.s  -o crt0.o
+	$(MB_CC) -Wall $(XILFLAGS) $(CXXFLAGS) $(LIBFLAGS) $(INCFLAGS) -specs=aemb.specs -c $(HDR_SOURCE_DIR)/custom_crt/crtinit.s -o crtinit.o
+	#$(MB_LD) -Ur  crt0.o crtinit.o  main.o -o mm.o
+image: main.o  Makefile 
+	#$(MB_CC) -Wall $(XILFLAGS) $(CXXFLAGS) $(LNKFLAGS) $(LIBFLAGS) $(INCFLAGS) -specs=aemb.specs main.o  -o $(ELFFILE) $(LIBRARIES)
+	$(MB_LD) $(LDFLAGS) crt0.o crtinit.o  main.o -Map image.map -N -o  image    $(LIBRARIES)
 
 image.lst: image
 	$(MB_OBJDUMP) -h -S $< > $@
