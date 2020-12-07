@@ -6,431 +6,20 @@
 ##	This file is part of ProNoC 1.9.1 
 ##
 ## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
-##	MAY CAUSE UNEXPECTED BEHAIVOR.
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
 ################################################################################
 
 $soc = bless( {
-                'instances' => {
-                                 'source_probe0' => {
-                                                      'instance_name' => 'sp',
-                                                      'parameters' => {
-                                                                        'JTAG_CHAIN' => {
-                                                                                          'value' => '3'
-                                                                                        },
-                                                                        'JDw' => {
-                                                                                   'value' => '32'
-                                                                                 },
-                                                                        'JTAG_CONNECT' => {
-                                                                                            'value' => '"XILINX_JTAG_WB" '
-                                                                                          },
-                                                                        'JTAG_INDEX' => {
-                                                                                          'value' => ' 0'
-                                                                                        },
-                                                                        'J2WBw' => {
-                                                                                     'value' => '(JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+JDw+JAw : 1'
-                                                                                   },
-                                                                        'Dw' => {
-                                                                                  'value' => '4'
-                                                                                },
-                                                                        'JSTATUSw' => {
-                                                                                        'value' => '8'
-                                                                                      },
-                                                                        'JINDEXw' => {
-                                                                                       'value' => '8'
-                                                                                     },
-                                                                        'WB2Jw' => {
-                                                                                     'value' => '(JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw  : 1'
-                                                                                   },
-                                                                        'JAw' => {
-                                                                                   'value' => '32'
-                                                                                 }
-                                                                      },
-                                                      'module_name' => 'pronoc_jtag_source_probe',
-                                                      'category' => 'Communication',
-                                                      'sockets' => {
-                                                                     'jtag_to_wb' => {
-                                                                                       'value' => 1,
-                                                                                       'connection_num' => 'single connection',
-                                                                                       'type' => 'num',
-                                                                                       'nums' => {
-                                                                                                   '0' => {
-                                                                                                            'name' => 'jtag_to_wb'
-                                                                                                          }
-                                                                                                 }
-                                                                                     }
-                                                                   },
-                                                      'description_pdf' => undef,
-                                                      'parameters_order' => [
-                                                                              'Dw',
-                                                                              'JTAG_CONNECT',
-                                                                              'JTAG_INDEX',
-                                                                              'JDw',
-                                                                              'JAw',
-                                                                              'JINDEXw',
-                                                                              'JSTATUSw',
-                                                                              'J2WBw',
-                                                                              'WB2Jw',
-                                                                              'JTAG_CHAIN'
-                                                                            ],
-                                                      'plugs' => {
-                                                                   'clk' => {
-                                                                              'connection_num' => undef,
-                                                                              'value' => 1,
-                                                                              'nums' => {
-                                                                                          '0' => {
-                                                                                                   'connect_id' => 'clk_source0',
-                                                                                                   'name' => 'clk',
-                                                                                                   'connect_socket' => 'clk',
-                                                                                                   'connect_socket_num' => '0'
-                                                                                                 }
-                                                                                        },
-                                                                              'type' => 'num'
-                                                                            },
-                                                                   'reset' => {
-                                                                                'value' => 1,
-                                                                                'connection_num' => undef,
-                                                                                'type' => 'num',
-                                                                                'nums' => {
-                                                                                            '0' => {
-                                                                                                     'connect_socket' => 'reset',
-                                                                                                     'connect_socket_num' => '0',
-                                                                                                     'name' => 'reset',
-                                                                                                     'connect_id' => 'clk_source0'
-                                                                                                   }
-                                                                                          }
-                                                                              }
-                                                                 },
-                                                      'module' => 'source_probe'
-                                                    },
-                                 'clk_source0' => {
-                                                    'parameters_order' => [],
-                                                    'sockets' => {
-                                                                   'reset' => {
-                                                                                'connection_num' => 'multi connection',
-                                                                                'value' => 1,
-                                                                                'type' => 'num',
-                                                                                'nums' => {
-                                                                                            '0' => {
-                                                                                                     'name' => 'reset'
-                                                                                                   }
-                                                                                          }
-                                                                              },
-                                                                   'clk' => {
-                                                                              'type' => 'num',
-                                                                              'nums' => {
-                                                                                          '0' => {
-                                                                                                   'name' => 'clk'
-                                                                                                 }
-                                                                                        },
-                                                                              'connection_num' => 'multi connection',
-                                                                              'value' => 1
-                                                                            }
-                                                                 },
-                                                    'description_pdf' => undef,
-                                                    'category' => 'Source',
-                                                    'module' => 'clk_source',
-                                                    'plugs' => {
-                                                                 'clk' => {
-                                                                            'type' => 'num',
-                                                                            'nums' => {
-                                                                                        '0' => {
-                                                                                                 'connect_socket' => undef,
-                                                                                                 'connect_socket_num' => undef,
-                                                                                                 'name' => 'clk',
-                                                                                                 'connect_id' => 'IO'
-                                                                                               }
-                                                                                      },
-                                                                            'connection_num' => undef,
-                                                                            'value' => 1
-                                                                          },
-                                                                 'reset' => {
-                                                                              'nums' => {
-                                                                                          '0' => {
-                                                                                                   'connect_socket' => undef,
-                                                                                                   'connect_socket_num' => undef,
-                                                                                                   'connect_id' => 'IO',
-                                                                                                   'name' => 'reset'
-                                                                                                 }
-                                                                                        },
-                                                                              'type' => 'num',
-                                                                              'connection_num' => undef,
-                                                                              'value' => 1
-                                                                            }
-                                                               },
-                                                    'parameters' => {},
-                                                    'instance_name' => 'ss',
-                                                    'module_name' => 'clk_source'
-                                                  }
+                'timer0' => {
+                              'version' => 11
+                            },
+                'liststore' => {
+                                 'ha' => '0',
+                                 'va' => '0'
                                },
-                'SOURCE_SET_CONNECT' => {
-                                          'T0_pll_reset_in' => 'reset0',
-                                          'T0_ss_clk_in' => 'clk99',
-                                          'T0_ss_reset_in' => 'reset0',
-                                          'T0_pll_clk_in' => 'clk'
-                                        },
                 'ProNoC_jtag_uart1' => {
                                          'version' => 6
                                        },
-                'tile_diagram' => {
-                                    'show_unused' => 1,
-                                    'show_clk' => 0,
-                                    'show_reset' => 0
-                                  },
-                'top_ip' => bless( {
-                                     'instance_ids' => {
-                                                         'source_probe0' => {
-                                                                              'parameters' => {
-                                                                                                'sp_JTAG_CONNECT' => {
-                                                                                                                       'info' => 'Parameter',
-                                                                                                                       'global_param' => 'Parameter',
-                                                                                                                       'type' => 'Combo-box',
-                                                                                                                       'default' => '"XILINX_JTAG_WB" ',
-                                                                                                                       'redefine_param' => 1,
-                                                                                                                       'content' => '"ALTERA_JTAG_WB","XILINX_JTAG_WB" '
-                                                                                                                     },
-                                                                                                'sp_J2WBw' => {
-                                                                                                                'content' => '',
-                                                                                                                'info' => 'Parameter',
-                                                                                                                'global_param' => 'Parameter',
-                                                                                                                'type' => 'Fixed',
-                                                                                                                'default' => '(sp_JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+sp_JDw+sp_JAw : 1',
-                                                                                                                'redefine_param' => 1
-                                                                                                              },
-                                                                                                'sp_JTAG_CHAIN' => {
-                                                                                                                     'redefine_param' => 0,
-                                                                                                                     'default' => '3',
-                                                                                                                     'global_param' => 'Parameter',
-                                                                                                                     'info' => 'Only used for Virtex 4/5 devices. May be 1, 2, 3, or 4. It is the  BSCANE2 JTAG tap number.',
-                                                                                                                     'type' => 'Combo-box',
-                                                                                                                     'content' => '1,2,3,4 '
-                                                                                                                   },
-                                                                                                'sp_JTAG_INDEX' => {
-                                                                                                                     'content' => '0,128,1',
-                                                                                                                     'default' => ' 0',
-                                                                                                                     'redefine_param' => 1,
-                                                                                                                     'global_param' => 'Parameter',
-                                                                                                                     'info' => ' A unique index number which will be used for adressing this source probe module.',
-                                                                                                                     'type' => 'Spin-button'
-                                                                                                                   },
-                                                                                                'sp_Dw' => {
-                                                                                                             'redefine_param' => 1,
-                                                                                                             'default' => '4',
-                                                                                                             'type' => 'Spin-button',
-                                                                                                             'global_param' => 'Parameter',
-                                                                                                             'info' => 'probe/probe width in bits ',
-                                                                                                             'content' => '1,32,1'
-                                                                                                           },
-                                                                                                'sp_JINDEXw' => {
-                                                                                                                  'global_param' => 'Parameter',
-                                                                                                                  'type' => 'Fixed',
-                                                                                                                  'info' => 'Parameter',
-                                                                                                                  'redefine_param' => 1,
-                                                                                                                  'default' => '8',
-                                                                                                                  'content' => ''
-                                                                                                                },
-                                                                                                'sp_JAw' => {
-                                                                                                              'content' => '',
-                                                                                                              'info' => 'Parameter',
-                                                                                                              'global_param' => 'Parameter',
-                                                                                                              'type' => 'Fixed',
-                                                                                                              'redefine_param' => 1,
-                                                                                                              'default' => '32'
-                                                                                                            },
-                                                                                                'sp_JDw' => {
-                                                                                                              'content' => '',
-                                                                                                              'type' => 'Fixed',
-                                                                                                              'global_param' => 'Parameter',
-                                                                                                              'info' => 'Parameter',
-                                                                                                              'default' => '32',
-                                                                                                              'redefine_param' => 1
-                                                                                                            },
-                                                                                                'sp_JSTATUSw' => {
-                                                                                                                   'type' => 'Fixed',
-                                                                                                                   'global_param' => 'Parameter',
-                                                                                                                   'info' => 'Parameter',
-                                                                                                                   'redefine_param' => 1,
-                                                                                                                   'default' => '8',
-                                                                                                                   'content' => ''
-                                                                                                                 },
-                                                                                                'sp_WB2Jw' => {
-                                                                                                                'global_param' => 'Parameter',
-                                                                                                                'info' => 'Parameter',
-                                                                                                                'type' => 'Fixed',
-                                                                                                                'default' => '(sp_JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+sp_JSTATUSw+sp_JINDEXw+1+sp_JDw  : 1',
-                                                                                                                'redefine_param' => 1,
-                                                                                                                'content' => ''
-                                                                                                              }
-                                                                                              },
-                                                                              'category' => 'Communication',
-                                                                              'ports' => {
-                                                                                           'sp_wb_to_jtag' => {
-                                                                                                                'range' => 'sp_WB2Jw-1: 0',
-                                                                                                                'intfc_port' => 'jwb_o',
-                                                                                                                'type' => 'output',
-                                                                                                                'intfc_name' => 'socket:jtag_to_wb[0]'
-                                                                                                              },
-                                                                                           'sp_jtag_to_wb' => {
-                                                                                                                'intfc_port' => 'jwb_i',
-                                                                                                                'range' => 'sp_J2WBw-1 : 0',
-                                                                                                                'intfc_name' => 'socket:jtag_to_wb[0]',
-                                                                                                                'type' => 'input'
-                                                                                                              },
-                                                                                           'sp_probe_i' => {
-                                                                                                             'intfc_name' => 'IO',
-                                                                                                             'type' => 'input',
-                                                                                                             'range' => 'sp_Dw-1	:0',
-                                                                                                             'intfc_port' => 'IO'
-                                                                                                           },
-                                                                                           'sp_source_o' => {
-                                                                                                              'type' => 'output',
-                                                                                                              'intfc_name' => 'IO',
-                                                                                                              'intfc_port' => 'IO',
-                                                                                                              'range' => 'sp_Dw-1	:0'
-                                                                                                            }
-                                                                                         },
-                                                                              'module_name' => 'pronoc_jtag_source_probe',
-                                                                              'instance' => 'sp',
-                                                                              'module' => 'source_probe'
-                                                                            },
-                                                         'clk_source0' => {
-                                                                            'module' => 'clk_source',
-                                                                            'instance' => 'ss',
-                                                                            'module_name' => 'clk_source',
-                                                                            'ports' => {
-                                                                                         'ss_reset_in' => {
-                                                                                                            'range' => '',
-                                                                                                            'intfc_port' => 'reset_i',
-                                                                                                            'type' => 'input',
-                                                                                                            'intfc_name' => 'plug:reset[0]'
-                                                                                                          },
-                                                                                         'ss_clk_in' => {
-                                                                                                          'intfc_port' => 'clk_i',
-                                                                                                          'range' => '',
-                                                                                                          'intfc_name' => 'plug:clk[0]',
-                                                                                                          'type' => 'input'
-                                                                                                        }
-                                                                                       },
-                                                                            'category' => 'Source'
-                                                                          }
-                                                       },
-                                     'interface' => {
-                                                      'IO' => {
-                                                                'ports' => {
-                                                                             'sp_source_o' => {
-                                                                                                'instance_name' => 'source_probe0',
-                                                                                                'range' => 'sp_Dw-1	:0',
-                                                                                                'intfc_port' => 'IO',
-                                                                                                'type' => 'output'
-                                                                                              },
-                                                                             'sp_probe_i' => {
-                                                                                               'type' => 'input',
-                                                                                               'instance_name' => 'source_probe0',
-                                                                                               'intfc_port' => 'IO',
-                                                                                               'range' => 'sp_Dw-1	:0'
-                                                                                             }
-                                                                           }
-                                                              },
-                                                      'plug:clk[0]' => {
-                                                                         'ports' => {
-                                                                                      'ss_clk_in' => {
-                                                                                                       'type' => 'input',
-                                                                                                       'intfc_port' => 'clk_i',
-                                                                                                       'range' => '',
-                                                                                                       'instance_name' => 'clk_source0'
-                                                                                                     }
-                                                                                    }
-                                                                       },
-                                                      'plug:reset[0]' => {
-                                                                           'ports' => {
-                                                                                        'ss_reset_in' => {
-                                                                                                           'instance_name' => 'clk_source0',
-                                                                                                           'range' => '',
-                                                                                                           'intfc_port' => 'reset_i',
-                                                                                                           'type' => 'input'
-                                                                                                         }
-                                                                                      }
-                                                                         },
-                                                      'socket:jtag_to_wb[0]' => {
-                                                                                  'ports' => {
-                                                                                               'sp_jtag_to_wb' => {
-                                                                                                                    'instance_name' => 'source_probe0',
-                                                                                                                    'intfc_port' => 'jwb_i',
-                                                                                                                    'range' => 'sp_J2WBw-1 : 0',
-                                                                                                                    'type' => 'input'
-                                                                                                                  },
-                                                                                               'sp_wb_to_jtag' => {
-                                                                                                                    'type' => 'output',
-                                                                                                                    'range' => 'sp_WB2Jw-1: 0',
-                                                                                                                    'intfc_port' => 'jwb_o',
-                                                                                                                    'instance_name' => 'source_probe0'
-                                                                                                                  }
-                                                                                             }
-                                                                                }
-                                                    },
-                                     'ports' => {
-                                                  'sp_wb_to_jtag' => {
-                                                                       'type' => 'output',
-                                                                       'intfc_name' => 'socket:jtag_to_wb[0]',
-                                                                       'intfc_port' => 'jwb_o',
-                                                                       'range' => 'sp_WB2Jw-1: 0',
-                                                                       'instance_name' => 'source_probe0'
-                                                                     },
-                                                  'sp_jtag_to_wb' => {
-                                                                       'instance_name' => 'source_probe0',
-                                                                       'intfc_port' => 'jwb_i',
-                                                                       'range' => 'sp_J2WBw-1 : 0',
-                                                                       'type' => 'input',
-                                                                       'intfc_name' => 'socket:jtag_to_wb[0]'
-                                                                     },
-                                                  'sp_probe_i' => {
-                                                                    'type' => 'input',
-                                                                    'intfc_name' => 'IO',
-                                                                    'instance_name' => 'source_probe0',
-                                                                    'intfc_port' => 'IO',
-                                                                    'range' => 'sp_Dw-1	:0'
-                                                                  },
-                                                  'sp_source_o' => {
-                                                                     'type' => 'output',
-                                                                     'intfc_name' => 'IO',
-                                                                     'range' => 'sp_Dw-1	:0',
-                                                                     'intfc_port' => 'IO',
-                                                                     'instance_name' => 'source_probe0'
-                                                                   },
-                                                  'ss_reset_in' => {
-                                                                     'intfc_name' => 'plug:reset[0]',
-                                                                     'type' => 'input',
-                                                                     'range' => '',
-                                                                     'intfc_port' => 'reset_i',
-                                                                     'instance_name' => 'clk_source0'
-                                                                   },
-                                                  'ss_clk_in' => {
-                                                                   'type' => 'input',
-                                                                   'intfc_name' => 'plug:clk[0]',
-                                                                   'intfc_port' => 'clk_i',
-                                                                   'range' => '',
-                                                                   'instance_name' => 'clk_source0'
-                                                                 }
-                                                }
-                                   }, 'ip_gen' ),
-                'current_module_param' => undef,
-                'compile_assign_type' => {
-                                           'pll_clk_in' => 'Direct',
-                                           'sp_probe_i' => 'Direct',
-                                           'cpu_cpu_en' => 'Direct',
-                                           'pll_reset_in' => 'Direct',
-                                           'source_probe_probe_i' => 'Direct',
-                                           'jtag_debug_reset_in' => 'Direct'
-                                         },
-                'source_probe0' => {
-                                     'version' => 4
-                                   },
-                'gui_status' => {
-                                  'timeout' => 0,
-                                  'status' => 'save_project'
-                                },
-                'xilinx_pll0' => {
-                                   'version' => 15
-                                 },
                 'parameters_order' => {
                                         'Unset-intfc' => [
                                                            'uart-RxD_din_sim',
@@ -449,46 +38,6 @@ $soc = bless( {
                                                            'pll-clk_out4',
                                                            'pll-clk_out5'
                                                          ],
-                                        'compile' => [
-                                                       'quartus_board',
-                                                       'quartus_qsf',
-                                                       'quartus_v',
-                                                       'quartus_pid',
-                                                       'quartus_hardware',
-                                                       'quartus_device',
-                                                       'quartus_board',
-                                                       'quartus_qsf',
-                                                       'quartus_v',
-                                                       'quartus_pid',
-                                                       'quartus_hardware',
-                                                       'quartus_board',
-                                                       'quartus_qsf',
-                                                       'quartus_v',
-                                                       'quartus_pid',
-                                                       'quartus_hardware',
-                                                       'fpga_board',
-                                                       'board_confg_file',
-                                                       'fpga_board_part',
-                                                       'fpga_part',
-                                                       'fpga_board_v',
-                                                       'fpga_part',
-                                                       'fpga_board_v',
-                                                       'fpga_part',
-                                                       'fpga_board_v',
-                                                       'fpga_board_repo',
-                                                       'fpga_hw_device',
-                                                       'fpga_board_order'
-                                                     ],
-                                        'SOURCE_SET' => [
-                                                          'clk_number',
-                                                          'clk_0_name',
-                                                          'reset_number',
-                                                          'reset_0_name',
-                                                          'clk_0_mhz',
-                                                          'clk_0_period',
-                                                          'clk_0_rise',
-                                                          'clk_0_fall'
-                                                        ],
                                         'current_module_param' => [
                                                                     'BANDWIDTH',
                                                                     'CLKFBOUT_MULT',
@@ -814,153 +363,332 @@ $soc = bless( {
                                                                     'WB2Jw',
                                                                     'JTAG_CHAIN'
                                                                   ],
+                                        'compile' => [
+                                                       'quartus_board',
+                                                       'quartus_qsf',
+                                                       'quartus_v',
+                                                       'quartus_pid',
+                                                       'quartus_hardware',
+                                                       'quartus_device',
+                                                       'quartus_board',
+                                                       'quartus_qsf',
+                                                       'quartus_v',
+                                                       'quartus_pid',
+                                                       'quartus_hardware',
+                                                       'quartus_board',
+                                                       'quartus_qsf',
+                                                       'quartus_v',
+                                                       'quartus_pid',
+                                                       'quartus_hardware',
+                                                       'fpga_board',
+                                                       'board_confg_file',
+                                                       'fpga_board_part',
+                                                       'fpga_part',
+                                                       'fpga_board_v',
+                                                       'fpga_part',
+                                                       'fpga_board_v',
+                                                       'fpga_part',
+                                                       'fpga_board_v',
+                                                       'fpga_board_repo',
+                                                       'fpga_hw_device',
+                                                       'fpga_board_order'
+                                                     ],
                                         'SOURCE_SET_CONNECT' => [
                                                                   'T0_pll_clk_in',
                                                                   'T0_pll_reset_in',
                                                                   'T0_ss_clk_in',
                                                                   'T0_ss_reset_in'
-                                                                ]
-                                      },
-                'hdl_files' => undef,
-                'compile_pin_pos' => {
-                                       'source_probe_source_o' => [
-                                                                    3,
-                                                                    0
-                                                                  ],
-                                       'pll_clk_in' => [
-                                                         4,
-                                                         0
-                                                       ],
-                                       'sp_source_o' => [
-                                                          3,
-                                                          0
-                                                        ],
-                                       'jtag_debug_reset_in' => [
-                                                                  3,
-                                                                  0
                                                                 ],
-                                       'source_probe_probe_i' => [
-                                                                   0,
-                                                                   0
-                                                                 ],
-                                       'pll_reset_in' => [
-                                                           3,
-                                                           0
-                                                         ],
-                                       'cpu_cpu_en' => [
-                                                         2,
-                                                         0
-                                                       ],
-                                       'led_port_o' => [
-                                                         3,
-                                                         0
-                                                       ]
-                                     },
-                'dma0' => {
-                            'version' => 4
-                          },
+                                        'SOURCE_SET' => [
+                                                          'clk_number',
+                                                          'clk_0_name',
+                                                          'reset_number',
+                                                          'reset_0_name',
+                                                          'clk_0_mhz',
+                                                          'clk_0_period',
+                                                          'clk_0_rise',
+                                                          'clk_0_fall'
+                                                        ]
+                                      },
+                'tile_diagram' => {
+                                    'show_reset' => 0,
+                                    'show_clk' => 0,
+                                    'show_unused' => 1
+                                  },
                 'jtag_uart0' => {
                                   'version' => 20
                                 },
-                'sim_uart0' => {
-                                 'version' => 7
-                               },
-                'timer0' => {
-                              'version' => 11
-                            },
-                'compile' => {
-                               'board_confg_file' => '/home/alireza/work/develop/xilinx/artyz7/digilent-xdc-master/Arty-Z7-20-Master.xdc',
-                               'board' => 'Arty_z7_20',
-                               'type' => 'Vivado',
-                               'vivado_bin' => '/home/alireza/xilinx/Vivado/2019.1/bin',
-                               'fpga_board' => 'Arty_z7_20',
-                               'modelsim_bin' => '/home/alireza/intelFPGA_lite/18.1/modelsim_ase/bin',
-                               'quartus_v' => undef,
-                               'fpga_board_part' => 'digilentinc.com:arty-z7-20:part0:1.0',
-                               'compilers' => 'QuartusII,Vivado,Verilator,Modelsim',
-                               'quartus_bin' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
-                               'quartus_board' => undef,
-                               'quartus_pid' => undef,
-                               'fpga_board_repo' => '/home/alireza/work/hca_git/mpsoc_work/toolchain/board_files',
-                               'vivado bin' => '/home/alireza/xilinx/Vivado/2019.1/bin',
-                               'quartus_qsf' => undef,
-                               'fpga_board_v' => '/home/alireza/work/develop/xilinx/add_board/Arty_Z7/Arty_z7.v',
-                               'fpga_part' => 'xc7z020clg400-1',
-                               'quartus_device' => 0,
-                               'fpga_board_order' => '3',
-                               'fpga_hw_device' => 'xc7z020_1',
-                               'quartus_hardware' => undef
-                             },
-                'global_param' => {
-                                    'SW_LOC' => '/home/alireza/work/hca_git/mpsoc_work/SOC/jtag_led/sw',
-                                    'CORE_ID' => 0
-                                  },
-                'liststore' => {
-                                 'va' => '0',
-                                 'ha' => '0'
-                               },
-                'instance_order' => [
-                                      'clk_source0',
-                                      'source_probe0'
-                                    ],
-                'single_port_ram0' => {
-                                        'version' => 32
-                                      },
-                'xilinx_pll1' => {
-                                   'version' => 8
-                                 },
-                'clk_source0' => {
-                                   'version' => 0
-                                 },
-                'compile_pin_range_lsb' => {
-                                             'sp_source_o' => 0,
-                                             'led_port_o' => 0,
-                                             'source_probe_source_o' => 0,
-                                             'jtag_debug_reset_in' => 0,
-                                             'pll_reset_in' => 0
-                                           },
-                'compile_pin' => {
-                                   'jtag_debug_reset_in' => 'btn',
-                                   'source_probe_probe_i' => '*GND',
-                                   'pll_reset_in' => 'btn',
-                                   'cpu_cpu_en' => '*VCC',
-                                   'led_port_o' => 'led',
-                                   'source_probe_source_o' => 'led',
-                                   'pll_clk_in' => 'clk',
-                                   'sp_source_o' => 'led'
-                                 },
-                'ProNoC_jtag_uart0' => {
-                                         'version' => 9
-                                       },
-                'mor1kx0' => {
-                               'version' => 22
-                             },
-                'single_port_ram1' => {
-                                        'version' => 25
-                                      },
-                'compile_pin_range_hsb' => {
-                                             'led_port_o' => '0',
-                                             'sp_source_o' => 3,
-                                             'source_probe_source_o' => 3
-                                           },
-                'gpo0' => {
-                            'version' => 2
-                          },
-                'soc_name' => 'jtag_led',
                 'ni_master0' => {
                                   'version' => 75
                                 },
+                'clk_source0' => {
+                                   'version' => 0
+                                 },
+                'modules' => {},
+                'current_module_param' => undef,
                 'verilator' => {
                                  'libs' => {
                                              'Vtop' => 'mor1k_soc.v'
                                            }
                                },
+                'soc_name' => 'jtag_led',
+                'noc_param' => {},
+                'compile_assign_type' => {
+                                           'jtag_debug_reset_in' => 'Direct',
+                                           'sp_probe_i' => 'Direct',
+                                           'pll_clk_in' => 'Direct',
+                                           'source_probe_probe_i' => 'Direct',
+                                           'cpu_cpu_en' => 'Direct',
+                                           'pll_reset_in' => 'Direct'
+                                         },
+                'instances' => {
+                                 'clk_source0' => {
+                                                    'module_name' => 'clk_source',
+                                                    'parameters_order' => [],
+                                                    'sockets' => {
+                                                                   'reset' => {
+                                                                                'value' => 1,
+                                                                                'connection_num' => 'multi connection',
+                                                                                'type' => 'num',
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'name' => 'reset'
+                                                                                                   }
+                                                                                          }
+                                                                              },
+                                                                   'clk' => {
+                                                                              'connection_num' => 'multi connection',
+                                                                              'value' => 1,
+                                                                              'type' => 'num',
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'name' => 'clk'
+                                                                                                 }
+                                                                                        }
+                                                                            }
+                                                                 },
+                                                    'category' => 'Source',
+                                                    'plugs' => {
+                                                                 'reset' => {
+                                                                              'connection_num' => undef,
+                                                                              'value' => 1,
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'connect_socket_num' => undef,
+                                                                                                   'connect_id' => 'IO',
+                                                                                                   'connect_socket' => undef,
+                                                                                                   'name' => 'reset'
+                                                                                                 }
+                                                                                        },
+                                                                              'type' => 'num'
+                                                                            },
+                                                                 'clk' => {
+                                                                            'value' => 1,
+                                                                            'connection_num' => undef,
+                                                                            'nums' => {
+                                                                                        '0' => {
+                                                                                                 'name' => 'clk',
+                                                                                                 'connect_socket' => undef,
+                                                                                                 'connect_socket_num' => undef,
+                                                                                                 'connect_id' => 'IO'
+                                                                                               }
+                                                                                      },
+                                                                            'type' => 'num'
+                                                                          }
+                                                               },
+                                                    'instance_name' => 'ss',
+                                                    'parameters' => {},
+                                                    'description_pdf' => undef,
+                                                    'module' => 'clk_source'
+                                                  },
+                                 'source_probe0' => {
+                                                      'description_pdf' => undef,
+                                                      'module' => 'source_probe',
+                                                      'module_name' => 'pronoc_jtag_source_probe',
+                                                      'parameters_order' => [
+                                                                              'Dw',
+                                                                              'JTAG_CONNECT',
+                                                                              'JTAG_INDEX',
+                                                                              'JDw',
+                                                                              'JAw',
+                                                                              'JINDEXw',
+                                                                              'JSTATUSw',
+                                                                              'J2WBw',
+                                                                              'WB2Jw',
+                                                                              'JTAG_CHAIN'
+                                                                            ],
+                                                      'parameters' => {
+                                                                        'JTAG_CONNECT' => {
+                                                                                            'value' => '"XILINX_JTAG_WB" '
+                                                                                          },
+                                                                        'JINDEXw' => {
+                                                                                       'value' => '8'
+                                                                                     },
+                                                                        'JTAG_INDEX' => {
+                                                                                          'value' => ' 0'
+                                                                                        },
+                                                                        'JTAG_CHAIN' => {
+                                                                                          'value' => '3'
+                                                                                        },
+                                                                        'Dw' => {
+                                                                                  'value' => '4'
+                                                                                },
+                                                                        'J2WBw' => {
+                                                                                     'value' => '(JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+JDw+JAw : 1'
+                                                                                   },
+                                                                        'JAw' => {
+                                                                                   'value' => '32'
+                                                                                 },
+                                                                        'JDw' => {
+                                                                                   'value' => '32'
+                                                                                 },
+                                                                        'JSTATUSw' => {
+                                                                                        'value' => '8'
+                                                                                      },
+                                                                        'WB2Jw' => {
+                                                                                     'value' => '(JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw  : 1'
+                                                                                   }
+                                                                      },
+                                                      'plugs' => {
+                                                                   'reset' => {
+                                                                                'nums' => {
+                                                                                            '0' => {
+                                                                                                     'connect_socket_num' => '0',
+                                                                                                     'connect_id' => 'clk_source0',
+                                                                                                     'name' => 'reset',
+                                                                                                     'connect_socket' => 'reset'
+                                                                                                   }
+                                                                                          },
+                                                                                'type' => 'num',
+                                                                                'connection_num' => undef,
+                                                                                'value' => 1
+                                                                              },
+                                                                   'clk' => {
+                                                                              'type' => 'num',
+                                                                              'nums' => {
+                                                                                          '0' => {
+                                                                                                   'connect_id' => 'clk_source0',
+                                                                                                   'connect_socket_num' => '0',
+                                                                                                   'name' => 'clk',
+                                                                                                   'connect_socket' => 'clk'
+                                                                                                 }
+                                                                                        },
+                                                                              'value' => 1,
+                                                                              'connection_num' => undef
+                                                                            }
+                                                                 },
+                                                      'instance_name' => 'sp',
+                                                      'category' => 'Communication',
+                                                      'sockets' => {
+                                                                     'jtag_to_wb' => {
+                                                                                       'value' => 1,
+                                                                                       'connection_num' => 'single connection',
+                                                                                       'nums' => {
+                                                                                                   '0' => {
+                                                                                                            'name' => 'jtag_to_wb'
+                                                                                                          }
+                                                                                                 },
+                                                                                       'type' => 'num'
+                                                                                     }
+                                                                   }
+                                                    }
+                               },
+                'source_probe0' => {
+                                     'version' => 4
+                                   },
+                'compile' => {
+                               'quartus_hardware' => undef,
+                               'quartus_board' => undef,
+                               'quartus_bin' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
+                               'fpga_board_repo' => '/home/alireza/work/hca_git/mpsoc_work/toolchain/board_files',
+                               'quartus_device' => 0,
+                               'fpga_part' => 'xc7z020clg400-1',
+                               'compilers' => 'QuartusII,Vivado,Verilator,Modelsim',
+                               'fpga_board_part' => 'digilentinc.com:arty-z7-20:part0:1.0',
+                               'vivado bin' => '/home/alireza/xilinx/Vivado/2019.1/bin',
+                               'modelsim_bin' => '/home/alireza/intelFPGA_lite/18.1/modelsim_ase/bin',
+                               'quartus_pid' => undef,
+                               'board' => 'Arty_z7_20',
+                               'fpga_board' => 'Arty_z7_20',
+                               'fpga_board_v' => '/home/alireza/work/develop/xilinx/add_board/Arty_Z7/Arty_z7.v',
+                               'fpga_board_order' => '3',
+                               'quartus_qsf' => undef,
+                               'type' => 'Vivado',
+                               'quartus_v' => undef,
+                               'fpga_hw_device' => 'xc7z020_1',
+                               'board_confg_file' => '/home/alireza/work/develop/xilinx/artyz7/digilent-xdc-master/Arty-Z7-20-Master.xdc',
+                               'vivado_bin' => '/home/alireza/xilinx/Vivado/2019.1/bin'
+                             },
+                'compile_pin_pos' => {
+                                       'sp_source_o' => [
+                                                          3,
+                                                          0
+                                                        ],
+                                       'cpu_cpu_en' => [
+                                                         2,
+                                                         0
+                                                       ],
+                                       'source_probe_probe_i' => [
+                                                                   0,
+                                                                   0
+                                                                 ],
+                                       'pll_clk_in' => [
+                                                         4,
+                                                         0
+                                                       ],
+                                       'jtag_debug_reset_in' => [
+                                                                  3,
+                                                                  0
+                                                                ],
+                                       'pll_reset_in' => [
+                                                           3,
+                                                           0
+                                                         ],
+                                       'led_port_o' => [
+                                                         3,
+                                                         0
+                                                       ],
+                                       'source_probe_source_o' => [
+                                                                    3,
+                                                                    0
+                                                                  ]
+                                     },
+                'ProNoC_jtag_uart0' => {
+                                         'version' => 9
+                                       },
                 'SOURCE_SET' => {
+                                  'reset_0_name' => 'reset0',
+                                  'clk_0_mhz' => '62.5',
+                                  'clk_0_rise' => 0,
+                                  'clk_0_name' => 'ss_clk_in',
+                                  'REDEFINE_TOP' => 0,
+                                  'clk_0_fall' => 50,
+                                  'clk_0_period' => '16',
                                   'SOC' => bless( {
+                                                    'clk_source0' => {
+                                                                       'version' => 0
+                                                                     },
+                                                    'device_win_adj' => {
+                                                                          'va' => '0',
+                                                                          'ha' => '0'
+                                                                        },
+                                                    'instance_order' => [
+                                                                          'TOP',
+                                                                          'xilinx_pll0'
+                                                                        ],
+                                                    'xilinx_pll0' => {
+                                                                       'version' => 15
+                                                                     },
+                                                    'soc_name' => {
+                                                                    'MPSOC' => undef
+                                                                  },
+                                                    'modules' => {},
+                                                    'current_module_param' => undef,
                                                     'hdl_files' => undef,
-                                                    'TOP' => {
-                                                               'version' => 0
-                                                             },
+                                                    'gui_status' => {
+                                                                      'timeout' => 0,
+                                                                      'status' => 'ideal'
+                                                                    },
                                                     'parameters_order' => {
                                                                             'current_module_param' => [
                                                                                                         'CLKOUT_NUM',
@@ -1043,199 +771,8 @@ $soc = bless( {
                                                                                                         'STARTUP_WAIT'
                                                                                                       ]
                                                                           },
-                                                    'soc_name' => {
-                                                                    'MPSOC' => undef
-                                                                  },
-                                                    'SOURCE_SET' => {
-                                                                      'IP' => bless( {
-                                                                                       'ip_name' => 'TOP',
-                                                                                       'file_name' => undef,
-                                                                                       'ports' => {
-                                                                                                    'ss_clk_in' => {
-                                                                                                                     'type' => 'input',
-                                                                                                                     'intfc_name' => 'plug:clk[0]',
-                                                                                                                     'intfc_port' => 'clk_i',
-                                                                                                                     'range' => undef
-                                                                                                                   },
-                                                                                                    'ss_reset_in' => {
-                                                                                                                       'type' => 'input',
-                                                                                                                       'intfc_name' => 'plug:reset[0]',
-                                                                                                                       'range' => undef,
-                                                                                                                       'intfc_port' => 'reset_i'
-                                                                                                                     }
-                                                                                                  },
-                                                                                       'module_name' => 'TOP',
-                                                                                       'GUI_REMOVE_SET' => 'DISABLE',
-                                                                                       'ports_order' => [],
-                                                                                       'plugs' => {
-                                                                                                    'clk' => {
-                                                                                                               'value' => 1,
-                                                                                                               '1' => {},
-                                                                                                               'type' => 'num',
-                                                                                                               '0' => {
-                                                                                                                        'name' => 'ss_clk_in'
-                                                                                                                      }
-                                                                                                             },
-                                                                                                    'reset' => {
-                                                                                                                 '0' => {
-                                                                                                                          'name' => 'ss_reset_in'
-                                                                                                                        },
-                                                                                                                 'type' => 'num',
-                                                                                                                 '1' => {},
-                                                                                                                 'value' => 1
-                                                                                                               }
-                                                                                                  },
-                                                                                       'category' => 'TOP',
-                                                                                       'hdl_files' => [],
-                                                                                       'parameters_order' => []
-                                                                                     }, 'ip_gen' )
-                                                                    },
-                                                    'device_win_adj' => {
-                                                                          'ha' => '0',
-                                                                          'va' => '0'
-                                                                        },
-                                                    'noc_param' => {},
-                                                    'MPSOC' => {
-                                                                 'version' => 0
-                                                               },
-                                                    'modules' => {},
                                                     'instances' => {
                                                                      'xilinx_pll0' => {
-                                                                                        'module_name' => 'xilinx_pll2_base',
-                                                                                        'parameters' => {
-                                                                                                          'CLKOUT0_PHASE' => {
-                                                                                                                               'value' => '0.0'
-                                                                                                                             },
-                                                                                                          'CLKFBOUT_MULT' => {
-                                                                                                                               'value' => '8'
-                                                                                                                             },
-                                                                                                          'CLKOUT1_PHASE' => {
-                                                                                                                               'value' => '0.0'
-                                                                                                                             },
-                                                                                                          'CLKOUT4_DUTY_CYCLE' => {
-                                                                                                                                    'value' => '0.5'
-                                                                                                                                  },
-                                                                                                          'REF_JITTER1' => {
-                                                                                                                             'value' => '0.0'
-                                                                                                                           },
-                                                                                                          'CLKOUT4_DIVIDE' => {
-                                                                                                                                'value' => '1'
-                                                                                                                              },
-                                                                                                          'CLKOUT5_DIVIDE' => {
-                                                                                                                                'value' => '1'
-                                                                                                                              },
-                                                                                                          'CLKOUT3_DUTY_CYCLE' => {
-                                                                                                                                    'value' => '0.5'
-                                                                                                                                  },
-                                                                                                          'CLKOUT0_DIVIDE' => {
-                                                                                                                                'value' => '16'
-                                                                                                                              },
-                                                                                                          'CLKOUT2_DUTY_CYCLE' => {
-                                                                                                                                    'value' => '0.5'
-                                                                                                                                  },
-                                                                                                          'CLKOUT4_PHASE' => {
-                                                                                                                               'value' => '0.0'
-                                                                                                                             },
-                                                                                                          'DIVCLK_DIVIDE' => {
-                                                                                                                               'value' => '1'
-                                                                                                                             },
-                                                                                                          'STARTUP_WAIT' => {
-                                                                                                                              'value' => '"FALSE"'
-                                                                                                                            },
-                                                                                                          'CLKIN1_PERIOD' => {
-                                                                                                                               'value' => '0.0'
-                                                                                                                             },
-                                                                                                          'BANDWIDTH' => {
-                                                                                                                           'value' => '"OPTIMIZED"'
-                                                                                                                         },
-                                                                                                          'CLKOUT1_DIVIDE' => {
-                                                                                                                                'value' => '1'
-                                                                                                                              },
-                                                                                                          'CLKOUT2_PHASE' => {
-                                                                                                                               'value' => '0.0'
-                                                                                                                             },
-                                                                                                          'CLKOUT1_DUTY_CYCLE' => {
-                                                                                                                                    'value' => '0.5'
-                                                                                                                                  },
-                                                                                                          'CLKOUT5_DUTY_CYCLE' => {
-                                                                                                                                    'value' => '0.5'
-                                                                                                                                  },
-                                                                                                          'CLKOUT3_PHASE' => {
-                                                                                                                               'value' => '0.0'
-                                                                                                                             },
-                                                                                                          'CLKOUT_NUM' => {
-                                                                                                                            'value' => '1'
-                                                                                                                          },
-                                                                                                          'CLKOUT2_DIVIDE' => {
-                                                                                                                                'value' => '1'
-                                                                                                                              },
-                                                                                                          'CLKOUT0_DUTY_CYCLE' => {
-                                                                                                                                    'value' => '0.5'
-                                                                                                                                  },
-                                                                                                          'CLKFBOUT_PHASE' => {
-                                                                                                                                'value' => '0.0'
-                                                                                                                              },
-                                                                                                          'CLKOUT5_PHASE' => {
-                                                                                                                               'value' => '0.0'
-                                                                                                                             },
-                                                                                                          'CLKOUT3_DIVIDE' => {
-                                                                                                                                'value' => '1'
-                                                                                                                              }
-                                                                                                        },
-                                                                                        'instance_name' => 'pll',
-                                                                                        'plugs' => {
-                                                                                                     'clk' => {
-                                                                                                                'value' => 1,
-                                                                                                                'connection_num' => undef,
-                                                                                                                'type' => 'num',
-                                                                                                                'nums' => {
-                                                                                                                            '0' => {
-                                                                                                                                     'connect_socket' => undef,
-                                                                                                                                     'connect_socket_num' => undef,
-                                                                                                                                     'connect_id' => 'IO',
-                                                                                                                                     'name' => 'clk_in'
-                                                                                                                                   }
-                                                                                                                          }
-                                                                                                              },
-                                                                                                     'reset' => {
-                                                                                                                  'nums' => {
-                                                                                                                              '0' => {
-                                                                                                                                       'name' => 'reset_in',
-                                                                                                                                       'connect_id' => 'IO',
-                                                                                                                                       'connect_socket_num' => undef,
-                                                                                                                                       'connect_socket' => undef
-                                                                                                                                     }
-                                                                                                                            },
-                                                                                                                  'type' => 'num',
-                                                                                                                  'connection_num' => undef,
-                                                                                                                  'value' => 1
-                                                                                                                }
-                                                                                                   },
-                                                                                        'module' => 'xilinx_pll',
-                                                                                        'description_pdf' => undef,
-                                                                                        'sockets' => {
-                                                                                                       'reset' => {
-                                                                                                                    'value' => 1,
-                                                                                                                    'connection_num' => 'multi connection',
-                                                                                                                    'type' => 'num',
-                                                                                                                    'nums' => {
-                                                                                                                                '0' => {
-                                                                                                                                         'name' => 'reset'
-                                                                                                                                       }
-                                                                                                                              }
-                                                                                                                  },
-                                                                                                       'clk' => {
-                                                                                                                  'type' => 'param',
-                                                                                                                  'nums' => {
-                                                                                                                              '0' => {
-                                                                                                                                       'name' => 'clk'
-                                                                                                                                     }
-                                                                                                                            },
-                                                                                                                  'value' => 'CLKOUT_NUM',
-                                                                                                                  'connection_num' => 'multi connection'
-                                                                                                                }
-                                                                                                     },
-                                                                                        'category' => 'Source',
                                                                                         'parameters_order' => [
                                                                                                                 'CLKOUT_NUM',
                                                                                                                 'BANDWIDTH',
@@ -1263,101 +800,564 @@ $soc = bless( {
                                                                                                                 'DIVCLK_DIVIDE',
                                                                                                                 'REF_JITTER1',
                                                                                                                 'STARTUP_WAIT'
-                                                                                                              ]
+                                                                                                              ],
+                                                                                        'module_name' => 'xilinx_pll2_base',
+                                                                                        'parameters' => {
+                                                                                                          'CLKOUT0_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKOUT4_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              },
+                                                                                                          'CLKOUT5_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              },
+                                                                                                          'CLKOUT2_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'REF_JITTER1' => {
+                                                                                                                             'value' => '0.0'
+                                                                                                                           },
+                                                                                                          'DIVCLK_DIVIDE' => {
+                                                                                                                               'value' => '1'
+                                                                                                                             },
+                                                                                                          'CLKOUT1_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKOUT3_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'CLKOUT_NUM' => {
+                                                                                                                            'value' => '1'
+                                                                                                                          },
+                                                                                                          'CLKOUT2_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              },
+                                                                                                          'CLKIN1_PERIOD' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKFBOUT_MULT' => {
+                                                                                                                               'value' => '8'
+                                                                                                                             },
+                                                                                                          'CLKOUT4_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKFBOUT_PHASE' => {
+                                                                                                                                'value' => '0.0'
+                                                                                                                              },
+                                                                                                          'STARTUP_WAIT' => {
+                                                                                                                              'value' => '"FALSE"'
+                                                                                                                            },
+                                                                                                          'CLKOUT3_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKOUT2_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKOUT5_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'CLKOUT1_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'CLKOUT3_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              },
+                                                                                                          'CLKOUT1_DIVIDE' => {
+                                                                                                                                'value' => '1'
+                                                                                                                              },
+                                                                                                          'CLKOUT5_PHASE' => {
+                                                                                                                               'value' => '0.0'
+                                                                                                                             },
+                                                                                                          'CLKOUT0_DIVIDE' => {
+                                                                                                                                'value' => '16'
+                                                                                                                              },
+                                                                                                          'CLKOUT0_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  },
+                                                                                                          'BANDWIDTH' => {
+                                                                                                                           'value' => '"OPTIMIZED"'
+                                                                                                                         },
+                                                                                                          'CLKOUT4_DUTY_CYCLE' => {
+                                                                                                                                    'value' => '0.5'
+                                                                                                                                  }
+                                                                                                        },
+                                                                                        'plugs' => {
+                                                                                                     'reset' => {
+                                                                                                                  'connection_num' => undef,
+                                                                                                                  'value' => 1,
+                                                                                                                  'nums' => {
+                                                                                                                              '0' => {
+                                                                                                                                       'connect_socket' => undef,
+                                                                                                                                       'name' => 'reset_in',
+                                                                                                                                       'connect_socket_num' => undef,
+                                                                                                                                       'connect_id' => 'IO'
+                                                                                                                                     }
+                                                                                                                            },
+                                                                                                                  'type' => 'num'
+                                                                                                                },
+                                                                                                     'clk' => {
+                                                                                                                'nums' => {
+                                                                                                                            '0' => {
+                                                                                                                                     'connect_id' => 'IO',
+                                                                                                                                     'connect_socket_num' => undef,
+                                                                                                                                     'connect_socket' => undef,
+                                                                                                                                     'name' => 'clk_in'
+                                                                                                                                   }
+                                                                                                                          },
+                                                                                                                'type' => 'num',
+                                                                                                                'connection_num' => undef,
+                                                                                                                'value' => 1
+                                                                                                              }
+                                                                                                   },
+                                                                                        'instance_name' => 'pll',
+                                                                                        'sockets' => {
+                                                                                                       'clk' => {
+                                                                                                                  'type' => 'param',
+                                                                                                                  'nums' => {
+                                                                                                                              '0' => {
+                                                                                                                                       'name' => 'clk'
+                                                                                                                                     }
+                                                                                                                            },
+                                                                                                                  'value' => 'CLKOUT_NUM',
+                                                                                                                  'connection_num' => 'multi connection'
+                                                                                                                },
+                                                                                                       'reset' => {
+                                                                                                                    'type' => 'num',
+                                                                                                                    'nums' => {
+                                                                                                                                '0' => {
+                                                                                                                                         'name' => 'reset'
+                                                                                                                                       }
+                                                                                                                              },
+                                                                                                                    'value' => 1,
+                                                                                                                    'connection_num' => 'multi connection'
+                                                                                                                  }
+                                                                                                     },
+                                                                                        'category' => 'Source',
+                                                                                        'description_pdf' => undef,
+                                                                                        'module' => 'xilinx_pll'
                                                                                       },
                                                                      'TOP' => {
-                                                                                'module' => 'TOP',
+                                                                                'parameters_order' => [],
+                                                                                'module_name' => 'TOP',
                                                                                 'plugs' => {
+                                                                                             'clk' => {
+                                                                                                        'type' => 'num',
+                                                                                                        'nums' => {
+                                                                                                                    '0' => {
+                                                                                                                             'connect_socket' => 'clk',
+                                                                                                                             'name' => 'ss_clk_in',
+                                                                                                                             'connect_socket_num' => '0',
+                                                                                                                             'connect_id' => 'xilinx_pll0'
+                                                                                                                           }
+                                                                                                                  },
+                                                                                                        'value' => 1,
+                                                                                                        'connection_num' => undef
+                                                                                                      },
                                                                                              'reset' => {
-                                                                                                          'connection_num' => undef,
-                                                                                                          'value' => 1,
-                                                                                                          'type' => 'num',
                                                                                                           'nums' => {
                                                                                                                       '0' => {
                                                                                                                                'connect_socket_num' => '0',
-                                                                                                                               'connect_socket' => 'reset',
+                                                                                                                               'connect_id' => 'xilinx_pll0',
                                                                                                                                'name' => 'ss_reset_in',
-                                                                                                                               'connect_id' => 'xilinx_pll0'
+                                                                                                                               'connect_socket' => 'reset'
                                                                                                                              }
-                                                                                                                    }
-                                                                                                        },
-                                                                                             'clk' => {
-                                                                                                        'value' => 1,
-                                                                                                        'connection_num' => undef,
-                                                                                                        'nums' => {
-                                                                                                                    '0' => {
-                                                                                                                             'connect_id' => 'xilinx_pll0',
-                                                                                                                             'name' => 'ss_clk_in',
-                                                                                                                             'connect_socket_num' => '0',
-                                                                                                                             'connect_socket' => 'clk'
-                                                                                                                           }
-                                                                                                                  },
-                                                                                                        'type' => 'num'
-                                                                                                      }
+                                                                                                                    },
+                                                                                                          'type' => 'num',
+                                                                                                          'value' => 1,
+                                                                                                          'connection_num' => undef
+                                                                                                        }
                                                                                            },
-                                                                                'description_pdf' => undef,
-                                                                                'sockets' => {},
+                                                                                'instance_name' => 'TOP',
                                                                                 'category' => 'TOP',
-                                                                                'parameters_order' => [],
-                                                                                'module_name' => 'TOP',
-                                                                                'instance_name' => 'TOP'
+                                                                                'sockets' => {},
+                                                                                'description_pdf' => undef,
+                                                                                'module' => 'TOP'
                                                                               }
                                                                    },
-                                                    'current_module_param' => undef,
+                                                    'noc_param' => {},
+                                                    'SOURCE_SET' => {
+                                                                      'IP' => bless( {
+                                                                                       'file_name' => undef,
+                                                                                       'category' => 'TOP',
+                                                                                       'plugs' => {
+                                                                                                    'clk' => {
+                                                                                                               'value' => 1,
+                                                                                                               '1' => {},
+                                                                                                               'type' => 'num',
+                                                                                                               '0' => {
+                                                                                                                        'name' => 'ss_clk_in'
+                                                                                                                      }
+                                                                                                             },
+                                                                                                    'reset' => {
+                                                                                                                 'value' => 1,
+                                                                                                                 '1' => {},
+                                                                                                                 '0' => {
+                                                                                                                          'name' => 'ss_reset_in'
+                                                                                                                        },
+                                                                                                                 'type' => 'num'
+                                                                                                               }
+                                                                                                  },
+                                                                                       'ports_order' => [],
+                                                                                       'parameters_order' => [],
+                                                                                       'module_name' => 'TOP',
+                                                                                       'hdl_files' => [],
+                                                                                       'ip_name' => 'TOP',
+                                                                                       'GUI_REMOVE_SET' => 'DISABLE',
+                                                                                       'ports' => {
+                                                                                                    'ss_reset_in' => {
+                                                                                                                       'range' => undef,
+                                                                                                                       'intfc_name' => 'plug:reset[0]',
+                                                                                                                       'type' => 'input',
+                                                                                                                       'intfc_port' => 'reset_i'
+                                                                                                                     },
+                                                                                                    'ss_clk_in' => {
+                                                                                                                     'type' => 'input',
+                                                                                                                     'intfc_port' => 'clk_i',
+                                                                                                                     'intfc_name' => 'plug:clk[0]',
+                                                                                                                     'range' => undef
+                                                                                                                   }
+                                                                                                  }
+                                                                                     }, 'ip_gen' )
+                                                                    },
                                                     'tile_diagram' => {
-                                                                        'show_clk' => 0,
                                                                         'show_unused' => 0,
+                                                                        'show_clk' => 0,
                                                                         'show_reset' => 0
                                                                       },
-                                                    'instance_order' => [
-                                                                          'TOP',
-                                                                          'xilinx_pll0'
-                                                                        ],
-                                                    'clk_source0' => {
-                                                                       'version' => 0
-                                                                     },
-                                                    'gui_status' => {
-                                                                      'status' => 'ideal',
-                                                                      'timeout' => 0
-                                                                    },
-                                                    'xilinx_pll0' => {
-                                                                       'version' => 15
-                                                                     }
+                                                    'MPSOC' => {
+                                                                 'version' => 0
+                                                               },
+                                                    'TOP' => {
+                                                               'version' => 0
+                                                             }
                                                   }, 'soc' ),
-                                  'clk_0_fall' => 50,
                                   'reset_number' => 1,
-                                  'REDEFINE_TOP' => 0,
-                                  'clk_number' => 1,
-                                  'clk_0_name' => 'ss_clk_in',
-                                  'clk_0_mhz' => '62.5',
-                                  'clk_0_rise' => 0,
-                                  'clk_0_period' => '16',
-                                  'reset_0_name' => 'reset0'
+                                  'clk_number' => 1
                                 },
-                'noc_param' => {},
-                'device_win_adj' => {
-                                      'va' => '0',
-                                      'ha' => '0'
-                                    },
-                'modules' => {},
+                'sim_uart0' => {
+                                 'version' => 7
+                               },
                 'Unset-intfc' => {
-                                   'uart-RxD_ready_sim' => 'NC',
-                                   'pll-clk_out5' => 'NC',
                                    'xilinx_pll0-clk_out3' => 'NC',
-                                   'uart-RxD_din_sim' => 'NC',
-                                   'pll-clk_out4' => 'NC',
-                                   'pll-clk_out3' => 'NC',
-                                   'xilinx_pll0-clk_out5' => 'NC',
-                                   'xilinx_pll0-clk_out1' => 'NC',
-                                   'bus-snoop_en_o' => 'NC',
-                                   'xilinx_pll0-clk_out4' => 'NC',
                                    'xilinx_pll0-clk_out2' => 'NC',
                                    'bus-snoop_adr_o' => 'NC',
-                                   'pll-clk_out1' => 'NC',
+                                   'pll-clk_out4' => 'NC',
+                                   'uart-RxD_din_sim' => 'NC',
+                                   'pll-clk_out2' => 'NC',
+                                   'xilinx_pll0-clk_out4' => 'NC',
+                                   'xilinx_pll0-clk_out1' => 'NC',
                                    'uart-RxD_wr_sim' => 'NC',
-                                   'pll-clk_out2' => 'NC'
+                                   'pll-clk_out5' => 'NC',
+                                   'xilinx_pll0-clk_out5' => 'NC',
+                                   'pll-clk_out1' => 'NC',
+                                   'uart-RxD_ready_sim' => 'NC',
+                                   'bus-snoop_en_o' => 'NC',
+                                   'pll-clk_out3' => 'NC'
                                  },
+                'compile_pin_range_hsb' => {
+                                             'led_port_o' => '0',
+                                             'source_probe_source_o' => 3,
+                                             'sp_source_o' => 3
+                                           },
+                'global_param' => {
+                                    'SW_LOC' => '/home/alireza/work/hca_git/mpsoc_work/SOC/jtag_led/sw',
+                                    'CORE_ID' => 0
+                                  },
+                'compile_pin' => {
+                                   'pll_clk_in' => 'clk',
+                                   'jtag_debug_reset_in' => 'btn',
+                                   'sp_source_o' => 'led',
+                                   'source_probe_probe_i' => '*GND',
+                                   'cpu_cpu_en' => '*VCC',
+                                   'source_probe_source_o' => 'led',
+                                   'led_port_o' => 'led',
+                                   'pll_reset_in' => 'btn'
+                                 },
+                'device_win_adj' => {
+                                      'ha' => '0',
+                                      'va' => '0'
+                                    },
+                'mor1kx0' => {
+                               'version' => 22
+                             },
+                'SOURCE_SET_CONNECT' => {
+                                          'T0_ss_clk_in' => 'clk99',
+                                          'T0_ss_reset_in' => 'reset0',
+                                          'T0_pll_clk_in' => 'clk',
+                                          'T0_pll_reset_in' => 'reset0'
+                                        },
+                'xilinx_pll1' => {
+                                   'version' => 8
+                                 },
+                'single_port_ram0' => {
+                                        'version' => 32
+                                      },
+                'dma0' => {
+                            'version' => 4
+                          },
+                'hdl_files' => undef,
+                'gui_status' => {
+                                  'timeout' => 0,
+                                  'status' => 'save_project'
+                                },
+                'gpo0' => {
+                            'version' => 2
+                          },
+                'compile_pin_range_lsb' => {
+                                             'sp_source_o' => 0,
+                                             'pll_reset_in' => 0,
+                                             'led_port_o' => 0,
+                                             'source_probe_source_o' => 0,
+                                             'jtag_debug_reset_in' => 0
+                                           },
+                'xilinx_pll0' => {
+                                   'version' => 15
+                                 },
+                'single_port_ram1' => {
+                                        'version' => 25
+                                      },
                 'wishbone_bus0' => {
                                      'version' => 1
-                                   }
+                                   },
+                'instance_order' => [
+                                      'clk_source0',
+                                      'source_probe0'
+                                    ],
+                'top_ip' => bless( {
+                                     'ports' => {
+                                                  'ss_clk_in' => {
+                                                                   'range' => '',
+                                                                   'intfc_name' => 'plug:clk[0]',
+                                                                   'instance_name' => 'clk_source0',
+                                                                   'intfc_port' => 'clk_i',
+                                                                   'type' => 'input'
+                                                                 },
+                                                  'sp_probe_i' => {
+                                                                    'range' => 'sp_Dw-1	:0',
+                                                                    'instance_name' => 'source_probe0',
+                                                                    'intfc_name' => 'IO',
+                                                                    'type' => 'input',
+                                                                    'intfc_port' => 'IO'
+                                                                  },
+                                                  'sp_wb_to_jtag' => {
+                                                                       'range' => 'sp_WB2Jw-1: 0',
+                                                                       'intfc_port' => 'jwb_o',
+                                                                       'type' => 'output',
+                                                                       'intfc_name' => 'socket:jtag_to_wb[0]',
+                                                                       'instance_name' => 'source_probe0'
+                                                                     },
+                                                  'sp_jtag_to_wb' => {
+                                                                       'range' => 'sp_J2WBw-1 : 0',
+                                                                       'intfc_port' => 'jwb_i',
+                                                                       'type' => 'input',
+                                                                       'intfc_name' => 'socket:jtag_to_wb[0]',
+                                                                       'instance_name' => 'source_probe0'
+                                                                     },
+                                                  'sp_source_o' => {
+                                                                     'range' => 'sp_Dw-1	:0',
+                                                                     'instance_name' => 'source_probe0',
+                                                                     'intfc_name' => 'IO',
+                                                                     'type' => 'output',
+                                                                     'intfc_port' => 'IO'
+                                                                   },
+                                                  'ss_reset_in' => {
+                                                                     'range' => '',
+                                                                     'instance_name' => 'clk_source0',
+                                                                     'intfc_name' => 'plug:reset[0]',
+                                                                     'type' => 'input',
+                                                                     'intfc_port' => 'reset_i'
+                                                                   }
+                                                },
+                                     'interface' => {
+                                                      'socket:jtag_to_wb[0]' => {
+                                                                                  'ports' => {
+                                                                                               'sp_jtag_to_wb' => {
+                                                                                                                    'intfc_port' => 'jwb_i',
+                                                                                                                    'type' => 'input',
+                                                                                                                    'instance_name' => 'source_probe0',
+                                                                                                                    'range' => 'sp_J2WBw-1 : 0'
+                                                                                                                  },
+                                                                                               'sp_wb_to_jtag' => {
+                                                                                                                    'range' => 'sp_WB2Jw-1: 0',
+                                                                                                                    'instance_name' => 'source_probe0',
+                                                                                                                    'intfc_port' => 'jwb_o',
+                                                                                                                    'type' => 'output'
+                                                                                                                  }
+                                                                                             }
+                                                                                },
+                                                      'plug:clk[0]' => {
+                                                                         'ports' => {
+                                                                                      'ss_clk_in' => {
+                                                                                                       'instance_name' => 'clk_source0',
+                                                                                                       'type' => 'input',
+                                                                                                       'intfc_port' => 'clk_i',
+                                                                                                       'range' => ''
+                                                                                                     }
+                                                                                    }
+                                                                       },
+                                                      'IO' => {
+                                                                'ports' => {
+                                                                             'sp_source_o' => {
+                                                                                                'range' => 'sp_Dw-1	:0',
+                                                                                                'intfc_port' => 'IO',
+                                                                                                'type' => 'output',
+                                                                                                'instance_name' => 'source_probe0'
+                                                                                              },
+                                                                             'sp_probe_i' => {
+                                                                                               'range' => 'sp_Dw-1	:0',
+                                                                                               'type' => 'input',
+                                                                                               'intfc_port' => 'IO',
+                                                                                               'instance_name' => 'source_probe0'
+                                                                                             }
+                                                                           }
+                                                              },
+                                                      'plug:reset[0]' => {
+                                                                           'ports' => {
+                                                                                        'ss_reset_in' => {
+                                                                                                           'range' => '',
+                                                                                                           'type' => 'input',
+                                                                                                           'intfc_port' => 'reset_i',
+                                                                                                           'instance_name' => 'clk_source0'
+                                                                                                         }
+                                                                                      }
+                                                                         }
+                                                    },
+                                     'instance_ids' => {
+                                                         'clk_source0' => {
+                                                                            'module' => 'clk_source',
+                                                                            'category' => 'Source',
+                                                                            'ports' => {
+                                                                                         'ss_clk_in' => {
+                                                                                                          'range' => '',
+                                                                                                          'type' => 'input',
+                                                                                                          'intfc_port' => 'clk_i',
+                                                                                                          'intfc_name' => 'plug:clk[0]'
+                                                                                                        },
+                                                                                         'ss_reset_in' => {
+                                                                                                            'range' => '',
+                                                                                                            'intfc_name' => 'plug:reset[0]',
+                                                                                                            'type' => 'input',
+                                                                                                            'intfc_port' => 'reset_i'
+                                                                                                          }
+                                                                                       },
+                                                                            'instance' => 'ss',
+                                                                            'module_name' => 'clk_source'
+                                                                          },
+                                                         'source_probe0' => {
+                                                                              'parameters' => {
+                                                                                                'sp_JDw' => {
+                                                                                                              'info' => 'Parameter',
+                                                                                                              'content' => '',
+                                                                                                              'redefine_param' => 1,
+                                                                                                              'type' => 'Fixed',
+                                                                                                              'global_param' => 'Parameter',
+                                                                                                              'default' => '32'
+                                                                                                            },
+                                                                                                'sp_J2WBw' => {
+                                                                                                                'info' => 'Parameter',
+                                                                                                                'content' => '',
+                                                                                                                'redefine_param' => 1,
+                                                                                                                'type' => 'Fixed',
+                                                                                                                'default' => '(sp_JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+sp_JDw+sp_JAw : 1',
+                                                                                                                'global_param' => 'Parameter'
+                                                                                                              },
+                                                                                                'sp_JTAG_CONNECT' => {
+                                                                                                                       'info' => 'Parameter',
+                                                                                                                       'content' => '"ALTERA_JTAG_WB","XILINX_JTAG_WB" ',
+                                                                                                                       'redefine_param' => 1,
+                                                                                                                       'type' => 'Combo-box',
+                                                                                                                       'default' => '"XILINX_JTAG_WB" ',
+                                                                                                                       'global_param' => 'Parameter'
+                                                                                                                     },
+                                                                                                'sp_WB2Jw' => {
+                                                                                                                'info' => 'Parameter',
+                                                                                                                'content' => '',
+                                                                                                                'type' => 'Fixed',
+                                                                                                                'redefine_param' => 1,
+                                                                                                                'default' => '(sp_JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+sp_JSTATUSw+sp_JINDEXw+1+sp_JDw  : 1',
+                                                                                                                'global_param' => 'Parameter'
+                                                                                                              },
+                                                                                                'sp_Dw' => {
+                                                                                                             'info' => 'probe/probe width in bits ',
+                                                                                                             'content' => '1,32,1',
+                                                                                                             'type' => 'Spin-button',
+                                                                                                             'redefine_param' => 1,
+                                                                                                             'global_param' => 'Parameter',
+                                                                                                             'default' => '4'
+                                                                                                           },
+                                                                                                'sp_JSTATUSw' => {
+                                                                                                                   'info' => 'Parameter',
+                                                                                                                   'content' => '',
+                                                                                                                   'redefine_param' => 1,
+                                                                                                                   'type' => 'Fixed',
+                                                                                                                   'global_param' => 'Parameter',
+                                                                                                                   'default' => '8'
+                                                                                                                 },
+                                                                                                'sp_JINDEXw' => {
+                                                                                                                  'type' => 'Fixed',
+                                                                                                                  'redefine_param' => 1,
+                                                                                                                  'global_param' => 'Parameter',
+                                                                                                                  'default' => '8',
+                                                                                                                  'info' => 'Parameter',
+                                                                                                                  'content' => ''
+                                                                                                                },
+                                                                                                'sp_JAw' => {
+                                                                                                              'global_param' => 'Parameter',
+                                                                                                              'default' => '32',
+                                                                                                              'type' => 'Fixed',
+                                                                                                              'redefine_param' => 1,
+                                                                                                              'content' => '',
+                                                                                                              'info' => 'Parameter'
+                                                                                                            },
+                                                                                                'sp_JTAG_INDEX' => {
+                                                                                                                     'default' => ' 0',
+                                                                                                                     'global_param' => 'Parameter',
+                                                                                                                     'redefine_param' => 1,
+                                                                                                                     'type' => 'Spin-button',
+                                                                                                                     'content' => '0,128,1',
+                                                                                                                     'info' => ' A unique index number which will be used for adressing this source probe module.'
+                                                                                                                   },
+                                                                                                'sp_JTAG_CHAIN' => {
+                                                                                                                     'global_param' => 'Parameter',
+                                                                                                                     'default' => '3',
+                                                                                                                     'redefine_param' => 0,
+                                                                                                                     'type' => 'Combo-box',
+                                                                                                                     'content' => '1,2,3,4 ',
+                                                                                                                     'info' => 'Only used for Virtex 4/5 devices. May be 1, 2, 3, or 4. It is the  BSCANE2 JTAG tap number.'
+                                                                                                                   }
+                                                                                              },
+                                                                              'module' => 'source_probe',
+                                                                              'category' => 'Communication',
+                                                                              'ports' => {
+                                                                                           'sp_probe_i' => {
+                                                                                                             'range' => 'sp_Dw-1	:0',
+                                                                                                             'intfc_name' => 'IO',
+                                                                                                             'type' => 'input',
+                                                                                                             'intfc_port' => 'IO'
+                                                                                                           },
+                                                                                           'sp_source_o' => {
+                                                                                                              'range' => 'sp_Dw-1	:0',
+                                                                                                              'type' => 'output',
+                                                                                                              'intfc_port' => 'IO',
+                                                                                                              'intfc_name' => 'IO'
+                                                                                                            },
+                                                                                           'sp_jtag_to_wb' => {
+                                                                                                                'intfc_port' => 'jwb_i',
+                                                                                                                'type' => 'input',
+                                                                                                                'intfc_name' => 'socket:jtag_to_wb[0]',
+                                                                                                                'range' => 'sp_J2WBw-1 : 0'
+                                                                                                              },
+                                                                                           'sp_wb_to_jtag' => {
+                                                                                                                'range' => 'sp_WB2Jw-1: 0',
+                                                                                                                'intfc_name' => 'socket:jtag_to_wb[0]',
+                                                                                                                'intfc_port' => 'jwb_o',
+                                                                                                                'type' => 'output'
+                                                                                                              }
+                                                                                         },
+                                                                              'instance' => 'sp',
+                                                                              'module_name' => 'pronoc_jtag_source_probe'
+                                                                            }
+                                                       }
+                                   }, 'ip_gen' )
               }, 'soc' );

@@ -103,8 +103,8 @@ int load_traffic_file(char * file){
     
     if(in == NULL)
 	{
-    	printf("Error: cannot open %s file in read mode!\n",file);
-	    exit(1);
+    	fprintf( stderr,"Error: cannot open %s file in read mode!\n",file);
+    	exit(1);
 	}
 	
 	

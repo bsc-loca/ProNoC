@@ -236,7 +236,39 @@ module custom_noc_connection (
     
     end	
     
+     
+	//do not modify this line ===custom1===
+    if(TOPOLOGY == "custom1" ) begin : Tcustom1
+    
+        custom1_connection  connection
+        (
+		.reset(reset),
+		.clk(clk),
+		.start_i(start_i),
+		.start_o(start_o),
+		.er_addr(er_addr), 
+		.current_r_addr(current_r_addr),
+		.router_flit_in_all(router_flit_in_all),
+		.router_flit_out_all(router_flit_out_all),
+		.ni_flit_in(ni_flit_in),
+		.ni_flit_out(ni_flit_out),
+		.router_flit_in_wr_all(router_flit_in_wr_all),
+		.router_flit_out_wr_all(router_flit_out_wr_all),
+		.ni_flit_in_wr(ni_flit_in_wr),
+		.ni_flit_out_wr(ni_flit_out_wr),
+		.router_congestion_in_all(router_congestion_in_all),
+		.router_congestion_out_all(router_congestion_out_all),
+		.router_credit_out_all(router_credit_out_all),
+		.router_credit_in_all(router_credit_in_all),
+		.ni_credit_out(ni_credit_out),
+		.ni_credit_in(ni_credit_in)     
+        );    
+    
+    end	
+    
     endgenerate
+    	
+ 
     	
  
     	

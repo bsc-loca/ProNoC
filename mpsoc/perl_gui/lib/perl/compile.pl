@@ -207,8 +207,9 @@ sub select_compiler {
 	
 	my $compiler_options =
 		($old_compiler eq "QuartusII")? select_board  ($self,$name,$top,$target_dir,$vendor): 
-		($old_compiler eq "Vivado")? select_board  ($self,$name,$top,$target_dir,$vendor): 
-		($old_compiler eq "Modelsim")?  select_model_path  ($self,$name,$top,$target_dir): 
+		($old_compiler eq "Vivado"   )? select_board  ($self,$name,$top,$target_dir,$vendor): 
+		($old_compiler eq "Modelsim" )? select_model_path  ($self,$name,$top,$target_dir): 
+		($old_compiler eq "Verilator")? select_parallel_process_num ($self,$name,$top,$target_dir):
 		gen_label_in_center(" ");
 	
 	$table->attach($compiler_options,$col,$col+2,$row,$row+1,'fill','shrink',2,2); $row++;
@@ -276,6 +277,7 @@ sub select_compiler {
 			($new_board_name eq "QuartusII")? select_board  ($self,$name,$top,$target_dir,"Altera"):
 			($new_board_name eq "Vivado")? select_board  ($self,$name,$top,$target_dir,"Xilinx"):
 			($new_board_name eq "Modelsim")?  select_model_path  ($self,$name,$top,$target_dir):
+			($new_board_name eq "Verilator")? select_parallel_process_num ($self,$name,$top,$target_dir):
 			gen_label_in_center(" ");
 		$table->attach($compiler_options,0,2,1,2,'fill','shrink',2,2); 	
 		$table->show_all;
@@ -355,6 +357,33 @@ e.g.  export MODELSIM_BIN=/home/alireza/altera/modeltech/bin",'Modelsim  bin:'),
 	return $table;
 	
 }
+
+
+sub select_parallel_process_num {
+	my ($self,$name,$top,$target_dir)=@_;	
+	my $table = def_table(2, 2, FALSE);
+	my $col=0;
+	my $row=0;
+	
+	#get total number of processor in the system
+	my $cmd = "nproc\n";
+	my $cpu_num=4;
+	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+	if(length $stderr>1){			
+		#nproc command has failed. set default 4 paralel processor
+					
+	}else {
+		 my ($number ) = $stdout =~ /(\d+)/;
+		 if (defined  $number ){ 
+		 	$cpu_num =$number if  ($number > 0 );
+		 }
+	}
+	($row,$col)= add_param_widget ($self,"Paralle compilation num.:" , "cpu_num", 1, 'Spin-button', "1,$cpu_num,1","specify the number of processors the Verilator can use at once to run parallel compilation", $table,$row,$col,1, 'compile', undef,undef,'vertical');
+	return $table;	
+}
+
+
+
 
 
 sub remove_pin_assignment{
@@ -1799,8 +1828,8 @@ run -all
 # work dir : $target_dir/src_verilog
 
 sub verilator_compilation {
-	my ($top_ref,$target_dir,$outtext)=@_;
-	
+	my ($top_ref,$target_dir,$outtext,$cpu_num)=@_;
+	$cpu_num = 1 if (!defined $cpu_num);
 	my %tops = %{$top_ref};
 	#creat verilator dir
 	add_info($outtext,"create verilator dir in $target_dir\n");
@@ -1853,30 +1882,34 @@ sub verilator_compilation {
 	#run verilator
 	my $jobs=0; #a counter o limit the number of paralle process to 4
 	my $make_lib=""; 
+	my $cmd="cd \"$verilator/processed_rtl\"; ";
 	my $vrun="#!/bin/bash
 cd \"$verilator/processed_rtl\"
 ";
 	#my $cmd= "cd \"$verilator/processed_rtl\" \n xterm -e bash -c ' verilator  --cc $name.v --profile-cfuncs --prefix \"Vtop\" -O3  -CFLAGS -O3'";
+	my $length = scalar (keys %tops);
 	foreach my $top (sort keys %tops) {
 		add_colored_info($outtext,"Generate $top Verilator model from $tops{$top} file\n",'green');
-		my $cmd= "cd \"$verilator/processed_rtl\" \n  verilator  --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3";
-		$vrun.="verilator  --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3\n";
-		add_info($outtext,"$cmd &\n");	
+		$cmd.= "verilator  --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3 & ";
+		$vrun.="verilator  --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3 &\n";
+		
 		$make_lib.="make lib$jobs &\n";
 		$jobs++;
-		if($jobs%4==0){$vrun.="wait\n"; $make_lib.="wait\n"; }
-		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
-		if(length $stderr>1){			
-			add_info($outtext,"$stderr\n");
-		}else {
-			add_info($outtext,"$stdout\n");
+		
+		if( $jobs % $cpu_num == 0 || $jobs == $length){
+			$vrun.="wait\n"; $make_lib.="wait\n"; $cmd.="wait\n";
+			add_info($outtext,"$cmd\n");	
+			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+			if(length $stderr>1){			
+				add_info($outtext,"$stderr\n"); #verilator compain some ignoerabe warnning as error.  
+			}else {
+				add_info($outtext,"$stdout\n");
+			}
+			$cmd="cd \"$verilator/processed_rtl\"; ";
 		}			
 	}
-	$make_lib.="wait\n";
-	$vrun.="wait
-#check if verilator model has been generated 
-";  
 	
+
 
 	#check if verilator model has been generated 
 	foreach my $top (sort keys %tops) {
@@ -2011,16 +2044,17 @@ sub verilator_compilation_win {
 
 	
 	my $result;
+	my $cpu_num = $self->object_get_attribute('compile', 'cpu_num');
 	
 	my $n= $self->object_get_attribute('soc_name',undef);
 	if(defined $n){	#we are compiling a single tile as SoC
 		my %tops;
 		$tops{"Vtop"}= "$name.v";
-		$result = verilator_compilation (\%tops,$target_dir,$outtext);	
+		$result = verilator_compilation (\%tops,$target_dir,$outtext,$cpu_num);	
 		$self->object_add_attribute('verilator','libs',\%tops);	
 	}
 	else { # we are compiling a complete NoC-based mpsoc
-		$result = gen_mpsoc_verilator_model ($self,$name,$top,$target_dir,$outtext);		
+		$result = gen_mpsoc_verilator_model ($self,$name,$top,$target_dir,$outtext,$cpu_num);		
 		
 		
 	}
@@ -2043,8 +2077,9 @@ sub verilator_compilation_win {
 
 
 sub  gen_mpsoc_verilator_model{
-	my ($self,$name,$top,$target_dir,$outtext)=@_;	
-	my $project_dir	  = get_project_dir();
+	my ($self,$name,$top,$target_dir,$outtext,$cpu_num)=@_;	
+	
+	my $project_dir	= get_project_dir();
 	$project_dir= "$project_dir/mpsoc";
 	my $src_verilator_dir="$project_dir/src_verilator";
 	my $target_verilog_dr ="$target_dir/src_verilog";
@@ -2154,7 +2189,7 @@ sub  gen_mpsoc_verilator_model{
 	}
 	
 	save_file ("$target_verilator_dr/verilator_tiles.v",$verilator);
-	my $result = verilator_compilation (\%tops,$target_dir,$outtext);
+	my $result = verilator_compilation (\%tops,$target_dir,$outtext,$cpu_num);
 	$self->object_add_attribute('verilator','libs',\%tops);		
 	return $result;
 
@@ -2990,11 +3025,31 @@ sub verilator_testbench{
 		my $tops_ref=$self->object_get_attribute('verilator','libs');
 		my %tops=%{$tops_ref};
 		my $lib_num=0;
-		
+		my $cpu_num = $self->object_get_attribute('compile', 'cpu_num');
+		$cpu_num = 1 if (!defined $cpu_num);
+		add_colored_info($tview,"Makefie will use the maximum number of $cpu_num core(s) in parallel for compilation\n",'green');
+		my $length=scalar (keys %tops);
+		my $cmd="";
 		foreach my $top (sort keys %tops) { 
-				run_make_file("$verilator/processed_rtl/obj_dir/",$tview,"lib$lib_num");	
-				$lib_num++;
+			$cmd.= "lib$lib_num & ";
+			$lib_num++;				
+			if( $lib_num % $cpu_num == 0 || $lib_num == $length){
+				$cmd.="wait\n";
+				run_make_file("$verilator/processed_rtl/obj_dir/",$tview,$cmd);	
+				$cmd="";
+			}else {
+				$cmd.=" make ";
+			}	
 		}
+		
+		
+		#foreach my $top (sort keys %tops) { 
+		#		run_make_file("$verilator/processed_rtl/obj_dir/",$tview,"lib$lib_num");	
+		#		$lib_num++;
+		#}
+		
+		
+		
 		run_make_file("$verilator/processed_rtl/obj_dir/",$tview,"sim");	
 		$load->destroy;
 		$make->show_all;

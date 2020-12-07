@@ -10,6 +10,7 @@ use POSIX qw(ceil floor);
 
 use Cwd 'abs_path';
 use Term::ANSIColor qw(:constants);
+use IPC::Run qw(start pump finish timeout pumpable);
  
 
 
@@ -979,6 +980,81 @@ sub generate_and_show_graph_using_graphviz {
 	}	
 		
 		
+}
+
+
+###########
+#	run_multiple_proc_in_background (@cmds)	
+#	run parallel application in background and return err, stdout
+#	return for $ith application i start from 0
+#		$pipes{$i}{"out"}= stdout;
+#		$pipes{$i}{"err"}= stderr;     
+###########
+
+sub run_multiple_proc_in_background
+{
+	my @cmds = @_;
+	my %pipes;
+    my $i=0;
+  	#open seprate pipe for each command
+	foreach my $cmd (@cmds){
+		#print "$cmd\n";
+		my ($pipe,$in, $out, $err,$r);
+		$pipes{$i}{"out"}=\$out;
+		$pipes{$i}{"err"}=\$err;
+        $pipes{$i}{"pipe"}=\$pipe;
+	 	my @cat = split ('\s+', $cmd );
+		my $cmd_name=$cat[0];
+		#perevent pipe from crock	  	
+		if (!(-e $cmd_name)) {
+			$err= "file not found: $cmd_name";
+		}elsif (!(-f $cmd_name)) {    
+      		$err= "not a file: $cmd_name";       
+		}elsif (!(-x $cmd_name)) {       	
+			$err= "permission denied: $cmd_name";
+		}
+		if (defined  $err){
+			$i++;
+			next;
+		}
+
+		$pipe =start \@cat, \$in, \$out, \$err or $r=$?;
+		if(defined $r){
+			#add_colored_info($tview," quartus_stp got an Error: $r\n",'red');
+			$err= "Pipe got an Error: $r\n";	
+			$i++;		
+			next;		
+		}		
+        $i++;
+	}
+	
+	my $pumpble=0;
+	my $cnt=0;
+	do{
+		$pumpble=0;		
+		for (my $i=0; $i< scalar @cmds; $i++){
+			my $pipe= ${$pipes{$i}{"pipe"}};
+			next if(!defined $pipe);
+			if (pumpable ($pipe)) { 
+				pump $pipe;
+			    $pumpble=1;
+			    print "pump $i\n";
+			} 			
+		}
+		#if($cnt==100) {
+		#		$cnt=0;			
+				refresh_gui();   
+		#}
+		#$cnt++
+	}while($pumpble);
+
+	
+	for (my $i=0; $i< scalar @cmds; $i++){
+		my $pipe= ${$pipes{$i}{"pipe"}};		
+		next if(!defined $pipe);
+		finish $pipe;
+	}
+	return %pipes;   	
 }
 
 

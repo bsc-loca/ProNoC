@@ -142,7 +142,7 @@ sub get_emulator_noc_configuration{
 	#search path	
 	my $dir = Cwd::getcwd();
 	my $open_in	  = abs_path("$ENV{PRONOC_WORK}/emulate/sof");		
-	attach_widget_to_table ($table,$row,gen_label_in_left("Search Path:"),gen_button_message ("Select the the Path where the verilator simulation files are located. Different NoC verilated models can be generated using Generate NoC configuration tab.","icons/help.png"), 
+	attach_widget_to_table ($table,$row,gen_label_in_left("Search Path:"),gen_button_message ("Select the Path where the verilator simulation files are located. Different NoC verilated models can be generated using Generate NoC configuration tab.","icons/help.png"), 
 	get_dir_in_object ($emulate,$sample,"sof_path",undef,'ref_set_win',1,$open_in)); $row++;
 	$open_in	= $emulate->object_get_attribute($sample,"sof_path");	
 	
@@ -317,19 +317,28 @@ sub gen_emulation_column {
 	$table->attach ($title , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
 	add_Hsep_to_table($table,0,10,$row);$row++;
 
-	my @positions=(0,1,2,3,4,5,6,7);
-	my $col=0;
+
 	
-	my @title=("Name","Traffic", " Add/Remove "," Setting ", "Line\'s color", "Clear","Run");
-	foreach my $t (@title){		
-		$table->attach (gen_label_in_center($title[$col]), $positions[$col], $positions[$col+1], $row, $row+1,'expand','shrink',2,2);$col++;
+	
+	my %order;
+	$order{'+/-'}=0;
+	$order{'Setting'}=1;
+	$order{'Run'}=2;
+	$order{'Name'}=3;
+	$order{'Color'}=4;
+	$order{'Clear'}=5;
+	$order{'Traffic'}=6;	
+	$order{'Done'}=7;
+	
+	foreach my $t (sort keys %order){		
+		$table->attach (gen_label_in_center($t), $order{$t}, $order{$t}+1, $row, $row+1,'expand','shrink',2,2);
 	}
 	
 	my $traffics="Random,Transposed 1,Transposed 2,Tornado";
 
-	$col=0;
+	
 	$row++;
-	@positions=(0,2,3,4,5,6,7,8);
+	
 
 	
 	#my $i=0;
@@ -337,9 +346,11 @@ sub gen_emulation_column {
 	my @samples; 
 	@samples =$emulate->object_get_attribute_order("samples");
 	
+	
+	
 	foreach my $ss (@samples){
 		
-		$col=0;
+		
 		my $sample=$ss;
 		#my $sample="sample$i";
 		#my $n=$i;
@@ -372,7 +383,11 @@ sub gen_emulation_column {
 			 	$emulate->object_add_attribute('noc_param','T2',$T2);
 			 	$emulate->object_add_attribute('noc_param','T3',$T3);
 			 	$emulate->object_add_attribute('noc_param','TOPOLOGY',$topology);
-			 	my $pattern=get_synthetic_traffic_pattern($emulate, $sample);
+			 	my $pattern="";
+			 	my $traffictype=$emulate->object_get_attribute($sample,"TRAFFIC_TYPE");
+				$pattern=get_synthetic_traffic_pattern($emulate, $sample) if($traffictype eq "Synthetic");
+				$pattern=" Custom traffic based on input file. " if($traffictype eq "Task-graph");
+							 	
 			 	my $window = def_popwin_size(40,40,"Traffic pattern",'percent');
 			 	my ($outbox,$tview)= create_txview();
 			 	show_info($tview,"$pattern");
@@ -382,21 +397,20 @@ sub gen_emulation_column {
     		 });
     		 
     		 
-    		 $table->attach ($l, $positions[$col], $positions[$col]+1, $row, $row+1,'expand','shrink',2,2);
-    		 $table->attach ($traffic, $positions[$col]+1, $positions[$col+1], $row, $row+1,'expand','shrink',2,2);    
-    		 $col++;
+    		 $table->attach ($l, $order{'Name'}, $order{'Name'}+1, $row, $row+1,'expand','shrink',2,2);
+    		 $table->attach ($traffic, $order{'Traffic'}, $order{'Traffic'}+1, $row, $row+1,'expand','shrink',2,2);    
+    		
 			 
 		} else {
 			$l=gen_label_in_left("Define NoC configuration");
 			$l->set_markup("<span  foreground= 'red' ><b>Define NoC configuration</b></span>");	
-			$table->attach ($l, $positions[$col], $positions[$col+1], $row, $row+1,'expand','shrink',2,2);$col++;		 
+			$table->attach ($l, $order{'Name'}, $order{'Name'}+1, $row, $row+1,'expand','shrink',2,2);	 
 		}
-		#my $box=def_pack_hbox(FALSE,0,(gen_label_in_left("$i- "),$l,$set));
-		
+				
 
 		#remove 
 		my $remove=def_image_button("icons/cancel.png");
-		$table->attach ($remove, $positions[$col], $positions[$col+1], $row, $row+1,'expand','shrink',2,2);$col++;
+		$table->attach ($remove,$order{'+/-'},$order{'+/-'}+1, $row, $row+1,'expand','shrink',2,2);
 		$remove->signal_connect("clicked"=> sub{
 			$emulate->object_delete_attribute_order("samples",$sample);
 			set_gui_status($emulate,"ref",2);
@@ -404,7 +418,7 @@ sub gen_emulation_column {
 
 		#setting
 		my $set=def_image_button("icons/setting.png");
-		$table->attach ($set, $positions[$col], $positions[$col+1], $row, $row+1,'expand','shrink',2,2);$col++;
+		$table->attach ($set, $order{'Setting'}, $order{'Setting'}+1, $row, $row+1,'expand','shrink',2,2);
 
 		
 		if(defined $active){#The setting windows ask for refershing so open it again
@@ -426,9 +440,7 @@ sub gen_emulation_column {
 			$emulate->object_add_attribute($sample,"color",$color_num);
 		}
 		my $color=def_colored_button("   ",$color_num);
-		$table->attach ($color, $positions[$col], $positions[$col+1], $row, $row+1,'fill','fill',2,2);$col++;
-		
-		
+		$table->attach ($color, $order{'Color'}, $order{'Color'}+1, $row, $row+1,'fill','fill',2,2);
 		
 		$color->signal_connect("clicked"=> sub{
 			get_color_window($emulate,$sample,"color");
@@ -445,10 +457,10 @@ sub gen_emulation_column {
 			}
 			set_gui_status($emulate,"ref",2);
 		});
-		$table->attach ($clear, $positions[$col], $positions[$col+1], $row, $row+1,'expand','shrink',2,2);$col++;
+		$table->attach ($clear, $order{'Clear'}, $order{'Clear'}+1, $row, $row+1,'expand','shrink',2,2);
 		#run/pause
 		my $run = def_image_button('icons/run.png',undef);
-		$table->attach ($run, $positions[$col], $positions[$col+1], $row, $row+1,'expand','shrink',2,2);$col++;
+		$table->attach ($run, $order{'Run'}, $order{'Run'}+1, $row, $row+1,'expand','shrink',2,2);
 		$run->signal_connect("clicked"=> sub{
 			$emulate->object_add_attribute ($sample,"status","run");
 			#start the emulator if it is not running	
@@ -462,17 +474,15 @@ sub gen_emulation_column {
 			
 		});
 		
-		my $image = gen_noc_status_image($emulate,$sample);
-		
-		$table->attach ($image, $positions[$col], $positions[$col+1], $row, $row+1,'expand','shrink',2,2);
-		
-		
+		my $image = gen_noc_status_image($emulate,$sample);		
+		$table->attach ($image, $order{'Done'},$order{'Done'}+1, $row, $row+1,'expand','shrink',2,2);
+				
 		$row++;
 		
 	}
 	# add new simulation
 	my $add=def_image_button("icons/plus.png", );
-	$table->attach ($add, $positions[1], $positions[2], $row, $row+1,'expand','shrink',2,2);
+	$table->attach ($add, $order{'+/-'},$order{'+/-'}+1, $row, $row+1,'expand','shrink',2,2);
 
 	$add->signal_connect("clicked"=> sub{
 		my $n=$emulate->object_get_attribute("id",undef);
@@ -763,6 +773,7 @@ sub get_noc_setting_gui {
 		{ label=>'Pck. injector FIFO Width:', param_name=>'TIMSTMP_FIFO_NUM', type=>'Spin-button', default_val=>16, content=>"2,128,2", info=>"Packet injectors' timestamp FIFO width. In case a packet cannot be injected according to the desired injection ratio, the current system time is saved in a FIFO and then at injection time it will be read and attached to the packet. The larger FIFO width results in more accurate latency calculation." , param_parent=>'fpga_param', ref_delay=> undef},
   		{ label=>'Save as:', param_name=>'SAVE_NAME', type=>"Entry", default_val=>'simulate1', content=>undef, info=>undef, param_parent=>'sim_param', ref_delay=>undef},
 		{ label=>"Project directory", param_name=>"BIN_DIR", type=>"DIR_path", default_val=>"$ENV{'PRONOC_WORK'}/simulate", content=>undef, info=>"Define the working directory for generating simulation executable binarry file", param_parent=>'sim_param',ref_delay=>undef },
+		
 		);	
 	}
 	
@@ -770,6 +781,8 @@ sub get_noc_setting_gui {
 	foreach my $d (@fpgainfo) {		
 		($row,$coltmp)=add_param_widget  ($emulate, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay});
 	}   
+	  
+	
 	   
 	my $generate = def_image_button('icons/gen.png','Gener_ate',FALSE,1);
 	my $diagram  = def_image_button('icons/diagram.png','Diagram');

@@ -107,8 +107,9 @@ sub generate_sim_bin_file {
 	gen_vrouter_param_v($simulate,$target_verilog_dr);
 
 	#generate routers with different port num		
+	my $cpu_num = $simulate->object_get_attribute('compile', 'cpu_num');
+	my $result = verilator_compilation (\%tops,$target_dir,$info_text,$cpu_num);
 	
-	my $result = verilator_compilation (\%tops,$target_dir,$info_text);
 	
 	if ($result){
 		add_colored_info($info_text,"Veriator model has been generated successfully!\n",'blue');
@@ -140,14 +141,31 @@ sub generate_sim_bin_file {
 	
 	
 	
-	$result = run_make_file("$obj_dir/",$info_text,'lib');	
+	#$result = run_make_file("$obj_dir/",$info_text,'lib');	
+	my $lib_num=0;
+	add_colored_info($info_text,"Makefie will use the maximum number of $cpu_num core(s) in parallel for compilation\n",'green');
+	my $length=scalar (keys %tops);
+	my $cmd="";
+	foreach my $top (sort keys %tops) { 
+		$cmd.= "lib$lib_num & ";
+		$lib_num++;				
+		if( $lib_num % $cpu_num == 0 || $lib_num == $length){
+			$cmd.="wait\n";
+			$result = run_make_file("$obj_dir/",$info_text,$cmd);	
+			if ($result ==0){
+				$simulate->object_add_attribute('status',undef,'programmer_failed');
+				set_gui_status($simulate,"ref",1);
+				print "gen-ended!\n";
+				return;
+			}		
+			$cmd="";
+		}else {
+			$cmd.=" make ";
+		}	
+	}
+		
+		
 	
-	if ($result ==0){
-		$simulate->object_add_attribute('status',undef,'programmer_failed');
-		set_gui_status($simulate,"ref",1);
-		print "gen-ended!\n";
-		return;
-	}		
 	
 	run_make_file("$obj_dir/",$info_text);	
 	if ($result ==0){
@@ -258,8 +276,8 @@ sub load_simulation {
 		if($suffix eq '.SIM'){
 			my ($pp,$r,$err) = regen_object($file);
 			if ($r){		
-				add_info($info,"**Error reading  $file file: $err\n");
-				 $dialog->destroy;
+				add_colored_info($info,"**Error reading $file file: $err\n",'red');
+				$dialog->destroy;
 				return;
 			} 
 			#deactivate running simulations
@@ -277,113 +295,6 @@ sub load_simulation {
 }
 
 
-
-sub gen_custom_traffic {
-	my ($self,$info,$mode)=@_;
-		
-	my $table=def_table(20,10,FALSE);
-	my $scrolled_win = add_widget_to_scrolled_win ($table);
-	my $row=0;
-	
-	#page title	
-	my $title_l =  "Custom Traffic  Generator";
-	my $title=gen_label_in_center($title_l);
-	$table->attach ($title , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
-	add_Hsep_to_table($table,0,10,$row);$row++;	
-	
-	    
-	#fileds title
-	my @positions=(0,1,2,3,4,5,6);
-	my $col=0;
-	
-	my @title=("Traffic name", " Add/Remove "," Edit ");
-	foreach my $t (@title){		
-		$table->attach (gen_label_in_center($title[$col]), $positions[$col], $positions[$col+1], $row, $row+1,'expand','shrink',2,2);$col++;
-	}
-	 $row++;
-	
-	
-	#create new traffic
-	my $add=def_image_button("icons/plus.png", );
-	$table->attach ($add, $positions[1], $positions[2], $row, $row+1,'expand','shrink',2,2);
-
-	$add->signal_connect("clicked"=> sub{
-		generate_new_traffic ($self);
-			
-	});
-	return $scrolled_win;	
-	
-} 
-
-
-
-
-
-
-sub generate_new_traffic {
-	my $self=shift;
-	
-	my $window = def_popwin_size(40,40,"Step 2: Compile",'percent');
-	my $table = def_table(10, 10, FALSE);
-	
-	
-	
-	my @info = (
-	{ label=>'Traffic_name', param_name=>'CUSTOM_NAME', type=>"Entry", default_val=>undef, content=>undef, info=>undef, param_parent=>'traffic_param', ref_delay=> undef},
-  	{ label=>'Routers per Row', param_name=>'CUSTOM_X', type=>"Spin-button", default_val=>2, content=>"2,64,1", info=>undef, param_parent=>'traffic_param', ref_delay=>undef},
-	{ label=>"Routers per Column", param_name=>"CUSTOM_Y", type=>"Spin-button", default_val=>2, content=>"1,64,1", info=>undef, param_parent=>'traffic_param',ref_delay=>undef },
-	);
-	
-	my $row=0;
-	my $col=0;
-	foreach my $d (@info) {
-		($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},undef,"vertical");
-	}
-	
-	$row++;
-	
-	
-	
-	my $next=def_image_button('icons/run.png','Next');
-	my $back=def_image_button('icons/left.png','Previous');	
-	
-	$col=1;
-	my $i;	
-	for ($i=$row; $i<5; $i++){
-		
-		my $temp=gen_label_in_center(" ");
-		$table->attach_defaults ($temp, 3, 4 , $i, $i+1);
-	}
-	$row=$i;
-	
-	#$table->attach($back,2,3,9,10,'shrink','shrink',2,2);
-	$table->attach($next,3,4,$row,$row+1,'shrink','shrink',2,2);
-
-
-	
-	$back-> signal_connect("clicked" => sub{ 
-		
-		$window->destroy;
-		
-		
-	});
-	$next-> signal_connect("clicked" => sub{ 
-		
-		$window->destroy;
-		
-		
-	});
-	
-
-
-	
-
-	$window->add ($table);
-	$window->show_all();
-
-
-
-}
 
 
 sub check_hotspot_parameters{
@@ -437,7 +348,7 @@ sub get_simulator_noc_configuration{
 	my $open_in	  = abs_path("$ENV{PRONOC_WORK}/simulate");	
 	
 	
-	attach_widget_to_table ($table,$row,gen_label_in_left(" Search Path:"),gen_button_message ("Select the the Path where the verilator simulation files are located. Different NoC verilated models can be generated using Generate NoC configuration tab.","icons/help.png"), 
+	attach_widget_to_table ($table,$row,gen_label_in_left(" Search Path:"),gen_button_message ("Select the Path where the verilator simulation files are located. Different NoC verilated models can be generated using Generate NoC configuration tab.","icons/help.png"), 
 	get_dir_in_object ($self,$sample,"sof_path",undef,'ref_set_win',1,$open_in)); $row++;
 	
 	$open_in	= $self->object_get_attribute($sample,"sof_path");	
@@ -587,7 +498,7 @@ sub get_simulator_noc_configuration{
 	if($traffictype eq "Task-graph"){
 		
 		my @custominfo = (
-		#{ label=>"Verilated Model", param_name=>'sof_file', type=>'Combo-box', default_val=>undef, content=>$exe_files, info=>"Select the the verilator simulation file. Different NoC simulators can be generated using Generate NoC configuration tab.", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
+		#{ label=>"Verilated Model", param_name=>'sof_file', type=>'Combo-box', default_val=>undef, content=>$exe_files, info=>"Select the verilator simulation file. Different NoC simulators can be generated using Generate NoC configuration tab.", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
 		
 		{ label=>'Configuration name:', param_name=>'line_name', type=>'Entry', default_val=>$sample, content=>undef, info=>"NoC configuration name. This name will be shown in load-latency graph for this configuration", param_parent=>$sample, ref_delay=> undef, new_status=>undef},
 	
@@ -608,7 +519,7 @@ sub get_simulator_noc_configuration{
 	
 		 my $num=$self->object_get_attribute($sample,"TRAFFIC_FILE_NUM");
 		 for (my $i=0; $i<$num; $i++){
-		 	attach_widget_to_table ($table,$row,gen_label_in_left("traffic pattern file $i:"),gen_button_message ("Select the the traffic pattern input file.","icons/help.png"), get_file_name_object ($self,$sample,"traffic_file$i",undef,$open_in)); $row++;
+		 	attach_widget_to_table ($table,$row,gen_label_in_left("traffic pattern file $i:"),gen_button_message ("Select the traffic pattern input file. Any custom traffic based on application task graphs can be generated using ProNoC Trace Generator tool.","icons/help.png"), get_file_name_object ($self,$sample,"traffic_file$i",undef,$open_in)); $row++;
 		 }
 		 
 		$ok->signal_connect("clicked"=> sub{
@@ -683,6 +594,7 @@ sub run_simulator {
 sub run_synthetic_simulation {
 	my ($simulate,$info,$sample,$name)=@_;
 	my $log= (defined $name)? "$ENV{PRONOC_WORK}/simulate/$name.log": "$ENV{PRONOC_WORK}/simulate/sim.log";
+	my $out_path ="$ENV{PRONOC_WORK}/simulate/"; 
 	my $r= $simulate->object_get_attribute($sample,"ratios");
 	my @ratios=@{check_inserted_ratios($r)};
 	#$emulate->object_add_attribute ("sample$i","status","run");
@@ -718,65 +630,84 @@ sub run_synthetic_simulation {
 				
 	}
 			
-				
 		
+	my $cpu_num = $simulate->object_get_attribute('compile', 'cpu_num');
+	$cpu_num = 1 if (!defined $cpu_num);
+	
+	
+	my @paralel_ratio;
+	my $total=scalar @ratios;
+	my $jobs=0;	
+	my $c=0;
+	my $cmds="";
 	foreach  my $ratio_in (@ratios){						
 	    	#my $r= $ratio_in * MAX_RATIO/100;
 	    	add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
-	    	my $cmd="$bin -t \"$patern\"  -s $MIN_PCK_SIZE -m $MAX_PCK_SIZE  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot";
+	    	my $cmd="$bin -t \"$patern\"  -s $MIN_PCK_SIZE -m $MAX_PCK_SIZE  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot > $out_path/sim_out$ratio_in & ";
+			$cmds .=$cmd;
 			add_info($info, "$cmd \n");
 			my $time_strg = localtime;
-			append_text_to_file($log,"started at:$time_strg\n"); #save simulation output
-			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmd");
-			if($exit){
-				add_info($info, "Error in running simulation: $stderr \n");
-				$simulate->object_add_attribute ($sample,"status","failed");	
-				$simulate->object_add_attribute('status',undef,'ideal');
-				return;
-			}
-	 			
-			append_text_to_file($log,$stdout); #save simulation output
-			$time_strg = localtime;
-			append_text_to_file($log,"Ended at:$time_strg\n"); #save simulation output
+			#append_text_to_file($log,"started at:$time_strg\n"); #save simulation output
+			$jobs++;
 			
-			#my @q =split  (/average latency =/,$stdout);
-			#my $d=$q[1];
-			#@q =split  (/\n/,$d);
-			#my $avg=$q[0];
-			my $avg_latency =capture_number_after("average latency =",$stdout);
-			my $sd_latency =capture_number_after("standard_dev =",$stdout);
-			my $avg_thput =capture_number_after("Avg throughput is:",$stdout);
-			my $total_time =capture_number_after("simulation clock cycles:",$stdout);
-			
-			my %packet_rsvd_per_core = capture_cores_data("total number of received packets:",$stdout);
-			my %worst_rsvd_delay_per_core = capture_cores_data('worst-case-delay of received packets \(clks\):',$stdout);
-			my %packet_sent_per_core = capture_cores_data("total number of sent packets:",$stdout);
-			my %worst_sent_delay_per_core = capture_cores_data('worst-case-delay of sent packets \(clks\):',$stdout);
-			#my $avg = sprintf("%.1f", $avg);
-	    		
-		    	
-	    	next if (!defined $avg_latency);
-			update_result($simulate,$sample,"latency_result",$ratio_in,$avg_latency);
-			update_result($simulate,$sample,"sd_latency_result",$ratio_in,$sd_latency);
-			update_result($simulate,$sample,"throughput_result",$ratio_in,$avg_thput);
-			update_result($simulate,$sample,"exe_time_result",$ratio_in,$total_time);
-			foreach my $p (sort keys %packet_rsvd_per_core){
-				update_result($simulate,$sample,"packet_rsvd_result",$ratio_in,$p,$packet_rsvd_per_core{$p} );
-				update_result($simulate,$sample,"worst_delay_rsvd_result",$ratio_in,$p,$worst_rsvd_delay_per_core{$p});
-				update_result($simulate,$sample,"packet_sent_result",$ratio_in,$p,$packet_sent_per_core{$p} );
-				update_result($simulate,$sample,"worst_delay_sent_result",$ratio_in,$p,$worst_sent_delay_per_core{$p});
-		    	}
-		    	set_gui_status($simulate,"ref",2);
-		
-	  	
-		    	
+			push (@paralel_ratio,$ratio_in);
+			$c++;
+			if($jobs % $cpu_num ==0 || $jobs == $total){
+				#run paralle simulation
+				my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmds\n wait\n");
+				if($exit || (length $stderr >4)){
+						add_colored_info($info, "Error in running simulation: $stderr \n",'red');
+						$simulate->object_add_attribute ($sample,"status","failed");	
+						$simulate->object_add_attribute('status',undef,'ideal');
+						return;
+				 } 
+				#save results
+				for (my $i=0; $i<$c; $i++){
+					my $r      = $paralel_ratio[$i];
+					my $stdout = load_file("$out_path/sim_out$r");
+									
+					extract_and_update_noc_sim_statistic ($simulate,$sample,$r,$stdout);
+					    
+		   
+				} 
+				
+				$cmds="";
+				@paralel_ratio=();
+				$c=0;
+				
+				set_gui_status($simulate,"ref",2);
+			}  	
 	    		    	
-		}
+		}#@ratios	
+		
 		$simulate->object_add_attribute ($sample,"status","done");	
-	
 	
 }
 
+sub extract_and_update_noc_sim_statistic {
+	my ($simulate,$sample,$ratio_in,$stdout)=@_;
+	my $avg_latency =capture_number_after("average latency =",$stdout);
+	my $sd_latency =capture_number_after("standard_dev =",$stdout);
+	my $avg_thput =capture_number_after("Avg throughput is:",$stdout);
+	my $total_time =capture_number_after("simulation clock cycles:",$stdout);
+	
+	my %packet_rsvd_per_core = capture_cores_data("total number of received packets:",$stdout);
+	my %worst_rsvd_delay_per_core = capture_cores_data('worst-case-delay of received packets \(clks\):',$stdout);
+	my %packet_sent_per_core = capture_cores_data("total number of sent packets:",$stdout);
+	my %worst_sent_delay_per_core = capture_cores_data('worst-case-delay of sent packets \(clks\):',$stdout);
+		
+	next if (!defined $avg_latency);
+	update_result($simulate,$sample,"latency_result",$ratio_in,$avg_latency);
+	update_result($simulate,$sample,"sd_latency_result",$ratio_in,$sd_latency);
+	update_result($simulate,$sample,"throughput_result",$ratio_in,$avg_thput);
+	update_result($simulate,$sample,"exe_time_result",$ratio_in,$total_time);
+	foreach my $p (sort keys %packet_rsvd_per_core){
+		update_result($simulate,$sample,"packet_rsvd_result",$ratio_in,$p,$packet_rsvd_per_core{$p} );
+		update_result($simulate,$sample,"worst_delay_rsvd_result",$ratio_in,$p,$worst_rsvd_delay_per_core{$p});
+		update_result($simulate,$sample,"packet_sent_result",$ratio_in,$p,$packet_sent_per_core{$p} );
+		update_result($simulate,$sample,"worst_delay_sent_result",$ratio_in,$p,$worst_sent_delay_per_core{$p});
+	}	
+}
 
 
 sub run_custom_simulation{
@@ -790,57 +721,52 @@ sub run_custom_simulation{
 	my $project_dir	  = abs_path("$dir/../.."); #mpsoc directory address
 	$bin= "$project_dir/$bin"   if(!(-f $bin));
 	my $num=$simulate->object_get_attribute($sample,"TRAFFIC_FILE_NUM");
+	
+	my $cpu_num = $simulate->object_get_attribute('compile', 'cpu_num');
+	$cpu_num = 1 if (!defined $cpu_num);
+	
+	my @paralel_ratio;
+	my $total=$num;
+	my $jobs=0;	
+	my $c=0;
+	my $cmds="";
+	my $out_path ="$ENV{PRONOC_WORK}/simulate/"; 
+	
 	for (my $i=0; $i<$num; $i++){
 		 my $f=$simulate->object_get_attribute($sample,"traffic_file$i");
 		 add_info($info, "Run $bin for $f  file \n");	
-		 my $cmd="$bin  -c	$SIM_CLOCK_LIMIT  -f \"$project_dir/$f\"";
+		 my $cmd="$bin -c $SIM_CLOCK_LIMIT -f  \"$f\" > $out_path/sim_out$i & ";
+		 $cmds .=$cmd;
 		 add_info($info, "$cmd \n");
-		 my $time_strg = localtime;
-		 append_text_to_file($log,"started at:$time_strg\n"); #save simulation output	
-		 
-		 my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmd");
-		 if($exit){
-				add_info($info, "Error in running simulation: $stderr \n");
+		 $jobs++;
+		 push (@paralel_ratio,$i);
+		 $c++;
+		 if($jobs % $cpu_num ==0 || $jobs == $total){
+			#run paralle simulation
+			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmds\n wait\n");
+		
+			if($exit || (length $stderr >4)){
+				add_colored_info($info, "Error in running simulation: $stderr \n",'red');
 				$simulate->object_add_attribute ($sample,"status","failed");	
 				$simulate->object_add_attribute('status',undef,'ideal');
 				return;
-		 }
-		 append_text_to_file($log,$stdout); #save simulation output
-			$time_strg = localtime;
-			append_text_to_file($log,"Ended at:$time_strg\n"); #save simulation output
+			 } 
+			 
+			#save results
+			for (my $j=0; $j<$c; $j++){
+				my $r      = $paralel_ratio[$j];
+				my $stdout = load_file("$out_path/sim_out$r");
 			
-			#my @q =split  (/average latency =/,$stdout);
-			#my $d=$q[1];
-			#@q =split  (/\n/,$d);
-			#my $avg=$q[0];
-			my $avg_latency =capture_number_after("average latency =",$stdout);
-			my $sd_latency =capture_number_after("standard_dev =",$stdout);
-			my $avg_thput =capture_number_after("Avg throughput is:",$stdout);
-			my %packet_rsvd_per_core = capture_cores_data("total number of received packets:",$stdout);
-			my %worst_rsvd_delay_per_core = capture_cores_data('worst-case-delay of received packets \(clks\):',$stdout);
-			my %packet_sent_per_core = capture_cores_data("total number of sent packets:",$stdout);
-			my %worst_sent_delay_per_core = capture_cores_data('worst-case-delay of sent packets \(clks\):',$stdout);
-			my $total_time =capture_number_after("simulation clock cycles:",$stdout);
-			#my $avg = sprintf("%.1f", $avg);
-	    		
-		    	
-	    	next if (!defined $avg_latency);
-			update_result($simulate,$sample,"latency_result",$i,$avg_latency);
-			update_result($simulate,$sample,"sd_latency_result",$i,$sd_latency);
-			update_result($simulate,$sample,"throughput_result",$i,$avg_thput);
-			update_result($simulate,$sample,"exe_time_result",$i,$total_time);
-			foreach my $p (sort keys %packet_rsvd_per_core){
-				update_result($simulate,$sample,"packet_rsvd_result",$i,$p,$packet_rsvd_per_core{$p} );
-				update_result($simulate,$sample,"worst_delay_rsvd_result",$i,$p,$worst_rsvd_delay_per_core{$p});
-				update_result($simulate,$sample,"packet_sent_result",$i,$p,$packet_sent_per_core{$p} );
-				update_result($simulate,$sample,"worst_delay_sent_result",$i,$p,$worst_sent_delay_per_core{$p});
-		    	}
-		    	set_gui_status($simulate,"ref",2);
-		 
-		 
-		 
-	}
-	
+				extract_and_update_noc_sim_statistic ($simulate,$sample,$r,$stdout);
+			} 
+			
+			$cmds="";
+			@paralel_ratio=();
+			$c=0;
+			set_gui_status($simulate,"ref",2);	
+		} 		 
+		    	 
+	}#for i
 	
 	$simulate->object_add_attribute ($sample,"status","done");	
 }	
@@ -881,7 +807,7 @@ sub check_sim_sample{
 		my ($name,$path,$suffix) = fileparse("$sof",qr"\..[^.]*$");
 		my $sof_info= "$path$name.inf";
 		if(!(-f $sof_info)){
-			add_info($info, "Could not find $name.inf file in $path. An information file is required for each sof file containing the device name and  NoC configuration. Press F3 for more help.\n");
+			add_colored_info($info, "Could not find $name.inf file in $path. An information file is required for each sof file containing the device name and  NoC configuration. Press F3 for more help.\n",'red');
 			$self->object_add_attribute ($sample,"status","failed");	
 			$status=0;
 		}else { #add info
@@ -916,7 +842,70 @@ sub check_sim_sample{
 	return $status;
 }
 
+sub noc_sim_ctrl{
+	my ($simulate,$info)=@_;
+	
+	my $generate = def_image_button('icons/forward.png','R_un all',FALSE,1);
+	my $open = def_image_button('icons/browse.png',"_Load",FALSE,1);
+	my $save = def_image_button('icons/save.png','Sav_e',FALSE,1);
+	my $save_all_results = def_image_button('icons/copy.png',"E_xtract all results",FALSE,1);
+	my $cpus=select_parallel_process_num($simulate);
+	
+	my $entry = gen_entry_object($simulate,'simulate_name',undef,undef,undef,undef);
+	my $entrybox=gen_label_info(" Save as:",$entry);
+	$entrybox->pack_start( $save, FALSE, FALSE, 0);
+	
+	
+	
+	my $table = def_table (1, 12, FALSE);
+	$table->attach ($open,		0, 2, 0,1,'expand','shrink',2,2);
+	$table->attach ($cpus, 		2, 4, 0,1,'expand','shrink',2,2);
+	$table->attach ($entrybox,	4, 7, 0,1,'expand','shrink',2,2);
+	$table->attach ($save_all_results, 7, 8, 0,1,'shrink','shrink',2,2);
+	$table->attach ($generate, 	8, 9, 0,1,'expand','shrink',2,2);
+	
+	$generate-> signal_connect("clicked" => sub{ 
+		my @samples =$simulate->object_get_attribute_order("samples");	
+		foreach my $sample (@samples){
+			$simulate->object_add_attribute ("$sample","status","run");	
+		}
+		run_simulator($simulate,$info);
+		#set_gui_status($emulate,"ideal",2);
 
+	});
+
+#	$wb-> signal_connect("clicked" => sub{ 
+#		wb_address_setting($mpsoc);
+#	
+#	});
+
+	$open-> signal_connect("clicked" => sub{ 
+		
+		load_simulation($simulate,$info);
+		#print Dumper($simulate);
+		set_gui_status($simulate,"ref",5);
+	
+	});	
+
+	$save-> signal_connect("clicked" => sub{ 
+		save_simulation($simulate);		
+		set_gui_status($simulate,"ref",5);
+		
+	
+	});	
+	
+	$save_all_results-> signal_connect("clicked" => sub{ 
+		#Get the path where to save all the simulation results
+		my $open_in = $simulate->object_get_attribute ('sim_param','BIN_DIR');
+     	get_dir_name($simulate,"Select the target directory","sim_param","ALL_RESULT_DIR",$open_in,'ref',1);
+		$simulate->object_add_attribute ("graph_save","save_all_result",1);
+		
+	});	
+	
+	
+	return $table;
+	
+}
 
 
 ############
@@ -969,24 +958,10 @@ my @charts = (
 	#my  $device_win=show_active_dev($soc,$soc,$infc,$soc_state,\$refresh,$info);
 	
 	
-	my $generate = def_image_button('icons/forward.png','R_un all',FALSE,1);
-	my $open = def_image_button('icons/browse.png',"_Load",FALSE,1);
-	my $save = def_image_button('icons/save.png','Sav_e',FALSE,1);
-	my $save_all_results = def_image_button('icons/copy.png',"E_xtract all results",FALSE,1);
 	
 	
-	
-	my ($entrybox,$entry) = def_h_labeled_entry('Save as:',undef);
-	
-	
-	$entrybox->pack_end($save,   FALSE, FALSE,0);
-	
-
-	#$table->attach_defaults ($event_box, $col, $col+1, $row, $row+1);
 	my $image = get_status_gif($simulate);
-	
-	
-	
+	my $ctrl  = noc_sim_ctrl ($simulate,$info);
 	
 	my $v1=gen_vpaned($conf_box,.45,$image);
 	my $v2=gen_vpaned($infobox,.2,$chart);
@@ -995,16 +970,9 @@ my @charts = (
 	
 	
 	$main_table->attach_defaults ($h1  , 0, 12, 0,24);
-	$main_table->attach ($open,0, 2, 24,25,'expand','shrink',2,2);
-	#$main_table->attach ($diagram, 2, 4, 24,25,'expand','shrink',2,2);
-	$main_table->attach ($entrybox,4, 7, 24,25,'expand','shrink',2,2);
-	$main_table->attach ($save_all_results, 7, 8, 24,25,'shrink','shrink',2,2);
-	$main_table->attach ($generate, 8, 9, 24,25,'expand','shrink',2,2);
+	$main_table->attach ($ctrl, 0,12, 24,25,'fill','fill',2,2);
 	
-	$entry->signal_connect( 'changed'=> sub{
-		my $name=$entry->get_text();
-		$simulate->object_add_attribute ("simulate_name",undef,$name);	
-	});	
+	
 
 
 	#check soc status every 0.5 second. refresh device table if there is any changes 
@@ -1032,16 +1000,17 @@ my @charts = (
 		
 		
 		#refresh GUI
-		my $name=$simulate->object_get_attribute ("simulate_name",undef);	
-		$entry->set_text($name) if(defined $name);
-									
+		
+		$ctrl->destroy();							
 		$conf_box->destroy();
 		$chart->destroy();
 		$image->destroy(); 
 		$image = get_status_gif($simulate);
 		($conf_box,$set_win)=process_notebook_gen($simulate,$info,"simulate",@charts);				
 		$chart = gen_multiple_charts  ($simulate,\@pages,\@charts,0.4);
-		$v1 -> pack1($conf_box, TRUE, TRUE); 	
+		$ctrl  = noc_sim_ctrl ($simulate,$info);
+		$main_table->attach ($ctrl,0, 12, 24,25,'fill','fill',2,2);
+        $v1 -> pack1($conf_box, TRUE, TRUE); 	
 		$v1 -> pack2($image, TRUE, TRUE); 		
 		$v2 -> pack2($chart, TRUE, TRUE); 	
 		$conf_box->show_all();
@@ -1055,43 +1024,7 @@ my @charts = (
 		
 	
 		
-	$generate-> signal_connect("clicked" => sub{ 
-		my @samples =$simulate->object_get_attribute_order("samples");	
-		foreach my $sample (@samples){
-			$simulate->object_add_attribute ("$sample","status","run");	
-		}
-		run_simulator($simulate,$info);
-		#set_gui_status($emulate,"ideal",2);
-
-	});
-
-#	$wb-> signal_connect("clicked" => sub{ 
-#		wb_address_setting($mpsoc);
-#	
-#	});
-
-	$open-> signal_connect("clicked" => sub{ 
-		
-		load_simulation($simulate,$info);
-		#print Dumper($simulate);
-		set_gui_status($simulate,"ref",5);
 	
-	});	
-
-	$save-> signal_connect("clicked" => sub{ 
-		save_simulation($simulate);		
-		set_gui_status($simulate,"ref",5);
-		
-	
-	});	
-	
-	$save_all_results-> signal_connect("clicked" => sub{ 
-		#Get the path where to save all the simulation results
-		my $open_in = $simulate->object_get_attribute ('sim_param','BIN_DIR');
-     	get_dir_name($simulate,"Select the target directory","sim_param","ALL_RESULT_DIR",$open_in,'ref',1);
-		$simulate->object_add_attribute ("graph_save","save_all_result",1);
-		
-	});	
 
 	return add_widget_to_scrolled_win($main_table);	
 

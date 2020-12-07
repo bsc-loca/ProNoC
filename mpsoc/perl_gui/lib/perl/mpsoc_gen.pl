@@ -703,7 +703,7 @@ if($topology ne '"CUSTOM"' ){
     		 ($topology eq '"TREE"')? '"NCA"' : '"UNKNOWN"';
     		 
     my $info_mesh="Select the routing algorithm: XY(DoR) , partially adaptive (Turn models). Fully adaptive (Duato) "; 
-    my $info_fat="Nearest common ancestor (NCA) where the up port is selected randomly (RND), based on destination endpoint address (DST) or it is the top port that is located in front of the the port which has received the packet (STRAIGHT) "; 
+    my $info_fat="Nearest common ancestor (NCA) where the up port is selected randomly (RND), based on destination endpoint address (DST) or it is the top port that is located in front of the port which has received the packet (STRAIGHT) "; 
     
     $info=($topology eq '"FATTREE"')? $info_fat : 
     	  ($topology eq '"TREE"') ? "Nearest common ancestor": $info_mesh;
@@ -1074,24 +1074,15 @@ sub get_config{
 
     });
 
-
-
-    
-    #for(my $i=$row; $i<25; $i++){
-        #my $empty_col=gen_label_in_left(' ');
-        #$table->attach_defaults ($empty_col , 0, 1, $i,$i+1);
-
-    #}
-return  $table;
+    my $scrolled_win = gen_scr_win_with_adjst($mpsoc,'get_config_adj');
+	add_widget_to_scrolled_win($table,$scrolled_win);
+	return $scrolled_win;
 }
 
 
 #############
 #  gen_all_tiles
 ###########
-
-
-
 
 sub gen_all_tiles{
     my ($mpsoc,$info, $hw_dir,$sw_dir)=@_;
@@ -1590,7 +1581,10 @@ sub gen_tiles{
    		my $x= $i % $dim_y;    		
         $table->attach_defaults ($tile, $x, $x+1 , $y, $y+1);
    	}
-    return $table;
+   	
+   	my $scrolled_win = gen_scr_win_with_adjst($mpsoc,'gen_tiles_adj');
+	add_widget_to_scrolled_win($table,$scrolled_win);
+	return $scrolled_win;   
 }
 
 
@@ -2842,7 +2836,12 @@ sub ctrl_box{
     my $entry=gen_entry_object($mpsoc,'mpsoc_name',undef,undef,undef,undef);
     my $entrybox=gen_label_info(" MPSoC name:",$entry);
     my $save      = def_image_button('icons/save.png');	
+    my $open_dir  = def_image_button('icons/open-folder.png');
+    set_tip($save, "Save current MPSoC configuration setting");
+	set_tip($open_dir, "Open target MPSoC folder");
+    	
 	$entrybox->pack_start( $save, FALSE, FALSE, 0);
+	$entrybox->pack_start( $open_dir , FALSE, FALSE, 0);
     my $diagram  = def_image_button('icons/diagram.png','Diagram');
     my $clk=  def_image_button('icons/clk.png','CLK setting');	
 
@@ -2885,8 +2884,9 @@ sub ctrl_box{
         }
         my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$name";
         my $top_file     = "$target_dir/src_verilog/${name}_top.v";
-        if (-f $top_file){    
-            generate_mpsoc($mpsoc,$info,0);
+        if (-f $top_file){  
+        	my $answer = yes_no_dialog ("Do you want to Regenearte the MPSoC RTL code too?");  
+            generate_mpsoc($mpsoc,$info,0) if ($answer eq 'yes');
             select_compiler($mpsoc,$name,$top_file,$target_dir);
         } else {
             message_dialog("Cannot find $top_file file. Please run RTL Generator first!");
@@ -2920,6 +2920,23 @@ sub ctrl_box{
 			clk_setting_win1($mpsoc,$info,'mpsoc');	
 	});
 	
+	$open_dir-> signal_connect("clicked" => sub{ 
+		my $name=$mpsoc->object_get_attribute('mpsoc_name');
+    	$name="" if (!defined $name);
+    	if (length($name)==0){
+            message_dialog("Please define the MPSoC name!");
+            return ;
+        }
+    	my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$name";
+		unless (-d $target_dir){
+			message_dialog("Cannot find $target_dir.\n Please run RTL Generator first!",'error');
+			return;
+		}
+		system "xdg-open   $target_dir";
+		
+	});	
+	
+	
 	return $table;	
 }
 
@@ -2939,15 +2956,12 @@ sub mpsocgen_main{
         
     my $noc_conf_box=get_config ($mpsoc,$info);
     my $noc_tiles=gen_tiles($mpsoc);
-
-    my $scr_conf = add_widget_to_scrolled_win($noc_conf_box);
-    
-    my $scr_tile = add_widget_to_scrolled_win($noc_tiles);
+   
 
     $main_table->set_row_spacings (4);
     $main_table->set_col_spacings (1);
     my $ctrl=ctrl_box($mpsoc,$info);    
-    my $h1=gen_hpaned($scr_conf,.3,$scr_tile);
+    my $h1=gen_hpaned($noc_conf_box,.3,$noc_tiles);
     my $v2=gen_vpaned($h1,.55,$infobox);
 	my $row=0;
     $main_table->attach_defaults ($v2  , 0, 12, 0,24);
@@ -2972,12 +2986,10 @@ sub mpsocgen_main{
         elsif( $state ne "ideal" ){
             $noc_conf_box->destroy();
             $noc_conf_box=get_config ($mpsoc,$info);
-            add_widget_to_scrolled_win($noc_conf_box,$scr_conf);
             $noc_tiles->destroy();
-            $noc_tiles=gen_tiles($mpsoc);
-            add_widget_to_scrolled_win($noc_tiles,$scr_tile);
-            $h1 -> pack1($scr_conf, TRUE, TRUE);     
-            $h1 -> pack2($scr_tile, TRUE, TRUE);         
+            $noc_tiles=gen_tiles($mpsoc);            
+            $h1 -> pack1($noc_conf_box, TRUE, TRUE);     
+            $h1 -> pack2($noc_tiles, TRUE, TRUE);         
             $v2-> pack1($h1, TRUE, TRUE);     
             $h1->show_all;
             $ctrl->destroy;

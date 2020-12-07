@@ -249,8 +249,8 @@ void load_traffic_file(char * file, node_t * head[NE], index_t (* info)){
     int n,i;
      
     if(in == NULL){
-    	printf("Error: cannot open %s file in read mode!\n",file);
-	    exit(1);
+    	fprintf(stderr,"Error: cannot open %s file in read mode!\n",file);
+    	exit(1);
 	}
 
     for(i=0;i<NE;i++){

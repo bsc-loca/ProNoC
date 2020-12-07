@@ -1100,6 +1100,30 @@ sub gen_hpaned {
 	return $hpaned;
 }
 
+
+sub gen_hpaned_adj {
+	my ($self,$w1,$loc,$w2,$name) = @_;
+	my $hpaned = Gtk3::HPaned -> new;
+	$hpaned -> pack1($w1, TRUE, TRUE); 
+	$hpaned -> pack2($w2, TRUE, TRUE); 	
+	
+	$hpaned->signal_connect("destroy"=> sub{
+	 	my $adj = $hpaned->get_position ();
+	 	$self->object_add_attribute("adj",$name,$adj);
+	 });	
+	
+	my $val =$self->object_get_attribute("adj",$name);
+	if(defined $val){
+		$hpaned -> set_position ($val);
+	} else{
+		my($width,$hight)=max_win_size();
+		$hpaned -> set_position ($width*$loc);		
+	}	
+	
+	return $hpaned;
+}
+
+
 #############
 # text_view 
 ############

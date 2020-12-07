@@ -131,7 +131,27 @@ module custom_ni_routing  #(
     
     end	
     
+     
+	//do not modify this line ===Tcustom1Rcustom===
+    if(TOPOLOGY == "custom1" && ROUTE_NAME== "custom" ) begin : Tcustom1Rcustom
+    
+        Tcustom1Rcustom_ni_conventional_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_conventional_routing
+        (
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport)        
+        );    
+    
+    end	
+    
     endgenerate
+    	
+ 
     	
  
     	

@@ -283,7 +283,7 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 				foreach my $v (@x){
 					my $w=$ref->{$ratio}->{$v};
 					push(@y,$w);
-					$ymax=$w+1 if($w>$ymax);
+					if (defined $w){$ymax=$w+1 if($w>$ymax);}
 				}
 				$results[$i]=\@y if(scalar @x);
 				$i++;
@@ -427,7 +427,8 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 		
 	$table->attach_defaults ($align , 0, 9, 0, 25);
 	my $row=0;
-	$table->attach (gen_label_in_center('Injection-Ratio'), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+	$table->attach (gen_label_in_center("Injection-Ratio/"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+	$table->attach (gen_label_in_center("Task-file index"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($ratio_combx, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($active_page, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($dimension, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;

@@ -59,6 +59,10 @@ use POSIX qw(locale_h);
 use locale;
 setlocale(LC_CTYPE, "en_US.UTF-8");#set numeric format to dot english
 
+select(STDERR);
+$| = 1;
+select(STDOUT); # default
+$| = 1;
 
 
 
@@ -138,6 +142,7 @@ sub main_window{
   [ "/_View",                  undef, undef,         0, "<Branch>" ],
   [ "/View/_ProNoC System Generator",  "<control>1", 	sub{ ($notebook,$noteref)=open_page($notebook,$noteref,$table,'Generator'); } ,	0,	undef ],
   [ "/View/_ProNoC Simulator",  "<control>2", 	sub{ ($notebook,$noteref)=open_page($notebook,$noteref,$table,'Simulator'); } ,	0,	undef ],
+  [ "/View/_ProNoC Network maker",  "<control>3", 	sub{ ($notebook,$noteref)=open_page($notebook,$noteref,$table,'Networkgen'); } ,	0,	undef ],
  
  
 

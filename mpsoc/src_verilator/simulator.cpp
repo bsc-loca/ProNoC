@@ -134,17 +134,17 @@ void update_hotspot(char * str){
 	 hotspot_st * new_node;
 	 p= parse_string (str, array);
 	 if (p<4){
-			printf("Error in hotspot traffic parameters \n");
+		    fprintf(stderr,"Error in hotspot traffic parameters. 4 value should be given as hotspot parameter\n");
 			exit(1);
 	 }
 	 HOTSPOT_NUM=array[0];
 	 if (p<1+HOTSPOT_NUM*3){
-			printf("Error in hotspot traffic parameters \n");
+		    fprintf(stderr,"Error in hotspot traffic parameters \n");
 			exit(1);
 	 }
 	 new_node =  (hotspot_st *) malloc( HOTSPOT_NUM * sizeof(hotspot_st));
 	 if( new_node == NULL){
-       	printf("Error: cannot allocate memory for hotspot traffic\n");
+		 fprintf(stderr,"Error: cannot allocate memory for hotspot traffic\n");
    	    exit(1);
    	 }
 	 for (i=1;i<3*HOTSPOT_NUM; i+=3){
@@ -719,13 +719,13 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src){
 	if(index == DISABLE){
 		traffic[src]->ratio=0;
 		traffic[src]->stop=1;
-		 return src; //disable sending
+		 return endp_addr_encoder(src); //disable sending
 	}
 
 	if(	read(task_graph_data[src],index,&task)==0){
 		traffic[src]->ratio=0;
 		traffic[src]->stop=1;
-		 return src; //disable sending
+		 return endp_addr_encoder(src); //disable sending
 
 	}
 
@@ -770,12 +770,12 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src){
 					traffic[src]->ratio=0;
 					traffic[src]->stop=1;
 					if(total_active_routers!=0) total_active_routers--;
-					return src;
+					return endp_addr_encoder(src);
 				}
 				if(task_graph_abstract[src].active_index>=task_graph_abstract[src].total_index) task_graph_abstract[src].active_index=0;
 	}
 
-	return task.dst;
+	return endp_addr_encoder(task.dst);
 }
 
 

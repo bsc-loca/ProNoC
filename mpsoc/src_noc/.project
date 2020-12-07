@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>ProNoC</name>
+	<name>bypass</name>
 	<comment></comment>
 	<projects>
-		<project>mpsoc</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -19,7 +18,7 @@
 		<link>
 			<name>External SV Files</name>
 			<type>2</type>
-			<locationURI>svext://ProNoC</locationURI>
+			<locationURI>svext://bypassr</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

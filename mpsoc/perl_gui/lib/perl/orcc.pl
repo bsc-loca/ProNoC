@@ -586,7 +586,7 @@ void ${actor}_init_actor (schedinfo_t * si) {
 	    	$schedul ="
 			${actor}_scheduler(si);"; 
 		
-			#For each actor which is mapped to this tile, we need to find all the the traces going in and out to this tile 
+			#For each actor which is mapped to this tile, we need to find all the traces going in and out to this tile 
 			#1- get the actor generated C file name:
 			
 			#push(@actors_file_names,      $actor_file);	   
@@ -975,10 +975,7 @@ $schedul
    $defines .= ($pval eq '1\'b1')? "#define ORCC_GOT_PCK_INT_EN  1\n" : "#define ORCC_GOT_PCK_INT_EN  0\n";
    $pval = 	$self->object_get_attribute("map_param","got_err_int"); 
    $defines .= ($pval eq '1\'b1')? "#define ORCC_GOT_ERR_INT_EN  1\n" : "#define ORCC_GOT_ERR_INT_EN  0\n";
-    
-   
-   
-   
+      
    
    
    print $fc "  
@@ -1024,9 +1021,7 @@ extern volatile unsigned char oport_array [${ni_name}_NUM_VCs];
 	    	 my $extern=0;
 	    	 $line =~ s/\s+/ /g; # remove extra spaces
 	    	 $line =~ s/^\s+//; #ltrim
-	    	 	 
-	    	 
-	    	 
+	    	    	 
 	    	 #fifo
 	    	 my  ($type,$fifo_name) = sscanf("extern fifo_%s_t *%s;",$line);
 	    	 if(defined $type){

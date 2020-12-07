@@ -255,6 +255,12 @@ sub trace_map_ctrl{
 		
 	}
 	
+	#my $credit =$self->object_get_attribute('map_param',"credit_en");
+	#if(defined $credit){
+	#	if($credit eq '1\'b0'){
+	#	$self->object_add_attribute('map_param',"receive_int",'1\'b0'); 
+	#}}
+	
 	
 	
 	my @info = ($mode eq 'task')? (
@@ -263,14 +269,15 @@ sub trace_map_ctrl{
 	
 	(	
 	{ label=>"Mapping Algorithm", param_name=>"Map_Algrm", type=>"Combo-box", default_val=>'Random', content=>"Nmap,Random,Reverse-NMAP,Direct", info=>undef, param_parent=>'map_param',ref_delay=>undef,placement=>'horizontal'},
-	{ label=>"FIFO map Debug", param_name=>"add_debug", type=>"Check-box", default_val=>'1\'b0', content=>1, info=>"Add Actor FIFO debugging code to generated C codes to make sure FIFOs handshakings signals are handeled correctly between the source and destination cores", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
+	{ label=>"ORCC FIFO Debug", param_name=>"add_debug", type=>"Check-box", default_val=>'1\'b0', content=>1, info=>"Add Actor FIFO debugging code to generated C codes to make sure FIFOs handshakings signals are handeled correctly between the source and destination cores", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
 	{ label=>"Sent packet interrupt", param_name=>"sent_int", type=>"Check-box", default_val=>'1\'b1', content=>1, info=>"If the sent inttrupt is enabled, once a packet is completely sent out from the NI, the cpu is informed by intrrupt.", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
-	{ label=>"Receive packet interrupt", param_name=>"receive_int", type=>"Check-box", default_val=>'1\'b1', content=>1, info=>"This flag enables receive-interrupt. Hence, the CPU can collect the received packet immediately from the NI. This interrupt avoids the NoC to be blocked by long packets.", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
+	{ label=>"Receive packet interrupt", param_name=>"receive_int", type=>"Check-box", default_val=>'1\'b1', content=>1, info=>"This flag enables receive-interrupt. Hence, the CPU can collect the received packet immediately from the NI. This interrupt avoids the NoC to be blocked by long packets.", param_parent=>'map_param',ref_delay=>1,placement=>'vertical'},
 	{ label=>"Got NI error interrupt", param_name=>"got_err_int", type=>"Check-box", default_val=>'1\'b1', content=>1, info=>"Enable the inttrupt once any of NI error flags is asserted.", param_parent=>'map_param',ref_delay=>undef,placement=>'vertical'},
-	
-	
-	
+	#{ label=>"ORCC FIFO Credit", param_name=>"credit_en", type=>"Check-box", default_val=>'1\'b1', content=>1, info=>"If this flag is enabled, the credit availbility of destination FIFOs are transfered to source FIFOs. The source FIFOs adapts the sent data size with the available space in destination FIFO. This makes sure the destination FIFO can collet whole of the packet and perevent the NoC resources to be blocked by long packets", param_parent=>'map_param',ref_delay=>1,placement=>'vertical'},
 	);
+	
+	#push(@info,{ label=>"Recieve FIFO extra space (%)", param_name=>"rsv_extra", type=>"Spin-button",content=>"1,100,1", default_val=>10, info=>"If ORCC FIFO Credit flag is not enabled, additional space is added to receive FIFOs to avoid FIFO overflow. The receiver FIFO only collects the NI's incoming packet if its occupied size is smaller than this additional space. This memory overhead could be avoided if the packet size is added to the header pre-captured data. However, it is not yet supported.", param_parent=>'map_param',ref_delay=>1,placement=>'vertical'},
+	#) if($credit eq '1\'b0');
 	
 	foreach my $d (@info) {
 		($row,$col)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,$col,1, $d->{param_parent}, $d->{ref_delay},'ref',$d->{placement});
@@ -879,22 +886,43 @@ sub get_cfg_content{
 	
 
 	
-	my @traces= get_trace_list($self,'merge');
-	foreach my $p (@traces) {	
-		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var)=get_trace($self,'merge',$p);
+	my @tasks= get_trace_list($self,'merge');
+	my @traces= get_trace_list($self,'raw');
+	
+	foreach my $p (@traces){
+		my ($src_r,$dst_r, $Mbytes_r, $file_id_r, $file_name_r,$init_weight_r,$min_pck_r, $max_pck_r,  $burst_r, $injct_rate_r, $injct_rate_var_r)=get_trace($self,'raw',$p);
 				
 		
-		my  $src_tile = tile_id_number(get_task_give_tile($self,"$src"));
-		my  $dst_tile = tile_id_number(get_task_give_tile($self,"$dst"));
+		my $src =$self->get_item_group_name('grouping',$src_r);
+		my $dst =$self->get_item_group_name('grouping',$dst_r);
+	    if	($src eq  $dst){
+	    	# source-destination is merged to one tile so ommit it
+	    	next;
+	    	
+	    }else{	
 		
-		my $auto=$self->object_get_attribute('Auto','Auto_inject');
+			my $minpck = $self->object_get_attribute("raw_$p",'min_pck_size');
+			my $maxpck = $self->object_get_attribute("raw_$p",'max_pck_size');
+			my $avg_pck_size =($minpck+ $maxpck)/2;
+			my $pck_num = ($Mbytes_r*8) /($avg_pck_size*64);
+			$pck_num= 1 if($pck_num==0);
+			
+			my  $src_tile = tile_id_number(get_task_give_tile($self,"$src"));
+			my  $dst_tile = tile_id_number(get_task_give_tile($self,"$dst"));
 		
-		my $bytes = $Mbytes * 1000000;
+			my $auto=$self->object_get_attribute('Auto','Auto_inject');
 		
-		$file=$file."$src_tile, $dst_tile, $bytes, $init_weight, $min_pck, $max_pck";
-		$file=$file.", $burst, $injct_rate, $injct_rate_var \n" if ($auto eq "1\'b0");
-		$file=$file." \n" if ($auto eq "1\'b1");
-	}
+			my $bytes = $Mbytes_r * 1000000;
+		
+			$file=$file."$src_tile, $dst_tile, $bytes, $init_weight_r, $min_pck_r, $max_pck_r";
+			$file=$file.", $burst_r, $injct_rate_r, $injct_rate_var_r \n" if ($auto eq "1\'b0");
+			$file=$file." \n" if ($auto eq "1\'b1");
+			 		
+			
+	    }
+	}	
+	
+	
 	
 	return $file;
 }
@@ -1281,12 +1309,14 @@ sub get_communication_task{
 }	
 
 
-sub find_max_neighbor_tile{
+sub find_max_neighbor_tile_old{
 	my $self=shift;
 	#Select the tile located in center as the max-neighbor if its not locked for any other task
 	my ($NE,$NR) = get_topology_info($self);
 	
 	my $ne_mid = floor($NE/2);
+	print "$ne_mid = $ne_mid\n";
+	
 	
 	#my $centered_tile= get_tile_name($self,$x_mid ,$y_mid);
 	#Select the tile located in center as the max-neighbor if its not locked for any other task
@@ -1308,6 +1338,34 @@ sub find_max_neighbor_tile{
 
 	return $max_neighbors_tile_id;
 }	
+	
+	
+sub find_max_neighbor_tile{
+	my $self=shift;
+	#Select the tile with the list manhatan distance from all endpoints
+	my ($NE,$NR) = get_topology_info($self);
+	my $min_manth_dist_acum;
+	my $max_neighbors_tile_id;
+	
+	for (my $i=0; $i<$NE; $i++){
+		my $c=0;
+		for (my $j=0; $j<$NE; $j++){
+			next if($i==$j);
+			my $d=get_endpoints_mah_distance($self,$i,$j);
+			$c+=$d*$d;			
+		}
+		$min_manth_dist_acum=$c if(!defined $min_manth_dist_acum);
+		if($c <= $min_manth_dist_acum){
+			$min_manth_dist_acum=$c;
+			$max_neighbors_tile_id="tile($i)";
+		}
+		
+	}
+	
+
+	return $max_neighbors_tile_id;
+}		
+	
 	
 	
 sub find_min_neighbor_tile	{
@@ -1379,7 +1437,7 @@ sub nmap_algorithm{
 	# normally, this tile is in the middle of the array
 	my $max_neighbors_tile_id = find_max_neighbor_tile($self);
 	
-	#print "\$max_neighbors_tile_id = $max_neighbors_tile_id\n";
+	print "\$max_neighbors_tile_id = $max_neighbors_tile_id\n";
 	
 	
 	
@@ -1801,7 +1859,7 @@ sub select_trace_file {
 	my ($self,$tview,$mode)=@_;
 	my $traces=trace_pad($self,$tview,$mode);
 	my $traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
-	my $h=gen_hpaned($traces_ctrl,.20,$traces);
+	my $h=gen_hpaned_adj($self,$traces_ctrl,.20,$traces,'trace-hpan');
 	return $h;
 }
 
@@ -1980,22 +2038,7 @@ sub build_trace_gui {
 	my $main_table= def_table(2,10,FALSE);
 	
 	
-#	my $traces=trace_pad($self,$tview,$mode);
-#	my $traces_ctrl=trace_pad_ctrl($self,$tview,$mode);
-#	my $traces_mrg=trace_merger($self,$tview,$mode);
-	#
-	#my $map= trace_map($self,$tview,$mode);
-	#my $map_ctrl= trace_map_ctrl($self,$tview,$mode);
-	#my $map_info=map_info($self);
-	
-	#my $h1=gen_hpaned($traces_ctrl,.20,$traces);
-	#my $h4=gen_hpaned($h1,.55,$traces_mrg);
-	
-	#my $h2=gen_hpaned($map_ctrl,.20,$map);
-	#my $h3=gen_hpaned($h2,.55,$map_info);
 
-	#my $v1=gen_vpaned($h4,.3,$h3);
-	#my $v2=gen_vpaned($v1,.6,$scwin_info);
 	
 	my $generate = def_image_button('icons/gen.png','Generate');
 	my $open = def_image_button('icons/browse.png','Load');	

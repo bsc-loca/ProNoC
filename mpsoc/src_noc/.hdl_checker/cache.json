@@ -1,0 +1,4330 @@
+{
+ "builder": {
+  "_version": "<undefined>",
+  "_logger": "hdl_checker.builders.fallback",
+  "_work_folder": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/.hdl_checker",
+  "_builtin_libraries": [],
+  "_added_libraries": [
+   {
+    "name": "work",
+    "case_sensitive": false,
+    "__class__": "Identifier"
+   },
+   {
+    "name": "default_library",
+    "case_sensitive": false,
+    "__class__": "Identifier"
+   }
+  ],
+  "__class__": "Fallback"
+ },
+ "config_file": [
+  {
+   "name": "/tmp/hdl_checker_project_pid19615.json",
+   "__class__": "Path"
+  },
+  1606274159.8258872,
+  "generated"
+ ],
+ "database": {
+  "sources": [
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/test_topology_genvar.v",
+     "__class__": "Path"
+    },
+    "mtime": 1596370197.124914,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/input_ports.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595705760.727499,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/routing.v",
+     "__class__": "Path"
+    },
+    "mtime": 1606271907.8871346,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "mtime": 1606272298.373377,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/credit_count.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595704868.2389727,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595704938.4301758,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [
+     {
+      "owner": {
+       "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+       "__class__": "Path"
+      },
+      "name": {
+       "name": "topology_localparam.v",
+       "case_sensitive": true,
+       "__class__": "VerilogIdentifier"
+      },
+      "locations": [
+       [
+        61,
+        12
+       ]
+      ],
+      "__class__": "IncludedPath"
+     }
+    ],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb-spec1.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0856533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_mesh.v",
+     "__class__": "Path"
+    },
+    "mtime": 1596363095.821188,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/topology_localparam.v",
+     "__class__": "Path"
+    },
+    "mtime": 1598900484.6921992,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0896533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_nonspec.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0856533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer_reg_bas.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595704999.0335317,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "mtime": 1599741997.6205332,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/baseline.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0856533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/combined_vc_sw_alloc.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0856533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/canonical_credit_count.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595700260.5316727,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/noc.v",
+     "__class__": "Path"
+    },
+    "mtime": 1606272167.3326075,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [
+     {
+      "owner": {
+       "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/noc.v",
+       "__class__": "Path"
+      },
+      "name": {
+       "name": "topology_localparam.v",
+       "case_sensitive": true,
+       "__class__": "VerilogIdentifier"
+      },
+      "locations": [
+       [
+        77,
+        12
+       ]
+      ],
+      "__class__": "IncludedPath"
+     }
+    ],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/router_bypass.sv",
+     "__class__": "Path"
+    },
+    "mtime": 1606273261.431103,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595699864.584569,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/crossbar.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595700560.064186,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595705846.0709565,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/inout_ports.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595705674.8000617,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595700405.9177644,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/ss_allocator.v",
+     "__class__": "Path"
+    },
+    "mtime": 1606272129.5483885,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/tree.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595706735.0083985,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [
+     {
+      "owner": {
+       "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/tree.v",
+       "__class__": "Path"
+      },
+      "name": {
+       "name": "topology_localparam.v",
+       "case_sensitive": true,
+       "__class__": "VerilogIdentifier"
+      },
+      "locations": [
+       [
+        56,
+        12
+       ]
+      ],
+      "__class__": "IncludedPath"
+     }
+    ],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_spec2.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0856533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/header_flit.v",
+     "__class__": "Path"
+    },
+    "mtime": 1598874478.8391008,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer.v",
+     "__class__": "Path"
+    },
+    "mtime": 1606274895.1418114,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/router.v",
+     "__class__": "Path"
+    },
+    "mtime": 1596363116.3130934,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [
+     {
+      "owner": {
+       "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/router.v",
+       "__class__": "Path"
+      },
+      "name": {
+       "name": "topology_localparam.v",
+       "case_sensitive": true,
+       "__class__": "VerilogIdentifier"
+      },
+      "locations": [
+       [
+        89,
+        12
+       ]
+      ],
+      "__class__": "IncludedPath"
+     }
+    ],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_torus.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0896533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/debug.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0896533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/iport_reg_base.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595706736.9644127,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/class_table.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0856533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_noc.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595448458.0896533,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [
+     {
+      "owner": {
+       "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_noc.v",
+       "__class__": "Path"
+      },
+      "name": {
+       "name": "topology_localparam.v",
+       "case_sensitive": true,
+       "__class__": "VerilogIdentifier"
+      },
+      "locations": [
+       [
+        76,
+        12
+       ]
+      ],
+      "__class__": "IncludedPath"
+     }
+    ],
+    "diags": []
+   },
+   {
+    "path": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/traffic_gen.v",
+     "__class__": "Path"
+    },
+    "mtime": 1595706200.2128282,
+    "flags": {
+     "source_specific": [],
+     "single": [],
+     "dependencies": []
+    },
+    "dependencies": [
+     {
+      "owner": {
+       "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/traffic_gen.v",
+       "__class__": "Path"
+      },
+      "name": {
+       "name": "topology_localparam.v",
+       "case_sensitive": true,
+       "__class__": "VerilogIdentifier"
+      },
+      "locations": [
+       [
+        96,
+        12
+       ]
+      ],
+      "__class__": "IncludedPath"
+     }
+    ],
+    "diags": []
+   }
+  ],
+  "inferred_libraries": [
+   {
+    "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer.v",
+    "__class__": "Path"
+   },
+   {
+    "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/ss_allocator.v",
+    "__class__": "Path"
+   },
+   {
+    "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/noc.v",
+    "__class__": "Path"
+   },
+   {
+    "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/router_bypass.sv",
+    "__class__": "Path"
+   },
+   {
+    "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+    "__class__": "Path"
+   }
+  ],
+  "design_units": [
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "congestion_out_based_avb_ovc_not_granted_ivc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1117,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "congestion_out_based_avb_ovc_w3",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      933,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_nca_random_up_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      373,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_distance_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1077,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/baseline.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "spec_sw_alloc_can",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      331,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_deterministic_look_ahead_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      932,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/credit_count.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "inport_module",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      463,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_destp_generator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1414,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "arbiter_ext_priority",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      792,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer_reg_bas.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "flit_buffer_reg_base",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      7,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "xy_line_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1233,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/test_topology_genvar.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "test_noc_genvar",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      28,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/tree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tree_nca_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      346,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_mesh.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_dir",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      738,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/combined_vc_sw_alloc.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "combined_vc_sw_alloc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      28,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_mask_non_assignable_destport",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      260,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "wrra_inputport_destports_sum",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      713,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/class_table.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "class_ovc_table",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      28,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_mesh.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "negetive_first_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      354,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_mesh.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "located",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      477,
+      75
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "arbiter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      37,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tranc_ring_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1135,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "my_one_hot_arbiter_ext_priority",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      738,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "thermo_arbiter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      409,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_spec2.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "sw_alloc_sub2",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      464,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "port_presel_based_dst_ports_credit",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      163,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tree_arbiter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      633,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "parallel_count_normalize",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1287,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/tree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tree_destp_generator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      696,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "thermo_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      389,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_port_presel_based_dst_routers_vc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      296,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_nonspec.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "swa_input_port_arbiter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      742,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_tori_router_addr_decode",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1047,
+      9
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "remove_sw_loc_one_hot",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      573,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_addr_encoder",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1149,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/tree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tree_noc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      18,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "output_weight_latch",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1119,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/ss_allocator.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "ssa_check_destport",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      476,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "wrra",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      41,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "congestion_out_based_ivc_req",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      584,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/header_flit.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "header_flit_generator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      30,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_ssa_check_destport",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      880,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_next_router_inport_predictor",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      517,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/crossbar.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "crossbar",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      27,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/canonical_credit_count.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "sw_mask_gen_can",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      542,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/header_flit.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "hdr_flit_weight_update",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      447,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tranc_negetive_first_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      370,
+      11
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "one_hot_demux",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      95,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/header_flit.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "header_flit_update_lk_route_ovc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      294,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_mesh.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "west_first_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      124,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_conventional_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      726,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_spec2.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "spec_sw_alloc_sub2",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      684,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "PC_127_7",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      847,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "my_one_hot_arbiter_priority_en",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      323,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_addr_decoder",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1223,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/debug.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "debug_IVC_flit_type_order_check",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      9,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "congestion_out_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1432,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_spec2.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "comb_spec2_allocator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      32,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/class_table.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "vc_priority_based_dest_port",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      81,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_tori_endp_addr_decode",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1102,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/tree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tree_conventional_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      431,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_ssa_check_destport",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1295,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "PC_63_6",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      804,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "accumulator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      346,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/inout_ports.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "vc_alloc_request_gen_determinstic",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      865,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_nonspec.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "comb_nonspec_v2_allocator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      301,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_noc.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_noc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      38,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tranc_west_first_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      127,
+      11
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/traffic_gen.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "distance_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1015,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_mask_non_assignable_destport",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1044,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/noc.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "noc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      30,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "PC_15_4",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      723,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "classic_weight_counter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      266,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/header_flit.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "extract_header_flit_info",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      152,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tranc_duato_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      504,
+      11
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_dynamic_portsel_control",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1447,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "flit_buffer",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      30,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fixed_priority_arbiter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      858,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_adaptive_look_ahead_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      256,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/ss_allocator.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "ss_allocator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      34,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_tori_dspt_clear_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      213,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "wrra_contention_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      575,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "CS_GEN",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      653,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "normalizer",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1353,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/router_bypass.sv",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "router_outputport_predict",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      108,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/router.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "router",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      31,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/traffic_gen.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "injection_ratio_ctrl",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      725,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "one_hot_mux",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      46,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/canonical_credit_count.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "canonical_credit_counter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      27,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb-spec1.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "comb_spec1_allocator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      30,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fifo_ram_mem_size",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      494,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_add_ss_port",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      997,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "PC_7_3",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      694,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "set_bits_counter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      430,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_port_selector",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      585,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/traffic_gen.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "traffic_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      32,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_destport_up_select",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      715,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "outport_sum",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      164,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/input_ports.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "input_ports",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      30,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/debug.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "check_destination_addr",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      342,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_router_addr_decode",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1378,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "binary_mux",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      299,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fwft_fifo_with_output_clear",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      806,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_deterministic_look_ahead_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      131,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "custom_or",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      128,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "congestion_out_based_3port_avb_ovc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      748,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/inout_ports.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "output_vc_status",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      584,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "remove_receive_port_one_hot",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      614,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "port_presel_based_dst_ports_vc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      47,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_destp_decoder",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1312,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "congestion_out_based_avb_ovc_w2",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      828,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "PC_31_5",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      760,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "one_hot_to_bin",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      238,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/canonical_credit_count.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "inport_module_can",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      438,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/credit_count.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "check_ovc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      659,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb-spec1.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "sw_alloc_sub",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      469,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_swap_port_presel_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      421,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "check_single_bit_assertation",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      482,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_mesh.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "north_last_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      234,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/ss_allocator.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "ssa_per_vc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      259,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_noc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      23,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_mesh.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "duato_mesh_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      617,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fifo_ram",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      426,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "weights_update",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      773,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/debug.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "debug_mesh_tori_route_ckeck",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      78,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_conventional_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      741,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_look_ahead_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      842,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "congestion_out_based_avb_ovc_w4",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1009,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/routing.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "look_ahead_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      225,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fifo",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1006,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/credit_count.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "sw_mask_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      552,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_adaptive_avb_ovc_mux",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      518,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_nca_destp_up_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      489,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "port_presel_based_dst_routers_ovc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      359,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/ss_allocator.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "add_ss_port",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      560,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_mesh.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "xy_mesh_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      42,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_distance_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      733,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_nonspec.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "swa_output_port_arbiter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      854,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "arbiter_4_one_hot",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      282,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "arbiter_3_one_hot",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      256,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/routing.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "ni_conventional_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      30,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_nonspec.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "comb_nonspec_allocator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      31,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/baseline.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "canonical_vc_alloc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      180,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "bin_to_one_hot",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      211,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "port_pre_sel_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      456,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/routing.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "next_router_addr_selector_onehot",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      441,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/routing.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "next_router_addr_selector_bin",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      494,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_nonspec.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "nonspec_sw_alloc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      530,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "deadlock_detector",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1591,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/router_bypass.sv",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "SBP_flags_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      18,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "weight_counter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      207,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb-spec1.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "spec_sw_alloc",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      273,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/traffic_gen.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "packet_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      856,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/congestion_analyzer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "congestion_out_based_ivc_notgrant",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      636,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/iport_reg_base.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "iport_reg_base",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      37,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "weight_update_per_port",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1011,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_ni_conventional_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1047,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_mesh.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "odd_even_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      473,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "parallel_counter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      569,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/main_comp.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fast_minimum_number",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      527,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_destport_decoder",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1021,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "thermo_arbiter_priority_en",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      482,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/input_ports.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "custom_topology_destp_decoder",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1035,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "rra_priority_lock",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      136,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/debug.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "debug_mesh_edges",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      270,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_look_ahead_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      7,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/flit_buffer.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fwft_fifo",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      590,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/input_ports.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "input_queue_per_port",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      223,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/baseline.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "baseline_allocator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      31,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/wrra.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "weight_control",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      322,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_add_ss_port",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1341,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/comb_spec2.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "spec_sw_alloc2",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      269,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/credit_count.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "credit_counter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      27,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_tori_addr_encoder",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1186,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_adaptive_dest_encoder",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      676,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/input_ports.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "destp_generator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      930,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "arbiter_priority_en",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      100,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "thermo_arbiter_ext_priority",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      559,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tranc_north_last_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      242,
+      11
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "arbiter_2_one_hot",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      234,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_destp_generator",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      1247,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tranc_dir",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      633,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/tree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tree_deterministic_look_ahead_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      487,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/fattree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "fattree_nca_straight_up_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      602,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "add_sw_loc_one_hot",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      689,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/tree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tree_look_ahead_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      573,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_vc_alloc_request_gen_adaptive",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      45,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/arbiter.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "my_one_hot_arbiter",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      174,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/inout_ports.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "vc_alloc_request_gen",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      706,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/inout_ports.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "inout_ports",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      28,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/mesh_torus_routting.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "mesh_torus_next_router_addr_predictor",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      409,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/route_torus.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tranc_xy_routing",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      37,
+      7
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   },
+   {
+    "owner": {
+     "name": "/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/tree.v",
+     "__class__": "Path"
+    },
+    "type_": "entity",
+    "name": {
+     "name": "tree_destport_decoder",
+     "case_sensitive": true,
+     "__class__": "VerilogIdentifier"
+    },
+    "locations": [
+     [
+      658,
+      8
+     ]
+    ],
+    "__class__": "VerilogDesignUnit"
+   }
+  ],
+  "__class__": "Database"
+ },
+ "__version__": "0.7.2"
+}

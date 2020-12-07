@@ -1733,41 +1733,12 @@ sub soc_clk_setting_win1 {
 }
 
 
+######
+# ctrl
+######
 
-
-
-
-
-sub socgen_main{
-	 
-	my $infc = interface->interface_new(); 
-	my $ip = ip->lib_new ();
-	my $soc = soc->soc_new();
-	set_gui_status($soc,"ideal",0);
-		
-	#  The main table containing the lib tree, selected modules and info section 
-	my $main_table = def_table (20, 12, FALSE);
-	
-	# The box which holds the info, warning, error ...  messages
-	my ($infobox,$info)= create_txview();	
-		
-	
-	# A tree view for holding a library
-	my %tree_text;
-	my @categories= $ip->ip_get_categories();
-    foreach my $p (@categories)
-    {
-   		#next if ($p eq 'PLL');
-   		my @modules= $ip->get_modules($p);
-   		$tree_text{$p}=\@modules;	
-    }
-	my $tree_box = create_tree ($soc,'IP list', $info,\%tree_text,\&show_select_ip_description,\&add_module_to_soc);
-
-	$main_table->set_row_spacings (4);
-	$main_table->set_col_spacings (1);
-	
-	my  $device_win=show_active_dev($soc,$ip,$infc,$info);
-	
+sub soc_ctrl_tab {
+	my ($soc,$info,$ip)=@_;
 	
 	my $generate = def_image_button('icons/gen.png','_Generate RTL',FALSE,1);
 	my $compile  = def_image_button('icons/gate.png','Compile RTL');
@@ -1782,23 +1753,24 @@ sub socgen_main{
 	my $entry=gen_entry_object($soc,'soc_name',undef,undef,undef,undef);
 	my $entrybox=gen_label_info(" Tile name:",$entry);
 	my $save      = def_image_button('icons/save.png');	
-	$entrybox->pack_start( $save, FALSE, FALSE, 0);
-	
+	my $open_dir  = def_image_button('icons/open-folder.png');
+	set_tip($save, "Save current tile configuration setting");
+	set_tip($open_dir, "Open target tile folder");
 		
-	my $h1=gen_hpaned($tree_box,.15,$device_win);
-	my $v2=gen_vpaned($h1,.55,$infobox);
-	$main_table->attach_defaults ($v2  , 0, 12, 0,19);
-
-
-	$main_table->attach ($open,0, 1, 19,20,'expand','shrink',2,2);
-	$main_table->attach ($entrybox,1, 3, 19,20,'expand','shrink',2,2);
-	$main_table->attach ($unset, 3,4, 19,20,'expand','shrink',2,2);
-	$main_table->attach ($wb, 4,5, 19,20,'expand','shrink',2,2);
-	$main_table->attach ($diagram, 5, 6, 19,20,'expand','shrink',2,2);
-	$main_table->attach ($clk, 6, 7, 19,20,'expand','shrink',2,2);
-	$main_table->attach ($generate, 7, 8, 19,20,'expand','shrink',2,2);
-	$main_table->attach ($software, 8, 9, 19,20,'expand','shrink',2,2);
-	$main_table->attach ($compile, 10, 12, 19,20,'expand','shrink',2,2);
+	$entrybox->pack_start( $save, FALSE, FALSE, 0);
+	$entrybox->pack_start( $open_dir, FALSE, FALSE, 0);
+	
+	my $main_table = def_table (1, 12, FALSE);
+	
+	$main_table->attach ($open		, 0, 1, 0,1,'expand','shrink',2,2);
+	$main_table->attach ($entrybox	, 1, 3, 0,1,'expand','shrink',2,2);
+	$main_table->attach ($unset		, 3, 4, 0,1,'expand','shrink',2,2);
+	$main_table->attach ($wb		, 4, 5, 0,1,'expand','shrink',2,2);
+	$main_table->attach ($diagram	, 5, 6, 0,1,'expand','shrink',2,2);
+	$main_table->attach ($clk		, 6, 7, 0,1,'expand','shrink',2,2);
+	$main_table->attach ($generate	, 7, 8, 0,1,'expand','shrink',2,2);
+	$main_table->attach ($software	, 8, 9, 0,1,'expand','shrink',2,2);
+	$main_table->attach ($compile	,10,12, 0,1,'expand','shrink',2,2);
 	
 	
 	$clk-> signal_connect("clicked" => sub{ 
@@ -1866,6 +1838,7 @@ sub socgen_main{
 
 	});
 
+   
 	
 	$compile -> signal_connect("clicked" => sub{ 
 		$soc->object_add_attribute('compile','compilers',"QuartusII,Vivado,Verilator,Modelsim");
@@ -1898,6 +1871,70 @@ sub socgen_main{
 		load_soc($soc,$info,$ip);
 	
 	});	
+	
+	$open_dir-> signal_connect("clicked" => sub{ 
+		my $name=$soc->object_get_attribute('soc_name');
+		$name="" if (!defined $name);
+		if (length($name)==0){
+			message_dialog("Please define the Tile name!");
+			return ;
+		}
+		my $target_dir  = "$ENV{'PRONOC_WORK'}/SOC/$name";
+		unless (-d $target_dir){
+			message_dialog("Cannot find $target_dir.\n Please run RTL Generator first!",'error');
+			return;
+		}
+		system "xdg-open   $target_dir";
+		
+	});	
+	
+	return $main_table;
+	
+}
+
+
+sub socgen_main{
+	 
+	my $infc = interface->interface_new(); 
+	my $ip = ip->lib_new ();
+	my $soc = soc->soc_new();
+	set_gui_status($soc,"ideal",0);
+		
+	#  The main table containing the lib tree, selected modules and info section 
+	my $main_table = def_table (20, 12, FALSE);
+	
+	# The box which holds the info, warning, error ...  messages
+	my ($infobox,$info)= create_txview();	
+		
+	
+	# A tree view for holding a library
+	my %tree_text;
+	my @categories= $ip->ip_get_categories();
+    foreach my $p (@categories)
+    {
+   		#next if ($p eq 'PLL');
+   		my @modules= $ip->get_modules($p);
+   		$tree_text{$p}=\@modules;	
+    }
+	my $tree_box = create_tree ($soc,'IP list', $info,\%tree_text,\&show_select_ip_description,\&add_module_to_soc);
+
+	$main_table->set_row_spacings (4);
+	$main_table->set_col_spacings (1);
+	
+	my  $device_win=show_active_dev($soc,$ip,$infc,$info);
+	
+	
+	
+	
+		
+	my $h1=gen_hpaned($tree_box,.15,$device_win);
+	my $v2=gen_vpaned($h1,.55,$infobox);
+	$main_table->attach_defaults ($v2  , 0, 12, 0,19);
+	
+	my $ctrl = soc_ctrl_tab($soc,$info,$ip);
+	$main_table->attach ($ctrl  , 0, 12, 19,20,'fill','fill',2,2);
+
+	
 
 	my $sc_win = add_widget_to_scrolled_win($main_table);
 
@@ -1925,8 +1962,10 @@ sub socgen_main{
 			$device_win=show_active_dev($soc,$ip,$infc,$info);
 			$h1 -> pack2($device_win, TRUE, TRUE);  
 			$h1 -> show_all; 
-			my $saved_name=$soc->object_get_attribute('soc_name',undef);
-			if(defined $saved_name) {$entry->set_text($saved_name);}
+			$ctrl->destroy;
+			$ctrl= soc_ctrl_tab($soc,$info,$ip);
+			$main_table->attach ($ctrl  , 0, 12, 19,20,'fill','fill',2,2);
+			$main_table->show_all; 
 			set_gui_status($soc,"ideal",0);			
 		}	
 		return TRUE;
