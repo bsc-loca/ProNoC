@@ -10,32 +10,32 @@
 ################################################################################
 
 $setting = bless( {
-                    'GUI_SETTING' => {
-                                       'ICON_SIZE' => 'default',
-                                       'FONT_SIZE' => '11'
-                                     },
-                    'parameters_order' => {
-                                            'GUI_SETTING' => [
-                                                               'FONT_SIZE',
-                                                               'ICON_SIZE'
-                                                             ],
-                                            'PATH' => [
-                                                        'PRONOC_WORK',
-                                                        'QUARTUS_BIN',
-                                                        'VIVADO_BIN',
-                                                        'SDK_BIN',
-                                                        'MODELSIM_BIN'
-                                                      ]
-                                          },
                     'gui_status' => {
                                       'status' => 'ref',
                                       'timeout' => 10
                                     },
                     'PATH' => {
                                 'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
-                                'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work',
-                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
                                 'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
-                                'MODELSIM_BIN' => undef
-                              }
+                                'MODELSIM_BIN' => undef,
+                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
+                                'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work'
+                              },
+                    'GUI_SETTING' => {
+                                       'ICON_SIZE' => 'default',
+                                       'FONT_SIZE' => '10'
+                                     },
+                    'parameters_order' => {
+                                            'PATH' => [
+                                                        'PRONOC_WORK',
+                                                        'QUARTUS_BIN',
+                                                        'VIVADO_BIN',
+                                                        'SDK_BIN',
+                                                        'MODELSIM_BIN'
+                                                      ],
+                                            'GUI_SETTING' => [
+                                                               'FONT_SIZE',
+                                                               'ICON_SIZE'
+                                                             ]
+                                          }
                   }, 'ProNOC' );

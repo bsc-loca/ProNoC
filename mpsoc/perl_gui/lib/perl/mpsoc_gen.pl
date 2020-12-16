@@ -2069,8 +2069,10 @@ MEMORY
 		if(defined $mpsoc_name){			
 			save_file ("$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name/sw/tile$t/linkvar.ld",$file); 
 		}else{
-			my $soc_name=$self->object_get_attribute('soc_name');		
-			save_file ("$ENV{'PRONOC_WORK'}/SOC/$soc_name/sw/linkvar.ld",$file) 
+			my $soc_name=$self->object_get_attribute('soc_name');
+			my $p1="$ENV{'PRONOC_WORK'}/SOC/$soc_name/sw/";
+			mkpath("$p1",1,0755) unless (-d "$p1");		
+			save_file ("$p1/linkvar.ld",$file) 
 		}
 	}	
 }
@@ -2114,7 +2116,7 @@ sub software_edit_mpsoc {
         $table->attach ($load,7, 8, 1,2,'shrink','shrink',0,0); 
         $load->show_all; 
         $app->ask_to_save_changes();
-        append_to_textview($tview,' ');
+        add_info($tview,' ');
         unless (run_make_file($sw,$tview,'clean')){
         	$load->destroy;    
         	$load=def_icon("icons/cancel.png");

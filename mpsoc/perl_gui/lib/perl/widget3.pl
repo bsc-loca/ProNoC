@@ -1141,15 +1141,7 @@ sub create_txview {
   $tview->set_pixels_below_lines (2);
   # $scrolled_window->set_placement('bottom_left' );
   add_colors_to_textview($tview);
-  my $buffer =  $tview->get_buffer;
-  #TODO scrolling to the end doesnt work in gtk3
-  $buffer->create_mark( 'end', $buffer->get_end_iter, FALSE );
-  $buffer->signal_connect(insert_text => sub {  		
-  		 
-       $tview->scroll_to_mark( $buffer->get_mark('end'), 0.0, TRUE, 0, 0.5 );
-      
-    }
-   );
+  
   
   $scrolled_window->show_all;
   	
@@ -1157,7 +1149,12 @@ sub create_txview {
 }
 
 
-
+sub txview_scrol_to_end {
+  my $tview =shift;
+  my $buffer =  $tview->get_buffer;
+  my $end_mark = $buffer->create_mark( 'end', $buffer->get_end_iter, 0 );
+  $tview->scroll_to_mark( $end_mark, 0.0,0, 0.0, 1.0 );	
+}
 
 
 #################
@@ -1210,56 +1207,44 @@ sub add_Vsep_to_table {
 #	show_info
 ##################
 sub show_info{
-	my ($textview_ref,$info)=@_;
+	my ($textview,$info)=@_;
 	#return;# if(!defined $textview_ref);
 	#print "$textview_ref\n";
-	my $buffer = $textview_ref->get_buffer();
+	my $buffer = $textview->get_buffer();
   	$buffer->set_text($info);
+  	txview_scrol_to_end($textview);
 }
 
 sub add_info{
-	my ($textview_ref,$info)=@_;
-	my $buffer = $textview_ref->get_buffer();
-	my $textiter = $buffer->get_end_iter();
-	#Insert some text into the buffer
-	$buffer->insert($textiter,$info);
-	
-}
-
-
-sub new_on_textview{
-	my ($textview,$info)=@_;
-	my $buffer = $textview->get_buffer();
-  	$buffer->set_text($info);
-}
-
-sub append_to_textview{
 	my ($textview,$info)=@_;
 	my $buffer = $textview->get_buffer();
 	my $textiter = $buffer->get_end_iter();
 	#Insert some text into the buffer
 	$buffer->insert($textiter,$info);
-	
+	txview_scrol_to_end($textview);
 	
 }
+
+
 
 
 sub show_colored_info{
-	my ($textview_ref,$info,$color)=@_;
-	my $buffer = $textview_ref->get_buffer();
+	my ($textview,$info,$color)=@_;
+	my $buffer = $textview->get_buffer();
   	#$buffer->set_text($info);
 	my $textiter = $buffer->get_start_iter();
 	$buffer->insert_with_tags_by_name ($textiter, "$info", "${color}_tag");
+	txview_scrol_to_end($textview);
 }
 
 sub add_colored_info{
-	my ($textview_ref,$info,$color)=@_;
-	my $buffer = $textview_ref->get_buffer();
+	my ($textview,$info,$color)=@_;
+	my $buffer = $textview->get_buffer();
 	my $textiter = $buffer->get_end_iter();
 	#Insert some text into the buffer
 	#$buffer->insert($textiter,$info);
 	$buffer->insert_with_tags_by_name ($textiter, "$info", "${color}_tag");
-	
+	txview_scrol_to_end($textview);	
 }
 
 sub add_colors_to_textview{

@@ -594,7 +594,7 @@ sub run_stp_jtag_scaner{
 		#print "char = $char\n";
 		if($char ne '00'){	
 			$char =hex_to_ascii($char);	
-			append_to_textview($tviews[$i],$char) if(defined $tviews[$i]);
+			add_info($tviews[$i],$char) if(defined $tviews[$i]);
 		}
 	}
 }
@@ -787,7 +787,7 @@ sub run_xsct_jtag_scaner{
 		my $char= substr $hex, 0, 2;
 		if($char ne '00'){	
 			$char =hex_to_ascii(substr $hex, 0, 2);	
-			append_to_textview($tviews[$i],$char) if(defined $tviews[$i]);
+			add_info($tviews[$i],$char) if(defined $tviews[$i]);
 		}
 		
 		

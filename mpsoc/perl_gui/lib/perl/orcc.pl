@@ -675,7 +675,7 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 				$transfer_str=$transfer_str."		
 	if(${src_port}_ch${channel}_has_data_to_send){
 		// if the sent vc is not busy and the sent_done_isr is not asserted sent a new packet
-		if((	${ni_name}_send_is_busy(${src_port}_v)==0) &&     (oport_array[${src_port}_v]==255) ){  //(${ni_name}_packet_is_sent(${src_port}_v)==0))        {	
+		if(${ni_name}_send_is_free(${src_port}_v) &&     (oport_array[${src_port}_v]==255) ){  //(${ni_name}_packet_is_sent(${src_port}_v)==0))        {	
 		
 			//ask NI to transfer the data   
 			if(transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_ch${channel}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
@@ -785,7 +785,7 @@ static unsigned int index_${dst_port}_sender;
 			
 	$crdit_update=$crdit_update."
 	if( ${dst_port}_has_credit_to_send){
-		if((${ni_name}_send_is_busy(${dst_port}_credit_v)==0) && (oport_array[${dst_port}_credit_v]==255) ){  // (${ni_name}_packet_is_sent(${dst_port}_credit_v)==0)){
+		if(${ni_name}_send_is_free(${dst_port}_credit_v) && (oport_array[${dst_port}_credit_v]==255) ){  // (${ni_name}_packet_is_sent(${dst_port}_credit_v)==0)){
 			//credit_num  = (SIZE_${dst_port} - ${dst_port}_data_num_to_process)& 0xFFFF;
 			credit_num  = (index_$dst_port - index_${dst_port}_sender)& 0xFFFF;				
 			credit_send_buff= ( (${dst_port}_src_port_num <<16) |  credit_num ); // most significant 16 bits indicates the port, list  significant 16 bits are credit in word 
@@ -1181,8 +1181,8 @@ void got_packet_function(void){
 	unsigned int i ;
 	unsigned char iport;
 	for (i=0;i<${ni_name}_NUM_VCs;i++){
-		if((${ni_name}_got_packet(i)) & (iport_array[i]==255) & (ni_receive_is_busy(i)==0)) {
-			
+		if((${ni_name}_got_packet(i)) && (iport_array[i]==255) && ni_receive_is_free(i) ) {
+		
 			iport =${ni_name}_RECEIVE_PRECAP_DATA_REG(i); 
 			iport_array[i]=iport;	
 			if(iport==0){ //a credit update packet is recived;
