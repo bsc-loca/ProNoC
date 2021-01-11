@@ -38,7 +38,7 @@ sub generate_sim_bin_file {
 	my ($nr,$ne,$router_p,$ref_tops,$includ_h)= get_noc_verilator_top_modules_info($simulate);
 	my %tops = %{$ref_tops};
 	
-	$tops{Vtraffic} = "traffic_gen_verilator.v";	
+	$tops{Vtraffic} = "--top-module traffic_gen_verilator";	
 	my $target_dir= "$ENV{PRONOC_WORK}/simulate";
 	
 	my $dir = Cwd::getcwd();
@@ -49,7 +49,7 @@ sub generate_sim_bin_file {
 	my $testbench_file= "$src_verilator_dir/simulator.cpp";
 	
 	my $target_verilog_dr ="$target_dir/src_verilog";
-	my $obj_dir ="$target_dir/verilator/processed_rtl/obj_dir/";
+	my $obj_dir ="$target_dir/verilator/obj_dir/";
 	
 	rmtree("$target_dir/verilator");
 	rmtree("$target_verilog_dr");

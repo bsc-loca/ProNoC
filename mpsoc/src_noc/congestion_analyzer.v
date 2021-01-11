@@ -493,7 +493,7 @@ generate
     /* verilator lint_off WIDTH */
     if(ROUTE_TYPE    ==   "DETERMINISTIC") begin : detrministic
     /* verilator lint_on WIDTH */
-       assign port_pre_sel = {PPSw{1'bx}};
+       assign port_pre_sel = {PPSw{1'b0}};
     
     end else begin : adaptive
         if(CONGESTION_INDEX==0) begin:indx0

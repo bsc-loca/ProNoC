@@ -1834,32 +1834,70 @@ sub verilator_compilation {
 	#creat verilator dir
 	add_info($outtext,"create verilator dir in $target_dir\n");
 	my $verilator="$target_dir/verilator";
-	rmtree("$verilator/rtl_work");
-	rmtree("$verilator/processed_rtl");
-	mkpath("$verilator/rtl_work/",1,01777);
-	mkpath("$verilator/processed_rtl/",1,01777);
+	#rmtree("$verilator/rtl_work");
+	#rmtree("$verilator/processed_rtl");
+	#mkpath("$verilator/rtl_work/",1,01777);
+	#mkpath("$verilator/processed_rtl/",1,01777);
+	rmtree("$verilator");
+	mkpath("$verilator",1,01777);
 	
 	my @ff = ("$target_dir/src_verilog");
 	push (@ff,"$target_dir/src_verilator") if (-d "$target_dir/src_verilator");
 	push (@ff,"$target_dir/src_sim") if (-d "$target_dir/src_sim");
 	
+	#create a file list
+	my $pakages=""; 
+	my $file_list="";
+	my $include="";
+	add_info($outtext,"make a file list containig all RTL modules\n");
+		
+	
+	my %paths;
+	my @files = File::Find::Rule->file()
+        	->name( '*.v','*.V','*.sv','*.vh')
+            ->in( @ff );
+	foreach my $file (@files) {
+		my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
+		#print "$path\n";
+		my $remove="$target_dir/";
+		$path =~ s/$remove//; 	
+		$paths{$path}=1;
+		
+		#put packages at the top of the list 
+		if(check_file_has_string($file,'endpackage')){
+			$pakages.="./${name}$suffix\n";
+		} else{
+			$file_list.= "./${name}$suffix\n";
+		}
+	
+		
+	}
+	 foreach my $p (sort keys %paths){
+	 	$include.="+incdir+../$p\n";	
+	 }
+	
+	
+	
+	
+	
+	save_file("$verilator/file_list.f",  "$include\n$pakages\n$file_list");
 	
 	
 	#copy all verilog files in rtl_work folder
-	add_info($outtext,"Copy all verilog files in rtl_work folder\n");
-	my @files = File::Find::Rule->file()
-        	->name( '*.v','*.V','*.sv','*.vh')
-                ->in( @ff );
-	foreach my $file (@files) {
-		copy($file,"$verilator/rtl_work/");
-	}
+	#add_info($outtext,"Copy all verilog files in rtl_work folder\n");
+	#@files = File::Find::Rule->file()
+    #    	->name( '*.v','*.V','*.sv','*.vh')
+    #            ->in( @ff );
+	#foreach my $file (@files) {
+	#	copy($file,"$verilator/rtl_work/");
+	#}
 	
-	@files = File::Find::Rule->file()
-        	->name( '*.sv','*.vh' )
-            ->in( @ff );
-	foreach my $file (@files) {
-		copy($file,"$verilator/processed_rtl");
-	}
+	#@files = File::Find::Rule->file()
+    #    	->name( '*.sv','*.vh' )
+    #        ->in( @ff );
+	#foreach my $file (@files) {
+	#	copy($file,"$verilator/processed_rtl");
+	#}
 	
 	
 	
@@ -1867,31 +1905,31 @@ sub verilator_compilation {
 	
 
 	#"split all verilog modules in separate  files"
-	add_info($outtext,"split all verilog modules in separate files\n");
-   	my $split = Verilog::EditFiles->new
-       	(outdir => "$verilator/processed_rtl",
-        translate_synthesis => 0,
-        celldefine => 0,
-        );
-   	$split->read_and_split(glob("$verilator/rtl_work/*.v"));
-   	$split->write_files();
-   	$split->read_and_split(glob("$verilator/rtl_work/*.sv"));
-   	$split->write_files();
+	#add_info($outtext,"split all verilog modules in separate files\n");
+   #	my $split = Verilog::EditFiles->new
+    #   	(outdir => "$verilator/processed_rtl",
+    #    translate_synthesis => 0,
+     #   celldefine => 0,
+    #    );
+  # 	$split->read_and_split(glob("$verilator/rtl_work/*.v"));
+  # 	$split->write_files();
+  # 	$split->read_and_split(glob("$verilator/rtl_work/*.sv"));
+  # 	$split->write_files();
    	
    	
 	#run verilator
 	my $jobs=0; #a counter o limit the number of paralle process to 4
 	my $make_lib=""; 
-	my $cmd="cd \"$verilator/processed_rtl\"; ";
+	my $cmd="cd \"$verilator\"; ";
 	my $vrun="#!/bin/bash
-cd \"$verilator/processed_rtl\"
+cd \"$verilator\"
 ";
 	#my $cmd= "cd \"$verilator/processed_rtl\" \n xterm -e bash -c ' verilator  --cc $name.v --profile-cfuncs --prefix \"Vtop\" -O3  -CFLAGS -O3'";
 	my $length = scalar (keys %tops);
 	foreach my $top (sort keys %tops) {
 		add_colored_info($outtext,"Generate $top Verilator model from $tops{$top} file\n",'green');
-		$cmd.= "verilator  --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3 & ";
-		$vrun.="verilator  --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3 &\n";
+		$cmd.= "verilator  -f ./file_list.f --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3 & ";
+		$vrun.="verilator  -f ./file_list.f --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3 &\n";
 		
 		$make_lib.="make lib$jobs &\n";
 		$jobs++;
@@ -1905,7 +1943,7 @@ cd \"$verilator/processed_rtl\"
 			}else {
 				add_info($outtext,"$stdout\n");
 			}
-			$cmd="cd \"$verilator/processed_rtl\"; ";
+			$cmd="cd \"$verilator\"; ";
 		}			
 	}
 	
@@ -1915,13 +1953,13 @@ cd \"$verilator/processed_rtl\"
 	foreach my $top (sort keys %tops) {
 		
 		$vrun.=" 
-if ! [ -f $verilator/processed_rtl/obj_dir/$top.cpp ]; then
-	echo  \"Failed to generate: $verilator/processed_rtl/obj_dir/$top.cpp \"
+if ! [ -f $verilator/obj_dir/$top.cpp ]; then
+	echo  \"Failed to generate: $verilator/obj_dir/$top.cpp \"
 	exit 1	
 fi
 ";
 		
-		if (-f "$verilator/processed_rtl/obj_dir/$top.cpp"){#succsess
+		if (-f "$verilator/obj_dir/$top.cpp"){#succsess
 			
 			
 		}else {
@@ -1929,11 +1967,11 @@ fi
 		}	
 	}
 	#generate makefile
-	gen_verilator_makefile($top_ref,"$verilator/processed_rtl/obj_dir/Makefile");
+	gen_verilator_makefile($top_ref,"$verilator/obj_dir/Makefile");
 	
 $vrun.="	echo  \"Verilator modules are generated successfully\". 
 
-cd $verilator/processed_rtl/obj_dir/
+cd $verilator/obj_dir/
 
 #run make file 
 $make_lib
@@ -2183,7 +2221,7 @@ sub  gen_mpsoc_verilator_model{
 				
 		my $sw_path 	= "$sw_dir/tile$tile_num";
 		$verilator = $verilator.soc_generate_verilator ($soc,$sw_path,"tile_$tile",\%params);	
-		$tops{"Vtile$tile_num"}= "tile_$tile.v";
+		$tops{"Vtile$tile_num"}= "--top-module tile_$tile";
 				
 	
 	}
@@ -2970,7 +3008,7 @@ sub verilator_testbench{
 	}
 	
 	#copy makefile
-	#copy("../script/verilator_soc_make", "$verilator/processed_rtl/obj_dir/Makefile"); 
+	#copy("../script/verilator_soc_make", "$verilator/obj_dir/Makefile"); 
 	
 
 	
@@ -3018,9 +3056,9 @@ sub verilator_testbench{
 		$table->attach ($load,8, 9, 1,2,'shrink','shrink',0,0);
 		$table->show_all;
 		$app->ask_to_save_changes();
-		copy("$dir/testbench.cpp", "$verilator/processed_rtl/obj_dir/testbench.cpp"); 
-		copy("$dir/parameter.h", "$verilator/processed_rtl/obj_dir/parameter.h") if(-f "$dir/parameter.h"); 
-		copy("$dir/RxDsim.h", "$verilator/processed_rtl/obj_dir/RxDsim.h") if(-f "$dir/RxDsim.h");
+		copy("$dir/testbench.cpp", "$verilator/obj_dir/testbench.cpp"); 
+		copy("$dir/parameter.h", "$verilator/obj_dir/parameter.h") if(-f "$dir/parameter.h"); 
+		copy("$dir/RxDsim.h", "$verilator/obj_dir/RxDsim.h") if(-f "$dir/RxDsim.h");
 		
 		my $tops_ref=$self->object_get_attribute('verilator','libs');
 		my %tops=%{$tops_ref};
@@ -3035,7 +3073,7 @@ sub verilator_testbench{
 			$lib_num++;				
 			if( $lib_num % $cpu_num == 0 || $lib_num == $length){
 				$cmd.="wait\n";
-				run_make_file("$verilator/processed_rtl/obj_dir/",$tview,$cmd);	
+				run_make_file("$verilator/obj_dir/",$tview,$cmd);	
 				$cmd="";
 			}else {
 				$cmd.=" make ";
@@ -3044,22 +3082,22 @@ sub verilator_testbench{
 		
 		
 		#foreach my $top (sort keys %tops) { 
-		#		run_make_file("$verilator/processed_rtl/obj_dir/",$tview,"lib$lib_num");	
+		#		run_make_file("$verilator/obj_dir/",$tview,"lib$lib_num");	
 		#		$lib_num++;
 		#}
 		
 		
 		
-		run_make_file("$verilator/processed_rtl/obj_dir/",$tview,"sim");	
+		run_make_file("$verilator/obj_dir/",$tview,"sim");	
 		$load->destroy;
 		$make->show_all;
 		
 	});
 
 	$run -> signal_connect("clicked" => sub{
-		my $bin="$verilator/processed_rtl/obj_dir/testbench";
+		my $bin="$verilator/obj_dir/testbench";
 		if (-f $bin){
-			my $cmd= "cd \"$verilator/processed_rtl/obj_dir/\" \n xterm -e bash -c \"$bin; sleep 5\"";
+			my $cmd= "cd \"$verilator/obj_dir/\" \n xterm -e bash -c \"$bin; sleep 5\"";
 			add_info($tview,"$cmd\n");	
 			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
 			if(length $stderr>1){			

@@ -3,9 +3,16 @@
 #/home/alireza/altera/13.0sp1/modelsim_ase/bin/vsim  -do model.tcl
 #/home/alireza/altera/modeltech/bin/vsim  -do model.tcl
 
-export LM_LICENSE_FILE="1900@bsc-caos-gw.bsc.es"
+
 
 #questasim
-/home/alireza/intelFPGA_lite/questa/questasim/bin/vsim  -do model.tcl
+LM_LICENSE="1717@epi03.bsc.es"
+VSIM_BIN="/home/alireza/intelFPGA_lite/questa/questasim/bin/vsim"
 
+export LM_LICENSE_FILE=${LM_LICENSE}
+export LM_WORK_PLACE=${PRONOC_WORK}/simulation
 
+echo "Start simulation" >&3
+$VSIM_BIN  -quiet -64 -do model.tcl
+wait 
+echo "End of Simulation" >&3

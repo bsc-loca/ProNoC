@@ -42,15 +42,14 @@
 
 module xy_mesh_routing #(
     parameter NX        =    4,
-    parameter NY        =    3,
-    parameter OUT_BIN =    1    // 1: destination port is in binary format 0: onehot  
+    parameter NY        =    3
 )
 (
     current_x,    // current router x address
     current_y,    // current router y address
     dest_x,        // destination x address
     dest_y,        // destination y address
-    destport    // router output port
+    dstport_encoded    // router output port
         
 );
     
@@ -68,8 +67,7 @@ module xy_mesh_routing #(
     
     localparam  Xw            =    log2(NX),
                 Yw            =    log2(NY),
-                Pw            =    log2(P),
-                DSTw          =    (OUT_BIN)? Pw : P;
+                DSTw          =    P-1;
 
     
     
@@ -77,10 +75,10 @@ module xy_mesh_routing #(
     input  [Yw-1        :0]    current_y;
     input  [Xw-1        :0]    dest_x;
     input  [Yw-1        :0]    dest_y;
-    output [DSTw-1            :0]    destport;
+    output [DSTw-1      :0]    dstport_encoded;
 
     
-    
+    localparam OUT_BIN=0;
 
     localparam  LOCAL    =    (OUT_BIN==1)?    0    :  1 ,//5'b00001
                 EAST     =    (OUT_BIN==1)?    1    :  2 ,//5'b00010 
@@ -89,21 +87,26 @@ module xy_mesh_routing #(
                 SOUTH    =    (OUT_BIN==1)?    4    : 16 ;//5'b10000    
     
     
-    reg [DSTw-1            :0]    destport_next;
     
     
-        
-    assign    destport= destport_next;
+    
+    reg [P-1 : 0] dstport_one_hot;    
+   
     
     always@(*)begin
-            destport_next    = LOCAL [DSTw-1    :0];
-            if           (dest_x    > current_x)        destport_next    = EAST [DSTw-1    :0];
-            else if      (dest_x    < current_x)        destport_next    = WEST [DSTw-1    :0];
+            dstport_one_hot    = LOCAL [P-1    :0];
+            if           (dest_x    > current_x)     dstport_one_hot    = EAST [P-1    :0];
+            else if      (dest_x    < current_x)     dstport_one_hot    = WEST [P-1    :0];
             else begin
-            if         (dest_y    > current_y)        destport_next    = SOUTH [DSTw-1:0];
-            else if      (dest_y    < current_y)        destport_next    = NORTH [DSTw-1    :0];
+            if         (dest_y    > current_y)       dstport_one_hot    = SOUTH [P-1   :0];
+            else if      (dest_y    < current_y)     dstport_one_hot    = NORTH [P-1   :0];
             end
     end
+    
+    mesh_tori_encode_dstport conv(
+    	.dstport_one_hot(dstport_one_hot),
+    	.dstport_encoded(dstport_encoded)
+    );
     
     
 endmodule
@@ -792,11 +795,37 @@ endmodule
 
 
 
+module mesh_tori_encode_dstport (
+    dstport_one_hot,
+    dstport_encoded
+);
 
+    input  [4 : 0] dstport_one_hot;
+    output [3 : 0] dstport_encoded; 
+    
+    
+     localparam
+        //LOCAL=   3'd0,  
+        EAST =   3'd1, 
+        NORTH=   3'd2, 
+        WEST =   3'd3,  
+        SOUTH=   3'd4;  
+    
+    /************************                
+        destination-port_in
+            x:  1 EAST, 0 WEST  
+            y:  1 NORTH, 0 SOUTH
+            ab: 00 : LOCAL, 10: xdir, 01: ydir, 11 x&y dir 
+    *******************/
+// code the destination port
+    wire   x,y,a,b;
+    assign x = dstport_one_hot[EAST];
+    assign y = dstport_one_hot[NORTH];
+    assign a = dstport_one_hot[EAST] | dstport_one_hot[WEST]; 
+    assign b = dstport_one_hot[NORTH]| dstport_one_hot[SOUTH];
+    assign dstport_encoded = {x,y,a,b};
 
-
-
-
+endmodule
 
 
 

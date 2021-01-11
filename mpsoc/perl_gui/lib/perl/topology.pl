@@ -290,9 +290,11 @@ sub get_noc_verilator_top_modules_info {
         $nr_p{p2}=2*$K;
        
         %tops = (
-			"Vrouter1" => "router_verilator_p${K}.v", 
-			"Vrouter2" => "router_verilator_p${p2}.v", 
-	        "Vnoc" => "noc_connection.sv",
+			#"Vrouter1" => "router_verilator_p${K}.v", 
+			#"Vrouter2" => "router_verilator_p${p2}.v", 
+			"Vrouter1" => "--top-module  router_verilator  -GP=${K}  ", 
+			"Vrouter2" => "--top-module  router_verilator  -GP=${p2} ", 
+	        "Vnoc" => " --top-module noc_connection ",
 	 		
     	);
 	}elsif ($topology eq '"TREE"'){
@@ -306,9 +308,11 @@ sub get_noc_verilator_top_modules_info {
         $nr_p{p2}=$K+1;
        
         %tops = (
-			"Vrouter1" => "router_verilator_p${K}.v", 
-			"Vrouter2" => "router_verilator_p${p2}.v", 
-	        "Vnoc" => "noc_connection.sv",	 		
+			#"Vrouter1" => "router_verilator_p${K}.v", 
+			#"Vrouter2" => "router_verilator_p${p2}.v",
+			"Vrouter1" => "--top-module  router_verilator  -GP=${K}  ", 
+			"Vrouter2" => "--top-module  router_verilator  -GP=${p2} ",  
+	        "Vnoc" => " --top-module noc_connection ", 		
     	);
 		
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'){
@@ -318,8 +322,9 @@ sub get_noc_verilator_top_modules_info {
 		my $ports= 3+$T3-1;
 		$nr_p{p1}=$ports;
 		%tops = (
-			"Vrouter1" => "router_verilator_p${ports}.v", 
-	        "Vnoc" => "noc_connection.sv",
+			#"Vrouter1" => "router_verilator_p${ports}.v", 
+	       "Vrouter1" => "--top-module  router_verilator  -GP=${ports}  ", 
+		   "Vnoc" => " --top-module noc_connection ",
 	 		
     	);
 				
@@ -331,8 +336,9 @@ sub get_noc_verilator_top_modules_info {
         my $ports= 5+$T3-1;
 		$nr_p{p1}=$ports;
         %tops = (
-			"Vrouter1" => "router_verilator_p${ports}.v", 
-	        "Vnoc" => "noc_connection.sv",
+        	#"Vrouter1" => "router_verilator_p${ports}.v",
+        	"Vrouter1" => "--top-module  router_verilator  -GP=${ports}  ",  
+	        "Vnoc" => " --top-module noc_connection",
 	 		
     	);
         
@@ -359,14 +365,15 @@ sub get_noc_verilator_top_modules_info {
 		print $ref;
 		my %router_ps= %{$ref};
 		my $i=1;
-		%tops = ("Vnoc" => "noc_connection.sv");
+		%tops = ("Vnoc" => " --top-module noc_connection");
 		
 		#should sort neumeric. The router with smaller port number should comes first
 		
 		foreach my $p (sort { $a <=> $b } keys  %router_ps){
 			$nr_p{$i}=$router_ps{$p};
             $nr_p{"p$i"}=$p;
-            $tops{"Vrouter$i"}= "router_verilator_p${p}.v", 
+            #$tops{"Vrouter$i"}= "router_verilator_p${p}.v", 
+            $tops{"Vrouter$i"}= "--top-module  router_verilator  -GP=${p}  ", 
 			$i++;
 			
 		}	

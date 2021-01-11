@@ -401,6 +401,8 @@ module start_delay_gen #(
     
     assign start= start_i_reg|start_i;
 
+generate 
+if(NC > 2) begin :l1
     always @(*)begin 
         if(NC[0]==1'b0)begin // odd
             start_o_next={start_o[NC-3:0],start_o[NC-2],start};
@@ -409,7 +411,13 @@ module start_delay_gen #(
         
         end    
     end
-    
+ end
+else begin :l2
+	 always @(*) start_o_next = {NC{start}}; 
+end
+
+endgenerate
+   
     reg [2:0] counter;
     assign cnt_increase=(counter==3'd0);
     always @(posedge clk or posedge reset) begin 

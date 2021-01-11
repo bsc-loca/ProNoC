@@ -192,23 +192,11 @@ generate
 /* verilator lint_off WIDTH */
 if(ROUTE_TYPE == "DETERMINISTIC")begin :dtrmn
 /* verilator lint_on WIDTH */  
-    wire [DSTPw-1:0] sum;
-    accumulator #(
-    	.INw(DSTPw),
-    	.OUTw(DSTPw),
-    	.NUM(DSTPw)
-    )
-    the_accumulator
-    (
-    	.in_all(destport_in),
-    	.out(sum)
-    );
-  
+    
+     
     always@( posedge clk)begin 
         if(flit_in_wr & hdr_flg_in)begin  
-               if( sum != 1 && T3==1) $display ( "%t\t  Error: destport port %x is illegal. It should be one hot coded.  %m",$time,destport_in );
-               if( sum > 1 && T3>1) $display ( "%t\t  Error: destport port %x is illegal. It should be one hot coded.  %m",$time,destport_in );
-       
+               if( destport_in[1:0]==2'b11) $display ( "%t\t  Error: destport port %x is illegal for determistic routing.  %m",$time,destport_in );                   
         end
      end
 end

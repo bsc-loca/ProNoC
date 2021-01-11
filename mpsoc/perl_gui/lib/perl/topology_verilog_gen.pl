@@ -678,7 +678,7 @@ sub generate_routing_v {
 	my @routers=get_list_of_all_routers($self);
 	
 #########################	
-#  ni_conventional_routing
+#  conventional_routing
 #########################
 
 
@@ -688,7 +688,7 @@ sub generate_routing_v {
 	my $Vname="T${name}R${rname}";
 	
 	my $r; 
-	my $top="$dir/${Vname}_ni_conventional_routing.v";
+	my $top="$dir/${Vname}_conventional_routing.v";
     open my $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -735,7 +735,7 @@ sub generate_routing_v {
 
 	
 	
-	 print $fd "module ${Vname}_ni_conventional_routing  #(
+	 print $fd "module ${Vname}_conventional_routing  #(
 \tparameter RAw = 3,  
 \tparameter EAw = 3,   
 \tparameter DSTPw=4  
@@ -927,12 +927,12 @@ close($fd);
 add_info($info,"$top file is created\n  ");
 
 #########################	
-#  ni_conventional_routing_genvar
+#  conventional_routing_genvar
 #########################
 
 
 	#create routing file
-	$top="$dir/${Vname}_ni_conventional_routing_genvar.v";
+	$top="$dir/${Vname}_conventional_routing_genvar.v";
     open $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -980,7 +980,7 @@ add_info($info,"$top file is created\n  ");
 
 	
 	
-	 print $fd "module ${Vname}_ni_conventional_routing_genvar  #(
+	 print $fd "module ${Vname}_conventional_routing_genvar  #(
 \tparameter RAw = 3,  
 \tparameter EAw = 3,   
 \tparameter DSTPw=4,
@@ -1421,7 +1421,7 @@ sub add_routing_instance_v{
 	//do not modify this line ===${Vname}===
     if(TOPOLOGY == \"$name\" && ROUTE_NAME== \"$rname\" ) begin : $Vname
     
-        ${Vname}_ni_conventional_routing  #(
+        ${Vname}_conventional_routing  #(
             .RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
@@ -1447,13 +1447,13 @@ sub add_routing_instance_v{
 	}	
 	my $r = check_file_has_string($file, "===${Vname}==="); 
 	if ($r==1){
-		add_info($info,"The instance  ${Vname}_ni_conventional_routing exists in $file. This file is not modified\n  ",'blue');
+		add_info($info,"The instance  ${Vname}_conventional_routing exists in $file. This file is not modified\n  ",'blue');
 	
 	}else{
 		my $text = read_file_cntent($file,' ');
         my @a = split('endgenerate',$text);
         save_file($file,"$a[0] $str $a[1]");
-        add_info($info,"$file has been modified. The  ${Vname}_ni_conventional_routing has been added to the file\n  ",'blue');
+        add_info($info,"$file has been modified. The  ${Vname}_conventional_routing has been added to the file\n  ",'blue');
 			
 	}
 	

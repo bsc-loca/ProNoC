@@ -881,7 +881,7 @@ end
   
    
   
-    ni_conventional_routing #(
+    conventional_routing #(
         .TOPOLOGY(TOPOLOGY),
         .ROUTE_NAME(ROUTE_NAME),
         .ROUTE_TYPE(ROUTE_TYPE),  
@@ -890,7 +890,8 @@ end
         .T3(T3),
         .RAw(RAw),
         .EAw(EAw),
-        .DSTPw(DSTPw)
+        .DSTPw(DSTPw),
+        .LOCATED_IN_NI(1)
     )
     route_compute
     (

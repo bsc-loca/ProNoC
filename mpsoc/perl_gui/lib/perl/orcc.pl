@@ -646,7 +646,6 @@ void ${actor}_init_actor (schedinfo_t * si) {
 #define ${src_port}_queue_pointer (unsigned int)&tokens_${src_port}[0]
 #define ${src_port}_queue_size_in_byte  (SIZE_${src_port} << ${actor}_${src_port}_size_shift)	
 #define ${src_port}_end_index   index_${src_port} 
-#define ${src_port}_end_index_in_byte   (${src_port}_end_index << ${actor}_${src_port}_size_shift)
 
 ";
 
@@ -660,9 +659,10 @@ void ${actor}_init_actor (schedinfo_t * si) {
 #define ${src_port}_ch${channel}_dest_phy_addr PHY_ADDR_ENDP_${dst_tile_id}
 #define ${src_port}_ch${channel}_src_port_num   $srcportnum
 #define ${src_port}_ch${channel}_start_index ${actor}_${src_port}->read_inds[$channel]
-#define ${src_port}_ch${channel}_start_index_in_byte (${src_port}_ch${channel}_start_index << ${actor}_${src_port}_size_shift)
+#define ${src_port}_ch${channel}_start_index_in_byte ((${src_port}_ch${channel}_start_index % SIZE_${src_port}) << ${actor}_${src_port}_size_shift)
 #define ${src_port}_ch${channel}_has_data_to_send    (${src_port}_end_index > ${src_port}_ch${channel}_start_index)	
 #define ${src_port}_ch${channel}_data_to_send_size   (${src_port}_end_index - ${src_port}_ch${channel}_start_index)	
+#define ${src_port}_ch${channel}_send_data_size_in_byte   (${src_port}_ch${channel}_data_to_send_size << ${actor}_${src_port}_size_shift)
  
 
 static unsigned int ${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in_byte;	
@@ -679,7 +679,7 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 		
 			//ask NI to transfer the data   
 			if(transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_ch${channel}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
-			${src_port}_ch${channel}_start_index_in_byte, ${src_port}_end_index_in_byte, ${src_port}_ch${channel}_dest_phy_addr, ${src_port}_ch${channel}_credit,${src_port}_ch${channel}_src_port_num, & ${src_port}_ch${channel}_send_data, & ${src_port}_ch${channel}_credit )){
+			${src_port}_ch${channel}_start_index_in_byte, ${src_port}_ch${channel}_send_data_size_in_byte, ${src_port}_ch${channel}_dest_phy_addr, ${src_port}_ch${channel}_credit,${src_port}_ch${channel}_src_port_num, & ${src_port}_ch${channel}_send_data, & ${src_port}_ch${channel}_credit )){
 							
 			}				
 		}//has data					 
@@ -770,7 +770,7 @@ static unsigned int index_${dst_port}_sender;
 #define ${dst_port}_credit_pointer (unsigned int)&credit_send_buff
 #define ${dst_port}_credit_size_in_byte  4
 #define ${dst_port}_credit_start_index  0
-#define ${dst_port}_credit_end_index_in_byte   4
+#define ${dst_port}_credit_send_data_size_in_byte   4
 #define ${dst_port}_credit_dest_phy_addr PHY_ADDR_ENDP_${src_tile_id}
 #define ${dst_port}_has_credit_to_send    (index_$dst_port > index_${dst_port}_sender)
 #define ${dst_port}_src_port_num  $srcportnum
@@ -794,7 +794,7 @@ static unsigned int index_${dst_port}_sender;
 					printf(\"Error ${dst_port}_data_num_to_process (\%u) is larger than SIZE_${dst_port} (\%u)\\n\",${dst_port}_data_num_to_process,SIZE_${dst_port});
 				}
 			#endif
-			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_end_index_in_byte, ${dst_port}_credit_dest_phy_addr, 5,${dst_port}_credit_dest_port, &tmp1,&tmp2 ) ){
+			if( transfer_manage (${dst_port}_credit_w, ${dst_port}_credit_v, ${dst_port}_credit_class_num, ${dst_port}_credit_dest_port, ${dst_port}_credit_pointer, ${dst_port}_credit_size_in_byte, ${dst_port}_credit_start_index, ${dst_port}_credit_send_data_size_in_byte, ${dst_port}_credit_dest_phy_addr, 5,${dst_port}_credit_dest_port, &tmp1,&tmp2 ) ){
 				index_${dst_port}_sender=index_${dst_port};					
 			}		 
 		} 
@@ -1278,37 +1278,28 @@ transfer_manage
 
 
 unsigned int  transfer_manage (unsigned int w, unsigned int v, unsigned int class_num, unsigned char dest_port, unsigned int queue_pointer,unsigned int queue_size,
-unsigned int start_index,  unsigned int end_index, unsigned int dest_phy_addr,unsigned int credit, unsigned char port_num, unsigned int * sent_dat_size, unsigned int * dest_credit_size){
+unsigned int start_index,  unsigned int send_data_size_in_byte, unsigned int dest_phy_addr,unsigned int credit, unsigned char port_num, unsigned int * sent_dat_size, unsigned int * dest_credit_size){
     
-//printf ( "core:%u transfer_manage (w=%u, v=%u, c=%u, dest_port=%u, queue_pointer=%u, queue_size=%u,  start_index=%u, end_index=%u,dest_phy_addr=%u, credit=%u", COREID,
-// w,  v,  class_num,  dest_port,  queue_pointer, queue_size,  start_index,  end_index,  dest_phy_addr, credit);
-   
 
 	unsigned int start_addr_pointer;
-	unsigned int data_size;
+	unsigned int data_size=send_data_size_in_byte;
 ';
 	
 $ni_isr=$ni_isr."
     if (${ni_name}_send_is_busy(v)) return 0 ; // if VC is busy sending previous packet do nothing
-    if(credit==0) return 0;
+    
 ";
 
 $ni_isr=$ni_isr.'
-    unsigned int start_addr_in_Q = start_index % queue_size;
-    start_addr_pointer = queue_pointer + start_addr_in_Q;
-
-// printf("start_addr_pointer(%u) = queue_pointer(%u) + start_addr_in_Q(%u)\n)", start_addr_pointer , queue_pointer , start_addr_in_Q);
-
-    data_size =  end_index-start_index;
-
-    if(data_size> credit) data_size =  credit; // we dont want to send more data than the receiver credit
-
-    if((start_addr_in_Q + data_size)> queue_size) data_size =  queue_size-start_addr_in_Q; // we only send data until end of the queue. The rest will be sent in next round starting from beginning of the queue   
+	if(credit==0) return 0;
+    if(data_size==0) return 0;
+    start_addr_pointer = queue_pointer + start_index;
+    if(data_size > credit) data_size =  credit; // we dont want to send more data than the receiver credit
+    if((start_index + data_size) > queue_size) data_size =  queue_size-start_index; // we only send data until end of the queue. The rest will be sent in next round starting from beginning of the queue   
+	if(data_size==0) return 0;
 ';
 
-$ni_isr=$ni_isr."
-	if(data_size==0) return 0;
-	
+$ni_isr=$ni_isr."	
 	oport_array[v]=  port_num; // port_num and data size should be saved before calling transfer function.
 	* sent_dat_size =  data_size;
 	* dest_credit_size -= data_size;

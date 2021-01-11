@@ -27,17 +27,17 @@
 **************************************************************/
 
 
-
-module ni_conventional_routing #(
-    parameter TOPOLOGY          =   "MESH", 
-    parameter ROUTE_NAME        =   "XY",
-    parameter ROUTE_TYPE        =   "DETERMINISTIC", 
-    parameter T1                =   4,
-    parameter T2                =   4,
-    parameter T3                =   4,
-    parameter RAw = 3,  
-    parameter EAw = 3,   
-    parameter DSTPw=4          
+module conventional_routing #(
+    parameter TOPOLOGY          = "MESH", 
+    parameter ROUTE_NAME        = "XY",
+    parameter ROUTE_TYPE        = "DETERMINISTIC", 
+    parameter T1                = 4,
+    parameter T2                = 4,
+    parameter T3                = 4,
+    parameter RAw               = 3,  
+    parameter EAw               = 3,   
+    parameter DSTPw             = 4,
+    parameter LOCATED_IN_NI     = 1 // only needed for mesh and odd-even routing
 )
 (   
     reset,
@@ -116,15 +116,15 @@ module ni_conventional_routing #(
         );        
         
         
-        mesh_torus_ni_conventional_routing #(
+        mesh_torus_conventional_routing #(
             .TOPOLOGY(TOPOLOGY),
             .ROUTE_NAME(ROUTE_NAME),
             .ROUTE_TYPE(ROUTE_TYPE),
             .NX(T1),
             .NY(T2),
-            .LOCATED_IN_NI(1)
+            .LOCATED_IN_NI(LOCATED_IN_NI)
         )
-        the_ni_conventional_routing
+        the_conventional_routing
         (
             .current_x(current_rx),
             .current_y(current_ry),
@@ -213,6 +213,12 @@ module ni_conventional_routing #(
     endgenerate
 
 endmodule
+
+
+
+
+
+
 
 
 
@@ -393,8 +399,8 @@ module look_ahead_routing #(
         tree_look_ahead_routing #(
         	.ROUTE_NAME(ROUTE_NAME),
         	.P(P),
-        	.L(T1),
-        	.K(T2)
+        	.L(T2),
+        	.K(T1)
         )
         look_ahead_routing
         (

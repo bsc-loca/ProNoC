@@ -171,18 +171,32 @@ module  mesh_torus_deterministic_look_ahead_routing #(
     output  [P_1-1  :   0]  lkdestport;
    
  
-    wire    [P-1    :   0]  destport_one_hot,receive_port,lkdestport_one_hot;
+   
     wire    [Xw-1   :   0]  next_x;
     wire    [Yw-1   :   0]  next_y; 
  
-    add_sw_loc_one_hot #(
-           .P(P),
-           .SW_LOC(SW_LOC)
-    ) add_sw_loc
-       (
-           .destport_in(destport),
-           .destport_out(destport_one_hot)
+  wire     [P-1    :   0]  destport_one_hot;
+  
+ generate 
+  /* verilator lint_off WIDTH */ 
+ if (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" ) begin: twoD
+   /* verilator lint_on WIDTH */   
+    mesh_tori_decode_dstport decoder(
+        .dstport_encoded(destport),
+        .dstport_one_hot(destport_one_hot)
     );
+      
+    
+   end else begin :oneD
+    line_ring_decode_dstport decoder(
+        .dstport_encoded(destport),
+        .dstport_one_hot(destport_one_hot)
+    );
+    
+   
+   end
+   endgenerate 
+    
     
     mesh_torus_next_router_addr_predictor #(
         .P(P),
@@ -199,17 +213,8 @@ module  mesh_torus_deterministic_look_ahead_routing #(
         .next_y(next_y)
     );
  
- 
-    mesh_torus_next_router_inport_predictor #(
-        .TOPOLOGY(TOPOLOGY),
-    .P(P)
-    )
-    inport_predictor
-    (
-        .destport(destport_one_hot),
-        .receive_port(receive_port)
-    );
- 
+   
+   wire [P_1-1  :   0] lkdestport_encoded;
  
     mesh_torus_conventional_routing #(
         .TOPOLOGY(TOPOLOGY),
@@ -226,18 +231,12 @@ module  mesh_torus_deterministic_look_ahead_routing #(
         .current_y(next_y),
         .dest_x(dest_x),
         .dest_y(dest_y),
-        .destport(lkdestport_one_hot)
+        .destport(lkdestport_encoded)
         
     );
  
-    remove_receive_port_one_hot #(
-        .P(P)
-    )
-    remove_receive_port_one_hot(
-        .destport_in(lkdestport_one_hot),
-        .receiver_port(receive_port),
-        .destport_out(lkdestport)
-    );
+    //take the value of a&b only.  x&y can be obtained from destport in the router
+    assign lkdestport = lkdestport_encoded;//[1:0];
   
     
  
@@ -357,7 +356,7 @@ module  mesh_torus_adaptive_look_ahead_routing #(
     
  
  
-    mesh_torus_ni_conventional_routing #(
+    mesh_torus_conventional_routing #(
         .TOPOLOGY(TOPOLOGY),
         .ROUTE_NAME(ROUTE_NAME),
         .ROUTE_TYPE(ROUTE_TYPE),
@@ -374,7 +373,7 @@ module  mesh_torus_adaptive_look_ahead_routing #(
         .destport(lkdestport_x)
     );
  
-    mesh_torus_ni_conventional_routing #(
+    mesh_torus_conventional_routing #(
         .TOPOLOGY(TOPOLOGY),
         .ROUTE_NAME(ROUTE_NAME),
         .ROUTE_TYPE(ROUTE_TYPE),
@@ -757,7 +756,7 @@ module mesh_torus_conventional_routing #(
               Xw    =   log2(NX),
               Yw    =   log2(NY);
               
-    localparam DSTw     =   (ROUTE_TYPE ==   "DETERMINISTIC")? P : P_1;               
+    localparam DSTw     =    P_1;               
               
     input   [Xw-1         :0] current_x;
     input   [Yw-1         :0] current_y;
@@ -775,8 +774,7 @@ module mesh_torus_conventional_routing #(
                 
                 xy_mesh_routing #(
                     .NX(NX),
-                    .NY(NY),
-                    .OUT_BIN(0)//one hot
+                    .NY(NY)                   
                 )
                  xy_routing
                 (
@@ -784,7 +782,7 @@ module mesh_torus_conventional_routing #(
                     .current_y(current_y),
                     .dest_x(dest_x),
                     .dest_y(dest_y),
-                    .destport(destport)
+                    .dstport_encoded(destport)
                  );        
                 
                 
@@ -897,7 +895,7 @@ module mesh_torus_conventional_routing #(
                     .current_y          (current_y),
                     .dest_x             (dest_x),
                     .dest_y             (dest_y),
-                    .destport           (destport)
+                    .destport_encoded   (destport)
                    
                 
                 );
@@ -983,9 +981,7 @@ module mesh_torus_conventional_routing #(
             if(ROUTE_NAME == "TRANC_XY") begin : tranc_ring_blk
         /* verilator lint_on WIDTH */ 
                 tranc_ring_routing #(
-                    .NX(NX),
-                    .OUT_BIN(0) 
-        
+                    .NX(NX)       
                 )
                 tranc_ring                
                 (
@@ -1006,8 +1002,7 @@ module mesh_torus_conventional_routing #(
             if(ROUTE_NAME == "XY") begin : tranc_ring_blk
         /* verilator lint_on WIDTH */ 
                 xy_line_routing #(
-                    .NX(NX),
-                    .OUT_BIN(0)//one hot
+                    .NX(NX)                    
                 )
                  xy_routing
                 (
@@ -1039,92 +1034,6 @@ module mesh_torus_conventional_routing #(
     
 endmodule
 
-/************************************
-
-    ni_conventional_routing
-
-***********************************/
-
-module mesh_torus_ni_conventional_routing #(
-    parameter TOPOLOGY          =   "MESH", 
-    parameter ROUTE_NAME        =   "XY",
-    parameter ROUTE_TYPE        =   "DETERMINISTIC",// "DETERMINISTIC", "FULL_ADAPTIVE", "PAR_ADAPTIVE"
-    parameter NX                =   4,
-    parameter NY                =   4,
-    parameter LOCATED_IN_NI     =   0//use for add even only
-        
-    )
-    (   
-    current_x,
-    current_y,
-    dest_x,
-    dest_y,
-    destport  
-
-    );
-    
-     /* verilator lint_off WIDTH */ 
-    localparam  P = (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")?  5:3;
-     /* verilator lint_on WIDTH */ 
-      
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end        
-      end   
-    endfunction // log2 
-   
-   localparam P_1   =   P-1,
-              Xw    =   log2(NX),
-              Yw    =   log2(NY); 
-              
-   /* verilator lint_off WIDTH */ 
-    localparam DSTw     =   (ROUTE_TYPE ==   "DETERMINISTIC")? P : P_1;           
-   /* verilator lint_on WIDTH */            
-              
-    input   [Xw-1         :0] current_x;
-    input   [Yw-1         :0] current_y;
-    input   [Xw-1         :0] dest_x;
-    input   [Yw-1         :0] dest_y;
-    output  [P_1-1        :0] destport;
-    
-    wire [DSTw-1          :0] destport_one_hot;
-   
-    mesh_torus_conventional_routing #(
-        .TOPOLOGY(TOPOLOGY),
-        .ROUTE_NAME(ROUTE_NAME),
-        .ROUTE_TYPE(ROUTE_TYPE),
-        .P(P),
-        .NX(NX),
-        .NY(NY),
-        .LOCATED_IN_NI(LOCATED_IN_NI)
-    )
-    conventional
-    (
-        .current_x(current_x),
-        .current_y(current_y),
-        .dest_x(dest_x),
-        .dest_y(dest_y),
-        .destport(destport_one_hot)
-        
-    );
-    
-    generate
-    /* verilator lint_off WIDTH */  
-    if(ROUTE_TYPE   ==   "DETERMINISTIC") begin: dtrmn
-    /* verilator lint_on WIDTH */ 
-    //remove local port number 
-    assign destport = destport_one_hot[P-1    :    1];
-           
-    end else begin: adptv
-    
-       assign destport = destport_one_hot;
-       
-    end
-    endgenerate
-endmodule
 
 
 
@@ -1134,9 +1043,7 @@ endmodule
 *********************************************/
 
 module tranc_ring_routing #(
-    parameter NX   =    4,
-    parameter OUT_BIN =    0   // 1: destination port is in binary format 0: onehot 
-    
+    parameter NX   =    4    
 )
 (
     current_x,
@@ -1158,19 +1065,18 @@ module tranc_ring_routing #(
     
     localparam  P           =   3,
                 Xw          =   log2(NX),
-                Pw          =   log2(P),
-                DSTw        =   (OUT_BIN)? Pw : P;
+                DSTw        =   P-1;
     
     
     input   [Xw-1       :   0] current_x;
     input   [Xw-1       :   0] dest_x;
     output  [DSTw -1    :   0] destport;
     
-    localparam      LOCAL   =   (OUT_BIN)?  3'd0    : 3'b001,  
-                    PLUS    =   (OUT_BIN)?  3'd1    : 3'b010,   
-                    MINUS   =   (OUT_BIN)?  3'd2    : 3'b100;    
+    localparam      LOCAL   =    3'b001,  
+                    PLUS    =    3'b010,   
+                    MINUS   =    3'b100;    
                     
-    reg [DSTw-1            :0] destport_next;
+    reg [P-1            :0] destport_one_hot;
    
    
 
@@ -1214,27 +1120,29 @@ module tranc_ring_routing #(
 
         
     always@(*)begin
-        if (same_x ) destport_next= LOCAL;
+        if (same_x ) destport_one_hot= LOCAL;
         else    begin 
-            if          (tranc_x_plus)  destport_next= PLUS;
-            else if     (tranc_x_min)   destport_next= MINUS;
+            if          (tranc_x_plus)  destport_one_hot= PLUS;
+            else if     (tranc_x_min)   destport_one_hot= MINUS;
          end
     end
 
-    assign destport= destport_next;
+ line_ring_encode_dstport encode(
+        .dstport_one_hot(destport_one_hot),
+        .dstport_encoded(destport)
+    );
+   
     
 endmodule
 
 
 
 /********************************************
-                        TRANC_ring
+                        xy_line
 *********************************************/
 
 module xy_line_routing #(
-    parameter NX   =    8,
-    parameter OUT_BIN =    0   // 1: destination port is in binary format 0: onehot 
-    
+    parameter NX   =    8      
 )
 (
     current_x,
@@ -1254,37 +1162,126 @@ module xy_line_routing #(
     endfunction // log2 
 
     
-    localparam  P           =   3,
-                Xw          =   log2(NX),
-                Pw          =   log2(P),
-                DSTw        =   (OUT_BIN)? Pw : P;
+    localparam  OUT_BIN     =   0,
+                P           =   3,
+                Xw          =   log2(NX);
+               
     
     
     input   [Xw-1       :   0] current_x;
     input   [Xw-1       :   0] dest_x;
-    output  [DSTw -1    :   0] destport;
+    output  [1       :   0] destport;
     
     localparam      LOCAL   =   (OUT_BIN)?  3'd0    : 3'b001,  
                     PLUS    =   (OUT_BIN)?  3'd1    : 3'b010,   
                     MINUS   =   (OUT_BIN)?  3'd2    : 3'b100;         
                     
-               
+            
                     
-    reg [DSTw-1            :0] destport_next;
+    reg [P-1            :0] destport_one_hot;
     
     
     always@(*)begin
-            destport_next    = LOCAL [DSTw-1    :0];
-            if           (dest_x    > current_x)        destport_next    = PLUS  [DSTw-1    :0];
-            else if      (dest_x    < current_x)        destport_next    = MINUS [DSTw-1    :0];
-            
-            
+            destport_one_hot    = LOCAL [2    :0];
+            if           (dest_x    > current_x)        destport_one_hot    = PLUS  [2    :0];
+            else if      (dest_x    < current_x)        destport_one_hot    = MINUS [2    :0];            
     end
     
-    assign destport= destport_next;
+    
+    line_ring_encode_dstport encode(
+    	.dstport_one_hot(destport_one_hot),
+    	.dstport_encoded(destport)
+    );
+   
     
 endmodule
 
 
+module line_ring_encode_dstport (
+    dstport_one_hot,
+    dstport_encoded
+);
+
+    input  [2 : 0] dstport_one_hot;
+    output [1 : 0] dstport_encoded; 
+    
+    
+              
+     localparam  FORWARD =  2'd1,
+                 BACKWARD=  2'd2;
+    
+    /************************   
+    
+        destination-port_in
+            2'b11 : FORWARD or BACKWARD // can be sey to any of them
+            2'b10 : BACKWARD
+            2'b01 : FORWARD
+            2'b00 : LOCAL
+    *******************/
+// code the destination port
+    assign dstport_encoded = {dstport_one_hot[BACKWARD], dstport_one_hot[FORWARD]};
+
+endmodule
 
 
+module line_ring_decode_dstport (
+    dstport_one_hot,
+    dstport_encoded
+);
+
+    output  reg [2 : 0] dstport_one_hot;
+    input   [1 : 0] dstport_encoded; 
+     
+         /************************   
+      localparam  FORWARD =  2'd1,
+                 BACKWARD=  2'd2;
+        destination-port_in
+            2'b11 : FORWARD or BACKWARD // can be sey to any of them
+            2'b10 : BACKWARD
+            2'b01 : FORWARD
+            2'b00 : LOCAL
+    *******************/
+// code the destination port
+    //assign dstport_encoded = {dstport_one_hot[BACKWARD], dstport_one_hot[FORWARD]};
+       
+      
+          
+        always @(*)begin 
+            dstport_one_hot = 3'b000;
+            case(dstport_encoded)
+                2'b10 : dstport_one_hot=3'b100;
+                2'b01 : dstport_one_hot=3'b010;
+                2'b00 : dstport_one_hot=3'b001;
+                2'b11 : dstport_one_hot=3'b110; //invalid condition in determinstic routing
+            endcase
+        end //always
+endmodule
+
+
+
+module mesh_tori_decode_dstport (
+    dstport_encoded,
+    dstport_one_hot
+    
+);
+
+    
+    input   [3 : 0] dstport_encoded; 
+    output  reg [4 : 0] dstport_one_hot;
+    
+    wire x,y,a,b;
+   
+    
+    assign {x,y,a,b} = dstport_encoded;
+  
+   always @(*)begin 
+        dstport_one_hot = 5'd0;
+        case({a,b})
+            2'b10 : dstport_one_hot = {1'b0,~x,1'b0,x,1'b0};
+            2'b01 : dstport_one_hot = {~y,1'b0,y,1'b0,1'b0};
+            2'b11 : dstport_one_hot = {1'b0,~x,1'b0,x,1'b0}; //illegal
+            2'b00 : dstport_one_hot =  5'b00001;
+         endcase
+   end //always
+   
+endmodule   

@@ -669,12 +669,12 @@ module mesh_torus_port_selector #(
 
 
 /*******************
-    mesh_torus_adaptive_dest_encoder
+    mesh_torus_adaptive_lk_dest_encoder
 ********************/    
 
 
 
-module  mesh_torus_adaptive_dest_encoder #(
+module  mesh_torus_adaptive_lk_dest_encoder #(
     parameter V=4,
     parameter P=5,
     parameter DSTPw=P-1,
@@ -722,7 +722,37 @@ module  mesh_torus_adaptive_dest_encoder #(
 endmodule
 
 
+module  mesh_torus_dtrmn_dest_encoder #(
+    parameter P=5,
+    parameter DSTPw=P-1,
+    parameter Fw=37,
+    parameter DST_P_MSB=11, 
+    parameter DST_P_LSB=8
 
+)(
+    flit_in,
+    dest_coded_out,
+    lk_dest
+);
+    
+    
+    output [DSTPw-1 : 0]dest_coded_out;
+   
+    input [DSTPw-1 : 0]  lk_dest;
+    input [Fw-1 : 0]  flit_in;
+
+    wire [1 : 0]  ab,xy;
+     
+    
+    //lkdestport = {lkdestport_x[1:0],lkdestport_y[1:0]};
+    // sel: 0: xdir     1: ydir
+    assign ab =  lk_dest[1:0];
+    //if ab==00 change x and y direction
+    assign xy = (ab>0)? flit_in[DST_P_MSB  : DST_P_LSB+2] : ~flit_in[DST_P_MSB  : DST_P_LSB+2] ;
+
+    assign dest_coded_out={xy,ab};
+
+endmodule
 
  
 /********************
@@ -755,12 +785,11 @@ module mesh_torus_distance_gen #(
     endfunction // log2 
  
  
-    localparam
-        NX  = T1,
-        NY  = T2,
-        Xw  =   log2(NX),   // number of node in x axis
-        Yw  =   log2(NY);    // number of node in y axis 
-       
+    localparam 
+        Xw  =   log2(T1),   // number of node in x axis
+        Yw  =   log2(T2);    // number of node in y axis 
+    localparam [Xw : 0] NX  = T1;
+    localparam [Yw : 0] NY  = T2;
               
      
    input [EAw-1 : 0] src_e_addr;
@@ -820,7 +849,8 @@ module mesh_torus_distance_gen #(
     end else begin : twoD //torus ring
     
         wire tranc_x_plus,tranc_x_min,tranc_y_plus,tranc_y_min,same_x,same_y;
-                
+        
+        /* verilator lint_off WIDTH */
         always @ (*) begin 
             
             //x_offset
@@ -849,7 +879,8 @@ module mesh_torus_distance_gen #(
         
         
         end      
-        
+        /* verilator lint_on WIDTH */
+          
             
         tranc_dir #(
             .NX(NX),
@@ -912,42 +943,7 @@ module mesh_torus_ssa_check_destport #(
                  EAST    =   1,
                  WEST    =   3;
 
-generate 
-/* verilator lint_off WIDTH */ 
-if(ROUTE_TYPE=="DETERMINISTIC") begin :dtrm
-/* verilator lint_on WIDTH */ 
 
-    wire [P-1   :   0] dest_port_num,assigned_dest_port_num;
-    
-    // add switch loc to destination in
-    add_sw_loc_one_hot #(
-        .P(P),
-        .SW_LOC(SW_LOC)    
-    ) 
-    conv1
-    (
-        .destport_in(destport_in_encoded),
-        .destport_out(dest_port_num)
-    );
-    
-    
-    add_sw_loc_one_hot #(
-        .P(P),
-        .SW_LOC(SW_LOC)    
-    ) 
-    conv2
-    (
-        .destport_in(destport_encoded),
-        .destport_out(assigned_dest_port_num)
-    );
-
-    assign ss_port_hdr_flit = dest_port_num [SS_PORT];
-   
-    assign ss_port_nonhdr_flit =  assigned_dest_port_num[SS_PORT];
-
-
-
-end else begin :adaptv
 /************************
         destination port is coded        
         destination-port_in
@@ -965,6 +961,8 @@ end else begin :adaptv
 wire  a,b,aa,bb;
 assign {a,b} = destport_in_encoded[1:0];
 assign {aa,bb} = destport_encoded[1:0];
+
+generate
     if( SS_PORT == LOCAL) begin :local_p
          assign ss_port_hdr_flit = 1'b0;
          assign ss_port_nonhdr_flit =   1'b0;
@@ -990,9 +988,51 @@ end //dbg
 //synopsys  translate_on
 //synthesis translate_on
 
-end   //adaptive
+
 endgenerate
 endmodule
+
+
+module line_ring_ssa_check_destport #(
+    parameter ROUTE_TYPE="DETERMINISTIC",
+    parameter SW_LOC = 0,
+    parameter P=3,
+    parameter DEBUG_EN = 0,
+    parameter DSTPw = P-1,
+    parameter SS_PORT=0
+)(
+    destport_encoded, //exsited packet dest port
+    destport_in_encoded, // incomming packet dest port
+    ss_port_hdr_flit,
+    ss_port_nonhdr_flit 
+
+);
+
+    input [DSTPw-1 : 0] destport_encoded, destport_in_encoded; 
+    output ss_port_hdr_flit, ss_port_nonhdr_flit;
+
+
+
+wire [P-1   :   0] dest_port_num,assigned_dest_port_num;
+    
+  
+
+  line_ring_decode_dstport cnv1(
+  	.dstport_one_hot(dest_port_num),
+  	.dstport_encoded(destport_in_encoded)
+  );
+  
+   line_ring_decode_dstport cnv2(
+   	.dstport_one_hot(assigned_dest_port_num),
+   	.dstport_encoded(destport_encoded)
+   );
+   
+     assign ss_port_hdr_flit = dest_port_num [SS_PORT];
+   
+    assign ss_port_nonhdr_flit =  assigned_dest_port_num[SS_PORT];
+
+endmodule
+
 
 
 module mesh_torus_add_ss_port #(   
@@ -1050,7 +1090,7 @@ endmodule
     parameter T1=4,
     parameter T2=4,
     parameter T3=4,
-    parameter RAw=4
+    parameter RAw=6
 )(
     r_addr,
     rx,
@@ -1105,7 +1145,7 @@ module mesh_tori_endp_addr_decode #(
     parameter T1=4,
     parameter T2=4,
     parameter T3=4,
-    parameter EAw=4
+    parameter EAw=9
 )(
     e_addr,
     ex,
@@ -1275,26 +1315,49 @@ module mesh_torus_destp_generator #(
     wire [P_1-1 : 0] dest_port_in;
     
    
-
-        mesh_torus_destp_decoder #(
-            .ROUTE_TYPE(ROUTE_TYPE),
-            .P(P),
-            .DSTPw(DSTPw),
-            .NL(NL),
-            .ELw(ELw),
-            .PPSw(PPSw),
-            .SW_LOC(SW_LOC)
-        )
-        decoder
-        (
-            .dest_port_coded(dest_port_coded),             
-            .dest_port_out(dest_port_in),
-            .endp_localp_num(endp_localp_num),
-            .swap_port_presel(swap_port_presel),
-            .port_pre_sel(port_pre_sel)
-        );
+        generate 
+        /* verilator lint_off WIDTH */
+        if (TOPOLOGY == "RING" || TOPOLOGY == "LINE" ) begin : one_D
+        /* verilator lint_on WIDTH */
+         
+            line_ring_destp_decoder #(
+                .ROUTE_TYPE(ROUTE_TYPE),
+                .P(P),
+                .DSTPw(DSTPw),
+                .NL(NL),
+                .ELw(ELw),
+                .PPSw(PPSw),
+                .SW_LOC(SW_LOC)
+            )
+            decoder
+            (
+                .dest_port_coded(dest_port_coded),             
+                .dest_port_out(dest_port_in),
+                .endp_localp_num(endp_localp_num)               
+            );
         
         
+       end else begin :two_D
+       
+            mesh_torus_destp_decoder #(
+                .ROUTE_TYPE(ROUTE_TYPE),
+                .P(P),
+                .DSTPw(DSTPw),
+                .NL(NL),
+                .ELw(ELw),
+                .PPSw(PPSw),
+                .SW_LOC(SW_LOC)
+            )
+            decoder
+            (
+                .dest_port_coded(dest_port_coded),             
+                .dest_port_out(dest_port_in),
+                .endp_localp_num(endp_localp_num),
+                .swap_port_presel(swap_port_presel),
+                .port_pre_sel(port_pre_sel)
+            );
+       end 
+       endgenerate 
         mesh_torus_mask_non_assignable_destport #(
             .TOPOLOGY(TOPOLOGY),
             .ROUTE_NAME(ROUTE_NAME),
@@ -1336,57 +1399,29 @@ module mesh_torus_destp_decoder #(
     
     wire [NL-1 : 0] endp_localp_onehot;
    
+    reg [4:0] portout;
+   
     generate 
     if( ROUTE_TYPE == "DETERMINISTIC") begin :dtrmn
-        if(NL==1) begin :slp
-            assign dest_port_out = dest_port_coded;        
-        end else begin :mlp
-            localparam SL_SW_LOC = ( SW_LOC > P-NL) ? 0 : SW_LOC;   
-             
-            wire [DSTPw : 0] destport_slp_onehot;
-            wire [P-1 : 0] destport_onehot;
-          
-            add_sw_loc_one_hot #(
-                .P(DSTPw+1),
-                .SW_LOC(SL_SW_LOC)
-            )
-            add_sw_loc
-            (
-          	     .destport_in(dest_port_coded),
-          	     .destport_out(destport_slp_onehot)
-            );     
-                      
-            bin_to_one_hot #(
-            	.BIN_WIDTH(ELw),
-            	.ONE_HOT_WIDTH(NL)
-            )
-            conv
-            (
-            	.bin_code(endp_localp_num),
-            	.one_hot_code(endp_localp_onehot)
-            );
-            
-            wire local_dest;
-            assign local_dest = (SL_SW_LOC==0) ? ((| dest_port_coded)==1'b0) : destport_slp_onehot[0];            
-            assign destport_onehot = (local_dest)?  { endp_localp_onehot[NL-1 : 1] ,{(P-NL){1'b0}},endp_localp_onehot[0]}: /*select local destination*/ 
-			                                      { {(NL-1){1'b0}} ,destport_slp_onehot};
-            
-            remove_sw_loc_one_hot #(
-            	.P(P),
-            	.SW_LOC(SW_LOC)
-            )
-            remove_sw_loc
-            (
-            	.destport_in(destport_onehot),
-            	.destport_out(dest_port_out)
-            );
-        
-        end    
-    end else begin : adpv
-        reg [4:0] portout;
+         
+       
         wire x,y,a,b;
-        wire [PPSw-1:0] port_pre_sel_final;
         assign {x,y,a,b} = dest_port_coded;
+          
+        always @(*)begin 
+            case({a,b})
+                2'b10 : portout = {1'b0,~x,1'b0,x,1'b0};
+                2'b01 : portout = {~y,1'b0,y,1'b0,1'b0};
+                2'b00 : portout =  5'b00001;
+                2'b11 : portout = {~y,1'b0,y,1'b0,1'b0}; //invalid condition in determinstic routing
+            endcase
+        end //always
+          
+    end else begin : adpv
+        
+        wire x,y,a,b;
+        assign {x,y,a,b} = dest_port_coded;        
+        wire [PPSw-1:0] port_pre_sel_final;
         assign port_pre_sel_final= (swap_port_presel)? ~port_pre_sel: port_pre_sel;
         
         always @(*)begin 
@@ -1397,8 +1432,10 @@ module mesh_torus_destp_decoder #(
                 2'b00 : portout =  5'b00001;
             endcase
         end //always
-        
-        if(NL==1) begin :slp        
+     end 
+     
+     
+     if(NL==1) begin :slp        
         
             remove_sw_loc_one_hot #(
                 .P(5),
@@ -1409,7 +1446,7 @@ module mesh_torus_destp_decoder #(
                 .destport_in(portout),
                 .destport_out(dest_port_out)
             );   
-        end else begin :mlp
+     end else begin :mlp
 
             wire [P-1 : 0] destport_onehot;
 	
@@ -1435,10 +1472,93 @@ module mesh_torus_destp_decoder #(
                 .destport_in(destport_onehot),
                 .destport_out(dest_port_out)
             );        
-        end
     end
     endgenerate
 endmodule
+
+
+/**************************
+ * line_ring_destp_decoder 
+ * ************************/
+
+module line_ring_destp_decoder #(
+    parameter ROUTE_TYPE="DETERMINISTIC",
+    parameter P=4,
+    parameter DSTPw=2,
+    parameter NL=2,
+    parameter ELw=1,
+    parameter PPSw=4,
+    parameter SW_LOC=0        
+)(
+    dest_port_coded,
+    endp_localp_num,
+    dest_port_out   
+ );
+  
+    localparam P_1 = P-1;
+  
+    input  [DSTPw-1 : 0] dest_port_coded;
+    input  [ELw-1 : 0] endp_localp_num;
+    output [P_1-1 : 0] dest_port_out;
+   
+    
+    wire [NL-1 : 0] endp_localp_onehot;
+   
+    wire [2:0] portout;
+   
+          
+      line_ring_decode_dstport decoder(
+      	.dstport_one_hot(portout),
+      	.dstport_encoded(dest_port_coded)
+      );
+          
+       
+    
+     
+     generate
+     if(NL==1) begin :slp        
+        
+            remove_sw_loc_one_hot #(
+                .P(3),
+                .SW_LOC(SW_LOC)
+            )
+            conv
+            (
+                .destport_in(portout),
+                .destport_out(dest_port_out)
+            );   
+     end else begin :mlp
+
+            wire [P-1 : 0] destport_onehot;
+    
+            bin_to_one_hot #(
+                .BIN_WIDTH(ELw),
+                .ONE_HOT_WIDTH(NL)
+            )
+            conv
+            (
+                .bin_code(endp_localp_num),
+                .one_hot_code(endp_localp_onehot)
+            );
+            
+           assign destport_onehot =(portout[0])?  { endp_localp_onehot[NL-1 : 1] ,{(P-NL){1'b0}},endp_localp_onehot[0]}: /*select local destination*/ 
+                                                  { {(NL-1){1'b0}} ,portout};
+           
+            remove_sw_loc_one_hot #(
+                .P(P),
+                .SW_LOC(SW_LOC)
+            )
+            remove_sw_loc
+            (
+                .destport_in(destport_onehot),
+                .destport_out(dest_port_out)
+            );        
+    end
+    endgenerate
+endmodule
+
+
+
 
 /*****************
 *   mesh_torus_dynamic_portsel_control

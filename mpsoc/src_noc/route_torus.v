@@ -37,16 +37,14 @@
     *********************************************/
 module tranc_xy_routing #(
     parameter NX   =    4,
-    parameter NY   =    4,
-    parameter OUT_BIN =    0   // 1: destination port is in binary format 0: onehot 
-    
+    parameter NY   =    4   
 )
 (
     current_x,
     current_y,
     dest_x,
     dest_y,
-    destport
+    destport_encoded
     
 );
 
@@ -64,22 +62,23 @@ module tranc_xy_routing #(
                 Xw          =   log2(NX),
                 Yw          =   log2(NY),
                 Pw          =   log2(P),
-                DSTw        =   (OUT_BIN)? Pw : P;
+                DSTw        =   P-1;
     
     
     input   [Xw-1       :   0] current_x;
     input   [Yw-1       :   0] current_y;
     input   [Xw-1       :   0] dest_x;
     input   [Yw-1       :   0] dest_y;
-    output  [DSTw -1    :   0] destport;
+    output  [DSTw -1    :   0] destport_encoded;
     
-    localparam      LOCAL   =   (OUT_BIN)?  3'd0    : 5'b00001,  
-                    EAST    =   (OUT_BIN)?  3'd1    : 5'b00010,   
-                    NORTH   =   (OUT_BIN)?  3'd2    : 5'b00100,    
-                    WEST    =   (OUT_BIN)?  3'd3    : 5'b01000,  
-                    SOUTH   =   (OUT_BIN)?  3'd4    : 5'b10000;    
+    localparam      
+        LOCAL   =   5'b00001,  
+        EAST    =   5'b00010,   
+        NORTH   =   5'b00100,    
+        WEST    =   5'b01000,  
+        SOUTH   =   5'b10000;    
     
-    reg [DSTw-1            :0] destport_next;
+   
     wire tranc_x_plus,tranc_y_plus,tranc_x_min,tranc_y_min;
     wire same_x,same_y;
     
@@ -101,18 +100,27 @@ module tranc_xy_routing #(
         .dest_y(dest_y)
         
     );
+       
+        reg [P-1 : 0] dstport_one_hot;
+        
         
     always@(*)begin
-        if (same_x & same_y) destport_next= LOCAL;
+        if (same_x & same_y) dstport_one_hot= LOCAL;
         else    begin 
-            if            (tranc_x_plus)     destport_next= EAST;
-            else if        (tranc_x_min)    destport_next= WEST;
-            else if     (tranc_y_plus)    destport_next= SOUTH;
-            else                        destport_next= NORTH;
+            if            (tranc_x_plus)     dstport_one_hot= EAST;
+            else if        (tranc_x_min)    dstport_one_hot= WEST;
+            else if     (tranc_y_plus)    dstport_one_hot= SOUTH;
+            else                        dstport_one_hot= NORTH;
         end
     end
+    
+    mesh_tori_encode_dstport conv(
+    	.dstport_one_hot(dstport_one_hot),
+    	.dstport_encoded(destport_encoded)
+    );
+    
 
-    assign destport= destport_next;
+  
     
     endmodule
 
@@ -658,10 +666,11 @@ module tranc_dir #(
       end   
     endfunction // log2 
     
-    
+    /* verilator lint_off WIDTH */
     localparam  Xw          =   log2(NX),
                 Yw          =   log2(NY);
-
+    
+      
     output reg tranc_x_plus;
     output reg tranc_x_min;
     output reg tranc_y_plus;
@@ -691,6 +700,7 @@ module tranc_dir #(
     assign  xdiff   = xd-xc;
     assign  ydiff   = yd-yc;
     
+    
     always@ (*)begin 
         tranc_x_plus    =1'b0;
         tranc_x_min     =1'b0;
@@ -719,6 +729,7 @@ module tranc_dir #(
     assign same_x = (xdiff == 0);
     assign same_y = (ydiff == 0);
     
+    /* verilator lint_on WIDTH */
     
 endmodule
 

@@ -520,8 +520,10 @@ module ssa_check_destport #(
        	.ss_port_hdr_flit(ss_port_hdr_flit),
        	.ss_port_nonhdr_flit(ss_port_nonhdr_flit)
        );
-    
-    end else begin:mesh
+     /* verilator lint_off WIDTH */
+    end else if (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") begin : mesh
+    /* verilator lint_on WIDTH */
+     
         mesh_torus_ssa_check_destport #(
             .ROUTE_TYPE(ROUTE_TYPE),
             .SW_LOC(SW_LOC),
@@ -544,8 +546,24 @@ module ssa_check_destport #(
             //synthesis translate_on 
 
         );
+        end else begin : line
+            line_ring_ssa_check_destport #(
+               .ROUTE_TYPE(ROUTE_TYPE),
+                .SW_LOC(SW_LOC),
+                .P(P),
+                .DEBUG_EN(DEBUG_EN),
+                .DSTPw(DSTPw),
+                .SS_PORT(SS_PORT)
+            )
+            destport_check
+            (
+                .destport_encoded(destport_encoded),
+                .destport_in_encoded(destport_in_encoded),
+                .ss_port_hdr_flit(ss_port_hdr_flit),
+                .ss_port_nonhdr_flit(ss_port_nonhdr_flit)    
+            );
     
-    end
+     end
     endgenerate
 
 
