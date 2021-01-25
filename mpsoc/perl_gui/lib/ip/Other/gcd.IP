@@ -211,8 +211,8 @@ unsigned int gcd_hardware ( unsigned int p, unsigned int q );',
                   'category' => 'Other',
                   'description' => 'gcd module',
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/Other/gcd_ip.v',
-                                   '/mpsoc/src_peripheral/Other/gcd.v'
+                                   '/mpsoc/rtl/src_peripheral/Other/gcd_ip.v',
+                                   '/mpsoc/rtl/src_peripheral/Other/gcd.v'
                                  ],
                   'modules' => {
                                  'gcd_ip' => {}

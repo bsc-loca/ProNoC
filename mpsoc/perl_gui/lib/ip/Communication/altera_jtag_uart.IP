@@ -47,7 +47,7 @@ int jtag_scanint(int *num);
 #ifdef INCLUDE_SIMPLE_PRINTF_LONG
 	#include "simple-printf/printf.h" 
 #endif',
-                  'file_name' => 'mpsoc/src_peripheral/jtag/jtag_uart/altera_jtag_uart.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/jtag/jtag_uart/altera_jtag_uart.v',
                   'module_name' => 'altera_jtag_uart',
                   'ports' => {
                                's_cyc_i' => {
@@ -307,7 +307,7 @@ If internal buffer overflows, the buffer content are displayed on simulator term
                                              }
                              },
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_jtag_uart.v',
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_uart_simulator.v'
+                                   '/mpsoc/rtl/src_peripheral/jtag/jtag_uart/altera_jtag_uart.v',
+                                   '/mpsoc/rtl/src_peripheral/jtag/jtag_uart/altera_uart_simulator.v'
                                  ]
                 }, 'ip_gen' );

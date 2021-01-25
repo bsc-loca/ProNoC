@@ -983,7 +983,7 @@ sub config_custom_topology_gui{
 
 my $coltmp=0;
 #read param.obj file to load cutom topology info
-	my $dir =get_project_dir()."/mpsoc/src_topolgy";
+	my $dir =get_project_dir()."/mpsoc/rtl/src_topolgy";
 	my $file="$dir/param.obj";
 	unless (-f $file){
 		 add_colored_info($txview,"No Custom topology find in $dir. You can define a Custom Topology using ProNoC Topology maker.\n",'red');
@@ -1319,18 +1319,18 @@ sub generate_mpsoc{
     gen_tiles_physical_addrsses_header_file($mpsoc,"$sw_dir/phy_addr.h");
         
     #copy all NoC HDL files    
-    #my @files = glob( "$dir/../src_noc/*.v" );
+    #my @files = glob( "$dir/../rtl/src_noc/*.v" );
     #copy_file_and_folders(\@files,$project_dir,"$hw_dir/lib/");  
     #add_to_project_file_list(\@files,"$hw_dir/lib/",$hw_dir);
-    my ($file_v,$top_v)=mpsoc_generate_verilog($mpsoc,$sw_dir,$info);
+    my ($file_v,$top_v, $noc_param_v)=mpsoc_generate_verilog($mpsoc,$sw_dir,$info);
     
     #if Topology is custom copy custom topology files
     my $topology=$mpsoc->object_get_attribute('noc_param','TOPOLOGY');
 	if ($topology eq '"CUSTOM"'){ 
 		my $Tname=$mpsoc->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
 		$Tname=~s/["]//gs;     
-		my $dir1=  get_project_dir()."/mpsoc/src_topolgy/$Tname";
-		my $dir2=  get_project_dir()."/mpsoc/src_topolgy/common";
+		my $dir1=  get_project_dir()."/mpsoc/rtl/src_topolgy/$Tname";
+		my $dir2=  get_project_dir()."/mpsoc/rtl/src_topolgy/common";
 		my @files = File::Find::Rule->file()
                             ->name( '*.v','*.V')
                             ->in( "$dir1" );
@@ -1355,7 +1355,15 @@ sub generate_mpsoc{
     my $l=autogen_warning().get_license_header("${name}_top.v");
     open(FILE,  ">$target_dir/src_verilog/${name}_top.v") || die "Can not open: $!";
     print FILE "$l\n$top_v";
-    close(FILE) || die "Error closing file: $!";        
+    close(FILE) || die "Error closing file: $!";   
+    
+    $l=autogen_warning().get_license_header("noc_localparam.v");
+    open(FILE,  ">$target_dir/src_verilog/lib/src_noc/noc_localparam.v") || die "Can not open: $!";
+    print FILE "$l\n `ifdef NOC_LOCAL_PARAM \n  $noc_param_v \n\n`endif\n";
+    close(FILE) || die "Error closing file: $!";   
+    
+    
+         
     
   #  $l=autogen_warning().get_license_header("${name}_mp.v");
   #  open(FILE,  ">$target_dir/src_verilog/${name}_mp.v") || die "Can not open: $!";
@@ -1386,8 +1394,7 @@ sub generate_mpsoc{
    
     #regenerate linker var file
     create_linker_var_file($mpsoc);
-   
-   
+      
    
     message_dialog("MPSoC \"$name\" has been created successfully at $target_dir/ " ) if($show_sucess_msg);
 	return 1;    

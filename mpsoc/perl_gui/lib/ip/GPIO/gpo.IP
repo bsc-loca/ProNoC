@@ -40,7 +40,7 @@ $ipgen = bless( {
                                                'value' => 1
                                              }
                              },
-                  'file_name' => 'mpsoc/src_peripheral/gpio/gpio.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/gpio/gpio.v',
                   'ports' => {
                                'reset' => {
                                             'type' => 'input',
@@ -190,7 +190,7 @@ $ipgen = bless( {
                                             }
                                   },
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/gpio/gpio.v'
+                                   '/mpsoc/rtl/src_peripheral/gpio/gpio.v'
                                  ],
                   'parameters_order' => [
                                           'PORT_WIDTH',

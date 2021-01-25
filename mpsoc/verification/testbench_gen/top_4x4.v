@@ -49,7 +49,7 @@ module  top_4x4(
    
     
     `define INCLUDE_TOPOLOGY_LOCALPARAM
-    `include "../../src_noc/topology_localparam.v"  
+    `include "../../rtl/src_noc/topology_localparam.v"  
     
     
     

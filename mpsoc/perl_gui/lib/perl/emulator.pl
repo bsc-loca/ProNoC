@@ -46,8 +46,8 @@ use constant MAX_SIM_CLKs=> 1000000000; # simulation end at if clock counter rea
 
           
 use constant MAX_RATIO => 1000;# 0->0 1->0.1 ...  1000->100
-use constant EMULATION_RTLS => "/mpsoc/src_emulate/rtl/ , /mpsoc/src_peripheral/jtag/jtag_wb/ , /mpsoc/src_peripheral/ram/ , /mpsoc/src_noc/ ,";
-use constant EMULATION_TOP => "/mpsoc/src_emulate/emulator_top.v";
+use constant EMULATION_RTLS => "/mpsoc/rtl/src_emulate/rtl/ , /mpsoc/rtl/src_peripheral/jtag/jtag_wb/ , /mpsoc/rtl/src_peripheral/ram/ , /mpsoc/rtl/src_noc/ ,";
+use constant EMULATION_TOP => "/mpsoc/rtl/src_emulate/emulator_top.v";
 
 
 sub get_MAX_PCK_NUM(){MAX_PCK_NUM}
@@ -1138,12 +1138,12 @@ sub gen_vrouter_param_v {
 	my ($simulate,$src_verilog_dr)=@_;
 	# generate NoC parameter file
 	my ($noc_param,$pass_param)=gen_noc_param_v($simulate);
-	open(FILE,  ">$src_verilog_dr/parameter.v") || die "Can not open: $!";
+	open(FILE,  ">$src_verilog_dr/noc_localparam.v") || die "Can not open: $!";
 	my $fifow=$simulate->object_get_attribute('fpga_param','TIMSTMP_FIFO_NUM');
 
 
 
-	print FILE  " \`ifdef     INCLUDE_PARAM \n \n 
+	print FILE  " \`ifdef   NOC_LOCAL_PARAM \n \n 
 	$noc_param  
 	
 	//simulation parameter	

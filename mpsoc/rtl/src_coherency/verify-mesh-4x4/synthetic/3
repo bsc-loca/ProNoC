@@ -1,0 +1,11 @@
+57530000: hnf (          0 ) txn ( 182 ) sent snp flit: qos (  0 ), srcid (   0 ), tgtid ( 29 ), fwdnid (   5 ), fwdtxnid (   8 ), opcode ( 17 ), addr  (         102336 ),ns ( 0 ), donotgotosd_datapull ( 0 ), rettosrc  ( 1 ), tracetag  ( 0 ) 
+
+
+
+57950000: rnf (         29 ) txn ( 182 ) sent dat flit: qos (  0 ), tgtid (   0 ), srcid (  29 ), homenid (   0 ), opcode ( 6 ), resperr ( 0 ), resp ( 1 ), fwd_datapull ( 1 )
+#             57950000: rnf (         29 ) txn ( 182 ) sent dat flit: dbid ( 182 ), ccid ( 0 ), dataid ( 0 ), tracetag ( 0 ), be ( 18446744073709551615 ), data  ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008 ), datacheck (          0 ), poison (   0 )
+
+
+
+57970000: rnf (         29 ) txn (   8 ) sent dat flit: qos (  0 ), tgtid (   5 ), srcid (  29 ), homenid (   0 ), opcode ( 4 ), resperr ( 0 ), resp ( 1 ), fwd_datapull ( 1 )
+#             57970000: rnf (         29 ) txn (   8 ) sent dat flit: dbid ( 182 ), ccid ( 0 ), dataid ( 0 ), tracetag ( 0 ), be ( 18446744073709551615 ), data ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008 ), datacheck (          0 ), poison (   0 ) 

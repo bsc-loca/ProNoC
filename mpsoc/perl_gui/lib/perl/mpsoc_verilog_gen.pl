@@ -99,7 +99,7 @@ endmodule
 	my @chains = (sort { $b <=> $a } keys  %jtag_info);
 	$mpsoc->object_add_attribute('JTAG','M_CHAIN',$chains[0]);
 	
-	return ($mpsoc_v,$top_v);
+	return ($mpsoc_v,$top_v,$noc_param);
 }
 
 sub add_sources_to_top_ip{
@@ -407,8 +407,12 @@ sub gen_noc_param_h{
 sub gen_noc_v{
 	my ($mpsoc,$pass_param) = @_;
 	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($mpsoc);
-	my $noc =  read_verilog_file("../src_noc/noc.v");
-	my @noc_param=$noc->get_modules_parameters_not_local_order('noc');
+	
+
+    my $noc_clk   =  $mpsoc->object_get_attribute('SOURCE_SET_CONNECT',"NoC_clk");
+	my $noc_reset =  $mpsoc->object_get_attribute('SOURCE_SET_CONNECT',"NoC_reset");
+	$noc_clk   = 'clk0'   if(!defined $noc_clk  );
+	$noc_reset = 'reset0' if(!defined $noc_reset);
 
 	my $noc_v="
 
@@ -421,7 +425,7 @@ sub gen_noc_v{
 		NEFw = NE * Fw,
 		NEV = NE * V;
 
-//NoC ports 
+	//NoC ports 
     // connection to NI modules               
 	wire [Fw-1      :   0]  ni_flit_out                 [NE-1           :0];   
 	wire [NE-1      :   0]  ni_flit_out_wr; 
@@ -439,42 +443,21 @@ sub gen_noc_v{
 	wire [NEV-1     :   0]  credit_out_all;
 	
 	wire 					noc_clk_in,noc_reset_in;    
-    ";
-
-	
-	$noc_v="$noc_v
-//NoC\n \tnoc #(\n";
-	my $i=0;
-	foreach my $p (@noc_param){
-		my $param=($i==0)?  "\t\t.$p($p)":",\n\t\t.$p($p)";
-		$i=1;
-		#add_text_to_string(\$noc_v,$param);			
-	}	
-	$noc_v=$noc_v."$pass_param\n\t)\n\tthe_noc\n\t(\n";		
-	
-	my @ports= $noc->get_module_ports_order('noc');
-	$i=0;
-	foreach my $p (@ports){
-		my $port;
-		if($p eq 'reset' ){
-			$port=($i==0)?  "\t\t.$p(noc_reset_in)":",\n\t\t.$p(noc_reset_in)";
-		}elsif( $p eq 'clk'){
-			$port=($i==0)?  "\t\t.$p(noc_clk_in)":",\n\t\t.$p(noc_clk_in)";
-		}else {
-			$port=($i==0)?  "\t\t.$p($p)":",\n\t\t.$p($p)";			
-		}
-		$i=1;
-		$noc_v=$noc_v.$port;			
-	}	
-	
-	my $noc_clk   =  $mpsoc->object_get_attribute('SOURCE_SET_CONNECT',"NoC_clk");
-	my $noc_reset =  $mpsoc->object_get_attribute('SOURCE_SET_CONNECT',"NoC_reset");
-	$noc_clk   = 'clk0'   if(!defined $noc_clk  );
-	$noc_reset = 'reset0' if(!defined $noc_reset);
-	
-	
-	$noc_v=$noc_v."
+   
+    //NoC
+ 	noc_top_v 	the_noc
+	(
+		.flit_out_all(flit_out_all),
+		.flit_out_wr_all(flit_out_wr_all),
+		.credit_in_all(credit_in_all),
+		.flit_in_all(flit_in_all),
+		.flit_in_wr_all(flit_in_wr_all),
+		.credit_out_all(credit_out_all),
+		.reset(noc_reset_in),
+		.clk(noc_clk_in)
 	);
+	
+	
 	
 	clk_source  src 	(
 		.clk_in($noc_clk),

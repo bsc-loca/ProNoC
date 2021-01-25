@@ -149,7 +149,7 @@ $ipgen = bless( {
                                },
                   'version' => 5,
                   'module_name' => 'pronoc_jtag_source_probe',
-                  'file_name' => 'mpsoc/src_peripheral/jtag/jtag_wb/pronoc_jtag_source_probe.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/jtag/jtag_wb/pronoc_jtag_source_probe.v',
                   'plugs' => {
                                'clk' => {
                                           'value' => 1,

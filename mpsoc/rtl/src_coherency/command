@@ -1,0 +1,3 @@
+
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency; do top_mesh.tcl
+

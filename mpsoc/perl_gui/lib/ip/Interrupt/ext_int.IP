@@ -16,7 +16,7 @@ $ipgen = bless( {
                                     'timeout' => 0,
                                     'status' => 'ideal'
                                   },
-                  'file_name' => 'mpsoc/src_peripheral/ext_int/ext_int.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/ext_int/ext_int.v',
                   'parameters' => {
                                     'TAGw' => {
 												'redefine_param' => 1,                                                
@@ -210,7 +210,7 @@ $ipgen = bless( {
 	#define ${IP}_RD   			(*((volatile unsigned int *) ($BASE+16	)))',
                   'ip_name' => 'ext_int',
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/ext_int/ext_int.v'
+                                   '/mpsoc/rtl/src_peripheral/ext_int/ext_int.v'
                                  ],
                   'category' => 'Interrupt',
                   'modules' => {

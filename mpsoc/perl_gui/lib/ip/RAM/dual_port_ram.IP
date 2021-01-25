@@ -18,7 +18,7 @@ $ipgen = bless( {
                                     'timeout' => 0,
                                     'status' => 'ideal'
                                   },
-                  'file_name' => 'mpsoc/src_peripheral/ram/wb_dual_port_ram.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/ram/wb_dual_port_ram.v',
                   'ports' => {
                                'clk' => {
                                           'intfc_port' => 'clk_i',
@@ -360,7 +360,7 @@ mif: memory initialization file format. This file can be used to initialize Alte
                                           
                                         ],
                   'version' => 11,
-                  'description_pdf' => '/mpsoc/src_peripheral/ram/RAM.pdf',
+                  'description_pdf' => '/mpsoc/rtl/src_peripheral/ram/RAM.pdf',
                   'plugs' => {
                                'clk' => {
                                           '0' => {
@@ -398,10 +398,10 @@ mif: memory initialization file format. This file can be used to initialize Alte
                   'unused' => undef,
                   'module_name' => 'wb_dual_port_ram',
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/ram/generic_ram.v',
-                                   '/mpsoc/src_peripheral/ram/byte_enabled_generic_ram.sv',
-                                   '/mpsoc/src_peripheral/ram/wb_dual_port_ram.v',
-                                   '/mpsoc/src_peripheral/ram/wb_bram_ctrl.v'
+                                   '/mpsoc/rtl/src_peripheral/ram/generic_ram.v',
+                                   '/mpsoc/rtl/src_peripheral/ram/byte_enabled_generic_ram.sv',
+                                   '/mpsoc/rtl/src_peripheral/ram/wb_dual_port_ram.v',
+                                   '/mpsoc/rtl/src_peripheral/ram/wb_bram_ctrl.v'
                                  ],
                   'ports_order' => [
                                      'clk',

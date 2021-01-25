@@ -2,7 +2,9 @@
 `timescale 1ns / 1ps
 // synthesis translate_on
 
-module tree_noc_connection (   
+module tree_noc_connection 
+	import pronoc_pkg::*; 
+(   
    
  clk,
  reset,
@@ -29,19 +31,7 @@ module tree_noc_connection (
 );    
 
     
-    `define  INCLUDE_PARAM
-    `include"parameter.v"
     
-     `define INCLUDE_TOPOLOGY_LOCALPARAM
-    `include "topology_localparam.v"
-     
-    
-    localparam CONGw= (CONGESTION_INDEX==3)?  3:
-                      (CONGESTION_INDEX==5)?  3:
-                      (CONGESTION_INDEX==7)?  3:
-                      (CONGESTION_INDEX==9)?  3:
-                      (CONGESTION_INDEX==10)? 4:
-                      (CONGESTION_INDEX==12)? 3:2;  
         
   function integer addrencode;
         input integer pos,k,n,kw;

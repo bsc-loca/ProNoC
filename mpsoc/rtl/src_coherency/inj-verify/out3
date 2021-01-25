@@ -1,0 +1,45 @@
+
+*******./norm160000 ***************
+
+Error: txn 4_247 is generated at 5429830000 but not released at end of simulation. 
+Error: txn 4_248 is generated at 5429910000 but not released at end of simulation. 
+Error: txn 5_244 is generated at 5430050000 but not released at end of simulation. 
+Error: txn 5_245 is generated at 5430130000 but not released at end of simulation. 
+txn Error are detected:
+ 
+Errr:  addr 2168410112 is left busy at the end of simulation
+Errr:  addr 4219293760 is left busy at the end of simulation
+Errr:  addr 4219297856 is left busy at the end of simulation
+Error: evication on addr 2168082432 is refilled at 5429870000 but not evicted at end of simulation.
+Total evication of 1 number are done correctly.
+Eviction Error are detected:
+ .
+Total read trace number is: 22894
+
+*******./excl160 ***************
+
+All of 2 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 7 snpf updates happend
+All evication of 0 number are done correctly.
+Total read trace number is: 6
+
+*******./norm16000 ***************
+
+All of 3012 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 9036 snpf updates happend
+All evication of 0 number are done correctly.
+Total read trace number is: 13310
+
+*******./norm1600 ***************
+
+All of 305 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 915 snpf updates happend
+All evication of 0 number are done correctly.
+Total read trace number is: 1279
+
+*******./norm16 ***************
+
+All of 8 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 24 snpf updates happend
+All evication of 0 number are done correctly.
+Total read trace number is: 25

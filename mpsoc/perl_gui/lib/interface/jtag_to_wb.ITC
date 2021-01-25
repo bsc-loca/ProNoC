@@ -44,6 +44,6 @@ $HashRef = bless( {
                                             }
                                },
                     'connection_num' => 'single connection',
-                    'file_name' => 'mpsoc/src_peripheral/ram/wb_single_port_ram.v',
+                    'file_name' => 'mpsoc/rtl/src_peripheral/ram/wb_single_port_ram.v',
                     'type' => 'socket'
                   }, 'intfc_gen' );

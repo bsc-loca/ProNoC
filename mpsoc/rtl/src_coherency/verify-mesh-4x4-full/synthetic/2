@@ -1,0 +1,58 @@
+'#             56230000: rnf (          5 ) txn (  10 ) sent req flit: qos (  0 ) tgtid (   0 ) srcid (   5 ) returnnid (   0 ) endian ( 0 ) returntxnid (   0 ) opcode (  1 ) flitsize ( 6 ) addr (           7168 ) ns ( 1 ) likelyshared ( 0 ).'
+'#             56230000: rnf (          5 ) txn (  10 ) sent req flit: allowretry ( 1 ) order ( 3 ) pcrdtype (  0 ) memattr ( 13 ) snpattr ( 1 ) lpid (  0 ) excl_snoopme ( 0 ) expcompack ( 1 ) tracetag ( 0 )' 
+
+
+
+56350000: hnf (          0 ) txn (  10 )  got req flit: qos (  0 ) tgtid (   0 ) srcid (   5 ) returnnid (   0 ) endian ( 0 ) returntxnid (   0 ) opcode (  1 ) flitsize ( 6 ) addr (           7168 ) ns ( 1 ) likelyshared ( 0 ).'
+'#             56350000: hnf (          0 ) txn (  10 )  got req flit: allowretry ( 1 ) order ( 3 ) pcrdtype (  0 ) memattr ( 13 ) snpattr ( 1 ) lpid (  0 ) excl_snoopme ( 0 ) expcompack ( 1 ) tracetag ( 0 )'
+
+
+
+
+
+
+
+
+
+
+
+ 57210000: rnf (          5 ) txn (  10 ) sent req flit: qos (  0 ) tgtid (   0 ) srcid (   5 ) returnnid (   0 ) endian ( 0 ) returntxnid (   0 ) opcode (  1 ) flitsize ( 6 ) addr (         102336 ) ns ( 1 ) likelyshared ( 0 ).
+#             57210000: rnf (          5 ) txn (  10 ) sent req flit: allowretry ( 1 ) order ( 3 ) pcrdtype (  0 ) memattr ( 13 ) snpattr ( 1 ) lpid (  0 ) excl_snoopme ( 0 ) expcompack ( 1 ) tracetag ( 0 )
+
+
+
+
+
+'#             57330000: hnf (          0 ) txn (  10 )  got req flit: qos (  0 ) tgtid (   0 ) srcid (   5 ) returnnid (   0 ) endian ( 0 ) returntxnid (   0 ) opcode (  1 ) flitsize ( 6 ) addr (         102336 ) ns ( 1 ) likelyshared ( 0 ).'
+'#             57330000: hnf (          0 ) txn (  10 )  got req flit: allowretry ( 1 ) order ( 3 ) pcrdtype (  0 ) memattr ( 13 ) snpattr ( 1 ) lpid (  0 ) excl_snoopme ( 0 ) expcompack ( 1 ) tracetag ( 0 )'
+
+
+#             57430000: hnf (          0 ) txn (  10 ) a new ReadShared           req from core (   5 ) is accepted on addr (         102336 ) dbid ( 182 ) snpf_rdhit ( 1 ) snpf_status  U   spv ( 0100000000000000 )
+
+
+#             57430000: hnf (          0 ) txn ( 182 ) sends SnpSharedFwd
+#             57430000: hnf (          0 ) txn ( 182 ) DCT  
+
+
+#             57430000: hnf (          0 ) txn ( 182 ) rspsnp will wait for ( 0100000000000100 ) Nodes to response to the request
+#             57430000: gen (          0 ) txn ( 182 ) is generated
+
+#             57450000: hnf (          0 ) txn ( 182 ) rspsnp wait list changed ( 0100000000000100 ). No data is gotton
+
+
+
+#   57450000: hnf (          0 ) txn ( 182 ) sent snp flit: qos (  0 ), srcid (   0 ), fwdnid (   5 ), fwdtxnid (  10 ), opcode ( 17 ), addr  (         102336 ),ns ( 0 ), donotgotosd_datapull ( 0 ), rettosrc  ( 1 ), tracetag  ( 0 )
+
+
+
+
+#             57870000: rnf (         29 ) txn ( 182 ) sent dat flit: qos (  0 ), tgtid (   0 ), srcid (  29 ), homenid (   0 ), opcode ( 4 ), resperr ( 0 ), resp ( 1 ), fwd_datapull ( 1 )
+#             57870000: rnf (         29 ) txn ( 182 ) sent dat flit: dbid ( 182 ), ccid ( 0 ), dataid ( 0 ), tracetag ( 0 ), be ( 18446744073709551615 ), data ( 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a ), datacheck (          0 ), poison (   0 )
+
+
+
+ 57890000: rnf (         29 ) txn (  10 ) sent dat flit: qos (  0 ), tgtid (   5 ), srcid (  29 ), homenid (   0 ), opcode ( 4 ), resperr ( 0 ), resp ( 1 ), fwd_datapull ( 1 )
+#             57890000: rnf (         29 ) txn (  10 ) sent dat flit: dbid ( 182 ), ccid ( 0 ), dataid ( 0 ), tracetag ( 0 ), be ( 18446744073709551615 ), data ( 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a ), datacheck (          0 ), poison (   0 )
+
+
+

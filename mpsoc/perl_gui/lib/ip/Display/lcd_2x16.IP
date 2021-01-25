@@ -200,7 +200,7 @@ void ${IP}_show_text(char* Text, unsigned char length);
                   'sw_params_list' => [],
                   'module_name' => 'lcd_2x16',
                   'ip_name' => 'lcd_2x16',
-                  'file_name' => 'mpsoc/src_peripheral/display/lcd_2x16/lcd_2x16.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/display/lcd_2x16/lcd_2x16.v',
                   'system_c' => '
 void ${IP}_wait(unsigned int volatile num){
 	while (num>0){ 
@@ -253,7 +253,7 @@ void ${IP}_test(){
 
 #endif',
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/display/lcd_2x16/lcd_2x16.v'
+                                   '/mpsoc/rtl/src_peripheral/display/lcd_2x16/lcd_2x16.v'
                                  ],
                   'parameters' => {
                                     'Dw' => {

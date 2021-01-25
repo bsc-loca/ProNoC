@@ -38,13 +38,13 @@ sub generate_sim_bin_file {
 	my ($nr,$ne,$router_p,$ref_tops,$includ_h)= get_noc_verilator_top_modules_info($simulate);
 	my %tops = %{$ref_tops};
 	
-	$tops{Vtraffic} = "--top-module traffic_gen_verilator";	
+	$tops{Vtraffic} = "--top-module traffic_gen_top_v";	
 	my $target_dir= "$ENV{PRONOC_WORK}/simulate";
 	
 	my $dir = Cwd::getcwd();
 	my $project_dir	  = abs_path("$dir/..");
 	my $src_verilator_dir="$project_dir/src_verilator";
-	my $src_noc_dir="$project_dir/src_noc";	
+	my $src_noc_dir="$project_dir/rtl/src_noc";	
 	my $script_dir="$project_dir/script";
 	my $testbench_file= "$src_verilator_dir/simulator.cpp";
 	
@@ -66,7 +66,8 @@ sub generate_sim_bin_file {
 		push (@files,$p)	if(check_file_has_string($p,'module')); 
 	}
 	push (@files,$src_noc_dir);
-	
+	push (@files,"$project_dir/rtl/arbiter.v");
+	push (@files,"$project_dir/rtl/main_comp.v");
 	
 	#my @files=(
 	#	$src_noc_dir,
@@ -83,8 +84,8 @@ sub generate_sim_bin_file {
 	if ($topology eq '"CUSTOM"'){ 
 		my $name=$simulate->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
 		$name=~s/["]//gs;     
-		my $dir1=  get_project_dir()."/mpsoc/src_topolgy/$name";
-		my $dir2=  get_project_dir()."/mpsoc/src_topolgy/common";
+		my $dir1=  get_project_dir()."/mpsoc/rtl/src_topolgy/$name";
+		my $dir2=  get_project_dir()."/mpsoc/rtl/src_topolgy/common";
 		my @files = File::Find::Rule->file()
                             ->name( '*.v','*.V','*.sv' )
                             ->in( "$dir1" );
@@ -101,10 +102,10 @@ sub generate_sim_bin_file {
 	
 	}
 	# generate NoC parameter file
-	my ($noc_param,$pass_param)=gen_noc_param_v($simulate);
-	open(FILE,  ">$target_verilog_dr/parameter.v") || die "Can not open: $!";
+	#my ($noc_param,$pass_param)=gen_noc_param_v($simulate);
+	#open(FILE,  ">$target_verilog_dr/parameter.v") || die "Can not open: $!";
 	my $fifow=$simulate->object_get_attribute('fpga_param','TIMSTMP_FIFO_NUM');
-	gen_vrouter_param_v($simulate,$target_verilog_dr);
+	gen_vrouter_param_v($simulate,"$target_verilog_dr/src_noc");
 
 	#generate routers with different port num		
 	my $cpu_num = $simulate->object_get_attribute('compile', 'cpu_num');

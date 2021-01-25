@@ -160,7 +160,7 @@ int jtag_scanint(int *num);
                                             'value' => 1
                                           }
                              },
-                  'file_name' => 'mpsoc/src_peripheral/jtag/jtag_uart/pronoc_jtag_uart.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/jtag/jtag_uart/pronoc_jtag_uart.v',
                   'parameters' => {
                                     'JDw' => {
                                                'type' => 'Fixed',
@@ -332,8 +332,8 @@ For XILINX FPGAs define it as "XILINX_JTAG_WB". In this case, the UART uses BSCA
                                           'INCLUDE_SIM_PRINTF'
                                         ],
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/pronoc_jtag_uart.v',
-                                   '/mpsoc/src_peripheral/jtag/jtag_uart/altera_uart_simulator.v'
+                                   '/mpsoc/rtl/src_peripheral/jtag/jtag_uart/pronoc_jtag_uart.v',
+                                   '/mpsoc/rtl/src_peripheral/jtag/jtag_uart/altera_uart_simulator.v'
                                  ],
                   'sw_files' => [
                                   '/mpsoc/src_processor/src_lib/simple-printf'

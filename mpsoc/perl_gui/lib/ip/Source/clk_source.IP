@@ -25,11 +25,11 @@ $ipgen = bless( {
                   'category' => 'Source',
                   'ip_name' => 'clk_source',
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/clk_source/altera_reset_synchronizer.v',
-                                   '/mpsoc/src_peripheral/clk_source/clk_source.v',
-                                   '/mpsoc/src_peripheral/clk_source/xilinx_reset_synchroniser.v'
+                                   '/mpsoc/rtl/src_peripheral/clk_source/altera_reset_synchronizer.v',
+                                   '/mpsoc/rtl/src_peripheral/clk_source/clk_source.v',
+                                   '/mpsoc/rtl/src_peripheral/clk_source/xilinx_reset_synchroniser.v'
                                  ],
-                  'file_name' => 'mpsoc/src_peripheral/clk_source/clk_source.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/clk_source/clk_source.v',
                   'parameters_order' => [
                                           'FPGA_VENDOR'
                                         ],

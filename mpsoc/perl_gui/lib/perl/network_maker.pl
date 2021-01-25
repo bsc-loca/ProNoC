@@ -2816,7 +2816,7 @@ sub generate_topology{
     
     
 	#make destination dir
-	my $dir =get_project_dir()."/mpsoc/src_topolgy/$name";
+	my $dir =get_project_dir()."/mpsoc/rtl/src_topolgy/$name";
 	mkpath("$dir",1,01777) unless (-d $dir) ;  
     mkpath("$dir/../common",1,01777) unless (-d "$dir/../common") ;  
     
@@ -2844,7 +2844,7 @@ sub save_topology_parameter_object_file{
 	my ($self,$info)=@_;	
 	my $name=$self->object_get_attribute('save_as');
 	my $rname=$self->object_get_attribute('routing_name');
-	my $dir =get_project_dir()."/mpsoc/src_topolgy";
+	my $dir =get_project_dir()."/mpsoc/rtl/src_topolgy";
 	my $file="$dir/param.obj";
 	
 	my %param;

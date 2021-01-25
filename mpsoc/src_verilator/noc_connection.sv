@@ -1,7 +1,9 @@
 `timescale     1ns/1ps
 
 
-module noc_connection (
+module noc_connection 
+	import pronoc_pkg::*; 
+(
     
     /*
     reset,
@@ -41,19 +43,7 @@ module noc_connection (
 
 
   
-    `define  INCLUDE_PARAM
-    `include"parameter.v"
-    
-     `define INCLUDE_TOPOLOGY_LOCALPARAM
-    `include "topology_localparam.v"
    
-    
-    localparam CONGw= (CONGESTION_INDEX==3)?  3:
-                      (CONGESTION_INDEX==5)?  3:
-                      (CONGESTION_INDEX==7)?  3:
-                      (CONGESTION_INDEX==9)?  3:
-                      (CONGESTION_INDEX==10)? 4:
-                      (CONGESTION_INDEX==12)? 3:2;
 
 
    
@@ -187,7 +177,7 @@ generate
 
     end else begin :custom
 
-	custom_noc_connection connections
+	custom_noc_connection_v connections
        (    
          .clk(clk),
          .reset(reset),

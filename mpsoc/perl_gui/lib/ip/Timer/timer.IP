@@ -47,7 +47,7 @@ $ipgen = bless( {
                                         }
                              },
                   'description' => 'A simple, general purpose, Wishbone bus-based, 32-bit timer.',
-                  'file_name' => 'mpsoc/src_peripheral/timer/timer.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/timer/timer.v',
                   'module_name' => 'timer',
                   'parameters_order' => [
                                           'CNTw',
@@ -147,7 +147,7 @@ $ipgen = bless( {
                                  'timer' => {}
                                },
                   'ip_name' => 'timer',
-                  'description_pdf' => '/mpsoc/src_peripheral/timer/timer.pdf',
+                  'description_pdf' => '/mpsoc/rtl/src_peripheral/timer/timer.pdf',
                   'version' => 12,
                   'system_h' => '#define ${IP}_TCSR	   			(*((volatile unsigned int *) ($BASE	)))
 		
@@ -177,7 +177,7 @@ PRESCALER WIDTH+3:4	:	clk_dev_ctrl
 #define ${IP}_reset() ${IP}_TLR=0
 #define ${IP}_read() ${IP}_TLR',
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/timer/timer.v'
+                                   '/mpsoc/rtl/src_peripheral/timer/timer.v'
                                  ],
                   'parameters' => {
                                     'CNTw' => {

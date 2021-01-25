@@ -40,7 +40,7 @@ int general_int_enable(unsigned long irq);
 void general_int_main();
 	',
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/int_ctrl/int_ctrl.v'
+                                   '/mpsoc/rtl/src_peripheral/int_ctrl/int_ctrl.v'
                                  ],
                   'ports' => {
                                'sa_dat_o' => {
@@ -246,7 +246,7 @@ void general_int_main()
                                                         'cyc_i'
                                                       ]
                               },
-                  'file_name' => 'mpsoc/src_peripheral/int_ctrl/int_ctrl.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/int_ctrl/int_ctrl.v',
                   'parameters_order' => [
                                           'INT_NUM',
                                           'Dw',

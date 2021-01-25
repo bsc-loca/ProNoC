@@ -27,8 +27,8 @@ set text "##---- Specify variables"
 
 
 set path	[pwd]
-set path1 	[file normalize $path/../src_noc]
-set path2 	[file normalize $path/../src_modelsim]
+set path1 	[file normalize $path/../rtl/src_noc]
+set path2 	[file normalize $path/../rtl/src_modelsim]
 
 set comp_path 	$::env(LM_WORK_PLACE)
 set work_path	$comp_path/work

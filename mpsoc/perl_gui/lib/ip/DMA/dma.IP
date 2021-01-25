@@ -54,7 +54,7 @@ void ${IP}_transfer (unsigned int channel, unsigned int read_start_addr,  unsign
                                      'm_wr_ack_i',
                                      'irq'
                                    ],
-                  'file_name' => 'mpsoc/src_peripheral/DMA/dma_multi_channel_wb.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/DMA/dma_multi_channel_wb.v',
                   'unused' => {
                                 'plug:wb_slave[0]' => [
                                                         'bte_i',
@@ -90,7 +90,7 @@ void ${IP}_transfer (unsigned int channel, unsigned int read_start_addr,  unsign
                                           'SELw'
                                         ],
                   'module_name' => 'dma_multi_chan_wb',
-                  'description_pdf' => '/mpsoc/src_peripheral/DMA/DMA.pdf',
+                  'description_pdf' => '/mpsoc/rtl/src_peripheral/DMA/DMA.pdf',
                   'category' => 'DMA',
                   'plugs' => {
                                'interrupt_peripheral' => {
@@ -316,10 +316,9 @@ void ${IP}_transfer (unsigned int channel, unsigned int read_start_addr,  unsign
                              },
                   'version' => 6,
                   'hdl_files' => [
-                                   '/mpsoc/src_noc/main_comp.v',
-                                   '/mpsoc/src_noc/arbiter.v',
-                                   '/mpsoc/src_peripheral/DMA/dma_multi_channel_wb.v',
-                                   '/mpsoc/src_noc/flit_buffer.v'
+                                   '/mpsoc/rtl/main_comp.v',
+                                   '/mpsoc/rtl/arbiter.v',
+                                   '/mpsoc/rtl/src_peripheral/DMA/dma_multi_channel_wb.v'
                                  ],
                   'ip_name' => 'dma',
                   'parameters' => {

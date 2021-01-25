@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source "../check_functions.sh"
+
+
+
+
+
+
+check_last_mem_written_value_on_addr 0 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa000000007ffff800
+check_cache_last_written_value_on_addr 2 0 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaffffffff80000000
+
+
+
+
+
+check_general

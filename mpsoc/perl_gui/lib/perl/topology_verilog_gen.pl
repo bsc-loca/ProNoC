@@ -15,7 +15,7 @@ sub generate_topology_top_v {
 	my $name=$self->object_get_attribute('save_as');
 	
 	my $r; 
-	my $top="$dir/${name}_noc.v";
+	my $top="$dir/${name}_noc.sv";
     open my $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -31,9 +31,9 @@ sub generate_topology_top_v {
    my @parameters=@{$self->object_get_attribute ('Verilog','Router_param')};
    my @ports= @{$self->object_get_attribute('Verilog','Router_ports')}; 
     
-	foreach my $d (@parameters){
-		$param_str = $param_str.",\n\tparameter $d->{param_name} = $d->{value}";
-	}
+#	foreach my $d (@parameters){
+#		$param_str = $param_str.",\n\tparameter $d->{param_name} = $d->{value}";
+#	}
  
     my @ends=get_list_of_all_endpoints($self);
     my @routers=get_list_of_all_routers($self);
@@ -69,14 +69,18 @@ sub generate_topology_top_v {
 	*******************/
 ";
 		
+		$wires=$wires."\tinput  router_channel_t ${instance}_chan_in;\n";
+		$wires=$wires."\toutput router_channel_t ${instance}_chan_out;\n";
+		$ports=$ports.",\n\t${instance}_chan_in,\n\t${instance}_chan_out";
+		
 		foreach my $d (@ports){		
 				my $range = ($d->{pwidth} eq 1)? " " :  " [$d->{pwidth}-1 : 0]";
 				my $type=$d->{type};
 				my $ctype= ($type eq 'input')? 'output' : 'input';	
 				if( $d->{endp} eq "yes"){ 	    	 
-					$wires=$wires."\t$type $range ${instance}_$d->{pname};\n";
-					$wires=$wires."\t$ctype $range ${instance}_$d->{pconnect};\n";
-					$ports=$ports.",\n\t${instance}_$d->{pname},\n\t${instance}_$d->{pconnect}";
+					#$wires=$wires."\t$type $range ${instance}_$d->{pname};\n";
+					#$wires=$wires."\t$ctype $range ${instance}_$d->{pconnect};\n";
+					#$ports=$ports.",\n\t${instance}_$d->{pname},\n\t${instance}_$d->{pconnect}";
 				}
 		}	
 	}
@@ -101,7 +105,7 @@ sub generate_topology_top_v {
 			my ($cname,$pnode)=split(/\s*,\s*/,$connect);
 			my $cinstance= $self->object_get_attribute("$cname","NAME");
 			my ($cp)= sscanf("Port[%u]","$pnode");
-			$assign = $assign."//Connect $instance output ports 0 to  $cinstance input ports $cp\n";
+			#$assign = $assign."//Connect $instance output ports 0 to  $cinstance input ports $cp\n";
 			my $cpplus=$cp+1;
 			
 		
@@ -112,9 +116,9 @@ sub generate_topology_top_v {
 				my $cport =  "${cinstance}_$p->{connect}";
 				my $port ="${instance}_$p->{pconnect}";
 				if($p->{type} eq 'input' ){						
-					 $assign=  $assign."\t\tassign  $port $range = $cport $crange;\n" if($p->{endp} eq "yes");		
+					# $assign=  $assign."\t\tassign  $port $range = $cport $crange;\n" if($p->{endp} eq "yes");		
 				}else{
-					 $assign=  $assign."\t\tassign  $cport $crange= $port $range;\n" if($p->{endp} eq "yes");		
+					# $assign=  $assign."\t\tassign  $cport $crange= $port $range;\n" if($p->{endp} eq "yes");		
 				}	
 				
 			 }	#@port
@@ -126,12 +130,16 @@ sub generate_topology_top_v {
 	
 	
 	 print $fd "
-module   ${name}_noc #(  
-    $param_str
-)(
-    $ports
-);
+module   ${name}_noc
+	import pronoc_pkg::*; 
+	(
 
+    reset,
+    clk,    
+    chan_in_all,
+    chan_out_all  
+);
+	
 	 function integer log2;
       input integer number; begin   
          log2=(number <=1) ? 1: 0;    
@@ -187,50 +195,30 @@ sub get_router_instance_v {
 \twire ${instance}_clk;
 \twire ${instance}_reset;
 \twire [RAw-1 :  0] ${instance}_current_r_addr;
-\twire [($Pnum*RAw)-1:  0] ${instance}_neighbors_r_addr;
+
+\trouter_channel_t    ${instance}_chan_in   [$Pnum-1 : 0];
+\trouter_channel_t    ${instance}_chan_out  [$Pnum-1 : 0]; 
+
 ";
 
-	foreach my $p (@ports){			  	    	 
-				$wires_v=$wires_v."\twire [($Pnum*$p->{pwidth})-1 : 0] ${instance}_$p->{name};\n";
-				$wires_v=$wires_v."\twire [($Pnum*$p->{pwidth})-1 : 0] ${instance}_$p->{connect};\n";
-		}
-
+	
 
 	
 	my $router_v="	
 	/*******************
 	*		$instance
 	*******************/
-	router #(
-		.P($Pnum),
-		.T1($NE),
-		.T2($NR),
-		.T3($MAX_P),
-		.TOPOLOGY(TOPOLOGY),
-		.ROUTE_NAME(ROUTE_NAME)";
-		
-	foreach my $d (@parameters){
-			$router_v= $router_v.",\n\t\t.$d->{param_name}($d->{param_name})";
-		
-	}
-	
-	$router_v=$router_v."	
+	router_top #(
+		.P($Pnum)		
 	)
 	$instance
 	(	
 		.clk(${instance}_clk), 
 		.reset(${instance}_reset),
-		.current_r_addr(${instance}_current_r_addr),
-		.neighbors_r_addr(${instance}_neighbors_r_addr)";
-	
-
-    foreach my $p (@ports){		
-		$router_v= $router_v.",\n\t\t.$p->{name}(${instance}_$p->{name})";	
-		$router_v= $router_v.",\n\t\t.$p->{connect}(${instance}_$p->{connect})";	
-	}	
-	
-	$router_v=$router_v."
-\t);
+		.current_r_addr  (${instance}_current_r_addr), 
+		.chan_in         (${instance}_chan_in), 
+		.chan_out        (${instance}_chan_out)
+	);
 ";
 
 	
@@ -238,7 +226,6 @@ $router_v= $router_v."
 \t\tassign ${instance}_clk = clk;
 \t\tassign ${instance}_reset = reset;
 \t\tassign ${instance}_current_r_addr = $current_r;
-\t\tassign ${instance}_neighbors_r_addr=0;
 "; 
 
 
@@ -254,11 +241,18 @@ for (my $i=0;$i<$Pnum; $i++){
 		my $ctype = $self->object_get_attribute("$cname",'TYPE'); 		
 		my ($cp)= sscanf("Port[%u]","$pnode");
 		$router_v = $router_v."//Connect $instance port $i to  $cinstance port $cp\n";
-		
-		
+		if($ctype ne 'ENDP'){
+			$router_v.=" \t\tassign ${instance}_chan_in [$i]   = ${cinstance}_chan_out [$cp];\n";			
+		}else{
+			$router_v.=" \t\tassign ${instance}_chan_in [$i]  = ${cinstance}_chan_in;\n";
+			$router_v.=" \t\tassign ${cinstance}_chan_out = ${instance}_chan_out [$i];\n";
+		}
 		my $cpplus=$cp+1;
 		    	
 		#{name=> "flit_in_all", type=>"input", width=>"PFw", connect=>"flit_out_all",  pwidth=>"Fw" },
+		
+		
+		
 		foreach my $p (@ports){	
 			my $w=$p->{pwidth};
 			my $range = ($w eq 1)? 	"[$i]" : "[($iplus*$w)-1 : 		 $i*$w ]";
@@ -267,24 +261,26 @@ for (my $i=0;$i<$Pnum; $i++){
 			my $cport = ($ctype eq 'ENDP') ? "${cinstance}_$p->{pname}" : "${cinstance}_$p->{connect}";
 			my $port ="${instance}_$p->{name}";
 			if($ctype eq 'ENDP' && $p->{endp} eq "no" && $p->{type} eq 'input' ){						
-				 $router_v=  $router_v."\t\tassign  $port $range = 0;\n";		
+				# $router_v=  $router_v."\t\tassign  $port $range = 0;\n";		
 						
 			}else{
 				if($p->{type} eq 'input' ){						
-				 $router_v=  $router_v."\t\tassign  $port $range = $cport $crange;\n";		
+				# $router_v=  $router_v."\t\tassign  $port $range = $cport $crange;\n";		
 				}else{
-				 $router_v=  $router_v."\t\tassign  $cport $crange= $port $range;\n";	
+				# $router_v=  $router_v."\t\tassign  $cport $crange= $port $range;\n";	
 				}	
 			}
 		 }	#@port
 			
 	}else {
-			$router_v = $router_v."//Connect $instance port $i to  ground\n";
+			$router_v = $router_v."//Connect $instance port $i to  ground
+\t	assign  ${instance}_chan_in [$i]= {CHANEL_w{1'b0}};\n";
+			
 			foreach my $p (@ports){	
 				my $w=$p->{pwidth};
 				my $range = ($w eq 1)? 	"[$i]" : "[($iplus*$w)-1 : 		 $i*$w ]";
 				if($p->{type} eq 'input' ){		
-			 		$router_v=  $router_v."\t\tassign  ${instance}_$p->{name} $range = \{$w\{1'b0\}\};\n";		
+			 	#	$router_v=  $router_v."\t\tassign  ${instance}_$p->{name} $range = \{$w\{1'b0\}\};\n";		
 				}
 			}	
 	}		
@@ -309,7 +305,7 @@ sub generate_topology_top_genvar_v{
 	#create topology top file
 	my $name=$self->object_get_attribute('save_as');
 	my $r; 
-	my $top="$dir/${name}_noc_genvar.v";
+	my $top="$dir/${name}_noc_genvar.sv";
     open my $fd, ">$top" or $r = "$!\n";
     if(defined $r) {
     	add_colored_info($info,"Error in creating $top: $r",'red');
@@ -347,10 +343,21 @@ sub generate_topology_top_genvar_v{
 	my $i=0;
 	
 	my $ports="\treset,
-\tclk";
+\tclk,
+\tchan_in_all,
+\tchan_out_all  
+";
     my $ports_def="
-\tinput reset;
-\tinput clk;
+\tinput  reset;
+\tinput  clk;
+\tinput  router_channel_t chan_in_all  [NE-1 : 0];
+\toutput router_channel_t chan_out_all [NE-1 : 0];
+
+//all routers port 
+\trouter_channel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+\trouter_channel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+\twire [RAw-1 : 0] current_r_addr [NR-1 : 0];
+
 ";
 
 	my $router_wires="";
@@ -366,24 +373,24 @@ sub generate_topology_top_genvar_v{
 		my $type=$d->{type};
 		my $ctype= ($type eq 'input')? 'output' : 'input';
 		if( $d->{endp} eq "yes"){ 	    	 
-			$ports_def=$ports_def."\t$type $pdef_range $d->{name};\n";
-			$ports_def=$ports_def."\t$ctype $pdef_range $d->{connect};\n";			
-			$ports=$ports.",\n\t$d->{name},\n\t$d->{connect}";
+			#$ports_def=$ports_def."\t$type $pdef_range $d->{name};\n";
+			#$ports_def=$ports_def."\t$ctype $pdef_range $d->{connect};\n";			
+			#$ports=$ports.",\n\t$d->{name},\n\t$d->{connect}";
 		}	
 			if($d->{width} eq 1){
-				$router_wires=$router_wires. "\twire [NR-1 :0] router_$d->{name};\n";
-				$router_wires=$router_wires. "\twire [NR-1 :0] router_$d->{connect};\n";
+				#$router_wires=$router_wires. "\twire [NR-1 :0] router_$d->{name};\n";
+				#$router_wires=$router_wires. "\twire [NR-1 :0] router_$d->{connect};\n";
 			}else{	
-				$router_wires=$router_wires. "\twire $range router_$d->{name} [NR-1 :0];\n";
-				$router_wires=$router_wires. "\twire $range router_$d->{connect} [NR-1 :0];\n";
+				#$router_wires=$router_wires. "\twire $range router_$d->{name} [NR-1 :0];\n";
+				#$router_wires=$router_wires. "\twire $range router_$d->{connect} [NR-1 :0];\n";
 			}
 		if( $d->{endp} eq "yes"){ 		
 		    if($d->{pwidth} eq 1){
-		    	$endps_wires=$endps_wires. "\twire [NE-1 :0] ni_$d->{pname};\n";
-				$endps_wires=$endps_wires. "\twire [NE-1 :0] ni_$d->{pconnect};\n";
+		    	#$endps_wires=$endps_wires. "\twire [NE-1 :0] ni_$d->{pname};\n";
+				#$endps_wires=$endps_wires. "\twire [NE-1 :0] ni_$d->{pconnect};\n";
 		    }else{	
-				$endps_wires=$endps_wires. "\twire $endp_range ni_$d->{pname} [NE-1 :0];\n";
-				$endps_wires=$endps_wires. "\twire $endp_range ni_$d->{pconnect} [NE-1 :0];\n";
+				#$endps_wires=$endps_wires. "\twire $endp_range ni_$d->{pname} [NE-1 :0];\n";
+				#$endps_wires=$endps_wires. "\twire $endp_range ni_$d->{pconnect} [NE-1 :0];\n";
 		    }
 			
 		}
@@ -407,11 +414,22 @@ sub generate_topology_top_genvar_v{
 		$n=0 if(!defined $n);
 		if($n>0){	
 			my $router_pos= ($offset==0)? 'i' : "i+$offset";
-			my $instant=get_router_genvar_instance_v($self,$i,$router_pos,$NE,$NR,$MAX_P);
+			#my $instant=get_router_genvar_instance_v($self,$i,$router_pos,$NE,$NR,$MAX_P);
 					
 			$routers=$routers."
 \tfor( i=0; i<$n; i=i+1) begin : router_${i}_port_lp
-\t\t$instant
+
+	router_top #(
+		.P($i)
+	)
+	router_${i}_port
+	(	
+		.clk(clk), 
+		.reset(reset),
+		.current_r_addr($router_pos),
+		.chan_in (router_chan_in\[$router_pos\]), 
+		.chan_out(router_chan_out\[$router_pos\])		
+	);
     
 \tend    
 			";
@@ -427,48 +445,22 @@ sub generate_topology_top_genvar_v{
 	}
 	
 	
-	foreach my $end (@ends){
-		$assign=$assign.get_wires_assignment_genvar_v($self,$end);		
-	}
-	
-	
-	$assign=$assign."genvar pos;
-generate
-\tfor ( pos = 0; pos <  NE; pos=pos+1 ) begin : endpoints
-";
- 	foreach my $d (@ports){	
- 		if( $d->{endp} eq "yes"){ 	
- 			my $range= ($d->{pwidth} eq 1)? "[pos]" : "[(pos+1)*$d->{pwidth}-1 : pos*$d->{pwidth}\]";  
- 			if($d->{type}eq "input"){
- 				$assign=$assign."\t\tassign ni_$d->{pconnect}\[pos\] = $d->{name} $range;\n";
- 				$assign=$assign."\t\tassign  $d->{connect} $range = ni_$d->{pname}\[pos\] ;\n";
- 				
- 			}else{
- 				$assign=$assign."\t\tassign $d->{name} $range = ni_$d->{pconnect}\[pos\];\n";
- 				$assign=$assign."\t\tassign ni_$d->{pname}\[pos\]=$d->{connect} $range;\n";
- 			}                                    
-           
- 		}
- 	}
- 
-$assign=$assign."\tend
- endgenerate
- ";    
+$routers.="endgenerate\n";	
 	
 	
 	
-	
-	
-	$routers = $routers."
-\tendgenerate\n";
 	
 	
 	
 	 print $fd "
-module   ${name}_noc_genvar #(  
-    $param_str
-)(
-    $ports
+module   ${name}_noc_genvar 
+   import pronoc_pkg::*; 
+	(
+
+    reset,
+    clk,    
+    chan_in_all,
+    chan_out_all  
 );
 
 	 function integer log2;
@@ -486,18 +478,6 @@ module   ${name}_noc_genvar #(
 		RAw=log2(NR),
 		MAX_P=$MAX_P;
 	
-	localparam
-		P= MAX_P,
-        PV = V * P,
-        Fw = 2+V+Fpay, //flit width;    
-        PFw = P * Fw,
-        CONG_ALw = CONGw * P;
-     
-    	
-		
-       
-      
-
     
 $ports_def
 
@@ -508,9 +488,6 @@ $endps_wires
 $routers
 
 $assign  
-
-
-
 
   
              
@@ -536,37 +513,17 @@ sub get_router_genvar_instance_v{
 	
 	my $router_v="	
 	
-	router #(
-		.P($Pnum),
-		.T1($NE),
-		.T2($NR),
-		.T3($MAX_P),
-		.TOPOLOGY(TOPOLOGY),
-		.ROUTE_NAME(ROUTE_NAME)";
-		
-	foreach my $d (@parameters){
-			$router_v= $router_v.",\n\t\t.$d->{param_name}($d->{param_name})";
-		
-	}
-	
-	$router_v=$router_v."	
+	router_top #(
+		.P($Pnum)
 	)
 	router_${Pnum}_port
 	(	
 		.clk(clk), 
 		.reset(reset),
 		.current_r_addr($router_pos),
-		.neighbors_r_addr({RAw{1'b0}})";
-	
-
-    foreach my $p (@ports){	
-    		
-		$router_v= $router_v.",\n\t\t.$p->{name}\( router_$p->{name} \[$router_pos\]\[(${Pnum} * $p->{pwidth})-1    :   0\])";	
-		$router_v= $router_v.",\n\t\t.$p->{connect}\( router_$p->{connect} \[$router_pos\]\[(${Pnum} * $p->{pwidth})-1    :   0\])";	
-	}	
-	
-	$router_v=$router_v."
-\t);
+		.chan_in (router_chan_in\[$router_pos\]), 
+		.chan_out(router_chan_out\[$router_pos\])		
+	);
 ";
 
 return $router_v;
@@ -596,6 +553,9 @@ sub get_wires_assignment_genvar_v{
 		$pos = get_scolar_pos($rname,@ends);
 		$type = "ENDP";
 	}
+	
+	
+	
 for (my $i=0;$i<$Pnum; $i++){ 
 	my $pname= "Port[${i}]";
 	my $connect = $self->{$rname}{'PCONNECT'}{$pname};
@@ -607,59 +567,35 @@ for (my $i=0;$i<$Pnum; $i++){
 		my ($cp)= sscanf("Port[%u]","$pnode");
 		$assign = $assign."//Connect $instance input ports $i to  $cinstance output ports $cp\n";
 		
+		
 		my $cpos =($ctype eq 'ENDP')?  get_scolar_pos($cname,@ends) :  get_scolar_pos($cname,@routers);
 		
 		my $cpplus=$cp+1;
 		my $cposplus = $cpos+1;
 		my $posplus=$pos+1;    	
 		#{name=> "flit_in_all", type=>"input", width=>"PFw", connect=>"flit_out_all",  pwidth=>"Fw" },
-		foreach my $p (@ports){	
-			my $w=$p->{pwidth};
-			
-			my $range = ($type eq 'ENDP') ?  "\[$pos\]" :
-			($w eq 1)? "\[$pos\]\[$i\]"	: "\[$pos\]\[($iplus*$w)-1 :	 $i*$w \]";			
-			
-			my			$crange = ($ctype eq 'ENDP') ?  "\[$cpos\]" :
-			($w eq 1)? "\[$cpos\]\[$cp\]"	: "\[$cpos\]\[($cpplus*$w)-1 :	 $cp*$w \]";
-					
-			my $cport = ($ctype eq 'ENDP') ? "ni_$p->{pconnect}" : "router_$p->{connect}";			
-			my $port = ($type eq 'ENDP')? "ni_$p->{pname}" :"router_$p->{name}";
-			
-			
-			if($ctype eq 'ENDP' && $p->{endp} eq "no" && $p->{type} eq 'input' ){						
-				 $assign=  $assign."\t\tassign  $port $range = 0;\n" if($reverse==0);
-				 	
-						
-			}elsif($type eq 'ENDP' && $p->{endp} eq "no"  ){						
-				$assign=  $assign."\t\tassign  $cport $crange = 0;\n" if($reverse==0);	
-									
-			}
-			
-			else{
-				if($p->{type} eq 'input' ){						
-				 $assign=  $assign."\t\tassign  $port $range = $cport $crange;\n" if($reverse==0);
-				 $assign=  $assign."\t\tassign  $cport $crange = $port $range;\n" if($reverse==1);		
-				}else{
-				 $assign=  $assign."\t\tassign  $cport $crange = $port $range;\n" if($reverse==0);
-				 $assign=  $assign."\t\tassign  $port $range = $cport $crange;\n" if($reverse==1);	
-				}	
-			}
-		 }	#@port
+		
+		#$assign = $assign."//connet  $instance input ports $i to  $cinstance output ports $cp\n";
+		if($type  ne 'ENDP'  &&  $ctype eq 'ENDP'){
+			$assign=  $assign."\t\tassign  router_chan_in \[$pos\]\[$i\] = chan_in_all \[$cpos\];\n" if($reverse==0);
+			$assign=  $assign."\t\tassign  chan_in_all \[$cpos\] = router_chan_in \[$pos\]\[$i\];\n" if($reverse==1);
+		
+			$assign=  $assign."\t\tassign  chan_out_all \[$cpos\] = router_chan_out \[$pos\]\[$i\];\n" if($reverse==0);
+			$assign=  $assign."\t\tassign  router_chan_out \[$pos\]\[$i\] = chan_out_all \[$cpos\];\n" if($reverse==1);
+		
+		}elsif ($type  ne 'ENDP'  &&  $ctype ne 'ENDP'){
+			$assign=  $assign."\t\tassign  router_chan_in \[$pos\]\[$i\] = router_chan_out \[$cpos\]\[$cp\];\n" if($reverse==0);
+			$assign=  $assign."\t\tassign  router_chan_out \[$cpos\]\[$cp\] = router_chan_in \[$pos\]\[$i\];\n" if($reverse==1);			
+		}
+				
+		
+		
+		
 			
 	}else {
 			$assign = $assign."//Connect $instance port $i to  ground\n";
-			
-			foreach my $p (@ports){	
-				my $w=$p->{pwidth};
-				my $port ="router_$p->{name}";
-				my $range = ($w eq 1)? 	"\[$pos\]\[$i]" : "\[$pos\]\[($iplus*$w)-1 : 		 $i*$w ]";
-				my $zero=($w eq 1)?  "1'b0": "\{$w\{1'b0\}\}";
-				if($p->{type} eq 'input' ){						
-					$assign=  $assign."\t\tassign  $port $range = $zero;\n" if($reverse==0);			
-				}else{
-				    $assign=  $assign."\t\tassign  $port $range = $zero;\n" if($reverse==1);	
-				}	
-			}	
+			$assign=  $assign."\t\tassign  router_chan_in  \[$pos\]\[$i\] ={CHANEL_w{1'b0}};\n	" if($reverse==0);
+			$assign=  $assign."\t\tassign  router_chan_out \[$pos\]\[$i\] ={CHANEL_w{1'b0}};\n	" if($reverse==1);			
 	}		
 			
 }	
@@ -1218,7 +1154,12 @@ sub generate_connection_v{
 \tstart_i,
 \tstart_o,
 \ter_addr, 
-\tcurrent_r_addr";
+\tcurrent_r_addr,
+\tchan_in_all,
+\tchan_out_all, 
+\trouter_chan_in,
+\trouter_chan_out  
+";
 
 
     my $ports_def="
@@ -1228,6 +1169,11 @@ sub generate_connection_v{
 \toutput [RAw-1 : 0] er_addr [NE-1 : 0]; // provide router address for each connected endpoint 
 \toutput [RAw-1 : 0] current_r_addr [NR-1 : 0]; // provide each router current address  ;
 \toutput [NE-1 : 0] start_o;
+\toutput router_channel_t chan_in_all [NE-1 : 0];
+\tinput  router_channel_t chan_out_all [NE-1 : 0]; 
+\tinput  router_channel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+\toutput router_channel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+
 ";
 
 	my $router_wires="";
@@ -1240,20 +1186,20 @@ sub generate_connection_v{
 		my $range = ($d->{width} eq 1)? " " :  " [$d->{width}-1 : 0]";	
 		my $pdef_range = ($d->{pwidth} eq 1)? "[NE-1 : 0]" : "[$d->{pwidth}-1 : 0]";
 		my $pdef_range2 = ($d->{pwidth} eq 1)? "" : "[NE-1 : 0]";
-		$ports=$ports.",\n\trouter_$d->{name},\n\trouter_$d->{connect}";
+		#$ports=$ports.",\n\trouter_$d->{name},\n\trouter_$d->{connect}";
 		my $type=$d->{type};
 		my $ctype= ($type eq 'input')? 'output' : 'input';
 		if( $d->{endp} eq "yes"){ 	    	 
-			$ports_def=$ports_def."\t$type\t$pdef_range ni_$d->{pname} $pdef_range2;\n";
-			$ports_def=$ports_def."\t$ctype\t$pdef_range ni_$d->{pconnect} $pdef_range2;\n";			
-			$ports=$ports.",\n\tni_$d->{pname},\n\tni_$d->{pconnect}";
+			#$ports_def=$ports_def."\t$type\t$pdef_range ni_$d->{pname} $pdef_range2;\n";
+			#$ports_def=$ports_def."\t$ctype\t$pdef_range ni_$d->{pconnect} $pdef_range2;\n";			
+			#$ports=$ports.",\n\tni_$d->{pname},\n\tni_$d->{pconnect}";
 		}	
 		if($d->{width} eq 1){
-			$ports_def=$ports_def. "\t$type\t[NR-1 :0] router_$d->{name};\n";
-			$ports_def=$ports_def. "\t$ctype\t[NR-1 :0] router_$d->{connect};\n";
+			#$ports_def=$ports_def. "\t$type\t[NR-1 :0] router_$d->{name};\n";
+			#$ports_def=$ports_def. "\t$ctype\t[NR-1 :0] router_$d->{connect};\n";
 		}else{	
-			$ports_def=$ports_def. "\t$type\t$range router_$d->{name} [NR-1 :0];\n";
-			$ports_def=$ports_def. "\t$ctype\t$range router_$d->{connect} [NR-1 :0];\n";
+			#$ports_def=$ports_def. "\t$type\t$range router_$d->{name} [NR-1 :0];\n";
+			#$ports_def=$ports_def. "\t$ctype\t$range router_$d->{connect} [NR-1 :0];\n";
 		}
 					
 		
@@ -1296,7 +1242,7 @@ sub generate_connection_v{
 	
 	
 	foreach my $end (@ends){
-		$assign=$assign.get_wires_assignment_genvar_v($self,$end,1);		
+		#$assign=$assign.get_wires_assignment_genvar_v($self,$end,1);		
 	}
 	
 	$assign=$assign."\n";
@@ -1323,7 +1269,9 @@ sub generate_connection_v{
 	
 	
 		 print $fd "
-module   ${name}_connection (
+module  ${name}_connection 
+	import pronoc_pkg::*; 
+(
     $ports
 );
 
@@ -1344,18 +1292,8 @@ module   ${name}_connection (
 	
 	
 	
-	`define  INCLUDE_PARAM
-    `include\"parameter.v\"          
-                      
+	                
     
-    
-
-    localparam CONGw= (CONGESTION_INDEX==3)?  3:
-                      (CONGESTION_INDEX==5)?  3:
-                      (CONGESTION_INDEX==7)?  3:
-                      (CONGESTION_INDEX==9)?  3:
-                      (CONGESTION_INDEX==10)? 4:
-                      (CONGESTION_INDEX==12)? 3:2;
 	
 	
 	
@@ -1521,17 +1459,16 @@ sub add_noc_instance_v{
 \t\t.start_i(start_i),
 \t\t.start_o(start_o),
 \t\t.er_addr(er_addr), 
-\t\t.current_r_addr(current_r_addr)";
+\t\t.current_r_addr(current_r_addr),
+\t\t.chan_in_all(chan_in_all),
+\t\t.chan_out_all(chan_out_all), 
+\t\t.router_chan_in(router_chan_in),
+\t\t.router_chan_out(router_chan_out)  
+
+
+";
 	
-	my @ports= @{$self->object_get_attribute('Verilog','Router_ports')}; 
-	foreach my $d (@ports){		
-		$ports=$ports.",\n\t\t.router_$d->{name}(router_$d->{name}),\n\t\t.router_$d->{connect}(router_$d->{connect})";
-		my $type=$d->{type};
-		my $ctype= ($type eq 'input')? 'output' : 'input';
-		if( $d->{endp} eq "yes"){ 	    	 
-			$ports=$ports.",\n\t\t.ni_$d->{pname}(ni_$d->{pname}),\n\t\t.ni_$d->{pconnect}(ni_$d->{pconnect})";
-		}
-	}	
+	
 
 	
 	my $str="
@@ -1585,26 +1522,20 @@ $ports
 	$ports="\t\t.reset(reset),
 \t\t.clk(clk)";
 	
-	foreach my $d (@ports){		
-		if( $d->{endp} eq "yes"){ 	    	 
-			$ports=$ports.",\n\t\t.$d->{name}($d->{name}),\n\t\t.$d->{connect}($d->{connect})";
-		}	
-	}	
+	
 	
 	
 	$str="
 	//do not modify this line ===${name}===
     if(TOPOLOGY == \"$name\" ) begin : T$name
     
-        ${name}_noc_genvar #(
-$param_str
-        )
-        the_noc
-        (
-$ports     
-        );    
-    
-    end	
+		${name}_noc_genvar the_noc			
+		(	
+		    .reset(reset),
+		    .clk(clk),    
+		    .chan_in_all(chan_in_all),
+		    .chan_out_all(chan_out_all)  
+		);
     
     endgenerate
 	
@@ -1612,7 +1543,7 @@ $ports
 	
 	
 	
-	$file = "$dir/../common/custom_noc.v";	
+	$file = "$dir/../common/custom_noc_top.sv";	
 	#check if ***$name**** exist in the file
 	unless (-f $file){
 		add_colored_info($info,"$file dose not exist\n",'red');

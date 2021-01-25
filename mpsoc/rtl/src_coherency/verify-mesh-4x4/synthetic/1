@@ -1,0 +1,21 @@
+112410000: hnf (         30 ) txn (  69 ) rspsnp wait list changed ( 0000000000000000 ). No data is gotton
+
+tgtid (   6 ) srcid (  30 ) returnnid (   5 ) endian ( 1 ) returntxnid (  10 ) opcode (  4 ) flitsize ( 6 ) addr (         203648 ) ns ( 1 ) likelyshared ( 0 )
+
+
+
+113710000: snf (          6 ) txn (  10 ) send dat flit: qos (  0 ), tgtid (   5 ), srcid (   6 ), homenid (  30 ), opcode ( 4 ), resperr ( 0 ), resp ( 2 ), fwd_datapull ( 0 )
+
+
+
+
+
+ 113790000: rnf (          5 ) txn (  10 ) got dat flit: qos (  0 ), tgtid (   5 ), srcid (   6 ), homenid (  30 ), opcode ( 4 ), resperr ( 0 ), resp ( 2 ), fwd_datapull ( 0 )
+
+
+
+
+
+  113610000: rnf (          5 ) txn (  10 ) got dat flit: qos (  0 ), tgtid (   5 ), srcid (   6 ), homenid (  22 ), opcode ( 4 ), resperr ( 0 ), resp ( 2 ), fwd_datapull ( 0 ) dbid ( 110 ), ccid ( 0 ), dataid ( 0 ), tracetag ( 0 ), be ( 18446744073709551615 ), data ( 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014b ), datacheck (          0 ), poison (   0 )
+
+ 

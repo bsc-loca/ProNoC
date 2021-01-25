@@ -1390,6 +1390,9 @@ sub quartus_run_compile{
 	#make sure source files have key word 'module' 
 	my @sources;
 	foreach my $p (@files){
+		push (@sources,$p)	if(check_file_has_string($p,'endpackage')); 
+	}
+	foreach my $p (@files){
 		push (@sources,$p)	if(check_file_has_string($p,'module')); 
 	}
 	my $files = join ("\n",@sources);
@@ -1412,7 +1415,8 @@ sub quartus_run_compile{
 	if(-f $assignment_file){
 		merg_files ($assignment_file,$qsf_file);
 	}
-		
+	
+	my %paths;	
 
 	#add the list of source fils to qsf file
 	my $s="\n\n\n set_global_assignment -name TOP_LEVEL_ENTITY Top\n";
@@ -1420,8 +1424,18 @@ sub quartus_run_compile{
 		my ($name,$path,$suffix) = fileparse("$p",qr"\..[^.]*$");
 		$s="$s set_global_assignment -name VERILOG_FILE $p\n" if ($suffix eq ".v");
 		$s="$s set_global_assignment -name SYSTEMVERILOG_FILE $p\n" if ($suffix eq ".sv");
-		
+		$paths{$path}=1;
 	}
+	
+	
+	
+	
+	
+	
+	foreach my $p (sort keys %paths){
+	 	$s="$s set_global_assignment -name SEARCH_PATH  $p\n";	
+	}
+	
 	append_text_to_file($qsf_file,$s);
 	add_info($tview,"\n Qsf file has been created\n");
 	
@@ -1475,8 +1489,30 @@ sub xilinx_run_compile{
 	#make sure source files have key word 'module' 
 	my @sources;
 	foreach my $p (@files){
+		push (@sources,$p)	if(check_file_has_string($p,'endpackage')); 
+	}
+	foreach my $p (@files){
 		push (@sources,$p)	if(check_file_has_string($p,'module')); 
 	}
+	
+	my %paths;
+	foreach my $p (@files){
+		my ($name,$path,$suffix) = fileparse("$p",qr"\..[^.]*$");
+		#print "$path\n";
+		my $remove="$target_dir/";
+		$path =~ s/$remove//; 	
+		$paths{$path}=1;
+	}
+	
+	
+
+	
+	my $incdir="set include_dir_list [list";
+	foreach my $p (sort keys %paths){
+	 	$incdir.=" \$tcl_path/$p";	
+	 }
+	$incdir.="]";
+	
 	my $files = join ("\n",@sources);
 	
 	
@@ -1600,6 +1636,10 @@ set_project_properties
 	
 	# Make all reset syncron 
 	set_property verilog_define {{SYNC_RESET_MODE}} [current_fileset]
+	
+	# include source dirs
+	$incdir
+	set_property include_dirs  \$include_dir_list [current_fileset]
 	
 	launch_runs synth_1
 	wait_on_run synth_1
@@ -1750,7 +1790,23 @@ sub modelsim_compilation{
 		
 	});
 	
-
+	#Get the list of  all verilog files in src_verilog folder
+	add_info($tview,"Get the list of all Verilog files in src_verilog folder\n");
+	my @files = File::Find::Rule->file()
+		->name( '*.v','*.V','*.sv' )
+		->in( "$target_dir/src_verilog" );
+		
+	#get list of allverilog files in src_sim folder 
+    my @sim_files = File::Find::Rule->file()
+		->name( '*.v','*.V','*.sv' )
+		->in( "$target_dir/src_sim" );		
+	push (@files, @sim_files);	
+	#add testnemch.v
+	push (@files, "$target_dir/Modelsim/testbench.v");
+	
+	#create a file list
+	my $tt =create_file_list($target_dir,\@files,'modelsim');	
+	save_file("$target_dir/Modelsim/file_list.f",  "$tt");
 	
 	
 	#create modelsim.tcl file
@@ -1765,32 +1821,24 @@ vlib rtl_work
 vmap work rtl_work
 ";
 
-#Get the list of  all verilog files in src_verilog folder
-	add_info($tview,"Get the list of all Verilog files in src_verilog folder\n");
-	my @files = File::Find::Rule->file()
-		->name( '*.v','*.V','*.sv' )
-		->in( "$target_dir/src_verilog" );
-		
-#get list of allverilog files in src_sim folder 
-     my @sim_files = File::Find::Rule->file()
-		->name( '*.v','*.V','*.sv' )
-		->in( "$target_dir/src_sim" );		
-	push (@files, @sim_files);	
-#add testnemch.v
-	push (@files, "$target_dir/Modelsim/testbench.v");
+
 
                 
 #make sure source files have key word 'module' 
-	my @sources;
-	foreach my $p (@files){
-		my ($name,$path,$suffix) = fileparse("$p",qr"\..[^.]*$");
-		if(check_file_has_string($p,'module')){
-			if ($suffix eq ".sv"){$tcl=$tcl."vlog -sv -work work +incdir+$path \{$p\}\n";}
-			else {$tcl=$tcl."vlog -vlog01compat -work work +incdir+$path \{$p\}\n";}
-		}	
-	}
+#	my @sources;
+#	foreach my $p (@files){
+#		my ($name,$path,$suffix) = fileparse("$p",qr"\..[^.]*$");
+#		if(check_file_has_string($p,'module')){
+#			if ($suffix eq ".sv"){$tcl=$tcl."vlog -sv -work work +incdir+$path \{$p\}\n";}
+#			else {$tcl=$tcl."vlog -vlog01compat -work work +incdir+$path \{$p\}\n";}
+#		}	
+#	}
 
 $tcl="$tcl	
+
+
+vlog  +acc=rn  -F $target_dir/Modelsim/file_list.f
+
 vsim -t 1ps  -L rtl_work -L work -voptargs=\"+acc\"  testbench
 
 add wave *
@@ -1801,7 +1849,7 @@ run -all
 	add_info($tview,"Create model.tcl, run.sh files\n");
 	save_file ("$model/model.tcl",$tcl);
 	my $modelsim_bin= $self->object_get_attribute('compile','modelsim_bin');		
-	my $cmd="cd $target_dir; $modelsim_bin/vsim -do $model/model.tcl";
+	my $cmd="cd $target_dir/Modelsim; rm -Rf rtl_work; $modelsim_bin/vsim -do $model/model.tcl";
 	save_file ("$model/run.sh",'#!/bin/bash'."\n".$cmd);
 	
 	$run -> signal_connect("clicked" => sub{
@@ -1827,6 +1875,45 @@ run -all
 # source files : $target_dir/src_verilog
 # work dir : $target_dir/src_verilog
 
+
+sub create_file_list {
+	my ($target_dir,$files_ref, $platform)=@_;
+	my @ff=@{$files_ref} if(defined $files_ref);
+	my $pakages=""; 
+	my $file_list="";
+	my $include="";	
+	
+	my %paths;
+	my @files = File::Find::Rule->file()
+        	->name( '*.v','*.V','*.sv','*.vh')
+            ->in( @ff );
+            
+    @ff =uniq( @ff);        
+            
+	foreach my $file (@files) {
+		my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
+		#print "$path\n";
+		my $remove="$target_dir/";
+		$path =~ s/$remove//; 	
+		$paths{$path}=1;
+		
+		#put packages at the top of the list 
+		if(check_file_has_string($file,'endpackage')){
+			$pakages.="../${path}${name}$suffix\n" if($platform eq 'modelsim');
+			$pakages.="./${name}$suffix\n" if($platform eq 'verilator');
+		} else{
+			$file_list.= "../${path}${name}$suffix\n"if($platform eq 'modelsim');
+			$file_list.= "./${name}$suffix\n"if($platform eq 'verilator');
+		}		
+	}
+	 foreach my $p (sort keys %paths){
+	 	$include.="+incdir+../$p\n";	
+	 }
+	
+	return "$include\n$pakages\n$file_list";
+}
+
+
 sub verilator_compilation {
 	my ($top_ref,$target_dir,$outtext,$cpu_num)=@_;
 	$cpu_num = 1 if (!defined $cpu_num);
@@ -1846,75 +1933,9 @@ sub verilator_compilation {
 	push (@ff,"$target_dir/src_sim") if (-d "$target_dir/src_sim");
 	
 	#create a file list
-	my $pakages=""; 
-	my $file_list="";
-	my $include="";
 	add_info($outtext,"make a file list containig all RTL modules\n");
-		
-	
-	my %paths;
-	my @files = File::Find::Rule->file()
-        	->name( '*.v','*.V','*.sv','*.vh')
-            ->in( @ff );
-	foreach my $file (@files) {
-		my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
-		#print "$path\n";
-		my $remove="$target_dir/";
-		$path =~ s/$remove//; 	
-		$paths{$path}=1;
-		
-		#put packages at the top of the list 
-		if(check_file_has_string($file,'endpackage')){
-			$pakages.="./${name}$suffix\n";
-		} else{
-			$file_list.= "./${name}$suffix\n";
-		}
-	
-		
-	}
-	 foreach my $p (sort keys %paths){
-	 	$include.="+incdir+../$p\n";	
-	 }
-	
-	
-	
-	
-	
-	save_file("$verilator/file_list.f",  "$include\n$pakages\n$file_list");
-	
-	
-	#copy all verilog files in rtl_work folder
-	#add_info($outtext,"Copy all verilog files in rtl_work folder\n");
-	#@files = File::Find::Rule->file()
-    #    	->name( '*.v','*.V','*.sv','*.vh')
-    #            ->in( @ff );
-	#foreach my $file (@files) {
-	#	copy($file,"$verilator/rtl_work/");
-	#}
-	
-	#@files = File::Find::Rule->file()
-    #    	->name( '*.sv','*.vh' )
-    #        ->in( @ff );
-	#foreach my $file (@files) {
-	#	copy($file,"$verilator/processed_rtl");
-	#}
-	
-	
-	
-	
-	
-
-	#"split all verilog modules in separate  files"
-	#add_info($outtext,"split all verilog modules in separate files\n");
-   #	my $split = Verilog::EditFiles->new
-    #   	(outdir => "$verilator/processed_rtl",
-    #    translate_synthesis => 0,
-     #   celldefine => 0,
-    #    );
-  # 	$split->read_and_split(glob("$verilator/rtl_work/*.v"));
-  # 	$split->write_files();
-  # 	$split->read_and_split(glob("$verilator/rtl_work/*.sv"));
-  # 	$split->write_files();
+	my $tt =create_file_list($target_dir,\@ff,'verilator');	
+	save_file("$verilator/file_list.f",  "$tt");
    	
    	
 	#run verilator
@@ -2124,7 +2145,7 @@ sub  gen_mpsoc_verilator_model{
 	my $target_verilator_dr ="$target_dir/src_verilator";
 	
 	my $sw_dir 	= "$target_dir/sw";
-	my $src_noc_dir="$project_dir/src_noc";	
+	my $src_noc_dir="$project_dir/rtl/src_noc";	
 	mkpath("$target_verilator_dr",1,01777);
 		
 	#copy src_verilator files
@@ -2164,7 +2185,7 @@ sub  gen_mpsoc_verilator_model{
 	//simulation parameter	
 	
 \n \n \`endif" ; 
-	save_file("$target_verilator_dr/parameter.v",$noc_param_v);
+	#save_file("$target_verilator_dr/parameter.v",$noc_param_v);
 	
 	
 	

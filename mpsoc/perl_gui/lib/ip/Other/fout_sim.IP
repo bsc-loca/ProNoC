@@ -164,7 +164,7 @@ void fout_select (FILE *f){
 ',
                   'category' => 'Other',
                   'description' => 'A simple module to replicate the fprintf/fopen  instructions in simulator enviremets. ',
-                  'file_name' => '/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_peripheral/Other/fout_simulator.v',
+                  'file_name' => '/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_peripheral/Other/fout_simulator.v',
                   'unused' => {
                                 'plug:wb_slave[0]' => [
                                                         'tag_i',
@@ -215,7 +215,7 @@ void fout_select (FILE *f){
                                           'BUFFER_SIZE'
                                         ],
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/Other/fout_simulator.v'
+                                   '/mpsoc/rtl/src_peripheral/Other/fout_simulator.v'
                                  ],
                   'system_h' => '#include "simple-printf/sim_fprintf.h" 
 

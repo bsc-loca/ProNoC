@@ -1,0 +1,38 @@
+module:
+  name: chi_rn_agent_snoc
+  authors: [ "Xubin Tan <xubin.tan@semidynamics.com>" ]
+
+sources:
+  # relative to this file path
+  - ../rn_agent/chi_rn_params_pkg.sv
+  - chi_rn_agent_if.sv
+  - ../rn_agent/fill_arb.sv
+  - ../rn_agent/flit_flow.sv
+  - ../rn_agent/rx_queue.sv
+  - ../rn_agent/snp_p/snp_p_l2_to_chi.sv
+  - ../rn_agent/snp_p/snp_p_chi_to_l2.sv
+  - ../rn_agent/tables/wdat_mem.sv
+  - ../rn_agent/tables/txnid_mem.sv
+  - ../rn_agent/tables/snoop_mem.sv
+  - ../rn_agent/tables/pcrdgrant_mem.sv
+  - ../rn_agent/txreq_p/txreq_p_arb.sv
+  - ../rn_agent/txreq_p/txreq_p_alloc.sv
+  - ../rn_agent/txreq_p/txreq_p_enc.sv
+  - ../rn_agent/txreq_p/txreq_p_tx.sv
+  - ../rn_agent/txreq_p/txreq_p.sv
+  - ../rn_agent/rxdat_p/rxdat_p_rx.sv
+  - ../rn_agent/rxdat_p/rxdat_p_dec.sv
+  - ../rn_agent/rxdat_p/rxdat_p_arb.sv
+  - ../rn_agent/rxdat_p/rxdat_p_tx.sv
+  - ../rn_agent/rxdat_p/rxdat_p.sv
+  - ../rn_agent/rxrsp_p/rxrsp_p_rx.sv
+  - ../rn_agent/rxrsp_p/rxrsp_p_dec.sv
+  - ../rn_agent/rxrsp_p/rxrsp_p_arb.sv
+  - ../rn_agent/rxrsp_p/rxrsp_p_tx.sv
+  - ../rn_agent/rxrsp_p/rxrsp_p.sv
+  - ../rn_agent/retry_logic/retry_logic.sv
+  - ../chi_rn_agent.sv
+  - chi_rn_agent_snoc.sv
+
+dependencies:
+  - chi_rn_common

@@ -1,0 +1,3 @@
+
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify/wr_rd; do model.tcl
+

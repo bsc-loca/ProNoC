@@ -62,7 +62,7 @@ $ipgen = bless( {
                                                        }
                                   },
                   'gen_sw_files' => [
-                                      '/mpsoc/src_peripheral/ethmac/ethfrename_sep_t${IP}.h'
+                                      '/mpsoc/rtl/src_peripheral/ethmac/ethfrename_sep_t${IP}.h'
                                     ],
                   'system_h' => '
 
@@ -148,7 +148,7 @@ int ${IP}_send(int length);   //return (-1) or length (still processing previous
                   'custom_file' => {
                                      '0' => {}
                                    },
-                  'file_name' => 'mpsoc/src_peripheral/ethmac/ethtop.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/ethmac/ethtop.v',
                   'custom_file_num' => 1,
                   'parameters_order' => [
                                           'TX_FIFO_DATA_WIDTH',
@@ -389,36 +389,7 @@ For more information please check: https://opencores.org/project,ethmac',
                                                       ]
                               },
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_clockgen.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_cop.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_crc.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_fifo.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/ethmac.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_maccontrol.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/ethmac_defines.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_macstatus.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_miim.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_outputcontrol.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_random.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_receivecontrol.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_register.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_registers.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_rxaddrcheck.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_rxcounters.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_rxethmac.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_rxstatem.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_shiftreg.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_spram_256x32.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_top.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_transmitcontrol.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_txcounters.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_txethmac.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_txstatem.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/eth_wishbone.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/timescale.v',
-                                   '/mpsoc/src_peripheral/ethmac/rtl/xilinx_dist_ram_16x32.v',
-                                   '/mpsoc/src_peripheral/ethmac/ethtop.v',
-                                   '/mpsoc/src_peripheral/ethmac/eth_generic_ram.v'
+                                   '/mpsoc/rtl/src_peripheral/ethmac'                                   
                                  ],
                   'category' => 'Communication',
                   'modules' => {

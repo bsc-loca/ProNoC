@@ -318,14 +318,14 @@ $ipgen = bless( {
                   'description' => 'PLLE2_BASE',
                   'module_name' => 'xilinx_pll2_base',
                   'version' => 17,
-                  'file_name' => 'mpsoc/src_peripheral/clk_source/xilinx_pll/xilinx_pll2_base.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/clk_source/xilinx_pll/xilinx_pll2_base.v',
                   'hdl_files_ticked' => [
-                                          '/mpsoc/src_peripheral/clk_source/xilinx_pll/xilinx_pll_sim'
+                                          '/mpsoc/rtl/src_peripheral/clk_source/xilinx_pll/xilinx_pll_sim'
                                         ],
                   'ip_name' => 'xilinx_pll',
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/clk_source/xilinx_pll/xilinx_pll2_base.v',
-                                   '/mpsoc/src_peripheral/clk_source/xilinx_pll/xilinx_pll_sim'
+                                   '/mpsoc/rtl/src_peripheral/clk_source/xilinx_pll/xilinx_pll2_base.v',
+                                   '/mpsoc/rtl/src_peripheral/clk_source/xilinx_pll/xilinx_pll_sim'
                                  ],
                   'ports' => {
                                'reset_in' => {

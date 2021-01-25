@@ -1,0 +1,3 @@
+Loading new script...
+[HOOKS] Entering ROI
+[HOOKS] Leaving ROI

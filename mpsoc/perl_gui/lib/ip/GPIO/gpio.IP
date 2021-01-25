@@ -10,7 +10,7 @@
 ################################################################################
 
 $ipgen = bless( {
-                  'file_name' => 'mpsoc/src_peripheral/gpio/gpio.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/gpio/gpio.v',
                   'module_name' => 'gpio',
                   'modules' => {
                                  'gpi' => {},
@@ -82,7 +82,7 @@ $ipgen = bless( {
                   'ip_name' => 'gpio',
                   'sockets' => {},
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/gpio/gpio.v'
+                                   '/mpsoc/rtl/src_peripheral/gpio/gpio.v'
                                  ],
                   'ports' => {
                                'sa_dat_o' => {

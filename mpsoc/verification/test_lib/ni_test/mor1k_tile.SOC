@@ -309,7 +309,7 @@ $soc = bless( {
                                                                           }
                                                                 },
                                                    'category' => 'NoC',
-                                                   'description_pdf' => '/mpsoc/src_peripheral/ni/NI.pdf',
+                                                   'description_pdf' => '/mpsoc/rtl/src_peripheral/ni/NI.pdf',
                                                    'parameters' => {
                                                                      'HDATA_PRECAPw' => {
                                                                                           'value' => 4
@@ -613,7 +613,7 @@ $soc = bless( {
                                                                      ],
                                                'module' => 'timer',
                                                'sockets' => {},
-                                               'description_pdf' => '/mpsoc/src_peripheral/timer/timer.pdf',
+                                               'description_pdf' => '/mpsoc/rtl/src_peripheral/timer/timer.pdf',
                                                'category' => 'Timer',
                                                'parameters' => {
                                                                  'Aw' => {
@@ -705,7 +705,7 @@ $soc = bless( {
                                                                                ],
                                                          'module_name' => 'wb_single_port_ram',
                                                          'instance_name' => 'ram',
-                                                         'description_pdf' => '/mpsoc/src_peripheral/ram/RAM.pdf',
+                                                         'description_pdf' => '/mpsoc/rtl/src_peripheral/ram/RAM.pdf',
                                                          'category' => 'RAM',
                                                          'parameters' => {
                                                                            'WB_Aw' => {

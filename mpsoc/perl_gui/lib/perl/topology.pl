@@ -290,10 +290,10 @@ sub get_noc_verilator_top_modules_info {
         $nr_p{p2}=2*$K;
        
         %tops = (
-			#"Vrouter1" => "router_verilator_p${K}.v", 
-			#"Vrouter2" => "router_verilator_p${p2}.v", 
-			"Vrouter1" => "--top-module  router_verilator  -GP=${K}  ", 
-			"Vrouter2" => "--top-module  router_verilator  -GP=${p2} ", 
+			#"Vrouter1" => "router_top_v_p${K}.v", 
+			#"Vrouter2" => "router_top_v_p${p2}.v", 
+			"Vrouter1" => "--top-module  router_top_v  -GP=${K}  ", 
+			"Vrouter2" => "--top-module  router_top_v  -GP=${p2} ", 
 	        "Vnoc" => " --top-module noc_connection ",
 	 		
     	);
@@ -308,10 +308,10 @@ sub get_noc_verilator_top_modules_info {
         $nr_p{p2}=$K+1;
        
         %tops = (
-			#"Vrouter1" => "router_verilator_p${K}.v", 
-			#"Vrouter2" => "router_verilator_p${p2}.v",
-			"Vrouter1" => "--top-module  router_verilator  -GP=${K}  ", 
-			"Vrouter2" => "--top-module  router_verilator  -GP=${p2} ",  
+			#"Vrouter1" => "router_top_v_p${K}.v", 
+			#"Vrouter2" => "router_top_v_p${p2}.v",
+			"Vrouter1" => "--top-module  router_top_v  -GP=${K}  ", 
+			"Vrouter2" => "--top-module  router_top_v  -GP=${p2} ",  
 	        "Vnoc" => " --top-module noc_connection ", 		
     	);
 		
@@ -322,8 +322,8 @@ sub get_noc_verilator_top_modules_info {
 		my $ports= 3+$T3-1;
 		$nr_p{p1}=$ports;
 		%tops = (
-			#"Vrouter1" => "router_verilator_p${ports}.v", 
-	       "Vrouter1" => "--top-module  router_verilator  -GP=${ports}  ", 
+			#"Vrouter1" => "router_top_v_p${ports}.v", 
+	       "Vrouter1" => "--top-module  router_top_v  -GP=${ports}  ", 
 		   "Vnoc" => " --top-module noc_connection ",
 	 		
     	);
@@ -336,15 +336,15 @@ sub get_noc_verilator_top_modules_info {
         my $ports= 5+$T3-1;
 		$nr_p{p1}=$ports;
         %tops = (
-        	#"Vrouter1" => "router_verilator_p${ports}.v",
-        	"Vrouter1" => "--top-module  router_verilator  -GP=${ports}  ",  
+        	#"Vrouter1" => "router_top_v_p${ports}.v",
+        	"Vrouter1" => "--top-module  router_top_v  -GP=${ports}  ",  
 	        "Vnoc" => " --top-module noc_connection",
 	 		
     	);
         
 	}else {#custom
 		
-		my $dir =get_project_dir()."/mpsoc/src_topolgy";
+		my $dir =get_project_dir()."/mpsoc/rtl/src_topolgy";
 		my $file="$dir/param.obj";	
 		my %param;
 		if(-f $file){
@@ -372,8 +372,8 @@ sub get_noc_verilator_top_modules_info {
 		foreach my $p (sort { $a <=> $b } keys  %router_ps){
 			$nr_p{$i}=$router_ps{$p};
             $nr_p{"p$i"}=$p;
-            #$tops{"Vrouter$i"}= "router_verilator_p${p}.v", 
-            $tops{"Vrouter$i"}= "--top-module  router_verilator  -GP=${p}  ", 
+            #$tops{"Vrouter$i"}= "router_top_v_p${p}.v", 
+            $tops{"Vrouter$i"}= "--top-module  router_top_v  -GP=${p}  ", 
 			$i++;
 			
 		}	
@@ -410,7 +410,7 @@ void router${p}_connect_to_noc (unsigned int r, unsigned int n){
 	unsigned int j;
 	int flit_out_all_size = sizeof(router${p}[0]->flit_out_all)/sizeof(router${p}[0]->flit_out_all[0]);
 	router${p}[r]->current_r_addr	= noc->current_r_addr[n];
-	router${p}[r]->neighbors_r_addr 	= noc->neighbors_r_addr[n];
+	router${p}[r]->neighbors_r_addr_in 	= noc->neighbors_r_addr[n];
 	
 
 	router${p}[r]->flit_in_wr_all	= noc->router_flit_out_wr_all[n];

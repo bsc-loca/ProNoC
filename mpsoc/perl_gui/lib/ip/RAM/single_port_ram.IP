@@ -47,7 +47,7 @@ $ipgen = bless( {
                                           'JTAG_CHAIN'
                                           
                                         ],
-                  'description_pdf' => '/mpsoc/src_peripheral/ram/RAM.pdf',
+                  'description_pdf' => '/mpsoc/rtl/src_peripheral/ram/RAM.pdf',
                   'version' => 39,
                   'parameters' => {
                                     'JTAG_INDEX' => {
@@ -264,7 +264,7 @@ if it is not disabled then the actual memory is implemented as a dual port RAM w
                                                       }
                                   },
                   'module_name' => 'wb_single_port_ram',
-                  'file_name' => 'mpsoc/src_peripheral/ram/wb_single_port_ram.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/ram/wb_single_port_ram.v',
                   'plugs' => {
                                'reset' => {
                                             '0' => {
@@ -421,10 +421,10 @@ if it is not disabled then the actual memory is implemented as a dual port RAM w
                                      'sa_rty_o'
                                    ],
                   'hdl_files' => [
-                                   '/mpsoc/src_peripheral/ram/wb_single_port_ram.v',
-                                   '/mpsoc/src_peripheral/ram/generic_ram.v',
-                                   '/mpsoc/src_peripheral/ram/byte_enabled_generic_ram.sv',
-                                   '/mpsoc/src_peripheral/ram/wb_bram_ctrl.v'
+                                   '/mpsoc/rtl/src_peripheral/ram/wb_single_port_ram.v',
+                                   '/mpsoc/rtl/src_peripheral/ram/generic_ram.v',
+                                   '/mpsoc/rtl/src_peripheral/ram/byte_enabled_generic_ram.sv',
+                                   '/mpsoc/rtl/src_peripheral/ram/wb_bram_ctrl.v'
                                  ],
                   'description' => 'Single port ram with wishbone bus interface.',
                   'unused' => undef,

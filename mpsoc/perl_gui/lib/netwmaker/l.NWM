@@ -177,7 +177,7 @@ $nwmaker = bless( {
                                    'NUM' => 0
                                  },
                     'graph_save' => {
-                                      'name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/src_topolgy/ll/ll',
+                                      'name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/rtl/src_topolgy/ll/ll',
                                       'enable' => '0',
                                       'extension' => 'png'
                                     },

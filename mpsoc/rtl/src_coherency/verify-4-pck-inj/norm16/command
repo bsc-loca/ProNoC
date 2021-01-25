@@ -1,0 +1,3 @@
+
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify-4-pck-inj/norm16; do model.tcl
+

@@ -41,7 +41,9 @@
 `define SELECT_WIRE(x,y,port,width)    `router_id(x,y)] [`START_LOC(port,width) : `END_LOC(port,width )
 
 
-module mesh_torus_noc_connection (
+module mesh_torus_noc_connection 
+	import pronoc_pkg::*; 
+	(
    
     reset,
     clk, 
@@ -71,20 +73,7 @@ module mesh_torus_noc_connection (
   
 
                     
-                      
-       `define  INCLUDE_PARAM
-    `include"parameter.v"          
-                      
-     `define INCLUDE_TOPOLOGY_LOCALPARAM
-    `include "topology_localparam.v"
     
-
-    localparam CONGw= (CONGESTION_INDEX==3)?  3:
-                      (CONGESTION_INDEX==5)?  3:
-                      (CONGESTION_INDEX==7)?  3:
-                      (CONGESTION_INDEX==9)?  3:
-                      (CONGESTION_INDEX==10)? 4:
-                      (CONGESTION_INDEX==12)? 3:2;
                       
        
     localparam

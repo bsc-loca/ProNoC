@@ -850,7 +850,7 @@ sub generate_soc{
 			add_to_project_file_list($sim_ref,$hw_sim,$hw_path);
     		
 			#copy jtag control files 
-			my @jtags=(("/mpsoc/src_peripheral/jtag/jtag_wb"),("jtag"));
+			my @jtags=(("/mpsoc/rtl/src_peripheral/jtag/jtag_wb"),("jtag"));
 			copy_file_and_folders(\@jtags,$project_dir,$hw_lib); 
 			add_to_project_file_list(\@jtags,$hw_lib,$hw_path);  
 			 		
