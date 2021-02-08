@@ -158,7 +158,7 @@ sub load_orcc_csv{
 	my $net;
 	my @actors;
 	
-	my %channels;
+	my %chanels;
 	
 	while (my $line = <$in>) {
     	chomp $line;
@@ -194,12 +194,12 @@ sub load_orcc_csv{
     			my $buff_Size=$fileds[4];   
     			
     			 			
-    			$channels{"${src}:$src_port"}= (defined $channels{"${src}:$src_port"})? $channels{"${src}:$src_port"}+1 : 0;  
-    			my $cc=$channels{"${src}:$src_port"};
-    			#print "find channel for  ** ${src}_$src_port -> ${dest}_$dst_port**: $cc\n";
+    			$chanels{"${src}:$src_port"}= (defined $chanels{"${src}:$src_port"})? $chanels{"${src}:$src_port"}+1 : 0;  
+    			my $cc=$chanels{"${src}:$src_port"};
+    			#print "find chanel for  ** ${src}_$src_port -> ${dest}_$dst_port**: $cc\n";
     			  			
-    			add_trace($self, "${net}:${f_id}:","raw",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size,$channels{"${src}:$src_port"},0);	
-    			#print "add_trace($self, \"${net}:${f_id}:\",\"raw\",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size,$channels{\"${src}:$src_port\"});\n";	
+    			add_trace($self, "${net}:${f_id}:","raw",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size,$chanels{"${src}:$src_port"},0);	
+    			#print "add_trace($self, \"${net}:${f_id}:\",\"raw\",$t_id, $src,$dest, 1,$file, $src_port,$dst_port,$buff_Size,$chanels{\"${src}:$src_port\"});\n";	
     			$t_id++;
     		}
     		
@@ -243,7 +243,7 @@ sub update_merge_actor_list{
 	foreach my $actor (@ungrouped){
 		my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
 		foreach my $inject (@injectors) {
-			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$chanel,$vc,$class
 			)=get_trace($self,'raw',$inject);
 			my $tdst=$self->get_item_group_name('grouping',$dst);
 			$dst_port=0 if (!defined $dst_port);
@@ -251,7 +251,7 @@ sub update_merge_actor_list{
 					$dst_port="${dst}_$dst_port";
 			}
 								
-			add_trace($self, "$file_id",'merge',$t_id, $src,$tdst,$Mbytes,$file_name, $src_port,$dst_port,$buff_size,$channel,$vc,$class);
+			add_trace($self, "$file_id",'merge',$t_id, $src,$tdst,$Mbytes,$file_name, $src_port,$dst_port,$buff_size,$chanel,$vc,$class);
 			if(defined $min_pck){
 				add_trace_extra($self, "$file_id",'merge',$t_id,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var );						
 			}
@@ -289,7 +289,7 @@ sub update_merge_actor_list{
 			my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
 			#Where does it transfer?
 			foreach my $inject (@injectors) {
-				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
+				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$chanel,$vc,$class
 				)=get_trace($self,'raw',$inject);
 				$dst_port=0 if (!defined $dst_port);
 				$src_port=0 if (!defined $src_port);
@@ -313,7 +313,7 @@ sub update_merge_actor_list{
 							$dst_port="${dst}_$dst_port";
 					}					
 					
-					add_trace($self, "$file_id",'merge',$t_id, $merge_src,$tdst, $Mbytes,$file, $src_port,$dst_port,$buff_size,$channel,$vc,$class);
+					add_trace($self, "$file_id",'merge',$t_id, $merge_src,$tdst, $Mbytes,$file, $src_port,$dst_port,$buff_size,$chanel,$vc,$class);
 					if(defined $min_pck){
 						add_trace_extra($self, "$file_id",'merge',$t_id,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var );						
 					}
@@ -327,17 +327,17 @@ sub update_merge_actor_list{
 
 
 sub get_port_num{
-	my ($self,$hash_ref,$actor,$port_name,$channel) =@_;
+	my ($self,$hash_ref,$actor,$port_name,$chanel) =@_;
     return undef if(!defined $hash_ref);
     my %hash = %{$hash_ref};
     
-    my $port_num =(defined $channel)?  $hash{$actor}{$port_name}{$channel} :  $hash{$actor}{$port_name};			
+    my $port_num =(defined $chanel)?  $hash{$actor}{$port_name}{$chanel} :  $hash{$actor}{$port_name};			
 	if(!defined $port_num){
 		#its a merged actor
 		my $merge_actor=$self->get_item_group_name('grouping',$actor);
 		#my($net,$num,$name)=split(':',$merge_actor);
 		my $merge_port="${actor}_$port_name";
-		return $hash{$merge_actor}{$merge_port}{$channel} if(defined  $channel);
+		return $hash{$merge_actor}{$merge_port}{$chanel} if(defined  $chanel);
 		return $hash{$merge_actor}{$merge_port};		
 	}	  
 	return $port_num;  
@@ -363,14 +363,14 @@ sub get_fifo_list{
 		foreach my $actor (@merge_actors){
 			my @injectors= get_all_source_traces_of_actr($self,$actor,'raw');
 			foreach my $inject (@injectors) {
-				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
+				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$chanel,$vc,$class
 				)=get_trace($self,'raw',$inject);				
 					
 				$fifos{"${actor}_${src_port}"}{'size'}=$buff_size;	
 				$fifos{"$actor"}{'file'}="$file_name";
 				$fifos{"${actor}_${src_port}"}{'fifo_num'}=$fifo_num;
-				$fifos{"${actor}_${src_port}"}{'channel_num'}= 0 if(!defined $fifos{"${actor}_${src_port}"}{'channel_num'});
-				$fifos{"${actor}_${src_port}"}{'channel_num'}++;
+				$fifos{"${actor}_${src_port}"}{'chanel_num'}= 0 if(!defined $fifos{"${actor}_${src_port}"}{'chanel_num'});
+				$fifos{"${actor}_${src_port}"}{'chanel_num'}++;
 				$fifo_num++;
 				$fifos{"tile_$tile_num"}{'fifo_num'}=$fifo_num;
 			}
@@ -387,12 +387,12 @@ sub get_fifo_list{
 		foreach my $actor (@merge_actors){		
 			my @sinkers =   get_all_dest_traces_of_actr ($self,$actor,'raw');
 				foreach my $sink (@sinkers){
-				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
+				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$chanel,$vc,$class
 					)=get_trace($self,'raw',$sink);				    
 				
 					$fifos{"${actor}_${dst_port}"}{'size'}=$buff_size;	
 					$fifos{"$actor"}{'file'}="$file_name";
-					$fifos{"${actor}_${dst_port}"}{'channel_num'}=$fifos{"${src}_${src_port}"}{'channel_num'};
+					$fifos{"${actor}_${dst_port}"}{'chanel_num'}=$fifos{"${src}_${src_port}"}{'chanel_num'};
 					
 					my $src_fifo_name= $self->object_get_attribute("locally_connected","${actor}_${dst_port}");
 		    		if (defined $src_fifo_name){
@@ -416,7 +416,7 @@ sub get_fifo_list{
 }
 
 
-sub get_dest_channel_from_orcc_file{
+sub get_dest_chanel_from_orcc_file{
 	my ($actor_file,$actor,$dst_port)=@_;
 	#print ("-------------------\n");
 	my $str = "${actor}_${dst_port}->read_inds\\s*\\[";
@@ -599,7 +599,7 @@ void ${actor}_init_actor (schedinfo_t * si) {
 		
 			#4- Where does it transffer?
 			foreach my $inject (@injectors) {
-				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
+				my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$chanel,$vc,$class
 				)=get_trace($self,'raw',$inject);				
 						
 				$vc= 0 if(!defined $vc);
@@ -614,7 +614,7 @@ void ${actor}_init_actor (schedinfo_t * si) {
 				
 				if($dst_tile eq $actor_tile){
 					# this trace is connected locally in one tile
-					#my $rr="\t\t${dst}_$dst_port->read_inds[$channel]= ${src}_${src_port}->write_ind;\n";
+					#my $rr="\t\t${dst}_$dst_port->read_inds[$chanel]= ${src}_${src_port}->write_ind;\n";
 					#$actor_local_connect=(defined $actor_local_connect)? $actor_local_connect.$rr:$rr;
 					next;					
 				}
@@ -623,7 +623,7 @@ void ${actor}_init_actor (schedinfo_t * si) {
 				#my ($net,$num,$name)=split(':',$actor);				
 				#print "dstp_number{$dst}{$dst_port}= $dstp_number{$dst}{$dst_port};\n";				
 				
-				my $srcportnum =  get_port_num($self,\%srcp_number,$src,$src_port,$channel);
+				my $srcportnum =  get_port_num($self,\%srcp_number,$src,$src_port,$chanel);
 				my $dstportnum =  get_port_num($self,\%dstp_number,$dst,$dst_port); 
 				
 		
@@ -637,7 +637,7 @@ void ${actor}_init_actor (schedinfo_t * si) {
 		
 		
 	
-				if($channel==0){			
+				if($chanel==0){			
 					$Hw_fifo_define=$Hw_fifo_define."	
 //	transfer ${src_port} port definitions:	
 #define ${src_port}_w  $init_weight
@@ -654,32 +654,32 @@ void ${actor}_init_actor (schedinfo_t * si) {
 				}
 	
 				$Hw_fifo_define=$Hw_fifo_define."
-// ${src_port} read channel ${channel}	definition
-#define ${src_port}_ch${channel}_dest_port_num $dstportnum  
-#define ${src_port}_ch${channel}_dest_phy_addr PHY_ADDR_ENDP_${dst_tile_id}
-#define ${src_port}_ch${channel}_src_port_num   $srcportnum
-#define ${src_port}_ch${channel}_start_index ${actor}_${src_port}->read_inds[$channel]
-#define ${src_port}_ch${channel}_start_index_in_byte ((${src_port}_ch${channel}_start_index % SIZE_${src_port}) << ${actor}_${src_port}_size_shift)
-#define ${src_port}_ch${channel}_has_data_to_send    (${src_port}_end_index > ${src_port}_ch${channel}_start_index)	
-#define ${src_port}_ch${channel}_data_to_send_size   (${src_port}_end_index - ${src_port}_ch${channel}_start_index)	
-#define ${src_port}_ch${channel}_send_data_size_in_byte   (${src_port}_ch${channel}_data_to_send_size << ${actor}_${src_port}_size_shift)
+// ${src_port} read chanel ${chanel}	definition
+#define ${src_port}_ch${chanel}_dest_port_num $dstportnum  
+#define ${src_port}_ch${chanel}_dest_phy_addr PHY_ADDR_ENDP_${dst_tile_id}
+#define ${src_port}_ch${chanel}_src_port_num   $srcportnum
+#define ${src_port}_ch${chanel}_start_index ${actor}_${src_port}->read_inds[$chanel]
+#define ${src_port}_ch${chanel}_start_index_in_byte ((${src_port}_ch${chanel}_start_index % SIZE_${src_port}) << ${actor}_${src_port}_size_shift)
+#define ${src_port}_ch${chanel}_has_data_to_send    (${src_port}_end_index > ${src_port}_ch${chanel}_start_index)	
+#define ${src_port}_ch${chanel}_data_to_send_size   (${src_port}_end_index - ${src_port}_ch${chanel}_start_index)	
+#define ${src_port}_ch${chanel}_send_data_size_in_byte   (${src_port}_ch${chanel}_data_to_send_size << ${actor}_${src_port}_size_shift)
  
 
-static unsigned int ${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in_byte;	
-static unsigned int ${src_port}_ch${channel}_send_data;
+static unsigned int ${src_port}_ch${chanel}_credit =  ${src_port}_queue_size_in_byte;	
+static unsigned int ${src_port}_ch${chanel}_send_data;
 ";
-#$actor_init.="\t${src_port}_ch${channel}_credit =  ${src_port}_queue_size_in_byte;\n";
+#$actor_init.="\t${src_port}_ch${chanel}_credit =  ${src_port}_queue_size_in_byte;\n";
 				
-				#$actor_init.="\t${actor}_${src_port}->read_inds[$channel]=0;\n";
+				#$actor_init.="\t${actor}_${src_port}->read_inds[$chanel]=0;\n";
 				
 				$transfer_str=$transfer_str."		
-	if(${src_port}_ch${channel}_has_data_to_send){
+	if(${src_port}_ch${chanel}_has_data_to_send){
 		// if the sent vc is not busy and the sent_done_isr is not asserted sent a new packet
 		if(${ni_name}_send_is_free(${src_port}_v) &&     (oport_array[${src_port}_v]==255) ){  //(${ni_name}_packet_is_sent(${src_port}_v)==0))        {	
 		
 			//ask NI to transfer the data   
-			if(transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_ch${channel}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
-			${src_port}_ch${channel}_start_index_in_byte, ${src_port}_ch${channel}_send_data_size_in_byte, ${src_port}_ch${channel}_dest_phy_addr, ${src_port}_ch${channel}_credit,${src_port}_ch${channel}_src_port_num, & ${src_port}_ch${channel}_send_data, & ${src_port}_ch${channel}_credit )){
+			if(transfer_manage (${src_port}_w, ${src_port}_v, ${src_port}_class_num,${src_port}_ch${chanel}_dest_port_num , ${src_port}_queue_pointer , ${src_port}_queue_size_in_byte, 
+			${src_port}_ch${chanel}_start_index_in_byte, ${src_port}_ch${chanel}_send_data_size_in_byte, ${src_port}_ch${chanel}_dest_phy_addr, ${src_port}_ch${chanel}_credit,${src_port}_ch${chanel}_src_port_num, & ${src_port}_ch${chanel}_send_data, & ${src_port}_ch${chanel}_credit )){
 							
 			}				
 		}//has data					 
@@ -688,11 +688,11 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 	
 				$actor_sent_pck_done_func=$actor_sent_pck_done_func."
 	
-	if(oport == ${src_port}_ch${channel}_src_port_num){ 
-		${src_port}_ch${channel}_start_index= ${src_port}_ch${channel}_start_index+ (${src_port}_ch${channel}_send_data>>${actor}_${src_port}_size_shift);			
+	if(oport == ${src_port}_ch${chanel}_src_port_num){ 
+		${src_port}_ch${chanel}_start_index= ${src_port}_ch${chanel}_start_index+ (${src_port}_ch${chanel}_send_data>>${actor}_${src_port}_size_shift);			
 		#ifdef ORCC_DEBUG_EN
-		if (${src_port}_ch${channel}_data_to_send_size >  SIZE_${src_port}){
-			printf (\"Error the waiting data in ${actor} ${src_port} quque (\%u) is larger than the queue size (\%u)\\n\",${src_port}_ch${channel}_data_to_send_size,SIZE_${src_port} );			  
+		if (${src_port}_ch${chanel}_data_to_send_size >  SIZE_${src_port}){
+			printf (\"Error the waiting data in ${actor} ${src_port} quque (\%u) is larger than the queue size (\%u)\\n\",${src_port}_ch${chanel}_data_to_send_size,SIZE_${src_port} );			  
 		}	
 		#endif
 		return 1;
@@ -701,11 +701,11 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 	";
 	
 				$actor_update_credit =$actor_update_credit."	
-	if( credit_port  == ${src_port}_ch${channel}_src_port_num){
-		${src_port}_ch${channel}_credit += (credit_value << ${actor}_${src_port}_size_shift); //credit value in byte
+	if( credit_port  == ${src_port}_ch${chanel}_src_port_num){
+		${src_port}_ch${chanel}_credit += (credit_value << ${actor}_${src_port}_size_shift); //credit value in byte
 		#ifdef ORCC_DEBUG_EN
-		if (${src_port}_ch${channel}_credit >  (SIZE_${src_port}    << ${actor}_${src_port}_size_shift    )){
-			printf (\"Error the credit counter in ${actor} ${src_port}_ch${channel} (\%u) is larger than the queue size (\%u)\\n\",${src_port}_ch${channel}_credit,SIZE_${src_port} );			  
+		if (${src_port}_ch${chanel}_credit >  (SIZE_${src_port}    << ${actor}_${src_port}_size_shift    )){
+			printf (\"Error the credit counter in ${actor} ${src_port}_ch${chanel} (\%u) is larger than the queue size (\%u)\\n\",${src_port}_ch${chanel}_credit,SIZE_${src_port} );			  
 		}	
 		#endif		
 		return 1;
@@ -720,18 +720,18 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 		#6-Where the packet comes from? we need to update the sender with the remaining credit 
 		my @sinkers =   get_all_dest_traces_of_actr ($self,$actor,'raw');
 		foreach my $sink (@sinkers){
-			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$chanel,$vc,$class
 				)=get_trace($self,'raw',$sink);
 						
-			my $dst_chnl =get_dest_channel_from_orcc_file($actor_file,$actor,$dst_port);	
+			my $dst_chnl =get_dest_chanel_from_orcc_file($actor_file,$actor,$dst_port);	
 					
-			my $srcportnum =  get_port_num($self,\%srcp_number,$src,$src_port,$channel); 
+			my $srcportnum =  get_port_num($self,\%srcp_number,$src,$src_port,$chanel); 
 			my $src_actor=$self->get_item_group_name('grouping',$src);
 			my $src_tile = get_task_give_tile($self,$src_actor);
 		    #my $src_tile_id=get_tile_id($self,$src);
 		    my $src_tile_id=tile_id_number($src_tile);
 		    	
-		    #print "my $srcportnum = get_port_num($self,\%srcp_number,$src,$src_port,$channel);\n";
+		    #print "my $srcportnum = get_port_num($self,\%srcp_number,$src,$src_port,$chanel);\n";
 				
 				if($src_tile eq $actor_tile){
 				
@@ -741,7 +741,7 @@ static unsigned int ${src_port}_ch${channel}_send_data;
 			if(!defined $srcportnum){				    
 				    print Dumper (\$self);
 					print Dumper (\%srcp_number);
-					print "my $srcportnum = get_port_num($self,\%srcp_number,$src,$src_port,$channel);\n";
+					print "my $srcportnum = get_port_num($self,\%srcp_number,$src,$src_port,$chanel);\n";
 					print "***********************fix me**********\n";
 					exit();					
 			}
@@ -1036,7 +1036,7 @@ extern volatile unsigned char oport_array [${ni_name}_NUM_VCs];
 	    	 		#}
 	    	 		
 	    	 		my $fnum  = $fifos{"$fifo_name"}{'fifo_num'};
-	    	 		my $ch_num= $fifos{"$fifo_name"}{'channel_num'};
+	    	 		my $ch_num= $fifos{"$fifo_name"}{'chanel_num'};
 	    	 		$ch_num =1  if(!defined $ch_num);
 	    	 		
 	    	 		my $src_fifo_name= $self->object_get_attribute("locally_connected","$fifo_name");
@@ -1264,7 +1264,7 @@ my $ni_isr='
 /*
 transfer_manage
 	w: initial weight
-	v: Virtual channel number
+	v: Virtual chanel number
 	class_num: message class number
 	dest_port: destination queue number
 	queue_pointer: address in byte
@@ -1531,7 +1531,7 @@ sub get_destport_constant_list{
 		#3- number each source port of this actor
 		foreach my $sink (@sinkers){
 			
-			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$chanel,$vc,$class
 				)=get_trace($self,$category,$sink);
 			
 			$destport_const{$actor}{$dst_port}= $i;
@@ -1559,10 +1559,10 @@ sub get_srcport_constant_list{
 		#3- number each source port of this actor
 		foreach my $inject (@injectors){
 			
-			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class
+			my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$chanel,$vc,$class
 				)=get_trace($self,$category,$inject);
 			
-			$srcport_const{$actor}{$src_port}{$channel}= $i;					
+			$srcport_const{$actor}{$src_port}{$chanel}= $i;					
 			$i++;
 		}
 	}	

@@ -21,7 +21,7 @@ MB_LIB1=${TOOLCHAIN}/lib/gcc/microblaze-xilinx-elf/4.1.1
 
 ELFFILE=image
 XILFLAGS=-mtune=v5.00 -mxl-soft-div -msoft-float -mxl-barrel-shift -mno-xl-soft-mul
-CXXFLAGS=-O1 
+CXXFLAGS=-O3 
 #LNKFLAGS=-Wl,-defsym -Wl,_STACK_SIZE=$(STACK_SIZE) -Wl,-defsym -Wl,_HEAP_SIZE=$(HEAP_SIZE)
 LIBFLAGS=
 INCFLAGS=-Icc/

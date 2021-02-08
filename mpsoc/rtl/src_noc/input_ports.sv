@@ -2,7 +2,7 @@
 //`define MONITORE_PATH
 
 /**********************************************************************
-**	File: input_ports.v
+**	File: input_ports.sv
 **    
 **	Copyright (C) 2014-2017  Alireza Monemi
 **    
@@ -28,38 +28,11 @@
 **
 **************************************************************/
 
-module input_ports
+module input_ports 
+		import pronoc_pkg::*; 	
  #(
-    parameter V = 4,     // vc_num_per_port
-    parameter P = 5,     // router port num
-    parameter B = 4,     // buffer space :flit per VC 
-    parameter T1= 8,
-    parameter T2= 8,
-    parameter T3= 8,
-    parameter T4= 8,
-    parameter RAw = 3,  
-    parameter EAw = 3,  
-    parameter C = 4,    //    number of flit class 
-    parameter Fpay = 32,
-    parameter COMBINATION_TYPE= "BASELINE",// "BASELINE", "COMB_SPEC1", "COMB_SPEC2", "COMB_NONSPEC"
-    parameter VC_REALLOCATION_TYPE = "ATOMIC",
-    parameter TOPOLOGY = "MESH",//"MESH","TORUS"
-    parameter ROUTE_NAME="XY",// "XY", "TRANC_XY"
-    parameter ROUTE_TYPE="DETERMINISTIC",// "DETERMINISTIC", "FULL_ADAPTIVE", "PAR_ADAPTIVE"
-    parameter DEBUG_EN = 1,
-    parameter AVC_ATOMIC_EN= 0,
-    parameter CVw=(C==0)? V : C * V,
-    parameter [CVw-1: 0] CLASS_SETTING = {CVw{1'b1}}, // shows how each class can use VCs   
-    parameter [V-1  : 0] ESCAP_VC_MASK = 4'b1000,  // mask scape vc, valid only for full adaptive
-    parameter DSTPw = P-1,
-    parameter SSA_EN="YES", // "YES" , "NO" 
-    parameter SWA_ARBITER_TYPE ="RRA",// "RRA","WRRA",
-    parameter WEIGHTw=4,
-    parameter WRRA_CONFIG_INDEX=0,
-    parameter PPSw=4,
-    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
-    parameter BYTE_EN=0
-)(
+	parameter P=5	
+ )(
     current_r_addr,
     neighbors_r_addr,
     ivc_num_getting_sw_grant,// for non spec ivc_num_getting_first_sw_grant,
@@ -74,6 +47,8 @@ module input_ports
     candidate_ovcs_all,
     flit_out_all,
     assigned_ovc_num_all,
+    assigned_ovc_not_full_all,
+    ovc_is_assigned_all,
     sel,
     port_pre_sel,
     swap_port_presel,
@@ -86,6 +61,7 @@ module input_ports
     oports_weight_all,
     granted_dest_port_all,
     refresh_w_counter,
+    ivc_info,
     reset,
     clk
 );
@@ -124,6 +100,8 @@ module input_ports
     output  [PVV-1 : 0] candidate_ovcs_all;
     output  [PFw-1 : 0] flit_out_all;
     input   [PVV-1 : 0] assigned_ovc_num_all;
+    input   [PV-1  : 0] assigned_ovc_not_full_all;
+    input   [PV-1  : 0] ovc_is_assigned_all;
     input   [PV-1 : 0] sel;
     input   [PPSw-1 : 0] port_pre_sel;
     input   [PV-1  : 0]  swap_port_presel;
@@ -135,6 +113,7 @@ module input_ports
     output  [P-1 : 0] iport_weight_is_consumed_all;
     input   [PP_1-1 : 0] granted_dest_port_all;
     output  [WPP-1 : 0] oports_weight_all;
+    output  ivc_info_t ivc_info [P-1 : 0][V-1 : 0]; 
    
     input refresh_w_counter;
     
@@ -146,36 +125,8 @@ generate
     input_queue_per_port
   // iport_reg_base
     #(
-        .V(V),
-        .P(P),
-        .B(B), 
-        .T1(T1),
-        .T2(T2),
-        .T3(T3),
-        .T4(T4),
-        .RAw(RAw),  
-        .EAw(EAw), 
-        .C(C),    
-        .Fpay(Fpay),    
-        .SW_LOC(i),    
-        .VC_REALLOCATION_TYPE(VC_REALLOCATION_TYPE),
-        .COMBINATION_TYPE(COMBINATION_TYPE),
-        .TOPOLOGY(TOPOLOGY),
-        .ROUTE_NAME(ROUTE_NAME),
-        .ROUTE_TYPE(ROUTE_TYPE),
-        .DEBUG_EN(DEBUG_EN),
-        .AVC_ATOMIC_EN(AVC_ATOMIC_EN),
-        .CVw(CVw),
-        .CLASS_SETTING(CLASS_SETTING),   
-        .ESCAP_VC_MASK(ESCAP_VC_MASK),
-        .DSTPw(DSTPw),
-        .SSA_EN(SSA_EN),
-        .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE), 
-        .WEIGHTw(WEIGHTw),
-        .WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
-        .PPSw(PPSw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE),
-        .BYTE_EN(BYTE_EN)
+    	.SW_LOC(i),
+    	.P(P)   	
     )
     the_input_queue_per_port
     (
@@ -193,6 +144,8 @@ generate
         .candidate_ovcs(candidate_ovcs_all [(i+1) * VV -1 : i*VV]),
         .flit_out(flit_out_all [(i+1)*Fw-1 : i*Fw]),
         .assigned_ovc_num(assigned_ovc_num_all [(i+1)*VV-1 : i*VV]),
+        .assigned_ovc_not_full(assigned_ovc_not_full_all [(i+1)*V-1 : i*V]), 
+        .ovc_is_assigned(ovc_is_assigned_all [(i+1)*V-1 : i*V]), 
         .sel(sel [(i+1)*V-1 : i*V]),
         .port_pre_sel(port_pre_sel),
         .swap_port_presel(swap_port_presel[(i+1)*V-1 : i*V]),
@@ -206,7 +159,8 @@ generate
         .vc_weight_is_consumed(vc_weight_is_consumed_all [(i+1)*V-1 : i*V]),
         .iport_weight_is_consumed(iport_weight_is_consumed_all[i]),
         .refresh_w_counter(refresh_w_counter),
-        .granted_dest_port(granted_dest_port_all[(i+1)*P_1-1 : i*P_1])        
+        .granted_dest_port(granted_dest_port_all[(i+1)*P_1-1 : i*P_1]),
+        .ivc_info(ivc_info[i])
     );
     
     end//for      
@@ -221,38 +175,11 @@ endmodule
 
 **************************/
 
-module input_queue_per_port  #(
-    parameter V = 4,     // vc_num_per_port
+module input_queue_per_port 
+		import pronoc_pkg::*; 	
+#(
     parameter P = 5,     // router port num
-    parameter B = 4,     // buffer space :flit per VC 
-    parameter T1= 8,
-    parameter T2= 8,
-    parameter T3= 8,
-    parameter T4= 8,
-    parameter RAw = 3,  
-    parameter EAw = 3,  
-    parameter C = 4,    //    number of flit class 
-    parameter Fpay = 32,
-    parameter SW_LOC = 0,
-    parameter VC_REALLOCATION_TYPE =  "ATOMIC",
-    parameter COMBINATION_TYPE= "BASELINE",// "BASELINE", "COMB_SPEC1", "COMB_SPEC2", "COMB_NONSPEC"
-    parameter TOPOLOGY =  "MESH",//"MESH","TORUS"
-    parameter ROUTE_NAME="XY",// "XY", "TRANC_XY"
-    parameter ROUTE_TYPE="DETERMINISTIC",// "DETERMINISTIC", "FULL_ADAPTIVE", "PAR_ADAPTIVE"
-    parameter DEBUG_EN =1,
-    parameter AVC_ATOMIC_EN= 0,
-    parameter CVw=(C==0)? V : C * V,
-    parameter [CVw-1: 0] CLASS_SETTING = {CVw{1'b1}}, // shows how each class can use VCs   
-    parameter [V-1  : 0] ESCAP_VC_MASK = 4'b1000,  // mask scape vc, valid only for full adaptive
-    parameter DSTPw = P-1,
-    parameter SSA_EN="YES", // "YES" , "NO"      
-    parameter SWA_ARBITER_TYPE ="RRA",// "RRA","WRRA"
-    parameter WEIGHTw=4,
-    parameter WRRA_CONFIG_INDEX=0,
-    parameter PPSw=4,
-    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
-    parameter BYTE_EN=0
-
+    parameter SW_LOC = 0
 )(
     current_r_addr,
     neighbors_r_addr,
@@ -268,6 +195,8 @@ module input_queue_per_port  #(
     candidate_ovcs,
     flit_out,
     assigned_ovc_num,
+    assigned_ovc_not_full,
+    ovc_is_assigned,
     sel,
     port_pre_sel,
     swap_port_presel,
@@ -281,7 +210,9 @@ module input_queue_per_port  #(
     vc_weight_is_consumed,
     iport_weight_is_consumed,
     refresh_w_counter,
-    granted_dest_port    
+    granted_dest_port,
+    ivc_info
+    
 );
 
  
@@ -298,8 +229,8 @@ module input_queue_per_port  #(
     localparam
         VV = V * V,
         VDSTPw = V * DSTPw,
-        Cw = (C>1)? log2(C): 1,
-        Fw = 2+V+Fpay,   //flit width;    
+        //Cw = (C>1)? log2(C): 1,
+       // Fw = 2+V+Fpay,   //flit width;    
         W = WEIGHTw,
         WP = W * P,
         P_1=P-1,
@@ -333,6 +264,8 @@ module input_queue_per_port  #(
     output  [VV-1 : 0] candidate_ovcs;
     output  [Fw-1 : 0] flit_out;
     input   [VV-1 : 0] assigned_ovc_num;
+    input   [V-1  : 0] assigned_ovc_not_full;
+    input   [V-1  : 0] ovc_is_assigned;
     input   [V-1 : 0] sel;    
     input   [V-1 : 0] nonspec_first_arbiter_granted_ivc;
     input   [V-1 : 0] ssa_ivc_num_getting_sw_grant;    
@@ -346,6 +279,7 @@ module input_queue_per_port  #(
     input   [PPSw-1 : 0] port_pre_sel;
     input   [V-1  : 0]  swap_port_presel;
   
+    output  ivc_info_t ivc_info [V-1 : 0]; 
             
     
     wire [Cw-1 : 0] class_in;
@@ -494,10 +428,34 @@ generate
     end
 
 
-      wire odd_column = current_r_addr[0]; 
-
+	wire odd_column = current_r_addr[0]; 
+	wire [P-1 : 0] destport_one_hot [V-1 :0];
+      
     for (i=0;i<V; i=i+1) begin: V_loop
+    	
+    	one_hot_to_bin #(.ONE_HOT_WIDTH(V),.BIN_WIDTH(Vw)) conv (
+			.one_hot_code(assigned_ovc_num[(i+1)*V-1 : i*V]), 
+			.bin_code(ivc_info[i].assigned_ovc_bin)
+    	);	
+    	
         
+    	assign ivc_info[i].ivc_req = ivc_request[i];
+    	assign ivc_info[i].class_num = class_out[i];
+    	assign ivc_info[i].flit_is_tail = flit_is_tail[i];
+    	assign ivc_info[i].assigned_ovc_not_full=assigned_ovc_not_full[i];
+    	assign ivc_info[i].candidate_ovc=   candidate_ovcs [(i+1)*V-1 : i*V];
+    	assign ivc_info[i].ovc_is_assigned = ovc_is_assigned[i];
+    	assign ivc_info[i].assigned_ovc_num= assigned_ovc_num[(i+1)*V-1 : i*V];
+    	assign ivc_info[i].getting_swa_first_arbiter_grant=nonspec_first_arbiter_granted_ivc[i];
+    	assign ivc_info[i].getting_swa_grant=ivc_num_getting_sw_grant[i];
+    	if(P==MAX_P) begin :b1
+    		assign ivc_info[i].destport_one_hot= destport_one_hot[i];
+    	end else begin 
+    		assign ivc_info[i].destport_one_hot= {{(MAX_P-P){1'b0}},destport_one_hot[i]};
+    	end	
+    	
+    	
+    	
         class_ovc_table #(
             .CVw(CVw),
             .CLASS_SETTING(CLASS_SETTING),   
@@ -529,7 +487,34 @@ generate
             .reset (reset),
             .clk (clk)            
         );
-    
+    	
+        //dest_e_addr_in fifo
+        if(SBP_EN) begin : sbp_
+        	
+			fwft_fifo #(
+        		.DATA_WIDTH(EAw),
+        		.MAX_DEPTH (MAX_PCK)
+			)
+			dest_e_addr_fifo
+			(
+				.din (dest_e_addr_in),
+        		.wr_en (hdr_flit_wr[i]),   // Write enable
+        		.rd_en (dst_rd_fifo[i]),   // Read the next word
+        		.dout (ivc_info[i].dest_e_addr),    // Data out
+        		.full ( ),
+        		.nearly_full ( ),
+        		.recieve_more_than_0 ( ),
+        		.recieve_more_than_1 ( ),
+        		.reset (reset),
+        		.clk (clk)            
+        		);   	
+        	
+        end	else begin 
+        	assign ivc_info[i].dest_e_addr = {EAw{1'bx}};
+        end	
+        
+    	
+    	
         //class_fifo
         if(C>1)begin :cb1
             fwft_fifo #(
@@ -636,7 +621,8 @@ generate
         )
         decoder
         (
-            .dest_port_encoded(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),             
+        	.destport_one_hot (destport_one_hot[i]),
+        	.dest_port_encoded(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),             
             .dest_port_out(dest_port[(i+1)*P_1-1 : i*P_1]),   
             .endp_localp_num(endp_localp_num[(i+1)*ELw-1 : i*ELw]),
             .swap_port_presel(swap_port_presel[i]),
@@ -752,8 +738,8 @@ generate
         the_flit_buffer
         (
             .din(flit_in),     // Data in
-            .vc_num_wr(vc_num_in),//write vertual channel   
-            .vc_num_rd(nonspec_first_arbiter_granted_ivc),//read vertual channel     
+            .vc_num_wr(vc_num_in),//write virtual channel   
+            .vc_num_rd(nonspec_first_arbiter_granted_ivc),//read virtual channel     
             .wr_en(flit_in_wr),   // Write enable
             .rd_en(any_ivc_sw_request_granted),     // Read the next word
             .dout(buffer_out),    // Data out
@@ -776,8 +762,8 @@ generate
         the_flit_buffer
         (
             .din(flit_in),     // Data in
-            .vc_num_wr(vc_num_in),//write vertual channel   
-            .vc_num_rd(ivc_num_getting_sw_grant),//read vertual channel     
+            .vc_num_wr(vc_num_in),//write vertual chanel   
+            .vc_num_rd(ivc_num_getting_sw_grant),//read vertual chanel     
             .wr_en(flit_in_wr),   // Write enable
             .rd_en(any_ivc_sw_request_granted),     // Read the next word
             .dout(buffer_out),    // Data out
@@ -860,6 +846,7 @@ endgenerate
     assign    class_rd_fifo = (C>1)? reset_ivc : {V{1'bx}};
     assign    ivc_request = ivc_not_empty;    
 
+   
 //synthesis translate_off
 //synopsys  translate_off
 generate 
@@ -927,7 +914,7 @@ endmodule
 
 
 
-// decode and mask the destintaion port according to routing algorithm and topology
+// decode and mask the destination port according to routing algorithm and topology
 module destp_generator #(
     parameter TOPOLOGY="MESH",
     parameter ROUTE_NAME="XY",
@@ -942,7 +929,8 @@ module destp_generator #(
     
 )
 (
-    dest_port_encoded,             
+	destport_one_hot,
+	dest_port_encoded,             
     dest_port_out,   
     endp_localp_num,
     swap_port_presel,
@@ -953,7 +941,8 @@ module destp_generator #(
     localparam P_1= P-1;
     input [DSTPw-1 : 0]  dest_port_encoded;             
     input [ELw-1 : 0] endp_localp_num;
-    output [P_1-1: 0] dest_port_out;    
+    output [P_1-1: 0] dest_port_out;  
+    output [P-1 : 0] destport_one_hot;
     input             swap_port_presel;
     input  [PPSw-1 : 0] port_pre_sel;
     input odd_column;
@@ -1026,6 +1015,19 @@ module destp_generator #(
         );    
     end
     endgenerate
+    
+    add_sw_loc_one_hot #(
+    	.P(P),
+    	.SW_LOC(SW_LOC)    
+    )add
+    (
+    	.destport_in(dest_port_out),
+    	.destport_out(destport_one_hot)
+    );
+    
+    
+    
+    
 endmodule
 
 /******************

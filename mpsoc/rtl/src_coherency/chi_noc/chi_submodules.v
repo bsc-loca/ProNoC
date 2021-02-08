@@ -1546,8 +1546,8 @@ endmodule // fifo
 
 
 
-// if two concurrent write to both channels happens,
-// first channel is written in wr pointer and seond channel writes in wr pointer+1
+// if two concurrent write to both chanels happens,
+// first chanel is written in wr pointer and seond chanel writes in wr pointer+1
 module fifo_two_wr_port #(
     parameter Dw = 72,//data_width
     parameter SDw = 5, //if bigger than 0 then the first SDw are sent to sdout like  fwft_fifo 
@@ -1561,7 +1561,7 @@ module fifo_two_wr_port #(
     wr_en2, 
    
     full,
-    nearly_full,// nearly full should be used to perevent wr if both channel atempt to wr at the same time
+    nearly_full,// nearly full should be used to perevent wr if both chanel atempt to wr at the same time
     
     rd_en, 
     dout, 

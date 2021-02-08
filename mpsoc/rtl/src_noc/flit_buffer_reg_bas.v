@@ -51,11 +51,11 @@ module  flit_buffer_reg_base #(
         VDSTPw     =   V * DSTPw;
 
     input  [Fw-1      :0]   din;     // Data in    
-    input  [V-1       :0]   vc_num_wr;//write vertual channel   
+    input  [V-1       :0]   vc_num_wr;//write vertual chanel   
     input                   wr_en;   // Write enable
     
        
-    input  [V-1       :0]   vc_num_rd;//read vertual channel    
+    input  [V-1       :0]   vc_num_rd;//read vertual chanel    
     input                   rd_en;   // Read the next word
     
     

@@ -46,7 +46,7 @@ use constant MAX_SIM_CLKs=> 1000000000; # simulation end at if clock counter rea
 
           
 use constant MAX_RATIO => 1000;# 0->0 1->0.1 ...  1000->100
-use constant EMULATION_RTLS => "/mpsoc/rtl/src_emulate/rtl/ , /mpsoc/rtl/src_peripheral/jtag/jtag_wb/ , /mpsoc/rtl/src_peripheral/ram/ , /mpsoc/rtl/src_noc/ ,";
+
 use constant EMULATION_TOP => "/mpsoc/rtl/src_emulate/emulator_top.v";
 
 
@@ -817,7 +817,15 @@ sub generate_sof_file {
 	}
 
 	#copy all noc source codes
-	my @files = split(/\s*,\s*/,EMULATION_RTLS);
+	my @files = (
+'/mpsoc/rtl/src_emulate/rtl/', 
+'/mpsoc/rtl/src_peripheral/jtag/jtag_wb/', 
+'/mpsoc/rtl/src_peripheral/ram/',
+'/mpsoc/rtl/main_comp.v',
+'/mpsoc/rtl/arbiter.v',
+'/mpsoc/rtl/src_topolgy/',
+'/mpsoc/rtl/src_noc/');
+
 	my $dir = Cwd::getcwd();
 	my $project_dir	  = abs_path("$dir/../../");
 	my ($stdout,$exit)=run_cmd_in_back_ground_get_stdout("mkdir -p $target_dir/src_verilog" );
@@ -825,15 +833,8 @@ sub generate_sof_file {
 	
 
 	#generate parameters for emulator_top.v file
-	my ($localparam, $pass_param)=gen_noc_param_v( $self);
-	open(FILE,  ">$target_dir/src_verilog/noc_parameters.v") || die "Can not open: $!";
-	print FILE $localparam;
-	close(FILE) || die "Error closing file: $!";
-	open(FILE,  ">$target_dir/src_verilog/pass_parameters.v") || die "Can not open: $!";
-	print FILE $pass_param;
-	my $fifow=$self->object_get_attribute('fpga_param','TIMSTMP_FIFO_NUM');
-	print FILE ",.TIMSTMP_FIFO_NUM($fifow)\n";
-	close(FILE) || die "Error closing file: $!";
+	gen_noc_localparam_v_file($self,"$target_dir/src_verilog/lib/src_noc/");
+	
 	open(FILE,  ">$top") || die "Can not open: $!";
 	print FILE create_emulate_top($self,$name,$top);
 	close(FILE) || die "Error closing file: $!";
@@ -866,9 +867,7 @@ module ${name}_top(
 		DONE_RESET_VJTAG_INDEX=127;
 				
 
-	//NoC parameters will be defined by user
-	`define NOC_PARAM
-	`include \"noc_parameters.v\"
+	
  	
 	wire  reset_noc, reset_injector, reset_noc_sync, reset_injector_sync, done;
 	wire jtag_reset_injector, jtag_reset_noc;
@@ -912,10 +911,8 @@ module ${name}_top(
 	//noc emulator
 	
 	noc_emulator #(
-	.STATISTIC_VJTAG_INDEX(STATISTIC_VJTAG_INDEX),  
-	.PATTERN_VJTAG_INDEX(PATTERN_VJTAG_INDEX),
-	`include \"pass_parameters.v\"
-		 
+		.STATISTIC_VJTAG_INDEX(STATISTIC_VJTAG_INDEX),  
+		.PATTERN_VJTAG_INDEX(PATTERN_VJTAG_INDEX)		 
 	)
 	noc_emulate_top
 	(
@@ -1134,25 +1131,39 @@ sub gen_sim_parameter_h {
 	return $text;	
 }	
 
-sub gen_vrouter_param_v {
-	my ($simulate,$src_verilog_dr)=@_;
-	# generate NoC parameter file
-	my ($noc_param,$pass_param)=gen_noc_param_v($simulate);
-	open(FILE,  ">$src_verilog_dr/noc_localparam.v") || die "Can not open: $!";
+sub gen_noc_sim_param {
+	my $simulate=shift;
 	my $fifow=$simulate->object_get_attribute('fpga_param','TIMSTMP_FIFO_NUM');
-
-
-
-	print FILE  " \`ifdef   NOC_LOCAL_PARAM \n \n 
-	$noc_param  
 	
+	$fifow= '16' if (!defined $fifow);
+	
+	return "
 	//simulation parameter	
-	localparam MAX_RATIO = ".MAX_RATIO.";
+	//localparam MAX_RATIO = ".MAX_RATIO.";
 	localparam MAX_PCK_NUM = ".MAX_SIM_CLKs.";
 	localparam MAX_PCK_SIZ = ".MAX_PCK_SIZ."; 
 	localparam MAX_SIM_CLKs=  ".MAX_SIM_CLKs.";
 	localparam TIMSTMP_FIFO_NUM = $fifow;	
-\n \n \`endif" ; 
+	";
+	
+}
+
+
+sub gen_noc_localparam_v_file {
+	my ($self,$dst_path)=@_;
+	# generate NoC parameter file
+	my ($noc_param,$pass_param)=gen_noc_param_v($self);
+	my $header=autogen_warning().get_license_header("noc_localparam.v");
+	open(FILE,  ">${dst_path}/noc_localparam.v") || die "Can not open: $!";
+	my $sim =gen_noc_sim_param($self);
+	print FILE  "$header
+	
+	\`ifdef   NOC_LOCAL_PARAM \n \n 
+	$noc_param  
+	
+	$sim
+		
+\n \n \`endif"; 
 	close FILE;	
 }
 

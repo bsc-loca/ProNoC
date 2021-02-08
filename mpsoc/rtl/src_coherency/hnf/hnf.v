@@ -57,7 +57,7 @@ module  hnf #(
     
     
     //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id ; // we are not supporting braod casting on snoop chanel so need target ID
     chi_noc_txsnpflitpend,
     chi_noc_txsnpflitv,
     chi_noc_txsnpflit,
@@ -138,7 +138,7 @@ module  hnf #(
     
     
     //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id ; // we are not supporting braod casting on snoop chanel so need target ID
     output    chi_noc_txsnpflitpend ;
     output    chi_noc_txsnpflitv ;
     output   [SNP_FLIT_SIZE-1:0]    chi_noc_txsnpflit ;
@@ -154,7 +154,7 @@ module  hnf #(
    
    
    
-   //snoop-filter read channel
+   //snoop-filter read chanel
     wire [ADDR_REQ-1 : 0] rxreq_to_snpf_rd_addr;
     wire rxreq_to_snpf_rd_en;
     wire [SNPF_SPVw-1 : 0] snpf_to_rxreq_spv;
@@ -163,7 +163,7 @@ module  hnf #(
     wire snpf_to_rxreq_rd_hit;
     wire snpf_to_rxreq_rd_done;
     
-    // snoop-filter write channel
+    // snoop-filter write chanel
     wire [SNPF_ADDRw-1 : 0] rxreq_to_snpf_wr_addr;
     wire rxreq_to_snpf_wr_en;
     wire rxreq_to_snpf_wr_evict;
@@ -197,7 +197,7 @@ module  hnf #(
     wire snpf_to_rxrsp_wr_done;   
        
     
-    //cache read-channel
+    //cache read-chanel
     wire [ADDR_REQ-1 : 0] rxreq_to_cache_rd_addr;
     wire  [DATA_DAT-1 : 0] cache_to_rxreq_rd_data;
     wire rxreq_to_cache_rd_en;
@@ -438,7 +438,7 @@ module  hnf #(
    	.noc_chi_rxreqflit(noc_chi_rxreqflit),
    	.chi_noc_rxreqlcrdv(chi_noc_rxreqlcrdv),
    	
-   	//snfp rd channel
+   	//snfp rd chanel
    	.rxreq_to_snpf_rd_addr(rxreq_to_snpf_rd_addr),
    	.rxreq_to_snpf_rd_en(rxreq_to_snpf_rd_en),
    	.snpf_to_rxreq_rd_spv(snpf_to_rxreq_spv),
@@ -449,7 +449,7 @@ module  hnf #(
    	.snpf_to_rxreq_rd_busy_bit(snpf_to_rxreq_rd_busy_bit),
    	.snpf_to_rxreq_rd_cnt_acpt_new(snpf_to_rxreq_rd_cnt_acpt_new),
    	
-   	//snpf wr channel
+   	//snpf wr chanel
    	.rxreq_to_snpf_wr_addr(rxreq_to_snpf_wr_addr),
     .rxreq_to_snpf_wr_en(rxreq_to_snpf_wr_en),
     .rxreq_to_snpf_wr_evict(rxreq_to_snpf_wr_evict),
@@ -1128,10 +1128,10 @@ module  hnf #(
     //synopsys  translate_off
     always @(posedge clk)begin 
         if((VERBOSITY & MONITORE_FLIT_INJECT) > 0) begin 
-            if(noc_chi_rxrspflitv) $display("%t: hnf ( %d ) rsp channel has recived a packet:%h",$time,src_id,noc_chi_rxrspflit);
-            if(noc_chi_rxdatflitv) $display("%t: hnf ( %d ) dat channel has recived a packet:%h",$time,src_id,noc_chi_rxdatflit);
-            if(noc_chi_rxreqflitv) $display("%t: hnf ( %d ) req channel has recived a packet:%h",$time,src_id,noc_chi_rxreqflit);
-            if(noc_chi_rxsnpflitv) $display("%t: hnf ( %d ) snp channel has recived a packet:%h",$time,src_id,noc_chi_rxsnpflit);
+            if(noc_chi_rxrspflitv) $display("%t: hnf ( %d ) rsp chanel has recived a packet:%h",$time,src_id,noc_chi_rxrspflit);
+            if(noc_chi_rxdatflitv) $display("%t: hnf ( %d ) dat chanel has recived a packet:%h",$time,src_id,noc_chi_rxdatflit);
+            if(noc_chi_rxreqflitv) $display("%t: hnf ( %d ) req chanel has recived a packet:%h",$time,src_id,noc_chi_rxreqflit);
+            if(noc_chi_rxsnpflitv) $display("%t: hnf ( %d ) snp chanel has recived a packet:%h",$time,src_id,noc_chi_rxsnpflit);
         end            
     end
      //synthesis translate_on 
@@ -1143,10 +1143,10 @@ module  hnf #(
     //synopsys  translate_off
     always @(posedge clk)begin 
         if((VERBOSITY & MONITORE_FLIT_INJECT) > 0) begin 
-            if(chi_noc_txrspflitv) $display("%t: hnf ( %d ) rsp channel has sent a packet:%h",$time,src_id,chi_noc_txrspflit);
-            if(chi_noc_txdatflitv) $display("%t: hnf ( %d ) dat channel has sent a packet:%h",$time,src_id,chi_noc_txdatflit);
-            if(chi_noc_txreqflitv) $display("%t: hnf ( %d ) req channel has sent a packet:%h",$time,src_id,chi_noc_txreqflit);
-            if(chi_noc_txsnpflitv) $display("%t: hnf ( %d ) snp channel has sent a packet:%h",$time,src_id,chi_noc_txsnpflit);
+            if(chi_noc_txrspflitv) $display("%t: hnf ( %d ) rsp chanel has sent a packet:%h",$time,src_id,chi_noc_txrspflit);
+            if(chi_noc_txdatflitv) $display("%t: hnf ( %d ) dat chanel has sent a packet:%h",$time,src_id,chi_noc_txdatflit);
+            if(chi_noc_txreqflitv) $display("%t: hnf ( %d ) req chanel has sent a packet:%h",$time,src_id,chi_noc_txreqflit);
+            if(chi_noc_txsnpflitv) $display("%t: hnf ( %d ) snp chanel has sent a packet:%h",$time,src_id,chi_noc_txsnpflit);
         end            
     end
      //synthesis translate_on 

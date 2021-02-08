@@ -9,10 +9,10 @@
 
 module  chi_noc_old #(
     
-   // parameter MAP_CHI_CHANNEL_ON= "VC", 
+   // parameter MAP_CHI_chanel_ON= "VC", 
     /*
-    "VC"= map each CHI channel on one Virtual channel. Only one channel can send a flit at each clock cycle
-    "PHY" map each CHI channel in a seperate physical NoC
+    "VC"= map each CHI chanel on one Virtual chanel. Only one chanel can send a flit at each clock cycle
+    "PHY" map each CHI chanel in a seperate physical NoC
     */
     parameter B = 4,     // buffer space :flit per VC 
     parameter TOPOLOGY= "MESH",     
@@ -50,7 +50,7 @@ module  chi_noc_old #(
     
     
     //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop chanel so need target ID
     chi_noc_txsnpflitpend_all,
     chi_noc_txsnpflitv_all,
     chi_noc_txsnpflit_all,
@@ -138,7 +138,7 @@ module  chi_noc_old #(
     
     
       //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop chanel so need target ID
     input   [NE-1 : 0] chi_noc_txsnpflitpend_all ;
     input   [NE-1 : 0] chi_noc_txsnpflitv_all ;
     input   [SNP_FLIT_SIZE_NE-1:0]    chi_noc_txsnpflit_all ;
@@ -172,7 +172,7 @@ module  chi_noc_old #(
         PRONOC_SNP_Fw = PRONOC_OFFSEET + SNP_FLIT_SIZE + 3;      
         
         
-    //request channel IO
+    //request chanel IO
     wire [PRONOC_REQ_Fw * NE-1 : 0] req_flit_out_all;
     wire [PRONOC_REQ_Fw-1 : 0] req_flit_out [NE-1 : 0];
     wire [NE-1 : 0] req_flit_out_wr_all;
@@ -182,7 +182,7 @@ module  chi_noc_old #(
     wire [NE-1 : 0] req_flit_in_wr_all;  
     wire [NE-1 : 0] req_credit_out_all;
     
-    //data channel IO
+    //data chanel IO
     wire [PRONOC_DAT_Fw * NE -1 : 0] dat_flit_out_all;
     wire [PRONOC_DAT_Fw-1 : 0] dat_flit_out [NE-1 : 0];
     wire [NE-1 : 0] dat_flit_out_wr_all;
@@ -192,7 +192,7 @@ module  chi_noc_old #(
     wire [NE-1 : 0] dat_flit_in_wr_all;  
     wire [NE-1 : 0] dat_credit_out_all;
 
-    //Response channel IO
+    //Response chanel IO
     wire [PRONOC_RSP_Fw * NE-1 : 0] rsp_flit_out_all;
     wire [PRONOC_RSP_Fw-1 : 0] rsp_flit_out [NE-1 : 0];
     wire [NE-1 : 0] rsp_flit_out_wr_all;
@@ -202,7 +202,7 @@ module  chi_noc_old #(
     wire [NE-1 : 0] rsp_flit_in_wr_all;  
     wire [NE-1 : 0] rsp_credit_out_all;
 
-    //snoop channel IO
+    //snoop chanel IO
     wire [PRONOC_SNP_Fw * NE-1 : 0] snp_flit_out_all;
     wire [PRONOC_SNP_Fw-1 : 0] snp_flit_out [NE-1 : 0];
     wire [NE-1 : 0] snp_flit_out_wr_all;

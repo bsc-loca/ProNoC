@@ -136,7 +136,7 @@ module ni_vc_wb_slave_regs #(
                 2  :   SEND_DEST_WB_ADDR           // The destination router address
                 3  :   SEND_POINTER_WB_ADDR,       // The address of data to be sent in byte 
  Virtual        4  :   SEND_DATA_SIZE_WB_ADDR,     // The size of data to be sent in byte  
- channel        5  :   SEND_HDR_DATA_WB_ADDR       //  The header data address
+ chanel        5  :   SEND_HDR_DATA_WB_ADDR       //  The header data address
  number        
                 8  :   RECEIVE_SRC_WB_ADDR       // The source router (the router which is sent this packet).
                 9  :   RECEIVE_POINTER_WB_ADDR      // The address pointer of receiver memory in byte

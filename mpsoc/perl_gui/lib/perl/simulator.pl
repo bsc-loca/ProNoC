@@ -105,7 +105,7 @@ sub generate_sim_bin_file {
 	#my ($noc_param,$pass_param)=gen_noc_param_v($simulate);
 	#open(FILE,  ">$target_verilog_dr/parameter.v") || die "Can not open: $!";
 	my $fifow=$simulate->object_get_attribute('fpga_param','TIMSTMP_FIFO_NUM');
-	gen_vrouter_param_v($simulate,"$target_verilog_dr/src_noc");
+	gen_noc_localparam_v_file($simulate,"$target_verilog_dr/src_noc");
 
 	#generate routers with different port num		
 	my $cpu_num = $simulate->object_get_attribute('compile', 'cpu_num');

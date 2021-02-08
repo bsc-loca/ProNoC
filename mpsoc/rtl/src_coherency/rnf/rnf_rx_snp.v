@@ -7,13 +7,13 @@ module  rnf_rx_snp #(
 )(
     src_id,
      
-    //chi channel
+    //chi chanel
     noc_chi_rxsnpflitpend,
     noc_chi_rxsnpflitv,
     noc_chi_rxsnpflit,
     chi_noc_rxsnplcrdv,   
      
-    //cache read-channel
+    //cache read-chanel
     rxsnp_to_cache_rd_addr,
     cache_to_rxsnp_rd_data,
     rxsnp_to_cache_rd_en,
@@ -23,7 +23,7 @@ module  rnf_rx_snp #(
     cache_to_rxsnp_rd_done,
     
     
-    //cache write channel    
+    //cache write chanel    
     rxsnp_to_cache_wr_addr,
     rxsnp_to_cache_wr_data,
     rxsnp_to_cache_wr_evict,
@@ -67,7 +67,7 @@ module  rnf_rx_snp #(
     
     input reset,clk;
     
-    //CHI channel
+    //CHI chanel
     input    noc_chi_rxsnpflitpend ;
     input    noc_chi_rxsnpflitv ;
     input   [SNP_FLIT_SIZE-1:0]    noc_chi_rxsnpflit ;
@@ -301,7 +301,7 @@ module  rnf_rx_snp #(
                             rxsnp_to_cache_wr_en = 1'b1;
                         end
                     end else begin
-                        if(txrsp_to_rxsnp_ready & txdat_to_rxsnp_ready & cache_to_rxsnp_wr_ready) begin  //both channels are ready        
+                        if(txrsp_to_rxsnp_ready & txdat_to_rxsnp_ready & cache_to_rxsnp_wr_ready) begin  //both chanels are ready        
                              txdat_cmd =  DAT_CompData_SC;  
                              txrsp_cmd =  RSP_SnpResp_SC_Fwded_SC;
                              rxsnp_to_cache_wr_en = 1'b1;
@@ -721,21 +721,21 @@ module  rnf_rx_snp #(
         
         
         case(txdat_cmd)
-        DAT_CompData_SC:        $display("%t: rnf ( %d ) txn ( %d ) sends CompData_SC to DAT channel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
-        DAT_SnpRespData_SC:     $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_SC to DAT channel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
-        DAT_SnpRespData_I:      $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_I to DAT channel for adrr ( %d ) to core ( %d ).",$time,src_id,txnid,addr,rxsnp_to_txdat_tgtid);
-        DAT_SnpRespData_SC_PD:  $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_SC_PD to DAT channel for adrr ( %d ) to core ( %d ).",$time,src_id,txnid,addr,rxsnp_to_txdat_tgtid);
-        DAT_SnpRespData_SC_Fwded_SC: $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_SC_Fwded_SC to DAT channel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
-        DAT_SnpRespData_SC_PD_Fwded_SC: $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_SC_PD_Fwded_SC to DAT channel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
-        DAT_SnpRespDataPtl_I_PD: $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespDataPtl_I_PD to DAT channel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
-        DAT_SnpRespData_I_PD:   $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_I_PD to DAT channel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
+        DAT_CompData_SC:        $display("%t: rnf ( %d ) txn ( %d ) sends CompData_SC to DAT chanel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
+        DAT_SnpRespData_SC:     $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_SC to DAT chanel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
+        DAT_SnpRespData_I:      $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_I to DAT chanel for adrr ( %d ) to core ( %d ).",$time,src_id,txnid,addr,rxsnp_to_txdat_tgtid);
+        DAT_SnpRespData_SC_PD:  $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_SC_PD to DAT chanel for adrr ( %d ) to core ( %d ).",$time,src_id,txnid,addr,rxsnp_to_txdat_tgtid);
+        DAT_SnpRespData_SC_Fwded_SC: $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_SC_Fwded_SC to DAT chanel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
+        DAT_SnpRespData_SC_PD_Fwded_SC: $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_SC_PD_Fwded_SC to DAT chanel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
+        DAT_SnpRespDataPtl_I_PD: $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespDataPtl_I_PD to DAT chanel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
+        DAT_SnpRespData_I_PD:   $display("%t: rnf ( %d ) txn ( %d ) sends SnpRespData_I_PD to DAT chanel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txdat_tgtid);
         endcase       
     
          
         case(txrsp_cmd)
-        RSP_SnpResp_I:              $display("%t: rnf ( %d ) txn ( %d ) sends SnpResp_I to RSP channel for addr ( %d ) to core ( %d )",$time,src_id,txnid,addr,rxsnp_to_txrsp_tgtid);
-        RSP_SnpResp_SC:             $display("%t: rnf ( %d ) txn ( %d ) sends SnpResp_SC to RSP channel for addr ( %d ) to core ( %d )",$time,src_id,txnid,addr,rxsnp_to_txrsp_tgtid);
-        RSP_SnpResp_SC_Fwded_SC:    $display("%t: rnf ( %d ) txn ( %d ) sends SnpResp_SC_Fwded_SC to RSP channel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txrsp_tgtid);
+        RSP_SnpResp_I:              $display("%t: rnf ( %d ) txn ( %d ) sends SnpResp_I to RSP chanel for addr ( %d ) to core ( %d )",$time,src_id,txnid,addr,rxsnp_to_txrsp_tgtid);
+        RSP_SnpResp_SC:             $display("%t: rnf ( %d ) txn ( %d ) sends SnpResp_SC to RSP chanel for addr ( %d ) to core ( %d )",$time,src_id,txnid,addr,rxsnp_to_txrsp_tgtid);
+        RSP_SnpResp_SC_Fwded_SC:    $display("%t: rnf ( %d ) txn ( %d ) sends SnpResp_SC_Fwded_SC to RSP chanel to core ( %d ).",$time,src_id,txnid,rxsnp_to_txrsp_tgtid);
         endcase
               
               

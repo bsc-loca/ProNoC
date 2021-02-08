@@ -26,38 +26,10 @@
 **
 **************************************************************/
 
-module inout_ports #(
-    parameter V = 4,   
-    parameter P = 5,   
-    parameter B = 4,   
-    parameter T1= 8,
-    parameter T2= 8,
-    parameter T3= 8,
-    parameter T4= 8,
-    parameter RAw = 3,  
-    parameter EAw = 3,  
-    parameter C = 4,   
-    parameter Fpay = 32,   
-    parameter VC_REALLOCATION_TYPE=  "NONATOMIC",
-    parameter COMBINATION_TYPE= "COMB_NONSPEC",
-    parameter TOPOLOGY=    "MESH",
-    parameter ROUTE_NAME="XY",
-    parameter ROUTE_TYPE="DETERMINISTIC",// "DETERMINISTIC", "FULL_ADAPTIVE", "PAR_ADAPTIVE"
-    parameter CONGESTION_INDEX =   2,//"CREDIT","VC"
-    parameter DEBUG_EN = 1,
-    parameter AVC_ATOMIC_EN = 1,
-    parameter CONGw = 2,
-    parameter CVw=(C==0)? V : C * V,
-    parameter [CVw-1: 0] CLASS_SETTING = {CVw{1'b1}}, // shows how each class can use VCs   
-    parameter [V-1 : 0] ESCAP_VC_MASK = 4'b1000,  
-    parameter DSTPw=P-1,
-    parameter SSA_EN="YES", 
-    parameter SWA_ARBITER_TYPE="RRA",
-    parameter WEIGHTw=4,
-    parameter WRRA_CONFIG_INDEX=0,
-    parameter PPSw=4,
-    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
-    parameter BYTE_EN=0
+module inout_ports
+import pronoc_pkg::*;
+#(
+    parameter P = 5  
 )
 (
     current_r_addr,
@@ -102,7 +74,10 @@ module inout_ports #(
     iport_weight_all,
     oports_weight_all,
     refresh_w_counter,
-    clk,reset
+    clk,
+    reset,
+    ivc_info, 
+    oport_info
     
 );
 
@@ -170,6 +145,9 @@ module inout_ports #(
     input refresh_w_counter;
 
     input clk,reset;
+    
+    output  ivc_info_t   ivc_info    [P-1 : 0][V-1 : 0];
+    output  oport_info_t oport_info  [P-1 : 0]; 
 
   
     wire [PVV-1 : 0] candidate_ovc_all;
@@ -411,18 +389,8 @@ generate
         else begin : noncanonical
             
             credit_counter #(
-                .V                        (V),
-                .P                        (P),
-                .B                      (B),
-                .PPSw(PPSw),
-                .VC_REALLOCATION_TYPE   (VC_REALLOCATION_TYPE),
-                .ROUTE_TYPE             (ROUTE_TYPE),
-                .CONGESTION_INDEX       (CONGESTION_INDEX),
-                .ESCAP_VC_MASK          (ESCAP_VC_MASK),
-                .AVC_ATOMIC_EN          (AVC_ATOMIC_EN),
-                .CONGw                  (CONGw),
-                .DEBUG_EN               (DEBUG_EN),
-                .MIN_PCK_SIZE           (MIN_PCK_SIZE)  
+                .P (P)
+               
             )
             the_credit_counter
             (
@@ -444,7 +412,8 @@ generate
                 .ssa_decreased_credit_in_ss_ovc_all         (ssa_decreased_credit_in_ss_ovc_all),
                 .granted_dst_is_from_a_single_flit_pck      (granted_dst_is_from_a_single_flit_pck),
                 .reset                                      (reset),
-                .clk                                        (clk)
+                .clk                                        (clk),
+                .oport_info (oport_info)
             );
     
         end//noncanonical
@@ -506,36 +475,7 @@ endgenerate
 
      input_ports
      #(
-        .V(V),
-        .P(P),
-        .B(B), 
-        .T1(T1),
-        .T2(T2),
-        .T3(T3),
-        .T4(T4),
-        .RAw(RAw),  
-        .EAw(EAw), 
-        .DSTPw(DSTPw), 
-        .C(C),    
-        .Fpay(Fpay),    
-        .VC_REALLOCATION_TYPE(VC_REALLOCATION_TYPE),
-        .TOPOLOGY(TOPOLOGY),
-        .ROUTE_NAME(ROUTE_NAME),
-        .ROUTE_TYPE(ROUTE_TYPE),
-        .DEBUG_EN(DEBUG_EN),
-        .AVC_ATOMIC_EN(AVC_ATOMIC_EN),
-        .COMBINATION_TYPE(COMBINATION_TYPE),
-        .CVw(CVw),
-        .CLASS_SETTING(CLASS_SETTING),   
-        .ESCAP_VC_MASK(ESCAP_VC_MASK),
-        .SSA_EN(SSA_EN),
-        .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-        .WEIGHTw(WEIGHTw),
-        .WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
-        .PPSw(PPSw),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE),
-        .BYTE_EN(BYTE_EN)
-        
+        .P(P)        
     )
         the_input_port
     (
@@ -553,6 +493,8 @@ endgenerate
         .candidate_ovcs_all (candidate_ovc_all),
         .flit_out_all (flit_out_all),
         .assigned_ovc_num_all (assigned_ovc_num_all),
+        .assigned_ovc_not_full_all(assigned_ovc_not_full_all),
+        .ovc_is_assigned_all(ovc_is_assigned_all),
         .sel (sel),
         .port_pre_sel(port_pre_sel),
         .swap_port_presel(swap_port_presel),
@@ -566,6 +508,7 @@ endgenerate
         .oports_weight_all(oports_weight_all),
         .granted_dest_port_all(granted_dest_port_all),
         .refresh_w_counter(refresh_w_counter),
+        .ivc_info(ivc_info),
         .reset (reset),
         .clk (clk)
     );               

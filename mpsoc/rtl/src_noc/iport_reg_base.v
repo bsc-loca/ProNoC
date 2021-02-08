@@ -450,6 +450,7 @@ generate
         )
         decoder
         (
+            .destport_one_hot(),
             .dest_port_encoded(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),             
             .dest_port_out(dest_port[(i+1)*P_1-1 : i*P_1]),   
             .endp_localp_num(endp_localp_num[(i+1)*ELw-1 : i*ELw]),
@@ -566,8 +567,8 @@ generate
         the_flit_buffer
         (
             .din(flit_in),     // Data in
-            .vc_num_wr(vc_num_in),//write vertual channel   
-            .vc_num_rd(nonspec_first_arbiter_granted_ivc),//read vertual channel     
+            .vc_num_wr(vc_num_in),//write vertual chanel   
+            .vc_num_rd(nonspec_first_arbiter_granted_ivc),//read vertual chanel     
             .wr_en(flit_in_wr),   // Write enable
             .rd_en(any_ivc_sw_request_granted),     // Read the next word
             .dout(buffer_out),    // Data out
@@ -645,8 +646,8 @@ generate
         the_flit_buffer
         (
             .din(flit_in),     // Data in
-            .vc_num_wr(vc_num_in),//write vertual channel   
-            .vc_num_rd(ivc_num_getting_sw_grant),//read vertual channel     
+            .vc_num_wr(vc_num_in),//write vertual chanel   
+            .vc_num_rd(ivc_num_getting_sw_grant),//read vertual chanel     
             .wr_en(flit_in_wr),   // Write enable
             .rd_en(any_ivc_sw_request_granted),     // Read the next word
             .dout(buffer_out),    // Data out

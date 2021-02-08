@@ -111,8 +111,8 @@ module testbench_noc;
    
     
     
-    wire   router_channel_t chan_in_all  [NE-1 : 0];
-    wire   router_channel_t chan_out_all [NE-1 : 0];
+    wire   router_chanel_t chan_in_all  [NE-1 : 0];
+    wire   router_chanel_t chan_out_all [NE-1 : 0];
     
     
     
@@ -211,12 +211,7 @@ module testbench_noc;
        
             
         traffic_gen_top #(
-            .MAX_PCK_NUM(MAX_PCK_NUM),
-            .MAX_SIM_CLKs(MAX_SIM_CLKs),
-            .MAX_PCK_SIZ(MAX_PACKET_SIZE),
-            .MAX_RATIO(100),
-            .TIMSTMP_FIFO_NUM(TIMSTMP_FIFO_NUM)
-           
+            .MAX_RATIO(100)          
         )
         the_traffic_gen
         (

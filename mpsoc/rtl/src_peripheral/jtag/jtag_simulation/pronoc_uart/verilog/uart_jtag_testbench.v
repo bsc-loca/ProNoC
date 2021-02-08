@@ -114,7 +114,7 @@ module  uart_jtag_testbench #(
     end
     endtask   
     
-    task capture_until_send_channel_ready; 
+    task capture_until_send_chanel_ready; 
     begin
         while (jtag_wspace ==0)begin 
             jtag_capture(0);
@@ -126,7 +126,7 @@ module  uart_jtag_testbench #(
     task  jtag_putc;
     input [0:7] data;        
     begin
-        capture_until_send_channel_ready(); 
+        capture_until_send_chanel_ready(); 
         jtag_capture(data);
     end
     endtask   

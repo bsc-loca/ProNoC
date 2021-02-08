@@ -30,8 +30,8 @@
 *                   There are three types of requests that share the usage of L2_REQ_SIZE queue:
 *                   Normal requests such as READSHARED, READUNIQUE, WRITEBACKFULL, ATOMICS;
 *                   SNOOP dataless and data responses.
-*                   Normal requests are send out through TXREQ channel to NoC; while the 
-*                   SNOOP responses are send out through TXRSP and TXDAT/WDAT channels.
+*                   Normal requests are send out through TXREQ chanel to NoC; while the 
+*                   SNOOP responses are send out through TXRSP and TXDAT/WDAT chanels.
 *                   Therefore we separate snoop requests and send them to Snoop pipeline. 
 *
 *   Release Notes:  Initial Release

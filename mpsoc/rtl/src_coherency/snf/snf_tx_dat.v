@@ -16,7 +16,7 @@ module  snf_tx_dat#(
 
     src_id,
     
-    //chi channel
+    //chi chanel
     chi_noc_txdatflitpend,
     chi_noc_txdatflitv,
     chi_noc_txdatflit,
@@ -50,7 +50,7 @@ module  snf_tx_dat#(
     
     input reset,clk;
     
-    //chi channel
+    //chi chanel
     output   chi_noc_txdatflitpend ;
     output   chi_noc_txdatflitv ;
     output  [DAT_FLIT_SIZE-1:0]    chi_noc_txdatflit  ;

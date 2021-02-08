@@ -21,12 +21,12 @@ $Trace = bless( {
                                'selected' => 0,
                                'destination' => 'net:a:print1',
                                'Mbytes' => 1,
-                               'channel' => 0
+                               'chanel' => 0
                              },
                   'raw_0' => {
                                'Mbytes' => 1,
                                'destination' => 'net:a:add1',
-                               'channel' => 0,
+                               'chanel' => 0,
                                'dst_port' => 'Input1',
                                'file' => 'net:a:',
                                'init_weight' => 1,
@@ -45,7 +45,7 @@ $Trace = bless( {
                                'scr_port' => 'Output2',
                                'init_weight' => 1,
                                'file' => 'net:a:',
-                               'channel' => 0,
+                               'chanel' => 0,
                                'destination' => 'net:a:add2',
                                'Mbytes' => 1
                              },
@@ -81,7 +81,7 @@ $Trace = bless( {
                                'dst_port' => 'Input2',
                                'file' => 'net:a:',
                                'init_weight' => 1,
-                               'channel' => 0,
+                               'chanel' => 0,
                                'destination' => 'net:a:add1',
                                'Mbytes' => 1
                              },
@@ -133,7 +133,7 @@ $Trace = bless( {
                                'source' => 'net:a:src2',
                                'Mbytes' => 1,
                                'destination' => 'net:a:add2',
-                               'channel' => 0
+                               'chanel' => 0
                              },
                   'parameters_order' => {
                                           'map_param' => [
@@ -253,7 +253,7 @@ $Trace = bless( {
                                'selected' => 0,
                                'destination' => 'net:a:print2',
                                'Mbytes' => 1,
-                               'channel' => 0
+                               'chanel' => 0
                              },
                   'ni_name' => {
                                  '1' => 'ni',

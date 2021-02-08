@@ -7,6 +7,20 @@
 ***************************************/
  `ifdef     INCLUDE_TOPOLOGY_LOCALPARAM
  
+     //MESH, TORUS Topology p=5           
+    localparam    EAST    =   1,
+                  NORTH   =   2, 
+                  WEST    =   3,
+                  SOUTH   =   4;
+                   
+               
+      
+    //LINE RING Topology p=3           
+    localparam  FORWARD =  1,
+                BACKWARD=  2;
+ 
+ 
+ 
      function integer log2;
       input integer number; begin   
          log2=(number <=1) ? 1: 0;    
@@ -37,6 +51,52 @@
     end   
     endfunction // sum_powi
     
+   
+    // get the port num and return the port located at streight direction. If there is no strieght port return  router_port_num. 
+    function integer strieght_port;
+        input integer router_port_num;  //router port num
+        input integer current_port;
+        begin 
+        /* verilator lint_off WIDTH */ 
+        if(TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") begin 
+        /* verilator lint_on WIDTH */ 
+            strieght_port = 
+                (current_port== EAST)?  WEST:
+                (current_port== WEST)?  EAST:
+                (current_port== SOUTH)? NORTH:
+                (current_port== NORTH)? SOUTH:
+                                 router_port_num; //DISABLED;
+        end
+        /* verilator lint_off WIDTH */ 
+        else if (TOPOLOGY ==  "RING" || TOPOLOGY ==  "LINE") begin 
+        /* verilator lint_on WIDTH */ 
+            strieght_port = 
+                (current_port== FORWARD )? BACKWARD:
+                (current_port== BACKWARD)? FORWARD:
+                                           router_port_num; //DISABLED;
+        
+        end
+        /* verilator lint_off WIDTH */ 
+        else if (TOPOLOGY == "FATTREE" ) begin 
+        /* verilator lint_on WIDTH */ 
+             if(router_port_num[0]==1'b0) begin //even port num
+                 strieght_port =   (current_port < (router_port_num/2) )?
+                    (router_port_num/2)+ current_port : 
+                    current_port - (router_port_num/2);
+             end else begin 
+                 strieght_port =  (current_port == (router_port_num-1)/2) ?  router_port_num: //DISABLED;
+                                  (current_port < ((router_port_num+1)/2))? ((router_port_num+1)/2)+ current_port : 
+                                                                            current_port - ((router_port_num+1)/2);
+        
+             end
+        end else begin 
+            strieght_port = router_port_num; //DISABLED;
+        end
+        end
+    endfunction
+    
+    
+    
     
   
 
@@ -60,14 +120,14 @@ localparam
     ROUTE_TYPE_MESH_TORI = (ROUTE_NAME == "XY" || ROUTE_NAME == "TRANC_XY" )?    "DETERMINISTIC" : 
                                (ROUTE_NAME == "DUATO" || ROUTE_NAME == "TRANC_DUATO" )?   "FULL_ADAPTIVE": "PAR_ADAPTIVE",
 
-    R2R_CHANNELS_MESH_TORI=  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 2 : 4,   
-    R2E_CHANNELS_MESH_TORI= NL,    
+    R2R_chanelS_MESH_TORI=  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 2 : 4,   
+    R2E_chanelS_MESH_TORI= NL,    
     RAw_MESH_TORI = ( TOPOLOGY == "RING" || TOPOLOGY == "LINE")? NXw : NXw + NYw,
     EAw_MESH_TORI = (NL==1) ? RAw_MESH_TORI : RAw_MESH_TORI + NLw,
     NR_MESH_TORI = (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? NX : NX*NY,
     NE_MESH_TORI = NR_MESH_TORI * NL,
-    MAX_P_MESH_TORI = R2R_CHANNELS_MESH_TORI + R2E_CHANNELS_MESH_TORI,
-    DSTPw_MESH_TORI =   R2R_CHANNELS_MESH_TORI; // P-1
+    MAX_P_MESH_TORI = R2R_chanelS_MESH_TORI + R2E_chanelS_MESH_TORI,
+    DSTPw_MESH_TORI =   R2R_chanelS_MESH_TORI; // P-1
                        
     /* verilator lint_on WIDTH */                               
     

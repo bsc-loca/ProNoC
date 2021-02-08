@@ -19,12 +19,12 @@
 *   Email:          xubin.tan@semidynamics.com
 *   Date:           10/09/2019
 *-------------------------------------------------------------------------------
-*   Title:          The CHI Requestor agent SNP logic from SNP channel to L2 Snoop queue
+*   Title:          The CHI Requestor agent SNP logic from SNP chanel to L2 Snoop queue
 *
 *   Description:    This module implements the rx stage of the CHI Requestor agent's
 *                   incoming pipeline. 
 *                   1) It receives the requests from the CHI SNP 
-*                   channel from the NOC. 
+*                   chanel from the NOC. 
 *                   2) For all the new requests, allocates a free entry in 
 *                   the snoop table
 *                   3) Send the necessary info to the L2_SNOOP Queue
@@ -54,7 +54,7 @@ module snp_p_chi_to_l2
      //generic
     input logic                            clk                        ,
     input logic                            rst_n                      ,
-    // channel signals
+    // chanel signals
     input logic                            noc_rx_snpflitpend         ,
     input logic [SNP_FLIT_SIZE-1:0]        noc_rx_snpflit             ,
     input logic                            noc_rx_snpflitv            ,

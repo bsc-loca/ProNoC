@@ -26,7 +26,7 @@
 *
 *   Description:    This module implements the rx stage of the CHI Requestor agent's
 *                   incoming pipeline. It receives the requests from the CHI RXDAT 
-*                   channel from the NOC, places them in the corresponding queues 
+*                   chanel from the NOC, places them in the corresponding queues 
 *                   and forwards them to the next stage (DECODE)
 *                                                             
 *   Release Notes:  Initial Release
@@ -48,7 +48,7 @@ module rxdat_p_rx
    input logic                          rst_n                ,
    // stop signals that stall the incoming pipeline
    input logic                          dec_rx_stop          ,
-   // channel signals
+   // chanel signals
    input logic                          noc_rx_datflitpend   ,
    input logic [DAT_FLIT_SIZE-1:0]      noc_rx_datflit       ,
    input logic                          noc_rx_datflitv      ,

@@ -139,7 +139,7 @@
 //       Spartan-6.
 //`define CFG_JTAG_ENABLED
 
-// JTAG UART is a communication channel which uses JTAG to transmit
+// JTAG UART is a communication chanel which uses JTAG to transmit
 // and receive bytes to and from the host computer.
 //`define CFG_JTAG_UART_ENABLED
 

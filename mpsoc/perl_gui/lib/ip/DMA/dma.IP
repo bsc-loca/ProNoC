@@ -13,17 +13,17 @@ $ipgen = bless( {
                   'system_h' => '#define ${IP}_STATUS_REG   (*((volatile unsigned int *) ($BASE)))   
 #define ${IP}_BURST_SIZE_ADDR_REG  (*((volatile unsigned int *) ($BASE+4)))
 
-#define ${IP}_CHANNEL	${CHANNEL}
-#define ${IP}_DATA_SIZE_ADDR_REG(channel)  (*((volatile unsigned int *) ($BASE+8+(channel<<5))))
-#define ${IP}_RD_START_ADDR_REG(channel)   (*((volatile unsigned int *) ($BASE+12+(channel<<5))))
-#define ${IP}_WR_START_ADDR_REG(channel)  (*((volatile unsigned int *) ($BASE+16+(channel<<5))))
+#define ${IP}_chanel	${chanel}
+#define ${IP}_DATA_SIZE_ADDR_REG(chanel)  (*((volatile unsigned int *) ($BASE+8+(chanel<<5))))
+#define ${IP}_RD_START_ADDR_REG(chanel)   (*((volatile unsigned int *) ($BASE+12+(chanel<<5))))
+#define ${IP}_WR_START_ADDR_REG(chanel)  (*((volatile unsigned int *) ($BASE+16+(chanel<<5))))
 
-// assign status= {rd_enable_binarry,wr_enable_binarry,channel_rd_is_active,channel_wr_is_active};
+// assign status= {rd_enable_binarry,wr_enable_binarry,chanel_rd_is_active,chanel_wr_is_active};
 
-#define ${IP}_channel_is_busy(channel) ( (${IP}_STATUS_REG >> channel) & 0x1)
+#define ${IP}_chanel_is_busy(chanel) ( (${IP}_STATUS_REG >> chanel) & 0x1)
 
 void ${IP}_initial (unsigned int burst_size) ;
-void ${IP}_transfer (unsigned int channel, unsigned int read_start_addr,  unsigned int data_size, unsigned int write_start_addr);',
+void ${IP}_transfer (unsigned int chanel, unsigned int read_start_addr,  unsigned int data_size, unsigned int write_start_addr);',
                   'ports_order' => [
                                      'reset',
                                      'clk',
@@ -54,7 +54,7 @@ void ${IP}_transfer (unsigned int channel, unsigned int read_start_addr,  unsign
                                      'm_wr_ack_i',
                                      'irq'
                                    ],
-                  'file_name' => 'mpsoc/rtl/src_peripheral/DMA/dma_multi_channel_wb.v',
+                  'file_name' => 'mpsoc/rtl/src_peripheral/DMA/dma_multi_chanel_wb.v',
                   'unused' => {
                                 'plug:wb_slave[0]' => [
                                                         'bte_i',
@@ -78,7 +78,7 @@ void ${IP}_transfer (unsigned int channel, unsigned int read_start_addr,  unsign
                                                        ]
                               },
                   'parameters_order' => [
-                                          'CHANNEL',
+                                          'chanel',
                                           'MAX_TRANSACTION_WIDTH',
                                           'MAX_BURST_SIZE',
                                           'FIFO_B',
@@ -318,7 +318,7 @@ void ${IP}_transfer (unsigned int channel, unsigned int read_start_addr,  unsign
                   'hdl_files' => [
                                    '/mpsoc/rtl/main_comp.v',
                                    '/mpsoc/rtl/arbiter.v',
-                                   '/mpsoc/rtl/src_peripheral/DMA/dma_multi_channel_wb.v'
+                                   '/mpsoc/rtl/src_peripheral/DMA/dma_multi_chanel_wb.v'
                                  ],
                   'ip_name' => 'dma',
                   'parameters' => {
@@ -344,8 +344,8 @@ void ${IP}_transfer (unsigned int channel, unsigned int read_start_addr,  unsign
                                                   'type' => 'Combo-box',
                                                   'redefine_param' => 1,
                                                   'global_param' => 'Localparam',
-                                                  'info' => 'Channel  FIFO size in words.
-All channels will share same FPGA block RAM. Hence, the total needed Block RAM words is the multiplication of channel num in channel FIFO size. 
+                                                  'info' => 'chanel  FIFO size in words.
+All chanels will share same FPGA block RAM. Hence, the total needed Block RAM words is the multiplication of chanel num in chanel FIFO size. 
 
 '
                                                 },
@@ -354,7 +354,7 @@ All channels will share same FPGA block RAM. Hence, the total needed Block RAM w
                                                           'type' => 'Combo-box',
                                                           'default' => '256',
                                                           'info' => 'Maximum burst size in words. 
-The wishbone bus will be released each time one burst is completed or when the internal FIFO becomes full.  The bus will be released for one clock cycle. Then in case, there are other active channels, another active channel will get access to the bus using round robin arbiter.  This process will be continued until all desired data is transferred. ',
+The wishbone bus will be released each time one burst is completed or when the internal FIFO becomes full.  The bus will be released for one clock cycle. Then in case, there are other active chanels, another active chanel will get access to the bus using round robin arbiter.  This process will be continued until all desired data is transferred. ',
                                                           'redefine_param' => 1,
                                                           'global_param' => 'Localparam'
                                                         },
@@ -368,7 +368,7 @@ The wishbone bus will be released each time one burst is completed or when the i
                                               },
                                     'MAX_TRANSACTION_WIDTH' => {
                                                                  'info' => 'The width of maximum transaction size in words.
-The maximum data that can be sent via one DMA channel will be 2 power of MAX_DMA_TRANSACTION_WIDTH in words.',
+The maximum data that can be sent via one DMA chanel will be 2 power of MAX_DMA_TRANSACTION_WIDTH in words.',
                                                                  'global_param' => 'Localparam',
                                                                  'redefine_param' => 1,
                                                                  'type' => 'Spin-button',
@@ -383,12 +383,12 @@ The maximum data that can be sent via one DMA channel will be 2 power of MAX_DMA
                                                     'redefine_param' => 1,
                                                     'info' => 'Parameter'
                                                   },
-                                    'CHANNEL' => {
+                                    'chanel' => {
                                                    'content' => '1,32,1',
                                                    'type' => 'Spin-button',
                                                    'default' => '1',
-                                                   'info' => 'Number of DMA channels. 
-In case there are multiple active DMA channels,  Each time one single active DMA channel get access to the wishbone bus using round robin arbiter. The Wishbone bus is granted for the winter channel until its FIFO is not full and the number of sent data is smaller than the burst size.',
+                                                   'info' => 'Number of DMA chanels. 
+In case there are multiple active DMA chanels,  Each time one single active DMA chanel get access to the wishbone bus using round robin arbiter. The Wishbone bus is granted for the winter chanel until its FIFO is not full and the number of sent data is smaller than the burst size.',
                                                    'redefine_param' => 1,
                                                    'global_param' => 'Localparam'
                                                  },
@@ -414,15 +414,15 @@ In case there are multiple active DMA channels,  Each time one single active DMA
 }
 
 
-void ${IP}_transfer (unsigned int channel, unsigned int read_start_addr,  unsigned int data_size, unsigned int write_start_addr){
-	while ( ${IP}_channel_is_busy(channel)); // wait until DMA  channel is busy
-	 ${IP}_RD_START_ADDR_REG(channel)  = read_start_addr;
-	 ${IP}_DATA_SIZE_ADDR_REG(channel)  =  data_size;	
-	 ${IP}_WR_START_ADDR_REG(channel)  = write_start_addr;
+void ${IP}_transfer (unsigned int chanel, unsigned int read_start_addr,  unsigned int data_size, unsigned int write_start_addr){
+	while ( ${IP}_chanel_is_busy(chanel)); // wait until DMA  chanel is busy
+	 ${IP}_RD_START_ADDR_REG(chanel)  = read_start_addr;
+	 ${IP}_DATA_SIZE_ADDR_REG(chanel)  =  data_size;	
+	 ${IP}_WR_START_ADDR_REG(chanel)  = write_start_addr;
 }',
                   'gui_status' => {
                                     'status' => 'ideal',
                                     'timeout' => 0
                                   },
-                  'description' => 'A wishbone bus round robin-based  multi channel DMA (no byte enable is supported yet). The DMA supports burst data transaction.'
+                  'description' => 'A wishbone bus round robin-based  multi chanel DMA (no byte enable is supported yet). The DMA supports burst data transaction.'
                 }, 'ip_gen' );

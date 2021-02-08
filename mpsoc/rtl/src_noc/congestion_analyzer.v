@@ -1643,7 +1643,7 @@ module  deadlock_detector #(
     end  
   end
  
- //seperate all same virtual channels requests
+ //seperate all same virtual chanels requests
  genvar i,j;
  generate 
  for (i=0;i<V;i=i+1)begin:v_loop

@@ -17,7 +17,7 @@ Description:
 ***************************************/
 
 module  tree_noc #(
-    parameter V = 2, // Number of Virtual channel per port 
+    parameter V = 2, // Number of Virtual chanel per port 
     parameter B = 4, // buffer space :flit per VC 
     parameter T1   = 2, // number of last level individual router`s endpoints.
     parameter T2   = 2, // Tree layer number (The height of FT)

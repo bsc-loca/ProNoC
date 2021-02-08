@@ -26,7 +26,7 @@
 *
 *   Description:    This module implements the rx stage of the CHI Requestor agent's
 *                   incoming pipeline. It receives the requests from the CHI RXRSP 
-*                   channel from the NOC, places them
+*                   chanel from the NOC, places them
 *                   in the corresponding queues and forwards them to the next 
 *                   stage (DECODE)
 *   Attention:      Check if I have used 16 or 15 for LCredits
@@ -55,7 +55,7 @@ module rxrsp_p_rx
    //stop signals that stall the incoming pipeline
    input logic                          dec_rx_stop          ,
    input logic                          retry_stall_i        ,
-   // channel signals
+   // chanel signals
    input logic                          noc_rx_rspflitpend   ,
    input logic [RSP_FLIT_SIZE-1:0]      noc_rx_rspflit       ,
    input logic                          noc_rx_rspflitv      ,

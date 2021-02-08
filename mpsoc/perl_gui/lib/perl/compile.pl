@@ -1295,11 +1295,11 @@ sub fpga_compilation{
 sub vivado_program_the_board {
 	my 	($self,$tview,$target_dir,$name,$vendor) =@_;
 	
-	my $bit_file="$target_dir/xilinx_compile/${name}.runs/impl_1/Top.bit";
+	my $bit_file="$target_dir/Vivado/xilinx_compile/${name}.runs/impl_1/Top.bit";
 	
 	
 	
-	unless (-f "$target_dir/program_board.tcl"){	
+	unless (-f "$target_dir/Vivado/program_board.tcl"){	
 	#create tcl file
 	my $xpr = "\$tcl_path/xilinx_compile/${name}.xpr";
 	my $tcl="
@@ -1317,8 +1317,8 @@ close_project
 exit
 
 	";
-	save_file ("$target_dir/program_board.tcl",$tcl);	
-	add_info($tview,"File $target_dir/program_board.tcl is created\n");
+	save_file ("$target_dir/Vivado/program_board.tcl",$tcl);	
+	add_info($tview,"File $target_dir/Vivado/program_board.tcl is created\n");
 	}
 	
 	#check bit file existance
@@ -1329,7 +1329,7 @@ exit
 	
 	
 	#run vivado using program_board.tcl
-	my $error =run_vivado ($self,$target_dir,$tview,"$target_dir/program_board.tcl");	
+	my $error =run_vivado ($self,$target_dir,$tview,"$target_dir/Vivado/program_board.tcl");	
 	add_colored_info($tview,"Board is programmed successfully!\n",'blue') if($error==0);
 	
 	
@@ -1341,7 +1341,7 @@ exit
 sub quartus_program_the_board{
 	my ($self,$tview,$target_dir,$name,$vendor)=@_;
 	my $error = 0;
-	my $sof_file="$target_dir/output_files/${name}.sof";
+	my $sof_file="$target_dir/Quartus/output_files/${name}.sof";
 	my $bash_file="$target_dir/program_device.sh";
 
 	add_info($tview,"Program the board using Quartus_pgm and $sof_file file\n");
@@ -1379,7 +1379,9 @@ sub quartus_run_compile{
 	my ($self,$app,$tview,$target_dir,$name,$window,$end_func,$vendor)=@_;	 
 	
 	my $error = 0;
-	add_info($tview,"CREATE: start creating Quartus project in $target_dir\n");
+	add_info($tview,"CREATE: start creating Quartus project in $target_dir/Quartus folder\n");
+	
+	mkpath("$target_dir/Quartus",1,01777);
 
 	#get list of source file
 	add_info($tview,"        Read the list of all source files $target_dir/src_verilog\n");
@@ -1399,7 +1401,7 @@ sub quartus_run_compile{
 	add_info($tview,"$files\n");
 
 	#creat project qsf file
-	my $qsf_file="$target_dir/${name}.qsf";
+	my $qsf_file="$target_dir/Quartus/${name}.qsf";
 	save_file ($qsf_file,"# Generated using ProNoC\n");
 
 	#append global assignets to qsf file
@@ -1443,26 +1445,26 @@ sub quartus_run_compile{
 	my $Quartus_bin= $self->object_get_attribute('compile','quartus bin');;
 	add_info($tview, "Start Quartus compilation.....\n");
 	my @compilation_command =(
-		"cd \"$target_dir/\" \n xterm -e bash -c '$Quartus_bin/quartus_map --64bit $name --read_settings_files=on; echo \$? > status' ",
-		"cd \"$target_dir/\" \n xterm -e bash -c '$Quartus_bin/quartus_fit --64bit $name --read_settings_files=on; echo \$? > status' ",
-		"cd \"$target_dir/\" \n xterm -e bash -c '$Quartus_bin/quartus_asm --64bit $name --read_settings_files=on; echo \$? > status' ",
-		"cd \"$target_dir/\" \n xterm -e bash -c '$Quartus_bin/quartus_sta --64bit $name;echo \$? > status' ");
+		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_map --64bit $name --read_settings_files=on; echo \$? > status' ",
+		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_fit --64bit $name --read_settings_files=on; echo \$? > status' ",
+		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_asm --64bit $name --read_settings_files=on; echo \$? > status' ",
+		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_sta --64bit $name;echo \$? > status' ");
 	
 		foreach my $cmd (@compilation_command){
 		add_info($tview,"$cmd\n");
-		unlink "$target_dir/status";
+		unlink "$target_dir/Quartus/status";
 		my ($stdout,$exit)=run_cmd_in_back_ground_get_stdout( $cmd);
-		open(my $fh,  "<$target_dir/status") || die "Can not open: $!";
+		open(my $fh,  "<$target_dir/Quartus/status") || die "Can not open: $!";
 		read($fh,my $status,1);
 		close($fh);
 		if("$status" != "0"){			
-			($stdout,$exit)=run_cmd_in_back_ground_get_stdout("cd \"$target_dir/output_files/\" \n grep -h \"Error (\" *");
+			($stdout,$exit)=run_cmd_in_back_ground_get_stdout("cd \"$target_dir/Quartus/output_files/\" \n grep -h \"Error (\" *");
 			add_colored_info($tview,"$stdout\n Quartus compilation failed !\n",'red');
 			$error=1;
 			last;
 		}			
 	}
-	add_colored_info($tview,"Quartus compilation is done successfully in $target_dir!\n", 'blue') if($error==0);
+	add_colored_info($tview,"Quartus compilation is done successfully in $target_dir/Quartus!\n", 'blue') if($error==0);
 	if (defined $end_func){
 		if ($error==0){
 			$end_func->($self);
@@ -1479,7 +1481,7 @@ sub quartus_run_compile{
 sub xilinx_run_compile{
 	my ($self,$app,$tview,$target_dir,$name,$window,$end_func,$vendor)=@_;
 	
-	add_info($tview,"CREATE: start creating Vivado project in $target_dir\n");
+	add_info($tview,"CREATE: start creating Vivado project in $target_dir/Vivado\n");
 	#get list of source file
 	add_info($tview,"        Read the list of all source files $target_dir/src_verilog\n");
 	my @files = File::Find::Rule->file()
@@ -1509,7 +1511,7 @@ sub xilinx_run_compile{
 	
 	my $incdir="set include_dir_list [list";
 	foreach my $p (sort keys %paths){
-	 	$incdir.=" \$tcl_path/$p";	
+	 	$incdir.=" \$Dir/$p";	
 	 }
 	$incdir.="]";
 	
@@ -1522,7 +1524,7 @@ sub xilinx_run_compile{
 	my @initial_files = File::Find::Rule->file()
                           ->name( '*.mem')
                           ->in( "$target_dir/sw" );
-	mkpath("$target_dir/xilinx_mem",1,01777) unless -f "$target_dir/xilinx_mem";
+	mkpath("$target_dir/Vivado/xilinx_mem",1,01777) unless -f "$target_dir/Vivado/xilinx_mem";
 	foreach my $f 	(@initial_files){
 		#	/home/alireza/work/hca_git/mpsoc_work/SOC/mor1k_soc/sw/RAM/ram0.mif  fpr soc
 		#   /home/alireza/work/hca_git/mpsoc_work/MPSOC/newAdder/sw/tile0/RAM/ram0.mif fpr mpsoc
@@ -1531,7 +1533,7 @@ sub xilinx_run_compile{
 		$d=~ s/RAM//g; #remove RAM
 		$d=~ s/\///g; #remove /
 		$d = "tile0".$d unless($m[-1]=~/^tile/); #add tile0 to soc
-		copy($f,"$target_dir/xilinx_mem/$d");
+		copy($f,"$target_dir/Vivado/xilinx_mem/$d");
 		$mem_files="$mem_files \$tcl_path/xilinx_mem/$d"; 		
 	}
 	add_info($tview,"HDL sources:\n$files\nMem sources:\n$mem_files\n");
@@ -1539,6 +1541,7 @@ sub xilinx_run_compile{
 	my $tcl="
 #Get tcl shell path relative to current script
 set tcl_path	[file dirname [info script]] 
+set Dir \"\$tcl_path/..\"
 ";
 	
 	$tcl=$tcl."set projectName $name";
@@ -1580,7 +1583,7 @@ set_project_properties
 	my $board_name=$self->object_get_attribute('compile','board');
 	my @tcls= glob("../boards/$vendor/$board_name/*.tcl");
 	foreach my $f (@tcls){
-		copy($f,"$target_dir/");
+		copy($f,"$target_dir/Vivado");
 	}
 
 	#get board xdc
@@ -1602,7 +1605,7 @@ set_project_properties
 			$out=$out."$l\n";			
 		}	
 		my ($fname,$fpath,$fsuffix) = fileparse("$f",qr"\..[^.]*$");
-		my $xdc_file = "$target_dir/$fname.xdc";
+		my $xdc_file = "$target_dir/Vivado/$fname.xdc";
 		#save new xdc file
 		save_file($xdc_file,$out);				
 		#add xdc to tcl file
@@ -1621,7 +1624,7 @@ set_project_properties
 	#add hdl sources
 	foreach my $f (@sources){
 		my $p =cut_dir_path($f,'src_verilog');		
-		$tcl =$tcl." \$tcl_path/src_verilog/$p ";	
+		$tcl =$tcl." \$Dir/src_verilog/$p ";	
 	}	
 	$tcl =$tcl."\n";
 	
@@ -1653,10 +1656,10 @@ set_project_properties
 
 	$tcl =$tcl."\nexit";	
 	#creat make_project tcl file
-	save_file ("$target_dir/make_project.tcl",$tcl);	
+	save_file ("$target_dir/Vivado/make_project.tcl",$tcl);	
 	
-	my $error =run_vivado ($self,$target_dir,$tview,"$target_dir/make_project.tcl");
-	add_colored_info($tview,"Vivado compilation is done successfully in $target_dir!\n", 'blue') if($error==0);
+	my $error =run_vivado ($self,$target_dir,$tview,"$target_dir/Vivado/make_project.tcl");
+	add_colored_info($tview,"Vivado compilation is done successfully in $target_dir/Vivado!\n", 'blue') if($error==0);
 	if (defined $end_func){
 		if ($error==0){
 			$end_func->($self);
@@ -1677,10 +1680,10 @@ sub run_vivado {
 	my $vivado_bin= $self->object_get_attribute('compile','vivado bin');
 	add_info($tview, "Start compilation using vivado.....\n");
 	my @compilation_command =(
-		"cd \"$target_dir/\" \n xterm -e bash -c '$vivado_bin/vivado -mode tcl -source $tcl'"		
+		"cd \"$target_dir/Vivado/\" \n xterm -e bash -c '$vivado_bin/vivado -mode tcl -source $tcl'"		
 	);
 	
-	my $log="$target_dir/vivado.log";	
+	my $log="$target_dir/Vivado/vivado.log";	
 	#unlink $log;
 	
 	foreach my $cmd (@compilation_command){

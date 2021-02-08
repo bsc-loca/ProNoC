@@ -2,6 +2,9 @@
 
 module  traffic_gen_top
 		import pronoc_pkg::*; 
+		#(
+			parameter MAX_RATIO = 1000
+		)
 		(
 					
 			//noc port
@@ -42,8 +45,8 @@ module  traffic_gen_top
 			RATIOw= $clog2(MAX_RATIO),
 			Vw =    $clog2(V);
 			
-		input   router_channel_t 	noc_chan_in;
-		output  router_channel_t 	noc_chan_out;  
+		input   router_chanel_t 	noc_chan_in;
+		output  router_chanel_t 	noc_chan_out;  
 		
 		
    
@@ -126,12 +129,12 @@ module  traffic_gen_top
 			.pck_class_out         (pck_class_out        ), 
 			.time_stamp_h2h        (time_stamp_h2h       ), 
 			.time_stamp_h2t        (time_stamp_h2t       ), 
-			.flit_out              (noc_chan_out.flit), 
-			.flit_out_wr           (noc_chan_out.flit_wr), 
-			.credit_in             (noc_chan_in.credit), 
-			.flit_in               (noc_chan_in.flit  ), 
-			.flit_in_wr            (noc_chan_in.flit_wr), 
-			.credit_out            (noc_chan_out.credit), 
+			.flit_out              (noc_chan_out.flit_chanel.flit), 
+			.flit_out_wr           (noc_chan_out.flit_chanel.flit_wr), 
+			.credit_in             (noc_chan_in.flit_chanel.credit), 
+			.flit_in               (noc_chan_in.flit_chanel.flit  ), 
+			.flit_in_wr            (noc_chan_in.flit_chanel.flit_wr), 
+			.credit_out            (noc_chan_out.flit_chanel.credit), 
 			.reset                 (reset                ), 
 			.clk                   (clk                  ));		
 		
@@ -143,6 +146,9 @@ endmodule
 
 module  traffic_gen_top_v
 		import pronoc_pkg::*; 
+	#(
+	parameter MAX_RATIO = 1000
+	)
 		(
 					
 			//noc port

@@ -36,13 +36,13 @@
 
 
 
-module crc_32_multi_channel #(
-    parameter CHANNEL=4
+module crc_32_multi_chanel #(
+    parameter chanel=4
 
 )(
     reset,
     clk,
-    channel_in,
+    chanel_in,
     crc_reset,
     crc_enable,
     data_in,
@@ -59,10 +59,10 @@ module crc_32_multi_channel #(
       end   
     endfunction // log2 
 
- localparam CHw=log2(CHANNEL);
+ localparam CHw=log2(chanel);
 
     input  reset, clk, crc_reset, crc_enable;
-    input  [CHw-1   :   0] channel_in;
+    input  [CHw-1   :   0] chanel_in;
     input  [31  :   0] data_in;
     output [31  :   0] crc_out;
       
@@ -83,25 +83,25 @@ module crc_32_multi_channel #(
     	.crc_in(crc_in)
     );
     
-    reg [31 :   0]  crc_channel_reg [CHANNEL-1  :   0];
+    reg [31 :   0]  crc_chanel_reg [chanel-1  :   0];
     
     
-    assign crc_in = crc_channel_reg[channel_in];
+    assign crc_in = crc_chanel_reg[chanel_in];
     
     genvar i;
     generate
-    for (i=0;i<CHANNEL; i=i+1)begin :lp
+    for (i=0;i<chanel; i=i+1)begin :lp
 `ifdef SYNC_RESET_MODE 
     always @ (posedge clk )begin 
 `else 
     always @ (posedge clk or posedge reset)begin 
 `endif   
         if (reset ) begin 
-            crc_channel_reg[i]<=0;
+            crc_chanel_reg[i]<=0;
         end else begin 
-            if(channel_in == i)begin 
-                if(crc_reset)  crc_channel_reg[i]<=0;
-                else if(crc_enable   )  crc_channel_reg[i]<=crc_reg_next;
+            if(chanel_in == i)begin 
+                if(crc_reset)  crc_chanel_reg[i]<=0;
+                else if(crc_enable   )  crc_chanel_reg[i]<=crc_reg_next;
             end
         end
     

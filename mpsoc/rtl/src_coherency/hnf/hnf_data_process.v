@@ -5,7 +5,7 @@
 *
 * Description: 
 * This module is loacted before undat module. 
-* It can recieves data from both syscache & rxdat channel.
+* It can recieves data from both syscache & rxdat chanel.
 * It perform data manupulation according to rxdat command: atomic instruction/ partial merge etc
 * Sends data to undat  
 ***************************************/

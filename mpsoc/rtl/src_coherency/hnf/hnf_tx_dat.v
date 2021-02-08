@@ -17,7 +17,7 @@ module  hnf_tx_dat #(
 
     src_id,
 
-    //chi channel
+    //chi chanel
     chi_noc_txdatflitpend,
     chi_noc_txdatflitv,
     chi_noc_txdatflit,
@@ -49,7 +49,7 @@ module  hnf_tx_dat #(
     
      input [31 : 0] src_id; 
 
- //chi channel
+ //chi chanel
     output   chi_noc_txdatflitpend ;
     output   chi_noc_txdatflitv ;
     output  [DAT_FLIT_SIZE-1:0]    chi_noc_txdatflit  ;
@@ -104,7 +104,7 @@ module  hnf_tx_dat #(
     
     
     
-   //write channel    
+   //write chanel    
     many_to_one_pipereg #(
         .Dw(Dw),
         .IN_NUM(2),

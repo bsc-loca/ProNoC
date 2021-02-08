@@ -29,7 +29,7 @@ import chi_rn_params_pkg::*;
 
 /*******************************************************************************
 *
-* Request channel interface
+* Request chanel interface
 *
 * See AMBA 5 CHI specification chapter 12.7.1 for more details.
 *
@@ -53,7 +53,7 @@ endinterface
 
 /*******************************************************************************
  *
- * Response channel interface
+ * Response chanel interface
  *
  * See AMBA 5 CHI specification chapter 12.7.2 for more details.
  *
@@ -77,7 +77,7 @@ endinterface
 
 /*******************************************************************************
  *
- * Snoop channel interface
+ * Snoop chanel interface
  *
  * See AMBA 5 CHI specification chapter 12.7.3 for more details.
  *
@@ -101,7 +101,7 @@ endinterface
 
 /*******************************************************************************
  *
- * Data channel interface
+ * Data chanel interface
  *
  * See AMBA 5 CHI specification chapter 12.7.4 for more details.
  *

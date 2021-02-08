@@ -85,10 +85,10 @@ module  custom1_connection
 	output [RAw-1 : 0] er_addr [NE-1 : 0]; // provide router address for each connected endpoint 
 	output [RAw-1 : 0] current_r_addr [NR-1 : 0]; // provide each router current address  ;
 	output [NE-1 : 0] start_o;
-	output router_channel_t chan_in_all [NE-1 : 0];
-	input  router_channel_t chan_out_all [NE-1 : 0]; 
-	input  router_channel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
-	output router_channel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+	output router_chanel_t chan_in_all [NE-1 : 0];
+	input  router_chanel_t chan_out_all [NE-1 : 0]; 
+	input  router_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+	output router_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
 
 
 
@@ -242,39 +242,40 @@ module  custom1_connection
 //Connect R11 input ports 4 to  R5 output ports 1
 		assign  router_chan_out [5][1] = router_chan_in [15][4];
 
-	assign er_addr [0] = 0;
-	assign er_addr [1] = 1;
-	assign er_addr [2] = 2;
-	assign er_addr [3] = 3;
-	assign er_addr [4] = 4;
-	assign er_addr [5] = 5;
-	assign er_addr [6] = 6;
-	assign er_addr [7] = 7;
-	assign er_addr [8] = 8;
-	assign er_addr [9] = 9;
-	assign er_addr [10] = 10;
-	assign er_addr [11] = 11;
-	assign er_addr [12] = 12;
-	assign er_addr [13] = 13;
-	assign er_addr [14] = 14;
-	assign er_addr [15] = 15;
+//The router address connected to each endpoint
+	assign er_addr [0] = 0; //T0 -> R0
+	assign er_addr [1] = 1; //T1 -> R1
+	assign er_addr [2] = 2; //T2 -> R2
+	assign er_addr [3] = 3; //T3 -> R3
+	assign er_addr [4] = 4; //T4 -> R4
+	assign er_addr [5] = 5; //T5 -> R5
+	assign er_addr [6] = 6; //T6 -> R6
+	assign er_addr [7] = 7; //T7 -> R7
+	assign er_addr [8] = 8; //T8 -> R12
+	assign er_addr [9] = 9; //T9 -> R13
+	assign er_addr [10] = 10; //T10 -> R14
+	assign er_addr [11] = 11; //T11 -> R15
+	assign er_addr [12] = 12; //T12 -> R8
+	assign er_addr [13] = 13; //T13 -> R9
+	assign er_addr [14] = 14; //T14 -> R10
+	assign er_addr [15] = 15; //T15 -> R11
 
-	assign current_r_addr [0] = 0;
-	assign current_r_addr [1] = 1;
-	assign current_r_addr [2] = 2;
-	assign current_r_addr [3] = 3;
-	assign current_r_addr [4] = 4;
-	assign current_r_addr [5] = 5;
-	assign current_r_addr [6] = 6;
-	assign current_r_addr [7] = 7;
-	assign current_r_addr [8] = 8;
-	assign current_r_addr [9] = 9;
-	assign current_r_addr [10] = 10;
-	assign current_r_addr [11] = 11;
-	assign current_r_addr [12] = 12;
-	assign current_r_addr [13] = 13;
-	assign current_r_addr [14] = 14;
-	assign current_r_addr [15] = 15;
+	assign current_r_addr [0] = 0; // R0
+	assign current_r_addr [1] = 1; // R1
+	assign current_r_addr [2] = 2; // R2
+	assign current_r_addr [3] = 3; // R3
+	assign current_r_addr [4] = 4; // R4
+	assign current_r_addr [5] = 5; // R5
+	assign current_r_addr [6] = 6; // R6
+	assign current_r_addr [7] = 7; // R7
+	assign current_r_addr [8] = 8; // R12
+	assign current_r_addr [9] = 9; // R13
+	assign current_r_addr [10] = 10; // R14
+	assign current_r_addr [11] = 11; // R15
+	assign current_r_addr [12] = 12; // R8
+	assign current_r_addr [13] = 13; // R9
+	assign current_r_addr [14] = 14; // R10
+	assign current_r_addr [15] = 15; // R11
    
 
 

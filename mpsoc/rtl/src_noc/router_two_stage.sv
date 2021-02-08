@@ -39,7 +39,11 @@ module router_two_stage
 		current_r_addr,// connected to constant parameter  
 		
 		chan_in,
-		chan_out,
+		chan_out,	
+		//internal router status 
+		ivc_info, 
+		iport_info,
+		oport_info,
 		
 		clk,
 		reset
@@ -54,10 +58,14 @@ module router_two_stage
 
 	input [RAw-1 :  0]  current_r_addr;
 	
-	input   router_channel_t chan_in [P-1 : 0];
-	output  router_channel_t chan_out [P-1 : 0];
+	input   flit_chanel_t chan_in  [P-1 : 0];
+	output  flit_chanel_t chan_out [P-1 : 0];
 	input   clk,reset;
 	
+	
+	output  ivc_info_t 	 ivc_info    [P-1 : 0][V-1 : 0];
+	output  iport_info_t iport_info  [P-1 : 0];
+	output  oport_info_t oport_info  [P-1 : 0]; 
 	
 	
 	localparam
@@ -88,26 +96,12 @@ module router_two_stage
 	wire  [PV-1 :  0]  credit_in_all;
 	wire  [CONG_ALw-1 :  0]  congestion_out_all;
     
-	genvar i;
-	generate for (i=0; i<P; i=i+1 ) begin :p_
-			assign  neighbors_r_addr  [(i+1)*RAw-1:  i*RAw] = chan_in[i].neighbors_r_addr;
-			assign  flit_in_all       [(i+1)*Fw-1:  i*Fw] = chan_in[i].flit;
-			assign  flit_in_wr_all    [i] = chan_in[i].flit_wr;   
-			assign  credit_in_all     [(i+1)*V-1:  i*V] = chan_in[i].credit;
-			assign  congestion_in_all [(i+1)*CONGw-1:  i*CONGw] = chan_in[i].congestion; 
-			
-			assign  chan_out[i].neighbors_r_addr = current_r_addr;
-			assign  chan_out[i].flit=          flit_out_all       [(i+1)*Fw-1:  i*Fw];       
-			assign  chan_out[i].flit_wr=       flit_out_wr_all    [i];                       
-			assign  chan_out[i].credit=        credit_out_all     [(i+1)*V-1:  i*V];         
-			assign  chan_out[i].congestion=    congestion_out_all [(i+1)*CONGw-1:  i*CONGw];			
-	end		
-	endgenerate
+	
 	
 
 	// old router verilog code
     
-	localparam WRRA_CONFIG_INDEX = 0; 
+	 
 	
 	//internal wires
 	wire  [PV-1 : 0] ovc_allocated_all;
@@ -144,41 +138,48 @@ module router_two_stage
 	wire [WP-1 : 0] iport_weight_all;
 	wire [WPP-1: 0] oports_weight_all;
 	wire refresh_w_counter;
+	
+	
+	
+	
+	genvar i;
+	generate for (i=0; i<P; i=i+1 ) begin :p_
+			assign  neighbors_r_addr  [(i+1)*RAw-1:  i*RAw] = chan_in[i].neighbors_r_addr;
+			assign  flit_in_all       [(i+1)*Fw-1:  i*Fw] = chan_in[i].flit;
+			assign  flit_in_wr_all    [i] = chan_in[i].flit_wr;   
+			assign  credit_in_all     [(i+1)*V-1:  i*V] = chan_in[i].credit;
+			assign  congestion_in_all [(i+1)*CONGw-1:  i*CONGw] = chan_in[i].congestion; 
+			
+			assign  chan_out[i].neighbors_r_addr = current_r_addr;
+			assign  chan_out[i].flit=          flit_out_all       [(i+1)*Fw-1:  i*Fw];       
+			assign  chan_out[i].flit_wr=       flit_out_wr_all    [i];                       
+			assign  chan_out[i].credit=        credit_out_all     [(i+1)*V-1:  i*V];         
+			assign  chan_out[i].congestion=    congestion_out_all [(i+1)*CONGw-1:  i*CONGw];
+			
+			assign  iport_info[i].swa_first_level_grant =nonspec_first_arbiter_granted_ivc_all[(i+1)*V-1:  i*V]; 
+			assign  iport_info[i].swa_grant = ivc_num_getting_sw_grant[(i+1)*V-1:  i*V]; 			
+			assign  iport_info[i].any_ivc_get_swa_grant=	any_ivc_sw_request_granted_all[i]; 
+			
+			
+			
+			add_sw_loc_one_hot #(
+					.P(P),
+					.SW_LOC(i)    
+				)add
+				(
+					.destport_in(granted_dest_port_all[(i+1)*P_1-1:  i*P_1]),
+					.destport_out(iport_info[i].granted_oport_one_hot[P-1 : 0])
+				);		
+			
+		end		
+	endgenerate
+	
+	
+	
             
 	inout_ports
-		#(
-			.V(V),
-			.P(P),
-			.B(B), 
-			.T1(T1),
-			.T2(T2),
-			.T3(T3),
-			.T4(T4),
-			.RAw(RAw),  
-			.EAw(EAw), 
-			.C(C),    
-			.Fpay(Fpay),    
-			.VC_REALLOCATION_TYPE(VC_REALLOCATION_TYPE),
-			.COMBINATION_TYPE(COMBINATION_TYPE),
-			.TOPOLOGY(TOPOLOGY),
-			.ROUTE_TYPE(ROUTE_TYPE),
-			.ROUTE_NAME(ROUTE_NAME),
-			.CONGESTION_INDEX(CONGESTION_INDEX),
-			.DEBUG_EN(DEBUG_EN),
-			.AVC_ATOMIC_EN(AVC_ATOMIC_EN),
-			.CONGw(CONGw),
-			.CVw(CVw),
-			.CLASS_SETTING(CLASS_SETTING),   
-			.ESCAP_VC_MASK(ESCAP_VC_MASK),
-			.DSTPw(DSTPw),
-			.SSA_EN(SSA_EN),
-			.SWA_ARBITER_TYPE (SWA_ARBITER_TYPE),
-			.WEIGHTw(WEIGHTw),
-			.WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
-			.PPSw(PPSw),
-			.MIN_PCK_SIZE(MIN_PCK_SIZE),
-			.BYTE_EN(BYTE_EN)
-        
+		#(		
+			.P(P)
 		)
 		the_inout_ports
 		(
@@ -218,7 +219,9 @@ module router_two_stage
 			.iport_weight_is_consumed_all(iport_weight_is_consumed_all), 
 			.refresh_w_counter(refresh_w_counter), 
 			.clk(clk), 
-			.reset(reset)
+			.reset(reset),
+			.ivc_info(ivc_info),
+			.oport_info(oport_info) 
 		);
 
 
@@ -259,6 +262,9 @@ module router_two_stage
 			.reset(reset)
 		);
         
+	
+	
+	
    
 	`ifdef SYNC_RESET_MODE 
 		always @ (posedge clk )begin 
@@ -273,6 +279,7 @@ module router_two_stage
 		end//always
     
 		crossbar #(
+				.SBP_EN(SBP_EN),
 				.TOPOLOGY(TOPOLOGY),
 				.V (V),     // vc_num_per_port
 				.P (P),     // router port num

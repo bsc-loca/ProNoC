@@ -28,6 +28,9 @@
 **    the NoC top module. 
 **
 **************************************************************/
+
+
+
 module  noc_top 
 	import pronoc_pkg::*; 
 (
@@ -40,8 +43,8 @@ module  noc_top
   	
 	input   clk,reset;
 	//local ports 
-	input   router_channel_t chan_in_all  [NE-1 : 0];
-	output  router_channel_t chan_out_all [NE-1 : 0];
+	input   router_chanel_t chan_in_all  [NE-1 : 0];
+	output  router_chanel_t chan_out_all [NE-1 : 0];
 
  
    
@@ -91,6 +94,9 @@ endmodule
 
 
 
+
+
+
 /**********************************
 The noc top module that can be caled in Verilog module. 
 
@@ -120,8 +126,8 @@ module  noc_top_v
 
 
 	//struct typed array ports which cannot be caled in verilog 
-	router_channel_t chan_in_all  [NE-1 : 0];
-	router_channel_t chan_out_all [NE-1 : 0];
+	router_chanel_t chan_in_all  [NE-1 : 0];
+	router_chanel_t chan_out_all [NE-1 : 0];
 
 	noc_top the_top(
 		.reset(reset),
@@ -136,13 +142,13 @@ module  noc_top_v
 	genvar i;
 	generate 
 	for (i=0; i<NE; i=i+1) begin : lp1
-		assign chan_in_all[i].flit    = flit_in_all [Fw*(i+1)-1 : Fw*i];		
-		assign chan_in_all[i].credit  = credit_in_all [V*(i+1)-1 : V*i]; 
-		assign chan_in_all[i].flit_wr  = flit_in_wr_all[i]; 
+		assign chan_in_all[i].flit_chanel.flit    = flit_in_all [Fw*(i+1)-1 : Fw*i];		
+		assign chan_in_all[i].flit_chanel.credit  = credit_in_all [V*(i+1)-1 : V*i]; 
+		assign chan_in_all[i].flit_chanel.flit_wr  = flit_in_wr_all[i]; 
 
-		assign flit_out_all [Fw*(i+1)-1 : Fw*i] = chan_out_all[i].flit;		
-		assign credit_out_all [V*(i+1)-1 : V*i] = chan_out_all[i].credit;
-		assign flit_out_wr_all[i] = chan_out_all[i].flit_wr; 
+		assign flit_out_all [Fw*(i+1)-1 : Fw*i] = chan_out_all[i].flit_chanel.flit;		
+		assign credit_out_all [V*(i+1)-1 : V*i] = chan_out_all[i].flit_chanel.credit;
+		assign flit_out_wr_all[i] = chan_out_all[i].flit_chanel.flit_wr; 
 
 	end
 	endgenerate

@@ -141,11 +141,11 @@ module l2_wrapper #(
             ) i_l2_sb_wrapper (
                 .clk                            ( clk                                               ),
                 .rst_n                          ( rst_n                                             ),
-                // To L2 Snoop Channel
+                // To L2 Snoop chanel
                 .chi_snp_val_i                  ( snp_q_val[i]                                      ),
                 .chi_snp_data_i                 ( chi_snp_q_data_i                                  ),
                 .chi_snp_pull_o                 ( chi_snp_pull[i]                                   ),
-                // To L2 Fill Channel
+                // To L2 Fill chanel
                 .chi_fll_q_push_i               ( fll_q_push[i]                                     ),
                 .chi_fll_q_data_i               ( chi_fll_q_data_i[FLL_PLUS_BANK_W-1:BANK_ADDR_W]   ),
                 .chi_fll_q_full_o               ( fll_q_full[i]                                     ),
@@ -158,7 +158,7 @@ module l2_wrapper #(
                 .l1_fll_q_empty_o               ( l1_fll_q_empty[i]                                 ),
                 .l1_fll_q_ptr_o                 ( l1_fll_q_ptr[i]                                   ),
                 .l1_stx_ok_o                    ( l1_stx_ok[i]                                      ),
-                // To CHI NoC Request Channel
+                // To CHI NoC Request chanel
                 .chi_noc_q_pop_i                ( chi_noc_q_pop[i]                                  ),
                 .chi_noc_q_empty_o              ( chi_noc_q_empty[i]                                ),
                 .chi_noc_q_data_o               ( chi_noc_q_data[i]                                 ),

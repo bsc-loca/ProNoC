@@ -157,7 +157,7 @@ module  top_mesh #
     
     
       //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop chanel so need target ID
     wire   [NE-1 : 0] chi_noc_txsnpflitpend_all ;
     wire   [NE-1 : 0] chi_noc_txsnpflitv_all ;
     wire   [SNP_FLIT_SIZE_NE-1:0]    chi_noc_txsnpflit_all ;

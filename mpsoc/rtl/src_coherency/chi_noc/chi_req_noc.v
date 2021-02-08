@@ -88,7 +88,7 @@ module  chi_req_noc #(
         PRONOC_REQ_Fw = PRONOC_OFFSEET + REQ_FLIT_SIZE + 3;
        
         
-    //request channel IO
+    //request chanel IO
     wire [PRONOC_REQ_Fw * NE-1 : 0] req_flit_out_all;
     wire [PRONOC_REQ_Fw-1 : 0] req_flit_out [NE-1 : 0];
     wire [NE-1 : 0] req_flit_out_wr_all;

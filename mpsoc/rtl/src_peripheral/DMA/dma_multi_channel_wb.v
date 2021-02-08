@@ -22,7 +22,7 @@
 **
 **	Description: 
 **	weighted round robin arbiter	
-**	A multi channel wishbone based DMA  and with support burst data transaction 
+**	A multi chanel wishbone based DMA  and with support burst data transaction 
 **	(Dose not support byte enable yet). 
 ***************************************/
 
@@ -35,7 +35,7 @@
  
  
  module dma_multi_chan_wb #(
-    parameter CHANNEL=4,
+    parameter chanel=4,
     parameter MAX_TRANSACTION_WIDTH=10, // Maximum transaction size will be 2 power of MAX_DMA_TRANSACTION_WIDTH words 
     parameter MAX_BURST_SIZE =256, // in words
     parameter FIFO_B = 4,
@@ -147,7 +147,7 @@
     
     
     localparam 
-        CHw=log2(CHANNEL),
+        CHw=log2(chanel),
         BURST_SIZE_w= log2(MAX_BURST_SIZE);
     
      /*   wishbone slave adderess :
@@ -160,12 +160,12 @@
             4   :   WR_STRT_WB_ADDR   // The destination start address in byte
                       
     [3+CHw:3]
-                channel num       
+                chanel num       
       
     */
     
-    wire [CHw-1 :   0] channel_addr = s_addr_i [3+CHw:3];
-    wire [2     :   0] channel_s_addr_i = s_addr_i [2: 0];
+    wire [CHw-1 :   0] chanel_addr = s_addr_i [3+CHw:3];
+    wire [2     :   0] chanel_s_addr_i = s_addr_i [2: 0];
     
   
     
@@ -180,30 +180,30 @@
     reg [BURST_SIZE_w-1  :   0] burst_size, burst_size_next,burst_counter,burst_counter_next;
   
     
-    wire [CHANNEL-1 :   0] channel_wr_is_busy, channel_rd_is_busy;
-    wire [CHANNEL-1 :   0] channel_wr_enable,channel_rd_enable,channel_state_reg_enable;
-    wire [CHANNEL-1 :   0] channel_burst_counter_ld, channel_burst_counter_dec;
-    wire [CHANNEL-1 :   0] channel_fifo_wr, channel_fifo_rd;
-    wire [CHANNEL-1 :   0] channel_fifo_full, channel_fifo_nearly_full, channel_fifo_empty;
-    wire [CHANNEL-1 :   0] channel_rd_is_active,channel_wr_is_active;
+    wire [chanel-1 :   0] chanel_wr_is_busy, chanel_rd_is_busy;
+    wire [chanel-1 :   0] chanel_wr_enable,chanel_rd_enable,chanel_state_reg_enable;
+    wire [chanel-1 :   0] chanel_burst_counter_ld, chanel_burst_counter_dec;
+    wire [chanel-1 :   0] chanel_fifo_wr, chanel_fifo_rd;
+    wire [chanel-1 :   0] chanel_fifo_full, chanel_fifo_nearly_full, chanel_fifo_empty;
+    wire [chanel-1 :   0] chanel_rd_is_active,chanel_wr_is_active;
     wire [CHw-1     :   0] rd_enable_binary,wr_enable_binary;
      
      
      
-   wire  [SELw-1    :   0] channel_m_rd_sel_o  [CHANNEL-1 :   0];
-   wire  [M_Aw-1    :   0] channel_m_rd_addr_o [CHANNEL-1 :   0];
-   wire  [TAGw-1    :   0] channel_m_rd_cti_o  [CHANNEL-1 :   0];
-   wire  [CHANNEL-1 :   0] channel_m_rd_stb_o; 
-   wire  [CHANNEL-1 :   0] channel_m_rd_cyc_o; 
-   wire  [CHANNEL-1 :   0] channel_m_rd_we_o; 
+   wire  [SELw-1    :   0] chanel_m_rd_sel_o  [chanel-1 :   0];
+   wire  [M_Aw-1    :   0] chanel_m_rd_addr_o [chanel-1 :   0];
+   wire  [TAGw-1    :   0] chanel_m_rd_cti_o  [chanel-1 :   0];
+   wire  [chanel-1 :   0] chanel_m_rd_stb_o; 
+   wire  [chanel-1 :   0] chanel_m_rd_cyc_o; 
+   wire  [chanel-1 :   0] chanel_m_rd_we_o; 
        
             
-   wire  [SELw-1    :   0] channel_m_wr_sel_o  [CHANNEL-1 :   0];
-   wire  [M_Aw-1    :   0] channel_m_wr_addr_o [CHANNEL-1 :   0];
-   wire  [TAGw-1    :   0] channel_m_wr_cti_o  [CHANNEL-1 :   0];
-   wire  [CHANNEL-1 :   0] channel_m_wr_stb_o; 
-   wire  [CHANNEL-1 :   0] channel_m_wr_cyc_o; 
-   wire  [CHANNEL-1 :   0] channel_m_wr_we_o; 
+   wire  [SELw-1    :   0] chanel_m_wr_sel_o  [chanel-1 :   0];
+   wire  [M_Aw-1    :   0] chanel_m_wr_addr_o [chanel-1 :   0];
+   wire  [TAGw-1    :   0] chanel_m_wr_cti_o  [chanel-1 :   0];
+   wire  [chanel-1 :   0] chanel_m_wr_stb_o; 
+   wire  [chanel-1 :   0] chanel_m_wr_cyc_o; 
+   wire  [chanel-1 :   0] chanel_m_wr_we_o; 
             
  
      
@@ -213,29 +213,29 @@
      
      
     
-    wire burst_counter_ld = | channel_burst_counter_ld; 
-    wire burst_counter_dec= | channel_burst_counter_dec;
-    wire fifo_wr =  | channel_fifo_wr; 
-    wire fifo_rd =  | channel_fifo_rd;
+    wire burst_counter_ld = | chanel_burst_counter_ld; 
+    wire burst_counter_dec= | chanel_burst_counter_dec;
+    wire fifo_wr =  | chanel_fifo_wr; 
+    wire fifo_rd =  | chanel_fifo_rd;
     
     wire last_burst = (burst_counter == 1);
     wire burst_is_set =  (burst_size>0);
     
-    localparam STATUSw= 2 * CHw + 3 * CHANNEL;
+    localparam STATUSw= 2 * CHw + 3 * chanel;
     wire  [STATUSw-1  :0] status;  
-    wire [CHANNEL-1 :   0] channel_is_active = channel_rd_is_busy|channel_wr_is_busy;
-    assign status= {rd_enable_binary,wr_enable_binary,channel_rd_is_busy,channel_wr_is_busy,channel_is_active};
+    wire [chanel-1 :   0] chanel_is_active = chanel_rd_is_busy|chanel_wr_is_busy;
+    assign status= {rd_enable_binary,wr_enable_binary,chanel_rd_is_busy,chanel_wr_is_busy,chanel_is_active};
     assign s_dat_o={{(Dw-STATUSw){1'b0}}, status};
     
     
    
    bin_to_one_hot #(
    	.BIN_WIDTH(CHw),
-   	.ONE_HOT_WIDTH(CHANNEL)
+   	.ONE_HOT_WIDTH(chanel)
    )
    convert(
-   	.bin_code(channel_addr),
-   	.one_hot_code(channel_state_reg_enable)
+   	.bin_code(chanel_addr),
+   	.one_hot_code(chanel_state_reg_enable)
    );
    
    
@@ -251,8 +251,8 @@
         if(burst_counter_dec)   burst_counter_next= burst_counter- 1'b1;
         
         if(s_stb_i  &    s_we_i )   begin 
-            if (channel_wr_is_busy == {CHANNEL{1'b0}})  begin   
-                case(channel_s_addr_i)
+            if (chanel_wr_is_busy == {chanel{1'b0}})  begin   
+                case(chanel_s_addr_i)
                     BURST_SIZE_WB_ADDR: begin 
                         burst_size_next=s_dat_i [BURST_SIZE_w-1 : 0];    
                     end //BURST_SIZE_WB_ADDR
@@ -286,7 +286,7 @@
     
     genvar i;
     generate
-    for (i=0;i<CHANNEL; i=i+1) begin : channel_
+    for (i=0;i<chanel; i=i+1) begin : chanel_
         dma_single_wb #(
         	.MAX_TRANSACTION_WIDTH(MAX_TRANSACTION_WIDTH),
         	.Dw(Dw),
@@ -295,36 +295,36 @@
         	.TAGw(TAGw),
         	.SELw(SELw)
         )
-        channel_dma
+        chanel_dma
         (
         	.reset(reset),
         	.clk(clk),
         	.status(),
         	
         	//active-enable signals
-        	.rd_enable(channel_rd_enable[i]),
-        	.wr_enable(channel_wr_enable[i]),
-        	.state_reg_enable(channel_state_reg_enable[i]),
-        	.rd_is_busy(channel_rd_is_busy[i]),
-        	.wr_is_busy(channel_wr_is_busy[i]),
-        	.rd_is_active(channel_rd_is_active[i]),
-        	.wr_is_active(channel_wr_is_active[i]),
-        	.burst_counter_ld(channel_burst_counter_ld[i]),
-        	.burst_counter_dec(channel_burst_counter_dec[i]),
+        	.rd_enable(chanel_rd_enable[i]),
+        	.wr_enable(chanel_wr_enable[i]),
+        	.state_reg_enable(chanel_state_reg_enable[i]),
+        	.rd_is_busy(chanel_rd_is_busy[i]),
+        	.wr_is_busy(chanel_wr_is_busy[i]),
+        	.rd_is_active(chanel_rd_is_active[i]),
+        	.wr_is_active(chanel_wr_is_active[i]),
+        	.burst_counter_ld(chanel_burst_counter_ld[i]),
+        	.burst_counter_dec(chanel_burst_counter_dec[i]),
         	.burst_size_is_set(burst_is_set),
         	.last_burst(last_burst),
         	
         	//fifo
-        	.fifo_wr(channel_fifo_wr[i]), 
-            .fifo_rd(channel_fifo_rd[i]), 
-            .fifo_full(channel_fifo_full[i]),
-            .fifo_nearly_full(channel_fifo_nearly_full[i]),
-            .fifo_empty(channel_fifo_empty[i]),
+        	.fifo_wr(chanel_fifo_wr[i]), 
+            .fifo_rd(chanel_fifo_rd[i]), 
+            .fifo_full(chanel_fifo_full[i]),
+            .fifo_nearly_full(chanel_fifo_nearly_full[i]),
+            .fifo_empty(chanel_fifo_empty[i]),
         	            
         	//wb salve
         	.s_dat_i(s_dat_i),
         	.s_sel_i(s_sel_i),
-        	.s_addr_i(channel_s_addr_i),
+        	.s_addr_i(chanel_s_addr_i),
         	.s_cti_i(s_cti_i),
         	.s_stb_i(s_stb_i),
         	.s_cyc_i(s_cyc_i),
@@ -333,39 +333,39 @@
         	//.s_ack_o(s_ack_o),
         	
         	//
-        	.m_rd_sel_o(channel_m_rd_sel_o[i]),
-        	.m_rd_addr_o(channel_m_rd_addr_o[i]),
-        	.m_rd_cti_o(channel_m_rd_cti_o[i]),
-        	.m_rd_stb_o(channel_m_rd_stb_o[i]),
-        	.m_rd_cyc_o(channel_m_rd_cyc_o[i]),
-        	.m_rd_we_o(channel_m_rd_we_o[i]),
+        	.m_rd_sel_o(chanel_m_rd_sel_o[i]),
+        	.m_rd_addr_o(chanel_m_rd_addr_o[i]),
+        	.m_rd_cti_o(chanel_m_rd_cti_o[i]),
+        	.m_rd_stb_o(chanel_m_rd_stb_o[i]),
+        	.m_rd_cyc_o(chanel_m_rd_cyc_o[i]),
+        	.m_rd_we_o(chanel_m_rd_we_o[i]),
         //	.m_rd_dat_i(m_rd_dat_i),
         	.m_rd_ack_i(m_rd_ack_i),
         	
         	
-        	.m_wr_sel_o(channel_m_wr_sel_o[i]),
-        //	.m_wr_dat_o(channel_m_wr_dat_o[i]),
-        	.m_wr_addr_o(channel_m_wr_addr_o[i]),
-        	.m_wr_cti_o(channel_m_wr_cti_o[i]),
-        	.m_wr_stb_o(channel_m_wr_stb_o[i]),
-        	.m_wr_cyc_o(channel_m_wr_cyc_o[i]),
-        	.m_wr_we_o(channel_m_wr_we_o[i]),
+        	.m_wr_sel_o(chanel_m_wr_sel_o[i]),
+        //	.m_wr_dat_o(chanel_m_wr_dat_o[i]),
+        	.m_wr_addr_o(chanel_m_wr_addr_o[i]),
+        	.m_wr_cti_o(chanel_m_wr_cti_o[i]),
+        	.m_wr_stb_o(chanel_m_wr_stb_o[i]),
+        	.m_wr_cyc_o(chanel_m_wr_cyc_o[i]),
+        	.m_wr_we_o(chanel_m_wr_we_o[i]),
         	.m_wr_ack_i(m_wr_ack_i)
         );
     
-    end  // for loop for channel
+    end  // for loop for chanel
     
   
-    if(CHANNEL> 1) begin : multi_channel
+    if(chanel> 1) begin : multi_chanel
     
         // round roubin arbiter
         bus_arbiter # (
-            .M (CHANNEL)
+            .M (chanel)
         )
         wr_arbiter
         (
-            .request (channel_wr_is_active ),
-            .grant  (channel_wr_enable),
+            .request (chanel_wr_is_active ),
+            .grant  (chanel_wr_enable),
             .clk (clk),
             .reset (reset)
         );
@@ -374,42 +374,42 @@
         
         
         bus_arbiter # (
-            .M (CHANNEL)
+            .M (chanel)
         )
         rd_arbiter
         (
-            .request (channel_rd_is_active),
-            .grant  (channel_rd_enable),
+            .request (chanel_rd_is_active),
+            .grant  (chanel_rd_enable),
             .clk (clk),
             .reset (reset)
         );
         
         
         one_hot_to_bin #(
-            .ONE_HOT_WIDTH(CHANNEL),
+            .ONE_HOT_WIDTH(chanel),
             .BIN_WIDTH(CHw)
         )
         rd_en_conv
         (
-            .one_hot_code(channel_rd_enable),
+            .one_hot_code(chanel_rd_enable),
             .bin_code(rd_enable_binary)
         );
         
         
          one_hot_to_bin #(
-            .ONE_HOT_WIDTH(CHANNEL),
+            .ONE_HOT_WIDTH(chanel),
             .BIN_WIDTH(CHw)
         )
         wr_en_conv
         (
-            .one_hot_code(channel_wr_enable),
+            .one_hot_code(chanel_wr_enable),
             .bin_code(wr_enable_binary)
         );
         
         
-    end else begin : single_channel // if we have just one channel there is no needs for arbitration
-        assign channel_wr_enable =  channel_wr_is_busy;
-        assign channel_rd_enable =  channel_rd_is_busy;
+    end else begin : single_chanel // if we have just one chanel there is no needs for arbitration
+        assign chanel_wr_enable =  chanel_wr_is_busy;
+        assign chanel_rd_enable =  chanel_rd_is_busy;
         assign rd_enable_binary = 1'b0;
         assign wr_enable_binary = 1'b0;
     end
@@ -418,21 +418,21 @@
     
     //wb multiplexors
     
-    assign m_rd_sel_o  = channel_m_rd_sel_o[rd_enable_binary];
-    assign m_rd_addr_o = channel_m_rd_addr_o[rd_enable_binary];
-    assign m_rd_cti_o  = channel_m_rd_cti_o[rd_enable_binary];
-    assign m_rd_stb_o  = channel_m_rd_stb_o[rd_enable_binary];
-    assign m_rd_cyc_o  = channel_m_rd_cyc_o[rd_enable_binary];
-    assign m_rd_we_o   = channel_m_rd_we_o[rd_enable_binary];
+    assign m_rd_sel_o  = chanel_m_rd_sel_o[rd_enable_binary];
+    assign m_rd_addr_o = chanel_m_rd_addr_o[rd_enable_binary];
+    assign m_rd_cti_o  = chanel_m_rd_cti_o[rd_enable_binary];
+    assign m_rd_stb_o  = chanel_m_rd_stb_o[rd_enable_binary];
+    assign m_rd_cyc_o  = chanel_m_rd_cyc_o[rd_enable_binary];
+    assign m_rd_we_o   = chanel_m_rd_we_o[rd_enable_binary];
        
             
             
-    assign m_wr_sel_o = channel_m_wr_sel_o[wr_enable_binary];
-    assign m_wr_addr_o= channel_m_wr_addr_o[wr_enable_binary];
-    assign m_wr_cti_o = channel_m_wr_cti_o[wr_enable_binary];
-    assign m_wr_stb_o = channel_m_wr_stb_o[wr_enable_binary];
-    assign m_wr_cyc_o = channel_m_wr_cyc_o[wr_enable_binary];
-    assign m_wr_we_o  = channel_m_wr_we_o[wr_enable_binary];
+    assign m_wr_sel_o = chanel_m_wr_sel_o[wr_enable_binary];
+    assign m_wr_addr_o= chanel_m_wr_addr_o[wr_enable_binary];
+    assign m_wr_cti_o = chanel_m_wr_cti_o[wr_enable_binary];
+    assign m_wr_stb_o = chanel_m_wr_stb_o[wr_enable_binary];
+    assign m_wr_cyc_o = chanel_m_wr_cyc_o[wr_enable_binary];
+    assign m_wr_we_o  = chanel_m_wr_we_o[wr_enable_binary];
     
     
           
@@ -442,7 +442,7 @@
   
   
   shared_mem_fifos #(
-  	.NUM(CHANNEL),
+  	.NUM(chanel),
   	.B(FIFO_B),
   	.Dw(Dw),
   	.DEBUG_EN(DEBUG_EN)
@@ -450,14 +450,14 @@
   the_shared_mem_fifos
   (
   	.din(m_rd_dat_i),
-  	.fifo_num_wr(channel_rd_enable ), // when chnnel is in read mode it start writing on fifo
-  	.fifo_num_rd(channel_wr_enable),
+  	.fifo_num_wr(chanel_rd_enable ), // when chnnel is in read mode it start writing on fifo
+  	.fifo_num_rd(chanel_wr_enable),
   	.wr_en(fifo_wr),
   	.rd_en(fifo_rd),
   	.dout(m_wr_dat_o),
-  	.full(channel_fifo_full),
-  	.nearly_full(channel_fifo_nearly_full),
-  	.empty(channel_fifo_empty),  
+  	.full(chanel_fifo_full),
+  	.nearly_full(chanel_fifo_nearly_full),
+  	.empty(chanel_fifo_empty),  
   	.reset(reset),
   	.clk(clk)
   );
@@ -990,7 +990,7 @@ endmodule
 
 
 /**************
-*   shared memory multi channel fifo  
+*   shared memory multi chanel fifo  
 *
 ****************/ 
 
@@ -1003,8 +1003,8 @@ module shared_mem_fifos #(
     )   
     (
         din,     // Data in
-        fifo_num_wr,//write vertual channel   
-        fifo_num_rd,//read vertual channel    
+        fifo_num_wr,//write vertual chanel   
+        fifo_num_rd,//read vertual chanel    
         wr_en,   // Write enable
         rd_en,   // Read the next word
         dout,    // Data out
@@ -1033,8 +1033,8 @@ module shared_mem_fifos #(
     
     
     input  [Fw-1      :0]   din;     // Data in
-    input  [V-1       :0]   fifo_num_wr;//write vertual channel   
-    input  [V-1       :0]   fifo_num_rd;//read vertual channel    
+    input  [V-1       :0]   fifo_num_wr;//write vertual chanel   
+    input  [V-1       :0]   fifo_num_rd;//read vertual chanel    
     input                   wr_en;   // Write enable
     input                   rd_en;   // Read the next word
     output [Fw-1       :0]  dout;    // Data out
@@ -1382,9 +1382,9 @@ if(DEBUG_EN) begin :dbg
     always @(posedge clk) begin
         if(~reset)begin
             if(wr_en && fifo_num_wr == {V{1'b0}})
-                    $display("%t: ERROR: Attempt to write when no wr channel is asserted: %m",$time);
+                    $display("%t: ERROR: Attempt to write when no wr chanel is asserted: %m",$time);
             if(rd_en && fifo_num_rd == {V{1'b0}})
-                    $display("%t: ERROR: Attempt to read when no rd channel  is asserted: %m",$time);
+                    $display("%t: ERROR: Attempt to read when no rd chanel  is asserted: %m",$time);
         end
     end
 end 

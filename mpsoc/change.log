@@ -64,9 +64,9 @@ All notable changes to this project will be documented in this file.
 -  Software compilation text-editor
 -  Processing tile Diagram Viewer 
 -  Modelsim/Verilator/QuartusII GUI compilation assist
--  Multi-channel DMA
+-  Multi-chanel DMA
 ## changed
--  New multi-channel DMA-based NI
+-  New multi-chanel DMA-based NI
 
 
 ##[1.6.0] - 6-3-2017

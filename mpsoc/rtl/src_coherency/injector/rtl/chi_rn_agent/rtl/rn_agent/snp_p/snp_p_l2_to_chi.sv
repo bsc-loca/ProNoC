@@ -20,7 +20,7 @@
 *   Date:           04/03/2019
 *-------------------------------------------------------------------------------
 *   Title:          The CHI Requestor agent SNP logic from L2 Req queue to CHI TXRSP 
-*                   and TXDAT channels
+*                   and TXDAT chanels
 *
 *   Description:    This module implements:
 *                   1) receives l2_req packet
@@ -36,9 +36,9 @@
 *                   case3: rsp_ch1 == SRSP, rsp_ch2 == WDAT
 *                   case4: rsp_ch1 == WDAT, rsp_ch2 == WDAT
 *                   
-*                   In all the cases, there is only one field also in the same field rsp_ch1 goes to SRSP channel. 
-*                   In case4, there are two fields that go to WDAT channel, for this reason, a 1-entry buffer is used
-*                   when we cannot send all the packets to WDAT channel. 
+*                   In all the cases, there is only one field also in the same field rsp_ch1 goes to SRSP chanel. 
+*                   In case4, there are two fields that go to WDAT chanel, for this reason, a 1-entry buffer is used
+*                   when we cannot send all the packets to WDAT chanel. 
 *                   Whenever the buffer is used, we cannot accept any new L2_req packet. 
 *                   When this buffer is empty, we send directly the L2_req rsp_ch1; whenever the buffer is occupied, we 
 *                   send the one in the buffer (always will be a rsp_ch2 message)
@@ -161,13 +161,13 @@ module snp_p_l2_to_chi
     // all the stop signals that will cause this stage to stall    
     logic tmp_stop_2nd;
 
-    // L2_Req rsp_ch1 valid and is for SRSP channel
+    // L2_Req rsp_ch1 valid and is for SRSP chanel
     logic tmp_ch1_srsp_valid;
     // L2_Req rsp_ch2 is not valid
     logic tmp_ch2_not_valid ;
-    // L2_Req rsp_ch1 is valid  and is for WDAT channel
+    // L2_Req rsp_ch1 is valid  and is for WDAT chanel
     logic tmp_ch1_wdat_valid;
-    // L2_Req rsp_ch2 is valid  and is for WDAT channel
+    // L2_Req rsp_ch2 is valid  and is for WDAT chanel
     logic tmp_ch2_wdat_valid;
     // all the four types of L2_Req snoop responses
     logic case1_valid ; 
@@ -262,7 +262,7 @@ module snp_p_l2_to_chi
     assign tmp_chi_rspflit_pkt.resperr       = tmp_l2_req_data.resperr1;
     // fwdstate[2:0] is applicable in SnpRespFwded and SnpRespDataFwded
     // inapplicable in all other Snoop responses
-    // in our case the fwdstate is always equals to either resp1 or resp2 depending on which channel this message is from 
+    // in our case the fwdstate is always equals to either resp1 or resp2 depending on which chanel this message is from 
     assign tmp_chi_rspflit_pkt.fwd_datapull  = tmp_l2_req_data.resp1;
     // rsp_ch1 is always targeted to HomeNID, rsp_ch2 is always targeted to RN
     assign tmp_chi_rspflit_pkt.tgtid         = tmp_snoop_table_pkt2_data.srcid;  //: tmp_snoop_table_pkt2_data.fwdnid;
@@ -413,7 +413,7 @@ module snp_p_l2_to_chi
     generate
         if (CHI_DAT_HAS_POISON) assign tmp_chi_datflit_pkt2.poison = {POISON_DAT{1'b0}};
     endgenerate
-    // on the second, stage, we always send rsp_ch2 channel data, therefore, we always send to RN
+    // on the second, stage, we always send rsp_ch2 chanel data, therefore, we always send to RN
     // for datflit, if to RN, the tgtid = snoop_table_fwdID,  the srcID is new, the TxnID = snoop_table_fwdtxnid, the Dbid = snoop_table_txnid, the HomeNid = snoop_table_srcid
     assign tmp_chi_datflit_pkt2.tgtid            = tmp_snoop_table_pkt2_data.fwdnid;
     assign tmp_chi_datflit_pkt2.txnid            = tmp_snoop_table_pkt2_data.fwdtxnid;

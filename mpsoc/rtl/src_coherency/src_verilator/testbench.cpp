@@ -187,7 +187,7 @@ void connect_all_r2r() {
 	
 	
 	
-	unsigned int R2R_CHANNELS_MESH_TORI =  (IS_RING || IS_LINE)? 2 : 4;
+	unsigned int R2R_chanelS_MESH_TORI =  (IS_RING || IS_LINE)? 2 : 4;
 	
 	for (i=0;i<NR;i++){
 		connect_clk(datrouter,i,pp);
@@ -195,7 +195,7 @@ void connect_all_r2r() {
 		connect_clk(reqrouter,i,pp);
 		connect_clk(snprouter,i,pp);
 
-		for (pp=0;pp<R2R_CHANNELS_MESH_TORI;pp++){
+		for (pp=0;pp<R2R_chanelS_MESH_TORI;pp++){
 
 			get_connected_router_mesh (i , pp, &dst_id, &dst_p);
 

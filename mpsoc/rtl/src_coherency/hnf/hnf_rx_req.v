@@ -32,7 +32,7 @@ module  hnf_rx_req #(
     noc_chi_rxreqflit,          
     chi_noc_rxreqlcrdv,      
 
-    //snoop-filter read channel
+    //snoop-filter read chanel
     rxreq_to_snpf_rd_addr,
     rxreq_to_snpf_rd_en,
     snpf_to_rxreq_rd_spv,
@@ -43,7 +43,7 @@ module  hnf_rx_req #(
     snpf_to_rxreq_rd_busy_bit,
     snpf_to_rxreq_rd_cnt_acpt_new,
     
-    //snoop-filter write channel
+    //snoop-filter write chanel
     rxreq_to_snpf_wr_addr,
     rxreq_to_snpf_wr_en,
     rxreq_to_snpf_wr_evict,
@@ -59,7 +59,7 @@ module  hnf_rx_req #(
     snpf_to_rxreq_wr_done,
         
     
-    //cache read-channel
+    //cache read-chanel
     rxreq_to_cache_rd_addr,
     cache_to_rxreq_rd_data,
     rxreq_to_cache_rd_en,
@@ -68,7 +68,7 @@ module  hnf_rx_req #(
     cache_to_rxreq_rd_hit,
     cache_to_rexreq_rd_done, 
    
-    //cahe wr channel is added to undat
+    //cahe wr chanel is added to undat
     
        
     
@@ -183,7 +183,7 @@ module  hnf_rx_req #(
     input  [REQ_FLIT_SIZE-1:0]    noc_chi_rxreqflit;          
     output  chi_noc_rxreqlcrdv;   
 
-    //snoop-filter read channel
+    //snoop-filter read chanel
     output [ADDR_REQ-1 : 0] rxreq_to_snpf_rd_addr;
     output rxreq_to_snpf_rd_en;
     input [SNPF_SPVw-1 : 0] snpf_to_rxreq_rd_spv;
@@ -194,7 +194,7 @@ module  hnf_rx_req #(
     input snpf_to_rxreq_rd_busy_bit;  
     input snpf_to_rxreq_rd_cnt_acpt_new;
     
-    //snoop-filter write channel
+    //snoop-filter write chanel
     output reg [ADDR_REQ-1 : 0] rxreq_to_snpf_wr_addr;
     output reg rxreq_to_snpf_wr_en;
     output reg rxreq_to_snpf_wr_evict;
@@ -211,7 +211,7 @@ module  hnf_rx_req #(
     input snpf_to_rxreq_wr_done;
     
     
-    //cache read-channel
+    //cache read-chanel
     output [ADDR_REQ-1 : 0] rxreq_to_cache_rd_addr;
     input  [DATA_DAT-1 : 0] cache_to_rxreq_rd_data;
     output rxreq_to_cache_rd_en;
@@ -221,7 +221,7 @@ module  hnf_rx_req #(
     input cache_to_rexreq_rd_done;  
   
    
-    //cache write channel is added to undat     
+    //cache write chanel is added to undat     
     
    
   
@@ -882,7 +882,7 @@ module  hnf_rx_req #(
                                 if(~flit_fifo_empty & ~snpf_fifo_empty & ~cache_fifo_empty)  read_fifo_en=1'b1; else nst=IDEAL;
                                 
                             end  /// if( txdat_to_rxreq_ready & ~txnid_table_empty)
-                            //else do nothing just wait for txdat channel to be ready                           
+                            //else do nothing just wait for txdat chanel to be ready                           
                         end ///if(shared_in_system_cache && current_cache_to_rxreq_rd_hit)
                         else if( txnid_gen_ready & txsnp_to_rxreq_ready & snpf_to_rxreq_wr_chnl_ready & expct_rsp_to_rxreq_ready_wr) begin 
                              // Its not shared in system cache but other RNs have the valid copy of this cache line. 

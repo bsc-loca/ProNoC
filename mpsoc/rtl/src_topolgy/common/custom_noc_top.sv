@@ -11,8 +11,8 @@ module   custom_noc_top
     
 	input   clk,reset;
 	//local ports 
-	input   router_channel_t chan_in_all  [NE-1 : 0];
-	output  router_channel_t chan_out_all [NE-1 : 0];
+	input   router_chanel_t chan_in_all  [NE-1 : 0];
+	output  router_chanel_t chan_out_all [NE-1 : 0];
 	
 	   
 

@@ -52,6 +52,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			4,5,6,8,9,11,12,13,14,15: begin 
 				destport= 2; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//0
 		1: begin
@@ -61,6 +65,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			end
 			2,3,5,6,11,13,14: begin 
 				destport= 2; 
+			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//1
@@ -72,6 +80,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			0,1,7,9,10,12: begin 
 				destport= 2; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//2
 		3: begin
@@ -81,6 +93,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			end
 			0,1,4,5,6,7,8,9,13,14,15: begin 
 				destport= 2; 
+			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//3
@@ -95,6 +111,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			0,2,5,9,11,12,14,15: begin 
 				destport= 3; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//4
 		5: begin
@@ -108,6 +128,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			0,9: begin 
 				destport= 3; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//5
 		6: begin
@@ -117,6 +141,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			end
 			0,1,2,5,7,8,9,10,11,12,14,15: begin 
 				destport= 2; 
+			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//6
@@ -131,6 +159,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			1: begin 
 				destport= 3; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//7
 		8: begin
@@ -143,6 +175,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			end
 			1,7: begin 
 				destport= 3; 
+			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//8
@@ -157,6 +193,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			0: begin 
 				destport= 3; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//9
 		10: begin
@@ -170,6 +210,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			0: begin 
 				destport= 3; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//10
 		11: begin
@@ -182,6 +226,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			end
 			3: begin 
 				destport= 3; 
+			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//11
@@ -199,6 +247,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			8: begin 
 				destport= 4; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//12
 		13: begin
@@ -211,6 +263,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			end
 			0,1,2,5,7,8,9,10,11,12,14,15: begin 
 				destport= 4; 
+			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//13
@@ -228,6 +284,10 @@ module Tcustom1Rcustom_conventional_routing  #(
 			2,11: begin 
 				destport= 4; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//14
 		15: begin
@@ -244,8 +304,16 @@ module Tcustom1Rcustom_conventional_routing  #(
 			0,5,9: begin 
 				destport= 4; 
 			end
+
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//15
+
+		default: begin 
+			destport= {DSTPw{1'bX}};
+		end
 		endcase
 	end
 

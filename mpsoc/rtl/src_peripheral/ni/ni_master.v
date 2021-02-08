@@ -23,7 +23,7 @@
 ** 	License along with ProNoC. If not, see <http:**www.gnu.org/licenses/>.
 **
 **
-**	Description: multi-channel DMA-based network interface for 
+**	Description: multi-chanel DMA-based network interface for 
 **  handling packetizing/depacketizing data to/form NoC. 
 **  Can support CRC32 
 **	
@@ -191,7 +191,7 @@ module  ni_master #(
                 2  :   SEND_DEST_WB_ADDR        // The destination router address
                 3  :   SEND_POINTER_WB_ADDR,    // The address of data to be sent in byte 
  Virtual        4  :   SEND_DATA_SIZE,          // The size of data to be sent in byte  
- channel        5  :   SEND_HDR_DATA            // The short width data that can be sent by header flit  
+ chanel        5  :   SEND_HDR_DATA            // The short width data that can be sent by header flit  
  number        
                 8  :   RECEIVE_SRC_WB_ADDR       // The source router (the router which is sent this packet).
                 9  :   RECEIVE_POINTER_WB_ADDR   // The address pointer of receiver memory in byte
@@ -210,13 +210,13 @@ module  ni_master #(
       
 */
     localparam 
-        CHANNEL_ADDRw= 4,
-        CHANNEL_REGw = 4,
+        chanel_ADDRw= 4,
+        chanel_REGw = 4,
         GENRL_ADRw=2;
     
-    wire [CHw-1 :   0] vc_addr = s_addr_i [CHANNEL_REGw+CHw-1	:	CHANNEL_REGw];
-    wire [GENRL_ADRw-1 :   0] genrl_reg_addr = s_addr_i [CHANNEL_REGw+GENRL_ADRw-1  :   CHANNEL_REGw];
-    wire [CHANNEL_ADDRw-1     :   0] vc_s_addr_i = s_addr_i [CHANNEL_ADDRw-1: 0];
+    wire [CHw-1 :   0] vc_addr = s_addr_i [chanel_REGw+CHw-1	:	chanel_REGw];
+    wire [GENRL_ADRw-1 :   0] genrl_reg_addr = s_addr_i [chanel_REGw+GENRL_ADRw-1  :   chanel_REGw];
+    wire [chanel_ADDRw-1     :   0] vc_s_addr_i = s_addr_i [chanel_ADDRw-1: 0];
 
 //general registers     
     localparam [GENRL_ADRw-1  :   0]
@@ -226,7 +226,7 @@ module  ni_master #(
         BURST_SIZE_WB_ADDR = 1;      
     
  //Readonly registers per VC
-    localparam [CHANNEL_ADDRw-1  :   0]
+    localparam [chanel_ADDRw-1  :   0]
         GENERAL_REGS_WB_ADDR=0,
         CTRL_FLAGS_WB_ADDR=1,
         RECEIVE_SRC_WB_ADDR =8,         // The source router (the router which is sent this packet).
@@ -590,7 +590,7 @@ end
             .CTRL_FLGw(CTRL_FLGw),
             .C(C),
             .Dw(Dw),
-            .S_Aw(CHANNEL_REGw),
+            .S_Aw(chanel_REGw),
             .WEIGHTw(WEIGHTw),
             .BYTE_EN(BYTE_EN)
             
@@ -645,7 +645,7 @@ end
 	        .irq(vc_irq[i]),
 	        
 	        .s_dat_i(s_dat_i),
-            .s_addr_i(s_addr_i[CHANNEL_REGw-1:0]),
+            .s_addr_i(s_addr_i[chanel_REGw-1:0]),
             .s_stb_i(s_stb_i),
             .s_cyc_i(s_cyc_i),
             .s_we_i(s_we_i)
@@ -768,8 +768,8 @@ end
       wire receive_crc_enable =  fifo_rd_delayed & ~ received_flit_is_tail & ~received_flit_is_hdr;
       wire [31:0]  send_crc_out,receive_crc_out;
                                         
-        crc_32_multi_channel #(
-            .CHANNEL(V)
+        crc_32_multi_chanel #(
+            .chanel(V)
         )
         send_crc
         (
@@ -777,13 +777,13 @@ end
             .clk(clk),
             .crc_reset(send_hdr),
             .crc_enable(send_crc_enable),
-            .channel_in(send_vc_enable_binary),
+            .chanel_in(send_vc_enable_binary),
             .data_in(m_send_dat_i [Fpay-1 : 0]),
             .crc_out(send_crc_out)
         );        
         
-        crc_32_multi_channel #(
-        	.CHANNEL(V)
+        crc_32_multi_chanel #(
+        	.chanel(V)
         )
          receive_crc
          (
@@ -791,7 +791,7 @@ end
         	.clk(clk),
         	.crc_reset(received_flit_is_hdr),
         	.crc_enable(receive_crc_enable),
-        	.channel_in(receive_vc_enable_binary),
+        	.chanel_in(receive_vc_enable_binary),
         	.data_in(m_receive_dat_o[Fpay-1 : 0]),
         	.crc_out(receive_crc_out)
         );
@@ -823,7 +823,7 @@ end
     end
       
   
-    if(V> 1) begin : multi_channel
+    if(V> 1) begin : multi_chanel
     
         // round roubin arbiter
         bus_arbiter # (
@@ -871,7 +871,7 @@ end
         );
         
         
-    end else begin : single_channel // if we have just one channel there is no need for arbitration
+    end else begin : single_chanel // if we have just one chanel there is no need for arbitration
         assign receive_vc_enable =  receive_vc_is_active;
         assign send_vc_enable =  send_vc_is_active;
         assign send_vc_enable_binary = 1'b0;
@@ -991,9 +991,9 @@ end
      the_ififo
      (
         .din(flit_in),     // Data in
-        .vc_num_wr(flit_in_vc_num),//write vertual channel    
+        .vc_num_wr(flit_in_vc_num),//write vertual chanel    
         .wr_en(flit_in_wr),   // Write enable
-        .vc_num_rd(receive_vc_enable),//read vertual channel     
+        .vc_num_rd(receive_vc_enable),//read vertual chanel     
         .rd_en(fifo_rd),   // Read the next word
         .dout(fifo_dout),    // Data out
         .vc_not_empty(ififo_vc_not_empty),

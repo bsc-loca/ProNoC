@@ -111,8 +111,8 @@ module testbench_noc;
    
     
     
-    wire   router_channel_t chan_in_all  [NE-1 : 0];
-    wire   router_channel_t chan_out_all [NE-1 : 0];
+    wire   router_chanel_t chan_in_all  [NE-1 : 0];
+    wire   router_chanel_t chan_out_all [NE-1 : 0];
     
     
     

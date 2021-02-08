@@ -29,7 +29,7 @@
 package chi_rn_params_pkg;
 
 /*----------------------------------------------------------------------------*/
-/*CHI Channel specifications*/
+/*CHI chanel specifications*/
 /*----------------------------------------------------------------------------*/
     //localparams for the request flit 
     localparam QOS_REQ_DEFAULT = 4;
@@ -230,12 +230,12 @@ package chi_rn_params_pkg;
     localparam L2_DATA_DEFAULT = DATA_DAT_DEFAULT;
     localparam L2_DMASK_DEFAULT = BE_DAT_DEFAULT;
 
-    // Response Channels
+    // Response chanels
     typedef enum logic [2:0] {
         NORP    = 'b000 ,   // No Response
-        REQT    = 'b001 ,   // Request Channel
-        SRSP    = 'b010 ,   // Snoop Response Channel
-        WDAT    = 'b011     // Write Data Channel
+        REQT    = 'b001 ,   // Request chanel
+        SRSP    = 'b010 ,   // Snoop Response chanel
+        WDAT    = 'b011     // Write Data chanel
     } rsp_ch_t;
 
 
@@ -332,7 +332,7 @@ package chi_rn_params_pkg;
 /*----------------------------------------------------------------------------*/
 /*CHI Requestor Agent Internal Specifications*/
 /*----------------------------------------------------------------------------*/
-    // REQ channel opcode
+    // REQ chanel opcode
     localparam NOP              = 6'h0;
     localparam READSHARED       = 6'h01;
     localparam READONCE         = 6'h03;
@@ -375,7 +375,7 @@ package chi_rn_params_pkg;
 
     localparam ATOMICS_START    = 6'h28;
     localparam ATOMICS_END      = 6'h39;
-    // RXRSP channel opcode[3:0], we only support a subset of them for now
+    // RXRSP chanel opcode[3:0], we only support a subset of them for now
     localparam RESPLCRDRETURN  = 4'h0;
     localparam SNPRESP         = 4'h1;
     localparam COMPACK         = 4'h2;
@@ -387,7 +387,7 @@ package chi_rn_params_pkg;
     localparam READRECEIPT     = 4'h8;
     localparam SNPRESPFWDED    = 4'h9;
     
-    // TXDAT channel opcode[N:0], we only support a subset of them for now
+    // TXDAT chanel opcode[N:0], we only support a subset of them for now
     // don't specify a number of bits as this can vary
     localparam DATALCRDRETURN   = 'h0;
     localparam SNPRESPDATA      = 'h1;
@@ -403,7 +403,7 @@ package chi_rn_params_pkg;
     localparam RESP_COMPDATA_UC      = 3'h2;
     localparam RESP_COMPDATA_UD_PD   = 3'h3;
 
-    // SNP channel opcode[4:0] 
+    // SNP chanel opcode[4:0] 
     localparam SNPLCRDRETURN            = 5'h00;
     localparam SNPSHARED                = 5'h01; 
     localparam SNPCLEAN                 = 5'h02; 

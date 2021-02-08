@@ -23,12 +23,12 @@ module  tree_noc_top
   
 	input   clk,reset;
 	//local ports 
-	input   router_channel_t chan_in_all  [NE-1 : 0];
-	output  router_channel_t chan_out_all [NE-1 : 0];
+	input   router_chanel_t chan_in_all  [NE-1 : 0];
+	output  router_chanel_t chan_out_all [NE-1 : 0];
 	
 	//all routers port 
-	router_channel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
-	router_channel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0]; 
+	router_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+	router_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0]; 
                          
    
         

@@ -37,8 +37,8 @@ module flit_buffer #(
     )   
     (
         din,     // Data in
-        vc_num_wr,//write vertual channel   
-        vc_num_rd,//read vertual channel    
+        vc_num_wr,//write vertual chanel   
+        vc_num_rd,//read vertual chanel    
         wr_en,   // Write enable
         rd_en,   // Read the next word
         dout,    // Data out
@@ -63,8 +63,8 @@ module flit_buffer #(
     
     
     input  [Fw-1      :0]   din;     // Data in
-    input  [V-1       :0]   vc_num_wr;//write vertual channel   
-    input  [V-1       :0]   vc_num_rd;//read vertual channel    
+    input  [V-1       :0]   vc_num_wr;//write vertual chanel   
+    input  [V-1       :0]   vc_num_rd;//read vertual chanel    
     input                   wr_en;   // Write enable
     input                   rd_en;   // Read the next word
     output [Fw-1       :0]  dout;    // Data out

@@ -10,10 +10,10 @@
 
 module  chi_dat_noc #(
     
-   // parameter MAP_CHI_CHANNEL_ON= "VC", 
+   // parameter MAP_CHI_chanel_ON= "VC", 
     /*
-    "VC"= map each CHI channel on one Virtual channel. Only one channel can send a flit at each clock cycle
-    "PHY" map each CHI channel in a seperate physical NoC
+    "VC"= map each CHI chanel on one Virtual chanel. Only one chanel can send a flit at each clock cycle
+    "PHY" map each CHI chanel in a seperate physical NoC
     */
     parameter B = 4,     // buffer space :flit per VC 
     parameter TOPOLOGY= "MESH",     
@@ -92,7 +92,7 @@ module  chi_dat_noc #(
         
         
        
-    //data channel IO
+    //data chanel IO
     wire [PRONOC_DAT_Fw * NE -1 : 0] dat_flit_out_all;
     wire [PRONOC_DAT_Fw-1 : 0] dat_flit_out [NE-1 : 0];
     wire [NE-1 : 0] dat_flit_out_wr_all;

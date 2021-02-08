@@ -26,6 +26,7 @@
 **************************************************************/
 
 module crossbar #(
+    parameter SBP_EN=0,
     parameter TOPOLOGY = "MESH",
     parameter V    = 4,     // vc_num_per_port
     parameter P    = 5,     // router port num
@@ -74,7 +75,8 @@ module crossbar #(
     input [PFw-1 : 0] flit_in_all;
     output [PFw-1 : 0] flit_out_all;
     output [P-1 : 0] flit_out_wr_all;
-    input [P-1 : 0] ssa_flit_wr_all;
+    input  [P-1 : 0] ssa_flit_wr_all;
+
     input reset,clk;
     
     
@@ -198,7 +200,7 @@ module crossbar #(
     assign    flit_out_wr_all_internal = flit_we_mux_out | ssa_flit_wr_all;
     
     generate 
-        if( ADD_PIPREG_AFTER_CROSSBAR == 1) begin :pip_reg1
+        if( ADD_PIPREG_AFTER_CROSSBAR == 1 || SBP_EN == 1) begin :pip_reg1
             
             reg [PFw-1 : 0] flit_out_all_pipe;
             reg [P-1 : 0] flit_out_wr_all_pipe;

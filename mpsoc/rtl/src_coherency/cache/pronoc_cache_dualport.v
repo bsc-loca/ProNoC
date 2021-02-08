@@ -79,7 +79,7 @@ module  pronoc_cache_dualport#(
                    
     input [31 : 0] src_id;                   
         
-    //read channel 
+    //read chanel 
     input [ADDRw-1 : 0] wr_addr;
     input [DATAw-1 : 0] wr_data;
     input wr_en;
@@ -93,7 +93,7 @@ module  pronoc_cache_dualport#(
     
         
   
-    //write channel
+    //write chanel
     input [ADDRw-1 : 0] rd_addr;   
     output[DATAw-1 : 0] rd_data;
     input rd_en;
@@ -193,7 +193,7 @@ module  pronoc_cache_dualport#(
         ram_we_i_wr={WAY_NUM{1'b0}};
         re_fill=1'b0;
         wr_done_next=0;
-        ram_addr_i_wr=index_in_wr_next;// default for read in write channel. addr directly gotton from input 
+        ram_addr_i_wr=index_in_wr_next;// default for read in write chanel. addr directly gotton from input 
         new_cache_block=1'b0;
         case(ps)
         READ: begin 
@@ -271,13 +271,13 @@ module  pronoc_cache_dualport#(
        )
        ram1
        (
-       //channel a . rd & wr
+       //chanel a . rd & wr
         .wr_dat_a(info_ram_in_wr),
         .addr_a(ram_addr_i_wr),
         .wr_en_a(ram_we_i_wr[i]),
         .rd_dat_a(info_array_wr[i]),
         
-       //channel b rd only  
+       //chanel b rd only  
         .rd_dat_b(info_array_rd[i]),
         .addr_b(ram_addr_i_rd),
         .rd_en_b(rd_en),
@@ -330,13 +330,13 @@ module  pronoc_cache_dualport#(
        )
        ram2
        (
-       //channel a . rd & wr
+       //chanel a . rd & wr
         .wr_dat_a(new_data),
         .addr_a(ram_addr_i_wr ),
         .wr_en_a(ram_we_i_wr[i] ),
         .rd_dat_a( data_array_wr[i]),
         
-       //channel b rd only  
+       //chanel b rd only  
         .rd_dat_b(data_array_rd[i] ),
         .addr_b(ram_addr_i_rd),
         .rd_en_b(rd_en),

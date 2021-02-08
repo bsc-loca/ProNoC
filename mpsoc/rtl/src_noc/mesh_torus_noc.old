@@ -37,7 +37,7 @@
 
 
 module mesh_torus_noc #(
-    parameter V = 2, // Number of Virtual channel per port 
+    parameter V = 2, // Number of Virtual chanel per port 
     parameter B = 4, // buffer space :flit per VC 
     parameter T1   = 2, // The number of node in x axis of mesh or torus. For ring topology is total number of nodes in ring.
     parameter T2   = 2, // The number of node in y axis of mesh or torus. It is not used in ring topology.
@@ -243,7 +243,7 @@ generate
             // connect other local ports
             for  (l=0;   l<NL; l=l+1) begin :locals
                 localparam ENDPID = `endp_id(x,0,l); 
-                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
+                localparam LOCALP = (l==0) ? l : l + R2R_chanelS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
                 
                 assign router_flit_in_all [`SELECT_WIRE(x,0,LOCALP,Fw)] =    ni_flit_out [ENDPID];
                 assign router_credit_in_all [`SELECT_WIRE(x,0,LOCALP,V)] =    ni_credit_out [ENDPID];
@@ -430,7 +430,7 @@ generate
             // connect other local ports
             for  (l=0;   l<NL; l=l+1) begin :locals
                 localparam ENDPID = `endp_id(x,y,l); 
-                localparam LOCALP = (l==0) ? l : l + R2R_CHANNELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
+                localparam LOCALP = (l==0) ? l : l + R2R_chanelS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
                 
                 assign router_flit_in_all [`SELECT_WIRE(x,y,LOCALP,Fw)] =    ni_flit_out [ENDPID];
                 assign router_credit_in_all [`SELECT_WIRE(x,y,LOCALP,V)] =    ni_credit_out [ENDPID];

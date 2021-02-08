@@ -132,6 +132,9 @@ localparam [EAw-1 : 0]	E15=15;
 			{E0,E1},{E0,E4},{E0,E5},{E0,E6},{E0,E7},{E0,E13},{E0,E14},{E0,E15}: begin 
 				destport= 2; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//0
 		1: begin
@@ -145,6 +148,9 @@ localparam [EAw-1 : 0]	E15=15;
 			{E1,E0},{E1,E10},{E2,E0},{E2,E10}: begin 
 				destport= 2; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//1
 		2: begin
@@ -157,6 +163,9 @@ localparam [EAw-1 : 0]	E15=15;
 			end
 			{E1,E3},{E2,E3}: begin 
 				destport= 3; 
+			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//2
@@ -173,6 +182,9 @@ localparam [EAw-1 : 0]	E15=15;
 			end
 			{E3,E0},{E3,E5},{E3,E9},{E3,E15}: begin 
 				destport= 3; 
+			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//3
@@ -193,6 +205,9 @@ localparam [EAw-1 : 0]	E15=15;
 			{E3,E1},{E3,E7},{E3,E8},{E3,E14},{E4,E1},{E4,E7},{E4,E8},{E4,E10}: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//4
 		5: begin
@@ -208,6 +223,9 @@ localparam [EAw-1 : 0]	E15=15;
 			end
 			{E3,E0},{E4,E0},{E5,E0},{E6,E0},{E11,E0},{E13,E0},{E15,E0}: begin 
 				destport= 3; 
+			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//5
@@ -228,6 +246,9 @@ localparam [EAw-1 : 0]	E15=15;
 			{E4,E2},{E4,E11},{E4,E14},{E5,E2},{E5,E14},{E9,E14}: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//6
 		7: begin
@@ -243,6 +264,9 @@ localparam [EAw-1 : 0]	E15=15;
 			end
 			{E1,E0},{E2,E0},{E7,E0},{E14,E0}: begin 
 				destport= 3; 
+			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//7
@@ -263,6 +287,9 @@ localparam [EAw-1 : 0]	E15=15;
 			{E7,E2},{E7,E11},{E8,E2},{E8,E11}: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//8
 		9: begin
@@ -281,6 +308,9 @@ localparam [EAw-1 : 0]	E15=15;
 			end
 			{E0,E8},{E9,E1},{E9,E7},{E9,E8}: begin 
 				destport= 4; 
+			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//9
@@ -301,6 +331,9 @@ localparam [EAw-1 : 0]	E15=15;
 			{E10,E8}: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//10
 		11: begin
@@ -317,6 +350,9 @@ localparam [EAw-1 : 0]	E15=15;
 			{E2,E8},{E3,E10},{E11,E1},{E11,E7},{E11,E8},{E11,E10}: begin 
 				destport= 3; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//11
 		12: begin
@@ -332,6 +368,9 @@ localparam [EAw-1 : 0]	E15=15;
 			end
 			{E8,E5},{E10,E5},{E12,E5}: begin 
 				destport= 4; 
+			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
 			end
 			endcase
 		end//12
@@ -352,6 +391,9 @@ localparam [EAw-1 : 0]	E15=15;
 			{E4,E2},{E4,E11},{E5,E2},{E13,E2},{E13,E11}: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//13
 		14: begin
@@ -371,6 +413,9 @@ localparam [EAw-1 : 0]	E15=15;
 			{E1,E5},{E2,E5},{E7,E5},{E11,E0},{E11,E5},{E13,E0},{E13,E5},{E13,E9},{E14,E5},{E14,E9}: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//14
 		15: begin
@@ -387,8 +432,14 @@ localparam [EAw-1 : 0]	E15=15;
 			{E0,E2},{E0,E3},{E0,E11},{E5,E8},{E5,E11},{E6,E2},{E6,E8},{E6,E11},{E9,E2},{E9,E11},{E10,E2},{E10,E11},{E12,E2},{E12,E11},{E15,E2},{E15,E8},{E15,E11}: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
 			endcase
 		end//15
+		default: begin 
+			destport= {DSTPw{1'bX}};
+		end
 		endcase
 	end
   

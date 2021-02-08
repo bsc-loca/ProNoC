@@ -31,7 +31,7 @@
 
     
 module  comb_spec2_allocator #(
-    parameter V = 4,// Virtual channel num per port
+    parameter V = 4,// Virtual chanel num per port
     parameter P = 5,
     parameter DEBUG_EN = 1,
     parameter SWA_ARBITER_TYPE = "WRRA",

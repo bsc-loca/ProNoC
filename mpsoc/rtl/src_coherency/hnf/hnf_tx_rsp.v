@@ -18,7 +18,7 @@ module  hnf_tx_rsp #(
     reset,
     clk,
 
-    //chi channel 
+    //chi chanel 
     chi_noc_txrspflitpend,
     chi_noc_txrspflitv,
     chi_noc_txrspflit,
@@ -54,7 +54,7 @@ module  hnf_tx_rsp #(
      
    input [31 : 0] src_id;
 
-    //chi channel
+    //chi chanel
     input reset,clk;
     output  chi_noc_txrspflitpend ;
     output  chi_noc_txrspflitv ;
@@ -107,7 +107,7 @@ module  hnf_tx_rsp #(
     
     
     
-   //write channel    
+   //write chanel    
     many_to_one_pipereg #(
         .Dw(Dw),
         .IN_NUM(2),

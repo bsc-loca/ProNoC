@@ -26,7 +26,7 @@
 *
 *                   From the L2 Cache side, there are four queues (two inputs 
 *                   and two outputs): L2 request, L2 evict, Fill and Snoop.
-*                   From the NoC side, there are six standard CHI channels. 
+*                   From the NoC side, there are six standard CHI chanels. 
 *                   
 *                   This CHI RN Agent has all the required features specified 
 *                   as a Requestor Agent in the spec.
@@ -670,7 +670,7 @@ rxdat_p #(
     .txnid_table_rd_data_valid_i   (tmp_txnid_table_rd_data_valid_2_o  ),
     .txnid_table_wr_en_1_and_o     (rxdatp_txnid_table_wr_en_1_and_o   ),
     .txnid_table_wr_data_1_and_o   (rxdatp_txnid_table_wr_data_1_and_o ),
-    /*--------- Snoop response to TXRSP channel   --------------------*/
+    /*--------- Snoop response to TXRSP chanel   --------------------*/
     .snpp_rxdatp_rspflit_i         (snpp_rxdatp_rspflit_w              ),
     .snpp_rxdatp_rspflitv_i        (snpp_rxdatp_rspflitv_w             ),
     .rxdatp_snpp_stall_o           (rxdatp_snpp_stall_w                ),
@@ -702,7 +702,7 @@ snp_p_chi_to_l2 #(
      //generic
     .clk                           (clk_i                             ),
     .rst_n                         (rst_ni                            ),
-    // channel signals
+    // chanel signals
     .noc_rx_snpflitpend            (noc_chi_rxsnpflitpend             ),
     .noc_rx_snpflit                (noc_chi_rxsnpflit                 ),
     .noc_rx_snpflitv               (noc_chi_rxsnpflitv                ),

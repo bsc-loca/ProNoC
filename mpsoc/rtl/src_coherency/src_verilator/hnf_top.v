@@ -33,7 +33,7 @@ module  hnf_top (
     
     
     //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id ; // we are not supporting braod casting on snoop chanel so need target ID
     chi_noc_txsnpflitpend,
     chi_noc_txsnpflitv,
     chi_noc_txsnpflit,
@@ -125,7 +125,7 @@ module  hnf_top (
     
     
     //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id ; // we are not supporting braod casting on snoop chanel so need target ID
     output    chi_noc_txsnpflitpend ;
     output    chi_noc_txsnpflitv ;
     output   [SNP_FLIT_SIZE-1:0]    chi_noc_txsnpflit ;

@@ -22,13 +22,13 @@
 *   Title:          txreq.sv  - top file of TXREQ Pipeline
 *
 *   Description:    This block arbitrates from the two input L2 Req and Evict queue
-*                   and output to CHI TXREQ channel to the NoC.
+*                   and output to CHI TXREQ chanel to the NoC.
 *                   It also filters out snoop requests from the L2 Req and sends 
 *                   them to the Snoop pipeline, and accepts retry requests from 
 *                   the Retry Logic. 
 *
 *                   Add size information for Atomic operations. It is required in the 
-*                   reqflit, therefore from the evict queue to TXREQ channel, from the 
+*                   reqflit, therefore from the evict queue to TXREQ chanel, from the 
 *                   retry logic, and this size information should also be saved in the 
 *                   txnid table.
 *

@@ -8,7 +8,7 @@
 `timescale   1ns/1ns
 
 module  chi_to_pronoc_wrapper #(
-    parameter  CHI_FLIT_SIZE = 50, // CHI channel data width
+    parameter  CHI_FLIT_SIZE = 50, // CHI chanel data width
     parameter P         =5,
     parameter T1= 8,
     parameter T2= 8,
@@ -172,9 +172,9 @@ endmodule
 
 
 
-//snoop channel doesnot have target id. our home node does not support broad casting so we need to add target id from home node  
+//snoop chanel doesnot have target id. our home node does not support broad casting so we need to add target id from home node  
 module  chi_to_pronoc_snoop_wrapper #(
-    parameter  CHI_FLIT_SIZE = 50, // CHI channel data width
+    parameter  CHI_FLIT_SIZE = 50, // CHI chanel data width
     parameter P         =5,
     parameter T1= 8,
     parameter T2= 8,
@@ -339,7 +339,7 @@ endmodule
 
 
 module pronoc_to_chi_wrapper #(
-    parameter  CHI_FLIT_SIZE = 50, // CHI channel data width
+    parameter  CHI_FLIT_SIZE = 50, // CHI chanel data width
     parameter P         =5,
     parameter EAw = 3,  
     parameter DSTPw=P-1

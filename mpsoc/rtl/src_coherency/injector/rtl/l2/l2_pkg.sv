@@ -62,32 +62,32 @@ package l2_pkg;
     localparam SNPUNIQUEFWD	    = 5'h17 ;
 
     // NoC Requests
-    localparam NOC_RPC_W = 3    ; // Response Channel Width
+    localparam NOC_RPC_W = 3    ; // Response chanel Width
     localparam NOC_OPC_W = 6    ; // NoC Opcode Width
     localparam NOC_RSP_W = 3    ; // NoC Resp Field Width
     localparam NOC_DAT_W = 256  ; // NoC Data Field Width
 
-    // Response Channels
+    // Response chanels
     typedef enum logic [NOC_RPC_W-1:0] {
         NORP    = 'b000 ,   // No Response
-        REQT    = 'b001 ,   // Request Channel
-        SRSP    = 'b010 ,   // Snoop Response Channel
-        WDAT    = 'b011 ,   // Write Data Channel
-        CRSP    = 'b100     // Completion Response Channel
+        REQT    = 'b001 ,   // Request chanel
+        SRSP    = 'b010 ,   // Snoop Response chanel
+        WDAT    = 'b011 ,   // Write Data chanel
+        CRSP    = 'b100     // Completion Response chanel
     } rsp_ch_t;
     
     // NoC Opcodes
-    // NoC REQ Channel Opcodes
+    // NoC REQ chanel Opcodes
     localparam  CLUNIQUE    = 'h0B,
                 MKUNIQUE    = 'h0C,
                 WRBACKFULL  = 'h1B,
                 RDUNIQUE    = 'h07,
                 RDSHARED    = 'h01;
-    // NoC SRSP Channel Opcodes
+    // NoC SRSP chanel Opcodes
     localparam  SNPRESP     = 'h01;
     localparam  SNPRSFW     = 'h09; // Forward type Snoop no Data
     localparam  SNPRFWD     = 'h06; // Forward type Snoop with Data
-    // NoC DAT Channel Opcodes
+    // NoC DAT chanel Opcodes
     localparam  COMPDATA    = 'h04;
 
     // Resp types

@@ -2027,7 +2027,7 @@ void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_n
     1ca0:	84 41 ff fc 	l.lwz r2,-4(r1)
 
 00001ca4 <ni_receive>:
-	v: virtual channel number of the received packet
+	v: virtual chanel number of the received packet
 	data_start_addr : The address pointer to the start location of the memory where the newly arrived packet must be stored by NI in.
 	max_buffer_size : The allocated receive-memory buffer size in words.
 */
@@ -2040,7 +2040,7 @@ void ni_receive (unsigned int v, unsigned int data_start_addr,  unsigned int max
     1cb4:	d7 e1 17 fc 	l.sw -4(r1),r2
 	 while (ni_receive_is_busy(v)); // wait until VC is busy saving previous packet
     1cb8:	19 00 b8 00 	l.movhi r8,0xb800
-	v: virtual channel number of the received packet
+	v: virtual chanel number of the received packet
 	data_start_addr : The address pointer to the start location of the memory where the newly arrived packet must be stored by NI in.
 	max_buffer_size : The allocated receive-memory buffer size in words.
 */

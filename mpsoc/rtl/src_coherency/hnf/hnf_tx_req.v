@@ -129,7 +129,7 @@ module  hnf_tx_req #(
     
     
     
-   //write channel    
+   //write chanel    
     many_to_one_pipereg #(
         .Dw(Dw),
         .IN_NUM(2),

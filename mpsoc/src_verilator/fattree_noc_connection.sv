@@ -96,7 +96,7 @@ module fattree_noc_connection
     output [NE-1 : 0] start_o;
     
     
-//connect all down input channels
+//connect all down input chanels
 
 localparam NPOS = powi( K, L-1);
 localparam CHAN_PER_DIRECTION = (K * powi( L , L-1 )); //up or down
@@ -108,7 +108,7 @@ for (level = 0; level<L-1; level=level+1) begin : level_c
 /* verilator lint_off WIDTH */
     localparam [Lw-1 : 0] LEAVE_L = L-1-level;
 /* verilator lint_on WIDTH */    
-    //input channel are numbered interleavely, the interleaev depends on level
+    //input chanel are numbered interleavely, the interleaev depends on level
     localparam ROUTERS_PER_NEIGHBORHOOD = powi(K,L-1-(level)); 
     localparam ROUTERS_PER_BRANCH = powi(K,L-1-(level+1)); 
     localparam LEVEL_OFFSET = ROUTERS_PER_NEIGHBORHOOD*K;

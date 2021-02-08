@@ -69,8 +69,8 @@ sub generate_topology_top_v {
 	*******************/
 ";
 		
-		$wires=$wires."\tinput  router_channel_t ${instance}_chan_in;\n";
-		$wires=$wires."\toutput router_channel_t ${instance}_chan_out;\n";
+		$wires=$wires."\tinput  router_chanel_t ${instance}_chan_in;\n";
+		$wires=$wires."\toutput router_chanel_t ${instance}_chan_out;\n";
 		$ports=$ports.",\n\t${instance}_chan_in,\n\t${instance}_chan_out";
 		
 		foreach my $d (@ports){		
@@ -133,11 +133,7 @@ sub generate_topology_top_v {
 module   ${name}_noc
 	import pronoc_pkg::*; 
 	(
-
-    reset,
-    clk,    
-    chan_in_all,
-    chan_out_all  
+   $ports
 );
 	
 	 function integer log2;
@@ -196,8 +192,8 @@ sub get_router_instance_v {
 \twire ${instance}_reset;
 \twire [RAw-1 :  0] ${instance}_current_r_addr;
 
-\trouter_channel_t    ${instance}_chan_in   [$Pnum-1 : 0];
-\trouter_channel_t    ${instance}_chan_out  [$Pnum-1 : 0]; 
+\trouter_chanel_t    ${instance}_chan_in   [$Pnum-1 : 0];
+\trouter_chanel_t    ${instance}_chan_out  [$Pnum-1 : 0]; 
 
 ";
 
@@ -350,12 +346,12 @@ sub generate_topology_top_genvar_v{
     my $ports_def="
 \tinput  reset;
 \tinput  clk;
-\tinput  router_channel_t chan_in_all  [NE-1 : 0];
-\toutput router_channel_t chan_out_all [NE-1 : 0];
+\tinput  router_chanel_t chan_in_all  [NE-1 : 0];
+\toutput router_chanel_t chan_out_all [NE-1 : 0];
 
 //all routers port 
-\trouter_channel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
-\trouter_channel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+\trouter_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+\trouter_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
 \twire [RAw-1 : 0] current_r_addr [NR-1 : 0];
 
 ";
@@ -665,9 +661,17 @@ sub generate_routing_v {
 \t\t\tend
 ";
 		}
-		$route_str=$route_str."\t\t\tendcase\n\t\tend//$src_num\n";
+		$route_str=$route_str."
+\t\t\tdefault: begin 
+\t\t\t\tdestport= {DSTPw{1\'bX}};
+\t\t\tend
+\t\t\tendcase\n\t\tend//$src_num\n";
 	}
-	$route_str=$route_str."\t\tendcase\n\tend\n";
+	$route_str=$route_str."
+\t\tdefault: begin 
+\t\t\tdestport= {DSTPw{1\'bX}};
+\t\tend
+\t\tendcase\n\tend\n";
 
 	
 	
@@ -758,9 +762,15 @@ foreach my $router (@routers){
 					
 	}				
 		
-	$route_str=$route_str."\t\t\tendcase\n\t\tend//$router_num\n";
+	$route_str.="\t\t\tdefault: begin 
+\t\t\t\tdestport= {DSTPw{1\'bX}};
+\t\t\tend
+\t\t\tendcase\n\t\tend//$router_num\n";
 	}
-$route_str=$route_str."\t\tendcase\n\tend\n";
+$route_str.="\t\tdefault: begin 
+\t\t\tdestport= {DSTPw{1\'bX}};
+\t\tend
+\t\tendcase\n\tend\n";
 	
 
 
@@ -910,7 +920,11 @@ add_info($info,"$top file is created\n  ");
 \t\t\tend
 ";
 		}
-		$route_str=$route_str."\t\t\tendcase\n\t\tend\n\tend//SRC$src_num\n\n";
+		$route_str=$route_str."\t\t\tdefault: begin 
+\t\t\t\tdestport= {DSTPw{1\'bX}};
+\t\t\tend
+
+\t\t\tendcase\n\t\tend\n\tend//SRC$src_num\n\n";
 	}
 	$route_str=$route_str."\tendgenerate\n";
 
@@ -1169,10 +1183,10 @@ sub generate_connection_v{
 \toutput [RAw-1 : 0] er_addr [NE-1 : 0]; // provide router address for each connected endpoint 
 \toutput [RAw-1 : 0] current_r_addr [NR-1 : 0]; // provide each router current address  ;
 \toutput [NE-1 : 0] start_o;
-\toutput router_channel_t chan_in_all [NE-1 : 0];
-\tinput  router_channel_t chan_out_all [NE-1 : 0]; 
-\tinput  router_channel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
-\toutput router_channel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+\toutput router_chanel_t chan_in_all [NE-1 : 0];
+\tinput  router_chanel_t chan_out_all [NE-1 : 0]; 
+\tinput  router_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+\toutput router_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
 
 ";
 
@@ -1249,11 +1263,14 @@ sub generate_connection_v{
 	
 	
 	my $pos=0;
+	$assign.="//The router address connected to each endpoint\n";
 	foreach my $end (@ends){
 		my $connect = $self->{$end}{'PCONNECT'}{'Port[0]'};
 		my ($Rname,$Rport)=split(/\s*,\s*/,$connect);
 		my $R = get_scolar_pos($Rname,@routers);
-		$assign=$assign."\tassign er_addr [$pos] = $R;\n";  
+		my $rname = $self->object_get_attribute("$Rname","NAME");
+		my $tname = $self->object_get_attribute("$end","NAME");
+		$assign=$assign."\tassign er_addr [$pos] = $R; //$tname -> $rname\n";  
 		$pos++;   		
 	}
 	
@@ -1261,7 +1278,8 @@ sub generate_connection_v{
 	
 	$pos=0;
 	foreach my $router (@routers){
-		$assign=$assign."\tassign current_r_addr [$pos] = $pos;\n";  
+		my $rname = $self->object_get_attribute("$router","NAME");
+		$assign=$assign."\tassign current_r_addr [$pos] = $pos; // $rname\n";  
 		$pos++;   		
 	}
 	

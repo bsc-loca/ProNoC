@@ -131,7 +131,7 @@ module  top_chi_noc #
     
     
       //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop chanel so need target ID
     wire   [NE-1 : 0] chi_noc_txsnpflitpend_all ;
     wire   [NE-1 : 0] chi_noc_txsnpflitv_all ;
     wire   [SNP_FLIT_SIZE_NE-1:0]    chi_noc_txsnpflit_all ;
@@ -321,10 +321,10 @@ module  top_chi_noc #
 	
     always @(posedge clk)begin 
        // if(VERBOSITY & MONITORE_FLIT_INJECT) begin 
-            if(noc_chi_rxrspflitv_i) $display("%t: rnf ( %d ) rsp channel has recived a packet:%h",$time,src_id,noc_chi_rxrspflit_i);
-            if(noc_chi_rxdatflitv_i) $display("%t: rnf ( %d ) dat channel has recived a packet:%h",$time,src_id,noc_chi_rxdatflit_i);
+            if(noc_chi_rxrspflitv_i) $display("%t: rnf ( %d ) rsp chanel has recived a packet:%h",$time,src_id,noc_chi_rxrspflit_i);
+            if(noc_chi_rxdatflitv_i) $display("%t: rnf ( %d ) dat chanel has recived a packet:%h",$time,src_id,noc_chi_rxdatflit_i);
             
-            if(noc_chi_rxsnpflitv_i) $display("%t: rnf ( %d ) snp channel has recived a packet:%h",$time,src_id,noc_chi_rxsnpflit_i);
+            if(noc_chi_rxsnpflitv_i) $display("%t: rnf ( %d ) snp chanel has recived a packet:%h",$time,src_id,noc_chi_rxsnpflit_i);
      //   end            
     end
     //synthesis translate_on 
@@ -334,10 +334,10 @@ module  top_chi_noc #
     //synopsys  translate_off
     always @(posedge clk)begin 
        // if(VERBOSITY & MONITORE_FLIT_INJECT) begin 
-            if(chi_noc_txrspflitv_o) $display("%t: rnf ( %d ) rsp channel has sent a packet:%h",$time,src_id,chi_noc_txrspflit_o);
-            if(chi_noc_txdatflitv_o) $display("%t: rnf ( %d ) dat channel has sent a packet:%h",$time,src_id,chi_noc_txdatflit_o);
-            if(chi_noc_txreqflitv_o) $display("%t: rnf ( %d ) req channel has sent a packet:%h",$time,src_id,chi_noc_txreqflit_o);
-           // if(chi_noc_txsnpflitv_o) $display("%t: rnf ( %d ) snp channel has sent a packet:%h",$time,src_id,chi_noc_txsnpflit_o);        
+            if(chi_noc_txrspflitv_o) $display("%t: rnf ( %d ) rsp chanel has sent a packet:%h",$time,src_id,chi_noc_txrspflit_o);
+            if(chi_noc_txdatflitv_o) $display("%t: rnf ( %d ) dat chanel has sent a packet:%h",$time,src_id,chi_noc_txdatflit_o);
+            if(chi_noc_txreqflitv_o) $display("%t: rnf ( %d ) req chanel has sent a packet:%h",$time,src_id,chi_noc_txreqflit_o);
+           // if(chi_noc_txsnpflitv_o) $display("%t: rnf ( %d ) snp chanel has sent a packet:%h",$time,src_id,chi_noc_txsnpflit_o);        
        // end
     end
 */

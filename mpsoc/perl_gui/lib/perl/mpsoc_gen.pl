@@ -651,7 +651,7 @@ sub noc_config{
         $default='2';
         $type='Spin-button';
         $content='2,16,1';
-        $info='Number of Virtual Channel per each router port';
+        $info='Number of Virtual chanel per each router port';
         ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
     } else {
         $mpsoc->object_add_attribute('noc_param','V',1);
@@ -1357,10 +1357,9 @@ sub generate_mpsoc{
     print FILE "$l\n$top_v";
     close(FILE) || die "Error closing file: $!";   
     
-    $l=autogen_warning().get_license_header("noc_localparam.v");
-    open(FILE,  ">$target_dir/src_verilog/lib/src_noc/noc_localparam.v") || die "Can not open: $!";
-    print FILE "$l\n `ifdef NOC_LOCAL_PARAM \n  $noc_param_v \n\n`endif\n";
-    close(FILE) || die "Error closing file: $!";   
+    gen_noc_localparam_v_file($mpsoc,"$target_dir/src_verilog/lib/src_noc");
+    
+   
     
     
          

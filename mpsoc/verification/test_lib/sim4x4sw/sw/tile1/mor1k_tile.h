@@ -214,7 +214,7 @@ void ni_initial (unsigned int burst_size, unsigned char errors_int_en, unsigned 
 
 /*
 	The NI message sent function:
-	v: virtual channel number which this packet should be sent to
+	v: virtual chanel number which this packet should be sent to
 	class_num: message class number. Diffrent message classes can be sent via isolated network resources to avoid protocol deadlock
  	data_start_addr : The address pointer to the start location of the packet to be sent in the memory
 	data_size: the message data size in words
@@ -233,7 +233,7 @@ void ni_transfer (unsigned int init_weight, unsigned int v, unsigned int class_n
 
 /*
 	The NI message receiver function:
-	v: virtual channel number of the received packet
+	v: virtual chanel number of the received packet
 	data_start_addr : The address pointer to the start location of the memory where the newly arrived packet must be stored by NI in.
 	max_buffer_size : The allocated receive-memory buffer size in words.
 */

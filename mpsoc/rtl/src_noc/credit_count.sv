@@ -1,6 +1,6 @@
 `timescale     1ns/1ps
 /**********************************************************************
-**	File:  credit_count.v
+**	File:  credit_count.sv
 **    
 **	Copyright (C) 2014-2017  Alireza Monemi
 **    
@@ -25,20 +25,14 @@
 **
 **************************************************************/
 
-module credit_counter #(
+module credit_counter 
+    import pronoc_pkg::*;
+ #(
 
-    parameter V = 4, // vc_num_per_port
-    parameter P = 5, // router port num
-    parameter B = 4, // buffer space :flit per VC 
-    parameter VC_REALLOCATION_TYPE    =    "NONATOMIC",// "ATOMIC" , "NONATOMIC"
-    parameter ROUTE_TYPE           =   "PAR_ADAPTIVE",// "DETERMINISTIC", "FULL_ADAPTIVE", "PAR_ADAPTIVE"
-    parameter CONGESTION_INDEX      =   2,//0,1,2
-    parameter [V-1  :   0] ESCAP_VC_MASK = 4'b0001,  // mask scape vc, valid only for full adaptive
-    parameter DEBUG_EN =   1,
-    parameter AVC_ATOMIC_EN=0,
-    parameter CONGw   =   2, //congestion width per port
-    parameter PPSw=4,
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1.  
+   
+    parameter P = 5 // router port num
+   
+    
     
 )(
     non_ss_ovc_allocated_all,
@@ -58,7 +52,8 @@ module credit_counter #(
     ssa_ovc_allocated_all, 
     ssa_decreased_credit_in_ss_ovc_all,
     granted_dst_is_from_a_single_flit_pck,
-    reset,clk
+    reset,clk,
+    oport_info
 );
 
    
@@ -107,6 +102,8 @@ module credit_counter #(
     input  [PV-1       :    0] ssa_ovc_allocated_all; 
     input  [PV-1       :    0] ssa_decreased_credit_in_ss_ovc_all;
     input [P-1:0] granted_dst_is_from_a_single_flit_pck;
+    
+    output oport_info_t oport_info [P-1:0];
     
     reg    [PV-1    :    0]    ovc_status;
     reg    [Bw-1    :    0]    credit_counter            [PV-1    :    0];
@@ -225,6 +222,12 @@ module credit_counter #(
     
     generate
     for(i=0;i<P;i=i+1    ) begin :port_lp
+    
+        assign oport_info[i].ovc_is_allocated =  ovc_allocated_all [(i+1)*V-1        :i*V];
+        assign oport_info[i].ovc_is_released = ovc_released_all [(i+1)*V-1        :i*V];
+        assign oport_info[i].ovc_credit_increased = credit_increased_all  [(i+1)*V-1    : i*V]; 
+        assign oport_info[i].ovc_credit_decreased = credit_decreased_all   [(i+1)*V-1   : i*V];
+        assign oport_info[i].any_ovc_get_swa_grant = | credit_decreased_all   [(i+1)*V-1   : i*V];
     
         inport_module #(
             .V    (V), // vc_num_per_port

@@ -74,10 +74,10 @@ module   custom_noc_connection_v
     output [RAw-1 : 0] current_r_addr [NR-1 : 0];  
     output [NE-1 : 0] start_o;
 	
-	router_channel_t chan_in_all [NE-1 : 0];
-	router_channel_t chan_out_all [NE-1 : 0]; 
-	router_channel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
-	router_channel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+	router_chanel_t chan_in_all [NE-1 : 0];
+	router_chanel_t chan_out_all [NE-1 : 0]; 
+	router_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+	router_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
 
 
 
@@ -85,26 +85,26 @@ module   custom_noc_connection_v
 	generate  
 		for(i=0; i<NR; i=i+1) begin : rlp
 			for(j=0; j<MAX_P; j=j+1) begin : plp
-				assign router_flit_out_all [i][(j+1)*Fw-1 : j*Fw] = router_chan_out[i][j].flit;
-				assign router_flit_out_wr_all[i][j] = router_chan_out[i][j].flit_wr;
-				assign router_congestion_out_all[i][(j+1)*CONGw-1 : j*CONGw] = router_chan_out[i][j].congestion;
-				assign router_credit_out_all[i][(j+1)*V-1 : j*V] =router_chan_out[i][j].credit;
+				assign router_flit_out_all [i][(j+1)*Fw-1 : j*Fw] = router_chan_out[i][j].flit_chanel.flit;
+				assign router_flit_out_wr_all[i][j] = router_chan_out[i][j].flit_chanel.flit_wr;
+				assign router_congestion_out_all[i][(j+1)*CONGw-1 : j*CONGw] = router_chan_out[i][j].flit_chanel.congestion;
+				assign router_credit_out_all[i][(j+1)*V-1 : j*V] =router_chan_out[i][j].flit_chanel.credit;
 
-				assign router_chan_in[i][j].flit = router_flit_in_all [i][(j+1)*Fw-1 : j*Fw];
-				assign router_chan_in[i][j].flit_wr =  router_flit_in_wr_all[i][j];
-				assign router_chan_in[i][j].congestion = router_congestion_in_all[i][(j+1)*CONGw-1 : j*CONGw];
-				assign router_chan_in[i][j].credit = router_credit_in_all[i][(j+1)*V-1 : j*V];
+				assign router_chan_in[i][j].flit_chanel.flit = router_flit_in_all [i][(j+1)*Fw-1 : j*Fw];
+				assign router_chan_in[i][j].flit_chanel.flit_wr =  router_flit_in_wr_all[i][j];
+				assign router_chan_in[i][j].flit_chanel.congestion = router_congestion_in_all[i][(j+1)*CONGw-1 : j*CONGw];
+				assign router_chan_in[i][j].flit_chanel.credit = router_credit_in_all[i][(j+1)*V-1 : j*V];
 			end
 		end
 		for(i=0; i<NE; i=i+1) begin : elp
-			assign ni_flit_out [i] = chan_in_all[i].flit;
-			assign ni_flit_out_wr [i] = chan_in_all[i].flit_wr;
-			assign ni_credit_out [i] = chan_in_all[i].credit;
+			assign ni_flit_out [i] = chan_in_all[i].flit_chanel.flit;
+			assign ni_flit_out_wr [i] = chan_in_all[i].flit_chanel.flit_wr;
+			assign ni_credit_out [i] = chan_in_all[i].flit_chanel.credit;
 
 
-			assign chan_out_all[i].flit 	= ni_flit_in [i] ;
-			assign chan_out_all[i].flit_wr	= ni_flit_in_wr [i];
-			assign chan_out_all[i].credit 	= ni_credit_in [i] ;
+			assign chan_out_all[i].flit_chanel.flit 	= ni_flit_in [i] ;
+			assign chan_out_all[i].flit_chanel.flit_wr	= ni_flit_in_wr [i];
+			assign chan_out_all[i].flit_chanel.credit 	= ni_credit_in [i] ;
 
 
 		end

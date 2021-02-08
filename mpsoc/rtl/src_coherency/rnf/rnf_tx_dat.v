@@ -130,7 +130,7 @@ module  rnf_tx_dat #(
       
     
     
-   //write channel    
+   //write chanel    
     many_to_one_pipereg #(
         .Dw(Dw),
         .IN_NUM(2),

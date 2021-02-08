@@ -21,14 +21,14 @@
 *-------------------------------------------------------------------------------
 *   Title:          rxdat_p.sv CHI Requestor Agent - RXDAT to TXRSP Pipeline
 *
-*   Description:    This block receives NoC responses in the RXDAT channel, and 
+*   Description:    This block receives NoC responses in the RXDAT chanel, and 
 *                   decode, then encode, and send CHI Compliant request to the NoC
-*                   on the TXRSP Channel.
+*                   on the TXRSP chanel.
 *
-*                   The requests receive in the RXDAT channel are COMPDATA_I,
+*                   The requests receive in the RXDAT chanel are COMPDATA_I,
 *                   COMPDATA_UC, COMPDATA_SC, COMPDATA_UD_PD
 *
-*                   The requests send in the TXRSP channel is COMPACK
+*                   The requests send in the TXRSP chanel is COMPACK
 *
 *                   This block also sends data fill to the L2 Cache
 *

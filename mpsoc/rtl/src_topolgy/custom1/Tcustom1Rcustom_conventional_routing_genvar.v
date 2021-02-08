@@ -52,6 +52,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			4,5,6,8,9,11,12,13,14,15: begin 
 				destport= 2; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC0
@@ -66,6 +70,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			2,3,5,6,11,13,14: begin 
 				destport= 2; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC1
@@ -80,6 +88,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			0,1,7,9,10,12: begin 
 				destport= 2; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC2
@@ -94,6 +106,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			0,1,4,5,6,7,8,9,13,14,15: begin 
 				destport= 2; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC3
@@ -111,6 +127,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			0,2,5,9,11,12,14,15: begin 
 				destport= 3; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC4
@@ -128,6 +148,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			0,9: begin 
 				destport= 3; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC5
@@ -142,6 +166,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			0,1,2,5,7,8,9,10,11,12,14,15: begin 
 				destport= 2; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC6
@@ -159,6 +187,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			1: begin 
 				destport= 3; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC7
@@ -176,6 +208,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			1,7: begin 
 				destport= 3; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC8
@@ -193,6 +229,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			0: begin 
 				destport= 3; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC9
@@ -210,6 +250,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			0: begin 
 				destport= 3; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC10
@@ -227,6 +271,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			3: begin 
 				destport= 3; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC11
@@ -247,6 +295,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			8: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC12
@@ -264,6 +316,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			0,1,2,5,7,8,9,10,11,12,14,15: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC13
@@ -284,6 +340,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			2,11: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC14
@@ -304,6 +364,10 @@ module Tcustom1Rcustom_conventional_routing_genvar  #(
 			0,5,9: begin 
 				destport= 4; 
 			end
+			default: begin 
+				destport= {DSTPw{1'bX}};
+			end
+
 			endcase
 		end
 	end//SRC15

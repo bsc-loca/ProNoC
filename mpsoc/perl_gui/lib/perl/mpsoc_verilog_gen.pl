@@ -312,6 +312,7 @@ sub  gen_soc_param {
 }
 
 
+
 sub gen_noc_param_v{
 	my $mpsoc=shift;
 	my $param_v="\n\n//NoC parameters\n";

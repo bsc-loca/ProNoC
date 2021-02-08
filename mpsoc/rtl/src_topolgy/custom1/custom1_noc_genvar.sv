@@ -55,12 +55,12 @@ module   custom1_noc_genvar
 
 	input  reset;
 	input  clk;
-	input  router_channel_t chan_in_all  [NE-1 : 0];
-	output router_channel_t chan_out_all [NE-1 : 0];
+	input  router_chanel_t chan_in_all  [NE-1 : 0];
+	output router_chanel_t chan_out_all [NE-1 : 0];
 
 //all routers port 
-	router_channel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
-	router_channel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+	router_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+	router_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
 	wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
 
 

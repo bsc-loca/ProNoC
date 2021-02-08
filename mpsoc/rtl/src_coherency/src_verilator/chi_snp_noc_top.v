@@ -14,7 +14,7 @@ module  chi_snp_noc_top(
     /*--------- Interface with NoC ---------------------------------*/    
     
     //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop chanel so need target ID
     chi_noc_txsnpflitpend_all, 
     chi_noc_txsnpflitv_all,
     chi_noc_txsnpflit_all,
@@ -59,7 +59,7 @@ module  chi_snp_noc_top(
     
     
       //TXSNP // snoop tx home node
-    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop channel so need target ID
+    // wire   [TGTID_REQ-1 : 0] chi_noc_tx_snp_target_id_all ; // we are not supporting braod casting on snoop chanel so need target ID
     input   [NE-1 : 0] chi_noc_txsnpflitpend_all ;
     input   [NE-1 : 0] chi_noc_txsnpflitv_all ;
     input   [SNP_FLIT_SIZE_NE-1:0]    chi_noc_txsnpflit_all ;

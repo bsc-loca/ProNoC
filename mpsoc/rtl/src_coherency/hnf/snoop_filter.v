@@ -221,7 +221,7 @@ module  snoop_filter#(
     wire [Dw-1 : 0] qout_data_o;
     wire qout_we_o;
     wire qout_is_ready;
-    wire [IN_NUM-1 : 0 ] qout_winner, wr_out_channel;
+    wire [IN_NUM-1 : 0 ] qout_winner, wr_out_chanel;
     
     wire [Dw-1 : 0 ] pipereg [IN_NUM-1:0]; 
     
@@ -236,7 +236,7 @@ module  snoop_filter#(
     
     
      
-    //write channel   
+    //write chanel   
     many_to_one_pipereg #(
     	.Dw(Dw),
         .IN_NUM(3),
@@ -339,8 +339,8 @@ module  snoop_filter#(
      	.din(qout_winner),
      	.wr_en(qout_we_o),
      	.rd_en(snpf_wr_done),
-     	.dout(wr_out_channel),
-     	.full(), // can mask the input rsp and req ready channel using this
+     	.dout(wr_out_chanel),
+     	.full(), // can mask the input rsp and req ready chanel using this
      	.nearly_full(),
      	.recieve_more_than_0(),
      	.recieve_more_than_1(),
@@ -475,26 +475,26 @@ module  snoop_filter#(
     
     
     
-  assign snpf_to_rxreq_wr_hit = wr_out_channel[0] &  snpf_wr_hit;
-  assign snpf_to_rxreq_wr_is_failed =  wr_out_channel[0] &  snpf_wr_is_failed;
-  assign snpf_to_rxreq_re_fill=  wr_out_channel[0] & snpf_re_fill;
-  assign snpf_to_rxreq_wr_done =  wr_out_channel[0] & snpf_wr_done;
+  assign snpf_to_rxreq_wr_hit = wr_out_chanel[0] &  snpf_wr_hit;
+  assign snpf_to_rxreq_wr_is_failed =  wr_out_chanel[0] &  snpf_wr_is_failed;
+  assign snpf_to_rxreq_re_fill=  wr_out_chanel[0] & snpf_re_fill;
+  assign snpf_to_rxreq_wr_done =  wr_out_chanel[0] & snpf_wr_done;
   
   assign snpf_to_rxreq_re_fill_wr_spv = snpf_re_fill_wr_spv;
   
   
-  assign snpf_to_rxrsp_wr_hit = wr_out_channel[1] &  snpf_wr_hit;
-  assign snpf_to_rxrsp_wr_is_failed =  wr_out_channel[1] &  snpf_wr_is_failed;
-  assign snpf_to_rxrsp_re_fill=  wr_out_channel[1] & snpf_re_fill;
-  assign snpf_to_rxrsp_wr_done =  wr_out_channel[1] & snpf_wr_done;
+  assign snpf_to_rxrsp_wr_hit = wr_out_chanel[1] &  snpf_wr_hit;
+  assign snpf_to_rxrsp_wr_is_failed =  wr_out_chanel[1] &  snpf_wr_is_failed;
+  assign snpf_to_rxrsp_re_fill=  wr_out_chanel[1] & snpf_re_fill;
+  assign snpf_to_rxrsp_wr_done =  wr_out_chanel[1] & snpf_wr_done;
  
   assign snpf_to_rxrsp_re_fill_wr_spv = snpf_re_fill_wr_spv; 
   
   
-  assign snpf_to_undat_wr_hit = wr_out_channel[2] &  snpf_wr_hit;
-  assign snpf_to_undat_wr_is_failed =  wr_out_channel[2] &  snpf_wr_is_failed;
-//  assign snpf_to_undat_re_fill=  wr_out_channel[2] & snpf_re_fill;
-  assign snpf_to_undat_wr_done =  wr_out_channel[2] & snpf_wr_done;
+  assign snpf_to_undat_wr_hit = wr_out_chanel[2] &  snpf_wr_hit;
+  assign snpf_to_undat_wr_is_failed =  wr_out_chanel[2] &  snpf_wr_is_failed;
+//  assign snpf_to_undat_re_fill=  wr_out_chanel[2] & snpf_re_fill;
+  assign snpf_to_undat_wr_done =  wr_out_chanel[2] & snpf_wr_done;
  
 //  assign snpf_to_undat_re_fill_wr_spv = snpf_re_fill_wr_spv; 
   
@@ -781,7 +781,7 @@ module  snoop_filter_cache#(
         re_fill=1'b0;
         wr_is_failed=1'b0;
         wr_done_next=0;
-	    ram_addr_i_wr=index_in_wr_next;// default for read in write channel. addr directly gotton from input     
+	    ram_addr_i_wr=index_in_wr_next;// default for read in write chanel. addr directly gotton from input     
         new_cache_block=1'b0;
         case(ps)  
         READ: begin 
@@ -937,13 +937,13 @@ module  snoop_filter_cache#(
        )
        ram
        (
-       //channel a . rd & wr
+       //chanel a . rd & wr
        	.wr_dat_a(info_ram_in_wr),
        	.addr_a(ram_addr_i_wr),
        	.wr_en_a(ram_we_i_wr[i]),
        	.rd_dat_a(info_array_wr[i]),
        	
-       //channel b rd only	
+       //chanel b rd only	
        	.rd_dat_b(info_array_rd[i]),
        	.addr_b(ram_addr_i_rd),
        	.rd_en_b(rd_en),
@@ -1230,7 +1230,7 @@ module  snpf_ram #(
 )
 (
    
-   // channel a
+   // chanel a
     wr_dat_a,
     addr_a,
     wr_en_a,   
@@ -1248,7 +1248,7 @@ module  snpf_ram #(
       
 );   
 
-    //channel a
+    //chanel a
     input [Dw-1  :   0] wr_dat_a;
     input [Aw-1  :   0] addr_a;
     input wr_en_a;   

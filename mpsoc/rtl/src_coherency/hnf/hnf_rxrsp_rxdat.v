@@ -290,8 +290,8 @@ module  hnf_rxrsp_rxdat #(
     wire [RSPDw-1 : 0] rxrspflit,current_rxrspflit;
     wire rxrspflitv;
 
-   // There is depencency between rsp and dat channel in AMBA CHI protecol. We have to make sure that we can consume at least all packets from 
-   // One of these two channels (256 max buffer size is needed). RSP is smaller so lets atore it: 
+   // There is depencency between rsp and dat chanel in AMBA CHI protecol. We have to make sure that we can consume at least all packets from 
+   // One of these two chanels (256 max buffer size is needed). RSP is smaller so lets atore it: 
    hnf_rsv_extend_buffer #(
     .B(B),
     .EXTND_B(2**TXNID_RSP),
@@ -2021,8 +2021,8 @@ module  hnf_rxrsp_rxdat #(
             if( undat_action!=0 ) $display("%t: hnf ( %d ) txn ( %d ) sends %s to Data processing Unit" ,$time,src_id,current_txnid,undat_str);  
             if( txrsp_action!=0 ) $display("%t: hnf ( %d ) txn ( %d ) sends %s to core (%d)" ,$time,src_id,current_txnid, rsp_str,lkpt_srcid);  
             if( snpf_state_action ==  SNPF_EVICT)  $display("%t: hnf ( %d ) txn ( %d ) sends eviction" ,$time,src_id,current_txnid);       
-            if( txreq_action == TXREQ_WriteNoSnpFull) $display("%t: hnf ( %d ) txn ( %d ) sends TXREQ_WriteNoSnpFull to reqchannel" ,$time,src_id,current_txnid);
-            if( txreq_action == TXREQ_IDMT_ReadNoSnp) $display("%t: hnf ( %d ) txn ( %d ) sends TXREQ_IDMT_ReadNoSnp to reqchannel" ,$time,src_id,current_txnid);       
+            if( txreq_action == TXREQ_WriteNoSnpFull) $display("%t: hnf ( %d ) txn ( %d ) sends TXREQ_WriteNoSnpFull to reqchanel" ,$time,src_id,current_txnid);
+            if( txreq_action == TXREQ_IDMT_ReadNoSnp) $display("%t: hnf ( %d ) txn ( %d ) sends TXREQ_IDMT_ReadNoSnp to reqchanel" ,$time,src_id,current_txnid);       
       
         
         

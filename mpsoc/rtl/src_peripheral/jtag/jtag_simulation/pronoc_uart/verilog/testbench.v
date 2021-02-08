@@ -126,7 +126,7 @@ module  testbench(
     task  uart_putc;
     input [0:7] data;        
     begin
-        wait_until_send_channel_ready(); 
+        wait_until_send_chanel_ready(); 
         write_wb_reg(DATA_REG,data);
     end
     endtask
@@ -176,7 +176,7 @@ module  testbench(
     
     
     reg[15:0] wspace;
-    task wait_until_send_channel_ready;
+    task wait_until_send_chanel_ready;
     begin
         wspace=0;
         while(wspace == 0)begin

@@ -21,13 +21,13 @@
 *-------------------------------------------------------------------------------
 *   Title:          rxrsp_p.sv CHI Requestor Agent - RXRSP to TXDAT Pipeline
 *
-*   Description:    This block receives NoC responses in the RXRSP channel, and 
+*   Description:    This block receives NoC responses in the RXRSP chanel, and 
 *                   decode, then encode, and send CHI Compliant request to the NoC
-*                   on the WDAT/TXDAT Channel.
+*                   on the WDAT/TXDAT chanel.
 *
-*                   The requests receive in the RXRSP channel are COMPDBIDRESP, 
+*                   The requests receive in the RXRSP chanel are COMPDBIDRESP, 
 *                   DBIDRESP, COMP, RETRYACK, PCRDGRANT.
-*                   The requests send in the TXDAT channel are COPYBACKDATA,
+*                   The requests send in the TXDAT chanel are COPYBACKDATA,
 *                   NCBDATA.
 *         
 *                   For COMP request that corresponds to CLEANUNIQUE, this pipeline
@@ -35,7 +35,7 @@
 *
 *                   This pipeline separates RETRYACK and PCRDGRANT and outputs
 *                   them to the retry logic. It also accepts snoop data responses
-*                   from the Snoop pipeline and send them to the WDAT channel.
+*                   from the Snoop pipeline and send them to the WDAT chanel.
 *
 *                   This pipeline also sends dataless fill to the L2 FILL queue.
 *

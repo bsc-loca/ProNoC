@@ -29,11 +29,56 @@
 module   custom1_noc
 	import pronoc_pkg::*; 
 	(
-
-    reset,
-    clk,    
-    chan_in_all,
-    chan_out_all  
+   	reset,
+	clk,
+	//T0,
+	T0_chan_in,
+	T0_chan_out,
+	//T1,
+	T1_chan_in,
+	T1_chan_out,
+	//T2,
+	T2_chan_in,
+	T2_chan_out,
+	//T3,
+	T3_chan_in,
+	T3_chan_out,
+	//T4,
+	T4_chan_in,
+	T4_chan_out,
+	//T5,
+	T5_chan_in,
+	T5_chan_out,
+	//T6,
+	T6_chan_in,
+	T6_chan_out,
+	//T7,
+	T7_chan_in,
+	T7_chan_out,
+	//T8,
+	T8_chan_in,
+	T8_chan_out,
+	//T9,
+	T9_chan_in,
+	T9_chan_out,
+	//T10,
+	T10_chan_in,
+	T10_chan_out,
+	//T11,
+	T11_chan_in,
+	T11_chan_out,
+	//T12,
+	T12_chan_in,
+	T12_chan_out,
+	//T13,
+	T13_chan_in,
+	T13_chan_out,
+	//T14,
+	T14_chan_in,
+	T14_chan_out,
+	//T15,
+	T15_chan_in,
+	T15_chan_out
 );
 	
 	 function integer log2;
@@ -60,98 +105,98 @@ module   custom1_noc
 	/*******************
 	*		T0
 	*******************/
-	input  router_channel_t T0_chan_in;
-	output router_channel_t T0_chan_out;
+	input  router_chanel_t T0_chan_in;
+	output router_chanel_t T0_chan_out;
 
 	/*******************
 	*		T1
 	*******************/
-	input  router_channel_t T1_chan_in;
-	output router_channel_t T1_chan_out;
+	input  router_chanel_t T1_chan_in;
+	output router_chanel_t T1_chan_out;
 
 	/*******************
 	*		T2
 	*******************/
-	input  router_channel_t T2_chan_in;
-	output router_channel_t T2_chan_out;
+	input  router_chanel_t T2_chan_in;
+	output router_chanel_t T2_chan_out;
 
 	/*******************
 	*		T3
 	*******************/
-	input  router_channel_t T3_chan_in;
-	output router_channel_t T3_chan_out;
+	input  router_chanel_t T3_chan_in;
+	output router_chanel_t T3_chan_out;
 
 	/*******************
 	*		T4
 	*******************/
-	input  router_channel_t T4_chan_in;
-	output router_channel_t T4_chan_out;
+	input  router_chanel_t T4_chan_in;
+	output router_chanel_t T4_chan_out;
 
 	/*******************
 	*		T5
 	*******************/
-	input  router_channel_t T5_chan_in;
-	output router_channel_t T5_chan_out;
+	input  router_chanel_t T5_chan_in;
+	output router_chanel_t T5_chan_out;
 
 	/*******************
 	*		T6
 	*******************/
-	input  router_channel_t T6_chan_in;
-	output router_channel_t T6_chan_out;
+	input  router_chanel_t T6_chan_in;
+	output router_chanel_t T6_chan_out;
 
 	/*******************
 	*		T7
 	*******************/
-	input  router_channel_t T7_chan_in;
-	output router_channel_t T7_chan_out;
+	input  router_chanel_t T7_chan_in;
+	output router_chanel_t T7_chan_out;
 
 	/*******************
 	*		T8
 	*******************/
-	input  router_channel_t T8_chan_in;
-	output router_channel_t T8_chan_out;
+	input  router_chanel_t T8_chan_in;
+	output router_chanel_t T8_chan_out;
 
 	/*******************
 	*		T9
 	*******************/
-	input  router_channel_t T9_chan_in;
-	output router_channel_t T9_chan_out;
+	input  router_chanel_t T9_chan_in;
+	output router_chanel_t T9_chan_out;
 
 	/*******************
 	*		T10
 	*******************/
-	input  router_channel_t T10_chan_in;
-	output router_channel_t T10_chan_out;
+	input  router_chanel_t T10_chan_in;
+	output router_chanel_t T10_chan_out;
 
 	/*******************
 	*		T11
 	*******************/
-	input  router_channel_t T11_chan_in;
-	output router_channel_t T11_chan_out;
+	input  router_chanel_t T11_chan_in;
+	output router_chanel_t T11_chan_out;
 
 	/*******************
 	*		T12
 	*******************/
-	input  router_channel_t T12_chan_in;
-	output router_channel_t T12_chan_out;
+	input  router_chanel_t T12_chan_in;
+	output router_chanel_t T12_chan_out;
 
 	/*******************
 	*		T13
 	*******************/
-	input  router_channel_t T13_chan_in;
-	output router_channel_t T13_chan_out;
+	input  router_chanel_t T13_chan_in;
+	output router_chanel_t T13_chan_out;
 
 	/*******************
 	*		T14
 	*******************/
-	input  router_channel_t T14_chan_in;
-	output router_channel_t T14_chan_out;
+	input  router_chanel_t T14_chan_in;
+	output router_chanel_t T14_chan_out;
 
 	/*******************
 	*		T15
 	*******************/
-	input  router_channel_t T15_chan_in;
-	output router_channel_t T15_chan_out;
+	input  router_chanel_t T15_chan_in;
+	output router_chanel_t T15_chan_out;
 
 	/*******************
 	*		R0
@@ -160,8 +205,8 @@ module   custom1_noc
 	wire R0_reset;
 	wire [RAw-1 :  0] R0_current_r_addr;
 
-	router_channel_t    R0_chan_in   [3-1 : 0];
-	router_channel_t    R0_chan_out  [3-1 : 0]; 
+	router_chanel_t    R0_chan_in   [3-1 : 0];
+	router_chanel_t    R0_chan_out  [3-1 : 0]; 
 
 
 	/*******************
@@ -171,8 +216,8 @@ module   custom1_noc
 	wire R1_reset;
 	wire [RAw-1 :  0] R1_current_r_addr;
 
-	router_channel_t    R1_chan_in   [3-1 : 0];
-	router_channel_t    R1_chan_out  [3-1 : 0]; 
+	router_chanel_t    R1_chan_in   [3-1 : 0];
+	router_chanel_t    R1_chan_out  [3-1 : 0]; 
 
 
 	/*******************
@@ -182,8 +227,8 @@ module   custom1_noc
 	wire R2_reset;
 	wire [RAw-1 :  0] R2_current_r_addr;
 
-	router_channel_t    R2_chan_in   [3-1 : 0];
-	router_channel_t    R2_chan_out  [3-1 : 0]; 
+	router_chanel_t    R2_chan_in   [3-1 : 0];
+	router_chanel_t    R2_chan_out  [3-1 : 0]; 
 
 
 	/*******************
@@ -193,8 +238,8 @@ module   custom1_noc
 	wire R3_reset;
 	wire [RAw-1 :  0] R3_current_r_addr;
 
-	router_channel_t    R3_chan_in   [3-1 : 0];
-	router_channel_t    R3_chan_out  [3-1 : 0]; 
+	router_chanel_t    R3_chan_in   [3-1 : 0];
+	router_chanel_t    R3_chan_out  [3-1 : 0]; 
 
 
 	/*******************
@@ -204,8 +249,8 @@ module   custom1_noc
 	wire R4_reset;
 	wire [RAw-1 :  0] R4_current_r_addr;
 
-	router_channel_t    R4_chan_in   [4-1 : 0];
-	router_channel_t    R4_chan_out  [4-1 : 0]; 
+	router_chanel_t    R4_chan_in   [4-1 : 0];
+	router_chanel_t    R4_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -215,8 +260,8 @@ module   custom1_noc
 	wire R5_reset;
 	wire [RAw-1 :  0] R5_current_r_addr;
 
-	router_channel_t    R5_chan_in   [4-1 : 0];
-	router_channel_t    R5_chan_out  [4-1 : 0]; 
+	router_chanel_t    R5_chan_in   [4-1 : 0];
+	router_chanel_t    R5_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -226,8 +271,8 @@ module   custom1_noc
 	wire R6_reset;
 	wire [RAw-1 :  0] R6_current_r_addr;
 
-	router_channel_t    R6_chan_in   [4-1 : 0];
-	router_channel_t    R6_chan_out  [4-1 : 0]; 
+	router_chanel_t    R6_chan_in   [4-1 : 0];
+	router_chanel_t    R6_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -237,8 +282,8 @@ module   custom1_noc
 	wire R7_reset;
 	wire [RAw-1 :  0] R7_current_r_addr;
 
-	router_channel_t    R7_chan_in   [4-1 : 0];
-	router_channel_t    R7_chan_out  [4-1 : 0]; 
+	router_chanel_t    R7_chan_in   [4-1 : 0];
+	router_chanel_t    R7_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -248,8 +293,8 @@ module   custom1_noc
 	wire R12_reset;
 	wire [RAw-1 :  0] R12_current_r_addr;
 
-	router_channel_t    R12_chan_in   [4-1 : 0];
-	router_channel_t    R12_chan_out  [4-1 : 0]; 
+	router_chanel_t    R12_chan_in   [4-1 : 0];
+	router_chanel_t    R12_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -259,8 +304,8 @@ module   custom1_noc
 	wire R13_reset;
 	wire [RAw-1 :  0] R13_current_r_addr;
 
-	router_channel_t    R13_chan_in   [4-1 : 0];
-	router_channel_t    R13_chan_out  [4-1 : 0]; 
+	router_chanel_t    R13_chan_in   [4-1 : 0];
+	router_chanel_t    R13_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -270,8 +315,8 @@ module   custom1_noc
 	wire R14_reset;
 	wire [RAw-1 :  0] R14_current_r_addr;
 
-	router_channel_t    R14_chan_in   [4-1 : 0];
-	router_channel_t    R14_chan_out  [4-1 : 0]; 
+	router_chanel_t    R14_chan_in   [4-1 : 0];
+	router_chanel_t    R14_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -281,8 +326,8 @@ module   custom1_noc
 	wire R15_reset;
 	wire [RAw-1 :  0] R15_current_r_addr;
 
-	router_channel_t    R15_chan_in   [4-1 : 0];
-	router_channel_t    R15_chan_out  [4-1 : 0]; 
+	router_chanel_t    R15_chan_in   [4-1 : 0];
+	router_chanel_t    R15_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -292,8 +337,8 @@ module   custom1_noc
 	wire R8_reset;
 	wire [RAw-1 :  0] R8_current_r_addr;
 
-	router_channel_t    R8_chan_in   [5-1 : 0];
-	router_channel_t    R8_chan_out  [5-1 : 0]; 
+	router_chanel_t    R8_chan_in   [5-1 : 0];
+	router_chanel_t    R8_chan_out  [5-1 : 0]; 
 
 
 	/*******************
@@ -303,8 +348,8 @@ module   custom1_noc
 	wire R9_reset;
 	wire [RAw-1 :  0] R9_current_r_addr;
 
-	router_channel_t    R9_chan_in   [5-1 : 0];
-	router_channel_t    R9_chan_out  [5-1 : 0]; 
+	router_chanel_t    R9_chan_in   [5-1 : 0];
+	router_chanel_t    R9_chan_out  [5-1 : 0]; 
 
 
 	/*******************
@@ -314,8 +359,8 @@ module   custom1_noc
 	wire R10_reset;
 	wire [RAw-1 :  0] R10_current_r_addr;
 
-	router_channel_t    R10_chan_in   [5-1 : 0];
-	router_channel_t    R10_chan_out  [5-1 : 0]; 
+	router_chanel_t    R10_chan_in   [5-1 : 0];
+	router_chanel_t    R10_chan_out  [5-1 : 0]; 
 
 
 	/*******************
@@ -325,8 +370,8 @@ module   custom1_noc
 	wire R11_reset;
 	wire [RAw-1 :  0] R11_current_r_addr;
 
-	router_channel_t    R11_chan_in   [5-1 : 0];
-	router_channel_t    R11_chan_out  [5-1 : 0]; 
+	router_chanel_t    R11_chan_in   [5-1 : 0];
+	router_chanel_t    R11_chan_out  [5-1 : 0]; 
 
 
     

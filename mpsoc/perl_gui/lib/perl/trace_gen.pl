@@ -125,7 +125,7 @@ sub trace_pad_ctrl{
 	 
 	 	@selectedinfo = (
 	 	{ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
-	 	{ label=>" Virtual channel#", param_name=>'vc', type=>'Spin-button', default_val=>0, content=>"0,$v_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
+	 	{ label=>" Virtual chanel#", param_name=>'vc', type=>'Spin-button', default_val=>0, content=>"0,$v_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
 	 	{ label=>" Message class# ", param_name=>'class', type=>'Spin-button', default_val=>0, content=>"0,$c_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef}
 	 	);
 		
@@ -420,7 +420,7 @@ sub trace_pad{
 		
 		@selectedinfo = (
 			{ label=>" Initial weight ", param_name=>'init_weight', type=>'Spin-button', default_val=>1, content=>"1,16,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
-			{ label=>" Virtual channel# ", param_name=>'vc', type=>'Spin-button', default_val=>0, content=>"0,$v_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
+			{ label=>" Virtual chanel# ", param_name=>'vc', type=>'Spin-button', default_val=>0, content=>"0,$v_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef},
 			{ label=>" Message class# ", param_name=>'class', type=>'Spin-button', default_val=>0, content=>"0,$c_max,1", info=>undef, param_parent=>'select_multiple', ref_delay=> undef, new_status=>undef}
 		);
 	}
@@ -468,7 +468,7 @@ sub trace_pad{
 	("Load a task graph");
 	}
 	else{
-		@titles = (scalar @traces ) ? (" # "," Source "," Destination "," Bandwidth(MB) ", " Initial weight#", "Virtual channel#", "Message class#"):
+		@titles = (scalar @traces ) ? (" # "," Source "," Destination "," Bandwidth(MB) ", " Initial weight#", "Virtual chanel#", "Message class#"):
 	("Load an ORCC file");
 	}
 	
@@ -930,7 +930,7 @@ sub get_cfg_content{
 
 
 sub add_trace{
-	my ($self, $file_id,$category,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size,$channel,$vc,$class)=@_;	
+	my ($self, $file_id,$category,$trace_id, $source,$dest, $Mbytes, $file_name,$src_port,$dst_port,$buff_size,$chanel,$vc,$class)=@_;	
 	$self->object_add_attribute("${category}_$trace_id",'file',$file_id);
 	$self->object_add_attribute("${category}_$trace_id",'source',"${source}");
 	$self->object_add_attribute("${category}_$trace_id",'destination',"${dest}");
@@ -941,7 +941,7 @@ sub add_trace{
 	$self->object_add_attribute("${category}_$trace_id",'scr_port',$src_port);
 	$self->object_add_attribute("${category}_$trace_id",'dst_port',$dst_port);	
 	$self->object_add_attribute("${category}_$trace_id",'buff_size',$buff_size);	
-	$self->object_add_attribute("${category}_$trace_id",'channel',$channel);
+	$self->object_add_attribute("${category}_$trace_id",'chanel',$chanel);
 	$self->object_add_attribute("${category}_$trace_id",'vc',$vc);
 	$self->object_add_attribute("${category}_$trace_id",'class',$class);					
 	$self->{"${category}_traces"}{$trace_id}=1;
@@ -995,10 +995,10 @@ sub get_trace{
 	my $src_port = $self->object_get_attribute("${category}_$trace_id",'scr_port');
 	my $dst_port = $self->object_get_attribute("${category}_$trace_id",'dst_port');
 	my $buff_size= $self->object_get_attribute("${category}_$trace_id",'buff_size');
-	my $channel = $self->object_get_attribute("${category}_$trace_id",'channel');
+	my $chanel = $self->object_get_attribute("${category}_$trace_id",'chanel');
 	my $vc= $self->object_get_attribute("${category}_$trace_id",'vc');	
 	my $class= $self->object_get_attribute("${category}_$trace_id",'class');	  
-	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port,$buff_size,$channel,$vc,$class);	
+	return ($source,$dest, $Mbytes, $file_id,$file_name,$init_weight,$min_pck_size, $max_pck_size, $burst_size, $injct_rate, $injct_rate_var, $src_port,$dst_port,$buff_size,$chanel,$vc,$class);	
 }
 
 sub get_all_tasks{

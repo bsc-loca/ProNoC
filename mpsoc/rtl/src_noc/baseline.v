@@ -30,7 +30,7 @@
 
     
 module baseline_allocator #(
-    parameter V = 4,// Virtual channel num per port
+    parameter V = 4,// Virtual chanel num per port
     parameter P = 5,//port number
     parameter TREE_ARBITER_EN = 0,
     parameter DEBUG_EN = 1,

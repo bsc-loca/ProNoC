@@ -10,10 +10,10 @@
 
 module  chi_rsp_noc #(
     
-   // parameter MAP_CHI_CHANNEL_ON= "VC", 
+   // parameter MAP_CHI_chanel_ON= "VC", 
     /*
-    "VC"= map each CHI channel on one Virtual channel. Only one channel can send a flit at each clock cycle
-    "PHY" map each CHI channel in a seperate physical NoC
+    "VC"= map each CHI chanel on one Virtual chanel. Only one chanel can send a flit at each clock cycle
+    "PHY" map each CHI chanel in a seperate physical NoC
     */
     parameter B = 4,     // buffer space :flit per VC 
     parameter TOPOLOGY= "MESH",     
@@ -97,7 +97,7 @@ module  chi_rsp_noc #(
         
     
 
-    //Response channel IO
+    //Response chanel IO
     wire [PRONOC_RSP_Fw * NE-1 : 0] rsp_flit_out_all;
     wire [PRONOC_RSP_Fw-1 : 0] rsp_flit_out [NE-1 : 0];
     wire [NE-1 : 0] rsp_flit_out_wr_all;

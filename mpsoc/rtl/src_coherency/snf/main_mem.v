@@ -198,7 +198,7 @@ endgenerate
     main_mem
     (
     	
-    	//rd channel
+    	//rd chanel
     	.data_a({Dw{1'b0}}),
     	.addr_a(mem_rd_addr),
     	.byteen_a(1'b0),

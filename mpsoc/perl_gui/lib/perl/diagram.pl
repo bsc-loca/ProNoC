@@ -880,14 +880,14 @@ $dotfile=$dotfile."T$i\[
 
 
 
-	#connect all down input channels
+	#connect all down input chanels
 	my $n=$nl;
 	my $nPos = powi( $k, $n-1);
 	my $chan_per_direction = ($k * powi( $k , $n-1 )); #up or down
 	my $chan_per_level = 2*($k * powi( $k , $n-1 )); #up+down
 	
 	for (my $level = 0; $level<$n-1; $level++){
-	    #input channel are numbered interleavely, the interleaev depends on level
+	    #input chanel are numbered interleavely, the interleaev depends on level
 	    my $routers_per_neighborhood = powi($k,$n-1-($level)); 
 	    my $routers_per_branch = powi($k,$n-1-($level+1)); 
 	    my $level_offset = $routers_per_neighborhood*$k;
@@ -1068,12 +1068,12 @@ sub generate_merge_actor_dot_file{
 	
 	
 	foreach my $p (@traces){
-		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$channel,$vc,$class)
+		my ($src,$dst, $Mbytes, $file_id, $file_name,$init_weight,$min_pck, $max_pck,  $burst, $injct_rate, $injct_rate_var,$src_port,$dst_port,$buff_size,$chanel,$vc,$class)
 				=get_trace($self,'merge',$p);
 				
 		
 						
-		$dotfile=$dotfile."\"$src\" -> \"$dst\"  [label=\"$srcs{$src}{$src_port}{$channel}->$dests{$dst}{$dst_port}\" ];\n";	
+		$dotfile=$dotfile."\"$src\" -> \"$dst\"  [label=\"$srcs{$src}{$src_port}{$chanel}->$dests{$dst}{$dst_port}\" ];\n";	
 	}
 	
 	$dotfile=$dotfile."\n}\n";

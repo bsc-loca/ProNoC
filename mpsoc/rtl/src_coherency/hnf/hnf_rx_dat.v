@@ -16,7 +16,7 @@ module  hnf_rx_data #(
      reset,
      clk,  
      
-     //chi channel
+     //chi chanel
      noc_chi_rxdatflitpend,
      noc_chi_rxdatflitv,
      noc_chi_rxdatflit,
@@ -48,7 +48,7 @@ module  hnf_rx_data #(
         
     input reset,clk;
     
-    //CHI channel
+    //CHI chanel
     input    noc_chi_rxdatflitpend;
     input    noc_chi_rxdatflitv ;
     input   [DAT_FLIT_SIZE-1:0]    noc_chi_rxdatflit ;

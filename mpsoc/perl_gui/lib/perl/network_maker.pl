@@ -2497,7 +2497,7 @@ sub check_diff_graph_be_connected {
 	}
 	
 		
-	add_info($info,"\t All endpoints are connected in channel dpenedency graph. \n");  
+	add_info($info,"\t All endpoints are connected in chanel dpenedency graph. \n");  
 	return 1;
 
 }

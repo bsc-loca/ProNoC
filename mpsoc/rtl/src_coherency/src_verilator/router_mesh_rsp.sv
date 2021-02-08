@@ -41,8 +41,8 @@ module router_mesh_rsp (
     `include "topology_localparam.v"  
 
 	localparam
-		R2R = R2R_CHANNELS_MESH_TORI,
-		R2E = R2E_CHANNELS_MESH_TORI; 
+		R2R = R2R_chanelS_MESH_TORI,
+		R2E = R2E_chanelS_MESH_TORI; 
 		
 
 

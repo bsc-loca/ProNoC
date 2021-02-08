@@ -144,7 +144,7 @@ module  rnf_cache #(
     input clk;
   
   
-    //read channel 
+    //read chanel 
     wire [CACHE_ADDRw-1 : 0] cache_wr_addr;
     wire [CACHE_DATAw-1 : 0] cache_wr_data;
     wire cache_wr_en;
@@ -158,7 +158,7 @@ module  rnf_cache #(
     
         
   
-    //write channel
+    //write chanel
     wire [CACHE_ADDRw-1 : 0] cache_rd_addr;   
     wire [CACHE_DATAw-1 : 0] cache_rd_data;
     wire cache_rd_en;
@@ -194,12 +194,12 @@ module  rnf_cache #(
     wire [WDw-1 : 0] qout_data_o;
     wire qout_we_o;
     wire qout_is_ready;
-    wire [WCH_NUM-1 : 0 ] qout_winner, wr_out_channel;
+    wire [WCH_NUM-1 : 0 ] qout_winner, wr_out_chanel;
     
        
     
      
-    //write channel    
+    //write chanel    
     many_to_one_pipereg #(
         .Dw(WDw),
         .IN_NUM(WCH_NUM),
@@ -224,7 +224,7 @@ module  rnf_cache #(
      
    
     
-    wire [1: 0 ] cache_rd_winner,rd_out_channel; 
+    wire [1: 0 ] cache_rd_winner,rd_out_chanel; 
     
     many_to_one_pipe_fifo #(
         .B(B),
@@ -259,8 +259,8 @@ module  rnf_cache #(
         .din(cache_rd_winner),
         .wr_en(cache_rd_en),
         .rd_en(cache_rd_done),
-        .dout(rd_out_channel),
-        .full(), // can mask the input rsp and req ready channel using this
+        .dout(rd_out_chanel),
+        .full(), // can mask the input rsp and req ready chanel using this
         .nearly_full(),
         .recieve_more_than_0(),
         .recieve_more_than_1(),
@@ -272,14 +272,14 @@ module  rnf_cache #(
    
    
     
-    assign  cache_to_rxsnp_rd_hit = rd_out_channel[0] & cache_rd_hit;
+    assign  cache_to_rxsnp_rd_hit = rd_out_chanel[0] & cache_rd_hit;
     assign  cache_to_rxsnp_rd_data = cache_rd_data;
-    assign  cache_to_rxsnp_rd_done = rd_out_channel[0] & cache_rd_done;
+    assign  cache_to_rxsnp_rd_done = rd_out_chanel[0] & cache_rd_done;
     assign  cache_to_rxsnp_rd_state = cache_rd_state ;
     
-    assign  cache_to_rxrsp_rd_hit = rd_out_channel[1] & cache_rd_hit;
+    assign  cache_to_rxrsp_rd_hit = rd_out_chanel[1] & cache_rd_hit;
     assign  cache_to_rxrsp_rd_data = cache_rd_data;
-    assign  cache_to_rxrsp_rd_done = rd_out_channel[1] & cache_rd_done;
+    assign  cache_to_rxrsp_rd_done = rd_out_chanel[1] & cache_rd_done;
     assign  cache_to_rxrsp_rd_state = cache_rd_state ;
      
      
@@ -311,8 +311,8 @@ module  rnf_cache #(
         .din(qout_winner),
         .wr_en(qout_we_o),
         .rd_en(cache_wr_done),
-        .dout(wr_out_channel),
-        .full(), // can mask the input rsp and req ready channel using this
+        .dout(wr_out_chanel),
+        .full(), // can mask the input rsp and req ready chanel using this
         .nearly_full(),
         .recieve_more_than_0(),
         .recieve_more_than_1(),
@@ -360,14 +360,14 @@ module  rnf_cache #(
     	.clk(clk)
     );
     
-  assign cache_to_rxsnp_wr_hit = wr_out_channel[0] &  cache_wr_hit;
-  assign cache_to_rxsnp_wr_done =  wr_out_channel[0] & cache_wr_done; 
+  assign cache_to_rxsnp_wr_hit = wr_out_chanel[0] &  cache_wr_hit;
+  assign cache_to_rxsnp_wr_done =  wr_out_chanel[0] & cache_wr_done; 
   
-  assign cache_to_rxdat_wr_hit = wr_out_channel[1] &  cache_wr_hit;
-  assign cache_to_rxdat_wr_done =  wr_out_channel[1] & cache_wr_done;
+  assign cache_to_rxdat_wr_hit = wr_out_chanel[1] &  cache_wr_hit;
+  assign cache_to_rxdat_wr_done =  wr_out_chanel[1] & cache_wr_done;
   
-  assign cache_to_core_wr_hit = wr_out_channel[2] &  cache_wr_hit;
-  assign cache_to_core_wr_done =  wr_out_channel[2] & cache_wr_done;
+  assign cache_to_core_wr_hit = wr_out_chanel[2] &  cache_wr_hit;
+  assign cache_to_core_wr_done =  wr_out_chanel[2] & cache_wr_done;
   
  
  endmodule
