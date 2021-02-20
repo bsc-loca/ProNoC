@@ -74,7 +74,7 @@ set text "###################################################################"
 set text "##---- 3. Compile the Design"
 
 #+acc=rn
-vlog -sv -work  $work_path +acc=rn  +incdir+$dirs -F  $path1/filelist.f
+vlog -sv -work  $work_path +acc=rn  +incdir+$dirs -F  $path1/noc_filelist.f
 vlog -sv -work  $work_path +acc=rn  +incdir+$dirs -F  $path2/filelist.f
  
 

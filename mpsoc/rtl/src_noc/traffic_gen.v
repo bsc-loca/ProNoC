@@ -638,9 +638,25 @@ always @(*)begin
     end//always
     // synopsys  translate_off
     // synthesis translate_off
+    localparam NEw=log2(NE);
+    wire [NEw-1: 0]  src_id,dst_id,current_id;
+    
+    endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod1 ( .id(current_id), .code(current_e_addr));
+    endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod2 ( .id(dst_id), .code(rd_des_e_addr));
+    endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod3 ( .id(src_id), .code(rd_src_e_addr));
+    
+    
+    
+    
     always @(posedge clk) begin     
-        if(flit_out_wr && hdr_flit && dest_e_addr_reg  == current_e_addr) $display("%t: Error: The source and destination address of injected packet is the same in endpoint (%h): %m",$time, dest_e_addr );                                                             
-        if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr    != current_e_addr )) $display("%t: Error: packet with destination(%h) which is sent by source (%h) has been recieved in wrong destination (%h).  %m",$time,rd_des_e_addr, rd_src_e_addr, current_e_addr);        
+        if(flit_out_wr && hdr_flit && dest_e_addr_reg  == current_e_addr) begin 
+            $display("%t: ERROR: The source and destination address of injected packet is the same in endpoint (%h): %m",$time, dest_e_addr );
+            $finish;
+        end
+        if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr  != current_e_addr )) begin 
+            $display("%t: ERROR: packet with destination %u (code %h) which is sent by source %u (code %h) has been recieved in wrong destination %u (code %h).  %m",$time,dst_id,rd_des_e_addr, src_id,rd_src_e_addr, current_id,current_e_addr);
+            $finish;
+        end
     end
     // synthesis translate_on
     // synopsys  translate_on
@@ -936,7 +952,7 @@ endmodule
         .clk(clk),
         .current_r_addr(current_r_addr),
         .dest_e_addr(dest_e_addr),
-        .current_e_addr(current_e_addr),
+        .src_e_addr(current_e_addr),
         .destport(destport)
     );
 

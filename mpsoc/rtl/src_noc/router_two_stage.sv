@@ -45,6 +45,8 @@ module router_two_stage
 		iport_info,
 		oport_info,
 		
+		sbp_ctrl_in,
+		
 		clk,
 		reset
 
@@ -66,6 +68,8 @@ module router_two_stage
 	output  ivc_info_t 	 ivc_info    [P-1 : 0][V-1 : 0];
 	output  iport_info_t iport_info  [P-1 : 0];
 	output  oport_info_t oport_info  [P-1 : 0]; 
+	
+	input   sbp_ctrl_t   sbp_ctrl_in [P-1 : 0];
 	
 	
 	localparam
@@ -159,7 +163,7 @@ module router_two_stage
 			assign  iport_info[i].swa_first_level_grant =nonspec_first_arbiter_granted_ivc_all[(i+1)*V-1:  i*V]; 
 			assign  iport_info[i].swa_grant = ivc_num_getting_sw_grant[(i+1)*V-1:  i*V]; 			
 			assign  iport_info[i].any_ivc_get_swa_grant=	any_ivc_sw_request_granted_all[i]; 
-			
+			assign  iport_info[i].ivc_req = ivc_request_all [(i+1)*V-1:  i*V]; 
 			
 			
 			add_sw_loc_one_hot #(
@@ -175,7 +179,7 @@ module router_two_stage
 	endgenerate
 	
 	
-	
+	wire [P-1 : 0] flit_out_wr_all_internal; 
             
 	inout_ports
 		#(		
@@ -221,7 +225,9 @@ module router_two_stage
 			.clk(clk), 
 			.reset(reset),
 			.ivc_info(ivc_info),
-			.oport_info(oport_info) 
+			.oport_info(oport_info),
+			.sbp_ctrl_in(sbp_ctrl_in),
+			.flit_out_wr_all_internal(flit_out_wr_all_internal)
 		);
 
 
@@ -292,9 +298,10 @@ module router_two_stage
 			(
 				.granted_dest_port_all (granted_dest_port_all_delayed),
 				.flit_in_all (iport_flit_out_all),
-				.flit_out_all (cross_bar_flit_out_all),
+				.flit_out_all (cross_bar_flit_out_all),				
 				.flit_out_wr_all (flit_out_wr_all),
 				.ssa_flit_wr_all (ssa_flit_wr_all),
+				.flit_out_wr_all_internal(flit_out_wr_all_internal),
 				.clk (clk),
 				.reset (reset)
         

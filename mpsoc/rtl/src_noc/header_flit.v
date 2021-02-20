@@ -138,8 +138,8 @@ module header_flit_generator  #(
     //synopsys  translate_off
     initial begin
         if((DATA_LSB + DATA_w)>=Fpay)begin
-            $display("%t: The reqired header flit size is %d which is larger than %d payload size   ",$time,(DATA_LSB + DATA_w)-1,Fpay);
-            $stop;        
+            $display("%t: ERROR: The reqired header flit size is %d which is larger than %d payload size   ",$time,(DATA_LSB + DATA_w)-1,Fpay);
+            $finish;        
         end
     end    
     //synopsys  translate_on

@@ -43,7 +43,7 @@ module conventional_routing #(
     reset,
     clk,
     current_r_addr,
-    current_e_addr,
+    src_e_addr,
     dest_e_addr,
     destport
 );    
@@ -59,7 +59,7 @@ module conventional_routing #(
   
     input  reset,clk;          
     input   [RAw-1   :0] current_r_addr;
-    input   [EAw-1   :0] current_e_addr;
+    input   [EAw-1   :0] src_e_addr;
     input   [EAw-1   :0] dest_e_addr;
     output  [DSTPw-1 :0] destport;
     
@@ -205,7 +205,7 @@ module conventional_routing #(
         the_conventional_routing
         (
             .dest_e_addr(dest_e_addr),
-            .src_e_addr(current_e_addr),
+            .src_e_addr(src_e_addr),
             .destport(destport)        
         );    
     

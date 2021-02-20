@@ -62,6 +62,7 @@ module input_ports
     granted_dest_port_all,
     refresh_w_counter,
     ivc_info,
+    sbp_ctrl_in,
     reset,
     clk
 );
@@ -114,7 +115,7 @@ module input_ports
     input   [PP_1-1 : 0] granted_dest_port_all;
     output  [WPP-1 : 0] oports_weight_all;
     output  ivc_info_t ivc_info [P-1 : 0][V-1 : 0]; 
-   
+    input   sbp_ctrl_t  sbp_ctrl_in [P-1 : 0];
     input refresh_w_counter;
     
 
@@ -160,7 +161,8 @@ generate
         .iport_weight_is_consumed(iport_weight_is_consumed_all[i]),
         .refresh_w_counter(refresh_w_counter),
         .granted_dest_port(granted_dest_port_all[(i+1)*P_1-1 : i*P_1]),
-        .ivc_info(ivc_info[i])
+        .ivc_info(ivc_info[i]),
+        .sbp_ctrl_in(sbp_ctrl_in [i])
     );
     
     end//for      
@@ -211,8 +213,8 @@ module input_queue_per_port
     iport_weight_is_consumed,
     refresh_w_counter,
     granted_dest_port,
-    ivc_info
-    
+    ivc_info,
+    sbp_ctrl_in    
 );
 
  
@@ -280,7 +282,7 @@ module input_queue_per_port
     input   [V-1  : 0]  swap_port_presel;
   
     output  ivc_info_t ivc_info [V-1 : 0]; 
-            
+    input   sbp_ctrl_t  sbp_ctrl_in;        
     
     wire [Cw-1 : 0] class_in;
     wire [DSTPw-1 : 0] destport_in,destport_in_encoded;
@@ -302,6 +304,8 @@ module input_queue_per_port
     wire [ELw-1 : 0] endp_l_in;
            
 
+    
+    
 //extract header flit info
     extract_header_flit_info #(
         .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
@@ -386,9 +390,14 @@ module input_queue_per_port
         end
     end 
 
-
+    wire [V-1 : 0] sbp_hdr_en;
+    assign sbp_hdr_en  = (SBP_EN) ? sbp_ctrl_in.buff_space_decreased : {V{1'b0}};
+    
 genvar i;
 generate
+	
+	
+	
     /* verilator lint_off WIDTH */  
     if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1)) begin : multi_local
     /* verilator lint_on WIDTH */  
@@ -448,9 +457,9 @@ generate
     	assign ivc_info[i].assigned_ovc_num= assigned_ovc_num[(i+1)*V-1 : i*V];
     	assign ivc_info[i].getting_swa_first_arbiter_grant=nonspec_first_arbiter_granted_ivc[i];
     	assign ivc_info[i].getting_swa_grant=ivc_num_getting_sw_grant[i];
-    	if(P==MAX_P) begin :b1
+    	if(P==MAX_P) begin :max_
     		assign ivc_info[i].destport_one_hot= destport_one_hot[i];
-    	end else begin 
+    	end else begin : no_max
     		assign ivc_info[i].destport_one_hot= {{(MAX_P-P){1'b0}},destport_one_hot[i]};
     	end	
     	
@@ -493,12 +502,13 @@ generate
         	
 			fwft_fifo #(
         		.DATA_WIDTH(EAw),
-        		.MAX_DEPTH (MAX_PCK)
+        		.MAX_DEPTH (MAX_PCK),
+        		.IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
 			)
 			dest_e_addr_fifo
 			(
 				.din (dest_e_addr_in),
-        		.wr_en (hdr_flit_wr[i]),   // Write enable
+        		.wr_en (hdr_flit_wr[i]| sbp_hdr_en[i]),   // Write enable
         		.rd_en (dst_rd_fifo[i]),   // Read the next word
         		.dout (ivc_info[i].dest_e_addr),    // Data out
         		.full ( ),
@@ -509,7 +519,7 @@ generate
         		.clk (clk)            
         		);   	
         	
-        end	else begin 
+        end	else begin : no_sbp
         	assign ivc_info[i].dest_e_addr = {EAw{1'bx}};
         end	
         
@@ -519,12 +529,13 @@ generate
         if(C>1)begin :cb1
             fwft_fifo #(
                 .DATA_WIDTH(Cw),
-                .MAX_DEPTH (MAX_PCK)
+                .MAX_DEPTH (MAX_PCK),
+                .IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
             )
             class_fifo
             (
                 .din (class_in),
-                .wr_en (hdr_flit_wr[i]),   // Write enable
+                .wr_en (hdr_flit_wr[i]| sbp_hdr_en[i]),   // Write enable
                 .rd_en (class_rd_fifo[i]),   // Read the next word
                 .dout (class_out[i]),    // Data out
                 .full ( ),
@@ -542,7 +553,8 @@ generate
        //lk_dst_fifo
         fwft_fifo #(
             .DATA_WIDTH(DSTPw),
-            .MAX_DEPTH (MAX_PCK)
+            .MAX_DEPTH (MAX_PCK),
+            .IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
         )
         lk_dest_fifo
         (
@@ -565,12 +577,13 @@ generate
             //destport_fifo
             fwft_fifo #(
                  .DATA_WIDTH(DSTPw),
-                 .MAX_DEPTH (MAX_PCK)
+                 .MAX_DEPTH (MAX_PCK),
+                 .IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
             )
             dest_fifo
             (
                  .din(destport_in_encoded),
-                 .wr_en(hdr_flit_wr[i]),   // Write enable
+                 .wr_en(hdr_flit_wr[i]| sbp_hdr_en[i]),   // Write enable
                  .rd_en(dst_rd_fifo[i]),   // Read the next word
                  .dout(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),    // Data out
                  .full(),
@@ -585,12 +598,13 @@ generate
 
             fwft_fifo_with_output_clear #(
                 .DATA_WIDTH(DSTPw),
-                .MAX_DEPTH (MAX_PCK)
+                .MAX_DEPTH (MAX_PCK),
+                .IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
             )
             dest_fifo
             (
                 .din(destport_in_encoded),
-                .wr_en(hdr_flit_wr[i]),   // Write enable
+                .wr_en(hdr_flit_wr[i]|sbp_hdr_en[i]),   // Write enable
                 .rd_en(dst_rd_fifo[i]),   // Read the next word
                 .dout(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),    // Data out
                 .full(),
@@ -639,12 +653,13 @@ generate
             
             fwft_fifo #(
                  .DATA_WIDTH(ELw),
-                 .MAX_DEPTH (MAX_PCK)
+                 .MAX_DEPTH (MAX_PCK),
+                 .IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
             )
             local_dest_fifo
             (
                  .din(endp_l_in),
-                 .wr_en(hdr_flit_wr[i]),   // Write enable
+                 .wr_en(hdr_flit_wr[i]|sbp_hdr_en[i]),   // Write enable
                  .rd_en(dst_rd_fifo[i]),   // Read the next word
                  .dout(endp_localp_num[(i+1)*ELw-1 : i*ELw]),    // Data out
                  .full( ),
@@ -655,7 +670,7 @@ generate
                  .clk(clk) 
             );       
   
-        end else begin : slp 
+        end else begin : single_local 
             assign endp_localp_num[(i+1)*ELw-1 : i*ELw] = {ELw{1'bx}}; 
         end
         
@@ -677,7 +692,7 @@ generate
                 );
                 */     
             assign vc_weight_is_consumed[i] = 1'b1;
-        end else begin :now_rra
+        end else begin :no_wrra
             assign vc_weight_is_consumed[i] = 1'bX;        
         end                  
             
@@ -719,7 +734,7 @@ generate
             .reset(reset)           
         );     
   
-        end else begin :now_rra
+        end else begin :no_wrra
             assign iport_weight_is_consumed=1'bX;
             assign oports_weight = {WP{1'bX}};          
         end   
@@ -1080,8 +1095,8 @@ module custom_topology_destp_decoder #(
    
    initial begin
       if( ROUTE_TYPE != "DETERMINISTIC") begin
-        $display("%t: Error: Custom topologies can only support deterministic routing in the current version of ProNoC",$time);
-        $stop; 
+        $display("%t: ERROR: Custom topologies can only support deterministic routing in the current version of ProNoC",$time);
+        $finish; 
       end
    end
    

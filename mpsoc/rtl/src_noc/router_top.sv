@@ -14,7 +14,7 @@ module router_top
 		import pronoc_pkg::*;
         
 	# (
-		parameter P = 6     // router port num         
+		parameter P = 5     // router port num         
 		)(
 			current_r_addr,// connected to constant parameter  
         
@@ -27,7 +27,7 @@ module router_top
 		);
   
 
-   
+    localparam DISABLED =P;
 
 	input [RAw-1 :  0]  current_r_addr;
     
@@ -43,7 +43,47 @@ module router_top
 	ivc_info_t 	 ivc_info    [P-1 : 0][V-1 : 0];
 	iport_info_t iport_info  [P-1 : 0];
 	oport_info_t oport_info  [P-1 : 0]; 
-	sbp_chanel_t sbp_chanel  [P-1 : 0];
+	sbp_chanel_t sbp_chanel_new  [P-1 : 0];
+	sbp_chanel_t sbp_chanel_in   [P-1 : 0];
+	sbp_chanel_t sbp_chanel_out  [P-1 : 0]; 
+	sbp_ctrl_t   sbp_ctrl        [P-1 : 0];
+	
+	
+	
+	// synthesis translate_off
+	//header flit info, it is useful for debugin 
+	hdr_flit_t hdr_flit_i [P-1 : 0]; // the received packet header flit info 
+	hdr_flit_t hdr_flit_o [P-1 : 0]; // the sent packet header flit info 
+	
+	
+	generate 
+	for (i=0; i<P; i=i+1) begin :p_		
+		
+		
+		header_flit_info in_extract(
+				.flit(chan_in[i].flit_chanel.flit),
+				.hdr_flit( hdr_flit_i[i]),		
+				.data_o()
+			);
+		
+		header_flit_info out_extract(
+				.flit(chan_out[i].flit_chanel.flit),
+				.hdr_flit( hdr_flit_o[i]),
+				.data_o()
+			);
+		
+		
+		
+	end
+	endgenerate
+	// synthesis translate_off
+	
+	
+	
+	
+	
+	wire [V-1 : 0] ovc_locally_requested [P-1 : 0]; 
+	flit_chanel_t ss_flit_chanel [P-1 : 0]; //flit  bypass link goes to straight port
 
 	router_two_stage  #(//r2
 		.P (P)
@@ -51,6 +91,7 @@ module router_top
 			.ivc_info(ivc_info),
 			.iport_info(iport_info),
 			.oport_info(oport_info),
+			.sbp_ctrl_in(sbp_ctrl),
 			.current_r_addr  (current_r_addr ), 
 			.chan_in         (r2_chan_in     ), 
 			.chan_out        (r2_chan_out    ), 
@@ -65,27 +106,138 @@ module router_top
 		sbp_forward_ivc_info			
 		#(
 			.P(P)
-		 )forward_sbp(			
+		 )forward_ivc(			
 				.ivc_info(ivc_info),
 				.iport_info(iport_info),
 				.oport_info(oport_info),
-				.sbp_chanel(sbp_chanel),
-				.ovc_alloc_is_not_allowed(),
+				.sbp_chanel(sbp_chanel_new),
+				.ovc_locally_requested(ovc_locally_requested),
 				.reset(reset),
 				.clk(clk)
 		);
 		
-		for (i=0;i<P;i=i+1)begin : p_
-			assign chan_out[i].sbp_chanel = sbp_chanel[i];		
-		end
+		sbp_bypass_chanels
+		#(
+			.P(P)
+		)sbp_bypass(			
+			.ivc_info(ivc_info),
+			.iport_info(iport_info),
+			.oport_info(oport_info),
+			.sbp_chanel_new(sbp_chanel_new),
+			.sbp_chanel_in(sbp_chanel_in),
+			.sbp_chanel_out(sbp_chanel_out),
+			.sbp_req( ),
+			.reset(reset),
+			.clk(clk)			
+		);	
 		
+		wire  [RAw-1:  0]  neighbors_r_addr [P-1: 0];	
+		wire  [V-1  :  0]  credit_out [P-1 : 0];
+		wire  [V-1  :  0]  ivc_sbp_en [P-1 : 0];
+		for (i=0;i<P;i=i+1)begin : p_
+			localparam SS_PORT = strieght_port (P,i);
+			if(SS_PORT == DISABLED) begin: sbp_dis 
+				assign r2_chan_in[i]   =  chan_in[i].flit_chanel;
+				assign chan_out[i].flit_chanel     =  r2_chan_out[i];	
+				assign sbp_ctrl[i]={SBP_CTRL_w{1'b0}};				
+			end 
+			else begin :sbp_en
+				assign neighbors_r_addr [i] = chan_in[i].flit_chanel.neighbors_r_addr;
+				//sbp allocator
+				sbp_allocator_per_iport #(
+					.P                         (P                        ), 
+					.SW_LOC                    (i      		             ), 
+					.SS_PORT_LOC               (SS_PORT     	         )
+					) sbp_allocator(
+					.clk                       (clk                      ), 
+					.reset                     (reset                    ), 
+					.current_r_addr_i          (current_r_addr           ), 
+					.neighbors_r_addr_i        (neighbors_r_addr         ), 
+					.sbp_chanel_i              (chan_in[i].sbp_chanel    ), 
+					.flit_chanel_i             (chan_in[i].flit_chanel   ), 
+					.ivc_info                  (ivc_info[i]              ), 
+					.ss_oport_info             (oport_info[SS_PORT]      ), 
+					.ovc_locally_requested     (ovc_locally_requested[SS_PORT] ), 
+					.ss_port_link_reg_flit_wr  (r2_chan_out[SS_PORT].flit_wr), 
+									
+					.sbp_destport_o				 (sbp_ctrl[i].destport     ),	
+					.sbp_lk_destport_o			 (sbp_ctrl[i].lk_destport  ),	
+					.sbp_hdr_flit_req_o          (sbp_ctrl[i].hdr_flit_req ),
+					.sbp_ivc_sbp_en_o			 (ivc_sbp_en[i]   ),              		
+					.sbp_credit_o				 (sbp_ctrl[i].credit_out   ),             	
+					.sbp_buff_space_decreased_o	 (sbp_ctrl[i].buff_space_decreased), 
+					.sbp_ivc_num_getting_ovc_grant_o(sbp_ctrl[i].ivc_num_getting_ovc_grant),
+					.sbp_ivc_reset_o             (sbp_ctrl[i].ivc_reset),
+					.sbp_ivc_granted_ovc_num_o   (sbp_ctrl[i].ivc_granted_ovc_num),
+					.sbp_ss_ovc_is_allocated_o	 (sbp_ctrl[SS_PORT].ovc_is_allocated),     
+					.sbp_ss_ovc_is_released_o	 (sbp_ctrl[SS_PORT].ovc_is_released),      
+					.sbp_mask_available_ss_ovc_o (sbp_ctrl[SS_PORT].mask_available_ovc)	
+					
+					);
+				
+					assign sbp_ctrl[i].ivc_sbp_en = ivc_sbp_en[i];
+				    assign sbp_ctrl[i].sbp_en = |ivc_sbp_en[i];
+					
+				   
+				
+				
+				
+				//assign chan_out[i].sbp_chanel = (sbp_chanel[i].requests[0]) ? sbp_chanel_new[i] : take ss shifted sbp;	
+				sbp_chanel_check check (
+					.flit_chanel(chan_out[i].flit_chanel),
+					.sbp_chanel(sbp_chanel_new[i]),
+					.reset(reset),
+					.clk(clk)		
+				);
+				
+				assign sbp_chanel_in[i] =   chan_in[i].sbp_chanel;
+				assign chan_out[i].sbp_chanel = sbp_chanel_out[i];
+				
+				//r2 demux
+				// flit_in_wr demux 
+				always @(*) begin 
+					//mask only flit_wr id sbp_en is asserted 
+					r2_chan_in[i]   =  chan_in[i].flit_chanel;
+					//can replace destport here and remove lk rout from internal router 
+					if (sbp_ctrl[i].sbp_en) r2_chan_in[i].flit_wr = 1'b0;
+					
+					//send flit_in to straight out port. Replace lk destport in header flit
+					ss_flit_chanel[SS_PORT] = chan_in[i].flit_chanel;
+					if(sbp_ctrl[i].hdr_flit_req) ss_flit_chanel[SS_PORT].flit[DST_P_MSB : DST_P_LSB] =  sbp_ctrl[i].lk_destport;   
+				
+				
+					// mux out flit channel
+					chan_out[i].flit_chanel = r2_chan_out[i];
+					chan_out[i].flit_chanel.credit    =  credit_out[i] ;
+					if(sbp_ctrl[i].sbp_en) begin
+						chan_out[i].flit_chanel.flit    =  ss_flit_chanel[i].flit;
+						chan_out[i].flit_chanel.flit_wr =  ss_flit_chanel[i].flit_wr;
+						
+					end
+				end
+				
+				sbp_credit_manage #(
+					.V             (V             ), 
+					.B             (B            )
+					) sbp_credit_manage (
+					.credit_in      (r2_chan_out[i].credit     ), 
+					.sbp_credit_in  (sbp_ctrl[i].credit_out ), 
+					.credit_out     ( credit_out[i]   ), 
+					.reset          (reset         ), 
+					.clk            (clk           ));
+				
+				
+				
+			end //for
+		end//sbp_en
 		
 		
 		
 	end else begin :nosbp
 		for (i=0;i<P;i=i+1)begin : p_
 			assign r2_chan_in[i]   =  chan_in[i].flit_chanel;
-			assign chan_out[i].flit_chanel     =  r2_chan_out[i];
+			assign chan_out[i].flit_chanel     =  r2_chan_out[i];	
+			assign sbp_ctrl[i]={SBP_CTRL_w{1'b0}};
 		end//for
 	end
 	endgenerate	
@@ -94,6 +246,9 @@ endmodule
 
 
 
+
+
+		
 
 
 
@@ -145,6 +300,9 @@ module router_top_v
     output [P-1 :  0]  flit_out_wr_all;
     input  [PV-1 :  0]  credit_in_all;
     output [PCONGw-1 :  0]  congestion_out_all;
+    
+    
+    
     
     input clk,reset;
 

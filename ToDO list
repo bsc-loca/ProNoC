@@ -1,39 +1,5 @@
 1: add verilator version check, and timscle disable
-2: make mpsoc_top module as systemverilog, add noc_top instead of noc
-3: verilator simulation ...
+2: custom topology fig save doesnt work
 
 
-arbiter.v',
-                                   '/mpsoc/src_noc/baseline.v',
-                                   '/mpsoc/src_noc/canonical_credit_count.v',
-                                   '/mpsoc/src_noc/class_table.v',
-                                   '/mpsoc/src_noc/combined_vc_sw_alloc.v',
-                                   '/mpsoc/src_noc/comb_nonspec.v',
-                                   '/mpsoc/src_noc/comb_spec2.v',
-                                   '/mpsoc/src_noc/comb-spec1.v',
-                                   '/mpsoc/src_noc/congestion_analyzer.v',
-                                   '/mpsoc/src_noc/credit_count.v',
-                                   '/mpsoc/src_noc/crossbar.v',
-                                   '/mpsoc/src_noc/debug.v',
-                                   '/mpsoc/src_noc/fattree.v',
-                                   '/mpsoc/src_noc/flit_buffer.v',
-                                   '/mpsoc/src_noc/flit_buffer_reg_bas.v',
-                                   '/mpsoc/src_noc/header_flit.v',
-                                   '/mpsoc/src_noc/inout_ports.v',
-                                   '/mpsoc/src_noc/input_ports.v',
-                                   '/mpsoc/src_noc/iport_reg_base.v',
-                                   '/mpsoc/src_noc/main_comp.v',
-                                   '/mpsoc/src_noc/mesh_torus.v',
-                                   '/mpsoc/src_noc/mesh_torus_noc.v',
-                                   '/mpsoc/src_noc/mesh_torus_routting.v',
-                                   '/mpsoc/src_noc/noc.v',
-                                   '/mpsoc/src_noc/route_mesh.v',
-                                   '/mpsoc/src_noc/router.v',
-                                   '/mpsoc/src_noc/route_torus.v',
-                                   '/mpsoc/src_noc/routing.v',
-                                   '/mpsoc/src_noc/ss_allocator.v',
-                                   '/mpsoc/src_noc/test_topology_genvar.v',
-                                   '/mpsoc/src_noc/topology_localparam.v',
-                                   '/mpsoc/src_noc/traffic_gen.v',
-                                   '/mpsoc/src_noc/tree.v',
-                                   '/mpsoc/src_noc/wrra.v'
+

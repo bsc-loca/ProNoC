@@ -123,7 +123,7 @@ module  chi_to_pronoc_wrapper #(
         .clk(1'b0), // only needed for fattree
         .current_r_addr(current_r_addr_i),
         .dest_e_addr(dest_e_addr),
-        .current_e_addr(src_e_addr),
+        .src_e_addr(src_e_addr),
         .destport(destport)
     );
     
@@ -288,7 +288,7 @@ module  chi_to_pronoc_snoop_wrapper #(
         .clk(1'b0), // only needed for fattree
         .current_r_addr(current_r_addr_i),
         .dest_e_addr(dest_e_addr),
-        .current_e_addr(src_e_addr),
+        .src_e_addr(src_e_addr),
         .destport(destport)
     );
     

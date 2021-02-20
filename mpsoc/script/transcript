@@ -19,11 +19,11 @@
 ###################################################################
 ##---- Specify variables
 # /home/alireza/work/git/hca_git/ProNoC/mpsoc/script
-# /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc
-# /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_modelsim
+# /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc
+# /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim
 # /home/alireza/work/git/hca_git/mpsoc_work/simulation
 # /home/alireza/work/git/hca_git/mpsoc_work/simulation/work
-# /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc+/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_modelsim
+# /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim
 # /home/alireza/work/git/hca_git/mpsoc_work/simulation
 # reading modelsim.ini
 # 1
@@ -36,28 +36,9 @@
 ###################################################################
 ##---- 3. Compile the Design
 # QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
-# Start time: 02:07:14 on Jan 11,2021
-# vlog -reportprogress 300 -sv -work /home/alireza/work/git/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc+/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_modelsim" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc/filelist.f 
+# Start time: 01:26:57 on Feb 15,2021
+# vlog -reportprogress 300 -sv -work /home/alireza/work/git/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/noc_filelist.f 
 # -- Compiling package pronoc_pkg
-# -- Compiling module class_ovc_table
-# -- Compiling module vc_priority_based_dest_port
-# -- Compiling module ss_allocator
-# -- Compiling module ssa_per_vc
-# -- Compiling module ssa_check_destport
-# -- Compiling module add_ss_port
-# -- Compiling module tranc_xy_routing
-# -- Compiling module tranc_west_first_routing
-# -- Compiling module tranc_north_last_routing
-# -- Compiling module tranc_negetive_first_routing
-# -- Compiling module tranc_duato_routing
-# -- Compiling module tranc_dir
-# -- Compiling module header_flit_generator
-# -- Compiling module extract_header_flit_info
-# -- Compiling module header_flit_update_lk_route_ovc
-# -- Compiling module hdr_flit_weight_update
-# -- Compiling module noc
-# -- Compiling module noc_top
-# -- Importing package pronoc_pkg
 # -- Compiling module one_hot_mux
 # -- Compiling module one_hot_demux
 # -- Compiling module custom_or
@@ -76,7 +57,40 @@
 # -- Compiling module PC_31_5
 # -- Compiling module PC_63_6
 # -- Compiling module PC_127_7
-# -- Compiling module fattree_noc
+# -- Compiling module arbiter
+# -- Compiling module arbiter_priority_en
+# -- Compiling module my_one_hot_arbiter
+# -- Compiling module arbiter_2_one_hot
+# -- Compiling module arbiter_3_one_hot
+# -- Compiling module arbiter_4_one_hot
+# -- Compiling module my_one_hot_arbiter_priority_en
+# -- Compiling module thermo_gen
+# -- Compiling module thermo_arbiter
+# -- Compiling module thermo_arbiter_priority_en
+# -- Compiling module thermo_arbiter_ext_priority
+# -- Compiling module tree_arbiter
+# -- Compiling module my_one_hot_arbiter_ext_priority
+# -- Compiling module arbiter_ext_priority
+# -- Compiling module fixed_priority_arbiter
+# -- Compiling module class_ovc_table
+# -- Compiling module vc_priority_based_dest_port
+# -- Compiling module ss_allocator
+# -- Compiling module ssa_per_vc
+# -- Compiling module ssa_check_destport
+# -- Compiling module add_ss_port
+# -- Compiling module tranc_xy_routing
+# -- Compiling module tranc_west_first_routing
+# -- Compiling module tranc_north_last_routing
+# -- Compiling module tranc_negetive_first_routing
+# -- Compiling module tranc_duato_routing
+# -- Compiling module tranc_dir
+# -- Compiling module header_flit_generator
+# -- Compiling module extract_header_flit_info
+# -- Compiling module header_flit_update_lk_route_ovc
+# -- Compiling module hdr_flit_weight_update
+# -- Compiling module noc_top
+# -- Importing package pronoc_pkg
+# -- Compiling module noc_top_v
 # -- Compiling module fattree_noc_top
 # -- Compiling module fattree_nca_random_up_routing
 # -- Compiling module fattree_nca_destp_up_routing
@@ -120,7 +134,6 @@
 # -- Compiling module input_queue_per_port
 # -- Compiling module destp_generator
 # -- Compiling module custom_topology_destp_decoder
-# -- Compiling module tree_noc
 # -- Compiling module tree_noc_top
 # -- Compiling module tree_nca_routing
 # -- Compiling module tree_conventional_routing
@@ -128,25 +141,9 @@
 # -- Compiling module tree_look_ahead_routing
 # -- Compiling module tree_destport_decoder
 # -- Compiling module tree_destp_generator
-# -- Compiling module mesh_torus_noc
 # -- Compiling module comb_spec1_allocator
 # -- Compiling module spec_sw_alloc
 # -- Compiling module sw_alloc_sub
-# -- Compiling module arbiter
-# -- Compiling module arbiter_priority_en
-# -- Compiling module my_one_hot_arbiter
-# -- Compiling module arbiter_2_one_hot
-# -- Compiling module arbiter_3_one_hot
-# -- Compiling module arbiter_4_one_hot
-# -- Compiling module my_one_hot_arbiter_priority_en
-# -- Compiling module thermo_gen
-# -- Compiling module thermo_arbiter
-# -- Compiling module thermo_arbiter_priority_en
-# -- Compiling module thermo_arbiter_ext_priority
-# -- Compiling module tree_arbiter
-# -- Compiling module my_one_hot_arbiter_ext_priority
-# -- Compiling module arbiter_ext_priority
-# -- Compiling module fixed_priority_arbiter
 # -- Compiling module combined_vc_sw_alloc
 # -- Compiling module mesh_torus_look_ahead_routing
 # -- Compiling module mesh_torus_deterministic_look_ahead_routing
@@ -178,19 +175,23 @@
 # -- Compiling module duato_mesh_routing
 # -- Compiling module mesh_dir
 # -- Compiling module mesh_tori_encode_dstport
-# -- Compiling module SBP_flags_gen_per_oport
-# -- Compiling module check_straight_oport
-# -- Compiling module SPB_IVC_info
-# -- Compiling module SBP_sig_gen_per_iport
-# -- Compiling module SBP_sig_gen_per_oport
-# -- Compiling module spb_allocator_per_iport
 # -- Compiling module register
-# -- Compiling module spb_validity_check_per_ivc
+# -- Compiling module onehot_mux
+# -- Compiling module header_flit_info
+# -- Compiling module sbp_chanel_check
+# -- Compiling module sbp_forward_ivc_info
+# -- Compiling module sbp_bypass_chanels
+# -- Compiling module check_straight_oport
+# -- Compiling module sbp_validity_check_per_ivc
+# -- Compiling module sbp_allocator_per_iport
+# -- Compiling module sbp_credit_manage
+# -- Compiling module sbp_credit_manage_per_vc
 # -- Compiling module traffic_gen
 # -- Compiling module injection_ratio_ctrl
 # -- Compiling module packet_gen
 # -- Compiling module distance_gen
 # -- Compiling module traffic_gen_top
+# -- Compiling module traffic_gen_top_v
 # -- Compiling module port_presel_based_dst_ports_vc
 # -- Compiling module port_presel_based_dst_ports_credit
 # -- Compiling module mesh_torus_port_presel_based_dst_routers_vc
@@ -215,7 +216,6 @@
 # -- Compiling module look_ahead_routing
 # -- Compiling module next_router_addr_selector_onehot
 # -- Compiling module next_router_addr_selector_bin
-# -- Compiling module router
 # -- Compiling module router_two_stage
 # -- Compiling module crossbar
 # -- Compiling module iport_reg_base
@@ -249,38 +249,37 @@
 # -- Compiling module debug_mesh_edges
 # -- Compiling module check_destination_addr
 # -- Compiling module router_top
+# -- Compiling module router_top_v
 # -- Compiling module mesh_torus_noc_top
+# -- Compiling module non_local_allocator
 # 
 # Top level modules:
-# 	vc_priority_based_dest_port
-# 	noc
-# 	noc_top
 # 	outport_sum
 # 	set_bits_counter
+# 	my_one_hot_arbiter_ext_priority
+# 	arbiter_ext_priority
+# 	fixed_priority_arbiter
+# 	vc_priority_based_dest_port
+# 	noc_top_v
 # 	fattree_addr_encoder
 # 	fattree_addr_decoder
 # 	wrra
 # 	rra_priority_lock
-# 	my_one_hot_arbiter_ext_priority
-# 	arbiter_ext_priority
-# 	fixed_priority_arbiter
 # 	mesh_torus_next_router_inport_predictor
 # 	remove_receive_port_one_hot
-# 	SPB_IVC_info
-# 	SBP_sig_gen_per_iport
-# 	SBP_sig_gen_per_oport
-# 	spb_allocator_per_iport
 # 	traffic_gen_top
+# 	traffic_gen_top_v
 # 	deadlock_detector
 # 	iport_reg_base
 # 	fifo
 # 	mesh_torus_dtrmn_dest_encoder
 # 	mesh_tori_addr_encoder
-# End time: 02:07:14 on Jan 11,2021, Elapsed time: 0:00:00
+# 	router_top_v
+# End time: 01:26:57 on Feb 15,2021, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
-# Start time: 02:07:14 on Jan 11,2021
-# vlog -reportprogress 300 -sv -work /home/alireza/work/git/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_noc+/home/alireza/work/git/hca_git/ProNoC/mpsoc/src_modelsim" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_modelsim/filelist.f 
+# Start time: 01:26:58 on Feb 15,2021
+# vlog -reportprogress 300 -sv -work /home/alireza/work/git/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/filelist.f 
 # -- Compiling module pseudo_hotspot_no_core
 # -- Compiling module pseudo_hotspot
 # -- Compiling module pseudo_random
@@ -300,13 +299,13 @@
 # 	pseudo_hotspot
 # 	pseudo_random_gen
 # 	testbench_noc
-# End time: 02:07:14 on Jan 11,2021, Elapsed time: 0:00:00
+# End time: 01:26:58 on Feb 15,2021, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 ###################################################################
 ##                       END OF COMPILATION
 ###################################################################
 # vsim -t ps work.testbench_noc 
-# Start time: 02:07:14 on Jan 11,2021
+# Start time: 01:26:58 on Feb 15,2021
 # ** Note: (vsim-3813) Design is being optimized due to module recompilation...
 # Loading sv_std.std
 # Loading work.pronoc_pkg(fast)
@@ -315,10 +314,12 @@
 # Loading work.mesh_torus_noc_top(fast)
 # Loading work.router_top(fast)
 # Loading work.router_two_stage(fast)
+# Loading work.add_sw_loc_one_hot(fast)
 # Loading work.inout_ports(fast)
+# Loading work.non_local_allocator(fast)
 # Loading work.credit_counter(fast)
 # Loading work.inport_module(fast)
-# Loading work.one_hot_mux(fast__1)
+# Loading work.one_hot_mux(fast__2)
 # Loading work.one_hot_mux(fast__3)
 # Loading work.one_hot_demux(fast)
 # Loading work.sw_mask_gen(fast)
@@ -330,23 +331,20 @@
 # Loading work.input_ports(fast)
 # Loading work.input_queue_per_port(fast)
 # Loading work.extract_header_flit_info(fast)
-# Loading work.mesh_tori_endp_addr_decode(fast)
+# Loading work.one_hot_to_bin(fast)
 # Loading work.class_ovc_table(fast)
 # Loading work.fwft_fifo(fast)
-# Loading work.fwft_fifo(fast__2)
 # Loading work.fwft_fifo(fast__1)
 # Loading work.destp_generator(fast)
 # Loading work.mesh_torus_destp_generator(fast)
 # Loading work.mesh_torus_destp_decoder(fast)
-# Loading work.bin_to_one_hot(fast)
 # Loading work.remove_sw_loc_one_hot(fast)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast)
 # Loading work.flit_buffer(fast)
-# Loading work.one_hot_mux(fast__2)
-# Loading work.one_hot_to_bin(fast)
 # Loading work.fifo_ram(fast)
 # Loading work.look_ahead_routing(fast)
 # Loading work.mesh_tori_router_addr_decode(fast)
+# Loading work.mesh_tori_endp_addr_decode(fast)
 # Loading work.mesh_torus_look_ahead_routing(fast)
 # Loading work.mesh_torus_deterministic_look_ahead_routing(fast)
 # Loading work.mesh_tori_decode_dstport(fast)
@@ -355,6 +353,7 @@
 # Loading work.xy_mesh_routing(fast)
 # Loading work.mesh_tori_encode_dstport(fast)
 # Loading work.header_flit_update_lk_route_ovc(fast)
+# Loading work.one_hot_mux(fast__1)
 # Loading work.input_queue_per_port(fast__1)
 # Loading work.destp_generator(fast__1)
 # Loading work.mesh_torus_destp_generator(fast__1)
@@ -379,30 +378,23 @@
 # Loading work.mesh_torus_destp_decoder(fast__4)
 # Loading work.remove_sw_loc_one_hot(fast__4)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__4)
-# Loading work.input_queue_per_port(fast__5)
-# Loading work.destp_generator(fast__5)
-# Loading work.mesh_torus_destp_generator(fast__5)
-# Loading work.mesh_torus_destp_decoder(fast__5)
-# Loading work.remove_sw_loc_one_hot(fast__5)
-# Loading work.mesh_torus_mask_non_assignable_destport(fast__5)
 # Loading work.combined_vc_sw_alloc(fast)
 # Loading work.comb_nonspec_allocator(fast)
 # Loading work.nonspec_sw_alloc(fast)
 # Loading work.swa_input_port_arbiter(fast)
 # Loading work.arbiter_priority_en(fast)
 # Loading work.my_one_hot_arbiter_priority_en(fast)
-# Loading work.arbiter_4_one_hot(fast)
-# Loading work.one_hot_mux(fast__4)
+# Loading work.arbiter_2_one_hot(fast)
 # Loading work.swa_output_port_arbiter(fast)
 # Loading work.arbiter(fast)
-# Loading work.thermo_arbiter(fast)
-# Loading work.thermo_gen(fast)
+# Loading work.my_one_hot_arbiter(fast)
+# Loading work.one_hot_to_bin(fast__1)
+# Loading work.arbiter_4_one_hot(fast)
 # Loading work.custom_or(fast)
 # Loading work.arbiter(fast__1)
-# Loading work.my_one_hot_arbiter(fast)
+# Loading work.my_one_hot_arbiter(fast__1)
 # Loading work.crossbar(fast)
-# Loading work.one_hot_mux(fast__5)
-# Loading work.add_sw_loc_one_hot(fast)
+# Loading work.binary_mux(fast)
 # Loading work.traffic_gen_top(fast)
 # Loading work.traffic_gen(fast)
 # Loading work.check_destination_addr(fast)
@@ -411,7 +403,7 @@
 # Loading work.packet_gen(fast)
 # Loading work.conventional_routing(fast)
 # Loading work.mesh_torus_conventional_routing(fast__1)
-# Loading work.fwft_fifo(fast__3)
+# Loading work.fwft_fifo(fast__2)
 # Loading work.header_flit_generator(fast)
 # Loading work.distance_gen(fast)
 # Loading work.mesh_torus_distance_gen(fast)
@@ -424,248 +416,45 @@
 # Loading work.endp_addr_encoder(fast)
 # Loading work.mesh_tori_addr_encoder(fast)
 # Loading work.pck_size_gen(fast)
-#  Total number of recived flits  =        1404 
-#  average throughput=1976.000000 
-# 
-#  Total number of recived packets  =         260 
-#  avrage latency per hop=5.341786 
-#  avg_latency=15.888462
-# 
-#  max_latency_per_hop= 27 
-# class	 :	           0  
-# total_pck_num_per_class =         260
-# avg_latency_per_hop_per_class=5.341786
-# avg_latency_per_class=15.888462
-# max_latency_per_hop_per_class=27.000000
-# class	 :	           1  
-# total_pck_num_per_class =           0
-# avg_latency_per_hop_per_class=0.000000
-# avg_latency_per_class=0.000000
-# max_latency_per_hop_per_class=0.000000
-# simulation clk number=    73
-# total_pck injected      =474.000000
-# TRAFFIC is   =RANDOM
-# Min Packet size in flit=          3 
-# Max Packet size in flit=          3 
-# total_latency_accum=       2304 
-# ROUTE_NAME    =XY
-# ROUTE_TYPE =DETERMINISTIC
-# VC_REALLOCATION_TYPE = NONATOMIC
-# COMBINATION_TYPE  = COMB_NONSPEC
-# VC_NUM_PER_PORT =           4
-# BUFFER_NUM_PER_VC =           4
-#  Total number of recived flits  =         864 
-#  average throughput=184.000000 
-# 
-#  Total number of recived packets  =         257 
-#  avrage latency per hop=2.165397 
-#  avg_latency=7.587549
-# 
-#  max_latency_per_hop= 5 
-# class	 :	           0  
-# total_pck_num_per_class =         257
-# avg_latency_per_hop_per_class=2.165397
-# avg_latency_per_class=7.587549
-# max_latency_per_hop_per_class=5.000000
-# class	 :	           1  
-# total_pck_num_per_class =           0
-# avg_latency_per_hop_per_class=0.000000
-# avg_latency_per_class=0.000000
-# max_latency_per_hop_per_class=0.000000
-# simulation clk number=   471
-# total_pck injected      =288.000000
-# TRAFFIC is   =RANDOM
-# Min Packet size in flit=          3 
-# Max Packet size in flit=          3 
-# total_latency_accum=      15040 
-# ROUTE_NAME    =XY
-# ROUTE_TYPE =DETERMINISTIC
-# VC_REALLOCATION_TYPE = NONATOMIC
-# COMBINATION_TYPE  = COMB_NONSPEC
-# VC_NUM_PER_PORT =           4
-# BUFFER_NUM_PER_VC =           4
-#  Total number of recived flits  =         864 
-#  average throughput=183.000000 
-# 
-#  Total number of recived packets  =         258 
-#  avrage latency per hop=2.170109 
-#  avg_latency=7.596899
-# 
-#  max_latency_per_hop= 4 
-# class	 :	           0  
-# total_pck_num_per_class =         258
-# avg_latency_per_hop_per_class=2.170109
-# avg_latency_per_class=7.596899
-# max_latency_per_hop_per_class=4.000000
-# class	 :	           1  
-# total_pck_num_per_class =           0
-# avg_latency_per_hop_per_class=0.000000
-# avg_latency_per_class=0.000000
-# max_latency_per_hop_per_class=0.000000
-# simulation clk number=   473
-# total_pck injected      =288.000000
-# TRAFFIC is   =RANDOM
-# Min Packet size in flit=          3 
-# Max Packet size in flit=          3 
-# total_latency_accum=      15104 
-# ROUTE_NAME    =XY
-# ROUTE_TYPE =DETERMINISTIC
-# VC_REALLOCATION_TYPE = NONATOMIC
-# COMBINATION_TYPE  = COMB_NONSPEC
-# VC_NUM_PER_PORT =           4
-# BUFFER_NUM_PER_VC =           4
-#  Total number of recived flits  =         864 
-#  average throughput=183.000000 
-# 
-#  Total number of recived packets  =         259 
-#  avrage latency per hop=2.154532 
-#  avg_latency=7.509653
-# 
-#  max_latency_per_hop= 4 
-# class	 :	           0  
-# total_pck_num_per_class =         259
-# avg_latency_per_hop_per_class=2.154532
-# avg_latency_per_class=7.509653
-# max_latency_per_hop_per_class=3.500000
-# class	 :	           1  
-# total_pck_num_per_class =           0
-# avg_latency_per_hop_per_class=0.000000
-# avg_latency_per_class=0.000000
-# max_latency_per_hop_per_class=0.000000
-# simulation clk number=   473
-# total_pck injected      =288.000000
-# TRAFFIC is   =RANDOM
-# Min Packet size in flit=          3 
-# Max Packet size in flit=          3 
-# total_latency_accum=      15104 
-# ROUTE_NAME    =XY
-# ROUTE_TYPE =DETERMINISTIC
-# VC_REALLOCATION_TYPE = NONATOMIC
-# COMBINATION_TYPE  = COMB_NONSPEC
-# VC_NUM_PER_PORT =           4
-# BUFFER_NUM_PER_VC =           4
-#  Total number of recived flits  =         864 
-#  average throughput=183.000000 
-# 
-#  Total number of recived packets  =         257 
-#  avrage latency per hop=2.175598 
-#  avg_latency=7.770428
-# 
-#  max_latency_per_hop= 4 
-# class	 :	           0  
-# total_pck_num_per_class =         257
-# avg_latency_per_hop_per_class=2.175598
-# avg_latency_per_class=7.770428
-# max_latency_per_hop_per_class=4.333333
-# class	 :	           1  
-# total_pck_num_per_class =           0
-# avg_latency_per_hop_per_class=0.000000
-# avg_latency_per_class=0.000000
-# max_latency_per_hop_per_class=0.000000
-# simulation clk number=   472
-# total_pck injected      =288.000000
-# TRAFFIC is   =RANDOM
-# Min Packet size in flit=          3 
-# Max Packet size in flit=          3 
-# total_latency_accum=      15072 
-# ROUTE_NAME    =XY
-# ROUTE_TYPE =DETERMINISTIC
-# VC_REALLOCATION_TYPE = NONATOMIC
-# COMBINATION_TYPE  = COMB_NONSPEC
-# VC_NUM_PER_PORT =           4
-# BUFFER_NUM_PER_VC =           4
-#  Total number of recived flits  =         864 
-#  average throughput=184.000000 
-# 
-#  Total number of recived packets  =         258 
-#  avrage latency per hop=2.175000 
-#  avg_latency=7.453488
-# 
-#  max_latency_per_hop= 4 
-# class	 :	           0  
-# total_pck_num_per_class =         258
-# avg_latency_per_hop_per_class=2.175000
-# avg_latency_per_class=7.453488
-# max_latency_per_hop_per_class=4.200000
-# class	 :	           1  
-# total_pck_num_per_class =           0
-# avg_latency_per_hop_per_class=0.000000
-# avg_latency_per_class=0.000000
-# max_latency_per_hop_per_class=0.000000
-# simulation clk number=   471
-# total_pck injected      =288.000000
-# TRAFFIC is   =RANDOM
-# Min Packet size in flit=          3 
-# Max Packet size in flit=          3 
-# total_latency_accum=      15040 
-# ROUTE_NAME    =XY
-# ROUTE_TYPE =DETERMINISTIC
-# VC_REALLOCATION_TYPE = NONATOMIC
-# COMBINATION_TYPE  = COMB_NONSPEC
-# VC_NUM_PER_PORT =           4
-# BUFFER_NUM_PER_VC =           4
-#  Total number of recived flits  =         864 
-#  average throughput=184.000000 
-# 
-#  Total number of recived packets  =         257 
-#  avrage latency per hop=2.241606 
-#  avg_latency=8.116732
-# 
-#  max_latency_per_hop= 5 
-# class	 :	           0  
-# total_pck_num_per_class =         257
-# avg_latency_per_hop_per_class=2.241606
-# avg_latency_per_class=8.116732
-# max_latency_per_hop_per_class=5.250000
-# class	 :	           1  
-# total_pck_num_per_class =           0
-# avg_latency_per_hop_per_class=0.000000
-# avg_latency_per_class=0.000000
-# max_latency_per_hop_per_class=0.000000
-# simulation clk number=   471
-# total_pck injected      =288.000000
-# TRAFFIC is   =RANDOM
-# Min Packet size in flit=          3 
-# Max Packet size in flit=          3 
-# total_latency_accum=      15040 
-# ROUTE_NAME    =XY
-# ROUTE_TYPE =DETERMINISTIC
-# VC_REALLOCATION_TYPE = NONATOMIC
-# COMBINATION_TYPE  = COMB_NONSPEC
-# VC_NUM_PER_PORT =           4
-# BUFFER_NUM_PER_VC =           4
-#  Total number of recived flits  =         864 
-#  average throughput=183.000000 
-# 
-#  Total number of recived packets  =         257 
-#  avrage latency per hop=2.205355 
-#  avg_latency=7.505837
-# 
-#  max_latency_per_hop= 5 
-# class	 :	           0  
-# total_pck_num_per_class =         257
-# avg_latency_per_hop_per_class=2.205355
-# avg_latency_per_class=7.505837
-# max_latency_per_hop_per_class=5.000000
-# class	 :	           1  
-# total_pck_num_per_class =           0
-# avg_latency_per_hop_per_class=0.000000
-# avg_latency_per_class=0.000000
-# max_latency_per_hop_per_class=0.000000
-# simulation clk number=   472
-# total_pck injected      =288.000000
-# TRAFFIC is   =RANDOM
-# Min Packet size in flit=          3 
-# Max Packet size in flit=          3 
-# total_latency_accum=      15072 
-# ROUTE_NAME    =XY
-# ROUTE_TYPE =DETERMINISTIC
-# VC_REALLOCATION_TYPE = NONATOMIC
-# COMBINATION_TYPE  = COMB_NONSPEC
-# VC_NUM_PER_PORT =           4
-# BUFFER_NUM_PER_VC =           4
-# ** Note: $stop    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_modelsim/./testbench_noc.sv(81)
-#    Time: 150460 ns  Iteration: 0  Instance: /testbench_noc
-# Break at /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_modelsim/./testbench_noc.sv line 81
-# End time: 02:09:47 on Jan 11,2021, Elapsed time: 0:02:33
-# Errors: 0, Warnings: 0
+# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'avg_pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(16).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[0]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(17).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[0]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (9) for port 'pck_number'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(28).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[0]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (17) for port 'time_stamp_h2h'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(36).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[0]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'avg_pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(16).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[1]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(17).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[1]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (9) for port 'pck_number'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(28).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[1]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (17) for port 'time_stamp_h2h'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(36).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[1]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'avg_pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(16).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[2]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(17).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[2]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (9) for port 'pck_number'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(28).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[2]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (17) for port 'time_stamp_h2h'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(36).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[2]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'avg_pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(16).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[3]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(17).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[3]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (9) for port 'pck_number'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(28).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[3]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (17) for port 'time_stamp_h2h'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(36).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[3]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
+#               550000: ERROR: Attempt to write to full FIFO:FIFO size is           2. testbench_noc.the_noc.tori_noc.noc_top.mesh_torus.y_loop[1].x_loop[1].the_router.router_ref.the_inout_ports.the_input_port.port_loop[0].the_input_queue_per_port.V_loop[0].dtrmn_dest.dest_fifo
+# ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./flit_buffer.v(778)
+#    Time: 550 ns  Iteration: 1  Instance: /testbench_noc/the_noc/tori_noc/noc_top/mesh_torus/y_loop[1]/x_loop[1]/the_router/router_ref/the_inout_ports/the_input_port/port_loop[0]/the_input_queue_per_port/V_loop[0]/dtrmn_dest/dest_fifo
+# 1
+# Break at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./flit_buffer.v line 778
+# A time value could not be extracted from the current line
+do model.tcl
+# Cannot open macro file: model.tcl
+# End time: 02:30:57 on Feb 15,2021, Elapsed time: 1:03:59
+# Errors: 1, Warnings: 16

@@ -190,7 +190,7 @@ generate
             // connect local ports
             for  (l=0;   l<NL; l=l+1) begin :locals
                 localparam ENDPID = `endp_id(x,0,l); 
-                localparam LOCALP = (l==0) ? l : l + R2R_chanelS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
+                localparam LOCALP = (l==0) ? l : l + R2R_CHANELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
                 
 		assign er_addr [ENDPID] = R_ADDR_1D;   
 
@@ -328,7 +328,7 @@ generate
             // connect local ports
             for  (l=0;   l<NL; l=l+1) begin :locals
                 localparam ENDPID = `endp_id(x,y,l); 
-                localparam LOCALP = (l==0) ? l : l + R2R_chanelS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
+                localparam LOCALP = (l==0) ? l : l + R2R_CHANELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
 		              
                 assign er_addr [ENDPID] = R_ADDR;                
 		

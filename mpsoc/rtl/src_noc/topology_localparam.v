@@ -120,14 +120,14 @@ localparam
     ROUTE_TYPE_MESH_TORI = (ROUTE_NAME == "XY" || ROUTE_NAME == "TRANC_XY" )?    "DETERMINISTIC" : 
                                (ROUTE_NAME == "DUATO" || ROUTE_NAME == "TRANC_DUATO" )?   "FULL_ADAPTIVE": "PAR_ADAPTIVE",
 
-    R2R_chanelS_MESH_TORI=  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 2 : 4,   
-    R2E_chanelS_MESH_TORI= NL,    
+    R2R_CHANELS_MESH_TORI=  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 2 : 4,   
+    R2E_CHANELS_MESH_TORI= NL,    
     RAw_MESH_TORI = ( TOPOLOGY == "RING" || TOPOLOGY == "LINE")? NXw : NXw + NYw,
     EAw_MESH_TORI = (NL==1) ? RAw_MESH_TORI : RAw_MESH_TORI + NLw,
     NR_MESH_TORI = (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? NX : NX*NY,
     NE_MESH_TORI = NR_MESH_TORI * NL,
-    MAX_P_MESH_TORI = R2R_chanelS_MESH_TORI + R2E_chanelS_MESH_TORI,
-    DSTPw_MESH_TORI =   R2R_chanelS_MESH_TORI; // P-1
+    MAX_P_MESH_TORI = R2R_CHANELS_MESH_TORI + R2E_CHANELS_MESH_TORI,
+    DSTPw_MESH_TORI =   R2R_CHANELS_MESH_TORI; // P-1
                        
     /* verilator lint_on WIDTH */                               
     

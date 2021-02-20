@@ -980,7 +980,10 @@ generate
 if(DEBUG_EN) begin :dbg
     always @(posedge clk) begin
        //if(!reset)begin 
-            if(ivc_num_getting_sw_grant & aa & bb) $display("%t: SSA ERROR: There are two output ports that a non-header flit can be sent to. %m",$time);
+            if(ivc_num_getting_sw_grant & aa & bb) begin 
+                $display("%t: SSA ERROR: There are two output ports that a non-header flit can be sent to. %m",$time);
+                $finish;
+            end
        //end
     end 
 end //dbg
@@ -1281,6 +1284,65 @@ module  mesh_tori_addr_encoder #(
     endgenerate
 
     assign code = codes[id];
+endmodule
+
+
+module  mesh_tori_addr_coder #(
+    parameter   NX=2,
+    parameter   NY=2,
+    parameter   NL=2,
+    parameter   NE=16,
+    parameter   EAw=4
+)(
+    id,
+    code
+);
+    
+    function integer log2;
+      input integer number; begin   
+         log2=(number <=1) ? 1: 0;    
+         while(2**log2<number) begin    
+            log2=log2+1;    
+         end        
+      end   
+    endfunction // log2 
+    
+  
+        
+    function integer addrencode;
+        input integer in,nx,nxw,nl,nyw;
+        integer  y, x, l;begin
+            addrencode=0;
+            y = ((in/nl) / nx ); 
+            x = ((in/nl) % nx ); 
+            l = (in % nl);  
+            addrencode =(nl==1)?   (y<<nxw | x) : (l<<(nxw+nyw)|  (y<<nxw) | x);      
+        end   
+    endfunction // addrencode
+        
+      
+    localparam 
+        NXw= log2(NX),
+        NYw= log2(NY),
+        NEw = log2(NE);    
+
+
+     output [NEw-1 :0] id;
+     input [EAw-1 : 0] code;
+
+    wire   [NEw-1 : 0]  codes   [(2**EAw)-1 : 0 ];
+    genvar i;
+    generate 
+    for(i=0; i< NE; i=i+1) begin : endpoints
+        //Endpoint decoded address
+       /* verilator lint_off WIDTH */
+        localparam [EAw-1 : 0] ENDP= addrencode(i,NX,NXw,NL,NYw);
+       /* verilator lint_on WIDTH */
+        assign codes[ENDP] = i;            
+    end
+    endgenerate
+
+    assign id = codes[code];
 endmodule
 
 

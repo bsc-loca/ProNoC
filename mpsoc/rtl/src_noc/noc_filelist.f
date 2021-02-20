@@ -37,5 +37,6 @@
 ./debug.v
 ./router_top.sv
 ./mesh_torus_noc_top.sv
+./non_local_allocator.sv
 
 

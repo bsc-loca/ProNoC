@@ -282,6 +282,16 @@ sub check_file_has_string {
     return $r;
 }
 
+#return lines containig pattern in a givn file
+sub unix_grep {
+	my ($file,$pattern)=@_;
+    open(FILE,$file);
+    my @arr = <FILE>;
+    my @lines = grep /$pattern/, @arr;
+	return @lines;	
+}
+
+
 sub count_file_line_num {
     my ($file)=@_;
     open(FILE,$file);

@@ -67,6 +67,7 @@ module  ss_allocator#(
         ivc_num_getting_sw_grant_all,
         ivc_num_getting_ovc_grant_all,
         ivc_reset_all,
+        single_flit_pck_all,
         decreased_credit_in_ss_ovc_all,
         ssa_flit_wr_all
    );
@@ -114,6 +115,7 @@ module  ss_allocator#(
     output   [PV-1      :   0] ivc_num_getting_sw_grant_all;
     output   [PV-1      :   0] ivc_num_getting_ovc_grant_all;
     output   [PV-1      :   0] ivc_reset_all;
+    output   [PV-1      :   0] single_flit_pck_all;
     output   [PV-1      :   0] decreased_credit_in_ss_ovc_all;
     output  reg [P-1       :   0] ssa_flit_wr_all;
   
@@ -166,6 +168,8 @@ module  ss_allocator#(
             assign   ivc_num_getting_ovc_grant_all [i]= 1'b0;
             assign   ivc_reset_all [i]= 1'b0;
             assign   decreased_credit_in_ss_ovc_all[i]=1'b0;
+            assign   single_flit_pck_all[i]= 1'b0;
+            assign   ivc_num_getting_sw_grantin_SS_all[i]=1'b0;
           
            // assign   predict_flit_wr_all [i]=1'b0;       
          
@@ -216,7 +220,8 @@ module  ss_allocator#(
                 .granted_ovc_num(granted_ovc_num_all[(i+1)*V-1 : i*V]),
                 .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant_all[i]),
                 .ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant_all[i]),
-                .ivc_reset(ivc_reset_all[i]),                
+                .ivc_reset(ivc_reset_all[i]), 
+                .single_flit_pck(single_flit_pck_all[i]),
                 .decreased_credit_in_ss_ovc(decreased_credit_in_ss_ovc[i])
                 //synthesis translate_off 
                 //synopsys  translate_off
@@ -291,6 +296,7 @@ module ssa_per_vc #(
         ovc_released,
         ovc_allocated,
         decreased_credit_in_ss_ovc,
+        single_flit_pck,
         ivc_reset      
 //synthesis translate_off 
 //synopsys  translate_off
@@ -331,7 +337,7 @@ module ssa_per_vc #(
     output                        ovc_allocated;
     output                        ivc_reset;
     output                        decreased_credit_in_ss_ovc;
-  
+    output                        single_flit_pck;
 
 //synthesis translate_off 
 //synopsys  translate_off
@@ -358,6 +364,7 @@ module ssa_per_vc #(
     wire    [V-1 : 0] vc_num_in;
     wire    hdr_flg;
     wire    tail_flg;
+    assign  single_flit_pck = hdr_flg & tail_flg;
     
     wire   condition_1_2_valid;   
    
@@ -451,17 +458,17 @@ endgenerate
  assign ss_vc_wr = flit_in_wr & vc_num_in[V_LOCAL];
  assign decrease_credit_pre= ~(hdr_flg & (~ss_port_hdr_flit));
  assign allocate_ss_ovc_pre= hdr_flg & ss_port_hdr_flit;
- assign release_ss_ovc_pre= tail_flg;
+ assign release_ss_ovc_pre= (single_flit_pck)? decrease_credit_pre : tail_flg;
 
 
 // generate output signals
+assign ivc_reset =  release_ss_ovc_pre & ss_vc_wr & ssa_permited_by_iport  ;
 assign decreased_credit_in_ss_ovc= decrease_credit_pre & ss_vc_wr & ssa_permited_by_iport;
-assign ovc_released = release_ss_ovc_pre & ss_vc_wr & ssa_permited_by_iport;
-assign ovc_allocated= allocate_ss_ovc_pre & ss_vc_wr & ssa_permited_by_iport;
-
-assign ivc_reset =  ovc_released;
 assign ivc_num_getting_sw_grant= decreased_credit_in_ss_ovc;
-assign ivc_num_getting_ovc_grant= ovc_allocated;
+assign ivc_num_getting_ovc_grant= allocate_ss_ovc_pre & ss_vc_wr & ssa_permited_by_iport;
+assign ovc_released = ivc_reset & ~single_flit_pck;
+assign ovc_allocated= ivc_num_getting_ovc_grant & ~single_flit_pck;
+
 
  always @(*)begin
     granted_ovc_num={V{1'b0}};

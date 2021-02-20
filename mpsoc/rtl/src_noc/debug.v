@@ -59,16 +59,19 @@ module debug_IVC_flit_type_order_check #(
             end
             hdr_passed     <= hdr_passed_next;
             if(( hdr_passed & vc_num_hdr_wr)>0  )begin 
-                $display("%t :Error: a header flit received in  an active IVC %m",$time);
+                $display("%t ERROR: a header flit received in  an active IVC %m",$time);
                 active_IVC_hdr_flit_received_err<=1'b1; 
+                $finish;
             end
             if((~hdr_passed & vc_num_tail_wr & ~single_flit_pck )>0 ) begin 
-                $display("%t :Error: a tail flit received in an inactive IVC %m",$time);
-                inactive_IVC_tail_flit_received_err<=1'b1; 
+                $display("%t ERROR: a tail flit received in an inactive IVC %m",$time);
+                inactive_IVC_tail_flit_received_err<=1'b1;
+                $finish;
             end                
             if ((~hdr_passed & vc_num_bdy_wr    )>0)begin 
-                $display("%t :Error: a body flit received in an inactive IVC %m",$time);
+                $display("%t ERROR: a body flit received in an inactive IVC %m",$time);
                 inactive_IVC_body_flit_received_err<=1'b1; 
+                $finish;
             end
         end
     end
@@ -195,11 +198,14 @@ if(ROUTE_TYPE == "DETERMINISTIC")begin :dtrmn
     
      
     always@( posedge clk)begin 
-        if(flit_in_wr & hdr_flg_in)begin  
-               if( destport_in[1:0]==2'b11) $display ( "%t\t  Error: destport port %x is illegal for determistic routing.  %m",$time,destport_in );                   
-        end
-     end
-end
+        if(flit_in_wr & hdr_flg_in )   
+               if( destport_in[1:0]==2'b11) begin 
+                    $display ( "%t\t  ERROR: destport port %x is illegal for determistic routing.  %m",$time,destport_in );                   
+                    $finish;
+               end
+        end//if
+    end//always
+    
 /* verilator lint_off WIDTH */
 if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
 /* verilator lint_on WIDTH */    
@@ -247,7 +253,11 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
           
         always@( posedge clk)begin 
                if((current_x <low_x) | (current_x > high_x) | (current_y <low_y) | (current_y > high_y) )  
-                    if(flit_in_wr & hdr_flg_in )$display ( "%t\t  Error: non_minimal routing %m",$time );
+                    if(flit_in_wr & hdr_flg_in )begin 
+                        $display ( "%t\t  ERROR: non_minimal routing %m",$time );
+                        $finish;
+                    end
+                    
         end
            
     
@@ -314,10 +324,10 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
  
         always @(posedge clk) begin 
         /* verilator lint_off WIDTH */ 
-                if(current_rx == {RXw{1'b0}}         && flit_out_wr_all[WEST]) $display ( "%t\t   Error: a packet is going to the WEST in a router located in first column in mesh topology %m",$time ); 
-                if(current_rx == T1-1     && flit_out_wr_all[EAST]) $display ( "%t\t   Error: a packet is going to the EAST in a router located in last column in mesh topology %m",$time ); 
-                if(current_ry == {RYw{1'b0}}         && flit_out_wr_all[NORTH])$display ( "%t\t  Error: a packet is going to the NORTH in a router located in first row in mesh topology %m",$time ); 
-                if(current_ry == T2-1    && flit_out_wr_all[SOUTH])$display ( "%t\t  Error: a packet is going to the SOUTH in a router located in last row in mesh topology %m",$time); 
+                if(current_rx == {RXw{1'b0}}         && flit_out_wr_all[WEST]) $display ( "%t\t  ERROR: a packet is going to the WEST in a router located in first column in mesh topology %m",$time ); 
+                if(current_rx == T1-1     && flit_out_wr_all[EAST]) $display ( "%t\t   ERROR: a packet is going to the EAST in a router located in last column in mesh topology %m",$time ); 
+                if(current_ry == {RYw{1'b0}}         && flit_out_wr_all[NORTH])$display ( "%t\t  ERROR: a packet is going to the NORTH in a router located in first row in mesh topology %m",$time ); 
+                if(current_ry == T2-1    && flit_out_wr_all[SOUTH])$display ( "%t\t  ERROR: a packet is going to the SOUTH in a router located in last row in mesh topology %m",$time); 
       /* verilator lint_on WIDTH */ 
         end//always
    
@@ -376,5 +386,129 @@ endmodule
  
  
  
+ module  endp_addr_encoder #(
+    parameter TOPOLOGY ="MESH",
+    parameter T1=4,
+    parameter T2=4,
+    parameter T3=4,
+    parameter EAw=4,
+    parameter NE=16
+)
+(
+    id,
+    code
+ );    
+
+    function integer log2;
+      input integer number; begin   
+         log2=(number <=1) ? 1: 0;    
+         while(2**log2<number) begin    
+            log2=log2+1;    
+         end        
+      end   
+    endfunction // log2 
+    
+    localparam NEw= log2(NE);
+    
+     input [NEw-1 :0] id;
+     output [EAw-1 : 0] code;
+     
+     generate 
+     if(TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" ) begin : tree
+     
+       fattree_addr_encoder #(
+        .K(T1),
+        .L(T2)
+       )
+       addr_encoder
+       (
+        .id(id),
+        .code(code)
+       );
+     
+     
+     end else if  (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin :tori
+     
+        mesh_tori_addr_encoder #(
+            .NX(T1),
+            .NY(T2),
+            .NL(T3),
+            .NE(NE),
+            .EAw(EAw),
+            .TOPOLOGY(TOPOLOGY)
+        )
+        mesh_tori_addr_encoder(
+            .id(id),
+            .code(code)
+        );
+     
+     
+     end else begin :custom
+     
+        assign code =id;
+     
+     end
+     endgenerate
+endmodule
+ 
+
+module endp_addr_decoder  #(
+        parameter TOPOLOGY ="MESH",
+        parameter T1=4,
+        parameter T2=4,
+        parameter T3=4,
+        parameter EAw=4,
+        parameter NE=16
+        )
+        (
+        id,
+        code
+        );    
+
+    function integer log2;
+        input integer number; begin   
+            log2=(number <=1) ? 1: 0;    
+            while(2**log2<number) begin    
+                log2=log2+1;    
+            end        
+        end   
+    endfunction // log2 
+    
+    localparam NEw= log2(NE);
+    
+    output [NEw-1 :0] id;
+    input  [EAw-1 : 0] code;
+     
+    generate 
+    if(TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" ) begin : tree
+    
+        fattree_addr_decoder #(
+                .K(T1),
+                .L(T2)
+
+            )decoder(
+                .id(id),
+                .code(code)
+            );
+        
+    end else if  (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin :tori
+        
+        mesh_tori_addr_coder #(
+            .NX    (T1   ), 
+            .NY    (T2   ), 
+            .NL    (T3   ), 
+            .NE    (NE   ), 
+            .EAw   (EAw  )
+            ) addr_coder (
+            .id    (id   ), 
+            .code  (code ));
+            
+    end else begin :custom
+     
+        assign id = code;
+     
+    end
+    endgenerate
+endmodule  
   
 

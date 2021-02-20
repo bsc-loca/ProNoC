@@ -31,7 +31,10 @@ use List::MoreUtils qw(uniq);
 
 sub generate_sim_bin_file {
 	my ($simulate,$info_text) =@_;
-	
+	#check simulator envirement
+	my $simulator =$simulate->object_get_attribute("Simulator");
+	#TODO generate .sim file only for modelsim simulator
+		
 	$simulate->object_add_attribute('status',undef,'run');
 	set_gui_status($simulate,"ref",1);
 	
@@ -69,6 +72,7 @@ sub generate_sim_bin_file {
 	push (@files,"$project_dir/rtl/arbiter.v");
 	push (@files,"$project_dir/rtl/main_comp.v");
 	
+		
 	#my @files=(
 	#	$src_noc_dir,
 	#	"$src_verilator_dir/noc_connection.sv",
@@ -77,7 +81,28 @@ sub generate_sim_bin_file {
 	#	"$src_verilator_dir/traffic_gen_verilator.v"		
 	#);
 	
-	copy_file_and_folders (\@files,$project_dir,$target_verilog_dr);	
+	copy_file_and_folders (\@files,$project_dir,$target_verilog_dr);
+	copy_file_and_folders (\@files,$project_dir,"$target_dir/modelsim/src_verilog/");
+	
+	my $target_modelsim_dr ="$target_dir/modelsim/src_modelsim";
+	my $src_modelsim_dir="$project_dir/rtl/src_modelsim";	
+	rmtree("$target_modelsim_dr");
+	mkpath("$target_modelsim_dr/",1,01777);
+	
+	#copy src_verilator files
+	@files_list = File::Find::Rule->file()
+                            ->name( '*.v','*.V','*.sv' )
+                            ->in( "$src_modelsim_dir" );
+
+	#make sure source files have key word 'module' 
+	@files=();
+	foreach my $p (@files_list){
+		push (@files,$p)	if(check_file_has_string($p,'module')); 
+	}
+	copy_file_and_folders (\@files,$project_dir,$target_modelsim_dr);
+	
+		
+		
 	
 	#check if we have a custom topology 
 	my $topology=$simulate->object_get_attribute('noc_param','TOPOLOGY');
@@ -90,13 +115,14 @@ sub generate_sim_bin_file {
                             ->name( '*.v','*.V','*.sv' )
                             ->in( "$dir1" );
 		copy_file_and_folders (\@files,$project_dir,$target_verilog_dr);
+		copy_file_and_folders (\@files,$project_dir,"$target_dir/modelsim/src_verilog/");
 		
 		@files = File::Find::Rule->file()
                             ->name( '*.v','*.V','*.sv' )
                             ->in( "$dir2" );
                          
 		copy_file_and_folders (\@files,$project_dir,$target_verilog_dr);
-		
+		copy_file_and_folders (\@files,$project_dir,"$target_dir/modelsim/src_verilog/");
 		
 		
 	
@@ -594,6 +620,22 @@ sub run_simulator {
 
 sub run_synthetic_simulation {
 	my ($simulate,$info,$sample,$name)=@_;
+	
+
+	my %traffic= (
+	'tornado' => 'TORNADO',
+	'transposed 1' => "TRANSPOSE1",
+	'transposed 2' => "TRANSPOSE2",
+	'bit reverse'  => "BIT_REVERSE",
+	'bit complement' => "BIT_COMPLEMENT",
+	'random' => "RANDOM",
+	'hot spot' => "HOTSPOT",
+	'shuffle' => "SHUFFLE",
+	'bit rotation' => "BIT_ROTATE",
+	'neighbor' => "NEIGHBOR"	 
+	);
+	
+	my $simulator =$simulate->object_get_attribute("Simulator");
 	my $log= (defined $name)? "$ENV{PRONOC_WORK}/simulate/$name.log": "$ENV{PRONOC_WORK}/simulate/sim.log";
 	my $out_path ="$ENV{PRONOC_WORK}/simulate/"; 
 	my $r= $simulate->object_get_attribute($sample,"ratios");
@@ -611,11 +653,15 @@ sub run_synthetic_simulation {
 	
 	#hotspot 
 	my $hotspot="";
+	my $hotspot_sv="";
 	if($patern eq "hot spot"){
 		$hotspot="-h \" ";
 		my $num=$simulate->object_get_attribute($sample,"HOTSPOT_NUM");
 		if (defined $num){
 			$hotspot="$hotspot $num";
+			
+			$hotspot_sv.="localparam HOTSPOT_NODE_NUM=$num;\n hotspot_t  hotspot_info [HOTSPOT_NODE_NUM-1 : 0];\n";
+			my $acum=0;
 			
 			for (my $i=0;$i<$num;$i++){
 				my $w1 = $simulate->object_get_attribute($sample,"HOTSPOT_CORE_$i");
@@ -623,17 +669,104 @@ sub run_synthetic_simulation {
 				$w2=$w2*10;
 				my $w3 = $simulate->object_get_attribute($sample,"HOTSPOT_SEND_EN_$i");
 				$hotspot="$hotspot,$w1,$w3,$w2";
-			}
+				$acum+=$w2;
+				
+				$hotspot_sv.="
+	assign  hotspot_info[$i].ip_num=$w1;
+	assign  hotspot_info[$i].send_enable=$w3;
+	assign  hotspot_info[$i].percentage=$acum;	// $w2
+";			}
 			
 		}
 		
 		$hotspot="$hotspot \"";
 				
 	}
-			
+	else{ $hotspot_sv.="localparam HOTSPOT_NODE_NUM = 0;\n hotspot_t  hotspot_info [0:0];\n" }		
+	
+	
+	my $modelsim_bin=  $ENV{MODELSIM_BIN};
+			if(! defined $modelsim_bin){
+				add_colored_info($info, "Error: Path to modelsim bin directory is not defined in ProNoC setting\n",'red');
+				show_setting(0);
+				return;
+			}	
 		
 	my $cpu_num = $simulate->object_get_attribute('compile', 'cpu_num');
 	$cpu_num = 1 if (!defined $cpu_num);
+	
+	if ($simulator eq 'Modelsim'){
+		for (my $i=0; $i<$cpu_num; $i++  ){
+			my $out="$out_path/modelsim/work$i";
+			rmtree("$out");
+			mkpath("$out",1,01777);
+			gen_noc_localparam_v_file($simulate,"$out");
+			my $param="
+// simulation parameter setting
+// injected packet class percentage
+`ifdef INCLUDE_SIM_PARAM
+	localparam 
+		TRAFFIC=\"$traffic{$patern}\",
+			
+	  	AVG_LATENCY_METRIC= \"HEAD_2_TAIL\",
+		//simulation min and max packet size. The injected packet take a size randomly selected between min and max value
+		MIN_PACKET_SIZE=$MIN_PCK_SIZE,
+		MAX_PACKET_SIZE=$MAX_PCK_SIZE,
+		STOP_PCK_NUM=$PCK_NUM_LIMIT,
+		STOP_SIM_CLK=$SIM_CLOCK_LIMIT;
+	    		
+		$hotspot_sv	
+		
+		parameter INJRATIO=90; 
+`endif			
+			";
+			save_file("$out/sim_param.sv",$param);
+			
+			
+			#Get the list of  all verilog files in src_verilog folder
+			my @files = File::Find::Rule->file()
+			->name( '*.v','*.V','*.sv' )
+			->in( "$out_path/modelsim/src_verilog" );
+		
+			#get list of all verilog files in src_sim folder 
+    		my @sim_files = File::Find::Rule->file()
+			->name( '*.v','*.V','*.sv' )
+			->in( "$out_path/modelsim/src_modelsim" );		
+			push (@files, @sim_files);	
+			my $tt =create_file_list("$out_path/modelsim",\@files,'modelsim');
+			$tt="+incdir+./ \n$tt";	
+			save_file("$out/file_list.f",  "$tt");
+			my $tcl="#!/usr/bin/tclsh
+
+
+transcript on
+if {[file exists rtl_work]} {
+	vdel -lib rtl_work -all
+}
+vlib rtl_work
+vmap work rtl_work
+
+
+vlog  +acc=rn  -F $out/file_list.f
+
+vsim -t 1ps  -L rtl_work -L work -voptargs=\"+acc\"  testbench_noc
+
+add wave *
+view structure
+view signals
+run -all
+";
+	
+			save_file ("$out/model.tcl",$tcl);
+			
+			my $cmd="cd $out; rm -Rf rtl_work; $modelsim_bin/vsim -do $out/model.tcl ";
+			save_file ("$out/run.sh",'#!/bin/bash'."			
+			sed -i \"s/ INJRATIO=\[\[:digit:\]\]\\+/ INJRATIO=\$1/\" $out/sim_param.sv
+			".$cmd);			
+			add_info($info, "model.tcl is created in $out\n");
+		}#for		
+	}
+	
 	
 	
 	my @paralel_ratio;
@@ -643,10 +776,22 @@ sub run_synthetic_simulation {
 	my $cmds="";
 	foreach  my $ratio_in (@ratios){						
 	    	#my $r= $ratio_in * MAX_RATIO/100;
-	    	add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
-	    	my $cmd="$bin -t \"$patern\"  -s $MIN_PCK_SIZE -m $MAX_PCK_SIZE  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot > $out_path/sim_out$ratio_in & ";
-			$cmds .=$cmd;
+	    	my $cmd;
+	    	
+	    	if ($simulator eq 'Modelsim'){
+	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
+	    		my $out="$out_path/modelsim/work$c";
+	    		$cmd="	    		
+	    		cd $out; sed -i \"s/ INJRATIO=\[\[:digit:\]\]\\+/ INJRATIO=$ratio_in/\" $out/sim_param.sv;  rm -Rf rtl_work; $modelsim_bin/vsim -do $out/model.tcl; 	";			
+	    	
+	    	}else{	
+	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
+		    	$cmd="$bin -t \"$patern\"  -s $MIN_PCK_SIZE -m $MAX_PCK_SIZE  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot > $out_path/sim_out$ratio_in & ";
+							
+	    	}
+	    	$cmds .=$cmd;	
 			add_info($info, "$cmd \n");
+			
 			my $time_strg = localtime;
 			#append_text_to_file($log,"started at:$time_strg\n"); #save simulation output
 			$jobs++;
@@ -654,7 +799,7 @@ sub run_synthetic_simulation {
 			push (@paralel_ratio,$ratio_in);
 			$c++;
 			if($jobs % $cpu_num ==0 || $jobs == $total){
-				#run paralle simulation
+				#run paralle simulation				
 				my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmds\n wait\n");
 				if($exit || (length $stderr >4)){
 						add_colored_info($info, "Error in running simulation: $stderr \n",'red');
@@ -665,8 +810,18 @@ sub run_synthetic_simulation {
 				#save results
 				for (my $i=0; $i<$c; $i++){
 					my $r      = $paralel_ratio[$i];
+					
+					my @errors = unix_grep("$out_path/sim_out$r","ERROR:");
+					if (scalar @errors  ){
+						add_colored_info($info, "Error in running simulation: @errors \n",'red');
+						$simulate->object_add_attribute ($sample,"status","failed");	
+						$simulate->object_add_attribute('status',undef,'ideal');
+						return;						
+					}		
+					
+					
 					my $stdout = load_file("$out_path/sim_out$r");
-									
+							
 					extract_and_update_noc_sim_statistic ($simulate,$sample,$r,$stdout);
 					    
 		   
@@ -851,15 +1006,20 @@ sub noc_sim_ctrl{
 	my $save = def_image_button('icons/save.png','Sav_e',FALSE,1);
 	my $save_all_results = def_image_button('icons/copy.png',"E_xtract all results",FALSE,1);
 	my $cpus=select_parallel_process_num($simulate);
+	my ($object,$attribute1,$attribute2,$content,$default,$status,$timeout)=@_;
+	
+	my $compiler =def_pack_hbox('FALSE',0, gen_label_in_center('Simulator:'), gen_combobox_object($simulate,'Simulator',undef,"Modelsim,Verilator","Verilator",'ref',1));
+	
 	
 	my $entry = gen_entry_object($simulate,'simulate_name',undef,undef,undef,undef);
 	my $entrybox=gen_label_info(" Save as:",$entry);
 	$entrybox->pack_start( $save, FALSE, FALSE, 0);
 	
-	
-	
+	my $simulator =$simulate->object_get_attribute("Simulator");	
 	my $table = def_table (1, 12, FALSE);
-	$table->attach ($open,		0, 2, 0,1,'expand','shrink',2,2);
+	$table->attach ($open,		0, 1, 0,1,'expand','shrink',2,2);
+	$table->attach ($compiler, 1, 2, 0,1,'expand','shrink',2,2);
+	
 	$table->attach ($cpus, 		2, 4, 0,1,'expand','shrink',2,2);
 	$table->attach ($entrybox,	4, 7, 0,1,'expand','shrink',2,2);
 	$table->attach ($save_all_results, 7, 8, 0,1,'shrink','shrink',2,2);

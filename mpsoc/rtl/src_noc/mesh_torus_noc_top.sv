@@ -115,7 +115,7 @@ module mesh_torus_noc_top
 				// connect other local ports
 				for  (l=0;   l<NL; l=l+1) begin :locals
 					localparam ENDPID = `endp_id(x,0,l); 
-					localparam LOCALP = (l==0) ? l : l + R2R_chanelS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
+					localparam LOCALP = (l==0) ? l : l + R2R_CHANELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
 					assign router_chan_in[x][LOCALP]= chan_in_all [ENDPID];
 					assign chan_out_all [ENDPID] = router_chan_out[x][LOCALP];
 					                
@@ -211,7 +211,7 @@ module mesh_torus_noc_top
 				// connect other local ports
 				for  (l=0;   l<NL; l=l+1) begin :locals
 					localparam ENDPID = `endp_id(x,y,l); 
-					localparam LOCALP = (l==0) ? l : l + R2R_chanelS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
+					localparam LOCALP = (l==0) ? l : l + R2R_CHANELS_MESH_TORI; // first local port is connected to router port 0. The rest are connected at the end  
                 
 					assign router_chan_in [`router_id(x,y)][LOCALP] =    chan_in_all [ENDPID];
 					assign chan_out_all [ENDPID] = router_chan_out [`router_id(x,y)][LOCALP];			

@@ -53,9 +53,9 @@ module canonical_credit_counter #(
     assigned_ovc_not_full_all,
     congestion_in_all,
     port_pre_sel,
-    ssa_ovc_released_all,
-    ssa_ovc_allocated_all, 
-    ssa_decreased_credit_in_ss_ovc_all,
+    nla_ovc_released_all,
+    nla_ovc_allocated_all, 
+    nla_decreased_credit_in_ss_ovc_all,
     reset,clk
 );
 
@@ -103,10 +103,10 @@ module canonical_credit_counter #(
     input   [CONG_ALw-1 :   0]  congestion_in_all;
 
     input                        reset,clk;
-//ssa
-    input  [PV-1       :    0] ssa_ovc_released_all; 
-    input  [PV-1       :    0] ssa_ovc_allocated_all; 
-    input  [PV-1       :    0] ssa_decreased_credit_in_ss_ovc_all;
+//nla
+    input  [PV-1       :    0] nla_ovc_released_all; 
+    input  [PV-1       :    0] nla_ovc_allocated_all; 
+    input  [PV-1       :    0] nla_decreased_credit_in_ss_ovc_all;
     
     
     
@@ -128,15 +128,15 @@ module canonical_credit_counter #(
     wire   [VP_1-1     :    0]    nearly_full_perport    [P-1        :    0];
     
     
-    //ssa
+    //nla
     
     wire [PV-1  :   0] credit_decreased_all;
     wire [PV-1  :   0] ovc_released_all;
     wire [PV-1  :   0] ovc_allocated_all;
     
-    assign credit_decreased_all = non_ss_credit_decreased_all | ssa_decreased_credit_in_ss_ovc_all;
-    assign ovc_released_all = non_ss_ovc_released_all | ssa_ovc_released_all;
-    assign ovc_allocated_all = non_ss_ovc_allocated_all | ssa_ovc_allocated_all;  
+    assign credit_decreased_all = non_ss_credit_decreased_all | nla_decreased_credit_in_ss_ovc_all;
+    assign ovc_released_all = non_ss_ovc_released_all | nla_ovc_released_all;
+    assign ovc_allocated_all = non_ss_ovc_allocated_all | nla_ovc_allocated_all;  
     
     
     generate

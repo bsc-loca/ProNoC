@@ -234,13 +234,19 @@ generate
     
         always @(posedge clk) begin
             if(~reset)begin
-                if (wr[i] && (depth[i] == B) && !rd[i])
+                if (wr[i] && (depth[i] == B) && !rd[i])begin
                     $display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
+                    $finish;
+                end    
                 /* verilator lint_off WIDTH */
-                if (rd[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN !="YES"  ))
+                if (rd[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN !="YES"  ))begin 
                     $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-                if (rd[i] && !wr[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" ))
+                    $finish;
+                end    
+                if (rd[i] && !wr[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" ))begin 
                     $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
+                    $finish;
+                end
                 /* verilator lint_on WIDTH */
           end//~reset      
         //if (wr_en)       $display($time, " %h is written on fifo ",din);
@@ -321,13 +327,19 @@ generate
     
         always @(posedge clk) begin
             if(~reset)begin
-                if (wr[i] && (depth[i] == B) && !rd[i])
+                if (wr[i] && (depth[i] == B) && !rd[i]) begin 
                    $display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
+                   $finish;
+                end
                 /* verilator lint_off WIDTH */
-                if (rd[i] && (depth[i] == {DEPTHw{1'b0}}  &&  SSA_EN !="YES"  ))
+                if (rd[i] && (depth[i] == {DEPTHw{1'b0}}  &&  SSA_EN !="YES"  )) begin 
+                   $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
+                   $finish; 
+                end    
+                if (rd[i] && !wr[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" )) begin 
                     $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-                if (rd[i] && !wr[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" ))
-                    $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
+                    $finish;
+                end
                 /* verilator lint_on WIDTH */
                 
         //if (wr_en)       $display($time, " %h is written on fifo ",din);
@@ -401,10 +413,14 @@ generate
 if(DEBUG_EN) begin :dbg 
     always @(posedge clk) begin
         if(~reset)begin
-            if(wr_en && vc_num_wr == {V{1'b0}})
+            if(wr_en && vc_num_wr == {V{1'b0}})begin 
                     $display("%t: ERROR: Attempt to write when no wr VC is asserted: %m",$time);
-            if(rd_en && vc_num_rd == {V{1'b0}})
+                    $finish;
+            end
+            if(rd_en && vc_num_rd == {V{1'b0}})begin
                     $display("%t: ERROR: Attempt to read when no rd VC is asserted: %m",$time);
+                    $finish;
+            end
         end
     end
 end 
@@ -591,7 +607,7 @@ An small  First Word Fall Through FIFO. The code will use LUTs
 module fwft_fifo #(
         parameter DATA_WIDTH = 2,
         parameter MAX_DEPTH = 2,
-        parameter IGNORE_SAME_LOC_RD_WR_WARNING="NO" // "YES" , "NO" 
+        parameter IGNORE_SAME_LOC_RD_WR_WARNING="YES" // "YES" , "NO" 
     )
     (
         input [DATA_WIDTH-1:0] din,     // Data in
@@ -761,15 +777,18 @@ endgenerate
         always @(posedge clk)
         begin
             if(~reset)begin
-                if (wr_en && ~rd_en && full) begin
+                if (wr_en & ~rd_en & full) begin
                     $display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,MAX_DEPTH);
+                    $finish;
                 end
                 /* verilator lint_off WIDTH */
-                if (rd_en && !recieve_more_than_0 && IGNORE_SAME_LOC_RD_WR_WARNING == "NO") begin
+                if (rd_en & !recieve_more_than_0 & IGNORE_SAME_LOC_RD_WR_WARNING == "NO") begin
                     $display("%t ERROR: Attempt to read an empty FIFO: %m", $time);
+                    $finish;
                 end
-                if (rd_en && ~wr_en && !recieve_more_than_0 && IGNORE_SAME_LOC_RD_WR_WARNING == "YES") begin
+                if (rd_en & ~wr_en & !recieve_more_than_0 & (IGNORE_SAME_LOC_RD_WR_WARNING == "YES")) begin
                     $display("%t ERROR: Attempt to read an empty FIFO: %m", $time);
+                    $finish;
                 end
                 /* verilator lint_on WIDTH */
             end //~reset
@@ -980,13 +999,16 @@ endgenerate
             if(~reset)begin
                 if (wr_en && ~rd_en && full) begin
                     $display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,MAX_DEPTH);
+                    $finish;
                 end
                 /* verilator lint_off WIDTH */
                 if (rd_en && !recieve_more_than_0 && IGNORE_SAME_LOC_RD_WR_WARNING == "NO") begin
                     $display("%t ERROR: Attempt to read an empty FIFO: %m", $time);
+                    $finish;
                 end
                 if (rd_en && ~wr_en && !recieve_more_than_0 && IGNORE_SAME_LOC_RD_WR_WARNING == "YES") begin
                     $display("%t ERROR: Attempt to read an empty FIFO: %m", $time);
+                    $finish;
                 end
                 /* verilator lint_on WIDTH */
             end// ~reset
@@ -1105,10 +1127,14 @@ assign empty = depth == {DEPTHw{1'b0}};
 always @(posedge clk)
 begin
     if(~reset)begin
-       if (wr_en && depth == B && !rd_en)
+       if (wr_en && depth == B && !rd_en) begin
           $display(" %t: ERROR: Attempt to write to full FIFO: %m",$time);
-       if (rd_en && depth == {DEPTHw{1'b0}})
+          $finish;
+       end   
+       if (rd_en && depth == {DEPTHw{1'b0}}) begin
           $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
+          $finish;
+       end
     end//~reset
 end
 //synopsys  translate_on

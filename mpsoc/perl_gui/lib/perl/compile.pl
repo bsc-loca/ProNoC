@@ -1683,6 +1683,9 @@ sub run_vivado {
 		"cd \"$target_dir/Vivado/\" \n xterm -e bash -c '$vivado_bin/vivado -mode tcl -source $tcl'"		
 	);
 	
+	save_file("$target_dir/Vivado/run.sh",  "#!/bin/bash \n $vivado_bin/vivado -mode tcl -source $tcl");
+	
+	
 	my $log="$target_dir/Vivado/vivado.log";	
 	#unlink $log;
 	
@@ -1748,6 +1751,9 @@ sub run_vivado {
 }
 
 
+
+
+
 sub modelsim_compilation{
 	my ($self,$name,$top,$target_dir,$vendor)=@_;
 	#my $window = def_popwin_size(80,80,"Step 2: Compile",'percent');
@@ -1799,7 +1805,7 @@ sub modelsim_compilation{
 		->name( '*.v','*.V','*.sv' )
 		->in( "$target_dir/src_verilog" );
 		
-	#get list of allverilog files in src_sim folder 
+	#get list of all verilog files in src_sim folder 
     my @sim_files = File::Find::Rule->file()
 		->name( '*.v','*.V','*.sv' )
 		->in( "$target_dir/src_sim" );		
@@ -1822,22 +1828,6 @@ if {[file exists rtl_work]} {
 }
 vlib rtl_work
 vmap work rtl_work
-";
-
-
-
-                
-#make sure source files have key word 'module' 
-#	my @sources;
-#	foreach my $p (@files){
-#		my ($name,$path,$suffix) = fileparse("$p",qr"\..[^.]*$");
-#		if(check_file_has_string($p,'module')){
-#			if ($suffix eq ".sv"){$tcl=$tcl."vlog -sv -work work +incdir+$path \{$p\}\n";}
-#			else {$tcl=$tcl."vlog -vlog01compat -work work +incdir+$path \{$p\}\n";}
-#		}	
-#	}
-
-$tcl="$tcl	
 
 
 vlog  +acc=rn  -F $target_dir/Modelsim/file_list.f

@@ -506,7 +506,7 @@ generate
                 );
                 */     
             assign vc_weight_is_consumed[i] = 1'b1;
-        end else begin :now_rra
+        end else begin :no_wrra
             assign vc_weight_is_consumed[i] = 1'bX;        
         end                  
             
@@ -548,7 +548,7 @@ generate
             .reset(reset)           
         );     
   
-        end else begin :now_rra
+        end else begin :no_wrra
             assign iport_weight_is_consumed=1'bX;
             assign oports_weight = {WP{1'bX}};          
         end   

@@ -41,6 +41,7 @@ module crossbar #(
     flit_out_all,
     flit_out_wr_all,
     ssa_flit_wr_all,
+    flit_out_wr_all_internal,
     clk,
     reset
 
@@ -76,13 +77,14 @@ module crossbar #(
     output [PFw-1 : 0] flit_out_all;
     output [P-1 : 0] flit_out_wr_all;
     input  [P-1 : 0] ssa_flit_wr_all;
+    output [P-1 : 0]  flit_out_wr_all_internal;
 
     input reset,clk;
     
     
     
     wire [PFw-1 : 0]  flit_out_all_internal;
-    wire [P-1 : 0]  flit_out_wr_all_internal,flit_we_mux_out;
+    wire [P-1 : 0]  flit_we_mux_out;
     wire [P_1-1 : 0] granted_dest_port [P-1 : 0];
     wire [P_1Fw-1 : 0] mux_in [P-1 : 0];
     wire [P_1-1 : 0] mux_sel_pre [P-1 : 0];

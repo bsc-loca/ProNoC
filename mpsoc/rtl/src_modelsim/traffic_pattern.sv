@@ -21,21 +21,15 @@ module pck_class_in_gen #(
     parameter C0_p = 25,    //  the percentage of injected packets with class 0 
     parameter C1_p = 25,
     parameter C2_p = 25,
-    parameter C3_p = 25,
-    parameter MAX_PCK_NUM = 10000,
-    parameter NE=4
-    
+    parameter C3_p = 25    
 )(
-    en,
-    pck_class_in,
-    pck_number,
-    core_num,
+    pck_class_o,
+    en,   
     reset,
     clk
 
 ); 
- 
-    
+     
     function integer log2;
       input integer number; begin   
          log2=(number <=1) ? 1: 0;    
@@ -47,39 +41,27 @@ module pck_class_in_gen #(
      
    
     localparam 
-    NEw=log2(NE),
     Cw = (C>1)? log2(C) : 1,
-    PCK_CNTw = log2(MAX_PCK_NUM+1),
     RNDw = log2(100);
                
-    output reg [Cw-1    :   0]  pck_class_in;
-    input      [NEw-1   :   0]  core_num;
-    input      [PCK_CNTw-1 :0]  pck_number;  
+    output reg [Cw-1    :   0]  pck_class_o;
     input                       reset,clk,en;
-    wire       [RNDw-1  :   0]  rnd;
+    reg       [RNDw-1  :   0]  rnd;
    
  
    
  // generate a random num between 0 to 99
-    pseudo_random #(
-        .MAX_RND    (99),
-        .MAX_CORE   (NE-1),
-        .MAX_NUM    (MAX_PCK_NUM)
-    )
-    rnd_gen
-    (
-        .core       (core_num),
-        .num        (pck_number),
-        .rnd        (rnd),
-        .rnd_en     (en),
-        .reset      (reset),
-        .clk        (clk)
-    );
+    always @(posedge clk ) begin 
+    	if(en | reset) begin 
+    		rnd =     $urandom_range(99,0);    		
+    	end    		
+    end
+    
     always @(*) begin 
-        if      ( rnd <   C0_p)                 pck_class_in =0;
-        else if ( rnd <   (C0_p+C1_p))          pck_class_in =1;
-        else if ( rnd <   (C0_p+C1_p+C2_p))     pck_class_in =2;
-        else                                    pck_class_in =3;
+        if      ( rnd <   C0_p)                 pck_class_o =0;
+        else if ( rnd <   (C0_p+C1_p))          pck_class_o =1;
+        else if ( rnd <   (C0_p+C1_p+C2_p))     pck_class_o =2;
+        else                                    pck_class_o =3;
     end
  
    
@@ -93,24 +75,13 @@ endmodule
 *********************************/
  
  
-module  pck_dst_gen  #(
-    parameter T1 = 4,
-    parameter T2 = 4,
-    parameter T3 = 4,
-    parameter EAw=2,
+module  pck_dst_gen  
+	import pronoc_pkg::*; 	
+	#(
     parameter NE=4,
-    parameter TOPOLOGY="MESH",
     parameter TRAFFIC =   "RANDOM",
     parameter MAX_PCK_NUM = 10000,
-    parameter HOTSPOT_NUM           =   4, //maximum 5
-    parameter HOTSPOT_PERCENTAGE    =   3,  //max 100/HOTSPOT_NUM
-    parameter HOTSPOT_CORE_1        =   10,
-    parameter HOTSPOT_CORE_2        =   11,
-    parameter HOTSPOT_CORE_3        =   12,
-    parameter HOTSPOT_CORE_4        =   13,
-    parameter HOTSPOT_CORE_5        =   14,
-    parameter HOTSPOT_SEND_EN       =   0
-
+    parameter HOTSPOT_NODE_NUM =  4
 )(
     en,
     current_e_addr,
@@ -119,7 +90,8 @@ module  pck_dst_gen  #(
     dest_e_addr, 
     clk,
     reset,
-    valid_dst 
+    valid_dst,
+    hotspot_info
 ); 
  
  
@@ -137,36 +109,28 @@ module  pck_dst_gen  #(
      
      
     localparam  NEw= log2(NE),
-                PCK_CNTw = log2(MAX_PCK_NUM+1);
+                PCK_CNTw = log2(MAX_PCK_NUM+1),
+                HOTSPOT_NUM= (TRAFFIC=="HOTSPOT")? HOTSPOT_NODE_NUM : 1;
     
     input                       reset,clk,en;
     input   [NEw-1      :   0]  core_num;
     input   [PCK_CNTw-1 :   0]  pck_number; 
     input   [EAw-1      :   0]  current_e_addr; 
     output  [EAw-1      :   0]  dest_e_addr; 
-    output                      valid_dst;      
+    output                      valid_dst;  
+    
+    input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
  
  
      generate 
      if ( ADDR_DIMENSION == 2) begin :two_dim
      
         two_dimension_pck_dst_gen #(
-        	.T1(T1),
-        	.T2(T2),
-        	.T3(T3),
-        	.EAw(EAw),
         	.NE(NE),
-        	.TOPOLOGY(TOPOLOGY),
         	.TRAFFIC(TRAFFIC),
         	.MAX_PCK_NUM(MAX_PCK_NUM),
-        	.HOTSPOT_PERCENTAGE(HOTSPOT_PERCENTAGE),
-        	.HOTSPOT_NUM(HOTSPOT_NUM),
-        	.HOTSPOT_CORE_1(HOTSPOT_CORE_1),
-        	.HOTSPOT_CORE_2(HOTSPOT_CORE_2),
-        	.HOTSPOT_CORE_3(HOTSPOT_CORE_3),
-        	.HOTSPOT_CORE_4(HOTSPOT_CORE_4),
-        	.HOTSPOT_CORE_5(HOTSPOT_CORE_5),
-        	.HOTSPOT_SEND_EN(HOTSPOT_SEND_EN)
+        	.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
+        	
         )
         the_two_dimension_pck_dst_gen
         (
@@ -177,28 +141,17 @@ module  pck_dst_gen  #(
         	.pck_number(pck_number),
         	.current_e_addr(current_e_addr),
             .dest_e_addr(dest_e_addr),
-        	.valid_dst(valid_dst)
+        	.valid_dst(valid_dst),
+        	.hotspot_info(hotspot_info)
         );
         
      end else begin : one_dim
       
         one_dimension_pck_dst_gen #(
-            .T1(T1),
-            .T2(T2),
-            .T3(T3),
-            .EAw(EAw),
-            .NE(NE),
-            .TOPOLOGY(TOPOLOGY),
-            .TRAFFIC(TRAFFIC),
-            .MAX_PCK_NUM(MAX_PCK_NUM),
-            .HOTSPOT_PERCENTAGE(HOTSPOT_PERCENTAGE),
-            .HOTSPOT_NUM(HOTSPOT_NUM),
-            .HOTSPOT_CORE_1(HOTSPOT_CORE_1),
-            .HOTSPOT_CORE_2(HOTSPOT_CORE_2),
-            .HOTSPOT_CORE_3(HOTSPOT_CORE_3),
-            .HOTSPOT_CORE_4(HOTSPOT_CORE_4),
-            .HOTSPOT_CORE_5(HOTSPOT_CORE_5),
-            .HOTSPOT_SEND_EN(HOTSPOT_SEND_EN)
+        		.NE(NE),
+        		.TRAFFIC(TRAFFIC),
+        		.MAX_PCK_NUM(MAX_PCK_NUM),
+        		.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
         )
         the_one_dimension_pck_dst_gen
         (
@@ -209,7 +162,8 @@ module  pck_dst_gen  #(
             .pck_number(pck_number),
             .current_e_addr(current_e_addr),
             .dest_e_addr(dest_e_addr),
-            .valid_dst(valid_dst)
+            .valid_dst(valid_dst),
+            .hotspot_info(hotspot_info)
         );       
        
      end     
@@ -219,23 +173,13 @@ module  pck_dst_gen  #(
  
  
  
-module two_dimension_pck_dst_gen  #(
-    parameter T1 = 4,
-    parameter T2 = 4,
-    parameter T3 = 4,
-    parameter EAw=4,
-    parameter NE=16,
-    parameter TOPOLOGY="MESH",
-    parameter TRAFFIC =   "RANDOM",
-    parameter MAX_PCK_NUM = 10000,
-    parameter HOTSPOT_PERCENTAGE    =   3,   //maximum 20
-    parameter HOTSPOT_NUM           =   4, //maximum 4
-    parameter HOTSPOT_CORE_1        =   10,
-    parameter HOTSPOT_CORE_2        =   11,
-    parameter HOTSPOT_CORE_3        =   12,
-    parameter HOTSPOT_CORE_4        =   13,
-    parameter HOTSPOT_CORE_5        =   14,
-    parameter HOTSPOT_SEND_EN = 0
+module two_dimension_pck_dst_gen  
+		import pronoc_pkg::*; 	
+	#(
+		parameter NE=4,
+		parameter TRAFFIC =   "RANDOM",
+		parameter MAX_PCK_NUM = 10000,
+		parameter HOTSPOT_NODE_NUM =  4
 
 )(
     en,
@@ -245,7 +189,8 @@ module two_dimension_pck_dst_gen  #(
     pck_number,
     clk,
     reset,
-    valid_dst 
+    valid_dst,
+    hotspot_info
 );    
     
    
@@ -260,7 +205,8 @@ module two_dimension_pck_dst_gen  #(
      
      
     localparam NEw= log2(NE),
-                PCK_CNTw = log2(MAX_PCK_NUM+1);
+                PCK_CNTw = log2(MAX_PCK_NUM+1),
+                HOTSPOT_NUM= (TRAFFIC=="HOTSPOT")? HOTSPOT_NODE_NUM : 1;
     
     input                       reset,clk,en;
     input   [NEw-1      :   0]  core_num;
@@ -268,6 +214,7 @@ module two_dimension_pck_dst_gen  #(
     input   [EAw-1 : 0] current_e_addr;
     output  [EAw-1 : 0]  dest_e_addr;
     output                      valid_dst;  
+    input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
     
     localparam 
         NX = T1,
@@ -307,21 +254,16 @@ module two_dimension_pck_dst_gen  #(
     generate     
     if (TRAFFIC == "RANDOM") begin 
         
-        pseudo_random_no_core #(
-            .MAX_RND    (NE-1),
-            .MAX_CORE   (NE-1),
-            .MAX_NUM    (MAX_PCK_NUM)
-        )
-        rnd_dest_gen
-        (
-            .core   (core_num),
-            .num    (pck_number),
-            .rnd    (dest_ip_num),
-            .rnd_en (en),
-            .reset  (reset),
-            .clk    (clk)
-
-        );
+    	logic [6 : 0] rnd_reg;
+    
+    	always @(posedge clk ) begin 
+    		if(en | reset) begin 
+    			do begin 
+    				rnd_reg =     $urandom_range(NE-1,0);
+    			end while(rnd_reg==core_num); // get a random IP core, make sure its not same as sender core
+     		end    		
+    	end
+    	assign dest_ip_num = rnd_reg;
        
        endp_addr_encoder #(
        	.T1(T1),
@@ -339,28 +281,19 @@ module two_dimension_pck_dst_gen  #(
                
      end else if (TRAFFIC == "HOTSPOT") begin 
                       
-        pseudo_hotspot_no_core #(
-            .MAX_RND            (NE-1),
-            .MAX_CORE           (NE-1),
-            .MAX_NUM            (MAX_PCK_NUM),
-            .HOTSPOT_PERCENTAGE (HOTSPOT_PERCENTAGE),   //maximum 25%
-            .HOTSPOT_NUM        (HOTSPOT_NUM), //maximum 4
-            .HOTSPOT_CORE_1     (HOTSPOT_CORE_1),
-            .HOTSPOT_CORE_2     (HOTSPOT_CORE_2),
-            .HOTSPOT_CORE_3     (HOTSPOT_CORE_3),
-            .HOTSPOT_CORE_4     (HOTSPOT_CORE_4),
-            .HOTSPOT_CORE_5     (HOTSPOT_CORE_5),
-            .HOTSPOT_SEND_EN    (HOTSPOT_SEND_EN)
-        )
-        rnd_dest_gen
-        (   
-            .core  (core_num),
-            .num   (pck_number),
-            .rnd   (dest_ip_num),
-            .rnd_en(en),
-            .reset (reset),
-            .clk   (clk)
-        );
+     	hot_spot_dest_gen  #(
+     			.HOTSPOT_NUM(HOTSPOT_NUM),	
+     			.NE(NE),
+     			.NEw(NEw)
+     		)hspot
+     		(
+     			.reset(reset),
+     			.clk(clk),
+     			.en(en),
+     			.hotspot_info(hotspot_info),
+     			.dest_ip_num (dest_ip_num),
+     			.core_num(core_num)
+     		);
        
         endp_addr_encoder #(
             .T1(T1),
@@ -425,7 +358,53 @@ module two_dimension_pck_dst_gen  #(
         assign dest_l   = current_l;
         assign dest_e_addr = (T3==1)? {dest_y,dest_x} : {dest_l,dest_y,dest_x};
     
-    end else if(TRAFFIC == "CUSTOM" )begin 
+   
+	end else if( TRAFFIC == "NEIGHBOR")  begin :neighbor
+		//dx = sx + 1 mod k
+		 assign dest_x = (current_x + 1) >= NX? 0 : (current_x + 1);
+		 assign dest_y = (current_y + 1) >= NY? 0 : (current_y + 1);
+		 assign dest_l = current_l;
+		 assign dest_e_addr = (T3==1)? {dest_y,dest_x} : {dest_l,dest_y,dest_x};
+    
+	end else if( TRAFFIC == "SHUFFLE") begin: shuffle
+		//di = si−1 mod b
+		for(i=1; i<(EAw); i=i+1'b1) begin :lp//reverse the address
+            assign dest_ip_num[i]  = current_e_addr [i-1];
+        end
+		assign dest_ip_num[0]  = current_e_addr [EAw-1];		
+		 endp_addr_encoder #(
+            .T1(T1),
+            .T2(T2),
+            .T3(T3),
+            .NE(NE),
+            .EAw(EAw),
+            .TOPOLOGY(TOPOLOGY)
+        )
+        addr_encoder(
+            .id(dest_ip_num),
+            .code(dest_e_addr)
+        ); 
+		
+    end else if(TRAFFIC == "BIT_ROTATION") begin :bitrot
+		//di = si+1 mod b
+		for(i=0; i<(EAw-1); i=i+1'b1) begin :lp//reverse the address
+            assign dest_ip_num[i]  = current_e_addr [i+1];
+        end
+		assign dest_ip_num[EAw-1]  = current_e_addr [0];		
+		endp_addr_encoder #(
+            .T1(T1),
+            .T2(T2),
+            .T3(T3),
+            .NE(NE),
+            .EAw(EAw),
+            .TOPOLOGY(TOPOLOGY)
+        )
+        addr_encoder(
+            .id(dest_ip_num),
+            .code(dest_e_addr)
+        ); 
+
+	end else if(TRAFFIC == "CUSTOM" )begin 
         /*
         assign send_en = (current_x==0 && current_y==0);// core (0,0) sends packets to (7,7)
         assign dest_x = 7;
@@ -467,7 +446,7 @@ module two_dimension_pck_dst_gen  #(
                 dest_x_reg=  1; dest_y_reg=  4; valid_dst_reg=1'b1;
             end
 */
-        end
+        end 
       /*
         0  0   1  1
         0  1   1  2
@@ -482,7 +461,12 @@ module two_dimension_pck_dst_gen  #(
         assign dest_l = dest_l_reg;
         assign dest_e_addr = (T3==1)? {dest_y,dest_x} : {dest_l,dest_y,dest_x};
               
-    end  
+    end  else begin 
+			initial begin 
+				$display("ERROR: Undefined Traffic pattern:%s",TRAFFIC);
+				$stop;
+			end
+	end
     
      //check if destination address is valid
      if(TRAFFIC != "CUSTOM" )begin 
@@ -500,23 +484,13 @@ endmodule
 ************/
 
 
-module one_dimension_pck_dst_gen #(
-    parameter T1 = 4,
-    parameter T2 = 4,
-    parameter T3 = 4,
-    parameter EAw= 4,
-    parameter NE = 16,
-    parameter TOPOLOGY="RING",//"FULLY_CONNECT"
-    parameter TRAFFIC =   "RANDOM",
-    parameter MAX_PCK_NUM = 10000,
-    parameter HOTSPOT_PERCENTAGE    =   3,   //maximum 20
-    parameter HOTSPOT_NUM           =   4, //maximum 4
-    parameter HOTSPOT_CORE_1        =   10,
-    parameter HOTSPOT_CORE_2        =   11,
-    parameter HOTSPOT_CORE_3        =   12,
-    parameter HOTSPOT_CORE_4        =   13,
-    parameter HOTSPOT_CORE_5        =   14,
-    parameter HOTSPOT_SEND_EN       =   0
+module one_dimension_pck_dst_gen 
+import pronoc_pkg::*; 	
+#(
+		parameter NE=4,
+		parameter TRAFFIC =   "RANDOM",
+		parameter MAX_PCK_NUM = 10000,
+		parameter HOTSPOT_NODE_NUM =  4
 
 )(
     en,
@@ -526,7 +500,8 @@ module one_dimension_pck_dst_gen #(
     dest_e_addr, 
     clk,
     reset,
-    valid_dst   
+    valid_dst,
+    hotspot_info
 ); 
       
     function integer log2;
@@ -541,7 +516,8 @@ module one_dimension_pck_dst_gen #(
      
      localparam 
         NEw= log2(NE),
-        PCK_CNTw = log2(MAX_PCK_NUM+1);
+        PCK_CNTw = log2(MAX_PCK_NUM+1),
+        HOTSPOT_NUM= (TRAFFIC=="HOTSPOT")? HOTSPOT_NODE_NUM : 1;
     
     input   reset,clk,en;
     input   [NEw-1 : 0] core_num;  
@@ -549,54 +525,42 @@ module one_dimension_pck_dst_gen #(
     input   [EAw-1       :   0]  current_e_addr;     
     output  [EAw-1       :   0]  dest_e_addr;   
     output  valid_dst;  
+    input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
         
     wire [NEw-1 : 0] dest_ip_num;
     
     genvar i;            
     generate     
     if (TRAFFIC == "RANDOM") begin 
-        
-        pseudo_random_no_core #(
-            .MAX_RND    (NE-1),
-            .MAX_CORE   (NE-1),
-            .MAX_NUM    (MAX_PCK_NUM)
-        )
-        rnd_dest_gen
-        (
-            .core   (core_num),
-            .num    (pck_number),
-            .rnd    (dest_ip_num),
-            .rnd_en (en),
-            .reset  (reset),
-            .clk    (clk)
-
-        );  
+    	logic [6 : 0] rnd_reg;
+    
+    	always @(posedge clk ) begin 
+    		if(en | reset) begin 
+    			do begin
+    				rnd_reg =     $urandom_range(NE-1,0);
+    			end while(rnd_reg==core_num); // get a random IP core, make sure its not same as sender core
+     										
+    		end    		
+    	end
+    	assign dest_ip_num = rnd_reg;
          
         
      end else if (TRAFFIC == "HOTSPOT") begin 
-                      
-        pseudo_hotspot_no_core #(
-            .MAX_RND            (NE-1   ),
-            .MAX_CORE           (NE-1   ),
-            .MAX_NUM            (MAX_PCK_NUM),
-            .HOTSPOT_PERCENTAGE (HOTSPOT_PERCENTAGE),   //maximum 25%
-            .HOTSPOT_NUM        (HOTSPOT_NUM), //maximum 4
-            .HOTSPOT_CORE_1     (HOTSPOT_CORE_1),
-            .HOTSPOT_CORE_2     (HOTSPOT_CORE_2),
-            .HOTSPOT_CORE_3     (HOTSPOT_CORE_3),
-            .HOTSPOT_CORE_4     (HOTSPOT_CORE_4),
-            .HOTSPOT_CORE_5     (HOTSPOT_CORE_5),
-            .HOTSPOT_SEND_EN    (HOTSPOT_SEND_EN)
-         )
-         rnd_dest_gen
-         (    
-            .core  (core_num),
-            .num   (pck_number),
-            .rnd   (dest_ip_num),
-            .rnd_en(en),
-            .reset (reset),
-            .clk   (clk)
-         );  
+        
+     	hot_spot_dest_gen  #(
+     		.HOTSPOT_NUM(HOTSPOT_NUM),	
+     		.NE(NE),
+     		.NEw(NEw)
+		)hspot
+		(
+     		.clk(clk),
+     		.en(en),
+     		.hotspot_info(hotspot_info),
+     		.dest_ip_num (dest_ip_num),
+     		.core_num(core_num)
+     	);
+     	
+     	
        
     end else if( TRAFFIC == "TRANSPOSE1") begin :tran1
     
@@ -616,7 +580,25 @@ module one_dimension_pck_dst_gen #(
         //[(x+(k/2-1)) mod k, (y+(k/2-1)) mod k],
           assign dest_ip_num  = (core_num > ((NE+1)/2))? core_num- ((NE+1)/2) -1   :  (NE/2)+core_num-1;  //  = ((current_x + ((NX/2)-1))%NX);
            
-    end else if(TRAFFIC == "CUSTOM" )begin 
+	end else if( TRAFFIC == "NEIGHBOR")  begin :neighbor
+		//dx = sx + 1 mod k
+		 assign dest_ip_num = ((core_num + 1) >= NE) ? 0 : (core_num + 1);
+		
+	end else if( TRAFFIC == "SHUFFLE") begin: shuffle
+		//di = si−1 mod b
+		for(i=1; i<(NEw); i=i+1'b1) begin :lp
+            assign dest_ip_num[i]  = core_num [i-1];
+        end
+		assign dest_ip_num[0]  = core_num [NEw-1];				 
+		
+    end else if(TRAFFIC == "BIT_ROTATION") begin :bitrot
+		//di = si+1 mod b
+		for(i=0; i<(NEw-1); i=i+1) begin :lp//reverse the address
+            assign dest_ip_num[i]  = core_num [i+1];
+        end
+		assign dest_ip_num[NEw-1]  = core_num [0];		
+	
+	end else if(TRAFFIC == "CUSTOM" )begin 
         /*
         assign send_en = (current_x==0 && current_y==0);// core (0,0) sends packets to (7,7)
         assign dest_x = 7;
@@ -695,6 +677,7 @@ endmodule
  * *************************/
 
 module pck_size_gen #(
+		parameter PCK_SIZw=4,
         parameter MIN = 2,
         parameter MAX = 5
 )
@@ -705,21 +688,11 @@ module pck_size_gen #(
     pck_size 
 );
 
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end       
-      end   
-    endfunction // log2 
-
-    localparam
-        PCK_w= log2(MAX+1);
+    
      
 
     input reset, clk, en;
-    output [PCK_w-1 : 0] pck_size;
+    output [PCK_SIZw-1 : 0] pck_size;
 
     
     generate
@@ -727,7 +700,7 @@ module pck_size_gen #(
         assign pck_size = MIN;
     end
     else begin :noteq
-        reg [PCK_w-1 : 0] rnd;
+        reg [PCK_SIZw-1 : 0] rnd;
         always @(posedge clk) begin 
             if(reset) rnd = MIN;
             else if(en) rnd = $urandom_range(MAX,MIN);
@@ -739,67 +712,68 @@ endmodule
 
 
 
-module  endp_addr_encoder #(
-    parameter TOPOLOGY ="MESH",
-    parameter T1=4,
-    parameter T2=4,
-    parameter T3=4,
-    parameter EAw=4,
-    parameter NE=16
+
+module hot_spot_dest_gen 
+	import pronoc_pkg::*; 
+#(
+	parameter HOTSPOT_NUM=2,	
+	parameter NE=16,
+	parameter NEw=4
 )
 (
-    id,
-    code
- );    
-
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end        
-      end   
-    endfunction // log2 
-    
-    localparam NEw= log2(NE);
-    
-     input [NEw-1 :0] id;
-     output [EAw-1 : 0] code;
-     
-     generate 
-     if(TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" ) begin : tree
-     
-       fattree_addr_encoder #(
-       	.K(T1),
-       	.L(T2)
-       )
-       addr_encoder
-       (
-       	.id(id),
-       	.code(code)
-       );
-     
-     
-     end else if  (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin :tori
-     
-        mesh_tori_addr_encoder #(
-        	.NX(T1),
-        	.NY(T2),
-        	.NL(T3),
-        	.NE(NE),
-        	.EAw(EAw),
-        	.TOPOLOGY(TOPOLOGY)
-        )
-        mesh_tori_addr_encoder(
-        	.id(id),
-        	.code(code)
-        );
-     
-     
-     end else begin :custom
-     
-        assign code =id;
-     
-     end
-     endgenerate
-endmodule
+clk,
+reset,
+en,
+hotspot_info,
+core_num,
+dest_ip_num
+);
+	
+	input clk,en,reset;
+	input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
+	input   [NEw-1 : 0] core_num;
+	output  [NEw-1 : 0] dest_ip_num;
+	
+	
+	logic [6 : 0] rnd_reg, hotspot_node;
+	reg [9 : 0] rnd1000;
+	always @(posedge clk ) begin 
+		if(en | reset) begin 
+			do begin 
+				rnd_reg =     $urandom_range(NE-1,0);
+			end while(rnd_reg==core_num); // get a random IP core, make sure its not same as sender core
+     			
+			rnd1000 =     $urandom_range(999,0);// generate a random number between 0 & 1000     					
+		end    		
+	end
+     	
+	logic off_flag,hotspot_flag;
+	integer i;
+	
+	always @(*)begin 
+		off_flag=0;
+		for (i=0;i<HOTSPOT_NUM; i=i+1)begin
+			if ( hotspot_info[i].send_enable == 0 && core_num ==hotspot_info[i].ip_num)begin
+				off_flag=1;
+			end
+		end
+		hotspot_flag=0;
+		hotspot_node=0;
+		if ( rnd1000 < hotspot_info[0].percentage && core_num !=hotspot_info[0].ip_num)begin 
+			hotspot_flag=1;
+			hotspot_node=hotspot_info[0].ip_num;
+		end else begin
+			for (i=1;i<HOTSPOT_NUM; i=i+1)begin
+				if (rnd1000 >= hotspot_info[i-1].percentage && rnd1000 < hotspot_info[i].percentage && core_num !=hotspot_info[i].ip_num) begin
+					hotspot_flag=1;
+					hotspot_node=hotspot_info[i].ip_num;
+				end
+			end end
+     		
+	end  
+	
+	
+	assign dest_ip_num = (off_flag)? core_num : (hotspot_flag)? hotspot_node : rnd_reg;
+     	
+     	
+endmodule	

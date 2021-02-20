@@ -48,12 +48,14 @@ module credit_counter
     assigned_ovc_not_full_all,
     port_pre_sel,
     congestion_in_all,
-    ssa_ovc_released_all,
-    ssa_ovc_allocated_all, 
-    ssa_decreased_credit_in_ss_ovc_all,
+    nla_ovc_released_all,
+    nla_ovc_allocated_all, 
+    ssa_ovc_allocated_all,
+    nla_decreased_credit_in_ss_ovc_all,
     granted_dst_is_from_a_single_flit_pck,
     reset,clk,
-    oport_info
+    oport_info,
+    flit_out_wr_all_internal
 );
 
    
@@ -97,11 +99,13 @@ module credit_counter
     input                           reset,clk;
     output [PPSw-1      :    0] port_pre_sel;
     input  [CONG_ALw-1 :    0] congestion_in_all; 
-    //ssa
-    input  [PV-1       :    0] ssa_ovc_released_all; 
-    input  [PV-1       :    0] ssa_ovc_allocated_all; 
-    input  [PV-1       :    0] ssa_decreased_credit_in_ss_ovc_all;
+    //nla
+    input  [PV-1       :    0] nla_ovc_released_all; 
+    input  [PV-1       :    0] nla_ovc_allocated_all; 
+    input  [PV-1       :    0] ssa_ovc_allocated_all;
+    input  [PV-1       :    0] nla_decreased_credit_in_ss_ovc_all;
     input [P-1:0] granted_dst_is_from_a_single_flit_pck;
+    input [P-1 : 0] flit_out_wr_all_internal;
     
     output oport_info_t oport_info [P-1:0];
     
@@ -123,15 +127,16 @@ module credit_counter
     wire   [VP_1-1    :    0]  nearly_full_perport    [P-1        :    0];
     
     
-    //ssa
+    //nla
     
     wire [PV-1  :   0] credit_decreased_all;
     wire [PV-1  :   0] ovc_released_all;
     wire [PV-1  :   0] ovc_allocated_all;
     
-    assign credit_decreased_all = non_ss_credit_decreased_all | ssa_decreased_credit_in_ss_ovc_all;
-    assign ovc_released_all = non_ss_ovc_released_all | ssa_ovc_released_all;
-    assign ovc_allocated_all = non_ss_ovc_allocated_all | ssa_ovc_allocated_all;  
+    assign credit_decreased_all = non_ss_credit_decreased_all | nla_decreased_credit_in_ss_ovc_all;
+    assign ovc_released_all = non_ss_ovc_released_all | nla_ovc_released_all;
+    assign ovc_allocated_all = non_ss_ovc_allocated_all | nla_ovc_allocated_all;  
+    
     
     
     integer k;
@@ -218,16 +223,17 @@ module credit_counter
     assign credit_increased_all         = credit_in_all;
     assign assigned_ovc_not_full_all    =    ~ assigned_ovc_is_full_all;
     
-    
+    wire [PV-1 : 0] non_sbp_ovc_allocated_all =    ssa_ovc_allocated_all| non_ss_ovc_allocated_all;
     
     generate
     for(i=0;i<P;i=i+1    ) begin :port_lp
     
-        assign oport_info[i].ovc_is_allocated =  ovc_allocated_all [(i+1)*V-1        :i*V];
-        assign oport_info[i].ovc_is_released = ovc_released_all [(i+1)*V-1        :i*V];
-        assign oport_info[i].ovc_credit_increased = credit_increased_all  [(i+1)*V-1    : i*V]; 
-        assign oport_info[i].ovc_credit_decreased = credit_decreased_all   [(i+1)*V-1   : i*V];
-        assign oport_info[i].any_ovc_get_swa_grant = | credit_decreased_all   [(i+1)*V-1   : i*V];
+        assign oport_info[i].non_sbp_ovc_is_allocated =  non_sbp_ovc_allocated_all [(i+1)*V-1        :i*V];
+        //assign oport_info[i].ovc_is_released = ovc_released_all [(i+1)*V-1        :i*V];
+        //assign oport_info[i].ovc_credit_increased = credit_increased_all  [(i+1)*V-1    : i*V]; 
+       // assign oport_info[i].ovc_credit_decreased = credit_decreased_all   [(i+1)*V-1   : i*V];
+        assign oport_info[i].crossbar_flit_wr = flit_out_wr_all_internal   [i];
+        assign oport_info[i].ovc_avalable =  ovc_avalable_all [(i+1)*V-1   : i*V];
     
         inport_module #(
             .V    (V), // vc_num_per_port
@@ -426,7 +432,10 @@ if(DEBUG_EN) begin: debug
     );
     
     always @(posedge clk) begin
-        if(num1    != num2 ) $display("%t: ERROR: number of assigned IVC %d mismatch the number of occupied OVC %d: %m",$time,num1,num2);
+        if(num1    != num2 )begin 
+        	$display("%t: ERROR: number of assigned IVC %d mismatch the number of occupied OVC %d: %m",$time,num1,num2);
+        	$finish;
+        end
     end
     
     

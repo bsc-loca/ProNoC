@@ -259,7 +259,7 @@ module comb_nonspec_allocator #(
         );
     
         assign granted_ovc_local_num_per_port    [i]=(any_ivc_sw_request_granted_all[i] )?  candidate_ovc_local_num[i] : {V{1'b0}};
-        assign ivc_local_num_getting_ovc_grant    [i]= (any_ivc_sw_request_granted_all[i] && any_cand_ovc_exsit[i])?     first_arbiter_granted_ivc_per_port [i] : {V{1'b0}};
+        assign ivc_local_num_getting_ovc_grant    [i]= (any_ivc_sw_request_granted_all[i] & any_cand_ovc_exsit[i])?     first_arbiter_granted_ivc_per_port [i] : {V{1'b0}};
         assign ivc_num_getting_ovc_grant   [(i+1)*V-1 : i*V] = ivc_local_num_getting_ovc_grant[i];
         for(j=0;j<V;    j=j+1)begin: assign_loop3
             assign granted_ovc_num_all[(i*VV)+((j+1)*V)-1 : (i*VV)+(j*V)]=granted_ovc_local_num_per_port[i];
@@ -494,7 +494,7 @@ module  comb_nonspec_v2_allocator #(
     
           
         assign granted_ovc_local_num_per_port   [i]=(any_ivc_sw_request_granted_all[i] )?  first_arbiter_ovc_granted[i] : {V{1'b0}};
-        assign ivc_local_num_getting_ovc_grant  [i]= (any_ivc_sw_request_granted_all[i] && any_cand_ovc_exsit[i])?   first_arbiter_granted_ivc_per_port [i] : {V{1'b0}};
+        assign ivc_local_num_getting_ovc_grant  [i]= (any_ivc_sw_request_granted_all[i] & any_cand_ovc_exsit[i])?   first_arbiter_granted_ivc_per_port [i] : {V{1'b0}};
         assign ivc_num_getting_ovc_grant   [(i+1)*V-1 : i*V] = ivc_local_num_getting_ovc_grant[i];
         for(j=0;j<V;    j=j+1)begin: assign_loop3
             assign granted_ovc_num_all[(i*VV)+((j+1)*V)-1 : (i*VV)+(j*V)]=granted_ovc_local_num_per_port[i];

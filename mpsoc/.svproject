@@ -1,27 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svproject>
-    
   <defines/>
-    
   <includePaths/>
-    
   <buildPaths/>
-    
   <pluginPaths/>
-    
   <libraryPaths/>
-    
   <argFilePaths>
-        
-  
-    <argFilePath path="${project_loc}/src_noc/sve1.f"/>
-    <argFilePath path="${project_loc}/src_noc/sve.f"/>
+    <argFilePath path="/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/noc_filelist.f"/>
   </argFilePaths>
-    
   <sourceCollections/>
-    
   <projectRefs/>
-    
   <templatePaths/>
-  
 </svproject>
