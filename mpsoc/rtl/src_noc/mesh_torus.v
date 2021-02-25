@@ -924,7 +924,8 @@ module mesh_torus_ssa_check_destport #(
 //synthesis translate_off 
 //synopsys  translate_off
     ,clk,
-    ivc_num_getting_sw_grant
+    ivc_num_getting_sw_grant,
+    hdr_flg
 //synopsys  translate_on
 //synthesis translate_on    
     
@@ -934,7 +935,7 @@ module mesh_torus_ssa_check_destport #(
     output ss_port_hdr_flit, ss_port_nonhdr_flit;
 //synthesis translate_off 
 //synopsys  translate_off
-    input clk,   ivc_num_getting_sw_grant;
+    input clk,   ivc_num_getting_sw_grant,hdr_flg;
 //synopsys  translate_on
 //synthesis translate_on    
 
@@ -980,7 +981,7 @@ generate
 if(DEBUG_EN) begin :dbg
     always @(posedge clk) begin
        //if(!reset)begin 
-            if(ivc_num_getting_sw_grant & aa & bb) begin 
+            if(ivc_num_getting_sw_grant & aa & bb & ~hdr_flg) begin 
                 $display("%t: SSA ERROR: There are two output ports that a non-header flit can be sent to. %m",$time);
                 $finish;
             end

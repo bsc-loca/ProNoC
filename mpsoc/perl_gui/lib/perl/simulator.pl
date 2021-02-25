@@ -353,6 +353,9 @@ sub check_hotspot_parameters{
 sub get_simulator_noc_configuration{
 	my ($self,$mode,$sample,$set_win) =@_;
 	
+	
+	
+	
 	my $table=def_table(10,2,FALSE);
 	my $row=0;
 	
@@ -368,6 +371,7 @@ sub get_simulator_noc_configuration{
 
 	$set_win ->signal_connect (destroy => sub{		
 		$self->object_add_attribute("active_setting",undef,undef);
+		
 	});	
 		
 	
@@ -396,7 +400,10 @@ sub get_simulator_noc_configuration{
 	}
 		
 	attach_widget_to_table ($table,$row,gen_label_in_left(" Verilated Model:"),gen_button_message ("Select the verilator simulation file. Different NoC simulators can be generated using Generate NoC configuration tab.","icons/help.png"), 
-	gen_combobox_object ($self,$sample, "sof_file", $exe_files, undef, undef, undef)); $row++;
+	gen_combobox_object ($self,$sample, "sof_file", $exe_files, undef,'ref_set_win',1)); $row++;
+                            
+   
+   
     my $coltmp=0;
     ($row,$coltmp)=add_param_widget  ($self, "Traffic Type", "TRAFFIC_TYPE", "Synthetic", 'Combo-box', "Synthetic,Task-graph", undef, $table,$row,undef,1, $sample, 1,'ref_set_win');
     
@@ -418,7 +425,7 @@ sub get_simulator_noc_configuration{
 		my $max_pck_size =	 get_MAX_PCK_SIZ();
 		
 		
-			my $traffics="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot,shuffle,bit rotation,neighbor"; 	
+			my $traffics="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot,shuffle,bit rotation,neighbor,custom"; 	
 		my @synthinfo = (
 		
 		
@@ -426,8 +433,7 @@ sub get_simulator_noc_configuration{
 	
 		
 	
-	  	{ label=>"Traffic name", param_name=>'traffic', type=>'Combo-box', default_val=>'random', content=>$traffics, info=>"Select traffic pattern", param_parent=>$sample, ref_delay=>1, new_status=>'ref_set_win'},
-	
+	  
 		{ label=>"Min pck size :", param_name=>'MIN_PCK_SIZE', type=>'Spin-button', default_val=>5, content=>"1,$max,1", info=>"Minimum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
 		{ label=>"Max pck size :", param_name=>'MAX_PCK_SIZE', type=>'Spin-button', default_val=>5, content=>"$min,$max_pck_size,1", info=>"Maximum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
 		
@@ -439,16 +445,64 @@ sub get_simulator_noc_configuration{
 	
 		{ label=>"Simulator clocks limit:", param_name=>'SIM_CLOCK_LIMIT', type=>'Spin-button', default_val=>100000, content=>"2,$max_sim_clk,1", info=>"Each node stops sending packets when it reaches packet number limit  or simulation clock number limit", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
 		
-		
+		{ label=>"Traffic name", param_name=>'traffic', type=>'Combo-box', default_val=>'random', content=>$traffics, info=>"Select traffic pattern", param_parent=>$sample, ref_delay=>1, new_status=>'ref_set_win'},
+	
 		
 		);
 		my $coltmp=0;
+		
 		foreach my $d (@synthinfo) {
 			($row,$coltmp)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status});
 		}
 			
 	
 		my $traffic=$self->object_get_attribute($sample,"traffic");
+		
+		my $NE;
+		my ($infobox,$info)= create_txview();
+		my $st =  check_sim_sample($self,$sample,$info);  
+		if ($st==0){
+				$NE=100;
+		}else{
+			my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($self,$sample);
+			my ($NEe, $NR, $RAw, $EAw, $Fw) = get_topology_info_sub ($topology, $T1, $T2, $T3, $V, $Fpay);
+			$NE=$NEe;				
+		}
+			
+		
+		if ($traffic eq 'custom'){
+						
+			
+			my $htable=def_table(10,2,FALSE);
+			
+			my $d= { label=>'number of active nodes:', param_name=>'CUSTOM_SRC_NUM', type=>'Spin-button', default_val=>1,  content=>"1,$NE,1", info=>"Number of active nodes which injects packets to the NoC",			  param_parent=>$sample, ref_delay=> 1, new_status=>'ref_set_win'};
+			($row,$coltmp)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status});
+			my $num=$self->object_get_attribute($sample,"CUSTOM_SRC_NUM");
+			$htable->attach ( gen_label_in_left ("Source "), 0, 1,  $row,$row+1,'fill','shrink',2,2);
+			$htable->attach ( gen_label_in_left (" -> "), 1, 2,  $row,$row+1,'fill','shrink',2,2);
+			$htable->attach ( gen_label_in_left ("Destination"), 2, 3,  $row,$row+1,'fill','shrink',2,2);						
+			
+			$row++;
+			
+			
+			my $tiles="0";
+			for (my $i=1;$i<$NE;$i++){$tiles.=",$i";}
+			
+						
+			for (my $i=0;$i<$num;$i++){
+				my $w1 = gen_combobox_object ($self,$sample,"SRC_$i",$tiles, $i,undef,undef);
+				my $w2 = gen_combobox_object ($self,$sample,"DST_$i",$tiles, $i+1,undef,undef);
+				$htable->attach  ($w1 , 0, 1,  $row,$row+1,'shrink','shrink',2,2);
+				$htable->attach  ($w2 , 2, 3,  $row,$row+1,'shrink','shrink',2,2);
+				$row++;
+					
+			}	
+			$table->attach  ($htable , 0, 3,  $row,$row+1,'shrink','shrink',2,2); $row++;
+				
+		}
+		
+		
+		
 
 		if ($traffic eq 'hot spot'){
 			my $htable=def_table(10,2,FALSE);
@@ -503,8 +557,9 @@ sub get_simulator_noc_configuration{
 			}	
 			
 			if(defined $s && defined $r && !defined $h) {	
-					$set_win->destroy;
-					#$emulate->object_add_attribute("active_setting",undef,undef);
+					#$set_win->destroy;
+					$set_win->hide();
+					$self->object_add_attribute("active_setting",undef,undef);
 					set_gui_status($self,"ref",1);
 			} else {
 				
@@ -567,7 +622,8 @@ sub get_simulator_noc_configuration{
 				}
 			 	
 			}
-			$set_win->destroy;
+			#$set_win->destroy;
+			$set_win->hide();
 			set_gui_status($self,"ref",1);
 				
 		});
@@ -632,7 +688,8 @@ sub run_synthetic_simulation {
 	'hot spot' => "HOTSPOT",
 	'shuffle' => "SHUFFLE",
 	'bit rotation' => "BIT_ROTATE",
-	'neighbor' => "NEIGHBOR"	 
+	'neighbor' => "NEIGHBOR",
+	'custom' => "CUSTOM"	 
 	);
 	
 	my $simulator =$simulate->object_get_attribute("Simulator");
@@ -651,7 +708,40 @@ sub run_synthetic_simulation {
 	my $SIM_CLOCK_LIMIT=$simulate->object_get_attribute ($sample,"SIM_CLOCK_LIMIT");
 	
 	
+	
 	#hotspot 
+	my $custom="";
+	my $custom_sv="";
+	if ($patern eq 'custom'){
+		$custom="";
+		my $num=$simulate->object_get_attribute($sample,"CUSTOM_SRC_NUM");
+		$custom_sv.="localparam CUSTOM_NODE_NUM=$num;\n\treg [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];
+	integer src;
+	always @(*) begin 
+		for (src=0; src<NE; src=src+1)begin 
+			custom_traffic_t[src]=src;//off
+		end	
+			";
+		for (my $i=0;$i<$num; $i++){
+			my $src = $simulate->object_get_attribute($sample,"SRC_$i");
+			my $dst = $simulate->object_get_attribute($sample,"DST_$i");
+			$custom.=($i==0)? "-H \"$src,$dst" : ",$src,$dst";
+			$custom_sv.="
+				custom_traffic_t[$src]=$dst;			
+";
+		}
+		$custom.="\"";	
+		$custom_sv.="\tend\n";		
+	}
+	else{
+		$custom_sv.="localparam CUSTOM_NODE_NUM=0;\n\treg [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];
+		";		
+	}
+	
+	
+	
+	
+	
 	my $hotspot="";
 	my $hotspot_sv="";
 	if($patern eq "hot spot"){
@@ -660,7 +750,7 @@ sub run_synthetic_simulation {
 		if (defined $num){
 			$hotspot="$hotspot $num";
 			
-			$hotspot_sv.="localparam HOTSPOT_NODE_NUM=$num;\n hotspot_t  hotspot_info [HOTSPOT_NODE_NUM-1 : 0];\n";
+			$hotspot_sv.="localparam HOTSPOT_NODE_NUM=$num;\n\thotspot_t  hotspot_info [HOTSPOT_NODE_NUM-1 : 0];\n";
 			my $acum=0;
 			
 			for (my $i=0;$i<$num;$i++){
@@ -679,10 +769,14 @@ sub run_synthetic_simulation {
 			
 		}
 		
-		$hotspot="$hotspot \"";
+		$hotspot.="$hotspot \"";
 				
 	}
-	else{ $hotspot_sv.="localparam HOTSPOT_NODE_NUM = 0;\n hotspot_t  hotspot_info [0:0];\n" }		
+	else{ $hotspot_sv.="localparam HOTSPOT_NODE_NUM = 0;\n\thotspot_t  hotspot_info [0:0];\n" }		
+	
+	
+	
+	
 	
 	
 	my $modelsim_bin=  $ENV{MODELSIM_BIN};
@@ -716,6 +810,8 @@ sub run_synthetic_simulation {
 		STOP_SIM_CLK=$SIM_CLOCK_LIMIT;
 	    		
 		$hotspot_sv	
+		
+		$custom_sv
 		
 		parameter INJRATIO=90; 
 `endif			
@@ -786,7 +882,7 @@ run -all
 	    	
 	    	}else{	
 	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
-		    	$cmd="$bin -t \"$patern\"  -s $MIN_PCK_SIZE -m $MAX_PCK_SIZE  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot > $out_path/sim_out$ratio_in & ";
+		    	$cmd="$bin -t \"$patern\"  -s $MIN_PCK_SIZE -m $MAX_PCK_SIZE  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot $custom > $out_path/sim_out$ratio_in & ";
 							
 	    	}
 	    	$cmds .=$cmd;	
@@ -943,7 +1039,8 @@ sub get_sim_bin_path {
 			$bin_path=$path;
 		}
 	}	
-	my $bin_file=$self->object_get_attribute ($sample,"sof_file");			
+	my $bin_file=$self->object_get_attribute ($sample,"sof_file");	
+	$bin_file = "-" if(!defined $bin_file);		
 	my $sof="$bin_path/$bin_file";
 	return $sof;
 }
@@ -1107,7 +1204,7 @@ my @charts = (
 	);
 	
 	
-	my ($conf_box,$set_win)=process_notebook_gen($simulate,$info,"simulate",@charts);
+	my ($conf_box,$set_win)=process_notebook_gen($simulate,$info,"simulate",undef,@charts);
 	my $chart   =gen_multiple_charts  ($simulate,\@pages,\@charts,0.4);
     
 
@@ -1152,12 +1249,6 @@ my @charts = (
 			 
 		}
 		
-		if($state eq 'ref_set_win'){
-			
-			my $s=$simulate->object_get_attribute("active_setting",undef);
-			$set_win->destroy();
-			$simulate->object_add_attribute("active_setting",undef,$s);		 
-		}
 		
 		
 		#refresh GUI
@@ -1167,13 +1258,17 @@ my @charts = (
 		$chart->destroy();
 		$image->destroy(); 
 		$image = get_status_gif($simulate);
-		($conf_box,$set_win)=process_notebook_gen($simulate,$info,"simulate",@charts);				
+		($conf_box,$set_win)=process_notebook_gen($simulate,$info,"simulate",$set_win,@charts);				
 		$chart = gen_multiple_charts  ($simulate,\@pages,\@charts,0.4);
 		$ctrl  = noc_sim_ctrl ($simulate,$info);
 		$main_table->attach ($ctrl,0, 12, 24,25,'fill','fill',2,2);
         $v1 -> pack1($conf_box, TRUE, TRUE); 	
 		$v1 -> pack2($image, TRUE, TRUE); 		
 		$v2 -> pack2($chart, TRUE, TRUE); 	
+		
+		
+		
+		
 		$conf_box->show_all();
 		$main_table->show_all();			
 		set_gui_status($simulate,"ideal",0);

@@ -15,6 +15,7 @@ package pronoc_pkg;
 localparam
 	Vw=  $clog2(V),
 	Cw=  (C==0)? 1 : $clog2(C),
+	NEw = $clog2(NE),
 	WRRA_CONFIG_INDEX=0,
 	SBP_MAX = 0,  
 	SBP_EN = (SBP_MAX !=0),

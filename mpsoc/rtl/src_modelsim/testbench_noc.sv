@@ -20,8 +20,9 @@ module testbench_noc;
    
 
 	reg     reset ,clk;
-	reg     start;
-	wire    done;
+	reg     start,stop;
+	wire    sent_done;
+	reg    done;
 	reg [RATIOw-1:0] ratio;
 
 	
@@ -37,25 +38,26 @@ module testbench_noc;
 	initial begin 
 		reset = 1'b1;
 		start = 1'b0;
-	  
+		stop  = 1'b0;
 		ratio =INJRATIO;
 		#80
-			@(posedge clk) reset = 1'b0;
+		@(posedge clk) reset = 1'b0;
 		#200
-			@(posedge clk) start = 1'b1;
+		@(posedge clk) start = 1'b1;
 		@(posedge clk) start = 1'b0;
-		@(posedge done) 
-	       
-			#450
-				@(posedge clk)
-					$stop;
+		@(posedge sent_done) 
+		stop=1;//stop all packet injectprs
+		@(posedge done) //wait for all sent flits to be received at their destination
+		#450
+		@(posedge clk)
+		$stop;
 	end
 	
 	  
 	localparam     
 	/* verilator lint_off WIDTH */
-                    
-		NEw=$clog2(NE),
+            
+		
 		DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY == "TREE") ? $clog2(2*L+1): $clog2(NR+1),
 		/* verilator lint_on WIDTH */
                     
@@ -194,7 +196,7 @@ module testbench_noc;
 					.reset(reset),
 					.clk(clk),
 					.start(start),
-					.stop(1'b0),
+					.stop(stop),
 					.sent_done(),
 					.update(update[i]),
 					.time_stamp_h2h(time_stamp_h2h[i]),
@@ -288,39 +290,42 @@ module testbench_noc;
 
 
 
-	integer             total_pck_num,total_flit_num;
+	
 	real				sum_clk_h2h,sum_clk_h2t;
 	real 				sum_clk_pow2;
 	real 				sum_clk_pow2_per_class [C-1 : 0];
 	real				sum_clk_per_hop;
-	integer             total_pck_num_per_class         [C-1    :   0];
+	integer             total_rsv_pck_num_per_class         [C-1    :   0];
 	real				sum_clk_h2h_per_class			[C-1    :   0];
 	real				sum_clk_h2t_per_class  			[C-1    :   0];
 	real				sum_clk_per_hop_per_class		[C-1	:	0];
-	integer				rsvd_core_total_pck_num			[NE-1   :   0];
+	integer				rsvd_core_total_rsv_pck_num			[NE-1   :   0];
 	integer				rsvd_core_worst_delay			[NE-1   :   0];
 	integer             sent_core_worst_delay           [NE-1   :   0];
 	integer				total_router;
-	integer				flit_counter;
+	integer             total_rsv_pck_num,total_rsv_flit_number;
+	integer				total_sent_pck_num,total_sent_flit_number;
 	
 	integer core_num,k;
 	always @(posedge clk or posedge reset)begin
 		if (reset) begin 
-			total_pck_num=0;
+			total_rsv_pck_num=0;
+			total_sent_pck_num=0;
 			sum_clk_h2h=0;
 			sum_clk_h2t=0;
 			sum_clk_pow2=0;
 			sum_clk_per_hop=0;
-			flit_counter=0;
+			total_sent_flit_number=0;
+			total_rsv_flit_number=0;
 			for (k=0;k<C;k=k+1) begin 
 					sum_clk_pow2_per_class[k]=0;
-					total_pck_num_per_class[k]=0;
+					total_rsv_pck_num_per_class[k]=0;
 					sum_clk_h2h_per_class [k]=0;
 					sum_clk_h2t_per_class [k]=0;
 					sum_clk_per_hop_per_class[k]=0;
 			end
 			for (k=0;k<NE;k=k+1) begin 
-				rsvd_core_total_pck_num[k]=0;
+				rsvd_core_total_rsv_pck_num[k]=0;
 				rsvd_core_worst_delay[k]=0;
 				sent_core_worst_delay[k]=0;
 			end
@@ -329,26 +334,30 @@ module testbench_noc;
 		
 		
 		for (core_num=0; core_num<NE; core_num=core_num+1)begin 
+			if(chan_in_all[core_num].flit_chanel.flit_wr)begin 
+				total_sent_flit_number+=1;
+				if(chan_in_all[core_num].flit_chanel.flit[Fw-1]) total_sent_pck_num+=1;
+			end
 			if(chan_out_all[core_num].flit_chanel.flit_wr)begin 
-				flit_counter+=1;
+				total_rsv_flit_number+=1;
 			end
 			
 			
 			if( update [core_num] ) begin 
-				total_pck_num = total_pck_num+1;
-				if((total_pck_num & 'hffff )==0 ) $display(" packet sent total=%d",total_pck_num);
+				total_rsv_pck_num = total_rsv_pck_num+1;
+				if((total_rsv_pck_num & 'hffff )==0 ) $display(" packet received total=%d",total_rsv_pck_num);
 				sum_clk_h2h +=  time_stamp_h2h[core_num];
 				sum_clk_h2t +=  time_stamp_h2t[core_num];
 				`ifdef STND_DEV_EN
 					sum_clk_pow2+=time_stamp_h2h[core_num] * time_stamp_h2h[core_num];
 					sum_clk_pow2_per_class[msg_class[core_num]]+=time_stamp_h2h[core_num] * time_stamp_h2h[core_num];
 				`endif
-				sum_clk_per_hop+= time_stamp_h2h[core_num]/distance[core_num];
-				total_pck_num_per_class[msg_class[core_num]]+=1;
+				sum_clk_per_hop+= $itor(time_stamp_h2h[core_num])/$itor(distance[core_num]);
+				total_rsv_pck_num_per_class[msg_class[core_num]]+=1;
 				sum_clk_h2h_per_class[msg_class[core_num]]+=time_stamp_h2h[core_num] ;
 				sum_clk_h2t_per_class[msg_class[core_num]]+=time_stamp_h2t[core_num] ;
-				sum_clk_per_hop_per_class[msg_class[core_num]]+= time_stamp_h2h[core_num]/ distance[core_num];
-				rsvd_core_total_pck_num[core_num]+=1;
+				sum_clk_per_hop_per_class[msg_class[core_num]]+= $itor(time_stamp_h2h[core_num])/$itor(distance[core_num]);
+				rsvd_core_total_rsv_pck_num[core_num]+=1;
 				if (rsvd_core_worst_delay[core_num] < time_stamp_h2t[core_num]) rsvd_core_worst_delay[core_num] = ( AVG_LATENCY_METRIC == "HEAD_2_TAIL")? time_stamp_h2t[core_num] : time_stamp_h2h[core_num];
 				if (sent_core_worst_delay[src_id[core_num]] < time_stamp_h2t[core_num]) sent_core_worst_delay[src_id[core_num]] = (AVG_LATENCY_METRIC == "HEAD_2_TAIL")?  time_stamp_h2t[core_num] : time_stamp_h2h[core_num];
 				
@@ -361,16 +370,28 @@ module testbench_noc;
 	
 	
 
-    
+    integer rsv_wait_cnt;
 	reg all_done_reg;
 	wire all_done_in;
-	assign all_done_in = (clk_counter > STOP_SIM_CLK) || ( total_pck_num >  STOP_PCK_NUM );
-	assign done = all_done_in & ~ all_done_reg;
+	assign all_done_in = (clk_counter > STOP_SIM_CLK) || ( total_sent_pck_num >  STOP_PCK_NUM );
+	assign sent_done = all_done_in & ~ all_done_reg;
 	always @(posedge clk or posedge reset)begin 
 		if(reset) begin 
-			all_done_reg <= 1'b0;			
+			all_done_reg <= 1'b0;
+			rsv_wait_cnt<=0;
+			done<=1'b0;
 		end  else  begin 
-			all_done_reg <= all_done_in;			
+			all_done_reg <= all_done_in;	
+			if(all_done_in) begin 
+				rsv_wait_cnt<=rsv_wait_cnt+1;
+				if(total_sent_flit_number == total_rsv_flit_number) begin 
+					done<=1'b1;
+				end
+				if(rsv_wait_cnt >= 1000) begin 
+					$display ("ERROR: The number of sent & recived flits were not equal at the end of simulation");
+					$stop;
+				end
+			end
 		end
 	end    
  
@@ -387,50 +408,51 @@ module testbench_noc;
 			if(pck_counter[core_num]>0) total_router   	= 	total_router +1;
 		end
 		
-		avg_throughput= ((flit_counter*100)/total_router )/clk_counter;
-		avg_latency_flit =sum_clk_h2h/total_pck_num;
-		avg_latency_pck	 =sum_clk_h2t/total_pck_num;
-		avg_latency_per_hop    = sum_clk_per_hop/total_pck_num;
+		avg_throughput= ((total_sent_flit_number*100)/total_router )/clk_counter;
+		avg_latency_flit =sum_clk_h2h/$itor(total_rsv_pck_num);
+		avg_latency_pck	 =sum_clk_h2t/$itor(total_rsv_pck_num);
+		avg_latency_per_hop    = sum_clk_per_hop/$itor(total_rsv_pck_num);
 		
 		$display(" simulation clock cycles:%d",clk_counter);
-		$display(" total received flits:%d",flit_counter);
+		$display(" total sent/received packets:%d/%d",total_sent_pck_num,total_rsv_pck_num);
+		$display(" total sent/received flits:%d/%d",total_sent_flit_number,total_rsv_flit_number);
 		$display(" Total active routers: %d \n",total_router);
-		$display(" Avg throughput is: %f (flits/clk/node %%)",   avg_throughput);
+		$display(" Avg throughput is: %f (flits/clk/active node %%)",   avg_throughput);
 			
 		
 		
 		$display	 ("\nall : ");
-		if(AVG_LATENCY_METRIC == "HEAD_2_TAIL") $display(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f",total_pck_num,avg_latency_per_hop,avg_latency_pck);
-		else	$display(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f",total_pck_num,avg_latency_per_hop,avg_latency_flit);
+		if(AVG_LATENCY_METRIC == "HEAD_2_TAIL") $display(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f",total_rsv_pck_num,avg_latency_per_hop,avg_latency_pck);
+		else	$display(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f",total_rsv_pck_num,avg_latency_per_hop,avg_latency_flit);
 		
 		
 		
 		//		if(ratio==RATIO_INIT) first_avg_latency_flit=avg_latency_flit;
 		//`ifdef STND_DEV_EN
-				//std_dev= standard_dev( sum_clk_pow2,total_pck_num, avg_latency_flit);
+				//std_dev= standard_dev( sum_clk_pow2,total_rsv_pck_num, avg_latency_flit);
 				//$display(" standard_dev = %f",std_dev);
 		//`endif
 				
 		
 		min_avg_latency_per_class=1000000;
 		for(m=0;m<C;m++) begin
-			avg_throughput		 = (total_pck_num_per_class[m]>0)? ((total_pck_num_per_class[m]*AVG_PCK_SIZ*100)/total_router )/clk_counter:0;
-			avg_latency_flit 	 = (total_pck_num_per_class[m]>0)? sum_clk_h2h_per_class[m]/total_pck_num_per_class[m]:0;
-			avg_latency_pck	   	 = (total_pck_num_per_class[m]>0)? sum_clk_h2t_per_class[m]/total_pck_num_per_class[m]:0;
-			avg_latency_per_hop  = (total_pck_num_per_class[m]>0)? sum_clk_per_hop_per_class[m]/total_pck_num_per_class[m]:0;
+			avg_throughput		 = (total_rsv_pck_num_per_class[m]>0)? ((total_rsv_pck_num_per_class[m]*AVG_PCK_SIZ*100)/total_router )/clk_counter:0;
+			avg_latency_flit 	 = (total_rsv_pck_num_per_class[m]>0)? sum_clk_h2h_per_class[m]/total_rsv_pck_num_per_class[m]:0;
+			avg_latency_pck	   	 = (total_rsv_pck_num_per_class[m]>0)? sum_clk_h2t_per_class[m]/total_rsv_pck_num_per_class[m]:0;
+			avg_latency_per_hop  = (total_rsv_pck_num_per_class[m]>0)? sum_clk_per_hop_per_class[m]/total_rsv_pck_num_per_class[m]:0;
 			if(AVG_LATENCY_METRIC == "HEAD_2_TAIL") begin
 						$display ("\nclass : %d  ",m);
-						$display (" Total number of packet  = %d \n avg_throughput = %f \n average latency per hop = %f \n average latency = %f",total_pck_num_per_class[m],avg_throughput,avg_latency_per_hop,avg_latency_pck);
+						$display (" Total number of packet  = %d \n avg_throughput = %f \n average latency per hop = %f \n average latency = %f",total_rsv_pck_num_per_class[m],avg_throughput,avg_latency_per_hop,avg_latency_pck);
 						
 			end else begin 
 
 						$display ("\nclass : %d  ",m);
-						$display (" Total number of packet  = %d \n avg_throughput = %f \n average latency per hop = %f \n average latency = %f",total_pck_num_per_class[m],avg_throughput,avg_latency_per_hop,avg_latency_flit);
+						$display (" Total number of packet  = %d \n avg_throughput = %f \n average latency per hop = %f \n average latency = %f",total_rsv_pck_num_per_class[m],avg_throughput,avg_latency_per_hop,avg_latency_flit);
 			end
 			if(min_avg_latency_per_class > avg_latency_flit) min_avg_latency_per_class=avg_latency_flit;
 
 					//#if (STND_DEV_EN)
-					//std_dev= (total_pck_num_per_class[i]>0)?  standard_dev( sum_clk_pow2_per_class[i],total_pck_num_per_class[i], avg_latency_flit):0;
+					//std_dev= (total_rsv_pck_num_per_class[i]>0)?  standard_dev( sum_clk_pow2_per_class[i],total_rsv_pck_num_per_class[i], avg_latency_flit):0;
 					// sprintf(file_name,"%s_std%u.txt",out_file_name,i);
 					// update_file( file_name,avg_throughput,std_dev);
 
@@ -440,7 +462,7 @@ module testbench_noc;
 
 		for (m=0;m<NE;m++) begin
 			$display	 ("\n\nCore %d",m);
-			$display	 ("\n\ttotal number of received packets: %d",rsvd_core_total_pck_num[m]);
+			$display	 ("\n\ttotal number of received packets: %d",rsvd_core_total_rsv_pck_num[m]);
 			$display	 ("\n\tworst-case-delay of received packets (clks): %d",rsvd_core_worst_delay[m] );
 			$display	 ("\n\ttotal number of sent packets: %d",pck_counter[m]);
 			$display	 ("\n\tworst-case-delay of sent packets (clks): %d",sent_core_worst_delay[m] );

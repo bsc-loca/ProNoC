@@ -124,9 +124,18 @@ sub pck_dst_gen_2D {
 		 $dest_y = ($current_y + 1) % $T2;
 		 $dest_l = $current_l;
 		 return mesh_tori_addr_join($dest_x,$dest_y,$dest_l,$T1, $T2,$T3);
-     }        
+     } 
+     if($traffic eq "custom"){
+     	my $num=$self->object_get_attribute($sample,"CUSTOM_SRC_NUM");
+     	for (my $i=0;$i<$num;$i++){
+				my $src = $self->object_get_attribute($sample,"SRC_$i");
+				my $dst = $self->object_get_attribute($sample,"DST_$i");
+				return endp_addr_encoder($self,$dst) if($src == $core_num);
+     	}
+      	return endp_addr_encoder($self,$core_num);#off     
+     }       
     
-		 print ("$traffic is an unsupported traffic pattern\n");
+		 print ("ERROR: $traffic is an unsupported traffic pattern\n");
 		 $dest_x = $current_x;
 		 $dest_y = $current_y;
 		 $dest_l = $current_l;
@@ -190,9 +199,19 @@ sub pck_dst_gen_1D {
      if($traffic eq "neighbor"){
 		#dx = sx + 1 mod k
 		 return endp_addr_encoder($self,($core_num + 1) % $NE);
-	 }     
+	 } 
+	 
+	 if($traffic eq "custom"){
+     	my $num=$self->object_get_attribute($sample,"CUSTOM_SRC_NUM");
+     	for (my $i=0;$i<$num;$i++){
+				my $src = $self->object_get_attribute($sample,"SRC_$i");
+				my $dst = $self->object_get_attribute($sample,"DST_$i");
+				return endp_addr_encoder($self,$dst) if($src == $core_num);
+     	}
+      	return endp_addr_encoder($self,$core_num);#off     
+     }          
      
-	 printf ("$traffic is an unsupported traffic pattern\n");
+	 printf ("ERROR: $traffic is an unsupported traffic pattern\n");
 	 return  endp_addr_encoder($self,$core_num);
 }
 

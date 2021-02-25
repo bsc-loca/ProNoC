@@ -173,7 +173,7 @@ sub get_synthetic_traffic_pattern{
 	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info_sub ($topology, $T1, $T2, $T3, $V, $Fpay);
 	my $rnd=random_dest_gen_no_shuffle($NE); 
 	my $traffic=$self->object_get_attribute($sample,"traffic"); 
-	my @traffics=("tornado", "transposed 1", "transposed 2", "bit reverse", "bit complement","random", "hot spot", "shuffle", "neighbor", "bit rotation"   );	
+	my @traffics=("tornado", "transposed 1", "transposed 2", "bit reverse", "bit complement","random", "hot spot", "shuffle", "neighbor", "bit rotation"  );	
 	
 	#generate each node ram data
 	my $pattern="source->\t destination\n";

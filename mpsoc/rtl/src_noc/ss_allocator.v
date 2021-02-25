@@ -414,16 +414,16 @@ ssa_check_destport #(
 	.SS_PORT(SS_PORT)
 )
  check_destport
-(
-	
+(	
 	.destport_encoded(destport_encoded),
 	.destport_in_encoded(destport_in_encoded),
 	.ss_port_hdr_flit(ss_port_hdr_flit),
 	.ss_port_nonhdr_flit(ss_port_nonhdr_flit)
-//synthesis translate_off 
-//synopsys  translate_off	
+//synthesis translate_off
+//synopsys  translate_off
 	,.clk(clk),
-    .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant)
+    .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant),
+    .hdr_flg(hdr_flg)
 //synopsys  translate_on  
 //synthesis translate_on
   
@@ -497,14 +497,15 @@ module ssa_check_destport #(
 //synthesis translate_off 
 //synopsys  translate_off
     ,clk,
-    ivc_num_getting_sw_grant
+    ivc_num_getting_sw_grant,
+    hdr_flg
 //synopsys  translate_on
 //synthesis translate_on    
 );
 
 //synthesis translate_off 
 //synopsys  translate_off
-    input clk,   ivc_num_getting_sw_grant;
+    input clk,   ivc_num_getting_sw_grant, hdr_flg;
 //synopsys  translate_on
 //synthesis translate_on    
 
@@ -548,7 +549,8 @@ module ssa_check_destport #(
             //synthesis translate_off 
             //synopsys  translate_off
             ,.clk(clk),
-            .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant)
+            .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant),
+            .hdr_flg(hdr_flg)
             //synopsys  translate_on
             //synthesis translate_on 
 

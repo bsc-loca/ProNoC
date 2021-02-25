@@ -91,7 +91,7 @@ unsigned int rnd_between (unsigned int, unsigned int );
 
 void  usage(){
 	printf(" ./simulator -f [Traffic Pattern file]\n\nor\n");
-	printf(" ./simulator -t [Traffic Pattern]  -s  [MIN_PCK_SIZE] -m [MAX_PCK_SIZE] -n  [MAX_PCK_NUM]  c	[MAX SIM CLKs]   -i [INJECTION RATIO] -p [class traffic ratios (%%)]  -h[HOTSPOT info] \n");
+	printf(" ./simulator -t [Traffic Pattern]  -s  [MIN_PCK_SIZE] -m [MAX_PCK_SIZE] -n  [MAX_PCK_NUM]  c	[MAX SIM CLKs]   -i [INJECTION RATIO] -p [class traffic ratios (%%)]  -h[HOTSPOT info] -H[custom traffic pattern]\n");
 	printf("      Traffic Pattern: \"HOTSPOT\" \"RANDOM\" \"TORNADO\" \"BIT_REVERSE\"  \"BIT_COMPLEMENT\"  \"TRANSPOSE1\"   \"TRANSPOSE2\"\n");
 	printf("      MIN_PCK_SIZE: Minimum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size\n ");
 	printf("      MAX_PCK_SIZE: Maximum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size\n ");
@@ -100,6 +100,8 @@ void  usage(){
 	printf("      INJECTION_RATIO: packet injection ratio");
 	printf("      class traffic ratios %%: The percentage of traffic injected for each class. represented in string whit each class ratio is separated by comma. \"n0,n1,n2..\" \n");
 	printf("      hotspot traffic info: represented in a string with following format:  \"HOTSPOT PERCENTAGE,HOTSPOT NUM,HOTSPOT CORE 1,HOTSPOT CORE 2,HOTSPOT CORE 3,HOTSPOT CORE 4,HOTSPOT CORE 5, ENABLE HOTSPOT CORES SEND \"   \n");
+	printf("      custom traffic pattern: represented in a string with following format:  \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n");
+
 }
 
 
@@ -160,8 +162,16 @@ void update_hotspot(char * str){
 	 } 	
 	 hotspots=new_node;
 }
-	
 
+void update_custom(char * str){
+	int i;
+	int array[10000];
+	int p;
+	p= parse_string (str, array);
+	for (i=0;i<p; i+=2){
+		custom_traffic_table[array[i]] = array[i+1];
+	}
+}
 
 void processArgs (int argc, char **argv )
 {
@@ -173,7 +183,7 @@ void processArgs (int argc, char **argv )
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage();	
-   while ((c = getopt (argc, argv, "t:s:m:n:c:i:p:h:f:")) != -1)
+   while ((c = getopt (argc, argv, "t:s:m:n:c:i:p:h:H:f:")) != -1)
       {
 	 switch (c)
 	    {
@@ -210,7 +220,10 @@ void processArgs (int argc, char **argv )
 		    C1_p=array[1];
 		    C2_p=array[2];
 		    C3_p=array[3];
-			break; 		
+			break;
+		case 'H':
+			update_custom(optarg);
+			break;
 		case 'h':		
 			update_hotspot(optarg);
 			break; 			 
@@ -248,7 +261,7 @@ int main(int argc, char** argv) {
 	Vrouter_new();
 	noc								= new Vnoc;
 	for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
-	
+	for(i=0;i<NE;i++)   custom_traffic_table[i]=i; //off
 	processArgs ( argc,  argv );
 	
 	

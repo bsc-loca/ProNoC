@@ -279,8 +279,8 @@ As an example defining 2,3,4:10:2 will result in (2,3,4,6,8,10) injection ratios
 		#check if injection ratios are valid
 		my $r=$emulate->object_get_attribute($sample,"ratios");
 		if(defined $s && defined $r) {	
-				$set_win->destroy;
-				#$emulate->object_add_attribute("active_setting",undef,undef);
+				$set_win->hide;
+				$emulate->object_add_attribute("active_setting",undef,undef);
 				set_gui_status($emulate,"ref",1);
 		} else {
 			
@@ -303,10 +303,16 @@ As an example defining 2,3,4:10:2 will result in (2,3,4,6,8,10) injection ratios
 ###################      
       
 sub gen_emulation_column {
-	my ($emulate,$mode, $row_num,$info,@charts)=@_;
+	my ($emulate,$mode, $row_num,$info,$set_win,@charts)=@_;
 	my $table=def_table($row_num,10,FALSE);
-	
-	my $set_win=def_popwin_size(40,80,"NoC configuration setting",'percent');
+	if(!defined $set_win){
+	 	$set_win=def_popwin_size(40,80,"NoC configuration setting",'percent');	
+	 	$set_win->signal_connect (delete_event => sub { $set_win->hide_on_delete });
+	 	
+	} else{
+		my @childs = $set_win->get_children;
+		foreach my $c (@childs){ $c->destroy;}
+	}
 	my $scrolled_win = gen_scr_win_with_adjst ($emulate,"emulation_column");
 	add_widget_to_scrolled_win($table,$scrolled_win);	
 	my $row=0;
@@ -710,14 +716,14 @@ sub run_emulator {
 
 
 sub process_notebook_gen{
-		my ($emulate,$info,$mode,@charts)=@_;
+		my ($emulate,$info,$mode,$set_win,@charts)=@_;
 		my $notebook = gen_notebook();
 		$notebook->set_tab_pos ('left');
 		$notebook->set_scrollable(TRUE);
 		#$notebook->can_focus(FALSE);
 
-		
-		my ($page1,$set_win)=gen_emulation_column($emulate, $mode,10,$info,@charts);
+		my $page1;
+		($page1,$set_win)=gen_emulation_column($emulate, $mode,10,$info,$set_win,@charts);
 		$notebook->append_page ($page1,gen_label_with_mnemonic ("  _Run emulator  ")) if($mode eq "emulate");
 		$notebook->append_page ($page1,gen_label_with_mnemonic ("  _Run simulator ")) if($mode eq "simulate");
 		
@@ -1200,7 +1206,7 @@ sub emulator_main{
   		{ type=>"2D_line", page_num=>3, graph_name=> "-", result_name => "exe_time_result",X_Title=>'Desired Avg. Injected Load Per Router (flits/clock (%))' , Y_Title=>'Total Emulation Time (clk)', Z_Title=>undef},
   	);
 		
-	my ($conf_box,$set_win)=process_notebook_gen($emulate,$info,"emulate", @charts);
+	my ($conf_box,$set_win)=process_notebook_gen($emulate,$info,"emulate", undef,@charts);
 	my $chart   =gen_multiple_charts ($emulate,\@pages,\@charts,.4);
     
 	$main_table->set_row_spacings (4);
@@ -1244,21 +1250,16 @@ sub emulator_main{
 			return TRUE;
 			 
 		}
-		elsif($state eq 'ref_set_win'){
-			my $s=$emulate->object_get_attribute("active_setting",undef);
-			$set_win->destroy();
-			$emulate->object_add_attribute("active_setting",undef,$s);				
-		}
+		
 		
 		#refresh GUI
 		my $name=$emulate->object_get_attribute ("emulate_name",undef);	
 		$entry->set_text($name) if(defined $name);
 		$conf_box->destroy();
-		$set_win->destroy();
 		$chart->destroy();
 		$image->destroy(); 
 		$image = get_status_gif($emulate);
-		($conf_box,$set_win)=process_notebook_gen($emulate,$info,"emulate", @charts);
+		($conf_box,$set_win)=process_notebook_gen($emulate,$info,"emulate",$set_win, @charts);
 		$chart   =gen_multiple_charts  ($emulate,\@pages,\@charts,.4);
 		$v1 -> pack1($conf_box, TRUE, TRUE); 	
 		$v1 -> pack2($image, TRUE, TRUE); 
