@@ -175,6 +175,33 @@ generate
     
 );
 
+	end else if (TOPOLOGY == "STAR") begin  
+
+		star_noc_connection  connections
+       (    
+         .clk(clk),
+         .reset(reset),
+         .start_i(start_i),
+         .start_o(start_o),
+         .router_flit_out_all(router_flit_out_all), 
+         .router_flit_out_wr_all(router_flit_out_wr_all),    
+         .router_credit_in_all(router_credit_in_all),
+         .router_credit_out_all(router_credit_out_all),
+         .router_flit_in_all(router_flit_in_all),     
+         .router_flit_in_wr_all(router_flit_in_wr_all),
+         .router_congestion_in_all(router_congestion_in_all),
+         .router_congestion_out_all(router_congestion_out_all),
+         .ni_flit_in(ni_flit_in),    
+         .ni_flit_in_wr(ni_flit_in_wr), 
+         .ni_credit_out(ni_credit_out),                 
+         .ni_flit_out(ni_flit_out), 
+         .ni_flit_out_wr(ni_flit_out_wr),  
+         .ni_credit_in(ni_credit_in),
+         .er_addr(er_addr),
+    	 .current_r_addr(current_r_addr)     
+	);
+
+
     end else begin :custom
 
 	custom_noc_connection_v connections

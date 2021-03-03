@@ -78,7 +78,14 @@ module  noc_top
         	.chan_in_all   (chan_in_all  ), 
         	.chan_out_all  (chan_out_all )
         );
-    
+    end else if (TOPOLOGY == "STAR") begin : star_
+    	star_noc_top  noc_top ( 
+    			.reset         (reset        ), 
+    			.clk           (clk          ), 
+    			.chan_in_all   (chan_in_all  ), 
+    			.chan_out_all  (chan_out_all )
+    		);
+    	
     end else begin :custom_
 
 	custom_noc_top noc_top ( 

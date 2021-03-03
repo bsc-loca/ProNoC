@@ -107,7 +107,7 @@ module testbench_noc;
 	wire    [Cw-1           :0] msg_class       [NE-1           :0];    
     
 	reg                         count_en;
-  
+  	reg [NE-1 : 0] start_o;
     
     
     
@@ -195,7 +195,7 @@ module testbench_noc;
 					.pck_number(pck_counter[i]),
 					.reset(reset),
 					.clk(clk),
-					.start(start),
+					.start(start_o[i]),
 					.stop(stop),
 					.sent_done(),
 					.update(update[i]),
@@ -259,7 +259,8 @@ module testbench_noc;
 					.current_e_addr(ENDP_ADRR),
 					.dest_e_addr(dest_e_addr[i]),
 					.valid_dst(),
-					.hotspot_info(hotspot_info)
+					.hotspot_info(hotspot_info),
+					.custom_traffic_t(custom_traffic_t)  // defined in sim_param.sv
 				);
        
 			pck_size_gen #(
@@ -302,7 +303,7 @@ module testbench_noc;
 	integer				rsvd_core_total_rsv_pck_num			[NE-1   :   0];
 	integer				rsvd_core_worst_delay			[NE-1   :   0];
 	integer             sent_core_worst_delay           [NE-1   :   0];
-	integer				total_router;
+	integer				total_active_endp;
 	integer             total_rsv_pck_num,total_rsv_flit_number;
 	integer				total_sent_pck_num,total_sent_flit_number;
 	
@@ -339,8 +340,8 @@ module testbench_noc;
 				if(chan_in_all[core_num].flit_chanel.flit[Fw-1]) total_sent_pck_num+=1;
 			end
 			if(chan_out_all[core_num].flit_chanel.flit_wr)begin 
-				total_rsv_flit_number+=1;
-			end
+				total_rsv_flit_number+=1;				
+			end 
 			
 			
 			if( update [core_num] ) begin 
@@ -370,7 +371,7 @@ module testbench_noc;
 	
 	
 
-    integer rsv_wait_cnt;
+    integer rsv_ideal_cnt,total_rsv_flit_number_old;
 	reg all_done_reg;
 	wire all_done_in;
 	assign all_done_in = (clk_counter > STOP_SIM_CLK) || ( total_sent_pck_num >  STOP_PCK_NUM );
@@ -378,24 +379,26 @@ module testbench_noc;
 	always @(posedge clk or posedge reset)begin 
 		if(reset) begin 
 			all_done_reg <= 1'b0;
-			rsv_wait_cnt<=0;
+			rsv_ideal_cnt<=0;
 			done<=1'b0;
+			total_rsv_flit_number_old<=0;
 		end  else  begin 
-			all_done_reg <= all_done_in;	
-			if(all_done_in) begin 
-				rsv_wait_cnt<=rsv_wait_cnt+1;
-				if(total_sent_flit_number == total_rsv_flit_number) begin 
+			all_done_reg <= all_done_in;
+			total_rsv_flit_number_old<=total_rsv_flit_number;
+			if(all_done_in) begin //All injectors stopped injecting packets 
+				if(total_rsv_flit_number_old==total_rsv_flit_number) rsv_ideal_cnt<=rsv_ideal_cnt+1;//count the number of cycle when no flit is received by any injector  
+				if(total_sent_flit_number == total_rsv_flit_number) begin // All injected packets are consumed
 					done<=1'b1;
 				end
-				if(rsv_wait_cnt >= 1000) begin 
-					$display ("ERROR: The number of sent & recived flits were not equal at the end of simulation");
+				if(rsv_ideal_cnt >= 100) begin //  Injectors stopped sending packets, number of received and sent flits are not equal yet and for 100 cycles no flit is consumed. 
+					$display ("ERROR: The number of sent (%d) & received flits (%d) were not equal at the end of simulation",total_sent_flit_number ,total_rsv_flit_number);
 					$stop;
 				end
 			end
 		end
 	end    
  
-	initial total_router=0;
+	initial total_active_endp=0;
  
 	
 	real avg_throughput,avg_latency_flit,avg_latency_pck,std_dev,avg_latency_per_hop,min_avg_latency_per_class;
@@ -405,10 +408,10 @@ module testbench_noc;
 	always @( posedge done) begin
 	
 		for (core_num=0; core_num<NE; core_num=core_num+1) begin  
-			if(pck_counter[core_num]>0) total_router   	= 	total_router +1;
+			if(pck_counter[core_num]>0) total_active_endp   	= 	total_active_endp +1;
 		end
 		
-		avg_throughput= ((total_sent_flit_number*100)/total_router )/clk_counter;
+		avg_throughput= ((total_sent_flit_number*100)/total_active_endp )/clk_counter;
 		avg_latency_flit =sum_clk_h2h/$itor(total_rsv_pck_num);
 		avg_latency_pck	 =sum_clk_h2t/$itor(total_rsv_pck_num);
 		avg_latency_per_hop    = sum_clk_per_hop/$itor(total_rsv_pck_num);
@@ -416,8 +419,8 @@ module testbench_noc;
 		$display(" simulation clock cycles:%d",clk_counter);
 		$display(" total sent/received packets:%d/%d",total_sent_pck_num,total_rsv_pck_num);
 		$display(" total sent/received flits:%d/%d",total_sent_flit_number,total_rsv_flit_number);
-		$display(" Total active routers: %d \n",total_router);
-		$display(" Avg throughput is: %f (flits/clk/active node %%)",   avg_throughput);
+		$display(" Total active Endpoint: %d \n",total_active_endp);
+		$display(" Avg throughput is: %f (flits/clk/Total active Endpoint %%)",   avg_throughput);
 			
 		
 		
@@ -436,7 +439,7 @@ module testbench_noc;
 		
 		min_avg_latency_per_class=1000000;
 		for(m=0;m<C;m++) begin
-			avg_throughput		 = (total_rsv_pck_num_per_class[m]>0)? ((total_rsv_pck_num_per_class[m]*AVG_PCK_SIZ*100)/total_router )/clk_counter:0;
+			avg_throughput		 = (total_rsv_pck_num_per_class[m]>0)? ((total_rsv_pck_num_per_class[m]*AVG_PCK_SIZ*100)/total_active_endp )/clk_counter:0;
 			avg_latency_flit 	 = (total_rsv_pck_num_per_class[m]>0)? sum_clk_h2h_per_class[m]/total_rsv_pck_num_per_class[m]:0;
 			avg_latency_pck	   	 = (total_rsv_pck_num_per_class[m]>0)? sum_clk_h2t_per_class[m]/total_rsv_pck_num_per_class[m]:0;
 			avg_latency_per_hop  = (total_rsv_pck_num_per_class[m]>0)? sum_clk_per_hop_per_class[m]/total_rsv_pck_num_per_class[m]:0;
@@ -461,7 +464,7 @@ module testbench_noc;
 		
 
 		for (m=0;m<NE;m++) begin
-			$display	 ("\n\nCore %d",m);
+			$display	 ("\n\nEndpoint %d",m);
 			$display	 ("\n\ttotal number of received packets: %d",rsvd_core_total_rsv_pck_num[m]);
 			$display	 ("\n\tworst-case-delay of received packets (clks): %d",rsvd_core_worst_delay[m] );
 			$display	 ("\n\ttotal number of sent packets: %d",pck_counter[m]);
@@ -501,6 +504,7 @@ module testbench_noc;
 		$display ("\tCongestion Index:%d",CONGESTION_INDEX);
 		$display ("\tADD_PIPREG_AFTER_CROSSBAR:%d",ADD_PIPREG_AFTER_CROSSBAR);
 		$display ("\tSSA_EN enabled:%s",SSA_EN);
+		$display ("\tMax Streight Bypass:%d",SBP_MAX);
 		$display ("\tSwitch allocator arbitration type:%s",SWA_ARBITER_TYPE);
 		$display ("\tMinimum supported packet size:%d flit(s)",MIN_PCK_SIZE);
 
@@ -529,7 +533,16 @@ module testbench_noc;
 
 	end//initial
 
-
+	start_delay_gen #(
+			.NC(NE)
+		)
+		delay_gen
+		(
+			.clk(clk),
+			.reset(reset),
+			.start_i(start),
+			.start_o(start_o)
+		);
 
 
 endmodule

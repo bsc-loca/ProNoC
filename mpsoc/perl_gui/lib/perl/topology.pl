@@ -79,8 +79,13 @@ sub get_topology_info_sub {
         my $Lw=log2($NL);         
         $RAw = $Xw + $Yw;
         $EAw = ($NL==1) ? $RAw : $RAw + $Lw;
-	}	
-	else{ #custom
+	}elsif ($topology eq '"STAR"' ) {	
+		$NE= $T1; 
+		$NR= 1;
+		$RAw=log2($NR);
+		$EAw=log2($NE);		
+	
+	}else{ #custom
 		$NE= $T1; 
 		$NR= $T2;
 		$RAw=log2($NR);
@@ -139,6 +144,8 @@ sub get_connected_router_id_to_endp{
 		return int($endp_id/$T1);
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		 return int($endp_id/$T3);
+	}elsif ($topology eq '"STAR"' ) {	
+		 return 0;#there is only one routerin star topology
 	}else{#custom
 		my @er_addr = $self->object_get_attribute('noc_connection','er_addr');  
 		return $er_addr[$endp_id];		
@@ -156,7 +163,7 @@ sub get_router_num {
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		 return ($y*$T1)+$x;		
 	}else{#custom
-		#It is not used for custom topology 
+		#It is not used for custom & STAR topology 
 	}
 }
 
@@ -170,7 +177,7 @@ sub router_addr_encoder{
 		return fattree_addrencode($id, $T1, $T2);
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		return mesh_tori_addrencode($id,$T1, $T2,1);
-	}else { #custom
+	}else { #custom & STAR
 		return $id;		
 	}	
 }
@@ -185,7 +192,7 @@ sub endp_addr_encoder{
 		return fattree_addrencode($id, $T1, $T2);
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		return mesh_tori_addrencode($id,$T1, $T2,$T3);
-	}else{#CUSTOM
+	}else{#CUSTOM & STAR
 		return $id;
 	}
 }
@@ -203,7 +210,7 @@ sub endp_addr_decoder {
 		my ($x, $y, $l) = mesh_tori_addr_sep($code,$T1, $T2,$T3);
 		#print "my ($x, $y, $l) = mesh_tori_addr_sep($code,$T1, $T2,$T3);\n";
 		return (($y*$T1)+$x)*$T3+$l;
-	}else{#custom
+	}else{#custom & STAR
 		return $code;
 	}
 }
@@ -336,6 +343,16 @@ sub get_noc_verilator_top_modules_info {
         my $ports= 5+$T3-1;
 		$nr_p{p1}=$ports;
         %tops = (
+        	#"Vrouter1" => "router_top_v_p${ports}.v",
+        	"Vrouter1" => "--top-module  router_top_v  -GP=${ports}  ",  
+	        "Vnoc" => " --top-module noc_connection",
+	 		
+    	);
+    }elsif ($topology eq '"STAR"') { 
+     	 $router_p=1;# number of router with different port number
+     	 my $ports= $T1;
+     	 $nr_p{1}=1;
+     	  %tops = (
         	#"Vrouter1" => "router_top_v_p${ports}.v",
         	"Vrouter1" => "--top-module  router_top_v  -GP=${ports}  ",  
 	        "Vnoc" => " --top-module noc_connection",
@@ -522,6 +539,8 @@ sub get_endpoints_mah_distance {
 		return fattree_mah_distance($self, $router1,$router2);
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		return mesh_tori_mah_distance($self, $router1,$router2);
+	}elsif ($topology eq '"STAR"'){
+		return 1;
 	}else { #custom
 		return undef;		
 	}	

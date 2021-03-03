@@ -7,38 +7,31 @@
 ***************************************/
 
 //check if flits are recived in correct order in a VC
-module debug_IVC_flit_type_order_check #(
+module check_flit_chanel_type_is_in_order #(
     parameter V=4
 )(
     hdr_flg_in,
     flit_in_wr,
     tail_flg_in,
-    vc_num_in,
+    vc_num_in,    
     clk,
-    reset,
-    
-    //errors
-    reset_all_errors,
-    active_IVC_hdr_flit_received_err,
-    inactive_IVC_tail_flit_received_err, 
-    inactive_IVC_body_flit_received_err
+    reset  
 
 );
 
     input clk, reset;
     input hdr_flg_in, tail_flg_in, flit_in_wr;
     input [V-1 : 0] vc_num_in;
-    input reset_all_errors;
-    output reg active_IVC_hdr_flit_received_err; 
-    output reg inactive_IVC_tail_flit_received_err; 
-    output reg inactive_IVC_body_flit_received_err;
+    
+   
+    
 
     wire [V-1 : 0] vc_num_hdr_wr, vc_num_tail_wr,vc_num_bdy_wr ;
     reg  [V-1 : 0] hdr_passed, hdr_passed_next;
     wire [V-1 : 0] single_flit_pck;
     
-    assign  vc_num_hdr_wr =(hdr_flg_in && flit_in_wr)?    vc_num_in : 0;
-    assign  vc_num_tail_wr =(tail_flg_in && flit_in_wr)?    vc_num_in : 0;
+    assign  vc_num_hdr_wr =(hdr_flg_in & flit_in_wr) ?    vc_num_in : 0;
+    assign  vc_num_tail_wr =(tail_flg_in & flit_in_wr)?    vc_num_in : 0;
     assign  vc_num_bdy_wr =({hdr_flg_in,tail_flg_in} == 2'b00 && flit_in_wr)?    vc_num_in : 0;
     assign  single_flit_pck = vc_num_hdr_wr & vc_num_tail_wr;
     always @(*)begin
@@ -48,29 +41,23 @@ module debug_IVC_flit_type_order_check #(
     always @ (posedge clk or posedge reset) begin 
         if(reset)  begin 
             hdr_passed <= 0;
-            active_IVC_hdr_flit_received_err<=1'b0; 
-            inactive_IVC_tail_flit_received_err<=1'b0; 
-            inactive_IVC_body_flit_received_err<=1'b0;
+            
         end else begin 
-            if(reset_all_errors) begin 
-                active_IVC_hdr_flit_received_err<=1'b0; 
-                inactive_IVC_tail_flit_received_err<=1'b0; 
-                inactive_IVC_body_flit_received_err<=1'b0;
-            end
+           
             hdr_passed     <= hdr_passed_next;
             if(( hdr_passed & vc_num_hdr_wr)>0  )begin 
-                $display("%t ERROR: a header flit received in  an active IVC %m",$time);
-                active_IVC_hdr_flit_received_err<=1'b1; 
+                $display("%t ERROR: a header flit is received in  an active IVC %m",$time);
+               
                 $finish;
             end
             if((~hdr_passed & vc_num_tail_wr & ~single_flit_pck )>0 ) begin 
-                $display("%t ERROR: a tail flit received in an inactive IVC %m",$time);
-                inactive_IVC_tail_flit_received_err<=1'b1;
+                $display("%t ERROR: a tail flit is received in an inactive IVC %m",$time);
+                
                 $finish;
             end                
             if ((~hdr_passed & vc_num_bdy_wr    )>0)begin 
-                $display("%t ERROR: a body flit received in an inactive IVC %m",$time);
-                inactive_IVC_body_flit_received_err<=1'b1; 
+                $display("%t ERROR: a body flit is received in an inactive IVC %m",$time);
+                
                 $finish;
             end
         end
@@ -414,8 +401,9 @@ endmodule
      output [EAw-1 : 0] code;
      
      generate 
+     /* verilator lint_off WIDTH */ 
      if(TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" ) begin : tree
-     
+     /* verilator lint_on WIDTH */ 
        fattree_addr_encoder #(
         .K(T1),
         .L(T2)
@@ -426,9 +414,9 @@ endmodule
         .code(code)
        );
      
-     
+     /* verilator lint_off WIDTH */ 
      end else if  (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin :tori
-     
+     /* verilator lint_on WIDTH */ 
         mesh_tori_addr_encoder #(
             .NX(T1),
             .NY(T2),
@@ -480,8 +468,9 @@ module endp_addr_decoder  #(
     input  [EAw-1 : 0] code;
      
     generate 
+    /* verilator lint_off WIDTH */ 
     if(TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" ) begin : tree
-    
+    /* verilator lint_on WIDTH */ 
         fattree_addr_decoder #(
                 .K(T1),
                 .L(T2)
@@ -490,9 +479,9 @@ module endp_addr_decoder  #(
                 .id(id),
                 .code(code)
             );
-        
+    /* verilator lint_off WIDTH */     
     end else if  (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin :tori
-        
+    /* verilator lint_on WIDTH */      
         mesh_tori_addr_coder #(
             .NX    (T1   ), 
             .NY    (T2   ), 

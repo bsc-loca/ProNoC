@@ -31,8 +31,7 @@ module crossbar #(
     parameter V    = 4,     // vc_num_per_port
     parameter P    = 5,     // router port num
     parameter Fpay     = 32,
-    parameter MUX_TYPE="BINARY",        //"ONE_HOT" or "BINARY"
-    parameter ADD_PIPREG_AFTER_CROSSBAR=0,
+    parameter MUX_TYPE="BINARY",        //"ONE_HOT" or "BINARY"    
     parameter SSA_EN="YES" // "YES" , "NO"
 )
 (
@@ -40,12 +39,8 @@ module crossbar #(
     flit_in_all,
     flit_out_all,
     flit_out_wr_all,
-    ssa_flit_wr_all,
-    flit_out_wr_all_internal,
-    clk,
-    reset
-
-);    
+    ssa_flit_wr_all
+ );    
     
 
     function integer log2;
@@ -77,13 +72,8 @@ module crossbar #(
     output [PFw-1 : 0] flit_out_all;
     output [P-1 : 0] flit_out_wr_all;
     input  [P-1 : 0] ssa_flit_wr_all;
-    output [P-1 : 0]  flit_out_wr_all_internal;
+  
 
-    input reset,clk;
-    
-    
-    
-    wire [PFw-1 : 0]  flit_out_all_internal;
     wire [P-1 : 0]  flit_we_mux_out;
     wire [P_1-1 : 0] granted_dest_port [P-1 : 0];
     wire [P_1Fw-1 : 0] mux_in [P-1 : 0];
@@ -138,7 +128,7 @@ module crossbar #(
             cross_mux
             (
                 .mux_in (mux_in [i]),
-                .mux_out (flit_out_all_internal[(i+1)*Fw-1 : i*Fw]),
+                .mux_out (flit_out_all[(i+1)*Fw-1 : i*Fw]),
                 .sel (mux_sel[i])
     
             );
@@ -163,7 +153,7 @@ module crossbar #(
             cross_mux
             (
                 .mux_in(mux_in [i]),
-                .mux_out(flit_out_all_internal[(i+1)*Fw-1 : i*Fw]),
+                .mux_out(flit_out_all[(i+1)*Fw-1 : i*Fw]),
                 .sel(mux_sel_bin[i])
         
             );
@@ -180,12 +170,7 @@ module crossbar #(
             .destport_in(granted_dest_port_all[(i+1)*P_1-1 : i*P_1]),
             .destport_out(flit_out_wr_gen [(i+1)*P-1 : i*P])
         );
-        
-   
-    
-    
-    
-    
+     
     end//for i    
     endgenerate
     
@@ -199,42 +184,8 @@ module crossbar #(
         .or_out(flit_we_mux_out)
     );
     
-    assign    flit_out_wr_all_internal = flit_we_mux_out | ssa_flit_wr_all;
+    assign    flit_out_wr_all = flit_we_mux_out | ssa_flit_wr_all;
     
-    generate 
-        if( ADD_PIPREG_AFTER_CROSSBAR == 1 || SBP_EN == 1) begin :pip_reg1
-            
-            reg [PFw-1 : 0] flit_out_all_pipe;
-            reg [P-1 : 0] flit_out_wr_all_pipe;
-            
-`ifdef SYNC_RESET_MODE 
-            always @ (posedge clk )begin 
-`else 
-            always @ (posedge clk or posedge reset)begin 
-`endif  
-                if(reset)begin
-                    flit_out_all_pipe    <=  {PFw{1'b0}};
-                    flit_out_wr_all_pipe <=  {P{1'b0}};
-                end else begin
-                    flit_out_all_pipe     <=   flit_out_all_internal;
-                    flit_out_wr_all_pipe  <=   flit_out_wr_all_internal;               
-               end
-            end        
-            
-           assign flit_out_all = flit_out_all_pipe;
-           assign flit_out_wr_all = flit_out_wr_all_pipe;       
-            
-         
-        end else begin :no_pip_reg1    
-            
-           assign    flit_out_all     =   flit_out_all_internal;
-           assign    flit_out_wr_all  =   flit_out_wr_all_internal;
-           
-        end       
-        
-    endgenerate
-    
-    
-    
+       
     
 endmodule

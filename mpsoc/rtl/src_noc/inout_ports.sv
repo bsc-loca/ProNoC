@@ -74,12 +74,13 @@ import pronoc_pkg::*;
     iport_weight_all,
     oports_weight_all,
     refresh_w_counter,
-    flit_out_wr_all_internal,
+    crossbar_flit_out_wr_all,
     
     clk,
     reset,
     //status
     ivc_info, 
+    ovc_info,
     oport_info,
     sbp_ctrl_in
     
@@ -147,11 +148,12 @@ import pronoc_pkg::*;
     output [WP-1: 0] iport_weight_all;
     output [WPP-1:0] oports_weight_all;
     input refresh_w_counter;
-    input [P-1 : 0] flit_out_wr_all_internal;
+    input [P-1 : 0] crossbar_flit_out_wr_all;
 
     input clk,reset;
     
     output  ivc_info_t   ivc_info    [P-1 : 0][V-1 : 0];
+    output  ovc_info_t   ovc_info    [P-1 : 0][V-1 : 0];
     output  oport_info_t oport_info  [P-1 : 0]; 
     input   sbp_ctrl_t   sbp_ctrl_in [P-1 : 0];
   
@@ -399,8 +401,10 @@ generate
                 .granted_dst_is_from_a_single_flit_pck      (granted_dst_is_from_a_single_flit_pck),
                 .reset                                      (reset),
                 .clk                                        (clk),
-                .flit_out_wr_all_internal					(flit_out_wr_all_internal),
-                .oport_info (oport_info)
+                .crossbar_flit_out_wr_all					(crossbar_flit_out_wr_all),
+                .any_ovc_granted_in_outport_all ( any_ovc_granted_in_outport_all),  
+                .oport_info (oport_info),
+                .ovc_info(ovc_info)
             );
     
         end//noncanonical

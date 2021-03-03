@@ -42,6 +42,7 @@ module router_two_stage
 		chan_out,	
 		//internal router status 
 		ivc_info, 
+		ovc_info,
 		iport_info,
 		oport_info,
 		
@@ -66,6 +67,7 @@ module router_two_stage
 	
 	
 	output  ivc_info_t 	 ivc_info    [P-1 : 0][V-1 : 0];
+	output  ovc_info_t   ovc_info    [P-1 : 0][V-1 : 0];
 	output  iport_info_t iport_info  [P-1 : 0];
 	output  oport_info_t oport_info  [P-1 : 0]; 
 	
@@ -131,12 +133,14 @@ module router_two_stage
 	wire  [PV-1 :  0] vc_weight_is_consumed_all;
 	wire  [P-1 :  0]iport_weight_is_consumed_all;       
         
-	// to the crossbar
+	// to/from the crossbar
 	wire  [PFw-1 : 0] iport_flit_out_all;
 	wire  [P-1 : 0] ssa_flit_wr_all;
-	wire  [PFw-1 :  0] cross_bar_flit_out_all;
 	reg   [PP_1-1 : 0] granted_dest_port_all_delayed;
-    
+	wire  [PFw-1 :  0]  crossbar_flit_out_all;
+	wire  [P-1   :  0]  crossbar_flit_out_wr_all;
+	wire  [PFw-1 :  0]  link_flit_out_all;
+	wire  [P-1   :  0]  link_flit_out_wr_all;
     
 	//to weight control
 	wire [WP-1 : 0] iport_weight_all;
@@ -179,7 +183,7 @@ module router_two_stage
 	endgenerate
 	
 	
-	wire [P-1 : 0] flit_out_wr_all_internal; 
+	
             
 	inout_ports
 		#(		
@@ -225,9 +229,10 @@ module router_two_stage
 			.clk(clk), 
 			.reset(reset),
 			.ivc_info(ivc_info),
+			.ovc_info(ovc_info),
 			.oport_info(oport_info),
 			.sbp_ctrl_in(sbp_ctrl_in),
-			.flit_out_wr_all_internal(flit_out_wr_all_internal)
+			.crossbar_flit_out_wr_all(crossbar_flit_out_wr_all)
 		);
 
 
@@ -290,33 +295,60 @@ module router_two_stage
 				.V (V),     // vc_num_per_port
 				.P (P),     // router port num
 				.Fpay (Fpay),
-				.MUX_TYPE (MUX_TYPE),
-				.ADD_PIPREG_AFTER_CROSSBAR (ADD_PIPREG_AFTER_CROSSBAR),
+				.MUX_TYPE (MUX_TYPE),				
 				.SSA_EN (SSA_EN)
 			)
 			the_crossbar
 			(
 				.granted_dest_port_all (granted_dest_port_all_delayed),
-				.flit_in_all (iport_flit_out_all),
-				.flit_out_all (cross_bar_flit_out_all),				
-				.flit_out_wr_all (flit_out_wr_all),
+				.flit_in_all (iport_flit_out_all),				
 				.ssa_flit_wr_all (ssa_flit_wr_all),
-				.flit_out_wr_all_internal(flit_out_wr_all_internal),
-				.clk (clk),
-				.reset (reset)
+				.flit_out_all (crossbar_flit_out_all),				
+				.flit_out_wr_all (crossbar_flit_out_wr_all)
         
 			);    
      
-      
-		generate
+		//link reg 
+		generate 
+		if( ADD_PIPREG_AFTER_CROSSBAR == 1 || SBP_EN == 1) begin :link_reg
+            
+			reg [PFw-1 : 0] flit_out_all_pipe;
+			reg [P-1 : 0] flit_out_wr_all_pipe;
+            
+			`ifdef SYNC_RESET_MODE 
+				always @ (posedge clk )begin 
+			`else 
+				always @ (posedge clk or posedge reset)begin 
+			`endif  
+				if(reset)begin
+					flit_out_all_pipe    <=  {PFw{1'b0}};
+					flit_out_wr_all_pipe <=  {P{1'b0}};
+				end else begin
+					flit_out_all_pipe     <=  crossbar_flit_out_all;
+					flit_out_wr_all_pipe  <=  crossbar_flit_out_wr_all;               
+				end
+			end        
+            
+			assign link_flit_out_all    = flit_out_all_pipe;
+			assign link_flit_out_wr_all = flit_out_wr_all_pipe;       
+            
+         
+		end else begin :no_link_reg    
+            
+			assign    link_flit_out_all     =   crossbar_flit_out_all;
+			assign    link_flit_out_wr_all  =   crossbar_flit_out_wr_all;
+           
+		end       
+        
+	
 		/* verilator lint_off WIDTH */ 
-			if (SWA_ARBITER_TYPE != "RRA" ) begin : wrra_arb 
-			/* verilator lint_on WIDTH */ 
+		if (SWA_ARBITER_TYPE != "RRA" ) begin : wrra_ 
+		/* verilator lint_on WIDTH */ 
    
 			wire [WP-1 : 0] contention_all;
-		wire [WP-1 : 0] limited_oport_weight_all;
+			wire [WP-1 : 0] limited_oport_weight_all;
    
-		wrra_contention_gen #(
+			wrra_contention_gen #(
 				.WEIGHTw(WEIGHTw),
 				.WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
 				.V(V),
@@ -334,7 +366,7 @@ module router_two_stage
             
 			); 
         
-		weights_update #(
+			weights_update #(
 				.ARBITER_TYPE(SWA_ARBITER_TYPE),
 				.V(V),
 				.P(P),
@@ -354,7 +386,7 @@ module router_two_stage
 				.refresh_w_counter(refresh_w_counter),
 				.iport_weight_all(iport_weight_all),
 				.contention_all(contention_all),
-				.flit_in_all(cross_bar_flit_out_all),
+				.flit_in_all(link_flit_out_all),
 				.flit_out_all(flit_out_all),
 				.flit_out_wr_all(flit_out_wr_all),
 				.clk(clk),
@@ -362,13 +394,12 @@ module router_two_stage
 			);        
          
 	end // WRRA
-	else begin : rra_arb
-    
-		assign flit_out_all  =  cross_bar_flit_out_all;  
-    
-	end
-		endgenerate 
-     
+	else begin : rra_    
+		assign flit_out_all  =  link_flit_out_all;      
+	end		
+	endgenerate 
+		assign  flit_out_wr_all = link_flit_out_wr_all;
+		
        
 		//synthesis translate_off 
 		//synopsys  translate_off

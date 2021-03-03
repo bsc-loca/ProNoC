@@ -54,8 +54,10 @@ module credit_counter
     nla_decreased_credit_in_ss_ovc_all,
     granted_dst_is_from_a_single_flit_pck,
     reset,clk,
+    any_ovc_granted_in_outport_all,   
     oport_info,
-    flit_out_wr_all_internal
+    ovc_info,
+    crossbar_flit_out_wr_all
 );
 
    
@@ -75,10 +77,10 @@ module credit_counter
                     VP_1    =    V        *     P_1,                
                     PP_1    =    P_1    *    P,
                     PVP_1    =    PV        *    P_1,
-                    Bw        =    log2(B+1),
+                    DEPTHw        =    log2(B+1),
                     B_1     =    B-1;        
 
-    localparam      [Bw-1    :    0] Bint    =    B[Bw-1    :    0];
+    localparam      [DEPTHw-1    :    0] Bint    =    B[DEPTHw-1    :    0];
 
     localparam  NORTH  =       2,  
                 SOUTH  =       4; 
@@ -105,13 +107,15 @@ module credit_counter
     input  [PV-1       :    0] ssa_ovc_allocated_all;
     input  [PV-1       :    0] nla_decreased_credit_in_ss_ovc_all;
     input [P-1:0] granted_dst_is_from_a_single_flit_pck;
-    input [P-1 : 0] flit_out_wr_all_internal;
+    input [P-1 : 0] crossbar_flit_out_wr_all;
+    input [P-1 : 0] any_ovc_granted_in_outport_all;   
     
     output oport_info_t oport_info [P-1:0];
+    output ovc_info_t   ovc_info   [P-1 : 0][V-1 : 0]; 
     
     reg    [PV-1    :    0]    ovc_status;
-    reg    [Bw-1    :    0]    credit_counter            [PV-1    :    0];
-    reg    [Bw-1    :    0]    credit_counter_next    [PV-1    :    0];
+    reg    [DEPTHw-1    :    0]    credit_counter            [PV-1    :    0];
+    reg    [DEPTHw-1    :    0]    credit_counter_next    [PV-1    :    0];
     reg    [PV-1    :    0]    full_all,nearly_full_all,full_all_next,nearly_full_all_next;
     
     wire   [PV-1    :    0]    assigned_ovc_is_full_all;
@@ -226,15 +230,16 @@ module credit_counter
     wire [PV-1 : 0] non_sbp_ovc_allocated_all =    ssa_ovc_allocated_all| non_ss_ovc_allocated_all;
     
     generate
-    for(i=0;i<P;i=i+1    ) begin :port_lp
+    for(i=0;i<P;i=i+1    ) begin :P_
     
         assign oport_info[i].non_sbp_ovc_is_allocated =  non_sbp_ovc_allocated_all [(i+1)*V-1        :i*V];
         //assign oport_info[i].ovc_is_released = ovc_released_all [(i+1)*V-1        :i*V];
         //assign oport_info[i].ovc_credit_increased = credit_increased_all  [(i+1)*V-1    : i*V]; 
        // assign oport_info[i].ovc_credit_decreased = credit_decreased_all   [(i+1)*V-1   : i*V];
-        assign oport_info[i].crossbar_flit_wr = flit_out_wr_all_internal   [i];
-        assign oport_info[i].ovc_avalable =  ovc_avalable_all [(i+1)*V-1   : i*V];
-    
+        //assign oport_info[i].crossbar_flit_wr = crossbar_flit_out_wr_all   [i];
+        assign oport_info[i].any_ovc_granted =  any_ovc_granted_in_outport_all [i];  
+       // assign oport_info[i].ovc_avalable =  ovc_avalable_all [(i+1)*V-1   : i*V];
+       
         inport_module #(
             .V    (V), // vc_num_per_port
             .P    (P) // router port num
@@ -248,7 +253,16 @@ module credit_counter
             .credit_decreased                (credit_decreased                        [i]),
             .ovc_released                    (ovc_released                            [i])
             
-        );    
+        );  
+        	
+        for(j=0; j<V;  j=j+1)begin : V_
+        	assign 	ovc_info[i][j].avalable= ovc_avalable_all [i*V+j]; 
+        	assign 	ovc_info[i][j].status =ovc_status [i*V+j]; //1 : is allocated 0 : not_allocated
+        	assign 	ovc_info[i][j].credit = credit_counter[i*V+j];//available credit in OVC
+        	assign 	ovc_info[i][j].full =full_all[i*V+j];
+        	assign 	ovc_info[i][j].nearly_full=nearly_full_all[i*V+j];
+        end		
+        	
 
     end//for
     
@@ -377,7 +391,7 @@ module credit_counter
     
     always @(*) begin
         for(k=0;    k<PV; k=k+1'b1) begin 
-            full_all_next[k]            =     credit_counter_next[k]         == {Bw{1'b0}};
+            full_all_next[k]            =     credit_counter_next[k]         == {DEPTHw{1'b0}};
             nearly_full_all_next[k]        =    credit_counter_next[k]         <= 1;
         end    
     end
@@ -399,16 +413,26 @@ if(DEBUG_EN) begin: debug
 
         end else begin
         for(k=0;    k<PV; k=k+1'b1) begin 
-            if(credit_counter[k]== Bint && credit_increased_all[k])
-                $display("%t: ERROR: unexpected credit recived for empty ovc[%d]: %m",$time,k);
-            if(credit_counter[k]== {Bw{1'b0}} && credit_decreased_all[k])
+            if(credit_counter[k]== Bint && credit_increased_all[k]) begin 
+            	$display("%t: ERROR: unexpected credit recived for empty ovc[%d]: %m",$time,k);
+				$finish;
+			end
+            if(credit_counter[k]== {DEPTHw{1'b0}} && credit_decreased_all[k]) begin 
                 $display("%t: ERROR: Attempt to send flit to full ovc[%d]: %m",$time,k);
-            if(ovc_released_all[k] && ovc_allocated_all[k])        
+				$finish;
+			end
+            if(ovc_released_all[k] && ovc_allocated_all[k]) begin    
                 $display("%t: ERROR: simultaneous allocation and release for an OVC[%d]: %m",$time,k);
-            if(ovc_released_all[k] && ovc_status[k]==1'b0)
+				$finish;
+			end
+            if(ovc_released_all[k] && ovc_status[k]==1'b0) begin 
                 $display("%t: ERROR: Attempt to release an unallocated OVC[%d]: %m",$time,k);
-            if(ovc_allocated_all[k] && ovc_status[k]==1'b1)
+				$finish;
+			end
+			if(ovc_allocated_all[k] && ovc_status[k]==1'b1) begin 
                 $display("%t: ERROR: Attempt to allocate an allocated OVC[%d]: %m",$time,k);
+				$finish;
+			end
         end//for
        end
     end//always

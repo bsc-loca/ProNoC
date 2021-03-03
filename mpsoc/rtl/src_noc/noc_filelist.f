@@ -38,5 +38,6 @@
 ./router_top.sv
 ./mesh_torus_noc_top.sv
 ./non_local_allocator.sv
+./star_noc.sv
 
 

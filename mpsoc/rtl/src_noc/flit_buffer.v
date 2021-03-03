@@ -76,7 +76,7 @@ module flit_buffer #(
     localparam BVw              =   log2(BV),
                Bw               =   (B==1)? 1 : log2(B),
                Vw               =  (V==1)? 1 : log2(V),
-               DEPTHw           =   Bw+1,
+               DEPTHw           =   log2(B+1),
                BwV              =   Bw * V,
                BVwV             =   BVw * V,
                RAM_DATA_WIDTH   =   Fw - V;
@@ -696,7 +696,7 @@ module fwft_fifo #(
         assign recieve_more_than_1  = ~( depth == {DEPTH_DATA_WIDTH{1'b0}} ||  depth== 1 );
         assign out_sel                  = (recieve_more_than_1)  ? 1'b1 : 1'b0;
         assign out_ld                       = (depth !=0 )?  rd_en : wr_en;
-        assign depth_2                      = depth-2'd2;       
+        assign depth_2                      = depth - 2;       
         assign mux_sel                  = depth_2[MUX_SEL_WIDTH-1   :   0]  ;   
    
    end else if  ( MAX_DEPTH == 2) begin :mw2   

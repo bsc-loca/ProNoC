@@ -41,11 +41,12 @@ unsigned char FIXED_SRC_DST_PAIR;
 unsigned char  NEw=0;
 unsigned long int main_time = 0;     // Current simulation time
 unsigned int saved_time = 0; 
-unsigned int total_pck_num=0;
+unsigned int total_rsv_pck_num=0;
+unsigned int total_sent_pck_num=0;
 unsigned int sum_clk_h2h,sum_clk_h2t;
-double 		 sum_clk_per_hop;
+double 		 sum_clk_per_hop=0;
 const int  CC=(C==0)? 1 : C;
-unsigned int total_pck_num_per_class[CC]={0};
+unsigned int total_rsv_pck_num_per_class[CC]={0};
 unsigned int sum_clk_h2h_per_class[CC]={0};
 unsigned int sum_clk_h2t_per_class[CC]={0};
 double 		 sum_clk_per_hop_per_class[CC]={0};
@@ -54,11 +55,13 @@ unsigned int rsvd_core_worst_delay[NE] =  {0};
 unsigned int sent_core_total_pck_num[NE]= {0};
 unsigned int sent_core_worst_delay[NE] =  {0};
 unsigned int random_var[NE] = {100};
-unsigned int clk_counter;
+unsigned int clk_counter,ideal_rsv_cnt;
 unsigned int count_en;
-unsigned int total_router;
+unsigned int total_active_endp;
 char all_done=0;
-unsigned int flit_counter =0;
+unsigned int total_sent_flit_number =0;
+unsigned int total_rsv_flit_number =0;
+unsigned int total_rsv_flit_number_old=0;
 int ratio=RATIO_INIT;
 double first_avg_latency_flit,current_avg_latency_flit;
 double sc_time_stamp ();
@@ -246,7 +249,7 @@ void processArgs (int argc, char **argv )
 
 
 int main(int argc, char** argv) {
-	char change_injection_ratio=0,inject_done;
+	char change_injection_ratio=0,inject_done=0, simulation_done=0;
 	int i,j,x,y;//,report_delay_counter=0;
 	char file_name[100];
 	char deafult_out[] = {"result"};
@@ -285,7 +288,7 @@ int main(int argc, char** argv) {
     	dest_e_addr=pck_dst_gen (i);
     	traffic[i]->dest_e_addr= dest_e_addr;
     	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
-    	traffic[i]->stop=0;
+    	traffic[i]->stop=inject_done;
     	if(TRAFFIC_TYPE==SYNTHETIC){
     		traffic[i]->pck_size_in=PACKET_SIZE;
     		traffic[i]->avg_pck_size_in=PACKET_SIZE;
@@ -310,8 +313,9 @@ int main(int argc, char** argv) {
 			if ((main_time % 4) == 0) {
 			clk = 1;       // Toggle clock
 			if(count_en) clk_counter++;
-			inject_done= ((total_pck_num >= MAX_PCK_NUM) || (clk_counter>= MAX_SIM_CLKs) || total_active_routers == 0);
+			inject_done= ((total_sent_pck_num >= MAX_PCK_NUM) || (clk_counter>= MAX_SIM_CLKs) || total_active_routers == 0);
 			//if(inject_done) printf("clk_counter=========%d\n",clk_counter);
+			total_rsv_flit_number_old=total_rsv_flit_number;
 			for (i=0;i<NE;i++){
 
 				// a packet has been received
@@ -332,14 +336,30 @@ int main(int argc, char** argv) {
 					}
 				}
 
-				if(traffic[i]->flit_out_wr==1) flit_counter++;
+				if(traffic[i]->flit_out_wr==1) total_sent_flit_number++;
+				if(traffic[i]->flit_in_wr==1)  total_rsv_flit_number++;
+				if(traffic[i]->hdr_flit_sent==1)total_sent_pck_num++;
 
 			}//for
-			if(inject_done) {
-				for (i=0;i<NE;i++) if(traffic[i]->pck_number>0) total_router   	= 	total_router +1;
+
+
+			if(inject_done){
+				if(total_rsv_flit_number_old == total_rsv_flit_number){
+						ideal_rsv_cnt++;
+						if(ideal_rsv_cnt >= 100){
+							fprintf(stderr,"ERROR: The number of sent (%u) & received flits (%u) were not equal at the end of simulation\n",total_sent_flit_number, total_rsv_flit_number);
+							exit(1);
+						}
+				}
+				if(total_sent_flit_number == total_rsv_flit_number ) simulation_done=1;
+			}
+
+			if(simulation_done){
+				for (i=0;i<NE;i++) if(traffic[i]->pck_number>0) total_active_endp   	= 	total_active_endp +1;
 
 				printf(" simulation clock cycles:%d\n",clk_counter);
-				printf(" total received flits:%d\n",flit_counter);
+				printf(" total received flits:%d\n",total_rsv_flit_number);
+				printf(" total sent flits:%d\n",total_sent_flit_number);
 				print_statistic(out_file_name);
 				change_injection_ratio = 1;
 				routers_final();
@@ -362,6 +382,7 @@ int main(int argc, char** argv) {
 			
 
 			for (i=0;i<NE;i++){
+				traffic[i]->stop=inject_done;
 				traffic[i]->current_r_addr		= noc->er_addr[i];
 
 
@@ -463,8 +484,8 @@ void update_noc_statistic (	int	core_num){
     unsigned int  	class_num=traffic[core_num]->pck_class_out;
     unsigned int    src_e_addr=traffic[core_num]->src_e_addr;
     unsigned int 	src = endp_addr_decoder (src_e_addr);						
-	total_pck_num+=1;	
-	if((total_pck_num & 0Xffff )==0 ) printf(" packet sent total=%d\n",total_pck_num);	
+	total_rsv_pck_num+=1;
+	if((total_rsv_pck_num & 0Xffff )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
 	sum_clk_h2h+=clk_num_h2h;
 	sum_clk_h2t+=clk_num_h2t;
 #if (STND_DEV_EN)
@@ -472,7 +493,8 @@ void update_noc_statistic (	int	core_num){
 	sum_clk_pow2_per_class[class_num]+=(double)clk_num_h2h * (double) clk_num_h2h;
 #endif			        		
 	sum_clk_per_hop+= ((double)clk_num_h2h/(double)distance);
-	total_pck_num_per_class[class_num]+=1;
+	//printf("sum_clk_per_hop(%f)+= clk_num_h2h(%u)/distance(%u)\n",sum_clk_per_hop,clk_num_h2h,distance);
+	total_rsv_pck_num_per_class[class_num]+=1;
 	sum_clk_h2h_per_class[class_num]+=clk_num_h2h ;
 	sum_clk_h2t_per_class[class_num]+=clk_num_h2t ;
 	sum_clk_per_hop_per_class[class_num]+= ((double)clk_num_h2h/(double)distance);
@@ -490,49 +512,50 @@ void print_statistic (char * out_file_name){
 	double	std_dev;
 #endif
 					char file_name[100];
-					avg_throughput= ((double)(flit_counter*100)/total_router )/clk_counter;
-					printf(" Total active routers: %d \n",total_router);
-					printf(" Avg throughput is: %f (flits/clk/node %%)\n",    avg_throughput);
-	                avg_latency_flit   = (double)sum_clk_h2h/total_pck_num;
-	                avg_latency_pck	   = (double)sum_clk_h2t/total_pck_num;
+					avg_throughput= ((double)(total_sent_flit_number*100)/total_active_endp )/clk_counter;
+					printf(" Total active Endpoint: %d \n",total_active_endp);
+					printf(" Avg throughput is: %f (flits/clk/Total active Endpoint %%)\n",    avg_throughput);
+	                avg_latency_flit   = (double)sum_clk_h2h/total_rsv_pck_num;
+	                avg_latency_pck	   = (double)sum_clk_h2t/total_rsv_pck_num;
 	                if(ratio==RATIO_INIT) first_avg_latency_flit=avg_latency_flit;
 #if (STND_DEV_EN)
-	                std_dev= standard_dev( sum_clk_pow2,total_pck_num, avg_latency_flit);
+	                std_dev= standard_dev( sum_clk_pow2,total_rsv_pck_num, avg_latency_flit);
+	                //printf(" standard_dev( sum_clk_pow2 %f,total_rsv_pck_num %u, avg_latency_flit %f);",sum_clk_pow2,total_rsv_pck_num, avg_latency_flit );
 	                printf(" standard_dev = %f\n",std_dev);
 	                
 	               // sprintf(file_name,"%s_std.txt",out_file_name);
 	                //update_file( file_name,avg_throughput,std_dev);
 
 #endif
-	                avg_latency_per_hop    = (double)sum_clk_per_hop/total_pck_num;
+	                avg_latency_per_hop    = (double)sum_clk_per_hop/total_rsv_pck_num;
 	                printf	 ("\nall : \n");
 	              //  sprintf(file_name,"%s_all.txt",out_file_name);
 	                //update_file(file_name ,ratio,avg_latency );
 if(strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0){
-		  	printf(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f\n",total_pck_num,avg_latency_per_hop,avg_latency_pck);
+		  	printf(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f\n",total_rsv_pck_num,avg_latency_per_hop,avg_latency_pck);
 	              // update_file(file_name ,avg_throughput,avg_latency_pck);
 	               
 }else{
-			 printf(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f\n",total_pck_num,avg_latency_per_hop,avg_latency_flit);
+			 printf(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f\n",total_rsv_pck_num,avg_latency_per_hop,avg_latency_flit);
 	             //   update_file(file_name ,avg_throughput,avg_latency_flit);
 	              
 }
-	                //fwrite(fp,"%d,%f,%f,%f,",total_pck_num,avg_latency_per_hop,avg_latency,max_latency_per_hop);
+	                //fwrite(fp,"%d,%f,%f,%f,",total_rsv_pck_num,avg_latency_per_hop,avg_latency,max_latency_per_hop);
 	                min_avg_latency_per_class=1000000;
 	                for(i=0;i<C;i++){
-	                	avg_throughput		 = (total_pck_num_per_class[i]>0)? ((double)(total_pck_num_per_class[i]*PACKET_SIZE*100)/total_router )/clk_counter:0;
-						avg_latency_flit 	 = (total_pck_num_per_class[i]>0)? (double)sum_clk_h2h_per_class[i]/total_pck_num_per_class[i]:0;
-						avg_latency_pck	   	 = (total_pck_num_per_class[i]>0)? (double)sum_clk_h2t_per_class[i]/total_pck_num_per_class[i]:0;
-						avg_latency_per_hop  = (total_pck_num_per_class[i]>0)? (double)sum_clk_per_hop_per_class[i]/total_pck_num_per_class[i]:0;
+	                	avg_throughput		 = (total_rsv_pck_num_per_class[i]>0)? ((double)(total_rsv_pck_num_per_class[i]*PACKET_SIZE*100)/total_active_endp )/clk_counter:0;
+						avg_latency_flit 	 = (total_rsv_pck_num_per_class[i]>0)? (double)sum_clk_h2h_per_class[i]/total_rsv_pck_num_per_class[i]:0;
+						avg_latency_pck	   	 = (total_rsv_pck_num_per_class[i]>0)? (double)sum_clk_h2t_per_class[i]/total_rsv_pck_num_per_class[i]:0;
+						avg_latency_per_hop  = (total_rsv_pck_num_per_class[i]>0)? (double)sum_clk_per_hop_per_class[i]/total_rsv_pck_num_per_class[i]:0;
 if(strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0){
 						 printf	 ("\nclass : %d  \n",i);
-	                    printf	(" Total number of packet  = %d \n avg_throughput = %f \n average latency per hop = %f \n average latency = %f\n",total_pck_num_per_class[i],avg_throughput,avg_latency_per_hop,avg_latency_pck);
+	                    printf	(" Total number of packet  = %d \n avg_throughput = %f \n average latency per hop = %f \n average latency = %f\n",total_rsv_pck_num_per_class[i],avg_throughput,avg_latency_per_hop,avg_latency_pck);
    	                    //sprintf(file_name,"%s_c%u.txt",out_file_name,i);
    	                   // update_file( file_name,avg_throughput,avg_latency_pck );
 }else{
 
 printf	 ("\nclass : %d  \n",i);
-	                    printf	(" Total number of packet  = %d \n avg_throughput = %f \n average latency per hop = %f \n average latency = %f\n",total_pck_num_per_class[i],avg_throughput,avg_latency_per_hop,avg_latency_flit);
+	                    printf	(" Total number of packet  = %d \n avg_throughput = %f \n average latency per hop = %f \n average latency = %f\n",total_rsv_pck_num_per_class[i],avg_throughput,avg_latency_per_hop,avg_latency_flit);
 	                   // sprintf(file_name,"%s_c%u.txt",out_file_name,i);
 	                   // update_file( file_name,avg_throughput,avg_latency_flit );
 
@@ -541,7 +564,7 @@ printf	 ("\nclass : %d  \n",i);
 	                    if(min_avg_latency_per_class > avg_latency_flit) min_avg_latency_per_class=avg_latency_flit;
 
 #if (STND_DEV_EN)
-	                    std_dev= (total_pck_num_per_class[i]>0)?  standard_dev( sum_clk_pow2_per_class[i],total_pck_num_per_class[i], avg_latency_flit):0;
+	                    std_dev= (total_rsv_pck_num_per_class[i]>0)?  standard_dev( sum_clk_pow2_per_class[i],total_rsv_pck_num_per_class[i], avg_latency_flit):0;
 	                   // sprintf(file_name,"%s_std%u.txt",out_file_name,i);
 	                   // update_file( file_name,avg_throughput,std_dev);
 
@@ -550,7 +573,7 @@ printf	 ("\nclass : %d  \n",i);
 	                current_avg_latency_flit=min_avg_latency_per_class;
 
 	for (i=0;i<NE;i++) {
-		printf	 ("\n\nCore %d\n",i);
+		printf	 ("\n\nEnd_point %d\n",i);
 			printf	 ("\n\ttotal number of received packets: %u\n",rsvd_core_total_pck_num[i]);
 			printf	 ("\n\tworst-case-delay of received packets (clks): %u\n",rsvd_core_worst_delay[i] );
 			printf	 ("\n\ttotal number of sent packets: %u\n",traffic[i]->pck_number);
@@ -628,10 +651,12 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 
 void reset_all_register (void){
 	int i;
-	 total_router=0;
-	 total_pck_num=0;
+	 total_active_endp=0;
+	 total_rsv_pck_num=0;
+	 total_sent_pck_num=0;
 	 sum_clk_h2h=0;
 	 sum_clk_h2t=0;
+	 ideal_rsv_cnt=0;
 #if (STND_DEV_EN)
 	 sum_clk_pow2=0;
 #endif
@@ -642,7 +667,7 @@ void reset_all_register (void){
 
 	 for(i=0;i<C;i++)
 	 {
-		 total_pck_num_per_class[i]=0;
+		 total_rsv_pck_num_per_class[i]=0;
 	     sum_clk_h2h_per_class[i]=0;
 	     sum_clk_h2t_per_class[i]=0;
 	 	 sum_clk_per_hop_per_class[i]=0;
@@ -651,7 +676,7 @@ void reset_all_register (void){
 #endif
 
 	 }  //for
-	 flit_counter=0;
+	 total_sent_flit_number=0;
 }
 
 

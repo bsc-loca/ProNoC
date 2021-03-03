@@ -192,6 +192,22 @@ module conventional_routing #(
                 .destport_encoded(destport)
             );    
         end // tree 
+        
+    /* verilator lint_off WIDTH */ 
+    end else if (TOPOLOGY == "STAR") begin : star    
+    /* verilator lint_on WIDTH */          
+        star_conventional_routing #(
+            .NE(T1)        
+        )
+        the_conventional_routing
+        (   
+            .dest_e_addr(dest_e_addr),
+            .destport(destport)
+        );    
+        
+   
+        
+        
     end else begin :custom
     
         custom_ni_routing  #(
@@ -411,8 +427,15 @@ module look_ahead_routing #(
         	.lkdestport_encoded(lkdestport_encoded),
         	.reset(reset),
         	.clk(clk)
-        );    
-    end else begin : custom
+        );
+        
+      /* verilator lint_off WIDTH */ 
+    end else if (TOPOLOGY == "STAR") begin : star    
+    /* verilator lint_on WIDTH */     
+     //look-ahead routing is not needed in star topology as there is only one router
+        assign  lkdestport_encoded={DSTPw{1'b0}};
+     
+     end else begin : custom
     
         custom_lkh_routing  #(
             .TOPOLOGY(TOPOLOGY),

@@ -91,7 +91,8 @@ module  pck_dst_gen
     clk,
     reset,
     valid_dst,
-    hotspot_info
+    hotspot_info,
+	custom_traffic_t
 ); 
  
  
@@ -117,7 +118,8 @@ module  pck_dst_gen
     input   [PCK_CNTw-1 :   0]  pck_number; 
     input   [EAw-1      :   0]  current_e_addr; 
     output  [EAw-1      :   0]  dest_e_addr; 
-    output                      valid_dst;  
+    output                      valid_dst; 
+	input  [NEw-1 : 0] custom_traffic_t   [NE-1 : 0]; 
     
     input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
  
@@ -142,7 +144,8 @@ module  pck_dst_gen
         	.current_e_addr(current_e_addr),
             .dest_e_addr(dest_e_addr),
         	.valid_dst(valid_dst),
-        	.hotspot_info(hotspot_info)
+        	.hotspot_info(hotspot_info),
+			.custom_traffic_t(custom_traffic_t) 
         );
         
      end else begin : one_dim
@@ -163,7 +166,8 @@ module  pck_dst_gen
             .current_e_addr(current_e_addr),
             .dest_e_addr(dest_e_addr),
             .valid_dst(valid_dst),
-            .hotspot_info(hotspot_info)
+            .hotspot_info(hotspot_info),
+			.custom_traffic_t(custom_traffic_t) 
         );       
        
      end     
@@ -190,7 +194,8 @@ module two_dimension_pck_dst_gen
     clk,
     reset,
     valid_dst,
-    hotspot_info
+    hotspot_info,
+	custom_traffic_t
 );    
     
    
@@ -215,6 +220,7 @@ module two_dimension_pck_dst_gen
     output  [EAw-1 : 0]  dest_e_addr;
     output                      valid_dst;  
     input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
+	input  [NEw-1 : 0] custom_traffic_t   [NE-1 : 0]; 
     
     localparam 
         NX = T1,
@@ -405,61 +411,20 @@ module two_dimension_pck_dst_gen
         ); 
 
 	end else if(TRAFFIC == "CUSTOM" )begin 
-        /*
-        assign send_en = (current_x==0 && current_y==0);// core (0,0) sends packets to (7,7)
-        assign dest_x = 7;
-        assign dest_y = 7;
-   */
-        reg [NXw-1   :   0]dest_x_reg;
-        reg [NYw-1   :   0]dest_y_reg;
-        reg [NLw-1   :   0]dest_l_reg;
-        reg               valid_dst_reg;
-        
-        always @(*) begin 
-        valid_dst_reg=1'b0;  
-	    dest_x_reg = current_x;
-        dest_y_reg= current_y;
-	    dest_l_reg=current_l;
-         //   if((current_x==0) &&  (current_y== 0) && (current_l==0)) begin 
-            //    dest_x_reg=  NX-1; dest_y_reg=  NY-1; valid_dst_reg=1'b1;
-            //    dest_l_reg= NL-1;
-          //  end
-          
-           if((current_x==0) &&  (current_y== 0) && (current_l==0)) begin 
-                dest_x_reg=  T1-1; dest_y_reg=  T2-1;   dest_l_reg= T3-1;  valid_dst_reg=1'b1;
-            end
-          
-/*
-            if((current_x==1) &&  (current_y== 0) && (current_l==0) ) begin 
-                dest_x_reg=  NX-1; dest_y_reg=  NY-2; valid_dst_reg=1'b1;
-                dest_l_reg= NL-1;
-            end
- 
-         
-           if((current_x==1) &&  (current_y== 1)) begin 
-                dest_x_reg=  1; dest_y_reg=  6; valid_dst_reg=1'b1;
-            end
-            if((current_x==1) &&  (current_y== 2)) begin 
-                dest_x_reg=  1; dest_y_reg=  5; valid_dst_reg=1'b1;
-            end
-            if((current_x==1) &&  (current_y== 3)) begin 
-                dest_x_reg=  1; dest_y_reg=  4; valid_dst_reg=1'b1;
-            end
-*/
-        end 
-      /*
-        0  0   1  1
-        0  1   1  2
-        1  0   1  7
-        1  1   1  6
-        1  2   1  5
-        1  3   1  4
-        */
-        assign valid_dst = valid_dst_reg;
-        assign dest_y =  dest_y_reg;
-        assign dest_x = dest_x_reg;
-        assign dest_l = dest_l_reg;
-        assign dest_e_addr = (T3==1)? {dest_y,dest_x} : {dest_l,dest_y,dest_x};
+        assign dest_ip_num = custom_traffic_t[core_num];
+		 endp_addr_encoder #(
+            .T1(T1),
+            .T2(T2),
+            .T3(T3),
+            .NE(NE),
+            .EAw(EAw),
+            .TOPOLOGY(TOPOLOGY)
+        )
+        addr_encoder
+        (
+            .id(dest_ip_num),
+            .code(dest_e_addr)
+        );
               
     end  else begin 
 			initial begin 
@@ -469,9 +434,9 @@ module two_dimension_pck_dst_gen
 	end
     
      //check if destination address is valid
-     if(TRAFFIC != "CUSTOM" )begin 
-         assign valid_dst  = (dest_e_addr  !=  current_e_addr ) &  (dest_x  <= (NX-1)) & (dest_y  <= (NY-1) & (dest_l <= NL-1));
-     end
+    
+     assign valid_dst  = (dest_e_addr  !=  current_e_addr ) &  (dest_x  <= (NX-1)) & (dest_y  <= (NY-1) & (dest_l <= NL-1));
+    
    
     endgenerate
      
@@ -501,7 +466,8 @@ import pronoc_pkg::*;
     clk,
     reset,
     valid_dst,
-    hotspot_info
+    hotspot_info,
+	custom_traffic_t
 ); 
       
     function integer log2;
@@ -526,6 +492,7 @@ import pronoc_pkg::*;
     output  [EAw-1       :   0]  dest_e_addr;   
     output  valid_dst;  
     input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
+	input  [NEw-1 : 0] custom_traffic_t   [NE-1 : 0]; 
         
     wire [NEw-1 : 0] dest_ip_num;
     
@@ -599,54 +566,7 @@ import pronoc_pkg::*;
 		assign dest_ip_num[NEw-1]  = core_num [0];		
 	
 	end else if(TRAFFIC == "CUSTOM" )begin 
-        /*
-        assign send_en = (current_x==0 && current_y==0);// core (0,0) sends packets to (7,7)
-        assign dest_x = 7;
-        assign dest_y = 7;
-   */
-        reg [NEw-1   :   0]dest_x_reg;
-         
-        reg               valid_dst_reg;
-        
-        always @(*) begin 
-            valid_dst_reg=1'b0;   
-	    dest_x_reg = core_num;
-     	     
-          //  if( current_x>=0 && current_x<=6  ) begin 
-           //     dest_x_reg=  8;   valid_dst_reg=1'b1;
-          //  end
- 
-           if((core_num==3)  ) begin 
-                dest_x_reg=  25;   valid_dst_reg=1'b1;
-            end
- 
-      //     if((current_x>=7 && current_x<=14 )  ) begin 
-      //          dest_x_reg= 14;   valid_dst_reg=1'b1;
-      //      end
-	end
- /*
-           if((current_x==1) &&  (current_y== 1)) begin 
-                dest_x_reg=  1; dest_y_reg=  6; valid_dst_reg=1'b1;
-            end
-            if((current_x==1) &&  (current_y== 2)) begin 
-                dest_x_reg=  1; dest_y_reg=  5; valid_dst_reg=1'b1;
-            end
-            if((current_x==1) &&  (current_y== 3)) begin 
-                dest_x_reg=  1; dest_y_reg=  4; valid_dst_reg=1'b1;
-            end
-
-        end
-      /*
-        0  0   1  1
-        0  1   1  2
-        1  0   1  7
-        1  1   1  6
-        1  2   1  5
-        1  3   1  4
-        */
-        assign valid_dst = valid_dst_reg;       
-        assign dest_ip_num = dest_x_reg;          
-              
+         assign dest_ip_num = custom_traffic_t[core_num];
     end   
    
     endp_addr_encoder #(

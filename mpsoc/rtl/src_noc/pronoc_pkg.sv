@@ -13,18 +13,19 @@ package pronoc_pkg;
 
 
 localparam
-	Vw=  $clog2(V),
-	Cw=  (C==0)? 1 : $clog2(C),
-	NEw = $clog2(NE),
+	Vw=  log2(V),
+	Cw=  (C==0)? 1 : log2(C),
+	NEw = log2(NE),
+	Bw  = log2(B),
+	DEPTHw  =  log2(B+1),
 	WRRA_CONFIG_INDEX=0,
-	SBP_MAX = 0,  
 	SBP_EN = (SBP_MAX !=0),
 	SBP_NUM= (SBP_EN) ? SBP_MAX : 1,
 	Fw = 2+V+Fpay,    //flit width;  ;
 	NEFw = NE *Fw,
 	NEV  = NE * V,
 	T4 = 0,
-	BEw = (BYTE_EN)? $clog2(Fpay/8) : 1;
+	BEw = (BYTE_EN)? log2(Fpay/8) : 1;
 
 
  localparam CONGw= (CONGESTION_INDEX==3)?  3:
@@ -95,11 +96,16 @@ localparam
 		//logic [V-1 : 0] ovc_is_released;
 		//logic [V-1 : 0] ovc_credit_increased; 
 		//logic [V-1 : 0] ovc_credit_decreased;
-		logic [V-1 : 0] ovc_avalable;
-		bit crossbar_flit_wr;
+		//logic [V-1 : 0] ovc_avalable;
+		bit any_ovc_granted;
+		//bit crossbar_flit_wr;
 			
 	}oport_info_t;	
 	localparam  OPORT_INFO_w = $bits(oport_info_t);
+	
+
+	
+	
 	
 	/*********************
 	 * ivc 
@@ -107,6 +113,7 @@ localparam
 		
 	
 	typedef struct packed {
+		//ivc
 		logic [EAw-1 : 0] dest_e_addr;
 		logic ovc_is_assigned;
 		logic [V-1   : 0] assigned_ovc_num;	
@@ -116,19 +123,23 @@ localparam
 		logic flit_is_tail;
 		logic assigned_ovc_not_full;
 		logic [V-1  : 0] candidate_ovc;
-		logic [Cw-1 : 0] class_num; 
-		logic getting_swa_first_arbiter_grant;// got switch allocator first arbiter grant (valid for non-spec combination only) 
-		logic getting_swa_grant;// got both first and second switch allocator
+		logic [Cw-1 : 0] class_num;			
 		
 	} ivc_info_t;
 	localparam  IVC_INFO_w = $bits( ivc_info_t);
 	
-	
+	//ovc info
 	typedef struct packed {
-		logic ss_ovc_avalable;
-		logic assigned_to_ss_ovc;	
-	} ivc_ss_ovc_info_t;
-	localparam  IVC_SSOVC_INFO_w = $bits(ivc_ss_ovc_info_t);
+		bit avalable; 
+		bit status; //1 : is allocated 0 : not_allocated
+		logic [DEPTHw-1 : 0] credit;//available credit in OVC
+		bit full;
+		bit nearly_full;
+	}ovc_info_t;
+	localparam  OVC_INFO_w = $bits( ovc_info_t);
+	
+	
+	
     
 	
 /*********************

@@ -74,7 +74,7 @@ module mesh_torus_noc_top
 	/* verilator lint_off WIDTH */ 
 		if( TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin : ring_line 
 			/* verilator lint_on WIDTH */ 
-			for  (x=0;   x<NX; x=x+1) begin :ring_loop
+			for  (x=0;   x<NX; x=x+1) begin :Router_
              
                        
 				assign current_r_addr [x] = x[RAw-1: 0];   

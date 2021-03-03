@@ -166,7 +166,19 @@ localparam
     EAw_TREE  =  LKw,
     DSTPw_TREE = log2(K+1),
     MAX_P_TREE = K+1;
+
               
+/*********************
+ *  STAR
+ * ******************/
+  localparam 
+    ROUTE_TYPE_STAR = "DETERMINISTIC",
+    NE_STAR = T1,  //total number of endpoints
+    NR_STAR = 1,  // total number of routers  
+    RAw_STAR = 1,
+    EAw_STAR  =  log2(NE_STAR),
+    DSTPw_STAR = EAw_STAR,
+    MAX_P_STAR = NE_STAR;            
  
  /************************
   *  CUSTOM - made by netmaker
@@ -180,10 +192,6 @@ localparam
     MAX_P_CUSTOM = T3,
     DSTPw_CUSTOM = log2(MAX_P_CUSTOM);
  
-
- 
- 
- 
  
     /* verilator lint_off WIDTH */ 
     localparam
@@ -193,40 +201,48 @@ localparam
             (TOPOLOGY == "FATTREE")? DSTPw_FATTREE:
             (TOPOLOGY == "TREE")?  DSTPw_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? DSTPw_MESH_TORI:
+            (TOPOLOGY == "STAR") ? DSTPw_STAR:
             DSTPw_CUSTOM,
         //router address width        
         RAw =
             (TOPOLOGY == "FATTREE")? RAw_FATTREE:
             (TOPOLOGY == "TREE")?  RAw_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? RAw_MESH_TORI:
+            (TOPOLOGY == "STAR") ? RAw_STAR:
             RAw_CUSTOM,
         //endpoint address width
         EAw =
             (TOPOLOGY == "FATTREE")? EAw_FATTREE:
             (TOPOLOGY == "TREE")?  EAw_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? EAw_MESH_TORI:
+            (TOPOLOGY == "STAR") ? EAw_STAR:
             EAw_CUSTOM,
         // total number of endpoints         
         NE =
             (TOPOLOGY == "FATTREE")? NE_FATTREE:
             (TOPOLOGY == "TREE")?  NE_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? NE_MESH_TORI:
+            (TOPOLOGY == "STAR") ? NE_STAR:
             NE_CUSTOM,
         //total number of routers        
         NR =
             (TOPOLOGY == "FATTREE")? NR_FATTREE:
             (TOPOLOGY == "TREE")?  NR_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? NR_MESH_TORI:  
+            (TOPOLOGY == "STAR") ? NR_STAR:
             NR_CUSTOM,    
         ROUTE_TYPE =
             (TOPOLOGY == "FATTREE")? ROUTE_TYPE_FATTREE:
             (TOPOLOGY == "TREE")?  ROUTE_TYPE_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? ROUTE_TYPE_MESH_TORI:
-            ROUTE_TYPE_CUSTOM,    
+            (TOPOLOGY == "STAR") ? ROUTE_TYPE_STAR:
+            ROUTE_TYPE_CUSTOM,
+        // maximum number of port in a router in the topology
         MAX_P =
             (TOPOLOGY == "FATTREE")? MAX_P_FATTREE:
             (TOPOLOGY == "TREE")?  MAX_P_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? MAX_P_MESH_TORI:            
+            (TOPOLOGY == "STAR") ? MAX_P_STAR:
             MAX_P_CUSTOM; 
     /* verilator lint_on WIDTH */         
  

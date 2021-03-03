@@ -103,7 +103,7 @@ module header_flit_info
 
 		/* verilator lint_off WIDTH */
 		if(SWA_ARBITER_TYPE != "RRA")begin  : wrra_b
-			/* verilator lint_on WIDTH */
+		/* verilator lint_on WIDTH */
 			assign hdr_flit.weight =  flit.payload [WEIGHT_MSB : WEIGHT_LSB];    
 		end else begin : rra_b
 			assign hdr_flit.weight = {WEIGHTw{1'bX}};        
@@ -272,10 +272,11 @@ module sbp_forward_ivc_info
 					sbp_chanel[i].dest_e_addr<= sbp_vc_info_o[i].dest_e_addr;	
 					sbp_chanel[i].ovc<= (sbp_vc_info_o[i].ovc_is_assigned)? assigned_ovc[i] : oport_info[i].non_sbp_ovc_is_allocated;
 					sbp_chanel[i].hdr_flit<=~sbp_vc_info_o[i].ovc_is_assigned;
+					sbp_chanel[i].requests <= (oport_info[i].any_ovc_granted)? {SBP_NUM{1'b1}}:{SBP_NUM{1'b0}} ;
+					
 				end
 			end		
 	
-			assign sbp_chanel[i].requests = (oport_info[i].crossbar_flit_wr)? {SBP_NUM{1'b1}}:{SBP_NUM{1'b0}} ;
 			
 	
 		
@@ -325,22 +326,27 @@ module sbp_bypass_chanels
 	
 	wire [V-1 : 0 ] ivc_forwardable [P-1 : 0];
 	wire [P-1 :0] sbp_forwardable;
-	wire [P-1 :0] outport_is_granted;
-	
+	logic [P-1 :0] outport_is_granted;
+	reg [P-1 : 0] rq;
 	genvar i;
 	generate
 	for (i=0;i<P;i=i+1) begin: port	
-		assign ivc_forwardable[i] = iport_info[i].ivc_req;
-		assign outport_is_granted[i] = oport_info[i].crossbar_flit_wr;
+		assign ivc_forwardable[i] = ~iport_info[i].ivc_req;
 		
+	always @( posedge clk)begin
+	    outport_is_granted[i] <= oport_info[i].any_ovc_granted;
+	end	
 	
 		localparam SS_PORT = strieght_port (P,i); // the straight port number
 		if(SS_PORT != DISABLE) begin: ssp 
 			
 			//sbp_chanel_shifter
 			assign sbp_forwardable[i] = |  (ivc_forwardable[i] & sbp_chanel_in[i].ovc);
-			assign {sbp_chanel_shifted[i].requests,sbp_req[i]} =(sbp_forwardable[i])? {1'b0,sbp_chanel_in[i].requests}:{{SBP_NUM{1'b0}},sbp_chanel_in[i].requests[0]};
-			
+			always @(*) begin 
+				sbp_chanel_shifted[i] = sbp_chanel_in [i];
+				{sbp_chanel_shifted[i].requests,rq[i]} =(sbp_forwardable[i])? {1'b0,sbp_chanel_in[i].requests}:{{SBP_NUM{1'b0}},sbp_chanel_in[i].requests[0]};
+			end
+			assign sbp_req[i]=rq[i];
 			// mux out sbp chanel
 			assign sbp_chanel_out[i] = (outport_is_granted[i])? sbp_chanel_new[i] : sbp_chanel_shifted[SS_PORT];
 			
@@ -449,6 +455,7 @@ module sbp_validity_check_per_ivc
 	//ss port status		                    
 	ss_ovc_avalable_in_ss_port  ,
 	ss_port_link_reg_flit_wr    ,
+	ss_ovc_crossbar_wr          ,
 	//output                          
 	sbp_ivc_sbp_en_o            ,
 	sbp_credit_o             	,
@@ -477,6 +484,7 @@ input goes_straight		   ,
 	ivc_request                 ,
 	//ss port status		                    
 	ss_ovc_avalable_in_ss_port  ,
+	ss_ovc_crossbar_wr,
 	ss_port_link_reg_flit_wr    ;
 //output                          
 output sbp_ivc_sbp_en_o         ,
@@ -508,7 +516,7 @@ register #(.W(1)) req2 (.in(sbp_hdr_flit_req_next), .reset(reset), .clk(clk), .o
 wire hdr_flit_condition = ~ovc_locally_requested &	ss_ovc_avalable_in_ss_port;	
 wire nonhdr_flit_condition =  assigned_to_ss_ovc & assigned_ovc_not_full;
 wire condition1 = (ovc_is_assigned)? nonhdr_flit_condition : hdr_flit_condition;
-wire condition2 = ~(ivc_request | ss_port_link_reg_flit_wr);
+wire condition2 = ~(ivc_request | ss_port_link_reg_flit_wr| ss_ovc_crossbar_wr);
 wire conditions_met = condition1 & condition2;
 assign sbp_ivc_sbp_en_o = conditions_met & sbp_req_valid;
 	
@@ -545,9 +553,10 @@ module sbp_allocator_per_iport
 	flit_chanel_i,
 	//router status signals
 	ivc_info,			
-	ss_oport_info,
+	ss_ovc_info,
 	ovc_locally_requested,//make sure no conflict is existed between local & SBP VC allocation
-	ss_port_link_reg_flit_wr,	
+	ss_port_link_reg_flit_wr,
+	ss_sbp_chanel_new,
 	//output
 	sbp_destport_o,
 	sbp_lk_destport_o,
@@ -573,8 +582,9 @@ module sbp_allocator_per_iport
 	input ivc_info_t ivc_info [V-1 : 0];
 	input [V-1 : 0] ovc_locally_requested;
 	//ss port
-	input oport_info_t ss_oport_info; 
-	input ss_port_link_reg_flit_wr;		
+	input ovc_info_t   ss_ovc_info [V-1 : 0];
+	input ss_port_link_reg_flit_wr;	
+	input sbp_chanel_t ss_sbp_chanel_new;
 	//output
 	output [DSTPw-1 : 0] sbp_destport_o,sbp_lk_destport_o;
 	output sbp_hdr_flit_req_o;
@@ -658,7 +668,8 @@ module sbp_allocator_per_iport
 	
 	register #(.W(DSTPw)) reg2 (.in(lkdestport), .reset(reset), .clk(clk), .out(sbp_lk_destport_o));
 	
-	
+	wire [V-1 : 0] ss_ovc_crossbar_wr;//If asserted, a flit will be injected to ovc at next clk cycle 
+	assign ss_ovc_crossbar_wr = (ss_sbp_chanel_new.requests[0] ) ? ss_sbp_chanel_new.ovc : {V{1'b0}};
 	
 		
 	
@@ -684,13 +695,13 @@ module sbp_allocator_per_iport
 			.ovc_locally_requested      (ovc_locally_requested[i]	), 
 						
 			.assigned_to_ss_ovc          (ivc_info[i].assigned_ovc_num[i]),
-			.assigned_ovc_not_full       (ivc_info[i].assigned_ovc_not_full), 
+			.assigned_ovc_not_full       (~ss_ovc_info[i].full), 
 			.ovc_is_assigned             (ivc_info[i].ovc_is_assigned), 
 			.ivc_request                 (ivc_info[i].ivc_req  	),
 						
-			.ss_ovc_avalable_in_ss_port  (ss_oport_info.ovc_avalable[i]), 
+			.ss_ovc_avalable_in_ss_port  (ss_ovc_info[i].avalable), 
 			.ss_port_link_reg_flit_wr    (ss_port_link_reg_flit_wr     ), 
-				
+			.ss_ovc_crossbar_wr          (ss_ovc_crossbar_wr[i]),	
 				
 			.sbp_ivc_sbp_en_o      		 (sbp_ivc_sbp_en_o[i]	),
 			.sbp_credit_o             	 (sbp_credit_o[i]   	), 

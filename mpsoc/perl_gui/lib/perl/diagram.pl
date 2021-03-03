@@ -924,6 +924,35 @@ $dotfile=$dotfile."T$i\[
 	return $dotfile;
 }
 
+sub generate_star_dot_file{
+	my $self=shift;
+		
+	my $dotfile=
+"digraph G {
+	graph [layout = neato, fontsize=3, rankdir = LR , splines = true, overlap = false]; 	
+	node[shape=record];	
+	";
+	
+	my $pnum=$self->object_get_attribute('noc_param','T1');
+	$dotfile.=router_node_dot_sim($pnum,"R","R");	
+	
+	for(my $p=0; $p<$pnum; $p++) {
+	$dotfile.=endp_node_dot_sim ("T$p","T$p");
+	$dotfile.="R -> T$p [dir=none];\n";
+	}
+	
+	$dotfile.="\n}\n";
+	return $dotfile;
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1044,6 +1073,7 @@ sub get_topology_dot_file{
 	return generate_mesh_dot_file ($self) if($topology eq '"RING"' || $topology eq '"LINE"' || $topology eq '"MESH"' || $topology eq '"TORUS"' );
 	return generate_fattree_dot_file ($self) if($topology eq '"FATTREE"');
 	return generate_tree_dot_file($self) if($topology eq '"TREE"');
+	return generate_star_dot_file($self) if($topology eq '"STAR"');
 	
 }
 

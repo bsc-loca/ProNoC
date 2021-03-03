@@ -220,7 +220,6 @@ module  mesh_torus_deterministic_look_ahead_routing #(
         .TOPOLOGY(TOPOLOGY),
         .ROUTE_NAME(ROUTE_NAME),
         .ROUTE_TYPE("DETERMINISTIC"),
-        .P(P),
         .NX(NX),
         .NY(NY),
         .LOCATED_IN_NI(0)
@@ -726,8 +725,7 @@ module add_sw_loc_one_hot #(
 module mesh_torus_conventional_routing #(
     parameter TOPOLOGY          =   "MESH", 
     parameter ROUTE_NAME        =   "XY",
-    parameter ROUTE_TYPE        =   "DETERMINISTIC", 
-    parameter P                 =   5,
+    parameter ROUTE_TYPE        =   "DETERMINISTIC",    
     parameter NX                =   4,
     parameter NY                =   4,
     parameter LOCATED_IN_NI     =   0//use for add even only
@@ -751,8 +749,10 @@ module mesh_torus_conventional_routing #(
          end        
       end   
     endfunction // log2 
-   
-   localparam P_1   =   P-1,
+   /* verilator lint_off WIDTH */ 
+   localparam P =  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 3 : 5,
+   /* verilator lint_on WIDTH */ 
+              P_1   =   P-1,
               Xw    =   log2(NX),
               Yw    =   log2(NY);
               
@@ -1213,7 +1213,7 @@ module line_ring_encode_dstport (
     /************************   
     
         destination-port_in
-            2'b11 : FORWARD or BACKWARD // can be sey to any of them
+            2'b11 : FORWARD or BACKWARD // can be sent to any of them
             2'b10 : BACKWARD
             2'b01 : FORWARD
             2'b00 : LOCAL

@@ -537,7 +537,7 @@ sub noc_topology_setting_gui {
 	my  $label='Topology';
 	my  $param='TOPOLOGY';
 	my  $default='"MESH"';
-	my  $content='"MESH","TORUS","RING","LINE","FATTREE","TREE","CUSTOM"';
+	my  $content='"MESH","TORUS","RING","LINE","FATTREE","TREE","STAR","CUSTOM"';
 	my  $type='Combo-box';
 	my  $info="NoC topology"; 
 	($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
@@ -546,7 +546,9 @@ sub noc_topology_setting_gui {
 
 	if($topology ne '"CUSTOM"' ){
     #topology T1 parameter
-	    $label= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'K' : 'Routers per row';
+	    $label= 
+	    	($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'K' :
+	     	($topology eq '"STAR"')? "Total Endpoint number" : 'Routers per row';
 	    $param= 'T1';
 		$default= '2';
 	    $content=($topology eq '"MESH"' || $topology eq '"TORUS"') ? '2,16,1':
@@ -707,8 +709,8 @@ if($topology ne '"CUSTOM"' ){
     
     $info=($topology eq '"FATTREE"')? $info_fat : 
     	  ($topology eq '"TREE"') ? "Nearest common ancestor": $info_mesh;
-    
-    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
+    my $show_routing =($topology eq '"STAR"' )? 0 : $show_noc;
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_routing,'noc_param',1);
 
 }
 	#MIN_PCK_SIZE 
@@ -753,13 +755,23 @@ if($topology ne '"CUSTOM"' ){
     
     
     #SSA
-    $label='SSA Ebable'; 
+    $label='SSA Enable'; 
     $param='SSA_EN';
     $default='"NO"';
     $content='"YES","NO"';
     $type='Combo-box';
     $info="Enable single cycle latency on packets traversing in the same direction using static straight allocator (SSA)"; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);
+    
+    #SBP
+    $label='Max Streight Bypass'; 
+    $param='SBP_MAX';
+    $default='0';
+    $content="0,1,2,3,4,5,6,7,8,9";
+    $type='Combo-box';
+    $info="If Max Streight Bypass (SBP_MAX) is defined as n>0 then packets are allowed to bypass Maximum of n routers in streight direction in single cycle."; 
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);
+   
     
     
     #Fully and partially adaptive routing setting

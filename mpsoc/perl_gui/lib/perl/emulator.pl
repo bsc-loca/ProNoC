@@ -307,7 +307,7 @@ sub gen_emulation_column {
 	my $table=def_table($row_num,10,FALSE);
 	if(!defined $set_win){
 	 	$set_win=def_popwin_size(40,80,"NoC configuration setting",'percent');	
-	 	$set_win->signal_connect (delete_event => sub { $set_win->hide_on_delete });
+	 	$set_win->signal_connect (delete_event => sub {$emulate->object_add_attribute("active_setting",undef,undef); $set_win->hide_on_delete });
 	 	
 	} else{
 		my @childs = $set_win->get_children;
@@ -1096,7 +1096,7 @@ sub update_result {
 sub capture_cores_data {
 	my ($data,$text)=@_;
 	my %result;
-	my @q =split  (/Core/,$text);
+	my @q =split  (/End_point/,$text);
 	my $i=0;
 	foreach my $p (@q){
 		if ($i!=0){

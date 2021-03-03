@@ -654,7 +654,7 @@ always @(*)begin
             $finish;
         end
         if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr  != current_e_addr )) begin 
-            $display("%t: ERROR: packet with destination %u (code %h) which is sent by source %u (code %h) has been recieved in wrong destination %u (code %h).  %m",$time,dst_id,rd_des_e_addr, src_id,rd_src_e_addr, current_id,current_e_addr);
+            $display("%t: ERROR: packet with destination %d (code %h) which is sent by source %d (code %h) has been recieved in wrong destination %d (code %h).  %m",$time,dst_id,rd_des_e_addr, src_id,rd_src_e_addr, current_id,current_e_addr);
             $finish;
         end
     end
@@ -1080,6 +1080,9 @@ if (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS" || TOPOLOGY == "RING" || TOPOL
         .dest_addr_encoded(dest_e_addr),
         .distance(distance)
     );
+    end else if (TOPOLOGY == "STAR") begin 
+    
+        assign distance =1 ;
     end
     endgenerate
 

@@ -715,26 +715,28 @@ sub run_synthetic_simulation {
 	if ($patern eq 'custom'){
 		$custom="";
 		my $num=$simulate->object_get_attribute($sample,"CUSTOM_SRC_NUM");
-		$custom_sv.="localparam CUSTOM_NODE_NUM=$num;\n\treg [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];
-	integer src;
-	always @(*) begin 
-		for (src=0; src<NE; src=src+1)begin 
-			custom_traffic_t[src]=src;//off
-		end	
-			";
+		$custom_sv.="localparam CUSTOM_NODE_NUM=$num;\n\twire [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];\n";
+			my @srcs;
 		for (my $i=0;$i<$num; $i++){
 			my $src = $simulate->object_get_attribute($sample,"SRC_$i");
 			my $dst = $simulate->object_get_attribute($sample,"DST_$i");
+			
 			$custom.=($i==0)? "-H \"$src,$dst" : ",$src,$dst";
-			$custom_sv.="
-				custom_traffic_t[$src]=$dst;			
-";
+			
 		}
+		my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($simulate,$sample);
+		my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info_sub ($topology, $T1, $T2, $T3, $V, $Fpay);
+			
+		for (my $i=0;$i<$NE; $i++){
+			my ($src,$dst) = custom_traffic_dest ($simulate,$sample,$i);
+			$custom_sv.="\tassign custom_traffic_t[$src]=$dst;";
+			$custom_sv.=($src==$dst)? "//off \n" : "\n"
+		}	
 		$custom.="\"";	
-		$custom_sv.="\tend\n";		
+		
 	}
 	else{
-		$custom_sv.="localparam CUSTOM_NODE_NUM=0;\n\treg [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];
+		$custom_sv.="localparam CUSTOM_NODE_NUM=0;\n\twire [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];
 		";		
 	}
 	
@@ -1287,3 +1289,16 @@ my @charts = (
 		
 
 }
+
+sub custom_traffic_dest{
+	my ($self,$sample,$core_num)	=@_;
+	
+	my $num=$self->object_get_attribute($sample,"CUSTOM_SRC_NUM");
+    for (my $i=0;$i<$num;$i++){
+			my $src = $self->object_get_attribute($sample,"SRC_$i");
+			my $dst = $self->object_get_attribute($sample,"DST_$i");
+			return  ($core_num,$dst) if($src == $core_num);
+    }
+	return ($core_num, $core_num);#off	
+}
+
