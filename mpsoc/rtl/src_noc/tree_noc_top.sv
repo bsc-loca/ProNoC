@@ -83,15 +83,16 @@ module  tree_noc_top
 	router_top # (
 			.P(K)
 		)
-		the_router
+		root_router
 		(              
 			.current_r_addr  (current_r_addr [ROOT_ID]), 
-			.chan_in         (router_chan_in [ROOT_ID]), 
-			.chan_out        (router_chan_out[ROOT_ID]), 
+			.chan_in         (router_chan_in [ROOT_ID][K-1:0]), 
+			.chan_out        (router_chan_out[ROOT_ID][K-1:0]), 
 			.clk             (clk            ), 
 			.reset           (reset          )
 		);
-		
+	
+
 	genvar pos,level;
 
 
@@ -136,7 +137,8 @@ module  tree_noc_top
 				localparam ADR_CODE2=addrencode(FATTREE_EQ_POS2,K,L,Kw);
         
 				// node_connection('Router[id1][k] to router[id2][pos%k];  
-				assign  router_chan_in [ID1][K] = router_chan_out [ID2][PORT2]; 
+				assign  router_chan_in [ID1][K] = router_chan_out [ID2][PORT2];
+				assign  router_chan_in [ID2][PORT2] = router_chan_out [ID1][K];  
 							
 				assign current_layer_addr [ID1] = L1[Lw-1 : 0];
 				assign current_pos_addr [ID1] = ADR_CODE1 [LKw-1 : 0];         

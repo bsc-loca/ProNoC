@@ -265,16 +265,49 @@ endmodule
 
 
 
+module router_top_v //to be used as top module in veralator
+		import pronoc_pkg::*;
+        
+	# (
+		parameter P = 5     // router port num         
+		)(
+			current_r_addr,// connected to constant parameter  
+        
+			chan_in,
+			chan_out,
+        
+			clk,
+			reset
 
+		);
+  
+	
 
+	input [RAw-1 :  0]  current_r_addr;
+    
+	input   router_chanel_t chan_in [P-1 : 0];
+	output  router_chanel_t chan_out [P-1 : 0];
+	input reset,clk;
 
+	router_top # (
+			.P(P)           
+		)
+		router
+		(
+			.current_r_addr(current_r_addr),          
+			.chan_in (chan_in),
+			.chan_out(chan_out),       
+			.clk(clk),
+			.reset(reset)
+		);
+	
 		
-
+endmodule
 
 
 /**********************************
 The router top module that can be called in Verilog module. 
- ***********************************/
+ ***********************************
 
 module router_top_v
 		import pronoc_pkg::*;        
@@ -290,11 +323,13 @@ module router_top_v
 			flit_in_wr_all,
 			credit_out_all,
 			congestion_in_all,
+			sbp_chan_in,
     
 			flit_out_all,
 			flit_out_wr_all,
 			credit_in_all,
 			congestion_out_all,
+			sbp_chan_out,
     
 			clk,reset
 
@@ -304,7 +339,8 @@ module router_top_v
 		PRAw	=P * RAw,
 		PFw		=P * Fw,
 		PV		=P * V,
-		PCONGw	=P * CONGw;
+		PCONGw	=P * CONGw,
+		PSBPw	=P * SBP_CHANEL_w;
 
 
 	input  [RAw-1 :  0]  current_r_addr;
@@ -321,7 +357,8 @@ module router_top_v
 	input  [PV-1 :  0]  credit_in_all;
 	output [PCONGw-1 :  0]  congestion_out_all;
     
-    
+    input  [PSBPw-1 : 0] sbp_chan_in;
+	output [PSBPw-1 : 0] sbp_chan_out;
     
     
 	input clk,reset;
@@ -351,16 +388,20 @@ module router_top_v
 			assign chan_in[i].flit_chanel.credit 	= credit_in_all [(i+1)*V-1 : i*V];
 			assign chan_in[i].flit_chanel.congestion 	= congestion_in_all [(i+1)*CONGw-1 : i*CONGw];
 			assign chan_in[i].flit_chanel.neighbors_r_addr =neighbors_r_addr_in [(i+1)*RAw-1 : i*RAw];
+			assign chan_in[i].sbp_chanel =  sbp_chan_in [(i+1)*SBP_CHANEL_w-1 : i*SBP_CHANEL_w];
+	
 
 			assign flit_out_all   [(i+1)*Fw-1 : i*Fw] = chan_out[i].flit_chanel.flit;
 			assign flit_out_wr_all[i] = chan_out[i].flit_chanel.flit_wr;
 			assign credit_out_all [(i+1)*V-1 : i*V] = chan_out[i].flit_chanel.credit;
 			assign congestion_out_all [(i+1)*CONGw-1 : i*CONGw] = chan_out[i].flit_chanel.congestion;
 			assign neighbors_r_addr_out [(i+1)*RAw-1 : i*RAw] = chan_out[i].flit_chanel.neighbors_r_addr;
+			assign sbp_chan_out [(i+1)*SBP_CHANEL_w-1 : i*SBP_CHANEL_w]= chan_out[i].sbp_chanel;
+		
 
 		end
 	endgenerate 
 
 
 endmodule 
-
+*/

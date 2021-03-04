@@ -89,13 +89,13 @@ for( pos=0; pos<NRL; pos=pos+1) begin : root
       the_router
       (              
         	.current_r_addr  (current_r_addr [pos]), 
-           	.chan_in         (router_chan_in [pos]), 
-           	.chan_out        (router_chan_out[pos]), 
+           	.chan_in         (router_chan_in [pos][K-1 : 0]), 
+           	.chan_out        (router_chan_out[pos][K-1 : 0]), 
            	.clk             (clk            ), 
            	.reset           (reset          )
       );
-        	
-     
+      	
+  
 end   
 
 //add leaves
@@ -155,11 +155,19 @@ for (level = 0; level<L-1; level=level+1) begin : level_c
            
             
            // $dotfile=$dotfile.node_connection('R',$id1,undef,$port,'R',$connect_id,undef,$connect_port);    
-       		assign  router_chan_in [ID1][port] = router_chan_out [ID2][PORT2];
+       		assign  router_chan_in [ID1][port ] = router_chan_out [ID2][PORT2];
+			assign  router_chan_in [ID2][PORT2] = router_chan_out [ID1][port ];
                    
             assign current_layer_addr [ID1] = LEAVE_L;
             assign current_pos_addr [ID1] = ADRRENCODED[LKw-1 :0];         
             assign current_r_addr [ID1] = {current_layer_addr [ID1],current_pos_addr[ID1]};
+
+			if(level==L-2)begin 
+				 assign current_layer_addr [ID2] ={Lw{1'b0}};
+            	 assign current_pos_addr [ID2] = POS_ADR_CODE2[LKw-1 :0];         
+            	 assign current_r_addr [ID2] = {current_layer_addr [ID2],current_pos_addr[ID2]};
+			end
+
          
          end
     end

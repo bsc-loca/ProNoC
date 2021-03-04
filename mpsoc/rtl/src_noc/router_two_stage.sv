@@ -436,7 +436,7 @@ module router_two_stage
 		// synopsys  translate_off                                  
 		`ifdef MONITORE_PATH
      
-			genvar i;
+			
 		reg[P-1 :0] t1,t2;
 		generate
 			for (i=0;i<P;i=i+1)begin : lp                     

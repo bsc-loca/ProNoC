@@ -424,20 +424,11 @@ sub get_noc_verilator_top_modules_info {
 		
 		
 void router${p}_connect_to_noc (unsigned int r, unsigned int n){
-	unsigned int j;
-	int flit_out_all_size = sizeof(router${p}[0]->flit_out_all)/sizeof(router${p}[0]->flit_out_all[0]);
-	router${p}[r]->current_r_addr	= noc->current_r_addr[n];
-	router${p}[r]->neighbors_r_addr_in 	= noc->neighbors_r_addr[n];
 	
-
-	router${p}[r]->flit_in_wr_all	= noc->router_flit_out_wr_all[n];
-	router${p}[r]->credit_in_all	= noc->router_credit_out_all[n];
-	router${p}[r]->congestion_in_all	= noc->router_congestion_out_all[n];
-	for(j=0;j<flit_out_all_size;j++)router${p}[r]->flit_in_all[j] 	= noc->router_flit_out_all[n][j];
-		noc->router_flit_in_wr_all[n]	=	router${p}[r]->flit_out_wr_all ;
-		noc->router_credit_in_all[n]	=	router${p}[r]->credit_out_all;
-		noc->router_congestion_in_all[n]=	router${p}[r]->congestion_out_all;
-	for(j=0;j<flit_out_all_size;j++) noc->router_flit_in_all[n][j]	= router${p}[r]->flit_out_all[j] ;	
+	router${p}[r]->current_r_addr	= noc->current_r_addr[n];
+	memcpy(&router${p}[r]->chan_in, noc->router_chan_out[n] , sizeof( router${p}[r]->chan_in ) );
+	memcpy(&noc->router_chan_in[n] ,router${p}[r]->chan_out , sizeof( router${p}[r]->chan_out) );
+	
 }
 ";
 #if		ROUTER_P_NUM >$j

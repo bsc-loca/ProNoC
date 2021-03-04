@@ -855,7 +855,7 @@ endmodule
 
 /**************
     fattree_addr_decoder
-    most probably it is only needed for simulation purposes
+    most probably it is only needed for simulation 
 ***************/  
 
 module  fattree_addr_decoder #(
@@ -912,7 +912,7 @@ module  fattree_addr_decoder #(
      output [NEw-1 :0] id;
      input  [LKw-1 : 0] code;
 
-    wire  [NE-1 : 0] codes  [LKw-1 : 0 ];
+    wire  [NEw-1 : 0] codes  [2**LKw-1 : 0 ];
     genvar i;
     generate 
     for(i=0; i< NE; i=i+1) begin : endpoints
