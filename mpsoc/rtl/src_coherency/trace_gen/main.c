@@ -239,8 +239,8 @@ int main ( int argc, char **argv ){
 					addr *=CACHE_BLK_SIZ;
 			}else{
 				//TODO  add hotspot
-				
-				
+				addr = 100;
+				addr *=CACHE_BLK_SIZ;
 			}		
 			if(tmp<load_percentage){
 				gen_cache_miss_trace(reqid++,addr,0,0,LD,OpCode_L1MissData);

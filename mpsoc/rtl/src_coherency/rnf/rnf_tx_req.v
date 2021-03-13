@@ -334,7 +334,7 @@ end
 //synopsys  translate_off
 
 always @(posedge clk) begin
-    if((VERBOSITY & MONITORE_FLIT_INJECT_FILEDS) > 0)begin 
+    if((VERBOSITY & MONITORE_FLIT_OPCODE) > 0)begin 
         if(chi_noc_txreqflitv) begin 
         $display("%t: rnf ( %d ) txn ( %d ) send req flit: qos ( %d ) tgtid ( %d ) srcid ( %d ) returnnid ( %d ) endian ( %d ) returntxnid ( %d ) opcode ( %d ) flitsize ( %d ) addr ( %d ) ns ( %d ) likelyshared ( %d ).", $time, src_id,txnid, qos, tgtid,srcid,returnnid,endian,returntxnid,opcode,flitsize,addr,ns,likelyshared);
         $display("%t: rnf ( %d ) txn ( %d ) send req flit: allowretry ( %d ) order ( %d ) pcrdtype ( %d ) memattr ( %d ) snpattr ( %d ) lpid ( %d ) excl_snoopme ( %d ) expcompack ( %d ) tracetag ( %d )", $time,src_id,txnid, allowretry,order,pcrdtype,memattr,snpattr,lpid,excl_snoopme,expcompack,tracetag);

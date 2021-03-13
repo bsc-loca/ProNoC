@@ -17,7 +17,7 @@ $setting = bless( {
                     'PATH' => {
                                 'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
                                 'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
-                                'MODELSIM_BIN' => undef,
+                                'MODELSIM_BIN' => '/home/alireza/intelFPGA_lite/questa/questasim/bin',
                                 'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
                                 'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work'
                               },

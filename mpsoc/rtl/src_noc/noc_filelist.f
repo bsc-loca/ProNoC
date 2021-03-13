@@ -3,7 +3,7 @@
 ./../main_comp.v
 ./../arbiter.v
 ./class_table.v
-./ss_allocator.v
+./ss_allocator.sv
 ./route_torus.v
 ./header_flit.v
 ./noc_top.sv

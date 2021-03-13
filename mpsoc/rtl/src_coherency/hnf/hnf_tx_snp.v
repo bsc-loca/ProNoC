@@ -223,7 +223,7 @@ module  hnf_tx_snp #(
     
     
     generate 
-    if((VERBOSITY & MONITORE_FLIT_INJECT_FILEDS) > 0)begin :debug
+    if((VERBOSITY & MONITORE_FLIT_OPCODE) > 0)begin :debug
     
         monitor_snp_flit #(
             .AGENT_NAME("hnf"),

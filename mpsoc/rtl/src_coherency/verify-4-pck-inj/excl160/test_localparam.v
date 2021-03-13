@@ -41,7 +41,7 @@
 
     localparam VERBOSITY = 0
        | MONITORE_FLIT_INJECT
-      // | MONITORE_FLIT_INJECT_FILEDS
+      // | MONITORE_FLIT_OPCODE
        | MONITORE_TXN_CMD 
      //  | MONITORE_WAIT_LIST
        | MONITORE_CACHE 

@@ -44,7 +44,8 @@ module non_local_allocator
 	nla_decreased_credit_in_ss_ovc_all,
 	nla_single_flit_pck_all,
 	
-	sbp_ctrl_in
+	sbp_ctrl_in,
+	ssa_ctrl_o
 	
 );
 
@@ -75,6 +76,8 @@ input   [PVV-1          :   0]  assigned_ovc_num_all;
 input   [PV-1           :   0]  ovc_is_assigned_all;
 input   reset,clk;
 input   sbp_ctrl_t     sbp_ctrl_in  [P-1 : 0];    
+output  ssa_ctrl_t     ssa_ctrl_o     [P-1 : 0];    
+
 
 output   [PV-1      :   0] nla_ovc_allocated_all;
 output   [PV-1      :   0] nla_ovc_released_all;
@@ -109,22 +112,10 @@ genvar i;
 generate
 	
 	/* verilator lint_off WIDTH */
-	if( SSA_EN =="YES" ) begin : predict 
+	if( SSA_EN =="YES" ) begin : ssa 
 	/* verilator lint_on WIDTH */
 		ss_allocator #(
-				.TOPOLOGY(TOPOLOGY),
-				.V(V),
-				.P(P),
-				.SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-				.WEIGHTw(WEIGHTw),
-				.EAw(EAw),
-				.DSTPw(DSTPw),
-				.C(C),                
-				.Fpay(Fpay), //payload width
-				.ROUTE_TYPE(ROUTE_TYPE),                   
-				.DEBUG_EN(DEBUG_EN),
-				.ESCAP_VC_MASK(ESCAP_VC_MASK),
-				.BYTE_EN(BYTE_EN)
+				.P(P)
 			)
 			the_ssa
 			(
@@ -149,10 +140,11 @@ generate
 				.ivc_reset_all(ssa_ivc_reset_all),
 				.decreased_credit_in_ss_ovc_all(ssa_decreased_credit_in_ss_ovc_all),
 				.single_flit_pck_all(ssa_single_flit_pck_all),
-				.ssa_flit_wr_all(ssa_flit_wr_all)
+				.ssa_flit_wr_all(ssa_flit_wr_all),
+				.ssa_ctrl_o(ssa_ctrl_o)
 			);
 
-	end else begin :non_predict
+	end else begin :non_ssa
 		assign  ssa_ovc_allocated_all=  {PV{1'b0}};
 		assign  ssa_ovc_released_all=  {PV{1'b0}};
 		assign  ssa_granted_ovc_num_all= {PVV{1'b0}};
@@ -163,6 +155,8 @@ generate
 		assign  ssa_decreased_credit_in_ss_ovc_all = {PV{1'b0}};
 		assign  ssa_single_flit_pck_all ={PV{1'b0}};
 	end
+		
+		
 	
 	if(SBP_EN==1) begin :sbp
 		for (i=0;i<P;i=i+1) begin :P_

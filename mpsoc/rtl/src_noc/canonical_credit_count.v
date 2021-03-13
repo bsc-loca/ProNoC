@@ -38,7 +38,7 @@ module canonical_credit_counter #(
     parameter PPSw=4,
     parameter CONGw   =   2 //congestion width per port     
 )(
-    non_ss_ovc_allocated_all,
+    vsa_ovc_allocated_all,
     flit_is_tail_all,
     assigned_ovc_num_all,
     spec_ovc_num_all,
@@ -86,7 +86,7 @@ module canonical_credit_counter #(
     localparam  CONG_ALw=   CONGw* P;   //  congestion width per router;
 
     integer k;                
-    input    [PV-1        :    0]    non_ss_ovc_allocated_all;
+    input    [PV-1        :    0]    vsa_ovc_allocated_all;
     input    [PV-1        :    0]    flit_is_tail_all;
     input    [PVV-1        :    0]    assigned_ovc_num_all;
     input    [PVV-1        :    0]    spec_ovc_num_all;
@@ -136,7 +136,7 @@ module canonical_credit_counter #(
     
     assign credit_decreased_all = non_ss_credit_decreased_all | nla_decreased_credit_in_ss_ovc_all;
     assign ovc_released_all = non_ss_ovc_released_all | nla_ovc_released_all;
-    assign ovc_allocated_all = non_ss_ovc_allocated_all | nla_ovc_allocated_all;  
+    assign ovc_allocated_all = vsa_ovc_allocated_all | nla_ovc_allocated_all;  
     
     
     generate
@@ -260,7 +260,7 @@ module canonical_credit_counter #(
             end
         end//j
         assign non_ss_ovc_released_all     [i] = |ovc_released_gen[i];
-        assign non_ss_credit_decreased_all [i] = (|credit_decreased_gen[i])|non_ss_ovc_allocated_all[i];
+        assign non_ss_credit_decreased_all [i] = (|credit_decreased_gen[i])|vsa_ovc_allocated_all[i];
     end//i
     
     

@@ -35,7 +35,7 @@ module credit_counter
     
     
 )(
-    non_ss_ovc_allocated_all,
+    vsa_ovc_allocated_all,
     flit_is_tail_all,
     assigned_ovc_num_all,
     ovc_is_assigned_all,
@@ -54,7 +54,9 @@ module credit_counter
     nla_decreased_credit_in_ss_ovc_all,
     granted_dst_is_from_a_single_flit_pck,
     reset,clk,
-    any_ovc_granted_in_outport_all,   
+    any_ovc_granted_in_outport_all, 
+    vsa_credit_decreased_all,
+    vsa_ovc_released_all,
     oport_info,
     ovc_info,
     crossbar_flit_out_wr_all
@@ -87,7 +89,7 @@ module credit_counter
     localparam [V-1     :   0] ADAPTIVE_VC_MASK = ~ ESCAP_VC_MASK;   
     localparam  CONG_ALw=   CONGw * P;   //  congestion width per router;             
                     
-    input  [PV-1       :    0]    non_ss_ovc_allocated_all;
+    input  [PV-1       :    0]    vsa_ovc_allocated_all;
     input  [PV-1       :    0]    flit_is_tail_all;
     input  [PVV-1       :    0]    assigned_ovc_num_all;
     input  [PV-1       :    0]    ovc_is_assigned_all;
@@ -110,6 +112,8 @@ module credit_counter
     input [P-1 : 0] crossbar_flit_out_wr_all;
     input [P-1 : 0] any_ovc_granted_in_outport_all;   
     
+    output [PV-1    :    0]  vsa_ovc_released_all;
+    output [PV-1    :    0]  vsa_credit_decreased_all;
     output oport_info_t oport_info [P-1:0];
     output ovc_info_t   ovc_info   [P-1 : 0][V-1 : 0]; 
     
@@ -121,11 +125,11 @@ module credit_counter
     wire   [PV-1    :    0]    assigned_ovc_is_full_all;
     wire   [VP_1-1    :    0]    credit_decreased        [P-1        :    0];
     wire   [P_1-1    :    0]    credit_decreased_gen    [PV-1        :    0];
-    wire   [PV-1    :    0]  non_ss_credit_decreased_all;
+    
     wire   [PV-1    :    0]  credit_increased_all;
     wire   [VP_1-1    :    0]    ovc_released            [P-1        :    0];
     wire   [P_1-1    :    0]    ovc_released_gen        [PV-1        :    0];
-    wire   [PV-1    :    0]  non_ss_ovc_released_all;
+   
     wire   [VP_1-1    :   0]  credit_in_perport        [P-1        :    0];
     wire   [VP_1-1    :    0]  full_perport              [P-1        :    0];
     wire   [VP_1-1    :    0]  nearly_full_perport    [P-1        :    0];
@@ -137,9 +141,9 @@ module credit_counter
     wire [PV-1  :   0] ovc_released_all;
     wire [PV-1  :   0] ovc_allocated_all;
     
-    assign credit_decreased_all = non_ss_credit_decreased_all | nla_decreased_credit_in_ss_ovc_all;
-    assign ovc_released_all = non_ss_ovc_released_all | nla_ovc_released_all;
-    assign ovc_allocated_all = non_ss_ovc_allocated_all | nla_ovc_allocated_all;  
+    assign credit_decreased_all = vsa_credit_decreased_all | nla_decreased_credit_in_ss_ovc_all;
+    assign ovc_released_all = vsa_ovc_released_all | nla_ovc_released_all;
+    assign ovc_allocated_all = vsa_ovc_allocated_all | nla_ovc_allocated_all;  
     
     
     
@@ -227,7 +231,7 @@ module credit_counter
     assign credit_increased_all         = credit_in_all;
     assign assigned_ovc_not_full_all    =    ~ assigned_ovc_is_full_all;
     
-    wire [PV-1 : 0] non_sbp_ovc_allocated_all =    ssa_ovc_allocated_all| non_ss_ovc_allocated_all;
+    wire [PV-1 : 0] non_sbp_ovc_allocated_all =    ssa_ovc_allocated_all| vsa_ovc_allocated_all;
     
     generate
     for(i=0;i<P;i=i+1    ) begin :P_
@@ -278,8 +282,8 @@ module credit_counter
                 assign credit_decreased_gen[i][j]    = credit_decreased[j][i-V];
             end
         end//j
-        assign non_ss_ovc_released_all      [i] = |ovc_released_gen[i];
-        assign non_ss_credit_decreased_all [i] = (|credit_decreased_gen[i])|non_ss_ovc_allocated_all[i];
+        assign vsa_ovc_released_all      [i] = |ovc_released_gen[i];
+        assign vsa_credit_decreased_all [i] = (|credit_decreased_gen[i])|vsa_ovc_allocated_all[i];
     end//i
     
     

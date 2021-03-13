@@ -10,57 +10,43 @@
 ################################################################################
 
 $simulate = bless( {
-                     'P2Received' => {
-                                       'ratio' => '5',
-                                       'type' => '3D_bar',
-                                       'dimension' => '3D'
-                                     },
+                     'setting' => {
+                                    'show_tile_setting' => 0,
+                                    'show_adv_setting' => 1,
+                                    'show_noc_setting' => 1,
+                                    'soc_path' => 'lib/soc'
+                                  },
+                     'noc_type' => {
+                                     'ROUTER_TYPE' => '"VC_BASED"'
+                                   },
+                     'P3' => {
+                               'active' => '-'
+                             },
                      'emulation_column' => {
                                              'ha' => '0',
                                              'va' => '0'
                                            },
-                     'P0' => {
-                               'active' => 'Throughput'
-                             },
-                     'active_setting' => undef,
-                     'P0Throughput_param' => {
-                                               'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
-                                               'LINEw' => 3,
-                                               'Y_MIN' => 0,
-                                               'X_MIN' => 0,
-                                               'legend_font' => 'MediumBold',
-                                               'Y_Title' => 'Avg. Throughput (flits/clock (%))',
-                                               'legend_placement' => 'BL',
-                                               'X_MAX' => 100,
-                                               'label_font' => 'MediumBold',
-                                               'x_axis_font' => 'MediumBold'
-                                             },
-                     'P1' => {
-                               'active' => 'Received'
-                             },
-                     'setting' => {
-                                    'soc_path' => 'lib/soc',
-                                    'show_adv_setting' => 1,
-                                    'show_noc_setting' => 1,
-                                    'show_tile_setting' => 0
-                                  },
-                     'P2' => {
-                               'active' => 'Received'
-                             },
-                     'samples' => undef,
                      'P0Throughput' => {
                                          'type' => '2D_line'
                                        },
+                     'samples' => undef,
                      'parameters_order' => {
-                                             'compile' => [
-                                                            'cpu_num'
+                                             'sample0' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'MIN_PCK_SIZE',
+                                                            'MAX_PCK_SIZE',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT',
+                                                            'traffic'
                                                           ],
                                              'samples' => [
                                                             'sample0'
                                                           ],
-                                             'fpga_param' => [
-                                                               'TIMSTMP_FIFO_NUM'
-                                                             ],
+                                             'compile' => [
+                                                            'cpu_num'
+                                                          ],
                                              'noc_param' => [
                                                               'TOPOLOGY',
                                                               'T1',
@@ -87,234 +73,182 @@ $simulate = bless( {
                                                               'WEIGHTw',
                                                               'AVC_ATOMIC_EN'
                                                             ],
-                                             'sample0' => [
-                                                            'TRAFFIC_TYPE',
-                                                            'line_name',
-                                                            'MIN_PCK_SIZE',
-                                                            'MAX_PCK_SIZE',
-                                                            'PCK_SIZE',
-                                                            'PCK_NUM_LIMIT',
-                                                            'SIM_CLOCK_LIMIT',
-                                                            'traffic',
-                                                            'CUSTOM_SRC_NUM'
-                                                          ],
-                                             'noc_type' => [
-                                                             'ROUTER_TYPE'
-                                                           ],
                                              'sim_param' => [
                                                               'SAVE_NAME',
                                                               'BIN_DIR'
-                                                            ]
+                                                            ],
+                                             'noc_type' => [
+                                                             'ROUTER_TYPE'
+                                                           ],
+                                             'fpga_param' => [
+                                                               'TIMSTMP_FIFO_NUM'
+                                                             ]
                                            },
-                     'status' => 'run',
-                     'P2Received_param' => {
-                                             'Y_Title' => 'Worst-Case Delay (clk)',
-                                             'legend_placement' => 'BL',
-                                             'legend_font' => 'MediumBold',
-                                             'X_MAX' => 100,
-                                             'label_font' => 'MediumBold',
-                                             'x_axis_font' => 'MediumBold',
-                                             'X_Title' => 'Core ID',
-                                             'Y_MIN' => 0,
-                                             'LINEw' => 3,
-                                             'X_MIN' => 0
-                                           },
-                     'graph_save' => {
-                                       'save_all_result' => 0
-                                     },
-                     'id' => 1,
-                     'simulate_name' => 'sbp',
-                     'chart_notebook' => {},
-                     'noc_type' => {
-                                     'ROUTER_TYPE' => '"INPUT_QUEUED"'
-                                   },
-                     'noc_param' => {
-                                      'BYTE_EN' => 0,
-                                      'ESCAP_VC_MASK' => '1\'b1',
-                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
-                                      'Fpay' => '32',
-                                      'B' => '4',
-                                      'WEIGHTw' => '4',
-                                      'V' => 1,
-                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
-                                      'CONGESTION_INDEX' => 3,
-                                      'T3' => '1',
-                                      'MIN_PCK_SIZE' => '2',
-                                      'T1' => '8',
-                                      'FIRST_ARBITER_EXT_P_EN' => 1,
-                                      'T2' => 1,
-                                      'C' => 0,
-                                      'SSA_EN' => '"NO"',
-                                      'SBP_MAX' => '3',
-                                      'DEBUG_EN' => '0',
-                                      'SWA_ARBITER_TYPE' => '"RRA"',
-                                      'ROUTE_NAME' => '"XY"',
-                                      'MUX_TYPE' => '"BINARY"',
-                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
-                                      'TOPOLOGY' => '"LINE"',
-                                      'AVC_ATOMIC_EN' => 0
-                                    },
-                     'P1Received' => {
-                                       'dimension' => '3D',
+                     'P2Received' => {
                                        'type' => '3D_bar',
-                                       'ratio' => '5'
+                                       'dimension' => '3D'
                                      },
-                     'sample0' => {
-                                    'latency_result' => {
-                                                          '5' => ' 17.000000'
-                                                        },
-                                    'DST_0' => '3',
-                                    'ratios' => '5',
-                                    'color' => 2,
-                                    'status' => 'run',
-                                    'packet_rsvd_result' => {
-                                                              '5' => {
-                                                                       '0' => '0',
-                                                                       '5' => '0',
-                                                                       '2' => '0',
-                                                                       '7' => '0',
-                                                                       '1' => '0',
-                                                                       '4' => '0',
-                                                                       '3' => '1001',
-                                                                       '6' => '0'
-                                                                     }
-                                                            },
-                                    'MAX_PCK_SIZE' => 5,
-                                    'MIN_PCK_SIZE' => 5,
-                                    'TRAFFIC_TYPE' => 'Synthetic',
-                                    'exe_time_result' => {
-                                                           '5' => '100005'
-                                                         },
-                                    'PCK_SIZE' => '5',
-                                    'noc_info' => {
-                                                    'Fpay' => '32',
-                                                    'B' => '4',
-                                                    'WEIGHTw' => '4',
-                                                    'V' => 1,
-                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
-                                                    'CONGESTION_INDEX' => 3,
-                                                    'T3' => '1',
-                                                    'BYTE_EN' => 0,
-                                                    'ESCAP_VC_MASK' => '1\'b1',
-                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
-                                                    'SBP_MAX' => '3',
-                                                    'DEBUG_EN' => '0',
-                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
-                                                    'MUX_TYPE' => '"BINARY"',
-                                                    'ROUTE_NAME' => '"XY"',
-                                                    'SWA_ARBITER_TYPE' => '"RRA"',
-                                                    'TOPOLOGY' => '"LINE"',
-                                                    'AVC_ATOMIC_EN' => 0,
-                                                    'MIN_PCK_SIZE' => '2',
-                                                    'T1' => '8',
-                                                    'T2' => 1,
-                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
-                                                    'C' => 0,
-                                                    'SSA_EN' => '"NO"'
-                                                  },
-                                    'worst_delay_sent_result' => {
-                                                                   '5' => {
-                                                                            '2' => '0',
-                                                                            '0' => '17',
-                                                                            '5' => '0',
-                                                                            '3' => '0',
-                                                                            '4' => '0',
-                                                                            '6' => '0',
-                                                                            '1' => '0',
-                                                                            '7' => '0'
-                                                                          }
-                                                                 },
-                                    'SRC_0' => 0,
-                                    'worst_delay_rsvd_result' => {
-                                                                   '5' => {
-                                                                            '2' => '0',
-                                                                            '0' => '0',
-                                                                            '5' => '0',
-                                                                            '4' => '0',
-                                                                            '3' => '17',
-                                                                            '6' => '0',
-                                                                            '7' => '0',
-                                                                            '1' => '0'
-                                                                          }
-                                                                 },
-                                    'sof_file' => 'simulate1',
-                                    'line_name' => 'sample0',
-                                    'traffic' => 'custom',
-                                    'SIM_CLOCK_LIMIT' => 100000,
-                                    'sof_path' => '/home/alireza/work/git/hca_git/mpsoc_work/simulate',
-                                    'sd_latency_result' => {
-                                                             '5' => ' 0.000000'
-                                                           },
-                                    'PCK_NUM_LIMIT' => 200000,
-                                    'throughput_result' => {
-                                                             '5' => ' 5.004750 '
-                                                           },
-                                    'packet_sent_result' => {
-                                                              '5' => {
-                                                                       '1' => '0',
-                                                                       '7' => '0',
-                                                                       '6' => '0',
-                                                                       '3' => '0',
-                                                                       '4' => '0',
-                                                                       '5' => '0',
-                                                                       '0' => '1001',
-                                                                       '2' => '0'
-                                                                     }
-                                                            },
-                                    'CUSTOM_SRC_NUM' => 1
-                                  },
-                     'gui_status' => {
-                                       'timeout' => 0,
-                                       'status' => 'ideal'
-                                     },
-                     'Simulator' => 'Modelsim',
                      'fpga_param' => {
                                        'TIMSTMP_FIFO_NUM' => 16
                                      },
                      'no_name' => {},
-                     'process_notebook' => {
-                                             'currentpage' => 0
-                                           },
-                     'P3' => {
-                               'active' => '-'
-                             },
-                     'P3-_param' => {
-                                      'legend_font' => 'MediumBold',
-                                      'Y_Title' => 'Total Simulation Time (clk)',
-                                      'legend_placement' => 'BL',
-                                      'label_font' => 'MediumBold',
-                                      'X_MAX' => 100,
-                                      'x_axis_font' => 'MediumBold',
-                                      'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
-                                      'LINEw' => 3,
-                                      'Y_MIN' => 0,
-                                      'X_MIN' => 0
-                                    },
-                     'noc_setting_gui' => {
-                                            'ha' => '0',
-                                            'va' => '566'
-                                          },
-                     'P1Received_param' => {
-                                             'legend_font' => 'MediumBold',
-                                             'legend_placement' => 'BL',
-                                             'Y_Title' => 'Received Packets Per Router',
-                                             'x_axis_font' => 'MediumBold',
-                                             'label_font' => 'MediumBold',
-                                             'X_MAX' => 100,
-                                             'Y_MIN' => 0,
-                                             'LINEw' => 3,
-                                             'X_Title' => 'Core ID',
-                                             'X_MIN' => 0
-                                           },
-                     'P3-' => {
-                                'type' => '2D_line'
-                              },
                      'sim_param' => {
                                       'SAVE_NAME' => 'simulate1',
                                       'BIN_DIR' => '/home/alireza/work/git/hca_git/mpsoc_work/simulate'
                                     },
+                     'P0Throughput_param' => {
+                                               'X_MAX' => 100,
+                                               'Y_Title' => 'Avg. Throughput (flits/clock (%))',
+                                               'label_font' => 'MediumBold',
+                                               'X_MIN' => 0,
+                                               'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                               'legend_placement' => 'BL',
+                                               'legend_font' => 'MediumBold',
+                                               'Y_MIN' => 0,
+                                               'LINEw' => 3,
+                                               'x_axis_font' => 'MediumBold'
+                                             },
+                     'P0' => {
+                               'active' => 'Throughput'
+                             },
+                     'noc_param' => {
+                                      'T1' => '4',
+                                      'MUX_TYPE' => '"BINARY"',
+                                      'SBP_MAX' => '3',
+                                      'C' => 0,
+                                      'ROUTE_NAME' => '"XY"',
+                                      'WEIGHTw' => '4',
+                                      'B' => '4',
+                                      'SSA_EN' => '"NO"',
+                                      'CONGESTION_INDEX' => 3,
+                                      'T3' => '1',
+                                      'T2' => '4',
+                                      'BYTE_EN' => 0,
+                                      'AVC_ATOMIC_EN' => 0,
+                                      'ESCAP_VC_MASK' => '2\'b01',
+                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                      'Fpay' => '32',
+                                      'FIRST_ARBITER_EXT_P_EN' => 1,
+                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                      'SWA_ARBITER_TYPE' => '"RRA"',
+                                      'TOPOLOGY' => '"MESH"',
+                                      'DEBUG_EN' => '0',
+                                      'V' => '2',
+                                      'MIN_PCK_SIZE' => '2'
+                                    },
+                     'file_name' => undef,
+                     'P1' => {
+                               'active' => 'Received'
+                             },
+                     'P3-' => {
+                                'type' => '2D_line'
+                              },
+                     'process_notebook' => {
+                                             'currentpage' => 0
+                                           },
+                     'P2' => {
+                               'active' => 'Received'
+                             },
+                     'Simulator' => 'Modelsim',
+                     'graph_save' => {
+                                       'save_all_result' => 0
+                                     },
+                     'id' => 1,
+                     'P1Received_param' => {
+                                             'x_axis_font' => 'MediumBold',
+                                             'Y_MIN' => 0,
+                                             'LINEw' => 3,
+                                             'legend_font' => 'MediumBold',
+                                             'X_Title' => 'Core ID',
+                                             'legend_placement' => 'BL',
+                                             'X_MIN' => 0,
+                                             'Y_Title' => 'Received Packets Per Router',
+                                             'X_MAX' => 100,
+                                             'label_font' => 'MediumBold'
+                                           },
+                     'chart_notebook' => {},
+                     'active_setting' => undef,
+                     'gui_status' => {
+                                       'status' => 'ideal',
+                                       'timeout' => 0
+                                     },
+                     'noc_setting_gui' => {
+                                            'va' => '730',
+                                            'ha' => '19'
+                                          },
                      'compile' => {
                                     'cpu_num' => 1
                                   },
-                     'file_name' => undef
+                     'P3-_param' => {
+                                      'legend_font' => 'MediumBold',
+                                      'LINEw' => 3,
+                                      'Y_MIN' => 0,
+                                      'x_axis_font' => 'MediumBold',
+                                      'label_font' => 'MediumBold',
+                                      'Y_Title' => 'Total Simulation Time (clk)',
+                                      'X_MAX' => 100,
+                                      'X_MIN' => 0,
+                                      'legend_placement' => 'BL',
+                                      'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))'
+                                    },
+                     'P1Received' => {
+                                       'type' => '3D_bar',
+                                       'dimension' => '3D'
+                                     },
+                     'sample0' => {
+                                    'PCK_NUM_LIMIT' => '20000',
+                                    'line_name' => 'sample0',
+                                    'PCK_SIZE' => '5',
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'color' => 2,
+                                    'sof_path' => '/home/alireza/work/git/hca_git/mpsoc_work/simulate',
+                                    'ratios' => '50',
+                                    'SIM_CLOCK_LIMIT' => '10000',
+                                    'MAX_PCK_SIZE' => 5,
+                                    'status' => 'failed',
+                                    'noc_info' => {
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'Fpay' => '32',
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'BYTE_EN' => 0,
+                                                    'T2' => '4',
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'MIN_PCK_SIZE' => '2',
+                                                    'TOPOLOGY' => '"MESH"',
+                                                    'V' => '2',
+                                                    'DEBUG_EN' => '0',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                                    'SWA_ARBITER_TYPE' => '"RRA"',
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'C' => 0,
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'SBP_MAX' => '3',
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'T1' => '4',
+                                                    'T3' => '1',
+                                                    'SSA_EN' => '"NO"',
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'WEIGHTw' => '4',
+                                                    'B' => '4'
+                                                  },
+                                    'sof_file' => 'simulate1',
+                                    'traffic' => 'random',
+                                    'MIN_PCK_SIZE' => 5
+                                  },
+                     'simulate_name' => 'sbp',
+                     'P2Received_param' => {
+                                             'X_MAX' => 100,
+                                             'Y_Title' => 'Worst-Case Delay (clk)',
+                                             'label_font' => 'MediumBold',
+                                             'X_MIN' => 0,
+                                             'X_Title' => 'Core ID',
+                                             'legend_placement' => 'BL',
+                                             'legend_font' => 'MediumBold',
+                                             'Y_MIN' => 0,
+                                             'LINEw' => 3,
+                                             'x_axis_font' => 'MediumBold'
+                                           },
+                     'status' => 'ideal'
                    }, 'emulator' );

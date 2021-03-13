@@ -211,7 +211,7 @@ module  hnf_tx_req #(
 //synthesis translate_off 
 //synopsys  translate_off
     generate 
-    if((VERBOSITY & MONITORE_FLIT_INJECT_FILEDS) > 0)begin :debug
+    if((VERBOSITY & MONITORE_FLIT_OPCODE) > 0)begin :debug
     
         monitor_req_flit #(
         	.AGENT_NAME("hnf"),

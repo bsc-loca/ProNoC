@@ -66,6 +66,8 @@ int ratio=RATIO_INIT;
 double first_avg_latency_flit,current_avg_latency_flit;
 double sc_time_stamp ();
 int pow2( int );
+char inject_done=0;
+char simulation_done=0;
 
 #if (STND_DEV_EN)
 	//#include <math.h>
@@ -88,6 +90,11 @@ unsigned int pck_dst_gen_task_graph ( unsigned int);
 void print_statistic (char *);
 void print_parameter();
 void reset_all_register();
+void sim_eval_all (void);
+void sim_final_all (void);
+void clk_negedge_event(void);
+void clk_posedge_event(void);
+void connect_clk_reset_start_all(void);
 unsigned int rnd_between (unsigned int, unsigned int );
 
 
@@ -249,7 +256,7 @@ void processArgs (int argc, char **argv )
 
 
 int main(int argc, char** argv) {
-	char change_injection_ratio=0,inject_done=0, simulation_done=0;
+	char change_injection_ratio=0;
 	int i,j,x,y;//,report_delay_counter=0;
 	char file_name[100];
 	char deafult_out[] = {"result"};
@@ -308,53 +315,14 @@ int main(int argc, char** argv) {
 		}
 
 		if(main_time == saved_time+21){ count_en=1; noc->start_i=1;}//for(i=0;i<NC;i++) traffic[i]->start=1;}
-		if(main_time == saved_time+26) noc->start_i=0;// for(i=0;i<NC;i++) traffic[i]->start=0;
+		if(main_time == saved_time+23) noc->start_i=0;// for(i=0;i<NC;i++) traffic[i]->start=0;
 		  
-			if ((main_time % 4) == 0) {
-			clk = 1;       // Toggle clock
-			if(count_en) clk_counter++;
-			inject_done= ((total_sent_pck_num >= MAX_PCK_NUM) || (clk_counter>= MAX_SIM_CLKs) || total_active_routers == 0);
-			//if(inject_done) printf("clk_counter=========%d\n",clk_counter);
-			total_rsv_flit_number_old=total_rsv_flit_number;
-			for (i=0;i<NE;i++){
-
-				// a packet has been received
-				if(traffic[i]->update & ~reset){
-					update_noc_statistic (i) ;
-					
-				}
-				// the header flit has been sent out
-				if(traffic[i]->hdr_flit_sent ){
-					traffic[i]->pck_class_in=  pck_class_in_gen( i);
-					sent_core_total_pck_num[i]++;
-					if(!FIXED_SRC_DST_PAIR){
-						traffic[i]->pck_size_in=rnd_between(MIN_PACKET_SIZE,MAX_PACKET_SIZE);
-						dest_e_addr=pck_dst_gen (i);
-						traffic[i]->dest_e_addr= dest_e_addr;
-						//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
-
-					}
-				}
-
-				if(traffic[i]->flit_out_wr==1) total_sent_flit_number++;
-				if(traffic[i]->flit_in_wr==1)  total_rsv_flit_number++;
-				if(traffic[i]->hdr_flit_sent==1)total_sent_pck_num++;
-
-			}//for
-
-
-			if(inject_done){
-				if(total_rsv_flit_number_old == total_rsv_flit_number){
-						ideal_rsv_cnt++;
-						if(ideal_rsv_cnt >= 100){
-							fprintf(stderr,"ERROR: The number of sent (%u) & received flits (%u) were not equal at the end of simulation\n",total_sent_flit_number, total_rsv_flit_number);
-							exit(1);
-						}
-				}
-				if(total_sent_flit_number == total_rsv_flit_number ) simulation_done=1;
-			}
-
-			if(simulation_done){
+		clk_posedge_event( );
+		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values 
+		//between modules when the clock . 
+		for (i=0;i<3*(SBP_MAX+1);i++) clk_negedge_event( );
+				
+		if(simulation_done){
 				for (i=0;i<NE;i++) if(traffic[i]->pck_number>0) total_active_endp   	= 	total_active_endp +1;
 
 				printf(" simulation clock cycles:%d\n",clk_counter);
@@ -362,82 +330,10 @@ int main(int argc, char** argv) {
 				printf(" total sent flits:%d\n",total_sent_flit_number);
 				print_statistic(out_file_name);
 				change_injection_ratio = 1;
-				routers_final();
-				for(i=0;i<NE;i++) traffic[i]->final();
-				noc->final();
+				sim_final_all();
 				return 0;
-			}
-		}//if
-		else
-		{
-
-			clk = 0;
-#if (NE<=64)
-			noc->ni_flit_in_wr =0;
-#else
-			for(j=0;j<(sizeof(noc->ni_flit_in_wr)/sizeof(noc->ni_flit_in_wr[0])); j++) noc->ni_flit_in_wr[j]=0;
-#endif
-			
-			connect_all_routers_to_noc ();
-			
-
-			for (i=0;i<NE;i++){
-				traffic[i]->stop=inject_done;
-				traffic[i]->current_r_addr		= noc->er_addr[i];
-
-
-#if (Fpay<=32)
-				traffic[i]->flit_in  = noc->ni_flit_out [i];
-#else	
-	for(j=0;j<(sizeof(traffic[i]->flit_out)/sizeof(traffic[i]->flit_out[0])); j++) traffic[i]->flit_in[j]  = noc->ni_flit_out [i][j];				
-#endif					
-				traffic[i]->credit_in= noc->ni_credit_out[i];
-			
-
-				noc->ni_credit_in[i] = traffic[i]->credit_out;
-#if (Fpay<=32)				
-				noc->ni_flit_in [i]  = traffic[i]->flit_out;
-#else	
-	for(j=0;j<(sizeof(traffic[i]->flit_out)/sizeof(traffic[i]->flit_out[0])); j++) noc->ni_flit_in [i][j]  = traffic[i]->flit_out[j];
-#endif
-
-#if (NE<=64)
-				if(traffic[i]->flit_out_wr) noc->ni_flit_in_wr = noc->ni_flit_in_wr | ((vluint64_t)1<<i);
-				traffic[i]->flit_in_wr= ((noc->ni_flit_out_wr >> i) & 0x01);
-#else
-				if(traffic[i]->flit_out_wr) MY_VL_SETBIT_W(noc->ni_flit_in_wr ,i);
-				traffic[i]->flit_in_wr=   (VL_BITISSET_W(noc->ni_flit_out_wr,i)>0); 				
-#endif
-
-			}//for
-		}//else
-		//if(main_time > 20 && main_time < 30 ) traffic->start=1; else traffic->start=0;
-		//if(main_time == saved_time+25) router1[0]->flit_in_wr_all=0;
-		//if((main_time % 250)==0) printf("router->all_done =%u\n",router->all_done);
-		
-
-		noc-> clk = clk; 
-		noc-> reset = reset;
-		 
-		for(i=0;i<NE;i++)	{
-#if (NE<=64)
-			traffic[i]->start=  ((noc->start_o >>i)&  0x01);
-#else
-			traffic[i]->start=   (VL_BITISSET_W(noc->start_o, i)>0);
-#endif			
-			traffic[i]->reset= reset;
-			traffic[i]->clk	= clk;
 		}
-	
-		connect_routers_reset_clk();
 		
-		//evaluate
-		noc->eval(); 
-		routers_eval();
-		for(i=0;i<NE;i++) traffic[i]->eval();
-
-		//router1[0]->eval();            // Evaluate model
-		//printf("clk=%x\n",router->clk );
 
 		main_time++;  
 		//getchar();   
@@ -445,9 +341,8 @@ int main(int argc, char** argv) {
 		
 	}// Done simulating
 	
-	routers_final();
-	for(i=0;i<NE;i++) traffic[i]->final();
-	noc->final(); 
+	sim_final_all();
+	return 0;
 
 }
 
@@ -468,6 +363,135 @@ int pow2( int num){
 	return pw;
 }
 
+void sim_eval_all (void){
+	int i;
+	noc->eval(); 
+	routers_eval();
+	for(i=0;i<NE;i++) traffic[i]->eval();
+}	
+
+void sim_final_all (void){
+	int i;
+	routers_final();
+	for(i=0;i<NE;i++) traffic[i]->final();
+	noc->final(); 
+}	
+
+void connect_clk_reset_start_all(void){
+	int i;
+	noc-> clk = clk; 
+	noc-> reset = reset;
+		 
+	for(i=0;i<NE;i++)	{
+#if (NE<=64)
+		traffic[i]->start=  ((noc->start_o >>i)&  0x01);
+#else
+		traffic[i]->start=   (VL_BITISSET_W(noc->start_o, i)>0);
+#endif			
+		traffic[i]->reset= reset;
+		traffic[i]->clk	= clk;
+	}
+	connect_routers_reset_clk();
+}
+
+
+void clk_negedge_event(void){
+	int i,j;
+	
+	clk = 0;
+#if (NE<=64)
+	noc->ni_flit_in_wr =0;
+#else
+	for(j=0;j<(sizeof(noc->ni_flit_in_wr)/sizeof(noc->ni_flit_in_wr[0])); j++) noc->ni_flit_in_wr[j]=0;
+#endif
+	
+	connect_all_routers_to_noc ();
+			
+
+	for (i=0;i<NE;i++){
+				traffic[i]->stop=inject_done;
+				traffic[i]->current_r_addr		= noc->er_addr[i];
+
+
+#if (Fpay<=32)
+				traffic[i]->flit_in  = noc->ni_flit_out [i];
+#else	
+				for(j=0;j<(sizeof(traffic[i]->flit_out)/sizeof(traffic[i]->flit_out[0])); j++) traffic[i]->flit_in[j]  = noc->ni_flit_out [i][j];				
+#endif					
+				traffic[i]->credit_in= noc->ni_credit_out[i];
+			
+
+				noc->ni_credit_in[i] = traffic[i]->credit_out;
+#if (Fpay<=32)				
+				noc->ni_flit_in [i]  = traffic[i]->flit_out;
+#else	
+				for(j=0;j<(sizeof(traffic[i]->flit_out)/sizeof(traffic[i]->flit_out[0])); j++) noc->ni_flit_in [i][j]  = traffic[i]->flit_out[j];
+#endif
+
+#if (NE<=64)
+				if(traffic[i]->flit_out_wr) noc->ni_flit_in_wr = noc->ni_flit_in_wr | ((vluint64_t)1<<i);
+				traffic[i]->flit_in_wr= ((noc->ni_flit_out_wr >> i) & 0x01);
+#else
+				if(traffic[i]->flit_out_wr) MY_VL_SETBIT_W(noc->ni_flit_in_wr ,i);
+				traffic[i]->flit_in_wr=   (VL_BITISSET_W(noc->ni_flit_out_wr,i)>0); 				
+#endif
+
+	}//for
+	connect_clk_reset_start_all();
+	sim_eval_all();
+	
+}	
+
+
+
+
+void clk_posedge_event(void) {
+	int i;
+	unsigned int dest_e_addr;
+	clk = 1;       // Toggle clock
+	if(count_en) clk_counter++;
+		inject_done= ((total_sent_pck_num >= MAX_PCK_NUM) || (clk_counter>= MAX_SIM_CLKs) || total_active_routers == 0);
+		//if(inject_done) printf("clk_counter=========%d\n",clk_counter);
+		total_rsv_flit_number_old=total_rsv_flit_number;
+		for (i=0;i<NE;i++){
+
+			// a packet has been received
+			if(traffic[i]->update & ~reset){
+				update_noc_statistic (i) ;
+			}
+			// the header flit has been sent out
+			if(traffic[i]->hdr_flit_sent ){
+				traffic[i]->pck_class_in=  pck_class_in_gen( i);
+				sent_core_total_pck_num[i]++;
+				if(!FIXED_SRC_DST_PAIR){
+					traffic[i]->pck_size_in=rnd_between(MIN_PACKET_SIZE,MAX_PACKET_SIZE);
+					dest_e_addr=pck_dst_gen (i);
+					traffic[i]->dest_e_addr= dest_e_addr;
+					//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
+				}
+			}
+
+				if(traffic[i]->flit_out_wr==1) total_sent_flit_number++;
+				if(traffic[i]->flit_in_wr==1)  total_rsv_flit_number++;
+				if(traffic[i]->hdr_flit_sent==1)total_sent_pck_num++;
+
+			}//for
+
+
+			if(inject_done){
+				if(total_rsv_flit_number_old == total_rsv_flit_number){
+						ideal_rsv_cnt++;
+						if(ideal_rsv_cnt >= 100){
+							fprintf(stderr,"ERROR: The number of sent (%u) & received flits (%u) were not equal at the end of simulation\n",total_sent_flit_number, total_rsv_flit_number);
+							exit(1);
+						}
+				}
+				if(total_sent_flit_number == total_rsv_flit_number ) simulation_done=1;
+			}
+	connect_clk_reset_start_all();
+	sim_eval_all();
+			
+}			
 
 
 /**********************************

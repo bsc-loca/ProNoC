@@ -2075,7 +2075,7 @@ module  hnf_rx_req #(
     end
     
     generate
-    if((VERBOSITY & MONITORE_FLIT_INJECT_FILEDS) > 0)begin 
+    if((VERBOSITY & MONITORE_FLIT_OPCODE) > 0)begin 
     
         monitor_req_flit #(
             .AGENT_NAME("hnf"),

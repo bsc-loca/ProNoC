@@ -463,7 +463,7 @@
         MONITORE_MAIN_MEM = (2**5),
         MONITORE_WAIT_LIST= (2**6),
         MONITORE_REQ_TYPE= (2**7),
-        MONITORE_FLIT_INJECT_FILEDS=(2**8),
+        MONITORE_FLIT_OPCODE=(2**8),
         MONITORE_HAZARDS=(2**9),
         MONITORE_EXCL_TXN=(2**10),
         MONITORE_DAT_ALU=(2**11),

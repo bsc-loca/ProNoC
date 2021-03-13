@@ -43,10 +43,9 @@ import pronoc_pkg::*;
     congestion_in_all,
     congestion_out_all,
     
-    // from vc/sw allocator
-    ovc_allocated_all,
+    // from vsa: local vc/sw allocator
+    vsa_ovc_allocated_all,
     granted_ovc_num_all,
-    ivc_num_getting_sw_grant,
     ivc_num_getting_ovc_grant,
     spec_ovc_num_all,
     nonspec_first_arbiter_granted_ivc_all,
@@ -66,7 +65,9 @@ import pronoc_pkg::*;
     masked_ovc_request_all,
     pck_is_single_flit_all,
     vc_weight_is_consumed_all, 
-    iport_weight_is_consumed_all,    
+    iport_weight_is_consumed_all, 
+    flit_is_tail_all,
+
         
     // to crossbar
     flit_out_all,
@@ -79,10 +80,14 @@ import pronoc_pkg::*;
     clk,
     reset,
     //status
+    vsa_credit_decreased_all,
+    vsa_ovc_released_all,
     ivc_info, 
     ovc_info,
     oport_info,
+    vsa_ctrl_in,
     sbp_ctrl_in
+   
     
 );
 
@@ -114,9 +119,9 @@ import pronoc_pkg::*;
     input [P-1 : 0] flit_in_wr_all;
     output reg[PV-1 : 0] credit_out_all;
     input [PV-1 : 0] credit_in_all;
-    input [PV-1 : 0] ovc_allocated_all;
+    input [PV-1 : 0] vsa_ovc_allocated_all;
     input [PVV-1 : 0] granted_ovc_num_all;
-    input [PV-1 : 0] ivc_num_getting_sw_grant;
+   
     input [PV-1 : 0] ivc_num_getting_ovc_grant;
     input [PVV-1 : 0] spec_ovc_num_all;
     input [PV-1 : 0] nonspec_first_arbiter_granted_ivc_all;
@@ -141,6 +146,7 @@ import pronoc_pkg::*;
     output [PV-1 : 0] ivc_request_all;
     output [PV-1 : 0] assigned_ovc_not_full_all;
     output [PVV-1 : 0] masked_ovc_request_all;
+    output [PV-1 : 0] flit_is_tail_all;
 
     // to crossbar
     output [PFw-1 : 0] flit_out_all;
@@ -152,10 +158,14 @@ import pronoc_pkg::*;
 
     input clk,reset;
     
+    output  [PV-1 : 0] vsa_ovc_released_all;
+    output  [PV-1 : 0] vsa_credit_decreased_all;
     output  ivc_info_t   ivc_info    [P-1 : 0][V-1 : 0];
     output  ovc_info_t   ovc_info    [P-1 : 0][V-1 : 0];
     output  oport_info_t oport_info  [P-1 : 0]; 
     input   sbp_ctrl_t   sbp_ctrl_in [P-1 : 0];
+    input   vsa_ctrl_t   vsa_ctrl_in [P-1 : 0];
+   
   
     wire [PVV-1 : 0] candidate_ovc_all;
     wire [PVDSTPw-1 : 0] dest_port_encoded_all;
@@ -164,19 +174,22 @@ import pronoc_pkg::*;
     wire [PPSw-1 : 0] port_pre_sel;
     wire [PV-1 :  0]  swap_port_presel;
     wire [PV-1 : 0] reset_ivc_all;    
-    wire [PV-1 : 0] flit_is_tail_all;
-    reg  [PV-1 : 0] ovc_is_assigned_all,ovc_is_assigned_all_next;
+    
+    wire  [PV-1 : 0] ovc_is_assigned_all;
   //  wire [PV-1 : 0] port_pre_sel_ld_all;
-    reg  [PVV-1 : 0] assigned_ovc_num_all,assigned_ovc_num_all_next;
+    wire  [PVV-1 : 0] assigned_ovc_num_all;
     
     wire [PV-1 : 0] sel; 
     wire [PV-1 : 0] ovc_avalable_all; 
     
     wire [PVDSTPw-1 : 0] destport_clear_all;// clear non preferable ports in adaptive routing     
   
+    wire [PV-1 : 0] ivc_num_getting_sw_grant; 
+    
     //ssa
     wire [PV-1 : 0] ssa_ivc_num_getting_sw_grant_all;
     wire [PV-1 : 0] ssa_ovc_allocated_all;
+    
     
     // nla
   
@@ -197,6 +210,8 @@ end else begin : single_flit_notsupported
     assign pck_is_single_flit_all = {PV{1'b0}}; 
 end
 endgenerate
+
+ ssa_ctrl_t ssa_ctrl [P-1 : 0];
 
 	non_local_allocator #(
 		.P                                   (P                                  )
@@ -225,80 +240,19 @@ endgenerate
 		.nla_ivc_reset_all                   (nla_ivc_reset_all                  ), 
 		.nla_decreased_credit_in_ss_ovc_all  (nla_decreased_credit_in_ss_ovc_all ), 
 		 
-		.sbp_ctrl_in                         (sbp_ctrl_in                        ));	
+		.sbp_ctrl_in                         (sbp_ctrl_in                        ),	
+		.ssa_ctrl_o							 (ssa_ctrl      					));
 	
-	
 
 
 
-    wire [PVV-1 : 0] granted_ovc_num_all_or_ssa;
-    wire [PV-1 : 0] ivc_num_getting_sw_grant_all_or_ssa; 
+   
     
-    assign granted_ovc_num_all_or_ssa = granted_ovc_num_all | nla_granted_ovc_num_all;
-    assign ivc_num_getting_sw_grant_all_or_ssa = ivc_num_getting_sw_grant | ssa_ivc_num_getting_sw_grant_all;
-    assign reset_ivc_all    =    (flit_is_tail_all & ivc_num_getting_sw_grant) | nla_ivc_reset_all;
-
-
     
-
-//synthesis translate_off
-//synopsys  translate_off
-generate
-    if(DEBUG_EN)begin :dbg2   // The SSA must not have conflict with the main VC/Sw allocator
-        localparam VV = V*V;
-        genvar g;
-        for(g=0; g< P; g=g+1 ) begin: p_loop
-            always @ (posedge clk) begin
-                if( (|granted_ovc_num_all[(g+1)*VV-1 : g*VV]) &  (|nla_granted_ovc_num_all[(g+1)*VV-1 : g*VV])) $display("%t: ERROR: VSA/SSA conflict: granted_ovc_num %m",$time);
-                if( (|ivc_num_getting_sw_grant [(g+1)*V-1 : g*V]) & (|ssa_ivc_num_getting_sw_grant_all[(g+1)*V-1 : g*V]) ) $display("%t: ERROR: VSA/SSA conflict: ivc_num_getting_sw_grant %m",$time);     
-                 if((|(flit_is_tail_all[(g+1)*V-1 : g*V] & ivc_num_getting_sw_grant[(g+1)*V-1 : g*V])) & (|nla_ivc_reset_all[(g+1)*V-1 : g*V])) $display("%t: ERROR: VSA/SSA conflict: reset_ivc_all %m",$time);   
-            end//always
-        end
-    end //dbg
-endgenerate
-//synopsys  translate_on
-//synthesis translate_on
+   
+   
 
 
-//assign port_pre_sel_ld_all= ~ovc_is_assigned_all_next;
-
-
-
-
-genvar k;
-generate
-    for(k=0; k< PV; k=k+1 ) begin: PV_loop
-        always @ (*) begin
-            //default values
-            ovc_is_assigned_all_next[k] = ovc_is_assigned_all[k];
-            assigned_ovc_num_all_next[(k+1)*V-1 : k*V] = assigned_ovc_num_all[(k+1)*V-1 : k*V] ;
-            if(reset_ivc_all[k]) begin 
-                ovc_is_assigned_all_next[k] = 1'b0;
-                //assigned_ovc_num_all_next[(k+1)*V-1 : k*V] = {V{1'b0}};
-            end
-            else if(ivc_num_getting_ovc_grant[k] | (nla_ivc_num_getting_ovc_grant_all[k] & ~nla_single_flit_pck_all[k])) begin 
-                ovc_is_assigned_all_next[k] = 1'b1;                
-            end
-	    if((ivc_num_getting_ovc_grant[k] | nla_ivc_num_getting_ovc_grant_all[k]) ) begin 
-			assigned_ovc_num_all_next[(k+1)*V-1 : k*V] = granted_ovc_num_all_or_ssa[(k+1)*V-1 : k*V];
-	    end
-        end//always
-        //synthesis translate_off
-        //synopsys  translate_off
-        if(DEBUG_EN)begin :dbg
-          always @ (posedge clk) begin
-            if((ivc_num_getting_ovc_grant[k] | nla_ivc_num_getting_ovc_grant_all[k]) && granted_ovc_num_all_or_ssa[(k+1)*V-1 : k*V]== {V{1'b0}}) begin 
-                    $display("%t: ERROR: granted OVC num is NULL: %m",$time);
-                    
-            end
-          end//always
-        end
-        //synopsys  translate_on
-        //synthesis translate_on
-        
-        
-    end//for
-endgenerate
 
 
 
@@ -308,13 +262,11 @@ endgenerate
     always @ (posedge clk or posedge reset)begin 
 `endif  
     if (reset)    begin
-        ovc_is_assigned_all   <=  {PV{1'b0}};
-        assigned_ovc_num_all  <=  {PVV{1'b0}};
+      
         credit_out_all        <=  {PV{1'b0}};
     end else begin
-        ovc_is_assigned_all   <= ovc_is_assigned_all_next;
-        assigned_ovc_num_all  <= assigned_ovc_num_all_next;
-        credit_out_all        <= ivc_num_getting_sw_grant_all_or_ssa;         
+      
+        credit_out_all        <= ivc_num_getting_sw_grant;         
     end
 end
 
@@ -350,7 +302,7 @@ generate
         )
         the_credit_counter
         (
-            .non_ss_ovc_allocated_all                (ovc_allocated_all),
+            .vsa_ovc_allocated_all                   (vsa_ovc_allocated_all),
             .flit_is_tail_all                        (flit_is_tail_all),
             .assigned_ovc_num_all                    (assigned_ovc_num_all),
             .spec_ovc_num_all                        (spec_ovc_num_all),
@@ -360,7 +312,7 @@ generate
             .credit_in_all                           (credit_in_all),
             .nonspec_first_arbiter_granted_ivc_all   (nonspec_first_arbiter_granted_ivc_all),
             .spec_first_arbiter_granted_ivc_all      (spec_first_arbiter_granted_ivc_all),
-            .ivc_num_getting_sw_grant                (ivc_num_getting_sw_grant_all_or_ssa ),
+            .ivc_num_getting_sw_grant                (ivc_num_getting_sw_grant ),
             .ovc_avalable_all                        (ovc_avalable_all),
             .assigned_ovc_not_full_all               (assigned_ovc_not_full_all),
             .port_pre_sel                            (port_pre_sel),//only valid for adaptive routing
@@ -381,7 +333,7 @@ generate
             )
             the_credit_counter
             (
-                .non_ss_ovc_allocated_all                   (ovc_allocated_all),
+                .vsa_ovc_allocated_all                      (vsa_ovc_allocated_all),
                 .flit_is_tail_all                           (flit_is_tail_all),
                 .assigned_ovc_num_all                       (assigned_ovc_num_all),
                 .ovc_is_assigned_all                        (ovc_is_assigned_all),
@@ -389,7 +341,7 @@ generate
                 .nonspec_granted_dest_port_all              (nonspec_granted_dest_port_all),
                 .credit_in_all                              (credit_in_all),
                 .nonspec_first_arbiter_granted_ivc_all      (nonspec_first_arbiter_granted_ivc_all),
-                .ivc_num_getting_sw_grant                   (ivc_num_getting_sw_grant_all_or_ssa ),
+                .ivc_num_getting_sw_grant                   (ivc_num_getting_sw_grant ),
                 .ovc_avalable_all                           (ovc_avalable_all),
                 .assigned_ovc_not_full_all                  (assigned_ovc_not_full_all),
                 .port_pre_sel                               (port_pre_sel),//only valid for adaptive routing
@@ -403,6 +355,8 @@ generate
                 .clk                                        (clk),
                 .crossbar_flit_out_wr_all					(crossbar_flit_out_wr_all),
                 .any_ovc_granted_in_outport_all ( any_ovc_granted_in_outport_all),  
+                .vsa_ovc_released_all (vsa_ovc_released_all),
+                .vsa_credit_decreased_all(vsa_credit_decreased_all),
                 .oport_info (oport_info),
                 .ovc_info(ovc_info)
             );
@@ -450,7 +404,7 @@ endgenerate
    (
         .ovc_avalable_all(ovc_avalable_all),
         .ivc_request_all(ivc_request_all),
-        .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant_all_or_ssa ),
+        .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant ),
         .congestion_out_all(congestion_out_all),
         .clk(clk),
         .reset(reset)
@@ -465,7 +419,7 @@ endgenerate
     (
         .current_r_addr (current_r_addr),    
         .neighbors_r_addr(neighbors_r_addr),
-        .ivc_num_getting_sw_grant (ivc_num_getting_sw_grant_all_or_ssa ),
+        .ivc_num_getting_sw_grant (ivc_num_getting_sw_grant ),
         .any_ivc_sw_request_granted_all (any_ivc_sw_request_granted_all),    
         .flit_in_all (flit_in_all),
         .flit_in_wr_all (flit_in_wr_all),
@@ -483,8 +437,7 @@ endgenerate
         .port_pre_sel(port_pre_sel),
         .swap_port_presel(swap_port_presel),
        // .lk_destination_encoded_all (lk_destination_encoded_all),
-        .nonspec_first_arbiter_granted_ivc_all(nonspec_first_arbiter_granted_ivc_all),
-        .ssa_ivc_num_getting_sw_grant_all (ssa_ivc_num_getting_sw_grant_all),
+        .nonspec_first_arbiter_granted_ivc_all(nonspec_first_arbiter_granted_ivc_all),       
         .destport_clear_all (destport_clear_all),
         .vc_weight_is_consumed_all (vc_weight_is_consumed_all),
         .iport_weight_is_consumed_all (iport_weight_is_consumed_all),
@@ -494,6 +447,8 @@ endgenerate
         .refresh_w_counter(refresh_w_counter),
         .ivc_info(ivc_info),
         .sbp_ctrl_in(sbp_ctrl_in),
+        .vsa_ctrl_in(vsa_ctrl_in),
+        .ssa_ctrl_in(ssa_ctrl),
         .reset (reset),
         .clk (clk)
     );               

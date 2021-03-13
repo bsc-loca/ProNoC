@@ -117,6 +117,7 @@ module router_top
 		);                
 
 	generate 
+		
 		if(SBP_EN) begin :sbp
 		
 		
@@ -177,7 +178,8 @@ module router_top
 							.ovc_locally_requested     (ovc_locally_requested[SS_PORT] ),
 							.ss_sbp_chanel_new		   (sbp_chanel_new[SS_PORT]),
 							.ss_port_link_reg_flit_wr  (r2_chan_out[SS_PORT].flit_wr), 
-									
+							
+							.sbp_single_flit_pck_o       (sbp_ctrl[i].single_flit_pck),
 							.sbp_destport_o				 (sbp_ctrl[i].destport     ),	
 							.sbp_lk_destport_o			 (sbp_ctrl[i].lk_destport  ),	
 							.sbp_hdr_flit_req_o          (sbp_ctrl[i].hdr_flit_req ),

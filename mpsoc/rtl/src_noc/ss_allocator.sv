@@ -21,31 +21,21 @@
 **
 **
 **	Description: 
-**	static straight allocator : The incomming packet targetting outputport located in same direction 
-** 	will be forwarded with one clock cycle latency if the following contions met in current clock cycle:
+**	static straight allocator : The incoming packet targeting output port located in same direction 
+** 	will be forwarded with one clock cycle latency if the following conditions met in current clock cycle:
 **	1) If no ivc is granted in the input port 
 **	2) The ss output port is not granted for any other input port 
-**	3) Packet destionation port match with ss port
+**	3) Packet destination port match with ss port
 **	4) The requested output VC is available in ss port 
-**	   The ss ports for each input potrt must be diffrent with the rest
+**	   The ss ports for each input potrt must be different with the rest
 **	   This result in one clock cycle latency                
 ***************************************/
 `timescale  1ns/1ps
 
-module  ss_allocator#(
-    parameter TOPOLOGY = "MESH",
-    parameter V = 4,
-    parameter P = 5,
-    parameter ROUTE_TYPE="DETERMINISTIC",
-    parameter Fpay = 32,
-    parameter SWA_ARBITER_TYPE= "RRA",// "RRA", "WRRA",
-    parameter WEIGHTw = 4, // WRRA weight width
-    parameter EAw = 3,
-    parameter DSTPw=P-1,
-    parameter C = 4,    //  number of flit class 
-    parameter DEBUG_EN =   1,
-    parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000,
-    parameter BYTE_EN=0
+module  ss_allocator
+import pronoc_pkg::*;
+#(
+    parameter P = 5   
    )
    (
         flit_in_wr_all,
@@ -69,11 +59,13 @@ module  ss_allocator#(
         ivc_reset_all,
         single_flit_pck_all,
         decreased_credit_in_ss_ovc_all,
-        ssa_flit_wr_all
+        ssa_flit_wr_all,
+        ssa_ctrl_o
    );
 
 
     localparam  PV          =   V   *   P,
+    			VV			=   V * V,
                 PVV         =   PV  *   V,
                 PVDSTPw= PV * DSTPw,
                 Fw          =   2+V+Fpay,//flit width
@@ -119,6 +111,7 @@ module  ss_allocator#(
     output   [PV-1      :   0] decreased_credit_in_ss_ovc_all;
     output  reg [P-1       :   0] ssa_flit_wr_all;
   
+    output ssa_ctrl_t   ssa_ctrl_o [P-1 : 0]; 
 
     wire [PV-1   :   0] any_ovc_granted_in_ss_port;
     wire [PV-1   :   0] ovc_avalable_in_ss_port;
@@ -134,30 +127,9 @@ module  ss_allocator#(
     generate
     for (i=0; i<PV; i=i+1) begin : vc_loop
     
-        localparam  C_PORT = i/V;
-        localparam  SS_PORT_MESH = (C_PORT== EAST)? WEST:
-                                 (C_PORT== WEST)? EAST:
-                                 (C_PORT== SOUTH)? NORTH:
-                                 (C_PORT== NORTH)? SOUTH:
-                                 DISABLED;
-
-        localparam  SS_PORT_LINE = (C_PORT== FORWARD)? BACKWARD:
-                                 (C_PORT == BACKWARD)? FORWARD:
-                                 DISABLED;
-
-        localparam  SS_PORT_FATTREE_EVEN =  (C_PORT < (P/2) )? (P/2)+ C_PORT : C_PORT - (P/2);
-        localparam  SS_PORT_FATTREE_ODD  =  (C_PORT == (P-1)/2)?   DISABLED:
-                                            (C_PORT < ((P+1)/2) )? ((P+1)/2)+ C_PORT : C_PORT - ((P+1)/2);
-        
-        localparam  SS_PORT_FATTREE = (P[0]==1'b0) ? SS_PORT_FATTREE_EVEN : SS_PORT_FATTREE_ODD;
-        
-         /* verilator lint_off WIDTH */ 
-        localparam  SS_PORT      =   (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") ? SS_PORT_MESH:
-                                     (TOPOLOGY ==  "RING" || TOPOLOGY ==  "LINE") ? SS_PORT_LINE:
-                                     (TOPOLOGY == "FATTREE" ) ? SS_PORT_FATTREE :
-                                     DISABLED;
-         /* verilator lint_on WIDTH */ 
-	       
+        localparam  C_PORT  = i/V;
+        localparam  SS_PORT = strieght_port (P,C_PORT);
+           
         if (SS_PORT == DISABLED)begin : no_prefrable
        
        
@@ -228,14 +200,14 @@ module  ss_allocator#(
                 ,.clk(clk)
                 //synopsys  translate_on
                 //synthesis translate_on 
-	   
+       
             );           
                
         end//ssa
     end// vc_loop
     
     
-    for(i=0;i<P;i=i+1)begin: port_lp                   
+    for(i=0;i<P;i=i+1)begin: P_                  
 `ifdef SYNC_RESET_MODE 
         always @ (posedge clk )begin 
 `else 
@@ -247,7 +219,25 @@ module  ss_allocator#(
                     ssa_flit_wr_all[i]<= |ivc_num_getting_sw_grantin_SS_all[(i+1)*V-1    :   i*V];                
             end //reset
         end// always
-    end// port_lp
+   
+    
+       
+            assign ssa_ctrl_o[i].ovc_is_allocated =ovc_allocated_all [(i+1)*V-1  : i*V];
+            assign ssa_ctrl_o[i].ovc_is_released = ovc_released_all  [(i+1)*V-1  : i*V];      
+            assign ssa_ctrl_o[i].ivc_num_getting_sw_grant = ivc_num_getting_sw_grant_all[(i+1)*V-1  : i*V]; 
+            assign ssa_ctrl_o[i].ivc_num_getting_ovc_grant= ivc_num_getting_ovc_grant_all[(i+1)*V-1  : i*V];
+            assign ssa_ctrl_o[i].ivc_reset= ivc_reset_all[(i+1)*V-1  : i*V];
+            assign ssa_ctrl_o[i].buff_space_decreased = decreased_credit_in_ss_ovc_all[(i+1)*V-1  : i*V];
+            assign ssa_ctrl_o[i].single_flit_pck = single_flit_pck_all [(i+1)*V-1  : i*V];
+            assign ssa_ctrl_o[i].ssa_flit_wr = ssa_flit_wr_all[i] ;
+            assign ssa_ctrl_o[i].ivc_granted_ovc_num = granted_ovc_num_all[(i+1)*VV-1  : i*VV];
+            
+          
+            
+    
+    	end// port_lp
+    
+    
     
     
     endgenerate
@@ -303,7 +293,7 @@ module ssa_per_vc #(
         ,clk
 //synopsys  translate_on
 //synthesis translate_on 
-	      
+          
         
    );             
         
@@ -315,7 +305,7 @@ module ssa_per_vc #(
 
     /* verilator lint_off WIDTH */ 
     localparam SSA_EN = ((TOPOLOGY== "MESH" || TOPOLOGY == "TORUS") && (ROUTE_TYPE == "FULL_ADAPTIVE") && (SS_PORT==2 || SS_PORT == 4) && ((1<<V_LOCAL &  ~ESCAP_VC_MASK ) != {V{1'b0}})) ? 1'b0 :1'b1;
-	/* verilator lint_on WIDTH */ 	
+    /* verilator lint_on WIDTH */   
       
                
 
@@ -369,30 +359,30 @@ module ssa_per_vc #(
     wire   condition_1_2_valid;   
    
     extract_header_flit_info #(
-       	.SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-       	.WEIGHTw(WEIGHTw),
-       	.V(V),
-       	.EAw(EAw),
-       	.DSTPw(DSTPw),
-       	.C(C),
-       	.Fpay(Fpay),
-       	.BYTE_EN(BYTE_EN)
+        .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
+        .WEIGHTw(WEIGHTw),
+        .V(V),
+        .EAw(EAw),
+        .DSTPw(DSTPw),
+        .C(C),
+        .Fpay(Fpay),
+        .BYTE_EN(BYTE_EN)
        )
        extractor
        (
-       	.flit_in(flit_in),
-       	.flit_in_wr(flit_in_wr),
-       	.class_o(),
-       	.destport_o(destport_in_encoded),
-       	.src_e_addr_o( ),
+        .flit_in(flit_in),
+        .flit_in_wr(flit_in_wr),
+        .class_o(),
+        .destport_o(destport_in_encoded),
+        .src_e_addr_o( ),
         .dest_e_addr_o( ),
-       	.vc_num_o(vc_num_in),
-       	.hdr_flit_wr_o( ),
-       	.hdr_flg_o(hdr_flg),
-       	.tail_flg_o(tail_flg),
-       	.weight_o( ),
-       	.be_o( ),
-       	.data_o( )
+        .vc_num_o(vc_num_in),
+        .hdr_flit_wr_o( ),
+        .hdr_flg_o(hdr_flg),
+        .tail_flg_o(tail_flg),
+        .weight_o( ),
+        .be_o( ),
+        .data_o( )
    );
    
     
@@ -405,23 +395,23 @@ assign condition_1_2_valid = ~(any_ovc_granted_in_ss_port  | any_ivc_sw_request_
 wire ss_port_hdr_flit, ss_port_nonhdr_flit;
 
 ssa_check_destport #(
-	.TOPOLOGY(TOPOLOGY),
-	.ROUTE_TYPE(ROUTE_TYPE),
-	.SW_LOC(SW_LOC),
-	.P(P),
-	.DEBUG_EN(DEBUG_EN),
-	.DSTPw(DSTPw),
-	.SS_PORT(SS_PORT)
+    .TOPOLOGY(TOPOLOGY),
+    .ROUTE_TYPE(ROUTE_TYPE),
+    .SW_LOC(SW_LOC),
+    .P(P),
+    .DEBUG_EN(DEBUG_EN),
+    .DSTPw(DSTPw),
+    .SS_PORT(SS_PORT)
 )
  check_destport
-(	
-	.destport_encoded(destport_encoded),
-	.destport_in_encoded(destport_in_encoded),
-	.ss_port_hdr_flit(ss_port_hdr_flit),
-	.ss_port_nonhdr_flit(ss_port_nonhdr_flit)
+(   
+    .destport_encoded(destport_encoded),
+    .destport_in_encoded(destport_in_encoded),
+    .ss_port_hdr_flit(ss_port_hdr_flit),
+    .ss_port_nonhdr_flit(ss_port_nonhdr_flit)
 //synthesis translate_off
 //synopsys  translate_off
-	,.clk(clk),
+    ,.clk(clk),
     .ivc_num_getting_sw_grant(ivc_num_getting_sw_grant),
     .hdr_flg(hdr_flg)
 //synopsys  translate_on  
@@ -444,9 +434,9 @@ wire ssa_permited_by_iport;
 
 generate
 if (SSA_EN) begin : enable
-	assign ssa_permited_by_iport = ss_ovc_ready & (~ivc_request) & condition_1_2_valid;  
+    assign ssa_permited_by_iport = ss_ovc_ready & (~ivc_request) & condition_1_2_valid;  
 end else begin : disabled
-	assign ssa_permited_by_iport = 1'b0;
+    assign ssa_permited_by_iport = 1'b0;
 end
 
 endgenerate
@@ -518,15 +508,15 @@ module ssa_check_destport #(
     /* verilator lint_on WIDTH */
        
        fattree_ssa_check_destport #(
-       	.DSTPw(DSTPw),
-       	.SS_PORT(SS_PORT)
+        .DSTPw(DSTPw),
+        .SS_PORT(SS_PORT)
        )
        check_destport
        (
-       	.destport_encoded(destport_encoded),
-       	.destport_in_encoded(destport_in_encoded),
-       	.ss_port_hdr_flit(ss_port_hdr_flit),
-       	.ss_port_nonhdr_flit(ss_port_nonhdr_flit)
+        .destport_encoded(destport_encoded),
+        .destport_in_encoded(destport_in_encoded),
+        .ss_port_hdr_flit(ss_port_hdr_flit),
+        .ss_port_nonhdr_flit(ss_port_nonhdr_flit)
        );
      /* verilator lint_off WIDTH */
     end else if (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") begin : mesh
@@ -604,31 +594,29 @@ module add_ss_port #(
     if(TOPOLOGY == "FATTREE") begin : fat
     /* verilator lint_on WIDTH */
         fattree_add_ss_port #(
-        	.SW_LOC(SW_LOC),
-        	.P(P)
+            .SW_LOC(SW_LOC),
+            .P(P)
         )
         add_ssp
         (
-        	.destport_in(destport_in),
-        	.destport_out(destport_out)
+            .destport_in(destport_in),
+            .destport_out(destport_out)
         );
     
  
     end else begin:mesh
     
         mesh_torus_add_ss_port #(
-        	.SW_LOC(SW_LOC),
-        	.P(P)
+            .SW_LOC(SW_LOC),
+            .P(P)
         )
         add_ssp
         (
-        	.destport_in(destport_in),
-        	.destport_out(destport_out)
+            .destport_in(destport_in),
+            .destport_out(destport_out)
         );
       
      end
     endgenerate
 endmodule
-
-
 

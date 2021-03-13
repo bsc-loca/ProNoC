@@ -184,7 +184,7 @@ module  hnf_tx_dat #(
 
 
 always @(posedge clk) begin
-    if((VERBOSITY & MONITORE_FLIT_INJECT_FILEDS) > 0)begin 
+    if((VERBOSITY & MONITORE_FLIT_OPCODE) > 0)begin 
         if(chi_noc_txdatflitv) begin 
         $display("%t: hnf ( %d ) txn ( %d ) send dat flit: qos ( %d ), tgtid ( %d ), srcid ( %d ), homenid ( %d ), opcode ( %d ), resperr ( %d ), resp ( %d ), fwd_datapull ( %d )",
         $time,src_id, txnid, qos, tgtid, srcid, homenid ,opcode, resperr, resp, fwd_datapull);

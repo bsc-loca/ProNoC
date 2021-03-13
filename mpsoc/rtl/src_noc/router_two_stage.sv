@@ -74,8 +74,11 @@ module router_two_stage
 	input   sbp_ctrl_t   sbp_ctrl_in [P-1 : 0];
 	
 	
+	vsa_ctrl_t   vsa_ctrl    [P-1 : 0];   
+	
 	localparam
 		PV = V * P,
+		VV = V*V,
 		PVV = PV * V,    
 		P_1 = P-1,
 		PP_1 = P_1 * P,
@@ -125,14 +128,16 @@ module router_two_stage
 	wire  [P-1 : 0] granted_dst_is_from_a_single_flit_pck;
 	// to vc/sw allocator
 	wire  [PVP_1-1 :  0] dest_port_all;
-	wire  [PV-1 :  0] ovc_is_assigned_all;
-	wire  [PV-1 :  0] ivc_request_all;
-	wire  [PV-1 :  0] assigned_ovc_not_full_all;
-	wire  [PVV-1 :  0] masked_ovc_request_all;
+	wire  [PV-1 : 0] ovc_is_assigned_all;
+	wire  [PV-1 : 0] ivc_request_all;
+	wire  [PV-1 : 0] assigned_ovc_not_full_all;
+	wire  [PVV-1: 0] masked_ovc_request_all;
 	wire  [PV-1 : 0] pck_is_single_flit_all; 
-	wire  [PV-1 :  0] vc_weight_is_consumed_all;
-	wire  [P-1 :  0]iport_weight_is_consumed_all;       
-        
+	wire  [PV-1 : 0] vc_weight_is_consumed_all;
+	wire  [P-1  : 0] iport_weight_is_consumed_all;       
+    wire  [PV-1 : 0] vsa_ovc_released_all;  
+    wire  [PV-1 : 0] vsa_credit_decreased_all;
+    
 	// to/from the crossbar
 	wire  [PFw-1 : 0] iport_flit_out_all;
 	wire  [P-1 : 0] ssa_flit_wr_all;
@@ -141,6 +146,8 @@ module router_two_stage
 	wire  [P-1   :  0]  crossbar_flit_out_wr_all;
 	wire  [PFw-1 :  0]  link_flit_out_all;
 	wire  [P-1   :  0]  link_flit_out_wr_all;
+	wire  [PV-1  :  0] flit_is_tail_all;
+
     
 	//to weight control
 	wire [WP-1 : 0] iport_weight_all;
@@ -169,6 +176,13 @@ module router_two_stage
 			assign  iport_info[i].any_ivc_get_swa_grant=	any_ivc_sw_request_granted_all[i]; 
 			assign  iport_info[i].ivc_req = ivc_request_all [(i+1)*V-1:  i*V]; 
 			
+			assign  vsa_ctrl[i].ovc_is_allocated = ovc_allocated_all [(i+1)*V-1:  i*V];
+			assign  vsa_ctrl[i].ovc_is_released  = vsa_ovc_released_all[(i+1)*V-1:  i*V];
+			assign  vsa_ctrl[i].ivc_num_getting_sw_grant = ivc_num_getting_sw_grant [(i+1)*V-1:  i*V];
+			assign  vsa_ctrl[i].ivc_num_getting_ovc_grant=ivc_num_getting_ovc_grant [(i+1)*V-1:  i*V];
+			assign  vsa_ctrl[i].ivc_reset=flit_is_tail_all[(i+1)*V-1:  i*V] & ivc_num_getting_sw_grant[(i+1)*V-1:  i*V];
+			assign  vsa_ctrl[i].buff_space_decreased =  vsa_credit_decreased_all[(i+1)*V-1:  i*V]; 
+			assign  vsa_ctrl[i].ivc_granted_ovc_num = granted_ovc_num_all[(i+1)*VV-1:  i*VV];
 			
 			add_sw_loc_one_hot #(
 					.P(P),
@@ -200,9 +214,8 @@ module router_two_stage
 			.masked_ovc_request_all(masked_ovc_request_all),
 			.pck_is_single_flit_all(pck_is_single_flit_all),
 			.granted_dst_is_from_a_single_flit_pck(granted_dst_is_from_a_single_flit_pck),
-			.ovc_allocated_all(ovc_allocated_all), 
+			.vsa_ovc_allocated_all(ovc_allocated_all), 
 			.granted_ovc_num_all(granted_ovc_num_all), 
-			.ivc_num_getting_sw_grant(ivc_num_getting_sw_grant), 
 			.ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant), 
 			.spec_ovc_num_all(spec_ovc_num_all), 
 			.nonspec_first_arbiter_granted_ivc_all(nonspec_first_arbiter_granted_ivc_all), 
@@ -232,7 +245,11 @@ module router_two_stage
 			.ovc_info(ovc_info),
 			.oport_info(oport_info),
 			.sbp_ctrl_in(sbp_ctrl_in),
-			.crossbar_flit_out_wr_all(crossbar_flit_out_wr_all)
+			.vsa_ctrl_in(vsa_ctrl),
+			.flit_is_tail_all(flit_is_tail_all),			
+			.crossbar_flit_out_wr_all(crossbar_flit_out_wr_all),
+			.vsa_ovc_released_all(vsa_ovc_released_all),
+			.vsa_credit_decreased_all(vsa_credit_decreased_all)
 		);
 
 
@@ -245,7 +262,7 @@ module router_two_stage
 			.DEBUG_EN(DEBUG_EN),
 			.MIN_PCK_SIZE(MIN_PCK_SIZE)
 		)
-		the_combined_vc_sw_alloc
+		vsa
 		(
 			.dest_port_all(dest_port_all), 
 			.masked_ovc_request_all(masked_ovc_request_all),
@@ -273,7 +290,7 @@ module router_two_stage
 			.reset(reset)
 		);
         
-	
+		
 	
 	
    

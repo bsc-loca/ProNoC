@@ -796,7 +796,8 @@ sub run_synthetic_simulation {
 			my $out="$out_path/modelsim/work$i";
 			rmtree("$out");
 			mkpath("$out",1,01777);
-			gen_noc_localparam_v_file($simulate,"$out");
+						
+			gen_noc_localparam_v_file($simulate,"$out",$sample);
 			my $param="
 // simulation parameter setting
 // injected packet class percentage

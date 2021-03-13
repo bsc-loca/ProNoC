@@ -48,9 +48,44 @@ localparam
  	/* verilator lint_on WIDTH */
  	BE_LSB =  MSB_W + 1,            BE_MSB = BE_LSB+ BEw-1,
  	MSB_BE = (BYTE_EN==1)?   BE_MSB  : MSB_W;
-	
+
+ /******************
+ *   vsa : Virtual channel & Switch allocator 
+ *   local two-stage router allocator
+ *****************/
+ 	typedef struct packed {
+ 		logic [V-1 : 0] ovc_is_allocated;
+ 		logic [V-1 : 0] ovc_is_released; 		
+ 		logic [V-1 : 0] ivc_num_getting_sw_grant; 
+ 		logic [V-1 : 0] ivc_num_getting_ovc_grant;
+ 		logic [V-1 : 0] ivc_reset;
+ 		logic [V-1 : 0] buff_space_decreased;
+ 		logic [V*V-1: 0] ivc_granted_ovc_num;
+ 	} vsa_ctrl_t;	
+ 	localparam  VSA_CTRL_w = $bits(vsa_ctrl_t);
+ 	
 /*********************
-*    sbp 
+* 	ssa : static straight allocator:
+* 	      enable single cycle latency for flits goes to the same direction
+**********************/ 	
+ 	
+ 	typedef struct packed {
+ 		logic [V-1 : 0] ovc_is_allocated;
+ 		logic [V-1 : 0] ovc_is_released; 		
+ 		logic [V-1 : 0] ivc_num_getting_sw_grant; 
+ 		logic [V-1 : 0] ivc_num_getting_ovc_grant;
+ 		logic [V-1 : 0] ivc_reset;
+ 		logic [V-1 : 0] buff_space_decreased;
+ 		logic [V-1 : 0] single_flit_pck;
+ 		bit      		ssa_flit_wr;
+ 		logic [V*V-1: 0] ivc_granted_ovc_num;
+ 	} ssa_ctrl_t;	
+ 	localparam  SSA_CTRL_w = $bits(ssa_ctrl_t);
+ 	
+ 	
+/*********************
+*    sbp : straight bypass allocator:
+*    enable multihub bypassing for flits goes to the same direction
 *********************/
 	typedef struct packed {
 		logic [EAw-1 : 0] dest_e_addr;
@@ -74,6 +109,7 @@ localparam
 		logic   [V-1 : 0] ivc_num_getting_ovc_grant;
 		logic   [V-1 : 0] ivc_reset;
 		logic   [V-1 : 0] mask_available_ovc;
+		logic   [V-1 : 0] single_flit_pck;
 		logic   [V*V-1: 0] ivc_granted_ovc_num;
 	} sbp_ctrl_t;	
 	localparam  SBP_CTRL_w = $bits(sbp_ctrl_t);
@@ -119,6 +155,7 @@ localparam
 		logic [V-1   : 0] assigned_ovc_num;	
 		logic [Vw-1  : 0] assigned_ovc_bin;
 		logic [MAX_P-1   : 0] destport_one_hot;
+		logic [DSTPw-1 : 0]  dest_port_encoded;
 		logic ivc_req; // input vc is not empty
 		logic flit_is_tail;
 		logic assigned_ovc_not_full;

@@ -53,7 +53,7 @@ module input_ports
 			port_pre_sel,
 			swap_port_presel,
 			nonspec_first_arbiter_granted_ivc_all,
-			ssa_ivc_num_getting_sw_grant_all,
+			
 			destport_clear_all,
 			vc_weight_is_consumed_all,
 			iport_weight_is_consumed_all,
@@ -62,6 +62,8 @@ module input_ports
 			granted_dest_port_all,
 			refresh_w_counter,
 			ivc_info,
+			vsa_ctrl_in,
+			ssa_ctrl_in,
 			sbp_ctrl_in,
 			reset,
 			clk
@@ -89,25 +91,25 @@ module input_ports
 	input   reset,clk;
 	input   [RAw-1 : 0] current_r_addr;
 	input   [PRAw-1:  0]  neighbors_r_addr;
-	input   [PV-1 : 0] ivc_num_getting_sw_grant;
+	output  [PV-1 : 0] ivc_num_getting_sw_grant;
 	input   [P-1 : 0] any_ivc_sw_request_granted_all;
 	input   [PFw-1 : 0] flit_in_all;
 	input   [P-1 : 0] flit_in_wr_all;
-	input   [PV-1 : 0] reset_ivc_all;
+	output  [PV-1 : 0] reset_ivc_all;
 	output  [PV-1 : 0] flit_is_tail_all;
 	output  [PV-1 : 0] ivc_request_all;
 	output  [PVDSTPw-1 : 0] dest_port_encoded_all;
 	output  [PVP_1-1 : 0] dest_port_all;
 	output  [PVV-1 : 0] candidate_ovcs_all;
 	output  [PFw-1 : 0] flit_out_all;
-	input   [PVV-1 : 0] assigned_ovc_num_all;
+	output  [PVV-1 : 0] assigned_ovc_num_all;
 	input   [PV-1  : 0] assigned_ovc_not_full_all;
-	input   [PV-1  : 0] ovc_is_assigned_all;
+	output  [PV-1  : 0] ovc_is_assigned_all;
 	input   [PV-1 : 0] sel;
 	input   [PPSw-1 : 0] port_pre_sel;
 	input   [PV-1  : 0]  swap_port_presel;
 	input   [PV-1 : 0] nonspec_first_arbiter_granted_ivc_all;
-	input   [PV-1 : 0] ssa_ivc_num_getting_sw_grant_all;
+	
 	input   [PVDSTPw-1 : 0] destport_clear_all;
 	output  [WP-1 : 0] iport_weight_all;
 	output  [PV-1 : 0] vc_weight_is_consumed_all;
@@ -115,7 +117,11 @@ module input_ports
 	input   [PP_1-1 : 0] granted_dest_port_all;
 	output  [WPP-1 : 0] oports_weight_all;
 	output  ivc_info_t ivc_info [P-1 : 0][V-1 : 0]; 
+	input   vsa_ctrl_t  vsa_ctrl_in [P-1: 0];
+	input   ssa_ctrl_t  ssa_ctrl_in [P-1: 0];
 	input   sbp_ctrl_t  sbp_ctrl_in [P-1 : 0];
+	
+	
 	input refresh_w_counter;
     
 
@@ -153,7 +159,7 @@ module input_ports
 					.nonspec_first_arbiter_granted_ivc(nonspec_first_arbiter_granted_ivc_all[(i+1)*V-1 : i*V]),
 					.reset(reset),
 					.clk(clk),
-					.ssa_ivc_num_getting_sw_grant(ssa_ivc_num_getting_sw_grant_all[(i+1)*V-1 : i*V]),
+					
 					.destport_clear(destport_clear_all[(i+1)*DSTPw*V-1 : i*DSTPw*V]),
 					.iport_weight(iport_weight_all[(i+1)*W-1 : i*W]),
 					.oports_weight(oports_weight_all[(i+1)*WP-1 : i*WP]),
@@ -162,7 +168,9 @@ module input_ports
 					.refresh_w_counter(refresh_w_counter),
 					.granted_dest_port(granted_dest_port_all[(i+1)*P_1-1 : i*P_1]),
 					.ivc_info(ivc_info[i]),
-					.sbp_ctrl_in(sbp_ctrl_in [i])
+					.vsa_ctrl_in(vsa_ctrl_in [i]),
+					.sbp_ctrl_in(sbp_ctrl_in [i]),
+					.ssa_ctrl_in(ssa_ctrl_in [i])
 				);
     
 		end//for      
@@ -206,7 +214,7 @@ module input_queue_per_port
 			clk,
 			nonspec_first_arbiter_granted_ivc,
 			destport_clear,
-			ssa_ivc_num_getting_sw_grant,
+			
 			iport_weight,
 			oports_weight,  
 			vc_weight_is_consumed,
@@ -214,7 +222,9 @@ module input_queue_per_port
 			refresh_w_counter,
 			granted_dest_port,
 			ivc_info,
-			sbp_ctrl_in    
+			sbp_ctrl_in,
+			vsa_ctrl_in,
+			ssa_ctrl_in
 		);
 
  
@@ -254,23 +264,23 @@ module input_queue_per_port
 	input reset, clk;
 	input   [RAw-1 : 0] current_r_addr;
 	input   [PRAw-1:  0]  neighbors_r_addr;
-	input   [V-1 : 0] ivc_num_getting_sw_grant;
+	output  [V-1 : 0] ivc_num_getting_sw_grant;
 	input                      any_ivc_sw_request_granted;
 	input   [Fw-1 : 0] flit_in;
 	input                       flit_in_wr;
-	input   [V-1 : 0] reset_ivc;
+	output  [V-1 : 0] reset_ivc;
 	output  [V-1 : 0] flit_is_tail;
 	output  [V-1 : 0] ivc_request;
 	output  [VDSTPw-1 : 0] dest_port_encoded;
 	output  [VP_1-1 : 0] dest_port;
 	output  [VV-1 : 0] candidate_ovcs;
 	output  [Fw-1 : 0] flit_out;
-	input   [VV-1 : 0] assigned_ovc_num;
+	output  [VV-1 : 0] assigned_ovc_num;
 	input   [V-1  : 0] assigned_ovc_not_full;
-	input   [V-1  : 0] ovc_is_assigned;
+	output  [V-1  : 0] ovc_is_assigned;
 	input   [V-1 : 0] sel;    
 	input   [V-1 : 0] nonspec_first_arbiter_granted_ivc;
-	input   [V-1 : 0] ssa_ivc_num_getting_sw_grant;    
+	   
 	input   [(DSTPw*V)-1 : 0] destport_clear;            
 	output reg [WEIGHTw-1 : 0] iport_weight;
 	output  [V-1 : 0] vc_weight_is_consumed;
@@ -282,7 +292,9 @@ module input_queue_per_port
 	input   [V-1  : 0]  swap_port_presel;
   
 	output  ivc_info_t ivc_info [V-1 : 0]; 
-	input   sbp_ctrl_t  sbp_ctrl_in;        
+	input   sbp_ctrl_t  sbp_ctrl_in;
+	input   vsa_ctrl_t  vsa_ctrl_in;
+	input   ssa_ctrl_t  ssa_ctrl_in;
     
 	wire [Cw-1 : 0] class_in;
 	wire [DSTPw-1 : 0] destport_in,destport_in_encoded;
@@ -300,11 +312,21 @@ module input_queue_per_port
 	wire hdr_flg_in,tail_flg_in;  
 	wire [V-1 : 0] ivc_not_empty;
 	wire [Cw-1 : 0] class_out [V-1 : 0];
-	wire  [VELw-1 : 0] endp_localp_num;
+	wire [VELw-1 : 0] endp_localp_num;
 	wire [ELw-1 : 0] endp_l_in;           
 	wire [V-1 : 0] sbp_hdr_en;
     
     
+	reg [V-1  : 0] ovc_is_assigned_next;
+	reg [VV-1 : 0] assigned_ovc_num_next;
+	
+	
+	assign reset_ivc  = sbp_ctrl_in.ivc_reset | ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset;
+	assign ivc_num_getting_sw_grant = ssa_ctrl_in.ivc_num_getting_sw_grant | vsa_ctrl_in.ivc_num_getting_sw_grant;
+	
+	
+	
+	
 	//extract header flit info
 	extract_header_flit_info #(
 			.SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
@@ -440,9 +462,105 @@ module input_queue_per_port
 
 		wire odd_column = current_r_addr[0]; 
 		wire [P-1 : 0] destport_one_hot [V-1 :0];
-      
-		for (i=0;i<V; i=i+1) begin: V_loop
-    	
+		
+		
+		register #(.W(V)) reg1(
+				.in(ovc_is_assigned_next), 
+				.reset  (reset ), 
+				.clk    (clk   ), 
+				.out    (ovc_is_assigned   ));
+		
+		register #(.W(VV)) reg2(
+				.in(assigned_ovc_num_next), 
+				.reset  (reset ), 
+				.clk    (clk   ), 
+				.out    (assigned_ovc_num  ));
+		
+		wire [V-1 : 0] mux_out[V-1 : 0];
+		
+		//synthesis translate_off
+		//synopsys  translate_off
+		if(DEBUG_EN)begin :dbg
+		always @ (posedge clk) begin			
+			if((|vsa_ctrl_in.ivc_num_getting_sw_grant)  & (|ssa_ctrl_in.ivc_num_getting_sw_grant))begin 
+				$display("%t: ERROR: VSA/SSA conflict: an input port cannot get both sva and ssa grant at the same time %m",$time);
+				$finish;
+			end			
+		end//always
+		end
+		//synopsys  translate_on
+		//synthesis translate_on
+		
+		
+		for (i=0;i<V; i=i+1) begin: V_
+    		
+		
+	
+			always @ (*) begin
+				//default values
+				ovc_is_assigned_next[i] = ovc_is_assigned[i];
+		
+				if( vsa_ctrl_in.ivc_reset[i] |
+				    ssa_ctrl_in.ivc_reset[i] |
+				    sbp_ctrl_in.ivc_reset[i] 
+				)  	ovc_is_assigned_next[i] = 1'b0;
+				
+				else if( vsa_ctrl_in.ivc_num_getting_ovc_grant[i] |
+						 (ssa_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  ssa_ctrl_in.single_flit_pck[i])|
+						 (sbp_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  sbp_ctrl_in.single_flit_pck[i])
+				)       ovc_is_assigned_next[i] = 1'b1;		
+			end//always
+			
+			one_hot_mux #(
+				.IN_WIDTH   (3*V), 
+				.SEL_WIDTH  (3 ), 
+				.OUT_WIDTH  (V )
+			) hot_mux (
+				.mux_in     ({vsa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V], 
+						      ssa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V],
+						      sbp_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V]}), 
+				.sel        ({vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],sbp_ctrl_in.ivc_num_getting_ovc_grant[i]}  ),
+				.mux_out    (mux_out[i]   ) 
+			);
+			
+			
+			
+			always @(*) begin
+				assigned_ovc_num_next[(i+1)*V-1 : i*V] = assigned_ovc_num[(i+1)*V-1 : i*V] ;
+				if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i] ) begin 
+					assigned_ovc_num_next[(i+1)*V-1 : i*V] = mux_out[i];
+				end
+			end
+			
+			//synthesis translate_off
+			//synopsys  translate_off
+			if(DEBUG_EN)begin :dbg
+				always @ (posedge clk) begin
+					if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i]  )begin 
+						if( ~ $onehot (mux_out[i])) begin 
+								$display("%t: ERROR: granted OVC num is not onehot coded %b: %m",$time,mux_out[i]);
+								$finish;
+						end
+					end
+					
+					if( ~ $onehot0( {vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],sbp_ctrl_in.ivc_num_getting_ovc_grant[i]})) begin 
+							$display("%t: ERROR: ivc num %u getting more than one ovc grant from VSA,SSA,SBP: %m",$time,i);
+							$finish;
+					end		
+					
+					
+				end//always
+					
+				
+				
+				
+				
+			end
+			//synopsys  translate_on
+			//synthesis translate_on
+			
+			
+			
 			one_hot_to_bin #(.ONE_HOT_WIDTH(V),.BIN_WIDTH(Vw)) conv (
 					.one_hot_code(assigned_ovc_num[(i+1)*V-1 : i*V]), 
 					.bin_code(ivc_info[i].assigned_ovc_bin)
@@ -456,6 +574,7 @@ module input_queue_per_port
 			assign ivc_info[i].candidate_ovc=   candidate_ovcs [(i+1)*V-1 : i*V];
 			assign ivc_info[i].ovc_is_assigned = ovc_is_assigned[i];
 			assign ivc_info[i].assigned_ovc_num= assigned_ovc_num[(i+1)*V-1 : i*V];
+			assign ivc_info[i].dest_port_encoded=dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw];
 			//assign ivc_info[i].getting_swa_first_arbiter_grant=nonspec_first_arbiter_granted_ivc[i];
 			//assign ivc_info[i].getting_swa_grant=ivc_num_getting_sw_grant[i];
 			if(P==MAX_P) begin :max_
@@ -463,9 +582,18 @@ module input_queue_per_port
 			end else begin : no_max
 				assign ivc_info[i].destport_one_hot= {{(MAX_P-P){1'b0}},destport_one_hot[i]};
 			end	
-    	
-    	
-    	
+			//synthesis translate_off
+			//check ivc info
+			//assigned ovc must be onehot coded
+			//assert property (@(posedge clk) $onehot0(ivc_info[i].assigned_ovc_num));
+			always @ (posedge clk )begin 
+				if(~ $onehot0(ivc_info[i].assigned_ovc_num)) begin 
+					$display ("ERROR: assigned OVC is not ont-hot coded %d,%m",ivc_info[i].assigned_ovc_num);
+					$finish;
+				end
+			end	
+			//synthesis translate_on
+			
 			class_ovc_table #(
 					.CVw(CVw),
 					.CLASS_SETTING(CLASS_SETTING),   
@@ -762,7 +890,7 @@ module input_queue_per_port
 					.vc_not_empty(ivc_not_empty),
 					.reset(reset),
 					.clk(clk),
-					.ssa_rd(ssa_ivc_num_getting_sw_grant)
+					.ssa_rd(ssa_ctrl_in.ivc_num_getting_sw_grant)
 				);
    
 		end else begin :spec//not nonspec comb
@@ -786,7 +914,7 @@ module input_queue_per_port
 					.vc_not_empty(ivc_not_empty),
 					.reset(reset),
 					.clk(clk),
-					.ssa_rd(ssa_ivc_num_getting_sw_grant)
+					.ssa_rd(ssa_ctrl_in.ivc_num_getting_sw_grant)
 				);  
   
 		end       
@@ -863,16 +991,14 @@ module input_queue_per_port
 			assign    ivc_request = ivc_not_empty;    
 
    
-			//synthesis translate_off
-			//synopsys  translate_off
-			generate 
-				if(DEBUG_EN) begin :dbg
-
-				
-
+		//synthesis translate_off
+		//synopsys  translate_off
+		generate 
+		if(DEBUG_EN) begin :dbg
+			
 			/* verilator lint_off WIDTH */  
 			if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")) begin : mesh_based
-				/* verilator lint_on WIDTH */  
+			/* verilator lint_on WIDTH */  
 
 				debug_mesh_tori_route_ckeck #(
 						.T1(T1),
@@ -998,7 +1124,7 @@ module input_queue_per_port
 			.dest_port_out(dest_port_out),
 			.swap_port_presel(swap_port_presel),
 			.port_pre_sel(port_pre_sel),
-			.odd_column(odd_column)// only needed for od even routing
+			.odd_column(odd_column)// only needed for odd even routing
 		);
     
 	end else begin :custom

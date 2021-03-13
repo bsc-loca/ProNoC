@@ -358,7 +358,7 @@ module  top_chi_noc #
  //synthesis translate_off 
  //synopsys  translate_off
    
-  if(VERBOSITY & MONITORE_FLIT_INJECT_FILEDS)begin 
+  if(VERBOSITY & MONITORE_FLIT_OPCODE)begin 
         monitor_dat_flit #(
             .AGENT_NAME("rnf"),
         	//.src_id(src_id),

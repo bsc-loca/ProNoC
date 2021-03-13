@@ -2034,7 +2034,7 @@ module  hnf_rxrsp_rxdat #(
     
    
     generate
-    if((VERBOSITY & MONITORE_FLIT_INJECT_FILEDS) > 0)begin 
+    if((VERBOSITY & MONITORE_FLIT_OPCODE) > 0)begin 
         monitor_rsp_flit #(
         	// .src_id(src_id),
         	.TYPE("RX"),

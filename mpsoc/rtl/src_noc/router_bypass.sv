@@ -457,6 +457,7 @@ module sbp_validity_check_per_ivc
 	ss_port_link_reg_flit_wr    ,
 	ss_ovc_crossbar_wr          ,
 	//output                          
+	sbp_single_flit_pck_o		,
 	sbp_ivc_sbp_en_o            ,
 	sbp_credit_o             	,
 	sbp_buff_space_decreased_o  ,
@@ -487,7 +488,9 @@ input goes_straight		   ,
 	ss_ovc_crossbar_wr,
 	ss_port_link_reg_flit_wr    ;
 //output                          
-output sbp_ivc_sbp_en_o         ,
+output 
+	sbp_single_flit_pck_o			,
+	sbp_ivc_sbp_en_o         ,
 	sbp_credit_o             	,
 	sbp_buff_space_decreased_o  ,
 	sbp_ss_ovc_is_allocated_o   ,
@@ -520,8 +523,9 @@ wire condition2 = ~(ivc_request | ss_port_link_reg_flit_wr| ss_ovc_crossbar_wr);
 wire conditions_met = condition1 & condition2;
 assign sbp_ivc_sbp_en_o = conditions_met & sbp_req_valid;
 	
-	
-	
+
+
+assign sbp_single_flit_pck_o     = (MIN_PCK_SIZE==1)?  flit_tail_flag_i & flit_hdr_flag_i : 1'b0; 	
 assign sbp_buff_space_decreased_o =  sbp_ivc_sbp_en_o & flit_wr_i ;
 assign sbp_ss_ovc_is_allocated_o  =  sbp_buff_space_decreased_o & !ovc_is_assigned  & flit_hdr_flag_i;  
 assign sbp_ss_ovc_is_released_o   =  sbp_buff_space_decreased_o & flit_tail_flag_i;
@@ -569,7 +573,8 @@ module sbp_allocator_per_iport
 	sbp_ivc_reset_o,
 	sbp_mask_available_ss_ovc_o,
 	sbp_hdr_flit_req_o,
-	sbp_ivc_granted_ovc_num_o
+	sbp_ivc_granted_ovc_num_o,
+	sbp_single_flit_pck_o
 );
 	//general
  	input clk, reset;
@@ -596,7 +601,8 @@ module sbp_allocator_per_iport
 		sbp_ss_ovc_is_released_o,      
 		sbp_mask_available_ss_ovc_o,
 		sbp_ivc_num_getting_ovc_grant_o,
-		sbp_ivc_reset_o;	
+		sbp_ivc_reset_o,
+		sbp_single_flit_pck_o;	
 	output [V*V-1 : 0] sbp_ivc_granted_ovc_num_o;
 	
 	wire  [DSTPw-1  :   0]  destport,lkdestport;
@@ -702,7 +708,8 @@ module sbp_allocator_per_iport
 			.ss_ovc_avalable_in_ss_port  (ss_ovc_info[i].avalable), 
 			.ss_port_link_reg_flit_wr    (ss_port_link_reg_flit_wr     ), 
 			.ss_ovc_crossbar_wr          (ss_ovc_crossbar_wr[i]),	
-				
+			
+			.sbp_single_flit_pck_o       (sbp_single_flit_pck_o[i]  ),
 			.sbp_ivc_sbp_en_o      		 (sbp_ivc_sbp_en_o[i]	),
 			.sbp_credit_o             	 (sbp_credit_o[i]   	), 
 			.sbp_buff_space_decreased_o  (sbp_buff_space_decreased_o[i]), 

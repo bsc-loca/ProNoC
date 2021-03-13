@@ -314,13 +314,20 @@ sub  gen_soc_param {
 
 
 sub gen_noc_param_v{
-	my $mpsoc=shift;
+	my ($mpsoc,$sample)=@_;
 	my $param_v="\n\n//NoC parameters\n";
 	my $pass_param="";
 	my @params=$mpsoc->object_get_attribute_order('noc_param');
 	my $custom_topology = $mpsoc->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
+	my %noc_info;
+	if(defined $sample ){
+		my $ref=$mpsoc->object_get_attribute($sample,"noc_info"); 
+		%noc_info= %$ref;		
+	}
+	
 	foreach my $p (@params){
-		my $val=$mpsoc->object_get_attribute('noc_param',$p);
+		
+		my $val= (defined $sample) ? $noc_info{$p} :$mpsoc->object_get_attribute('noc_param',$p);
 		next if($p eq "CUSTOM_TOPOLOGY_NAME");
 		$val=$custom_topology if($p eq "TOPOLOGY" && $val eq "\"CUSTOM\"");
 		$param_v= $param_v."\tlocalparam $p=$val;\n";
