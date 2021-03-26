@@ -1304,7 +1304,7 @@ sub generate_mpsoc{
         remove_file_and_folders($old_file_ref,$target_dir);
     }    
     unlink "$hw_dir/file_list";
-     
+    
     #generate/copy all tiles HDL/SW codes
     gen_all_tiles($mpsoc,$info, $hw_dir,$sw_dir );
     
@@ -1316,15 +1316,15 @@ sub generate_mpsoc{
 	#file_ref-sim_ref
 	my @n= get_diff_array($file_ref,$sim_ref);
 	$file_ref=\@n;
-  	  		
+  	
 	copy_file_and_folders($file_ref,$project_dir,"$hw_dir/lib");
 	show_colored_info($info,$warnings,'green')     		if(defined $warnings);			
 	add_to_project_file_list($file_ref,"$hw_dir/lib/",$hw_dir);
-	
+		 	
 	copy_file_and_folders($sim_ref,$project_dir,"$hw_dir/../src_sim");
 	show_colored_info($info,$warnings2,'green')     if(defined $warnings2);			
 	add_to_project_file_list($sim_ref,"$hw_dir/../src_sim",$hw_dir);
-    		
+    	  	
 	
      
     #generate header file containig the tiles physical addresses
@@ -1358,7 +1358,7 @@ sub generate_mpsoc{
         
     # Write object file
     generate_mpsoc_lib_file($mpsoc,$info);
-            
+       
     # Write verilog file
     open(FILE,  ">$target_dir/src_verilog/$name.v") || die "Can not open: $!";
     print FILE $file_v;
@@ -1372,7 +1372,7 @@ sub generate_mpsoc{
     gen_noc_localparam_v_file($mpsoc,"$target_dir/src_verilog/lib/src_noc");
     
    
-    
+     
     
          
     
@@ -1402,11 +1402,11 @@ sub generate_mpsoc{
 	open(FILE,  ">$target_dir/perl_lib/$name.MPSOC") || die "Can not open: $!";
 	print FILE perl_file_header("$name.MPSOC");
 	print FILE Data::Dumper->Dump([\%$mpsoc],['mpsoc']);                 
-   
+    
     #regenerate linker var file
     create_linker_var_file($mpsoc);
       
-   
+   	  
     message_dialog("MPSoC \"$name\" has been created successfully at $target_dir/ " ) if($show_sucess_msg);
 	return 1;    
 }    
@@ -2085,14 +2085,15 @@ MEMORY
 			",$r0,$r1 - $r0, metric_conversion($r1 - $r0),$r2,$r3- $r2,metric_conversion($r3 - $r2));
 			
 		if(defined $mpsoc_name){			
-			save_file ("$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name/sw/tile$t/linkvar.ld",$file); 
+			save_file ("$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name/sw/tile$t/linkvar.ld",$file) if(-d "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name/sw/tile$t/"); 
 		}else{
 			my $soc_name=$self->object_get_attribute('soc_name');
 			my $p1="$ENV{'PRONOC_WORK'}/SOC/$soc_name/sw/";
 			mkpath("$p1",1,0755) unless (-d "$p1");		
 			save_file ("$p1/linkvar.ld",$file) 
 		}
-	}	
+	}
+	
 }
 
 

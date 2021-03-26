@@ -106,6 +106,7 @@ localparam
 		logic   [V-1 : 0] buff_space_decreased;
 		logic   [V-1 : 0] ovc_is_allocated;
 		logic   [V-1 : 0] ovc_is_released;
+		logic   [V-1 : 0] ovc_hdr_flit_req;
 		logic   [V-1 : 0] ivc_num_getting_ovc_grant;
 		logic   [V-1 : 0] ivc_reset;
 		logic   [V-1 : 0] mask_available_ovc;

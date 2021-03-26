@@ -491,27 +491,25 @@ module next_router_addr_selector_onehot #(
     output[RXw-1  :    0]  next_rx;
     output[RYw-1  :    0]  next_ry;  
     
-    one_hot_mux #(
-        .IN_WIDTH(PRXw),
-        .SEL_WIDTH(P),
-        .OUT_WIDTH(RXw)
+    onehot_mux_1D #(
+        .W(RXw),
+        .N(P)        
     )
     next_x_mux
     (
-        .mux_in(neighbors_rx),
-        .mux_out(next_rx),
+        .in(neighbors_rx),
+        .out(next_rx),
         .sel(destport_onehot)
     );
     
-    one_hot_mux #(
-        .IN_WIDTH(PRYw),
-        .SEL_WIDTH(P),
-        .OUT_WIDTH(RYw)
+    onehot_mux_1D #(
+        .W(RYw),
+        .N(P)        
     )
     next_y_mux
     (
-        .mux_in(neighbors_ry),
-        .mux_out(next_ry),
+        .in(neighbors_ry),
+        .out(next_ry),
         .sel(destport_onehot)
     );
         

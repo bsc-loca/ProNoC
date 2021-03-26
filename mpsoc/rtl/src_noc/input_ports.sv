@@ -86,6 +86,7 @@ module input_ports
 		WPP = WP * P,
 		PVDSTPw= PV * DSTPw,
 		PRAw= P * RAw;
+		
        
         
 	input   reset,clk;
@@ -252,7 +253,8 @@ module input_queue_per_port
 	/* verilator lint_off WIDTH */
 		OFFSET = (B%MIN_PCK_SIZE)? 1 :0,
 		NON_ATOM_PCKS =  (B>MIN_PCK_SIZE)?  (B/MIN_PCK_SIZE)+ OFFSET : 1,
-		MAX_PCK = (VC_REALLOCATION_TYPE== "ATOMIC")?  1 : NON_ATOM_PCKS;// min packet size is two hence the max packet number in buffer is (B/2)
+		MAX_PCK = (VC_REALLOCATION_TYPE== "ATOMIC")?  1 : NON_ATOM_PCKS,// min packet size is two hence the max packet number in buffer is (B/2)
+		IGNORE_SAME_LOC_RD_WR_WARNING = ((SSA_EN=="YES")| SBP_EN)? "YES" : "NO";
 	/* verilator lint_on WIDTH */            
 
 	localparam 
@@ -511,16 +513,15 @@ module input_queue_per_port
 				)       ovc_is_assigned_next[i] = 1'b1;		
 			end//always
 			
-			one_hot_mux #(
-				.IN_WIDTH   (3*V), 
-				.SEL_WIDTH  (3 ), 
-				.OUT_WIDTH  (V )
+			onehot_mux_1D #(
+				.N  (3), 
+				.W  (V)
 			) hot_mux (
-				.mux_in     ({vsa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V], 
+				.in     ({vsa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V], 
 						      ssa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V],
 						      sbp_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V]}), 
 				.sel        ({vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],sbp_ctrl_in.ivc_num_getting_ovc_grant[i]}  ),
-				.mux_out    (mux_out[i]   ) 
+				.out    (mux_out[i]   ) 
 			);
 			
 			
@@ -610,7 +611,7 @@ module input_queue_per_port
 			fwft_fifo #(
 					.DATA_WIDTH(1),
 					.MAX_DEPTH (B),
-					.IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
+					.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
 				)
 				tail_fifo
 				(
@@ -632,7 +633,7 @@ module input_queue_per_port
 				fwft_fifo #(
 						.DATA_WIDTH(EAw),
 						.MAX_DEPTH (MAX_PCK),
-						.IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
+						.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
 					)
 					dest_e_addr_fifo
 					(
@@ -659,7 +660,7 @@ module input_queue_per_port
 				fwft_fifo #(
 						.DATA_WIDTH(Cw),
 						.MAX_DEPTH (MAX_PCK),
-						.IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
+						.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
 					)
 					class_fifo
 					(
@@ -683,7 +684,7 @@ module input_queue_per_port
 			fwft_fifo #(
 					.DATA_WIDTH(DSTPw),
 					.MAX_DEPTH (MAX_PCK),
-					.IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
+					.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
 				)
 				lk_dest_fifo
 				(
@@ -707,7 +708,7 @@ module input_queue_per_port
 				fwft_fifo #(
 						.DATA_WIDTH(DSTPw),
 						.MAX_DEPTH (MAX_PCK),
-						.IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
+						.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
 					)
 					dest_fifo
 					(
@@ -728,7 +729,7 @@ module input_queue_per_port
 				fwft_fifo_with_output_clear #(
 						.DATA_WIDTH(DSTPw),
 						.MAX_DEPTH (MAX_PCK),
-						.IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
+						.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
 					)
 					dest_fifo
 					(
@@ -783,7 +784,7 @@ module input_queue_per_port
 				fwft_fifo #(
 						.DATA_WIDTH(ELw),
 						.MAX_DEPTH (MAX_PCK),
-						.IGNORE_SAME_LOC_RD_WR_WARNING(SSA_EN)
+						.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
 					)
 					local_dest_fifo
 					(
@@ -833,13 +834,12 @@ module input_queue_per_port
 			/* verilator lint_on WIDTH */
 			wire granted_flit_is_tail;
         
-			one_hot_mux #(
-					.IN_WIDTH(V),
-					.SEL_WIDTH(V)
-				)
-				one_hot_mux(
-					.mux_in(flit_is_tail),
-					.mux_out(granted_flit_is_tail),
+			onehot_mux_1D #( 
+					.W(1),
+					.N(V)
+				)onehot_mux(
+					.in(flit_is_tail),
+					.out(granted_flit_is_tail),
 					.sel(ivc_num_getting_sw_grant)
 				);
     
@@ -994,7 +994,7 @@ module input_queue_per_port
 		//synthesis translate_off
 		//synopsys  translate_off
 		generate 
-		if(DEBUG_EN) begin :dbg
+		if(DEBUG_EN) begin :debg
 			
 			/* verilator lint_off WIDTH */  
 			if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")) begin : mesh_based

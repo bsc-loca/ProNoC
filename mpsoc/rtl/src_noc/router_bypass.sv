@@ -36,33 +36,82 @@ module register #(parameter W=1)(
 				out<=in;
 			end
 		end
-		endmodule
+endmodule
+
+	
+module reduction_or #(
+	parameter W = 5,//out width
+	parameter N = 4 //array lenght 
+)(
+	in,
+	out	
+);
+    input  [W-1 : 0] in [N-1 : 0];
+    output reg [W-1 : 0] out;	
+	
+    // assign out = in.or(); //it is not synthesizable able by some compiler
+	always_comb begin
+		out = {W{1'b0}};
+		for (int i = 0; i < N; i++)
+			out |=   in[i];
+	end
 
 
-module onehot_mux #(
+endmodule
+
+module onehot_mux_2D #(
 		parameter W = 5,//out width
 		parameter N = 4 //sel width 
 		)(
-		input  [W-1 : 0] in [N-1 : 0],
-		input  [N-1 : 0] sel,
-		output [W-1 : 0] out	
+		in,
+		sel,
+		out	
 		);
 
-	logic  [W-1 : 0] mask [N-1 : 0];
-	logic  [W-1 : 0] in_masked [N-1 : 0];
-  
-	//first selector 
-	genvar i;
-	generate    // first_mask = {sel[0],sel[0],sel[0],....,sel[n],sel[n],sel[n]}
-		for(i=0; i<N; i=i+1) begin : mask_loop
-			assign in_masked[i] = (sel[i]) ?  in[i] :  {W{1'b0}};
-		end  	
-	endgenerate
-
-	assign out = 	in_masked.or;
+ 	input  [W-1 : 0] in [N-1 : 0];
+	input  [N-1 : 0] sel;
+	output reg [W-1 : 0] out;	
 
     
+	always_comb begin
+		out = {W{1'b0}};
+		for (int i = 0; i < N; i++)
+			out |= (sel[i]) ?  in[i] :  {W{1'b0}};
+	end
+	
+    
 endmodule
+	
+module onehot_mux_1D #(
+		parameter W = 5,//out width
+		parameter N = 4 //sel width 
+	)(
+		input  [W*N-1 : 0] in,
+		input  [N-1 : 0] sel,
+		output [W-1 : 0] out	
+	);
+
+wire  [W-1 : 0] in_array [N-1 : 0];
+
+genvar i;
+generate
+for (i=0;i<N;i++)begin 
+	assign in_array[i] = in[(i+1)*W-1 : i*W];
+end
+endgenerate
+	
+
+	onehot_mux_2D #(
+		.W    (W   ), 
+		.N    (N   )
+		) onehot_mux_2D (
+		.in   (in_array  ), 
+		.sel  (sel ), 
+		.out  (out ));
+	
+    
+endmodule	
+	
 
 
 
@@ -222,6 +271,10 @@ module sbp_forward_ivc_info
 	non_assigned_vc_req[1][0] destport_one_hot[3]--> | [3][0] [1]
 	non_assigned_vc_req[2][0] destport_one_hot[3]--> | [3][0] [2]
 	*/
+	
+	sbp_chanel_t sbp_chanel_next  [P-1 : 0];
+	
+	
 	genvar i,j,z;
 	generate 
 	for (i=0;i<P;i=i+1) begin : port_
@@ -242,12 +295,28 @@ module sbp_forward_ivc_info
 		
 		
 		
-		onehot_mux	#(.W(SBP_IVC_w),.N(V)) mux1 ( .in(sbp_ivc_info[i]), .sel(iport_info[i].swa_first_level_grant), .out(sbp_ivc_mux[i]));
+		onehot_mux_2D	#(.W(SBP_IVC_w),.N(V)) mux1 ( .in(sbp_ivc_info[i]), .sel(iport_info[i].swa_first_level_grant), .out(sbp_ivc_mux[i]));
 		//demux
 		for (j=0;j<P;j=j+1) begin : port_
 			assign sbp_ivc_info_all_port[j][i] = (iport_info[i].granted_oport_one_hot[j]==1'b1)? sbp_ivc_mux[i] : {SBP_IVC_w{1'b0}};	
 		end		
-		assign sbp_vc_info_o[i] = sbp_ivc_info_all_port[i].or;
+		
+		//assign sbp_vc_info_o[i] = sbp_ivc_info_all_port[i].or; not synthesizable
+		// assign sbp_vc_info_o[i] = sbp_ivc_info_all_port[i].[0] | sbp_ivc_info_all_port[i].[1] | sbp_ivc_info_all_port[i].[2]  ... | sbp_ivc_info_all_port[i].[p-1];
+		reduction_or #(
+			.W    (SBP_IVC_w   ), 
+			.N    (P   )
+		) _or (
+			.in   (sbp_ivc_info_all_port[i]  ), 
+			.out  (sbp_vc_info_o[i] )
+		);
+		/*
+		always_comb begin
+			sbp_vc_info_o[i] = {SBP_IVC_w{1'b0}};
+			for (int ii = 0; ii < P; ii++)
+				sbp_vc_info_o[i] |= sbp_ivc_info_all_port[i][ii];
+		end
+		*/
 		
 		
 		bin_to_one_hot #(
@@ -257,7 +326,27 @@ module sbp_forward_ivc_info
 			.bin_code       (sbp_vc_info_o[i].assigned_ovc_bin ), 
 			.one_hot_code   (assigned_ovc[i]  )
 		);
+				
 		
+		
+		assign sbp_chanel_next[i].dest_e_addr= sbp_vc_info_o[i].dest_e_addr;	
+		assign sbp_chanel_next[i].ovc= (sbp_vc_info_o[i].ovc_is_assigned)? assigned_ovc[i] : oport_info[i].non_sbp_ovc_is_allocated;
+		assign sbp_chanel_next[i].hdr_flit=~sbp_vc_info_o[i].ovc_is_assigned;
+		assign sbp_chanel_next[i].requests = (oport_info[i].any_ovc_granted)? {SBP_NUM{1'b1}}:{SBP_NUM{1'b0}} ;					
+		
+		if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
+			register #(
+				.W      ( SBP_CHANEL_w     )
+				) register (
+				.in     (sbp_chanel_next[i]   ), 
+				.reset  (reset ), 
+				.clk    (clk   ), 
+				.out    (sbp_chanel[i]   ));
+		
+		end else begin :no_link_reg
+				assign sbp_chanel[i] = sbp_chanel_next[i];		
+		end
+		/*
 		
 		`ifdef SYNC_RESET_MODE 
 			always @ (posedge clk )begin 
@@ -272,11 +361,13 @@ module sbp_forward_ivc_info
 					sbp_chanel[i].dest_e_addr<= sbp_vc_info_o[i].dest_e_addr;	
 					sbp_chanel[i].ovc<= (sbp_vc_info_o[i].ovc_is_assigned)? assigned_ovc[i] : oport_info[i].non_sbp_ovc_is_allocated;
 					sbp_chanel[i].hdr_flit<=~sbp_vc_info_o[i].ovc_is_assigned;
-					sbp_chanel[i].requests <= (oport_info[i].any_ovc_granted)? {SBP_NUM{1'b1}}:{SBP_NUM{1'b0}} ;
-					
+					sbp_chanel[i].requests <= (oport_info[i].any_ovc_granted)? {SBP_NUM{1'b1}}:{SBP_NUM{1'b0}} ;					
 				end
 			end		
 	
+		*/
+			
+			
 			
 	
 		
@@ -333,10 +424,14 @@ module sbp_bypass_chanels
 	for (i=0;i<P;i=i+1) begin: port	
 		assign ivc_forwardable[i] = ~iport_info[i].ivc_req;
 		
-	always @( posedge clk)begin
-	    outport_is_granted[i] <= oport_info[i].any_ovc_granted;
-	end	
-	
+		if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
+		always @( posedge clk)begin
+		    outport_is_granted[i] <= oport_info[i].any_ovc_granted;
+		end	
+		end else begin 
+			assign outport_is_granted[i] = oport_info[i].any_ovc_granted;
+		end
+		
 		localparam SS_PORT = strieght_port (P,i); // the straight port number
 		if(SS_PORT != DISABLE) begin: ssp 
 			
@@ -463,7 +558,10 @@ module sbp_validity_check_per_ivc
 	sbp_buff_space_decreased_o  ,
 	sbp_ss_ovc_is_allocated_o   ,
 	sbp_ss_ovc_is_released_o    ,
+	sbp_ss_ovc_hdr_flit_req_o   ,
 	sbp_mask_available_ss_ovc_o ,
+	sbp_ivc_num_getting_ovc_grant_o,
+	sbp_ivc_reset_o,			
 	sbp_ivc_granted_ovc_num_o
 );
 	
@@ -495,13 +593,16 @@ output
 	sbp_buff_space_decreased_o  ,
 	sbp_ss_ovc_is_allocated_o   ,
 	sbp_ss_ovc_is_released_o    ,
+	sbp_ss_ovc_hdr_flit_req_o   ,
+	sbp_ivc_num_getting_ovc_grant_o,
+	sbp_ivc_reset_o,			
 	sbp_mask_available_ss_ovc_o;	
 		
 output reg [V-1 : 0] sbp_ivc_granted_ovc_num_o;
 
 always @(*) begin 
 	sbp_ivc_granted_ovc_num_o={V{1'b0}};
-	sbp_ivc_granted_ovc_num_o[IVC_NUM]=sbp_ss_ovc_is_allocated_o;
+	sbp_ivc_granted_ovc_num_o[IVC_NUM]=sbp_ivc_num_getting_ovc_grant_o;
 end	
 		
 		
@@ -513,13 +614,25 @@ logic sbp_hdr_flit_req;
 	
 register #(.W(1)) req1 (.in(sbp_req_valid_next), .reset(reset), .clk(clk), .out(sbp_req_valid));
 register #(.W(1)) req2 (.in(sbp_hdr_flit_req_next), .reset(reset), .clk(clk), .out(sbp_hdr_flit_req));
-	
+register  #(.W(1)) req3 (.in((SSA_EN == "YES")? sbp_ivc_i: 1'b0), .reset(reset), .clk(clk), .out(sbp_ss_ovc_hdr_flit_req_o));
+
+
 	
 // condition1: new sbp vc allocation condition
 wire hdr_flit_condition = ~ovc_locally_requested &	ss_ovc_avalable_in_ss_port;	
 wire nonhdr_flit_condition =  assigned_to_ss_ovc & assigned_ovc_not_full;
 wire condition1 = (ovc_is_assigned)? nonhdr_flit_condition : hdr_flit_condition;
-wire condition2 = ~(ivc_request | ss_port_link_reg_flit_wr| ss_ovc_crossbar_wr);
+wire condition2;
+generate
+
+	
+if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
+	assign condition2= ~(ivc_request | ss_port_link_reg_flit_wr| ss_ovc_crossbar_wr);
+end else begin : no_link_reg
+	assign condition2= ~(ivc_request | ss_port_link_reg_flit_wr); // ss_port_link_reg_flit_wr are identical with ss_ovc_crossbar_wr when there is no link reg
+end
+	
+endgenerate	
 wire conditions_met = condition1 & condition2;
 assign sbp_ivc_sbp_en_o = conditions_met & sbp_req_valid;
 	
@@ -527,8 +640,13 @@ assign sbp_ivc_sbp_en_o = conditions_met & sbp_req_valid;
 
 assign sbp_single_flit_pck_o     = (MIN_PCK_SIZE==1)?  flit_tail_flag_i & flit_hdr_flag_i : 1'b0; 	
 assign sbp_buff_space_decreased_o =  sbp_ivc_sbp_en_o & flit_wr_i ;
-assign sbp_ss_ovc_is_allocated_o  =  sbp_buff_space_decreased_o & !ovc_is_assigned  & flit_hdr_flag_i;  
-assign sbp_ss_ovc_is_released_o   =  sbp_buff_space_decreased_o & flit_tail_flag_i;
+assign sbp_ivc_num_getting_ovc_grant_o  =  sbp_buff_space_decreased_o & !ovc_is_assigned  & flit_hdr_flag_i;
+assign sbp_ivc_reset_o   =  sbp_buff_space_decreased_o & flit_tail_flag_i;
+assign sbp_ss_ovc_is_released_o = sbp_ivc_reset_o & ~sbp_single_flit_pck_o;
+assign sbp_ss_ovc_is_allocated_o = sbp_ivc_num_getting_ovc_grant_o & ~sbp_single_flit_pck_o;
+
+
+
 	
 //mask the available SS OVC for local requests allocation if the following conditions met
 assign sbp_mask_available_ss_ovc_o = sbp_hdr_flit_req & ~ovc_locally_requested & condition2;
@@ -569,11 +687,12 @@ module sbp_allocator_per_iport
 	sbp_buff_space_decreased_o, 
 	sbp_ss_ovc_is_allocated_o,     
 	sbp_ss_ovc_is_released_o, 
+	sbp_ss_ovc_hdr_flit_req_o,
 	sbp_ivc_num_getting_ovc_grant_o,
 	sbp_ivc_reset_o,
 	sbp_mask_available_ss_ovc_o,
 	sbp_hdr_flit_req_o,
-	sbp_ivc_granted_ovc_num_o,
+	sbp_ivc_granted_ovc_num_o,	
 	sbp_single_flit_pck_o
 );
 	//general
@@ -598,18 +717,18 @@ module sbp_allocator_per_iport
 		sbp_credit_o,             	
 		sbp_buff_space_decreased_o, 
 		sbp_ss_ovc_is_allocated_o,     
-		sbp_ss_ovc_is_released_o,      
+		sbp_ss_ovc_is_released_o, 
+		sbp_ss_ovc_hdr_flit_req_o,
 		sbp_mask_available_ss_ovc_o,
 		sbp_ivc_num_getting_ovc_grant_o,
-		sbp_ivc_reset_o,
+		sbp_ivc_reset_o,		
 		sbp_single_flit_pck_o;	
 	output [V*V-1 : 0] sbp_ivc_granted_ovc_num_o;
 	
 	wire  [DSTPw-1  :   0]  destport,lkdestport;
 	wire  goes_straight;
 	
-	assign sbp_ivc_num_getting_ovc_grant_o = sbp_ss_ovc_is_allocated_o;
-	assign sbp_ivc_reset_o = sbp_ss_ovc_is_released_o;
+	
 	
 	/* verilator lint_off WIDTH */ 
 	localparam  LOCATED_IN_NI=  
@@ -679,7 +798,8 @@ module sbp_allocator_per_iport
 	
 		
 	
-	
+	//assign sbp_ivc_num_getting_ovc_grant_o = sbp_ss_ovc_is_allocated_o;
+	//assign sbp_ivc_reset_o = sbp_ss_ovc_is_released_o;
 	
 	genvar i,j;
 	generate
@@ -715,8 +835,11 @@ module sbp_allocator_per_iport
 			.sbp_buff_space_decreased_o  (sbp_buff_space_decreased_o[i]), 
 			.sbp_ss_ovc_is_allocated_o   (sbp_ss_ovc_is_allocated_o[i] ), 
 			.sbp_ss_ovc_is_released_o    (sbp_ss_ovc_is_released_o[i]  ),
+			.sbp_ss_ovc_hdr_flit_req_o   (sbp_ss_ovc_hdr_flit_req_o[i]),
 			.sbp_mask_available_ss_ovc_o (sbp_mask_available_ss_ovc_o[i] ),
-			.sbp_ivc_granted_ovc_num_o   (sbp_ivc_granted_ovc_num_o[(i+1)*V-1 : i*V]   )
+			.sbp_ivc_num_getting_ovc_grant_o(sbp_ivc_num_getting_ovc_grant_o[i]),
+			.sbp_ivc_reset_o			 (sbp_ivc_reset_o[i]),			
+			.sbp_ivc_granted_ovc_num_o   (sbp_ivc_granted_ovc_num_o[(i+1)*V-1 : i*V])
 		);	
 				
 		
@@ -985,7 +1108,7 @@ module sbp_sig_gen_per_iport
 	
 		
 	
-	onehot_mux	#(.W(SBP_IVC_w),.N(V)) mux1 ( .in(ivc_info_sub), .sel(first_arbiter_granted_ivc), .out(ivc_info_mux));
+	onehot_mux_2D	#(.W(SBP_IVC_w),.N(V)) mux1 ( .in(ivc_info_sub), .sel(first_arbiter_granted_ivc), .out(ivc_info_mux));
 	
 	
 	

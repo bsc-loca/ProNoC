@@ -126,27 +126,27 @@ generate
     
     
     
-    one_hot_mux #(
-        .IN_WIDTH       (BwV),
-        .SEL_WIDTH      (V) 
+    onehot_mux_1D #(
+        .W       (Bw),
+        .N      (V) 
     )
     wr_ptr_mux
     (
-        .mux_in         (wr_ptr_array),
-        .mux_out            (vc_wr_addr),
-        .sel                (vc_num_wr)
+        .in        (wr_ptr_array),
+        .out       (vc_wr_addr),
+        .sel       (vc_num_wr)
     );
     
         
     
-    one_hot_mux #(
-        .IN_WIDTH       (BwV),
-        .SEL_WIDTH      (V) 
+    onehot_mux_1D #(
+        .W       (Bw),
+        .N      (V) 
     )
     rd_ptr_mux
     (
-        .mux_in         (rd_ptr_array),
-        .mux_out            (vc_rd_addr),
+        .in         (rd_ptr_array),
+        .out            (vc_rd_addr),
         .sel                (vc_num_rd)
     );
     
@@ -354,27 +354,25 @@ generate
     end//FOR
     
     
-    one_hot_mux #(
-        .IN_WIDTH(BVwV),
-        .SEL_WIDTH(V),
-        .OUT_WIDTH(BVw)
+    onehot_mux_1D #(
+        .W(BVw),
+        .N(V)        
     )
     wr_mux
     (
-        .mux_in(wr_addr_all),
-        .mux_out(wr_addr),
+        .in(wr_addr_all),
+        .out(wr_addr),
         .sel(vc_num_wr)
     );
     
-    one_hot_mux #(
-        .IN_WIDTH(BVwV),
-        .SEL_WIDTH(V),
-        .OUT_WIDTH(BVw)
+    onehot_mux_1D #(
+        .W(BVw),
+        .N(V)        
     )
     rd_mux
     (
-        .mux_in(rd_addr_all),
-        .mux_out(rd_addr),
+        .in(rd_addr_all),
+        .out(rd_addr),
         .sel(vc_num_rd)
     );
     

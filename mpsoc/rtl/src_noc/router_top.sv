@@ -191,6 +191,7 @@ module router_top
 							.sbp_ivc_granted_ovc_num_o   (sbp_ctrl[i].ivc_granted_ovc_num),
 							.sbp_ss_ovc_is_allocated_o	 (sbp_ctrl[SS_PORT].ovc_is_allocated),     
 							.sbp_ss_ovc_is_released_o	 (sbp_ctrl[SS_PORT].ovc_is_released),      
+							.sbp_ss_ovc_hdr_flit_req_o   (sbp_ctrl[SS_PORT].ovc_hdr_flit_req),
 							.sbp_mask_available_ss_ovc_o (sbp_ctrl[SS_PORT].mask_available_ovc)	
 					
 						);

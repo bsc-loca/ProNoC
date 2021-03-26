@@ -98,15 +98,14 @@ module  wrra #(
     
     // one hot mux
     
-    one_hot_mux #(
-        .IN_WIDTH(ARBITER_WIDTH),
-        .SEL_WIDTH(ARBITER_WIDTH),
-        .OUT_WIDTH(1)
+    onehot_mux_1D #(
+        .W(1),
+        .N(ARBITER_WIDTH)        
     )
     mux
     (
-        .mux_in(weight_counter_is_reset),
-        .mux_out(winner_weight_consumed),
+        .in(weight_counter_is_reset),
+        .out(winner_weight_consumed),
         .sel(grant)
     );
     
@@ -164,15 +163,14 @@ module  rra_priority_lock #(
     
     // one hot mux
     
-    one_hot_mux #(
-        .IN_WIDTH(ARBITER_WIDTH),
-        .SEL_WIDTH(ARBITER_WIDTH),
-        .OUT_WIDTH(1)
+    onehot_mux_1D #(
+        .W(1),
+        .N(ARBITER_WIDTH)        
     )
     mux
     (
-        .mux_in(pr_en_array_i),
-        .mux_out(winner_weight_consumed),
+        .in(pr_en_array_i),
+        .out(winner_weight_consumed),
         .sel(grant)
     );
     

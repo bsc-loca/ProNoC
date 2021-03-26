@@ -38,7 +38,9 @@ import pronoc_pkg::*;
     parameter P = 5   
    )
    (
-        flit_in_wr_all,
+   		clk,
+   		reset,  
+   		flit_in_wr_all,
         flit_in_all,
         any_ovc_granted_in_outport_all ,
         any_ivc_sw_request_granted_all ,
@@ -47,19 +49,8 @@ import pronoc_pkg::*;
         ivc_request_all,
         dest_port_encoded_all,
         assigned_ovc_num_all,
-        ovc_is_assigned_all,      
-        
-        clk,
-        reset,
-        ovc_allocated_all,
-        ovc_released_all,
-        granted_ovc_num_all,
-        ivc_num_getting_sw_grant_all,
-        ivc_num_getting_ovc_grant_all,
-        ivc_reset_all,
-        single_flit_pck_all,
-        decreased_credit_in_ss_ovc_all,
-        ssa_flit_wr_all,
+        ovc_is_assigned_all,    
+            
         ssa_ctrl_o
    );
 
@@ -99,20 +90,20 @@ import pronoc_pkg::*;
     input   [PVV-1          :   0]  assigned_ovc_num_all;
     input   [PV-1           :   0]  ovc_is_assigned_all;
     input   reset,clk;
-    
+    output  ssa_ctrl_t   ssa_ctrl_o [P-1 : 0]; 
 
-    output   [PV-1      :   0] ovc_allocated_all;
-    output   [PV-1      :   0] ovc_released_all;
-    output   [PVV-1     :   0] granted_ovc_num_all;
-    output   [PV-1      :   0] ivc_num_getting_sw_grant_all;
-    output   [PV-1      :   0] ivc_num_getting_ovc_grant_all;
-    output   [PV-1      :   0] ivc_reset_all;
-    output   [PV-1      :   0] single_flit_pck_all;
-    output   [PV-1      :   0] decreased_credit_in_ss_ovc_all;
-    output  reg [P-1       :   0] ssa_flit_wr_all;
+
+    wire   [PV-1      :   0] ovc_allocated_all;
+    wire   [PV-1      :   0] ovc_released_all;
+    wire   [PVV-1     :   0] granted_ovc_num_all;
+    wire   [PV-1      :   0] ivc_num_getting_sw_grant_all;
+    wire   [PV-1      :   0] ivc_num_getting_ovc_grant_all;
+    wire   [PV-1      :   0] ivc_reset_all;
+    wire   [PV-1      :   0] single_flit_pck_all;
+    wire   [PV-1      :   0] decreased_credit_in_ss_ovc_all;
+    reg    [P-1       :   0] ssa_flit_wr_all;
   
-    output ssa_ctrl_t   ssa_ctrl_o [P-1 : 0]; 
-
+   
     wire [PV-1   :   0] any_ovc_granted_in_ss_port;
     wire [PV-1   :   0] ovc_avalable_in_ss_port;
     wire [PV-1   :   0] ovc_allocated_in_ss_port;
@@ -122,7 +113,7 @@ import pronoc_pkg::*;
 
 
 
- genvar i;
+	genvar i;
     // there is no ssa for local port in 5 and 3 port routers
     generate
     for (i=0; i<PV; i=i+1) begin : vc_loop

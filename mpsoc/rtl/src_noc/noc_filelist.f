@@ -10,7 +10,6 @@
 ./fattree_noc_top.sv
 ./fattree_route.v
 ./comb_nonspec.v
-./canonical_credit_count.v
 ./inout_ports.sv
 ./wrra.v
 ./input_ports.sv
@@ -27,7 +26,7 @@
 ./traffic_gen.v
 ./traffic_gen_top.sv
 ./congestion_analyzer.v
-./credit_count.sv
+./output_ports.sv
 ./routing.v
 ./router_two_stage.sv
 ./crossbar.v
@@ -37,7 +36,6 @@
 ./debug.v
 ./router_top.sv
 ./mesh_torus_noc_top.sv
-./non_local_allocator.sv
 ./star_noc.sv
 
 

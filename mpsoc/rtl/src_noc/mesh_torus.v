@@ -699,14 +699,14 @@ module  mesh_torus_adaptive_lk_dest_encoder #(
     wire [1 : 0]  ab,xy;
     wire sel_muxed;
 
-    one_hot_mux #(
-        .IN_WIDTH(V),
-        .SEL_WIDTH(V) 
+    onehot_mux_1D #(
+        .W(1),
+        .N(V) 
     )
     sel_mux
     (
-        .mux_in(sel),
-        .mux_out(sel_muxed),
+        .in(sel),
+        .out(sel_muxed),
         .sel(vc_num_delayed)
     );
     

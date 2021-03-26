@@ -418,7 +418,8 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 	set_tip($setting, "Setting");		
 		
 	$save-> signal_connect("clicked" => sub{ 
-			 my @imags=$graph->export_format();  
+			# my @imags=$graph->export_format();
+			 my @imags=('png');   
 			 save_graph_as ($self,\@imags,$graph_id);
 	});	
 	set_tip($save, "Save graph");
@@ -663,13 +664,15 @@ my @ginfo = (
 		
 
 		$minues -> signal_connect("clicked" => sub{ 
-			$self->object_add_attribute("${graph_id}_graph_scale",undef,$scale*1.05);
-			set_gui_status($self,"ref",1);	
+			$scale*=1.05;
+			$self->object_add_attribute("${graph_id}_graph_scale",undef,$scale);
+			set_gui_status($self,"ref",5);	
 		});
 		set_tip($minues, "Zoom out");	
 
 		$plus  -> signal_connect("clicked" => sub{ 
-			$self->object_add_attribute("${graph_id}_graph_scale",undef,$scale*0.95) if( $scale>0.5);
+			$scale*=0.95  if( $scale>0.5);
+			$self->object_add_attribute("${graph_id}_graph_scale",undef,$scale); 
 			set_gui_status($self,"ref",5);
 		});
 		set_tip($plus, "Zoom in");
@@ -680,17 +683,18 @@ my @ginfo = (
 		set_tip($setting, "Setting");			
 
 		$save-> signal_connect("clicked" => sub{ 
-			 my $G = $graph->{graph};
-			 my @imags=$G->export_format();  
+			# my $G = $graph->{graph};
+			# my @imags=$G->export_format(); 
+			my @imags=('png'); 
 			save_graph_as ($self,\@imags,$graph_id);
 		});	
 		set_tip($save, "Save graph");
 		
 		
 		
-		$table->attach_defaults ($align , 0, 9, 0, 25);
+		$table->attach_defaults ($align , 0, 9, 0, 24);
 		my $row=0;
-		$table->attach ($active_page, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+		$table->attach ($active_page, 0, 9, 24, 25,'shrink','shrink',2,2);# $row++;
 		$table->attach ($plus , 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 		$table->attach ($minues, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 		$table->attach ($setting, 9, 10, $row,  $row+1,'shrink','shrink',2,2); $row++;

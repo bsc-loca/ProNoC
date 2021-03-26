@@ -26,7 +26,6 @@
 **************************************************************/
 
 module crossbar #(
-    parameter SBP_EN=0,
     parameter TOPOLOGY = "MESH",
     parameter V    = 4,     // vc_num_per_port
     parameter P    = 5,     // router port num
@@ -121,14 +120,14 @@ module crossbar #(
         /* verilator lint_off WIDTH */
         if    (MUX_TYPE    ==    "ONE_HOT") begin : one_hot_gen
         /* verilator lint_on WIDTH */
-            one_hot_mux #(
-                .IN_WIDTH (P_1Fw),
-                .SEL_WIDTH (P_1)
+            onehot_mux_1D #(
+                .W (Fw),
+                .N (P_1)
             )
             cross_mux
             (
-                .mux_in (mux_in [i]),
-                .mux_out (flit_out_all[(i+1)*Fw-1 : i*Fw]),
+                .in (mux_in [i]),
+                .out (flit_out_all[(i+1)*Fw-1 : i*Fw]),
                 .sel (mux_sel[i])
     
             );

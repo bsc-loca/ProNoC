@@ -307,7 +307,7 @@ module router_two_stage
 		end//always
     
 		crossbar #(
-				.SBP_EN(SBP_EN),
+				
 				.TOPOLOGY(TOPOLOGY),
 				.V (V),     // vc_num_per_port
 				.P (P),     // router port num
@@ -327,8 +327,10 @@ module router_two_stage
      
 		//link reg 
 		generate 
-		if( ADD_PIPREG_AFTER_CROSSBAR == 1 || SBP_EN == 1) begin :link_reg
+		//if( ADD_PIPREG_AFTER_CROSSBAR == 1 || SBP_EN == 1) begin :link_reg
+		if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
             
+                
 			reg [PFw-1 : 0] flit_out_all_pipe;
 			reg [P-1 : 0] flit_out_wr_all_pipe;
             

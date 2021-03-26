@@ -360,14 +360,14 @@ module header_flit_update_lk_route_ovc #(
     
     assign hdr_flag = flit_in[Fw-1];
     
-    one_hot_mux #(
-        .IN_WIDTH(VDSTPw),
-        .SEL_WIDTH(V) 
+    onehot_mux_1D #(
+        .W(DSTPw),
+        .N(V) 
     )
     lkdest_mux
     (
-        .mux_in(lk_dest_all_in),
-        .mux_out(lk_mux_out),
+        .in(lk_dest_all_in),
+        .out(lk_mux_out),
         .sel(vc_num_delayed)
     );
 
@@ -396,14 +396,14 @@ module header_flit_update_lk_route_ovc #(
     end 
     endgenerate
 
-    one_hot_mux #(
-        .IN_WIDTH(VV),
-        .SEL_WIDTH(V) 
+   onehot_mux_1D #(
+        .W(V),
+        .N(V) 
     )
     ovc_num_mux
     (
-        .mux_in(assigned_ovc_num),
-        .mux_out(ovc_num),
+        .in(assigned_ovc_num),
+        .out(ovc_num),
         .sel(vc_num_delayed)
     );
        

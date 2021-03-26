@@ -231,14 +231,14 @@ module comb_nonspec_allocator #(
             
         
         // multiplex candidate OVC of first level switch allocatore winner    
-        one_hot_mux #(
-            .IN_WIDTH        (VV),
-            .SEL_WIDTH      (V)
+        onehot_mux_1D #(
+            .W (V),
+            .N (V)
         )
         multiplexer2
         (
-            .mux_in            (masked_candidate_ovc_per_port    [i]),
-            .mux_out            (candidate_ovc_local_num    [i]),
+            .in            (masked_candidate_ovc_per_port    [i]),
+            .out            (candidate_ovc_local_num    [i]),
             .sel                (first_arbiter_granted_ivc_per_port        [i])
 
         );
@@ -451,15 +451,15 @@ module  comb_nonspec_v2_allocator #(
             assign granted_dest_port_per_port[i]=granted_dest_port_all[(i+1)*P_1-1 : i*P_1];
             
             
-        one_hot_mux #(
-            .IN_WIDTH       (VV),
-            .SEL_WIDTH      (V)
+        onehot_mux_1D #(
+            .W  (V),
+            .N  (V)
         )
         multiplexer2
         (
-            .mux_in             (masked_non_assigned_request_per_port   [i]),
-            .mux_out            (candidate_ovc_local_num    [i]),
-            .sel                (first_arbiter_granted_ivc_per_port     [i])
+            .in          (masked_non_assigned_request_per_port   [i]),
+            .out         (candidate_ovc_local_num    [i]),
+            .sel         (first_arbiter_granted_ivc_per_port     [i])
 
         );
         
@@ -632,28 +632,28 @@ module nonspec_sw_alloc #(
         
   
         //destination port multiplexer
-         one_hot_mux #(
-            .IN_WIDTH       (VP_1),
-            .SEL_WIDTH      (V)
+        onehot_mux_1D #(
+            .W (P_1),
+            .N (V)
         )
         multiplexer
         (
-            .mux_in (dest_port_ivc  [i]),
-            .mux_out (dest_port      [i]),
+            .in (dest_port_ivc  [i]),
+            .out (dest_port      [i]),
             .sel(first_arbiter_grant[i])
     
         );
         if(MIN_PCK_SIZE == 1) begin :single_flit_supported             
             //single_flit req multiplexer
             assign pck_is_single_flit[i] = pck_is_single_flit_all [(i+1)*V-1 : i*V];
-            one_hot_mux #(
-                .IN_WIDTH       (V),
-                .SEL_WIDTH      (V)
+            onehot_mux_1D #(
+                .W (1),
+                .N (V)
             )
             multiplexer2
             (
-                .mux_in (pck_is_single_flit  [i]),
-                .mux_out (single_flit_pck_local_grant[i]),
+                .in (pck_is_single_flit  [i]),
+                .out (single_flit_pck_local_grant[i]),
                 .sel (first_arbiter_grant[i])
         
             );   
@@ -776,15 +776,14 @@ module swa_input_port_arbiter #(
     /* verilator lint_on WIDTH */
         
         // one hot mux    
-        one_hot_mux #(
-            .IN_WIDTH(ARBITER_WIDTH),
-            .SEL_WIDTH(ARBITER_WIDTH),
-            .OUT_WIDTH(1)
+        onehot_mux_1D #(
+            .W(1),
+            .N(ARBITER_WIDTH)            
         )
         mux
         (
-            .mux_in(vc_weight_is_consumed),
-            .mux_out(winner_weight_consumed),
+            .in(vc_weight_is_consumed),
+            .out(winner_weight_consumed),
             .sel(grant)
         );
     
@@ -884,14 +883,14 @@ module swa_output_port_arbiter #(
         // second level wrra priority is only changed if the granted request weight is consumed 
         wire pr_en;
         
-        one_hot_mux #(
-            .IN_WIDTH(ARBITER_WIDTH),
-            .SEL_WIDTH(ARBITER_WIDTH)
+        onehot_mux_1D #(
+            .W(1),
+            .N(ARBITER_WIDTH)
         )
         multiplexer
         (
-            .mux_in(weight_consumed),
-            .mux_out(pr_en),
+            .in(weight_consumed),
+            .out(pr_en),
             .sel(grant)
     
         );

@@ -518,13 +518,13 @@ generate
     /* verilator lint_on WIDTH */
         wire granted_flit_is_tail;
         
-        one_hot_mux #(
-        	.IN_WIDTH(V),
-        	.SEL_WIDTH(V)
+        onehot_mux_1D #(
+        	.W(1),
+        	.N(V)
         )
-        one_hot_mux(
-        	.mux_in(flit_is_tail),
-        	.mux_out(granted_flit_is_tail),
+        onehot_mux(
+        	.in(flit_is_tail),
+        	.out(granted_flit_is_tail),
         	.sel(ivc_num_getting_sw_grant)
         );
     

@@ -21,11 +21,11 @@
 **
 **
 **	Description: 
-**	Credit counter module for combined SW/VC allocator
+**	output_ports module: contain output VC (OVC) status registers and credit counters, 
 **
 **************************************************************/
 
-module credit_counter 
+module output_ports 
     import pronoc_pkg::*;
  #(
 
@@ -47,19 +47,19 @@ module credit_counter
     ovc_avalable_all,
     assigned_ovc_not_full_all,
     port_pre_sel,
-    congestion_in_all,
-    nla_ovc_released_all,
-    nla_ovc_allocated_all, 
-    ssa_ovc_allocated_all,
-    nla_decreased_credit_in_ss_ovc_all,
+    congestion_in_all,    
     granted_dst_is_from_a_single_flit_pck,
-    reset,clk,
+    reset,
+    clk,
     any_ovc_granted_in_outport_all, 
     vsa_credit_decreased_all,
     vsa_ovc_released_all,
+    crossbar_flit_out_wr_all,
     oport_info,
-    ovc_info,
-    crossbar_flit_out_wr_all
+    ovc_info,    
+    vsa_ctrl_in,
+    ssa_ctrl_in,
+    sbp_ctrl_in
 );
 
    
@@ -89,33 +89,34 @@ module credit_counter
     localparam [V-1     :   0] ADAPTIVE_VC_MASK = ~ ESCAP_VC_MASK;   
     localparam  CONG_ALw=   CONGw * P;   //  congestion width per router;             
                     
-    input  [PV-1       :    0]    vsa_ovc_allocated_all;
-    input  [PV-1       :    0]    flit_is_tail_all;
-    input  [PVV-1       :    0]    assigned_ovc_num_all;
-    input  [PV-1       :    0]    ovc_is_assigned_all;
-    input  [PVP_1-1    :    0]    dest_port_all;
-    input  [PP_1-1     :    0]    nonspec_granted_dest_port_all;
-    input  [PV-1       :    0]  credit_in_all;
-    input  [PV-1       :    0]    nonspec_first_arbiter_granted_ivc_all;
-    input  [PV-1       :    0]    ivc_num_getting_sw_grant;
-    output [PV-1       :    0]    ovc_avalable_all;
-    output [PV-1       :    0]    assigned_ovc_not_full_all;
-    input                           reset,clk;
-    output [PPSw-1      :    0] port_pre_sel;
+    input  [PV-1       :    0] vsa_ovc_allocated_all;
+    input  [PV-1       :    0] flit_is_tail_all;
+    input  [PVV-1      :    0] assigned_ovc_num_all;
+    input  [PV-1       :    0] ovc_is_assigned_all;
+    input  [PVP_1-1    :    0] dest_port_all;
+    input  [PP_1-1     :    0] nonspec_granted_dest_port_all;
+    input  [PV-1       :    0] credit_in_all;
+    input  [PV-1       :    0] nonspec_first_arbiter_granted_ivc_all;
+    input  [PV-1       :    0] ivc_num_getting_sw_grant;
+    output [PV-1       :    0] ovc_avalable_all;
+    output [PV-1       :    0] assigned_ovc_not_full_all;
+    input                      reset,clk;
+    output [PPSw-1     :    0] port_pre_sel;
     input  [CONG_ALw-1 :    0] congestion_in_all; 
-    //nla
-    input  [PV-1       :    0] nla_ovc_released_all; 
-    input  [PV-1       :    0] nla_ovc_allocated_all; 
-    input  [PV-1       :    0] ssa_ovc_allocated_all;
-    input  [PV-1       :    0] nla_decreased_credit_in_ss_ovc_all;
-    input [P-1:0] granted_dst_is_from_a_single_flit_pck;
-    input [P-1 : 0] crossbar_flit_out_wr_all;
-    input [P-1 : 0] any_ovc_granted_in_outport_all;   
+    
+    
+    input  [P-1 : 0] granted_dst_is_from_a_single_flit_pck;
+    input  [P-1 : 0] crossbar_flit_out_wr_all;
+    input  [P-1 : 0] any_ovc_granted_in_outport_all;   
     
     output [PV-1    :    0]  vsa_ovc_released_all;
     output [PV-1    :    0]  vsa_credit_decreased_all;
     output oport_info_t oport_info [P-1:0];
-    output ovc_info_t   ovc_info   [P-1 : 0][V-1 : 0]; 
+    output ovc_info_t   ovc_info   [P-1 : 0][V-1 : 0];
+    
+    input   vsa_ctrl_t  vsa_ctrl_in [P-1: 0];
+    input   ssa_ctrl_t  ssa_ctrl_in [P-1: 0];
+    input   sbp_ctrl_t  sbp_ctrl_in [P-1: 0];
     
     reg    [PV-1    :    0]    ovc_status;
     reg    [DEPTHw-1    :    0]    credit_counter            [PV-1    :    0];
@@ -135,16 +136,13 @@ module credit_counter
     wire   [VP_1-1    :    0]  nearly_full_perport    [P-1        :    0];
     
     
-    //nla
+  
     
     wire [PV-1  :   0] credit_decreased_all;
     wire [PV-1  :   0] ovc_released_all;
     wire [PV-1  :   0] ovc_allocated_all;
     
-    assign credit_decreased_all = vsa_credit_decreased_all | nla_decreased_credit_in_ss_ovc_all;
-    assign ovc_released_all = vsa_ovc_released_all | nla_ovc_released_all;
-    assign ovc_allocated_all = vsa_ovc_allocated_all | nla_ovc_allocated_all;  
-    
+  
     
     
     integer k;
@@ -183,8 +181,6 @@ module credit_counter
             /* verilator lint_on WIDTH */
                 
                 reg [PV-1       :   0] full_adaptive_ovc_mask,full_adaptive_ovc_mask_next; 
-                 
-                
     
     
                 always @(*) begin
@@ -199,10 +195,7 @@ module credit_counter
                                     full_adaptive_ovc_mask_next[k]  =   (credit_counter_next[k]         == Bint);
                             else    full_adaptive_ovc_mask_next[k] = ~nearly_full_all_next[k];    
                         
-                        end
-                        
-                        
-                        
+                        end                       
                      end // for  
                 end//always
 
@@ -231,23 +224,30 @@ module credit_counter
     assign credit_increased_all         = credit_in_all;
     assign assigned_ovc_not_full_all    =    ~ assigned_ovc_is_full_all;
     
-    wire [PV-1 : 0] non_sbp_ovc_allocated_all =    ssa_ovc_allocated_all| vsa_ovc_allocated_all;
-    
+  //  wire [PV-1 : 0] non_sbp_ovc_allocated_all =    ssa_ovc_allocated_all| vsa_ovc_allocated_all;
+    wire [PV-1 : 0] non_sbp_ovc_allocated_all;
     generate
     for(i=0;i<P;i=i+1    ) begin :P_
     
-        assign oport_info[i].non_sbp_ovc_is_allocated =  non_sbp_ovc_allocated_all [(i+1)*V-1        :i*V];
-        //assign oport_info[i].ovc_is_released = ovc_released_all [(i+1)*V-1        :i*V];
-        //assign oport_info[i].ovc_credit_increased = credit_increased_all  [(i+1)*V-1    : i*V]; 
-       // assign oport_info[i].ovc_credit_decreased = credit_decreased_all   [(i+1)*V-1   : i*V];
-        //assign oport_info[i].crossbar_flit_wr = crossbar_flit_out_wr_all   [i];
-        assign oport_info[i].any_ovc_granted =  any_ovc_granted_in_outport_all [i];  
-       // assign oport_info[i].ovc_avalable =  ovc_avalable_all [(i+1)*V-1   : i*V];
+    	assign credit_decreased_all [(i+1)*V-1 : i*V] = vsa_ctrl_in[i].buff_space_decreased | 	ssa_ctrl_in[i].buff_space_decreased | sbp_ctrl_in[i].buff_space_decreased;
+    	assign ovc_released_all 	[(i+1)*V-1 : i*V] = vsa_ctrl_in[i].ovc_is_released  | ssa_ctrl_in[i].ovc_is_released  | sbp_ctrl_in[i].ovc_is_released;
+    	assign ovc_allocated_all 	[(i+1)*V-1 : i*V] = vsa_ctrl_in[i].ovc_is_allocated | ssa_ctrl_in[i].ovc_is_allocated | sbp_ctrl_in[i].ovc_is_allocated;  
+    	//assign non_sbp_ovc_allocated_all [(i+1)*V-1 : i*V] = ssa_ctrl_in[i].ovc_is_allocated | vsa_ctrl_in[i].ovc_is_allocated;
+    	/* verilator lint_off WIDTH */
+    	assign non_sbp_ovc_allocated_all [(i+1)*V-1 : i*V] = (SSA_EN=="YES")? sbp_ctrl_in[i].ovc_hdr_flit_req | vsa_ctrl_in[i].ovc_is_allocated: vsa_ctrl_in[i].ovc_is_allocated;;
+    	/* verilator lint_on WIDTH */
        
-        inport_module #(
+    		
+    		
+    		
+        assign oport_info[i].non_sbp_ovc_is_allocated =  non_sbp_ovc_allocated_all [(i+1)*V-1        :i*V];
+        assign oport_info[i].any_ovc_granted =  any_ovc_granted_in_outport_all [i];  
+       
+       
+        oport_ovc_sig_gen #(
             .V    (V), // vc_num_per_port
             .P    (P) // router port num
-        )the_inport_module
+        )the_oport_ovc_sig_gen
         (
             .flit_is_tail                    (flit_is_tail_all                        [(i+1)*V-1        :i*V]),
             .assigned_ovc_num                (assigned_ovc_num_all                [(i+1)*VV-1        :i*VV]),
@@ -497,13 +497,13 @@ endmodule
 
 /************************************
 
-        inport_module
+        oport_ovc_sig_gen
         
 
 *************************************/
-module inport_module #(
+module oport_ovc_sig_gen #(
     parameter V = 4, // vc_num_per_port
-    parameter P    = 5 // router port num
+    parameter P = 5 // router port num
 )(
     flit_is_tail,
     assigned_ovc_num,
@@ -520,13 +520,13 @@ module inport_module #(
                     VP_1    =    V        *     P_1;
                     
                     
-    input    [V-1         :    0]    flit_is_tail;
-    input    [VV-1        :    0]    assigned_ovc_num;
+    input   [V-1         :    0]    flit_is_tail;
+    input   [VV-1        :    0]    assigned_ovc_num;
     input   [V-1         :    0]    ovc_is_assigned;
-    input    [P_1-1       :    0]    granted_dest_port;
-    input    [V-1         :    0]    first_arbiter_granted_ivc;
+    input   [P_1-1       :    0]    granted_dest_port;
+    input   [V-1         :    0]    first_arbiter_granted_ivc;
     output  [VP_1-1      :    0]    credit_decreased;
-    output  [VP_1-1         :    0]    ovc_released;
+    output  [VP_1-1      :    0]    ovc_released;
         
     
     
@@ -545,25 +545,25 @@ module inport_module #(
     
     
     // assigned ovc mux 
-    one_hot_mux #(
-        .IN_WIDTH    (VV),
-        .SEL_WIDTH  (V)
+    onehot_mux_1D #(
+        .W  (V),
+        .N  (V)
     )assigned_ovc_mux
     (
-        .mux_in        (assigned_ovc_num_masked),
-        .mux_out        (muxout1),
-        .sel            (first_arbiter_granted_ivc)
+        .in  (assigned_ovc_num_masked),
+        .out (muxout1),
+        .sel (first_arbiter_granted_ivc)
     );
     
     // tail mux 
-    one_hot_mux #(
-        .IN_WIDTH    (V),
-        .SEL_WIDTH  (V)
+   	onehot_mux_1D #(
+        .W  (1),
+        .N  (V)
     )tail_mux
     (
-        .mux_in        (flit_is_tail),
-        .mux_out        (muxout2),
-        .sel            (first_arbiter_granted_ivc)
+        .in        (flit_is_tail),
+        .out       (muxout2),
+        .sel       (first_arbiter_granted_ivc)
     );
     
     
@@ -629,45 +629,45 @@ module sw_mask_gen #(
     
     
     // destport mux 
-    one_hot_mux #(
-        .IN_WIDTH    (VP_1),
-        .SEL_WIDTH  (P_1)
+    onehot_mux_1D #(
+        .W  (V),
+        .N  (P_1)
     )full_mux1
     (
-        .mux_in        (full_muxin1),
-        .mux_out        (full_muxout1),
-        .sel            (dest_port)
+        .in     (full_muxin1),
+        .out    (full_muxout1),
+        .sel    (dest_port)
     );
     
-    one_hot_mux #(
-        .IN_WIDTH    (VP_1),
-        .SEL_WIDTH  (P_1)
+    onehot_mux_1D #(
+        .W  (V),
+        .N  (P_1)
     )nearly_full_mux1
     (
-        .mux_in        (nearly_full_muxin1),
-        .mux_out        (nearly_full_muxout1),
-        .sel            (dest_port)
+        .in        (nearly_full_muxin1),
+        .out       (nearly_full_muxout1),
+        .sel       (dest_port)
     );
     
     // assigned ovc mux 
-    one_hot_mux #(
-        .IN_WIDTH    (V),
-        .SEL_WIDTH  (V)
+    onehot_mux_1D #(
+        .W (1),
+        .N (V)
     )full_mux2
     (
-        .mux_in        (full_muxout1),
-        .mux_out        (full_muxout2),
+        .in        (full_muxout1),
+        .out        (full_muxout2),
         .sel            (assigned_ovc_num)
     );
     
     
-    one_hot_mux #(
-        .IN_WIDTH    (V),
-        .SEL_WIDTH  (V)
+    onehot_mux_1D #(
+        .W  (1),
+        .N  (V)
     )nearlfull_mux2
     (
-        .mux_in        (nearly_full_muxout1),
-        .mux_out        (nearly_full_muxout2),
+        .in        (nearly_full_muxout1),
+        .out        (nearly_full_muxout2),
         .sel            (assigned_ovc_num)
     );
     
