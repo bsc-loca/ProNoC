@@ -29,7 +29,7 @@ module crossbar #(
     parameter TOPOLOGY = "MESH",
     parameter V    = 4,     // vc_num_per_port
     parameter P    = 5,     // router port num
-    parameter Fpay     = 32,
+    parameter Fw     = 36,
     parameter MUX_TYPE="BINARY",        //"ONE_HOT" or "BINARY"    
     parameter SSA_EN="YES" // "YES" , "NO"
 )
@@ -60,7 +60,6 @@ module crossbar #(
         VP_1 = V * P_1,                
         PP_1 = P_1 * P,
         PVP_1 = PV * P_1,
-        Fw = 2+V+Fpay,    //flit width;    
         PFw = P*Fw,
         P_1Fw = P_1 * Fw,
         P_1w = log2(P_1);

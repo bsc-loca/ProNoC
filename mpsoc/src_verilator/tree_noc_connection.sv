@@ -55,7 +55,6 @@ module  tree_noc_connection
 	  
     localparam
         PV = V * MAX_P,
-        Fw = 2+V+Fpay, //flit width;    
         PFw = MAX_P * Fw,
         NEFw = NE * Fw,
         NEV = NE * V,

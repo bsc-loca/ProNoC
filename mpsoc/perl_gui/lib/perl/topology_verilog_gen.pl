@@ -148,8 +148,7 @@ module   ${name}_noc
 	localparam 
 		NE = $NE,
 		NR = $NR,
-		RAw=log2(NR),
-        Fw = 2+V+Fpay; //flit width;    
+		RAw=log2(NR);
        
       
 
@@ -1319,7 +1318,6 @@ module  ${name}_connection
 	localparam
 		P= MAX_P,
         PV = V * P,
-        Fw = 2+V+Fpay, //flit width;    
         PFw = P * Fw,
         CONG_ALw = CONGw * P,
         PRAw = P * RAw;    

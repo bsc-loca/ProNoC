@@ -31,7 +31,8 @@
 module flit_buffer #(
     parameter V        =   4,
     parameter B        =   4,   // buffer space :flit per VC 
-    parameter Fpay     =   32,
+    parameter Fw     =   36,
+    parameter PCK_TYPE = "MULTI_FLIT",
     parameter DEBUG_EN =   1,
     parameter SSA_EN="YES" // "YES" , "NO"       
     )   
@@ -58,7 +59,7 @@ module flit_buffer #(
       end   
     endfunction // log2 
     
-    localparam      Fw      =   2+V+Fpay,   //flit width
+    localparam      
                     BV      =   B   *   V;
     
     
@@ -78,9 +79,11 @@ module flit_buffer #(
                Vw               =  (V==1)? 1 : log2(V),
                DEPTHw           =   log2(B+1),
                BwV              =   Bw * V,
-               BVwV             =   BVw * V,
-               RAM_DATA_WIDTH   =   Fw - V;
-               
+               BVwV             =   BVw * V,               
+               RESTw = Fw -2-V , 
+               /* verilator lint_off WIDTH */ 
+               RAM_DATA_WIDTH   = (PCK_TYPE == "MULTI_FLIT")? Fw - V :  Fw - V -2;
+               /* verilator lint_on WIDTH */ 
                
                
     wire  [RAM_DATA_WIDTH-1     :   0] fifo_ram_din;
@@ -89,9 +92,11 @@ module flit_buffer #(
     wire  [V-1                  :   0] rd;
     reg   [DEPTHw-1             :   0] depth    [V-1            :0];
     
+    wire [1  : 0] flgs_in, flgs_out;
+    wire [V-1: 0] vc_in;
+    wire [RESTw-1 :0      ] flit_rest_in,flit_rest_out;
     
-    assign fifo_ram_din = {din[Fw-1 :   Fw-2],din[Fpay-1        :   0]};
-    assign dout = {fifo_ram_dout[Fpay+1:Fpay],{V{1'bX}},fifo_ram_dout[Fpay-1        :   0]};    
+  
     assign  wr  =   (wr_en)?  vc_num_wr : {V{1'b0}};
     assign  rd  =   (rd_en)?  vc_num_rd : ssa_rd;
     
@@ -99,6 +104,24 @@ module flit_buffer #(
 genvar i;
 
 generate 
+ /* verilator lint_off WIDTH */ 
+    if (PCK_TYPE == "MULTI_FLIT") begin :multi
+  /* verilator lint_on WIDTH */    
+      assign {flgs_in,vc_in,flit_rest_in}=din;    
+      assign fifo_ram_din = {flgs_in,flit_rest_in};
+      assign {flgs_out,flit_rest_out} = fifo_ram_dout;
+      assign dout = {flgs_out,{V{1'bX}},flit_rest_out};    
+    
+    end else begin : single
+    
+        assign fifo_ram_din = din[RAM_DATA_WIDTH-1     :   0];
+        assign dout = {2'b11,{V{1'bX}},fifo_ram_dout};    
+    
+    end
+
+
+
+
     if((2**Bw)==B)begin :pow2
         /*****************      
           Buffer width is power of 2
@@ -211,20 +234,8 @@ generate
             else begin
                 if (wr[i] ) wr_ptr[i] <= wr_ptr [i]+ 1'h1;
                 if (rd[i] ) rd_ptr [i]<= rd_ptr [i]+ 1'h1;
-                if (wr[i] & ~rd[i]) depth [i]<=
-//synthesis translate_off
-//synopsys  translate_off
-                   #1
-//synopsys  translate_on
-//synthesis translate_on
-                   depth[i] + 1'h1;
-                else if (~wr[i] & rd[i]) depth [i]<=
-//synthesis translate_off
-//synopsys  translate_off
-                   #1
-//synopsys  translate_on
-//synthesis translate_on
-                   depth[i] - 1'h1;
+                if (wr[i] & ~rd[i]) depth [i]<= depth[i] + 1'h1;
+                else if (~wr[i] & rd[i]) depth [i]<= depth[i] - 1'h1;
             end//else
         end//always
 
@@ -304,20 +315,8 @@ generate
             else begin
                 if (wr[i] ) wr_ptr[i] <=(wr_ptr[i]==(B*(i+1))-1)? (B*i) : wr_ptr [i]+ 1'h1;
                 if (rd[i] ) rd_ptr[i] <=(rd_ptr[i]==(B*(i+1))-1)? (B*i) : rd_ptr [i]+ 1'h1;
-                if (wr[i] & ~rd[i]) depth [i]<=
-//synthesis translate_off
-//synopsys  translate_off
-                   #1
-//synopsys  translate_on
-//synthesis translate_on
-                   depth[i] + 1'h1;
-                else if (~wr[i] & rd[i]) depth [i]<=
-//synthesis translate_off
-//synopsys  translate_off
-                   #1          
-//synopsys  translate_on
-//synthesis translate_on
-                   depth[i] - 1'h1;
+                if (wr[i] & ~rd[i]) depth [i]<=depth[i] + 1'h1;
+                else if (~wr[i] & rd[i]) depth [i]<= depth[i] - 1'h1;
             end//else
         end//always  
          /* verilator lint_on WIDTH */ 
@@ -460,13 +459,7 @@ module fifo_ram     #(
 			if (wr_en)
 				 queue[wr_addr] <= wr_data;
 			if (rd_en)
-				 memory_rd_data <=
-//synthesis translate_off
-//synopsys  translate_off
-					  #1
-//synopsys  translate_on
-//synthesis translate_on   
-					  queue[rd_addr];
+				 memory_rd_data <=  queue[rd_addr];
 	end
 	
  
@@ -553,21 +546,9 @@ module fifo_ram_mem_size     #(
             if (wr_en)
                 queue[wr_addr] <= wr_data;
             if (rd_en) begin 
-                rd_data <=
-//synthesis translate_off
-//synopsys  translate_off
-                    #1
-//synopsys  translate_on
-//synthesis translate_on  
-                    queue[rd_addr];
+                rd_data <=   queue[rd_addr];
             end else begin // id rd is not asserted by pass the input to the output in next clock cycle
-                rd_data <=
-//synthesis translate_off
-//synopsys  translate_off
-                    #1
-//synopsys  translate_on
-//synthesis translate_on  
-                    wr_data;            
+                rd_data <=   wr_data;            
             end           
         end
     
@@ -579,13 +560,7 @@ module fifo_ram_mem_size     #(
             if (wr_en)
                 queue[wr_addr] <= wr_data;
             if (rd_en) 
-                rd_data <=
-//synthesis translate_off
-//synopsys  translate_off
-                    #1
-//synopsys  translate_on
-//synthesis translate_on   
-                    queue[rd_addr];
+                rd_data <= queue[rd_addr];
               
         end
     end
@@ -725,44 +700,30 @@ module fwft_fifo #(
 
 
     
-endgenerate
-
-
-
-
-`ifdef SYNC_RESET_MODE 
-    always @ (posedge clk )begin 
-`else 
-    always @ (posedge clk or posedge reset)begin 
-`endif   
+    endgenerate
+    
+    
+    
+    
+    `ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+    `else 
+        always @ (posedge clk or posedge reset)begin 
+    `endif   
             if (reset) begin
                  depth  <= {DEPTH_DATA_WIDTH{1'b0}};
             end else begin
-                 if (wr_en & ~rd_en) depth <=
-//synthesis translate_off
-//synopsys  translate_off
-                            #1
-//synopsys  translate_on
-//synthesis translate_on   
-                            depth + 1'h1;
-                else if (~wr_en & rd_en) depth <=
-
-//synthesis translate_off
-//synopsys  translate_off  
-                            #1
-//synopsys  translate_on
-//synthesis translate_on   
-                            depth - 1'h1;
-                
+                 if (wr_en & ~rd_en) depth <=   depth + 1'h1;
+                else if (~wr_en & rd_en) depth <= depth - 1'h1;                
             end
         end//always
         
         
-`ifdef SYNC_RESET_MODE 
-        always @ (posedge clk )begin 
-`else 
-        always @ (posedge clk or posedge reset)begin 
-`endif   
+    `ifdef SYNC_RESET_MODE 
+            always @ (posedge clk )begin 
+    `else 
+            always @ (posedge clk or posedge reset)begin 
+    `endif   
             if (reset) begin
                  dout  <= {DATA_WIDTH{1'b0}};
             end else begin
@@ -953,21 +914,8 @@ endgenerate
             if (reset) begin
                  depth  <= {DEPTH_DATA_WIDTH{1'b0}};
             end else begin
-                 if (wr_en & ~rd_en) depth <=
-//synthesis translate_off
-//synopsys  translate_off
-                            #1
-//synopsys  translate_on
-//synthesis translate_on  
-                            depth + 1'h1;
-                else if (~wr_en & rd_en) depth <=
-//synthesis translate_off
-//synopsys  translate_off
-                            #1
-//synopsys  translate_on
-//synthesis translate_on  
-                            depth - 1'h1;
-                
+                 if (wr_en & ~rd_en) depth <= depth + 1'h1;
+                else if (~wr_en & rd_en) depth <= depth - 1'h1;                
             end
         end//always
         
@@ -1015,6 +963,165 @@ endgenerate
 //synopsys  translate_on
 //synthesis translate_on  
 endmodule   
+
+
+
+
+
+
+
+
+
+module fwft_fifo_bram #(
+        parameter DATA_WIDTH = 2,
+        parameter MAX_DEPTH = 2,
+        parameter IGNORE_SAME_LOC_RD_WR_WARNING="YES" // "YES" , "NO" 
+    )
+    (
+        input [DATA_WIDTH-1:0] din,     // Data in
+        input          wr_en,   // Write enable
+        input          rd_en,   // Read the next word
+        output [DATA_WIDTH-1:0]  dout,    // Data out
+        output         full,
+        output         nearly_full,
+        output         recieve_more_than_0,
+        output         recieve_more_than_1,
+        input          reset,
+        input          clk
+    
+    );
+    
+   
+    function integer log2;
+      input integer number; begin   
+         log2=(number <=1) ? 1: 0;    
+         while(2**log2<number) begin    
+            log2=log2+1;    
+         end       
+      end   
+    endfunction // log2 
+    
+
+    
+    localparam DEPTH_DATA_WIDTH = log2(MAX_DEPTH +1);
+    
+    reg  valid,valid_next;    
+    wire pass_din_to_out_reg, out_reg_wr_en, bram_out_is_valid_next;
+    reg  bram_out_is_valid;
+    wire bram_empty, bram_rd_en, bram_wr_en;
+    wire [DATA_WIDTH-1 : 0] bram_dout;
+    reg  [DATA_WIDTH-1 : 0] out_reg;
+   
+     assign dout = (bram_out_is_valid)?  bram_dout : out_reg;
+
+  
+    assign  pass_din_to_out_reg = (wr_en & ~valid)| // a write has been recived while the reg_flit is not valid
+                                  (wr_en & valid & bram_empty & rd_en); //or its valid but bram is empty and its got a read request
+
+    assign bram_rd_en = (rd_en & ~bram_empty);
+    assign bram_wr_en = (pass_din_to_out_reg)?  1'b0 :wr_en ; //make sure not write on the Bram if the reg fifo is empty 
+ 
+   
+    assign  out_reg_wr_en = pass_din_to_out_reg | bram_out_is_valid;    
+
+    assign  bram_out_is_valid_next = (bram_rd_en )? (rd_en &  ~bram_empty): 1'b0;
+    
+   
+    always @(*) begin
+          valid_next = valid;
+          if(out_reg_wr_en) valid_next =1'b1;
+          else if( bram_empty & rd_en) valid_next =1'b0;
+    end   
+    
+    
+    fifo  #(
+        .Dw(DATA_WIDTH),//data_width
+        .B(MAX_DEPTH)// buffer num
+    )bram_fifo(
+        .din(din),   
+        .wr_en(bram_wr_en), 
+        .rd_en(bram_rd_en), 
+        .dout(bram_dout),  
+        .full(),
+        .nearly_full(),
+        .empty(bram_empty),
+        .reset(reset),
+        .clk(clk)
+    );
+    
+     reg [DEPTH_DATA_WIDTH-1         :   0]  depth;
+   
+   
+   `ifdef SYNC_RESET_MODE 
+        always @ (posedge clk )begin 
+    `else 
+        always @ (posedge clk or posedge reset)begin 
+    `endif  
+            if(reset)begin 
+                out_reg<= {DATA_WIDTH{1'b0}}; 
+                valid<=1'b0;
+                bram_out_is_valid<=1'b0;  
+                depth  <= {DEPTH_DATA_WIDTH{1'b0}};
+            end
+            else begin 
+                if (wr_en & ~rd_en) depth <=   depth + 1'h1;
+                else if (~wr_en & rd_en) depth <= depth - 1'h1;  
+                if(pass_din_to_out_reg) out_reg <= din;
+                if(bram_out_is_valid)   out_reg <= bram_dout; 
+                valid<=valid_next;
+                bram_out_is_valid<=bram_out_is_valid_next; 
+            end
+        end  
+    
+       
+          
+      
+        wire empty;    
+        assign full                         = depth == MAX_DEPTH [DEPTH_DATA_WIDTH-1            :   0];
+        assign nearly_full              = depth >= MAX_DEPTH [DEPTH_DATA_WIDTH-1            :   0] -1'b1;
+        assign empty     = depth == {DEPTH_DATA_WIDTH{1'b0}};
+        assign recieve_more_than_0  = ~ empty;
+        assign recieve_more_than_1  = ~( depth == {DEPTH_DATA_WIDTH{1'b0}} ||  depth== 1 );
+       
+         
+        
+        
+//synthesis translate_off
+//synopsys  translate_off
+        always @(posedge clk)
+        begin
+            if(~reset)begin
+                if (wr_en & ~rd_en & full) begin
+                    $display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,MAX_DEPTH);
+                    $finish;
+                end
+                /* verilator lint_off WIDTH */
+                if (rd_en & !recieve_more_than_0 & IGNORE_SAME_LOC_RD_WR_WARNING == "NO") begin
+                    $display("%t ERROR: Attempt to read an empty FIFO: %m", $time);
+                    $finish;
+                end
+                if (rd_en & ~wr_en & !recieve_more_than_0 & (IGNORE_SAME_LOC_RD_WR_WARNING == "YES")) begin
+                    $display("%t ERROR: Attempt to read an empty FIFO: %m", $time);
+                    $finish;
+                end
+                /* verilator lint_on WIDTH */
+            end //~reset
+        end // always @ (posedge clk)
+    
+//synopsys  translate_on
+//synthesis translate_on  
+
+
+
+
+endmodule   
+
+
+
+
+
+
+
 
 
 /**********************************
@@ -1079,13 +1186,7 @@ begin
    if (wr_en)
       queue[wr_ptr] <= din;
    if (rd_en)
-      dout <=
-//synthesis translate_off
-//synopsys  translate_off
-          #1
-//synopsys  translate_on
-//synthesis translate_on  
-          queue[rd_ptr];
+      dout <=   queue[rd_ptr];
 end
 
 always @(posedge clk)
@@ -1098,26 +1199,17 @@ begin
    else begin
       if (wr_en) wr_ptr <= (wr_ptr==Bint)? {Bw{1'b0}} : wr_ptr + 1'b1;
       if (rd_en) rd_ptr <= (rd_ptr==Bint)? {Bw{1'b0}} : rd_ptr + 1'b1;
-      if (wr_en & ~rd_en) depth <=
-//synthesis translate_off
-//synopsys  translate_off
-                   #1
-//synopsys  translate_on
-//synthesis translate_on  
-                   depth + 1'b1;
-      else if (~wr_en & rd_en) depth <=
-//synthesis translate_off
-//synopsys  translate_off
-                   #1
-//synopsys  translate_on
-//synthesis translate_on  
-                   depth - 1'b1;
+      if (wr_en & ~rd_en) depth <=  depth + 1'b1;
+      else if (~wr_en & rd_en) depth <=  depth - 1'b1;
    end
 end
 
 //assign dout = queue[rd_ptr];
-assign full = depth == B;
-assign nearly_full = depth >= B-1;
+localparam  [DEPTHw-1   :   0] Bint2 =   B_1[DEPTHw-1   :   0];
+
+
+assign full = depth == B [DEPTHw-1   :   0];
+assign nearly_full = depth >=Bint2; //  B-1
 assign empty = depth == {DEPTHw{1'b0}};
 
 //synthesis translate_off
@@ -1125,7 +1217,7 @@ assign empty = depth == {DEPTHw{1'b0}};
 always @(posedge clk)
 begin
     if(~reset)begin
-       if (wr_en && depth == B && !rd_en) begin
+       if (wr_en && depth == B[DEPTHw-1   :   0] && !rd_en) begin
           $display(" %t: ERROR: Attempt to write to full FIFO: %m",$time);
           $finish;
        end   

@@ -774,6 +774,7 @@ module weights_update # (
     parameter V=4,
     parameter P=5,
     parameter Fpay =32,
+    parameter Fw = 36,    //flit width;  
     parameter WEIGHTw=4,
     parameter C = 4,
     parameter WRRA_CONFIG_INDEX=0,
@@ -805,8 +806,7 @@ module weights_update # (
     endfunction // log2  
      
 
-    localparam 
-        Fw = 2+V+Fpay,    //flit width;  
+    localparam        
         PFw = P * Fw,
         W= WEIGHTw,
         WP= W * P,
@@ -1090,15 +1090,7 @@ module weight_update_per_port # (
      
     wire [Fw-1 : 0] hdr_flit_new; 
     
-    hdr_flit_weight_update #(
-        .V(V),
-        .Fpay(Fpay),
-        .EAw(EAw),
-        .DSTPw(DSTPw),
-        .WEIGHTw(WEIGHTw),
-        .C(C)
-    ) 
-    updater
+    hdr_flit_weight_update updater
     (
         .new_weight(contention),
         .flit_in(flit_in),

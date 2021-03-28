@@ -26,7 +26,24 @@ module router_top
 
 		);
   
-
+	//synthesis translate_off 
+	//synopsys  translate_off
+	/* verilator lint_off WIDTH */
+	initial begin
+		if((SSA_EN=="YES")  && (SBP_EN==1'b1) )begin
+			$display("ERROR: Only one of the SBP or SAA can be enabled at the same time");
+			$finish;        
+		end
+		if((SBP_EN==1'b1) && COMBINATION_TYPE!="COMB_NONSPEC"  )begin
+			$display("ERROR: SBP only works with non-speculative VSA");
+			$finish;        
+		end		
+	end
+	/* verilator lint_on WIDTH */
+	//synopsys  translate_on
+	//synthesis translate_on 
+	
+	
 	localparam DISABLED =P;
 
 	input [RAw-1 :  0]  current_r_addr;
@@ -191,7 +208,6 @@ module router_top
 							.sbp_ivc_granted_ovc_num_o   (sbp_ctrl[i].ivc_granted_ovc_num),
 							.sbp_ss_ovc_is_allocated_o	 (sbp_ctrl[SS_PORT].ovc_is_allocated),     
 							.sbp_ss_ovc_is_released_o	 (sbp_ctrl[SS_PORT].ovc_is_released),      
-							.sbp_ss_ovc_hdr_flit_req_o   (sbp_ctrl[SS_PORT].ovc_hdr_flit_req),
 							.sbp_mask_available_ss_ovc_o (sbp_ctrl[SS_PORT].mask_available_ovc)	
 					
 						);

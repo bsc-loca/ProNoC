@@ -233,9 +233,9 @@ module output_ports
     	assign ovc_released_all 	[(i+1)*V-1 : i*V] = vsa_ctrl_in[i].ovc_is_released  | ssa_ctrl_in[i].ovc_is_released  | sbp_ctrl_in[i].ovc_is_released;
     	assign ovc_allocated_all 	[(i+1)*V-1 : i*V] = vsa_ctrl_in[i].ovc_is_allocated | ssa_ctrl_in[i].ovc_is_allocated | sbp_ctrl_in[i].ovc_is_allocated;  
     	//assign non_sbp_ovc_allocated_all [(i+1)*V-1 : i*V] = ssa_ctrl_in[i].ovc_is_allocated | vsa_ctrl_in[i].ovc_is_allocated;
-    	/* verilator lint_off WIDTH */
-    	assign non_sbp_ovc_allocated_all [(i+1)*V-1 : i*V] = (SSA_EN=="YES")? sbp_ctrl_in[i].ovc_hdr_flit_req | vsa_ctrl_in[i].ovc_is_allocated: vsa_ctrl_in[i].ovc_is_allocated;;
-    	/* verilator lint_on WIDTH */
+
+    	assign non_sbp_ovc_allocated_all [(i+1)*V-1 : i*V] =  vsa_ctrl_in[i].ovc_is_allocated;
+
        
     		
     		

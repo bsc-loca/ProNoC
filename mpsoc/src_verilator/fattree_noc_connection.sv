@@ -63,7 +63,6 @@ module  fattree_noc_connection
 
 	 localparam
         PV = V * MAX_P,
-        Fw = 2+V+Fpay, //flit width;    
         PFw = MAX_P * Fw,       
         NRL= NE/K, //number of router in  each layer       
         NEFw = NE * Fw,

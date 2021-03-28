@@ -29,10 +29,10 @@
  **************************************************************/
 
 module input_ports 
-		import pronoc_pkg::*; 	
-	#(
-		parameter P=5	
-		)(
+	import pronoc_pkg::*; 	
+#(
+	parameter P=5	
+)(
 			current_r_addr,
 			neighbors_r_addr,
 			ivc_num_getting_sw_grant,// for non spec ivc_num_getting_first_sw_grant,
@@ -79,7 +79,6 @@ module input_ports
 		PP_1 = P * P_1, 
 		VP_1 = V * P_1,
 		PVP_1 = PV * P_1,
-		Fw = 2+V+Fpay,    //flit width;    
 		PFw = P*Fw,
 		W= WEIGHTw,
 		WP= W * P,
@@ -241,9 +240,7 @@ module input_queue_per_port
     
 	localparam
 		VV = V * V,
-		VDSTPw = V * DSTPw,
-		//Cw = (C>1)? log2(C): 1,
-		// Fw = 2+V+Fpay,   //flit width;    
+		VDSTPw = V * DSTPw,		
 		W = WEIGHTw,
 		WP = W * P,
 		P_1=P-1,
@@ -301,6 +298,7 @@ module input_queue_per_port
 	wire [Cw-1 : 0] class_in;
 	wire [DSTPw-1 : 0] destport_in,destport_in_encoded;
 	wire [VDSTPw-1 : 0] lk_destination_encoded;
+	
 	wire [EAw-1 : 0] dest_e_addr_in;
 	wire [EAw-1 : 0] src_e_addr_in;
 	wire [V-1 : 0] vc_num_in;
@@ -331,15 +329,7 @@ module input_queue_per_port
 	
 	//extract header flit info
 	extract_header_flit_info #(
-			.SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-			.WEIGHTw(WEIGHTw),
-			.V(V),
-			.EAw(EAw),
-			.DSTPw(DSTPw),
-			.C(C),
-			.Fpay(Fpay),
-			.DATA_w(0),
-			.BYTE_EN(BYTE_EN)
+			.DATA_w(0)			
 		)
 		header_extractor
 		(
@@ -607,6 +597,7 @@ module input_queue_per_port
 					.candidate_ovcs(candidate_ovcs [(i+1)*V-1 : i*V])
 				);    
         
+			if(PCK_TYPE == "MULTI_FLIT") begin : multi 
 			//tail fifo
 			fwft_fifo #(
 					.DATA_WIDTH(1),
@@ -626,7 +617,9 @@ module input_queue_per_port
 					.reset (reset),
 					.clk (clk)            
 				);
-    	
+			end else begin :single
+				assign flit_is_tail[i]=1'b1;
+			end
 			//dest_e_addr_in fifo
 			if(SBP_EN) begin : sbp_
         	
@@ -700,6 +693,10 @@ module input_queue_per_port
 					.clk (clk)
              
 				);
+			
+			
+			
+			
         
 			/* verilator lint_off WIDTH */    
 			if( ROUTE_TYPE=="DETERMINISTIC") begin : dtrmn_dest
@@ -875,7 +872,8 @@ module input_queue_per_port
 			flit_buffer #(
 					.V(V),
 					.B(B),   // buffer space :flit per VC 
-					.Fpay(Fpay),
+					.PCK_TYPE(PCK_TYPE),
+					.Fw(Fw),
 					.DEBUG_EN(DEBUG_EN),
 					.SSA_EN(SSA_EN)
 				)
@@ -899,7 +897,8 @@ module input_queue_per_port
 			flit_buffer #(
 					.V(V),
 					.B(B),   // buffer space :flit per VC 
-					.Fpay(Fpay),
+					.PCK_TYPE(PCK_TYPE),
+					.Fw(Fw),
 					.DEBUG_EN(DEBUG_EN),
 					.SSA_EN(SSA_EN)
 				)
@@ -947,9 +946,10 @@ module input_queue_per_port
 			);
 
 		header_flit_update_lk_route_ovc #(
+				.PCK_TYPE(PCK_TYPE),
 				.V(V),
 				.P(P),
-				.Fpay(Fpay),  
+				.Fw(Fw),  
 				.TOPOLOGY(TOPOLOGY),     
 				.EAw(EAw),
 				.DSTPw(DSTPw),

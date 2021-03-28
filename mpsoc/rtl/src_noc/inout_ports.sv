@@ -94,8 +94,7 @@ import pronoc_pkg::*;
         PVV = PV * V,    
         P_1 = P-1,
         PP_1 = P_1 * P,
-        PVP_1 = PV * P_1,
-        Fw = 2+V+Fpay,//flit width
+        PVP_1 = PV * P_1,       
         PFw = P * Fw,
         CONG_ALw = CONGw*P,    //  congestion width per router 
         W = WEIGHTw,

@@ -5,7 +5,7 @@
 ./class_table.v
 ./ss_allocator.sv
 ./route_torus.v
-./header_flit.v
+./header_flit.sv
 ./noc_top.sv
 ./fattree_noc_top.sv
 ./fattree_route.v
@@ -23,14 +23,13 @@
 ./flit_buffer_reg_bas.v
 ./route_mesh.v
 ./router_bypass.sv
-./traffic_gen.v
 ./traffic_gen_top.sv
 ./congestion_analyzer.v
 ./output_ports.sv
 ./routing.v
 ./router_two_stage.sv
 ./crossbar.v
-./iport_reg_base.v
+./iport_reg_base.sv
 ./flit_buffer.v
 ./mesh_torus.v
 ./debug.v

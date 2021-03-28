@@ -311,7 +311,7 @@ module router_two_stage
 				.TOPOLOGY(TOPOLOGY),
 				.V (V),     // vc_num_per_port
 				.P (P),     // router port num
-				.Fpay (Fpay),
+				.Fw (Fw),
 				.MUX_TYPE (MUX_TYPE),				
 				.SSA_EN (SSA_EN)
 			)
@@ -390,6 +390,7 @@ module router_two_stage
 				.V(V),
 				.P(P),
 				.Fpay(Fpay),
+				.Fw(Fw),
 				.WEIGHTw(WEIGHTw),
 				.WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
 				.C(C),

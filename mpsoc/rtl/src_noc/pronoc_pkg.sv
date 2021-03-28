@@ -10,7 +10,8 @@ package pronoc_pkg;
 `define     INCLUDE_TOPOLOGY_LOCALPARAM
 `include "topology_localparam.v"
 
-
+	localparam PCK_TYPE =  "MULTI_FLIT"; 
+	//"SINGLE_FLIT";
 
 localparam
 	Vw=  log2(V),
@@ -20,9 +21,7 @@ localparam
 	DEPTHw  =  log2(B+1),
 	WRRA_CONFIG_INDEX=0,
 	SBP_EN = (SBP_MAX !=0),
-	SBP_NUM= (SBP_EN) ? SBP_MAX : 1,
-	Fw = 2+V+Fpay,    //flit width;  ;
-	NEFw = NE *Fw,
+	SBP_NUM= (SBP_EN) ? SBP_MAX : 1,	
 	NEV  = NE * V,
 	T4 = 0,
 	BEw = (BYTE_EN)? log2(Fpay/8) : 1;
@@ -48,6 +47,9 @@ localparam
  	/* verilator lint_on WIDTH */
  	BE_LSB =  MSB_W + 1,            BE_MSB = BE_LSB+ BEw-1,
  	MSB_BE = (BYTE_EN==1)?   BE_MSB  : MSB_W;
+ 
+ 
+ 	
 
  /******************
  *   vsa : Virtual channel & Switch allocator 
@@ -105,8 +107,7 @@ localparam
 		logic   [V-1 : 0] credit_out;
 		logic   [V-1 : 0] buff_space_decreased;
 		logic   [V-1 : 0] ovc_is_allocated;
-		logic   [V-1 : 0] ovc_is_released;
-		logic   [V-1 : 0] ovc_hdr_flit_req;
+		logic   [V-1 : 0] ovc_is_released;		
 		logic   [V-1 : 0] ivc_num_getting_ovc_grant;
 		logic   [V-1 : 0] ivc_reset;
 		logic   [V-1 : 0] mask_available_ovc;
@@ -194,15 +195,23 @@ localparam
 	} hdr_flit_t;
 	localparam HDR_FLIT_w = $bits(hdr_flit_t); 
 	
+	/* verilator lint_off WIDTH */
+	localparam FPAYw = (PCK_TYPE == "SINGLE_FLIT")?   Fpay + MSB_BE: Fpay;    
+	/* verilator lint_on WIDTH */
 	
-   	
 	typedef struct packed {
 		bit hdr_flag;
 		bit tail_flag;
 		logic [V-1 : 0] vc;
-		logic [Fpay-1 : 0] payload;		
+		logic [FPAYw-1 : 0] payload;		
 	} flit_t;
 	localparam FLIT_w = $bits(flit_t); 
+	
+	localparam
+		Fw = FLIT_w,
+		NEFw = NE *Fw;	
+	
+	
 	
 	typedef struct packed {
 		logic  [RAw-1:  0]  neighbors_r_addr;

@@ -63,7 +63,8 @@ module  ni_master #(
     parameter S_Aw          =   7,
     parameter M_Aw          =   32,
     parameter TAGw          =   3,
-    parameter SELw          =   4
+    parameter SELw          =   4,
+    parameter PCK_TYPE      =  "MULTI_FLIT"
 )
 (
     //general 
@@ -472,15 +473,7 @@ module  ni_master #(
        wire [EAw-1 : 0] src_endp_addr;
         
         extract_header_flit_info #(
-            .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-            .Fpay(Fpay),
-            .V(V),
-            .EAw(EAw),
-            .DSTPw(DSTPw),
-            .C(C),
-            .WEIGHTw(WEIGHTw),
-            .DATA_w(HDATA_PRECAPw),
-            .BYTE_EN(BYTE_EN)
+            .DATA_w(HDATA_PRECAPw)           
         )
         data_extractor
         (
@@ -905,15 +898,7 @@ end
   
         
     header_flit_generator #(
-        .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-        .Fpay(Fpay),
-        .V(V),
-        .EAw(EAw),
-        .DSTPw(DSTPw),
-        .C(C),
-        .WEIGHTw(WEIGHTw),
-        .DATA_w(HDw),
-        .BYTE_EN(BYTE_EN)
+         .DATA_w(HDw)       
     )
     hdr_flit_gen
     (
@@ -984,7 +969,8 @@ end
     flit_buffer #(
         .V(V),
         .B(B),
-        .Fpay(Fpay),
+        .PCK_TYPE(PCK_TYPE),
+        .Fw(Fw),
         .DEBUG_EN(DEBUG_EN),
         .SSA_EN("NO")
      )
@@ -1003,15 +989,7 @@ end
     ); 
     
    extract_header_flit_info #(
-        .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-        .WEIGHTw(WEIGHTw),
-        .V(V),
-        .EAw(EAw),
-        .DSTPw(DSTPw),
-        .C(C),
-        .Fpay(Fpay),
-        .DATA_w (HDw),
-        .BYTE_EN(BYTE_EN)
+        .DATA_w (HDw)      
     )
     extractor
     (

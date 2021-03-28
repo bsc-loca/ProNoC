@@ -36,6 +36,7 @@
 **************************/
 
 module iport_reg_base  #(
+    parameter PCK_TYPE = "MULTI_FLIT",
     parameter V = 4,     // vc_num_per_port
     parameter P = 5,     // router port num
     parameter B = 4,     // buffer space :flit per VC 
@@ -184,15 +185,7 @@ module iport_reg_base  #(
 
 //extract header flit info
     extract_header_flit_info #(
-        .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-        .WEIGHTw(WEIGHTw),
-        .V(V),
-        .EAw(EAw),
-        .DSTPw(DSTPw),
-        .C(C),
-        .Fpay(Fpay),
-        .DATA_w(0),
-        .BYTE_EN(BYTE_EN)
+        .DATA_w(0)
      )
      header_extractor
      (
@@ -560,7 +553,8 @@ generate
         flit_buffer #(
             .V(V),
             .B(B),   // buffer space :flit per VC 
-            .Fpay(Fpay),
+            .PCK_TYPE(PCK_TYPE),
+            .Fw(Fw),
             .DEBUG_EN(DEBUG_EN),
             .SSA_EN(SSA_EN)
         )
@@ -588,15 +582,14 @@ generate
         
         
         flit_buffer_reg_base #(
+            .PCK_TYPE(PCK_TYPE),
             .V(V),
             .B(B),
             .Fpay(Fpay),
             .DEBUG_EN(DEBUG_EN),
-            .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-            .WEIGHTw(WEIGHTw),
-            .EAw(EAw),
-            .DSTPw(DSTPw),
-            .BYTE_EN("BYTE_EN")
+            
+            .DSTPw(DSTPw)
+           
         )
         nn
         (
@@ -639,7 +632,8 @@ generate
         flit_buffer #(
             .V(V),
             .B(B),   // buffer space :flit per VC 
-            .Fpay(Fpay),
+            .PCK_TYPE(PCK_TYPE),
+            .Fw(Fw),
             .DEBUG_EN(DEBUG_EN),
             .SSA_EN(SSA_EN)
         )
@@ -689,7 +683,7 @@ endgenerate
     header_flit_update_lk_route_ovc #(
         .V(V),
         .P(P),
-        .Fpay(Fpay),  
+      
         .TOPOLOGY(TOPOLOGY),     
         .EAw(EAw),
         .DSTPw(DSTPw),

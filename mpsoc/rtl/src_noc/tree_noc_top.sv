@@ -48,8 +48,7 @@ module  tree_noc_top
 	endfunction 
     
 	localparam
-		PV = V * MAX_P,
-		Fw = 2+V+Fpay, //flit width;    
+		PV = V * MAX_P,		
 		PFw = MAX_P * Fw,
 		NEFw = NE * Fw,
 		NEV = NE * V,

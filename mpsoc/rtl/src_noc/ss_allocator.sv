@@ -150,21 +150,9 @@ import pronoc_pkg::*;
              
        
             ssa_per_vc #(
-                .TOPOLOGY(TOPOLOGY),
                 .SS_PORT(SS_PORT),
                 .V_GLOBAL(i),
-                .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-                .WEIGHTw(WEIGHTw),
-                .EAw(EAw),
-                .DSTPw(DSTPw),
-                .C(C),                
-                .V(V),
-                .P(P),
-                .Fpay(Fpay),
-                .ROUTE_TYPE(ROUTE_TYPE),
-                .DEBUG_EN(DEBUG_EN),
-                .ESCAP_VC_MASK(ESCAP_VC_MASK),
-                .BYTE_EN(BYTE_EN)
+                .P(P)              
             )
             the_ssa_per_vc
             (
@@ -243,22 +231,12 @@ endmodule
  *  ssa_per_vc 
  * ***********/
 
-module ssa_per_vc #(
-    parameter TOPOLOGY ="MESH",
+module ssa_per_vc 
+    import pronoc_pkg::*;
+#(
     parameter SS_PORT = "WEST",
     parameter V_GLOBAL = 1,
-    parameter V = 4,    // vc_num_per_port
-    parameter P = 5,    // router port num
-    parameter Fpay = 32, //pa
-    parameter ROUTE_TYPE="DETERMINISTIC", // "DETERMINISTIC", "FULL_ADAPTIVE", "PAR_ADAPTIVE"
-    parameter SWA_ARBITER_TYPE= "RRA",// "RRA", "WRRA",
-    parameter WEIGHTw = 4, // WRRA weight width
-    parameter EAw = 3,
-    parameter DSTPw=P-1,
-    parameter C = 4,    //  number of flit class 
-    parameter DEBUG_EN =   1,
-    parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000,
-    parameter BYTE_EN=0
+    parameter P=5
     )
     (
         flit_in_wr,
@@ -350,14 +328,7 @@ module ssa_per_vc #(
     wire   condition_1_2_valid;   
    
     extract_header_flit_info #(
-        .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-        .WEIGHTw(WEIGHTw),
-        .V(V),
-        .EAw(EAw),
-        .DSTPw(DSTPw),
-        .C(C),
-        .Fpay(Fpay),
-        .BYTE_EN(BYTE_EN)
+    	.DATA_w(0)	
        )
        extractor
        (

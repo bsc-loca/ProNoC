@@ -1,5 +1,5 @@
 /**********************************************************************
-**  File:  header_flit.v
+**  File:  header_flit.sv
 **  Date:2017-07-11   
 **    
 **  Copyright (C) 2014-2017  Alireza Monemi
@@ -28,16 +28,11 @@
 *   header_flit_generator
 ***************/
 
-module header_flit_generator  #(
-    parameter SWA_ARBITER_TYPE= "RRA",// "RRA", "WRRA",
-    parameter Fpay = 32,     //payload width
-    parameter V = 4,    // vc_num_per_port
-    parameter EAw = 4,   
-    parameter DSTPw=4,  
-    parameter C = 4,    //  number of flit class 
-    parameter WEIGHTw = 4, // WRRA weight width
-    parameter DATA_w = 9, // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
-    parameter BYTE_EN = 0
+module header_flit_generator
+import pronoc_pkg::*; 
+#(
+    parameter DATA_w = 9 // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
+   
 )(
     
     flit_out,    
@@ -63,31 +58,21 @@ module header_flit_generator  #(
    
 /* verilator lint_off WIDTH */ 
     localparam
-        Fw   =   2+V+Fpay,//flit width
         Cw   =  (C>1)? log2(C): 1,
         HDR_FLAG  =   2'b10,
         BEw = (BYTE_EN)? log2(Fpay/8) : 1;
 /* verilator lint_on WIDTH */      
 
 
-    localparam 
-        Dw = (DATA_w==0)? 1 : DATA_w;       
-       
+ 
 
-     localparam 
-        E_SRC_LSB =0,                   E_SRC_MSB = E_SRC_LSB + EAw-1,
-        E_DST_LSB = E_SRC_MSB +1,       E_DST_MSB = E_DST_LSB + EAw-1,  
-        DST_P_LSB = E_DST_MSB + 1,      DST_P_MSB = DST_P_LSB + DSTPw-1, 
-        CLASS_LSB = DST_P_MSB + 1,      CLASS_MSB = CLASS_LSB + Cw -1, 
-        MSB_CLASS = (C>1)? CLASS_MSB : DST_P_MSB,
-        WEIGHT_LSB= MSB_CLASS + 1,      WEIGHT_MSB = WEIGHT_LSB + WEIGHTw -1,
-        /* verilator lint_off WIDTH */ 
-        MSB_W = (SWA_ARBITER_TYPE== "WRRA")? WEIGHT_MSB : MSB_CLASS,
-        /* verilator lint_on WIDTH */
-        BE_LSB =  MSB_W + 1,            BE_MSB = BE_LSB+ BEw-1,
-        MSB_BE = (BYTE_EN==1)?   BE_MSB  : MSB_W,         
+
+    localparam 
+        Dw = (DATA_w==0)? 1 : DATA_w,      
         DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1;
-        
+    
+    
+    
     
     output   [Fw-1  :   0] flit_out; 
     input    [Cw-1  :   0] class_in;    
@@ -150,16 +135,10 @@ endmodule
 
 
 
-module extract_header_flit_info #(
-    parameter SWA_ARBITER_TYPE= "RRA",// "RRA", "WRRA",
-    parameter WEIGHTw = 4, // WRRA weight width
-    parameter V = 4,    // vc_num_per_port
-    parameter EAw = 3,
-    parameter DSTPw=4,
-    parameter C = 4,    //  number of flit class 
-    parameter Fpay = 32,     //payload width
-    parameter DATA_w = 0,
-    parameter BYTE_EN = 0
+module extract_header_flit_info
+		import pronoc_pkg::*; 		
+#(
+    parameter DATA_w = 0
 )(
     //inputs
     flit_in,
@@ -190,14 +169,21 @@ module extract_header_flit_info #(
       end   
     endfunction // log2 
    
-    localparam
-        Fw = 2+V+Fpay,//flit width
+    localparam       
         Cw = (C>1)? log2(C): 1,
         W = WEIGHTw,
         BEw = (BYTE_EN)? log2(Fpay/8) : 1;
      
     localparam 
         Dw = (DATA_w==0)? 1 : DATA_w;
+     
+     localparam 
+      
+        DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1;
+        
+    
+     
+    localparam OFFSETw = DATA_MSB - DATA_LSB +1; 
      
     
     input [Fw-1 : 0] flit_in;
@@ -217,23 +203,7 @@ module extract_header_flit_info #(
     
     
    
-    localparam 
-        E_SRC_LSB =0,                   E_SRC_MSB = E_SRC_LSB + EAw-1,
-        E_DST_LSB = E_SRC_MSB +1,       E_DST_MSB = E_DST_LSB + EAw-1,  
-        DST_P_LSB = E_DST_MSB + 1,      DST_P_MSB = DST_P_LSB + DSTPw-1, 
-        CLASS_LSB = DST_P_MSB + 1,      CLASS_MSB = CLASS_LSB + Cw -1, 
-        MSB_CLASS = (C>1)? CLASS_MSB : DST_P_MSB,
-        WEIGHT_LSB= MSB_CLASS + 1,      WEIGHT_MSB = WEIGHT_LSB + WEIGHTw -1,
-        /* verilator lint_off WIDTH */ 
-        MSB_W = (SWA_ARBITER_TYPE== "WRRA")? WEIGHT_MSB : MSB_CLASS,
-        /* verilator lint_on WIDTH */
-        BE_LSB =  MSB_W + 1,            BE_MSB = BE_LSB+ BEw-1,
-        MSB_BE = (BYTE_EN==1)?   BE_MSB  : MSB_W,         
-        DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1;
-        
-             
-     
-    localparam OFFSETw = DATA_MSB - DATA_LSB +1;
+   
    
     wire [OFFSETw-1 : 0 ] offset;
   
@@ -275,9 +245,13 @@ module extract_header_flit_info #(
     
     endgenerate          
    
+   /* verilator lint_off WIDTH */     
+    assign hdr_flg_o  = (PCK_TYPE == "MULTI_FLIT") ? flit_in [Fw-1]  : 1'b1;
+    assign tail_flg_o = (PCK_TYPE == "MULTI_FLIT") ? flit_in [Fw-2]  : 1'b1;
+   /* verilator lint_on WIDTH */    
+   
+   
     assign vc_num_o = flit_in [Fpay+V-1 : Fpay];
-    assign hdr_flg_o= flit_in [Fw-1];
-    assign tail_flg_o=    flit_in   [Fw-2];
     assign hdr_flit_wr_o= (flit_in_wr & hdr_flg_o )? vc_num_o : {V{1'b0}};
 
 endmodule
@@ -293,9 +267,10 @@ endmodule
 **********************************/
 
 module header_flit_update_lk_route_ovc #(
+    parameter PCK_TYPE = "MULTI_FLIT",
     parameter V = 4,
     parameter P = 5,
-    parameter Fpay = 32,
+    parameter Fw = 36,
     parameter TOPOLOGY =    "MESH",//"MESH","TORUS","RING" 
     parameter EAw = 3,
     parameter DSTPw=4,
@@ -316,7 +291,6 @@ module header_flit_update_lk_route_ovc #(
 
 
     localparam  
-        Fw = 2+V+Fpay,
         VDSTPw = V * DSTPw,
         VV = V * V;
                  
@@ -357,9 +331,10 @@ module header_flit_update_lk_route_ovc #(
             //assigned_ovc_num_delayed  <=assigned_ovc_num;
         end
     end
-    
-    assign hdr_flag = flit_in[Fw-1];
-    
+    /* verilator lint_off WIDTH */
+    assign hdr_flag = ( PCK_TYPE == "MULTI_FLIT")? flit_in[Fw-1]: 1'b1;
+    /* verilator lint_on WIDTH */
+      
     onehot_mux_1D #(
         .W(DSTPw),
         .N(V) 
@@ -447,13 +422,22 @@ module header_flit_update_lk_route_ovc #(
          );
          */
     end
+        if( PCK_TYPE == "MULTI_FLIT")begin : multi
+            always @(*)begin 
+                flit_out = {flit_in[Fw-1 : Fw-2],ovc_num,flit_in[Fw-2-V-1 :0]};
+                if(hdr_flag) flit_out[DST_P_MSB : DST_P_LSB]= dest_coded;
+            end
+        end else begin : single 
+            always @(*)begin 
+                flit_out = {ovc_num,flit_in[Fw-V-1 :0]};
+                flit_out[DST_P_MSB : DST_P_LSB]= dest_coded;
+            end
+        end
+    
     endgenerate
 
 
-     always @(*)begin 
-        flit_out = {flit_in[Fw-1 : Fw-2],ovc_num,flit_in[Fpay-1 :0]};
-        if(hdr_flag) flit_out[DST_P_MSB : DST_P_LSB]= dest_coded;
-    end
+    
 
 endmodule
 
@@ -461,15 +445,8 @@ endmodule
  *  hdr_flit_weight_update
  * ****************/
 
-module hdr_flit_weight_update #(
-    parameter V=2,
-    parameter Fpay=32,
-    parameter EAw=4,
-    parameter DSTPw=4,
-    parameter WEIGHTw=4,
-    parameter C=1
-
-) 
+module hdr_flit_weight_update 
+		import pronoc_pkg::*;
 (
     new_weight,
     flit_in,
@@ -487,7 +464,7 @@ module hdr_flit_weight_update #(
 
 
      localparam  
-        Fw = 2+V+Fpay,
+       
         Cw = (C>1)? log2(C): 1;
                  
 
@@ -495,13 +472,7 @@ module hdr_flit_weight_update #(
     input [Fw-1 : 0] flit_in;
     output [Fw-1 : 0] flit_out;
 
-     localparam 
-        E_SRC_LSB =0,                   E_SRC_MSB = E_SRC_LSB + EAw-1,
-        E_DST_LSB = E_SRC_MSB +1,       E_DST_MSB = E_DST_LSB + EAw-1,  
-        DST_P_LSB = E_DST_MSB + 1,      DST_P_MSB = DST_P_LSB + DSTPw-1, 
-        CLASS_LSB = DST_P_MSB + 1,      CLASS_MSB = CLASS_LSB + Cw -1, 
-        MSB_CLASS = (C>1)? CLASS_MSB : DST_P_MSB,
-        WEIGHT_LSB= MSB_CLASS + 1;
+    
 
   assign flit_out =  {flit_in[Fw-1 : WEIGHT_LSB+WEIGHTw ] ,new_weight, flit_in[WEIGHT_LSB-1 : 0] };
 

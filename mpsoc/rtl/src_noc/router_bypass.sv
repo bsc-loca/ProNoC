@@ -558,7 +558,6 @@ module sbp_validity_check_per_ivc
 	sbp_buff_space_decreased_o  ,
 	sbp_ss_ovc_is_allocated_o   ,
 	sbp_ss_ovc_is_released_o    ,
-	sbp_ss_ovc_hdr_flit_req_o   ,
 	sbp_mask_available_ss_ovc_o ,
 	sbp_ivc_num_getting_ovc_grant_o,
 	sbp_ivc_reset_o,			
@@ -593,7 +592,6 @@ output
 	sbp_buff_space_decreased_o  ,
 	sbp_ss_ovc_is_allocated_o   ,
 	sbp_ss_ovc_is_released_o    ,
-	sbp_ss_ovc_hdr_flit_req_o   ,
 	sbp_ivc_num_getting_ovc_grant_o,
 	sbp_ivc_reset_o,			
 	sbp_mask_available_ss_ovc_o;	
@@ -614,7 +612,7 @@ logic sbp_hdr_flit_req;
 	
 register #(.W(1)) req1 (.in(sbp_req_valid_next), .reset(reset), .clk(clk), .out(sbp_req_valid));
 register #(.W(1)) req2 (.in(sbp_hdr_flit_req_next), .reset(reset), .clk(clk), .out(sbp_hdr_flit_req));
-register  #(.W(1)) req3 (.in((SSA_EN == "YES")? sbp_ivc_i: 1'b0), .reset(reset), .clk(clk), .out(sbp_ss_ovc_hdr_flit_req_o));
+
 
 
 	
@@ -687,7 +685,6 @@ module sbp_allocator_per_iport
 	sbp_buff_space_decreased_o, 
 	sbp_ss_ovc_is_allocated_o,     
 	sbp_ss_ovc_is_released_o, 
-	sbp_ss_ovc_hdr_flit_req_o,
 	sbp_ivc_num_getting_ovc_grant_o,
 	sbp_ivc_reset_o,
 	sbp_mask_available_ss_ovc_o,
@@ -718,7 +715,6 @@ module sbp_allocator_per_iport
 		sbp_buff_space_decreased_o, 
 		sbp_ss_ovc_is_allocated_o,     
 		sbp_ss_ovc_is_released_o, 
-		sbp_ss_ovc_hdr_flit_req_o,
 		sbp_mask_available_ss_ovc_o,
 		sbp_ivc_num_getting_ovc_grant_o,
 		sbp_ivc_reset_o,		
@@ -835,7 +831,6 @@ module sbp_allocator_per_iport
 			.sbp_buff_space_decreased_o  (sbp_buff_space_decreased_o[i]), 
 			.sbp_ss_ovc_is_allocated_o   (sbp_ss_ovc_is_allocated_o[i] ), 
 			.sbp_ss_ovc_is_released_o    (sbp_ss_ovc_is_released_o[i]  ),
-			.sbp_ss_ovc_hdr_flit_req_o   (sbp_ss_ovc_hdr_flit_req_o[i]),
 			.sbp_mask_available_ss_ovc_o (sbp_mask_available_ss_ovc_o[i] ),
 			.sbp_ivc_num_getting_ovc_grant_o(sbp_ivc_num_getting_ovc_grant_o[i]),
 			.sbp_ivc_reset_o			 (sbp_ivc_reset_o[i]),			

@@ -9,13 +9,11 @@ module  flit_buffer_reg_base #(
     parameter V        =   4,
     parameter B        =   4,   // buffer space :flit per VC 
     parameter Fpay     =   32,
+    parameter PCK_TYPE = "MULTI_FLIT",
     parameter DEBUG_EN =   1,
-    parameter C = 4,    //    number of flit class
-    parameter SWA_ARBITER_TYPE = "RRA",
-    parameter WEIGHTw=1,
-    parameter EAw=4,
+    parameter C=1,
     parameter DSTPw=4,
-    parameter BYTE_EN="NO"
+    parameter SSA_EN="YES" // "YES" , "NO"       
 )(
     din,
     vc_num_wr,
@@ -45,7 +43,7 @@ module  flit_buffer_reg_base #(
         Cw = (C>1)? log2(C): 1,
         Vw         =   log2(V),
         REGFw      =   2+Fpay,   //Fpay + headr flags
-        Fw         =   2+V+Fpay,   //flit width
+        Fw =2+V+Fpay,
         VFw        =   V * Fw,
         VCw        =   V * Cw,
         VDSTPw     =   V * DSTPw;
@@ -133,7 +131,8 @@ module  flit_buffer_reg_base #(
     flit_buffer #(
         .V(V),
         .B(B),
-        .Fpay(Fpay),
+        .PCK_TYPE(PCK_TYPE),
+        .Fw(Fw),
         .DEBUG_EN(DEBUG_EN),
         .SSA_EN("NO")// should be "NO" even if SSA is enabled
     )
@@ -172,15 +171,7 @@ module  flit_buffer_reg_base #(
         
         
      extract_header_flit_info #(
-        .SWA_ARBITER_TYPE(SWA_ARBITER_TYPE),
-        .WEIGHTw(WEIGHTw),
-        .V(V),
-        .EAw(EAw),
-        .DSTPw(DSTPw),
-        .C(C),
-        .Fpay(Fpay),
-        .DATA_w(0),
-        .BYTE_EN(BYTE_EN)
+        .DATA_w(0)
      )
      header_extractor
      (

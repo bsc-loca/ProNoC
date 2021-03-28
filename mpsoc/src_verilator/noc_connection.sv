@@ -164,7 +164,6 @@ module noc_connection
    
     localparam
         PV = V * MAX_P,
-        Fw = 2+V+Fpay, //flit width;    
         PFw = MAX_P * Fw,
         CONG_ALw = CONGw * MAX_P, // congestion width per router            
         W= WEIGHTw,
