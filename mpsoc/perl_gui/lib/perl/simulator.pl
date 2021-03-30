@@ -424,8 +424,11 @@ sub get_simulator_noc_configuration{
 		
 		my $max_pck_size =	 get_MAX_PCK_SIZ();
 		
+		my $NE;
+		my ($infobox,$info)= create_txview();
+		my $st =  check_sim_sample($self,$sample,$info);  
 		
-			my $traffics="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot,shuffle,bit rotation,neighbor,custom"; 	
+		my $traffics="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot,shuffle,bit rotation,neighbor,custom"; 	
 		my @synthinfo = (
 		
 		
@@ -458,9 +461,7 @@ sub get_simulator_noc_configuration{
 	
 		my $traffic=$self->object_get_attribute($sample,"traffic");
 		
-		my $NE;
-		my ($infobox,$info)= create_txview();
-		my $st =  check_sim_sample($self,$sample,$info);  
+		
 		if ($st==0){
 				$NE=100;
 		}else{
@@ -1087,7 +1088,9 @@ sub check_sim_sample{
 	
 	my $p= $self->object_get_attribute ($sample,"noc_info");    
     my $HW_MIN_PCK_SIZE=$p->{"MIN_PCK_SIZE"};
+    my $HW_PCK_TYPE=$p->{"PCK_TYPE"};
     my $SIM_MIN_PCK_SIZE=$self->object_get_attribute ($sample,"MIN_PCK_SIZE");
+    my $SIM_MAX_PCK_SIZE=$self->object_get_attribute ($sample,"MAX_PCK_SIZE");
    if(!defined $HW_MIN_PCK_SIZE){
     	$HW_MIN_PCK_SIZE= 2;   
     	#print "undef\n"; 	
@@ -1096,8 +1099,15 @@ sub check_sim_sample{
 		add_colored_info($info, "Error: The minimum simulation packet size of $SIM_MIN_PCK_SIZE flit(s) is smaller than $HW_MIN_PCK_SIZE which is defined in generating verilog model of NoC!\n",'red');
 		$self->object_add_attribute ($sample,"status","failed");	
 		$status=0;
-	}	
-	#print "$HW_MIN_PCK_SIZE>$SIM_MIN_PCK_SIZE\n"; 			
+	}
+	if( $HW_PCK_TYPE eq '"SINGLE_FLIT"' && $SIM_MAX_PCK_SIZE !=1){
+		#print "$HW_PCK_TYPE  \n"; 
+		add_colored_info($info, "Error: The maximum packet size is set as $SIM_MAX_PCK_SIZE however, the selected NoC model only support single-flit packet injection! Please redefine it to one\n",'red');
+		
+		$self->object_add_attribute ($sample,"status","failed");	
+		$status=0;
+	}
+			
 	return $status;
 }
 

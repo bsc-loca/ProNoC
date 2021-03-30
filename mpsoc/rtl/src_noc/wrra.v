@@ -773,7 +773,6 @@ module weights_update # (
     parameter ARBITER_TYPE="WRRA",
     parameter V=4,
     parameter P=5,
-    parameter Fpay =32,
     parameter Fw = 36,    //flit width;  
     parameter WEIGHTw=4,
     parameter C = 4,
@@ -836,7 +835,7 @@ module weights_update # (
             .V(V),
             .C(C),
             .P(P),
-            .Fpay(Fpay),
+            .Fw(Fw),
             .EAw(EAw),
             .DSTPw(DSTPw),
             .TOPOLOGY(TOPOLOGY),
@@ -1011,7 +1010,7 @@ module weight_update_per_port # (
     parameter V=4,
     parameter C=2,
     parameter P=5,
-    parameter Fpay =32,
+    parameter Fw =36,
     parameter WEIGHTw=4,
     parameter EAw=3,
     parameter DSTPw=P-1,
@@ -1029,11 +1028,10 @@ module weight_update_per_port # (
 ); 
 
                   
-/* verilator lint_off WIDTH */ 
+
     localparam 
-        W=WEIGHTw,
-        Fw  =   2+V+Fpay;
-/* verilator lint_on WIDTH */          
+        W=WEIGHTw;
+          
     
    
     localparam WEIGHT_LATCHED = 0;  //(WRRA_CONFIG_INDEX==0 || WRRA_CONFIG_INDEX==1 || WRRA_CONFIG_INDEX==2 || WRRA_CONFIG_INDEX==3 ); //1: no latched  0: latched

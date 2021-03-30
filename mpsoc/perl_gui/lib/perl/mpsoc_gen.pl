@@ -713,16 +713,39 @@ if($topology ne '"CUSTOM"' ){
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_routing,'noc_param',1);
 
 }
-	#MIN_PCK_SIZE 
-	# 2 //minimum packet size in flits. The minimum value is 1. 
-	$label='Minimum packet size'; 
-    $param='MIN_PCK_SIZE';
-    $default='2';
-    $content='1,65535,1';
-    $type='Spin-button';
-    $info="The minimum packet size in flits. In atomic VC re-allocation, it is just important to define if the single-flit sized packets are allowed to be injected to the NoC by defining this parameter value as one.  Setting any larger value than one results in the same architecture and the NoC works correctly even if it receives smaller packets size as while as they are not single flit -sized packets.  However, for non-atomic VC reallocation NoCs, you have to define the exact value as it defines the NoC control registers' internal buffers. The NoC may crash once it receives  packets having smaler size than the defined  minimum packet size."; 
-    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',undef);
 
+	#PCK_TYPE
+	$label='Packet type'; 
+    $param='PCK_TYPE';
+    $default='"MULTI_FLIT"';
+    $content='"MULTI_FLIT","SINGLE_FLIT"';
+    $type="Combo-box";
+    $info="Define packet type: SINGLE_FLIT: all packets send to NoC are single-flit sized. 
+    Multi-flit: packets can be consists of one or several flits. A multi-flit packet can be 
+    	a)single-flit sized : both headr and tail flag must be asserted for this flit, 
+    	b)two-flit sized: a header flit and a tail flit, or 
+    	c)more than 2 fits: start with a headr flit, continued with one or more body flits and end up with a tail flit
+    	For MULTI-FLIT packet you need to defin ethe minum size of a paket that can be injecte to the NoC.
+    ";
+     
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
+	
+	 my $pck_type=$mpsoc->object_get_attribute('noc_param','PCK_TYPE');  
+  
+	if($pck_type eq '"MULTI_FLIT"'){
+
+		#MIN_PCK_SIZE 
+		# 2 //minimum packet size in flits. The minimum value is 1. 
+		$label='Minimum packet size'; 
+	    $param='MIN_PCK_SIZE';
+	    $default='2';
+	    $content='1,65535,1';
+	    $type='Spin-button';
+	    $info="The minimum packet size in flits. In atomic VC re-allocation, it is just important to define if the single-flit sized packets are allowed to be injected to the NoC by defining this parameter value as one.  Setting any larger value than one results in the same architecture and the NoC works correctly even if it receives smaller packets size as while as they are not single flit -sized packets.  However, for non-atomic VC reallocation NoCs, you have to define the exact value as it defines the NoC control registers' internal buffers. The NoC may crash once it receives  packets having smaler size than the defined  minimum packet size."; 
+	    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',undef);
+	}else{
+		 $mpsoc->object_add_attribute('noc_param','MIN_PCK_SIZE',1);   
+	}
 
     # BYTE_EN
     $label='Byte Enable';

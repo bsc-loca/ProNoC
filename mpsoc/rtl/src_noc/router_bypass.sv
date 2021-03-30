@@ -133,7 +133,7 @@ module header_flit_info
               
      
 	localparam		         
-		DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1,
+		DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<FPAYw ? DATA_LSB + Dw-1 : FPAYw-1,
 		OFFSETw = DATA_MSB - DATA_LSB +1;
    
 	wire [OFFSETw-1 : 0 ] offset;
@@ -144,7 +144,7 @@ module header_flit_info
     
    
 	generate
-		if(C>1)begin :have_class 
+		if(C>1)begin : have_class 
 			assign hdr_flit.message_class = flit.payload [CLASS_MSB : CLASS_LSB];
 		end else begin : no_class
 			assign hdr_flit.message_class = {Cw{1'b0}};
@@ -636,7 +636,12 @@ assign sbp_ivc_sbp_en_o = conditions_met & sbp_req_valid;
 	
 
 
-assign sbp_single_flit_pck_o     = (MIN_PCK_SIZE==1)?  flit_tail_flag_i & flit_hdr_flag_i : 1'b0; 	
+assign sbp_single_flit_pck_o     = 
+	/* verilator lint_off WIDTH */
+	(PCK_TYPE == "SINGLE_FLIT")? 1'b1 :
+	/* verilator lint_on WIDTH */
+	(MIN_PCK_SIZE==1)?  flit_tail_flag_i & flit_hdr_flag_i : 1'b0; 
+
 assign sbp_buff_space_decreased_o =  sbp_ivc_sbp_en_o & flit_wr_i ;
 assign sbp_ivc_num_getting_ovc_grant_o  =  sbp_buff_space_decreased_o & !ovc_is_assigned  & flit_hdr_flag_i;
 assign sbp_ivc_reset_o   =  sbp_buff_space_decreased_o & flit_tail_flag_i;

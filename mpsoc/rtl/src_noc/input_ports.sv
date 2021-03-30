@@ -317,8 +317,8 @@ module input_queue_per_port
 	wire [V-1 : 0] sbp_hdr_en;
     
     
-	reg [V-1  : 0] ovc_is_assigned_next;
-	reg [VV-1 : 0] assigned_ovc_num_next;
+	logic [V-1  : 0] ovc_is_assigned_next;
+	logic [VV-1 : 0] assigned_ovc_num_next;
 	
 	
 	assign reset_ivc  = sbp_ctrl_in.ivc_reset | ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset;
@@ -485,23 +485,13 @@ module input_queue_per_port
 		
 		
 		for (i=0;i<V; i=i+1) begin: V_
-    		
-		
 	
-			always @ (*) begin
-				//default values
-				ovc_is_assigned_next[i] = ovc_is_assigned[i];
-		
-				if( vsa_ctrl_in.ivc_reset[i] |
-				    ssa_ctrl_in.ivc_reset[i] |
-				    sbp_ctrl_in.ivc_reset[i] 
-				)  	ovc_is_assigned_next[i] = 1'b0;
-				
-				else if( vsa_ctrl_in.ivc_num_getting_ovc_grant[i] |
-						 (ssa_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  ssa_ctrl_in.single_flit_pck[i])|
-						 (sbp_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  sbp_ctrl_in.single_flit_pck[i])
-				)       ovc_is_assigned_next[i] = 1'b1;		
-			end//always
+			always @(*) begin
+				assigned_ovc_num_next[(i+1)*V-1 : i*V] = assigned_ovc_num[(i+1)*V-1 : i*V] ;
+				if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i] ) begin 
+					assigned_ovc_num_next[(i+1)*V-1 : i*V] = mux_out[i];
+				end
+			end
 			
 			onehot_mux_1D #(
 				.N  (3), 
@@ -516,12 +506,7 @@ module input_queue_per_port
 			
 			
 			
-			always @(*) begin
-				assigned_ovc_num_next[(i+1)*V-1 : i*V] = assigned_ovc_num[(i+1)*V-1 : i*V] ;
-				if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i] ) begin 
-					assigned_ovc_num_next[(i+1)*V-1 : i*V] = mux_out[i];
-				end
-			end
+			
 			
 			//synthesis translate_off
 			//synopsys  translate_off
@@ -598,8 +583,24 @@ module input_queue_per_port
 				);    
         
 			if(PCK_TYPE == "MULTI_FLIT") begin : multi 
-			//tail fifo
-			fwft_fifo #(
+				
+				always @ (*) begin
+					ovc_is_assigned_next[i] = ovc_is_assigned[i];		
+					if( vsa_ctrl_in.ivc_reset[i] |
+							ssa_ctrl_in.ivc_reset[i] |
+							sbp_ctrl_in.ivc_reset[i] 
+						)  	ovc_is_assigned_next[i] = 1'b0;
+				
+					else if( vsa_ctrl_in.ivc_num_getting_ovc_grant[i] |
+							(ssa_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  ssa_ctrl_in.single_flit_pck[i])|
+							(sbp_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  sbp_ctrl_in.single_flit_pck[i])
+						)       ovc_is_assigned_next[i] = 1'b1;		
+				end//always
+				
+				
+				
+				//tail fifo
+				fwft_fifo #(
 					.DATA_WIDTH(1),
 					.MAX_DEPTH (B),
 					.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
@@ -619,6 +620,8 @@ module input_queue_per_port
 				);
 			end else begin :single
 				assign flit_is_tail[i]=1'b1;
+				assign ovc_is_assigned_next[i] = 1'b0;
+				
 			end
 			//dest_e_addr_in fifo
 			if(SBP_EN) begin : sbp_
@@ -946,16 +949,7 @@ module input_queue_per_port
 			);
 
 		header_flit_update_lk_route_ovc #(
-				.PCK_TYPE(PCK_TYPE),
-				.V(V),
-				.P(P),
-				.Fw(Fw),  
-				.TOPOLOGY(TOPOLOGY),     
-				.EAw(EAw),
-				.DSTPw(DSTPw),
-				.SSA_EN(SSA_EN),          
-				.ROUTE_TYPE(ROUTE_TYPE)
-    
+				.P(P)    
 			)
 			the_flit_update
 			(

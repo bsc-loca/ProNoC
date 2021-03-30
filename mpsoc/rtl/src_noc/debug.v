@@ -8,7 +8,8 @@
 
 //check if flits are recived in correct order in a VC
 module check_flit_chanel_type_is_in_order #(
-    parameter V=4
+    parameter V=4,
+    parameter PCK_TYPE = "SINGLE_FLIT"
 )(
     hdr_flg_in,
     flit_in_wr,
@@ -60,8 +61,17 @@ module check_flit_chanel_type_is_in_order #(
                 
                 $finish;
             end
-        end
-    end
+            /* verilator lint_off WIDTH */
+            if((PCK_TYPE == "SINGLE_FLIT") &  flit_in_wr & ~(hdr_flg_in &  tail_flg_in )) begin 
+                $display("%t ERROR: both tail and header flit flags must be asserted in SINGLE_FLIT mode %m",$time);
+                
+                $finish;
+            end   
+            /* verilator lint_on WIDTH */
+            
+            
+        end//else
+    end//always
 endmodule
 
 

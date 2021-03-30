@@ -27,13 +27,8 @@
 
 module output_ports 
     import pronoc_pkg::*;
- #(
-
-   
-    parameter P = 5 // router port num
-   
-    
-    
+ #(   
+    parameter P = 5 // router port num       
 )(
     vsa_ovc_allocated_all,
     flit_is_tail_all,
@@ -311,8 +306,9 @@ module output_ports
     
     for(i=0;i< PV;i=i+1) begin :PV_loop2
          sw_mask_gen #(
-            .V (V), // vc_num_per_port
-            .P    (P) // router port num
+         	.PCK_TYPE(PCK_TYPE),
+         	.V (V), // vc_num_per_port
+            .P (P) // router port num
             
         )sw_mask
         (
@@ -344,10 +340,15 @@ module output_ports
                 credit_counter[i]    <=    credit_counter_next[i];
                 full_all[i]            <=    full_all_next[i];
                 nearly_full_all[i]<=    nearly_full_all_next[i];
-                if(ovc_released_all[i])        ovc_status[i]<=1'b0;
-                if(ovc_allocated_all[i] & ~granted_dst_is_from_a_single_flit_pck[i/V])    ovc_status[i]<=1'b1; // donot change VC status for single flit packet
-            end
-        end
+                /* verilator lint_off WIDTH */
+               	if(PCK_TYPE == "SINGLE_FLIT")  ovc_status[i]<=1'b0; // donot change VC status for single flit packet
+               	/* verilator lint_on WIDTH */
+               	else begin 
+                	if(ovc_released_all[i])        ovc_status[i]<=1'b0;
+                	if(ovc_allocated_all[i] & ~granted_dst_is_from_a_single_flit_pck[i/V])    ovc_status[i]<=1'b1; // donot change VC status for single flit packet
+            	end
+            end//else reset
+        end//always
     end//for    
     
     
@@ -591,8 +592,9 @@ endmodule
 *********************************/
 
 module sw_mask_gen #(
-        parameter V = 4, // vc_num_per_port
-        parameter P    = 5 // router port num
+    parameter PCK_TYPE = "MULTI_FLIT",    
+	parameter V = 4, // vc_num_per_port
+    parameter P    = 5 // router port num
         
 )(
     assigned_ovc_num,
@@ -690,7 +692,7 @@ module sw_mask_gen #(
         end
     end//always
     
-    assign assigned_ovc_is_full    = full_reg1 | full_reg2;
+    assign assigned_ovc_is_full    = (PCK_TYPE == "MULTI_FLIT")? full_reg1 | full_reg2: 1'b0;
     
 endmodule
 

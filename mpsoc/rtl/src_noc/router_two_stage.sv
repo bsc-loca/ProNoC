@@ -389,7 +389,6 @@ module router_two_stage
 				.ARBITER_TYPE(SWA_ARBITER_TYPE),
 				.V(V),
 				.P(P),
-				.Fpay(Fpay),
 				.Fw(Fw),
 				.WEIGHTw(WEIGHTw),
 				.WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),

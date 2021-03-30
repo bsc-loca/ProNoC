@@ -387,6 +387,7 @@ module testbench_noc;
 			total_rsv_flit_number_old<=total_rsv_flit_number;
 			if(all_done_in) begin //All injectors stopped injecting packets 
 				if(total_rsv_flit_number_old==total_rsv_flit_number) rsv_ideal_cnt<=rsv_ideal_cnt+1;//count the number of cycle when no flit is received by any injector  
+				else rsv_ideal_cnt=0;
 				if(total_sent_flit_number == total_rsv_flit_number) begin // All injected packets are consumed
 					done<=1'b1;
 				end

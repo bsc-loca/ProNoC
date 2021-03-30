@@ -302,7 +302,11 @@ import pronoc_pkg::*;
    );   
      
     
-   assign pck_is_single_flit_all = (MIN_PCK_SIZE == 1)? flit_is_tail_all & ~ovc_is_assigned_all :  {PV{1'b0}}; 
+   assign pck_is_single_flit_all = 
+   	/* verilator lint_off WIDTH */
+   	(PCK_TYPE == "SINGLE_FLIT")? {PV{1'b1}}  :
+   	/* verilator lint_on WIDTH */
+   	(MIN_PCK_SIZE == 1)? flit_is_tail_all & ~ovc_is_assigned_all :  {PV{1'b0}}; 
    
    register #(.W(PV)) credit_reg (.in(ivc_num_getting_sw_grant),.reset(reset),.clk(clk),.out(credit_out_all)); 
     

@@ -58,8 +58,7 @@ import pronoc_pkg::*;
     localparam  PV          =   V   *   P,
     			VV			=   V * V,
                 PVV         =   PV  *   V,
-                PVDSTPw= PV * DSTPw,
-                Fw          =   2+V+Fpay,//flit width
+                PVDSTPw= PV * DSTPw,                
                 PFw         =   P   *   Fw;
                 
     localparam    DISABLED = P;                       
@@ -268,8 +267,7 @@ module ssa_per_vc
         
     
     //header packet filds width
-    localparam  Fw      =2+V+Fpay,//flit width
-                SW_LOC             =V_GLOBAL/V,
+    localparam  SW_LOC             =V_GLOBAL/V,
                 V_LOCAL            =V_GLOBAL%V;
 
     /* verilator lint_off WIDTH */ 
@@ -323,7 +321,11 @@ module ssa_per_vc
     wire    [V-1 : 0] vc_num_in;
     wire    hdr_flg;
     wire    tail_flg;
-    assign  single_flit_pck = hdr_flg & tail_flg;
+    assign  single_flit_pck = 
+    	(PCK_TYPE == "SINGLE_FLIT")? 1'b1 :
+    	(MIN_PCK_SIZE==1)?  hdr_flg & tail_flg : 1'b0; 
+    	
+    
     
     wire   condition_1_2_valid;   
    

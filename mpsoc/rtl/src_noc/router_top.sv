@@ -37,7 +37,11 @@ module router_top
 		if((SBP_EN==1'b1) && COMBINATION_TYPE!="COMB_NONSPEC"  )begin
 			$display("ERROR: SBP only works with non-speculative VSA");
 			$finish;        
-		end		
+		end	
+		if((MIN_PCK_SIZE > 1) && (PCK_TYPE == "SINGLE_FLIT")) begin 
+			$display("ERROR: The minimum packet size must be set as one for single-flit packet type NoC");
+			$finish;	
+		end
 	end
 	/* verilator lint_on WIDTH */
 	//synopsys  translate_on
@@ -92,7 +96,8 @@ module router_top
 			
 			if(DEBUG_EN) begin :dbg
 			check_flit_chanel_type_is_in_order #(
-					.V(V)
+					.V(V),
+					.PCK_TYPE(PCK_TYPE)
 				)
 				IVC_flit_type_check
 				(

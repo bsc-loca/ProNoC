@@ -69,7 +69,7 @@ import pronoc_pkg::*;
 
     localparam 
         Dw = (DATA_w==0)? 1 : DATA_w,      
-        DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1;
+        DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<FPAYw ? DATA_LSB + Dw-1 : FPAYw-1;
     
     
     
@@ -107,23 +107,23 @@ import pronoc_pkg::*;
     
     
     if (DATA_w ==0) begin :no_data
-        if(Fpay>DATA_LSB) begin: dontcare
-                 assign flit_out [Fpay-1 : DATA_LSB] = {(Fpay-DATA_LSB){1'bX}};        
+        if(FPAYw>DATA_LSB) begin: dontcare
+                 assign flit_out [FPAYw-1 : DATA_LSB] = {(FPAYw-DATA_LSB){1'bX}};        
         end
     end else begin :have_data
                  assign flit_out [DATA_MSB : DATA_LSB] = data_in[DATA_MSB-DATA_LSB : 0]; // we have enough space for adding whole of the data                 
     end    
     endgenerate    
      
-    assign flit_out [Fpay+V-1    :    Fpay] = vc_num_in;
+    assign flit_out [FPAYw+V-1    :   FPAYw] = vc_num_in;
     assign flit_out [Fw-1        :    Fw-2] = HDR_FLAG;  
     
     
     //synthesis translate_off 
     //synopsys  translate_off
     initial begin
-        if((DATA_LSB + DATA_w)>=Fpay)begin
-            $display("%t: ERROR: The reqired header flit size is %d which is larger than %d payload size   ",$time,(DATA_LSB + DATA_w)-1,Fpay);
+        if((DATA_LSB + DATA_w)>=FPAYw)begin
+            $display("%t: ERROR: The reqired header flit size is %d which is larger than %d payload size   ",$time,(DATA_LSB + DATA_w)-1,FPAYw);
             $finish;        
         end
     end    
@@ -179,7 +179,7 @@ module extract_header_flit_info
      
      localparam 
       
-        DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<Fpay ? DATA_LSB + Dw-1 : Fpay-1;
+        DATA_LSB= MSB_BE+1,               DATA_MSB= (DATA_LSB + DATA_w)<FPAYw ? DATA_LSB + Dw-1 : FPAYw-1;
         
     
      
@@ -251,7 +251,7 @@ module extract_header_flit_info
    /* verilator lint_on WIDTH */    
    
    
-    assign vc_num_o = flit_in [Fpay+V-1 : Fpay];
+    assign vc_num_o = flit_in [FPAYw+V-1 : FPAYw];
     assign hdr_flit_wr_o= (flit_in_wr & hdr_flg_o )? vc_num_o : {V{1'b0}};
 
 endmodule
@@ -266,16 +266,10 @@ endmodule
 *  update the header flit look ahead routing and output VC
 **********************************/
 
-module header_flit_update_lk_route_ovc #(
-    parameter PCK_TYPE = "MULTI_FLIT",
-    parameter V = 4,
-    parameter P = 5,
-    parameter Fw = 36,
-    parameter TOPOLOGY =    "MESH",//"MESH","TORUS","RING" 
-    parameter EAw = 3,
-    parameter DSTPw=4,
-    parameter SSA_EN ="YES",
-    parameter ROUTE_TYPE = "DETERMINISTIC"
+module header_flit_update_lk_route_ovc
+		import pronoc_pkg::*;
+#(   
+    parameter P = 5   
 )(
     flit_in ,
     flit_out,
@@ -422,17 +416,12 @@ module header_flit_update_lk_route_ovc #(
          );
          */
     end
-        if( PCK_TYPE == "MULTI_FLIT")begin : multi
-            always @(*)begin 
-                flit_out = {flit_in[Fw-1 : Fw-2],ovc_num,flit_in[Fw-2-V-1 :0]};
-                if(hdr_flag) flit_out[DST_P_MSB : DST_P_LSB]= dest_coded;
-            end
-        end else begin : single 
-            always @(*)begin 
-                flit_out = {ovc_num,flit_in[Fw-V-1 :0]};
-                flit_out[DST_P_MSB : DST_P_LSB]= dest_coded;
-            end
-        end
+        
+    always @(*)begin 
+         flit_out = {flit_in[Fw-1 : Fw-2],ovc_num,flit_in[FPAYw-1 :0]};
+         if(hdr_flag) flit_out[DST_P_MSB : DST_P_LSB]= dest_coded;
+    end
+      
     
     endgenerate
 

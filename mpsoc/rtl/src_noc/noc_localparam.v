@@ -10,6 +10,7 @@
 	localparam B=4;
 	localparam Fpay=32;
 	localparam ROUTE_NAME="XY";
+	localparam PCK_TYPE =  "MULTI_FLIT";    //"SINGLE_FLIT";
 	localparam MIN_PCK_SIZE=2;
 	localparam BYTE_EN=0;
 	localparam SSA_EN="NO";

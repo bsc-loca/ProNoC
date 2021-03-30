@@ -9,9 +9,10 @@ package pronoc_pkg;
 
 `define     INCLUDE_TOPOLOGY_LOCALPARAM
 `include "topology_localparam.v"
+	
+	
 
-	localparam PCK_TYPE =  "MULTI_FLIT"; 
-	//"SINGLE_FLIT";
+	
 
 localparam
 	Vw=  log2(V),
