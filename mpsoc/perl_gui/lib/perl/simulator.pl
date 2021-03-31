@@ -349,11 +349,31 @@ sub check_hotspot_parameters{
 	return $result;
 }
 
+sub get_district_avg { 
+	my ($self,$sample,$vt,$pt)=@_;
+	my $avg=0;
+	my @valus = split(',',$vt);
+	my @probs = split(',',$pt);
+	my $i=0;
+	my $sum=0;
+	my $min=10000000;
+	foreach my $v (@valus) { 
+		return ("-","The $v is not numeric value") unless (is_integer($v));
+		$sum+=	$probs[$i];
+		$avg+=$v*$probs[$i];
+		$i++;	
+		$min=$v if($min>$v);
+	}
+	return ("-","The summation of probebilities are $sum which is not equal 100.") if($sum!=100);
+	$avg/=100;
+	
+	$self->object_add_attribute ($sample,"MIN_PCK_SIZE",$min);
+	
+	return ($avg,undef); 
+}
 
 sub get_simulator_noc_configuration{
 	my ($self,$mode,$sample,$set_win) =@_;
-	
-	
 	
 	
 	my $table=def_table(10,2,FALSE);
@@ -414,6 +434,10 @@ sub get_simulator_noc_configuration{
     
    my $max_pck_num = get_MAX_PCK_NUM();
    my $max_sim_clk = get_MAX_SIM_CLKs();
+   
+   my $pck_info = "Select how injected packet size are selected. 
+		random-range:    The injected packet size is randomly selected between given minimum and maximum packet size. 
+		random-discrete: The injected packet size is randomly selected among given district valuse.";
 	
 	if($traffictype eq "Synthetic"){
 		
@@ -421,12 +445,12 @@ sub get_simulator_noc_configuration{
 		my $max=$self->object_get_attribute($sample,'MAX_PCK_SIZE');
 		$min=$max=5 if(!defined $min);
 		my $avg=floor(($min+$max)/2);	
-		
+		my $msg;
 		my $max_pck_size =	 get_MAX_PCK_SIZ();
 		
 		my $NE;
 		my ($infobox,$info)= create_txview();
-		my $st =  check_sim_sample($self,$sample,$info);  
+		
 		
 		my $traffics="tornado,transposed 1,transposed 2,bit reverse,bit complement,random,hot spot,shuffle,bit rotation,neighbor,custom"; 	
 		my @synthinfo = (
@@ -435,33 +459,65 @@ sub get_simulator_noc_configuration{
 		{ label=>'Configuration name:', param_name=>'line_name', type=>'Entry', default_val=>$sample, content=>undef, info=>"NoC configuration name. This name will be shown in load-latency graph for this configuration", param_parent=>$sample, ref_delay=> undef, new_status=>undef},
 	
 		
-	
-	  
-		{ label=>"Min pck size :", param_name=>'MIN_PCK_SIZE', type=>'Spin-button', default_val=>5, content=>"1,$max,1", info=>"Minimum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
-		{ label=>"Max pck size :", param_name=>'MAX_PCK_SIZE', type=>'Spin-button', default_val=>5, content=>"$min,$max_pck_size,1", info=>"Maximum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
 		
-		
-		
-		{ label=>"Avg. Packet size:", param_name=>'PCK_SIZE', type=>'Combo-box', default_val=>$avg, content=>"$avg", info=>undef, param_parent=>$sample, ref_delay=>undef},
-	
 		{ label=>"Total packet number limit:", param_name=>'PCK_NUM_LIMIT', type=>'Spin-button', default_val=>200000, content=>"2,$max_pck_num,1", info=>"Simulation will stop when total number of sent packets by all nodes reaches packet number limit  or total simulation clock reach its limit", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
 	
 		{ label=>"Simulator clocks limit:", param_name=>'SIM_CLOCK_LIMIT', type=>'Spin-button', default_val=>100000, content=>"2,$max_sim_clk,1", info=>"Each node stops sending packets when it reaches packet number limit  or simulation clock number limit", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
 		
 		{ label=>"Traffic name", param_name=>'traffic', type=>'Combo-box', default_val=>'random', content=>$traffics, info=>"Select traffic pattern", param_parent=>$sample, ref_delay=>1, new_status=>'ref_set_win'},
 	
-		
+		{ label=>"Packet size (#flit)", param_name=>'PCK_SIZ_SEL', type=>'Combo-box', default_val=>'random-range', content=>"random-range,random-discrete", info=>$pck_info, param_parent=>$sample, ref_delay=>1, new_status=>'ref_set_win'},
+	
 		);
 		my $coltmp=0;
 		
 		foreach my $d (@synthinfo) {
+			
 			($row,$coltmp)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status});
+			
 		}
+		
+		my $t=$self->object_get_attribute($sample,"PCK_SIZ_SEL");
+		if($t eq 'random-range' ){
+			@synthinfo = (	
+			{ label=>"Min pck size :", param_name=>'MIN_PCK_SIZE', type=>'Spin-button', default_val=>5, content=>"1,$max,1", info=>"Minimum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
+			{ label=>"Max pck size :", param_name=>'MAX_PCK_SIZE', type=>'Spin-button', default_val=>5, content=>"$min,$max_pck_size,1", info=>"Maximum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
+			{ label=>"Avg. Packet size:", param_name=>'PCK_SIZE', type=>'Fixed', default_val=>$avg, content=>"$avg", info=>undef, param_parent=>$sample, ref_delay=>undef},
+			);
+			
+		}else{
+			$self->object_add_attribute ($sample,"MIN_PCK_SIZE",2);#will be updated by get_district_avg  
+			my $vt=$self->object_get_attribute($sample,"DISCRETE_RANGE");
+			$vt =  "2,3,4,5" unless (defined $vt);
+			my $pt=$self->object_get_attribute($sample,"PROBEB_RANGE");
+			$pt= "25,25,25,25" unless (defined $pt);
+			
+			($avg,$msg) = get_district_avg($self,$sample,$vt,$pt);
+			
+			 
+			@synthinfo = (	
+			{ label=>"pck size discrete range: ", param_name=>'DISCRETE_RANGE', type=>'Entry', default_val=>$vt, content=>undef, info=>"Set discreate set of number as packet size seperated by \",\" (v1,v2,v3 ..). The injected packet size is randomly selected among these discrete valuse", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
+		    { label=>"pck size probebility(%): ", param_name=>'PROBEB_RANGE'  , type=>'Entry', default_val=>$pt, content=>undef, info=>"Set the probebilty  seperated by \",\" (p1,p2,p3 ..). The probabilities pi must satisfy two requirements: every probability pi is a number between 0 and 100, and the sum of all the probabilities is 100.", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
+		   # { label=>"Avg. Packet size:", param_name=>'PCK_SIZE', type=>'Fixed', default_val=>$avg, content=>"$avg", info=>undef, param_parent=>$sample, ref_delay=>undef}, 
+			);	
+			if(defined $msg){ push(@synthinfo, 
+ 			{ label=>"Format Error:", param_name=>'PCK_ERR', type=>'Fixed', default_val=>$msg, content=>undef, info=>undef, param_parent=>$sample, ref_delay=>undef}, 
+			);}
+			
+		}	
+		
+		foreach my $d (@synthinfo){
+		 	($row,$coltmp)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status});
+		}
+		if(defined $msg){
+				my $error= def_image_button("icons/cancel.png");
+				$table->attach  ($error , 6, 7,  $row-1,$row,'shrink','shrink',2,2); 
+		}	
 			
 	
 		my $traffic=$self->object_get_attribute($sample,"traffic");
 		
-		
+		my $st =  check_sim_sample($self,$sample,$info);  
 		if ($st==0){
 				$NE=100;
 		}else{
@@ -1095,6 +1151,7 @@ sub check_sim_sample{
     	$HW_MIN_PCK_SIZE= 2;   
     	#print "undef\n"; 	
     }
+    $HW_PCK_TYPE = "MULTI_FLIT" if(~defined $HW_PCK_TYPE);
 	if($HW_MIN_PCK_SIZE>$SIM_MIN_PCK_SIZE){
 		add_colored_info($info, "Error: The minimum simulation packet size of $SIM_MIN_PCK_SIZE flit(s) is smaller than $HW_MIN_PCK_SIZE which is defined in generating verilog model of NoC!\n",'red');
 		$self->object_add_attribute ($sample,"status","failed");	

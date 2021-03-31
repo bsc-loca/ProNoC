@@ -422,7 +422,10 @@ module sbp_bypass_chanels
 	genvar i;
 	generate
 	for (i=0;i<P;i=i+1) begin: port	
-		assign ivc_forwardable[i] = ~iport_info[i].ivc_req;
+		/* verilator lint_off WIDTH */
+		assign ivc_forwardable[i] =  (PCK_TYPE == "SINGLE_FLIT")?  1'b1 :~iport_info[i].ivc_req;
+		/* verilator lint_on WIDTH */
+		
 		
 		if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
 		always @( posedge clk)begin
@@ -617,17 +620,25 @@ register #(.W(1)) req2 (.in(sbp_hdr_flit_req_next), .reset(reset), .clk(clk), .o
 
 	
 // condition1: new sbp vc allocation condition
-wire hdr_flit_condition = ~ovc_locally_requested &	ss_ovc_avalable_in_ss_port;	
-wire nonhdr_flit_condition =  assigned_to_ss_ovc & assigned_ovc_not_full;
-wire condition1 = (ovc_is_assigned)? nonhdr_flit_condition : hdr_flit_condition;
+wire hdr_flit_condition    = ~ovc_locally_requested & ss_ovc_avalable_in_ss_port;	
+wire nonhdr_flit_condition = assigned_to_ss_ovc & assigned_ovc_not_full;
+wire condition1 = 
+	/* verilator lint_off WIDTH */
+	(PCK_TYPE == "SINGLE_FLIT")?  hdr_flit_condition :
+	/* verilator lint_on WIDTH */	
+	(ovc_is_assigned)? nonhdr_flit_condition : hdr_flit_condition;
 wire condition2;
 generate
 
+/* verilator lint_off WIDTH */
+wire non_empty_ivc_condition =(PCK_TYPE == "SINGLE_FLIT")?  1'b0 :ivc_request;
+/* verilator lint_on WIDTH */
+
 	
 if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
-	assign condition2= ~(ivc_request | ss_port_link_reg_flit_wr| ss_ovc_crossbar_wr);
+	assign condition2= ~(non_empty_ivc_condition | ss_port_link_reg_flit_wr| ss_ovc_crossbar_wr);
 end else begin : no_link_reg
-	assign condition2= ~(ivc_request | ss_port_link_reg_flit_wr); // ss_port_link_reg_flit_wr are identical with ss_ovc_crossbar_wr when there is no link reg
+	assign condition2= ~(non_empty_ivc_condition | ss_port_link_reg_flit_wr); // ss_port_link_reg_flit_wr are identical with ss_ovc_crossbar_wr when there is no link reg
 end
 	
 endgenerate	
@@ -928,340 +939,7 @@ endmodule
  
  
  
-/**********************
- * 	register def
- *******************/
- 
- 
- `ifdef DEVELOP
- 
 
-
-	
-	
-	
- 
-module sbp_requests_gen_per_oport 
-	import pronoc_pkg::*;
-#(
-	parameter SPB_OPORT_NUM     =   0 // output switch number.  
-)(   
-    reset,
-    clk,
-    dest_e_addr ,
-	src_e_addr,
-    current_r_addr,
-    sbp_routers_in,
-    sbp_routers_out,
-    sbp_requests_o,
-    sbp_destination_o
-);   
-
-
-
-    function integer log2;
-    input integer number; begin   
-       log2=(number <=1) ? 1: 0;    
-       while(2**log2<number) begin    
-          log2=log2+1;    
-       end        
-    end   
-    endfunction // log2 
-  
-    input   reset,clk;          
-    input   [RAw-1   :0] current_r_addr;    
-   
-    input   [EAw-1   :0] src_e_addr,dest_e_addr;
-	input   [RAw-1   :0] sbp_routers_in  [SBP_NUM-1 : 0];
-	output 	[RAw-1   :0] sbp_routers_out [SBP_NUM-1 : 0];
-	output  [EAw-1   :0] sbp_destination_o;
-	/* verilator lint_off UNOPTFLAT */ 
-    output  [SBP_NUM-1 : 0] sbp_requests_o ;
-    /* verilator lint_on UNOPTFLAT */ 
-    wire    [SBP_NUM-1 : 0] goes_straight;
-    
-    
-    //generate the sbp_routers_out for other routers
-    //constant router address gen 
-    assign sbp_routers_out[0]=current_r_addr;
-    assign sbp_requests_o[0] = goes_straight[0];
-    genvar i;
-    generate 
-    for (i=1; i<SBP_NUM; i=i+1) begin :lp1 
-    	assign sbp_routers_out[i]  = sbp_routers_in[i-1];    	
-	end	
-	assign sbp_destination_o = dest_e_addr;
-		
-    wire [DSTPw-1  :   0]  lk_route [SBP_NUM-1 : 0];	
-    	
-    //Conventional-routing loop
-   	for (i=0; i<SBP_NUM; i=i+1) begin :lp2 
-   		
-   		conventional_routing #(
-   				.TOPOLOGY        (TOPOLOGY       ), 
-   				.ROUTE_NAME      (ROUTE_NAME     ), 
-   				.ROUTE_TYPE      (ROUTE_TYPE     ), 
-   				.T1              (T1             ), 
-   				.T2              (T2             ), 
-   				.T3              (T3             ), 
-   				.RAw             (RAw            ), 
-   				.EAw             (EAw            ), 
-   				.DSTPw           (DSTPw          ),
-   				.LOCATED_IN_NI   (0              )
-   			) routing (
-   				.reset           (reset          ), 
-   				.clk             (clk            ), 
-   				.current_r_addr  (sbp_routers_in[i]), 
-   				.src_e_addr      (src_e_addr     ),
-   				.dest_e_addr     (dest_e_addr    ), 
-   				.destport        (lk_route[i]    )
-   			); 
-   		
-   		check_straight_oport #(
-   			.TOPOLOGY      ( TOPOLOGY     ),
-   			.ROUTE_NAME    ( ROUTE_NAME   ),
-   			.ROUTE_TYPE    ( ROUTE_TYPE   ),
-   			.DSTPw         ( DSTPw        ),
-   			.SPB_OPORT_NUM ( SPB_OPORT_NUM)
-   			) check_straight (
-   				.destport_coded_i (lk_route[i]),
-   				.goes_straight_o  (goes_straight [i])
-   			);   
-   	
-   		
-   	end	
-   	
-   		for (i=1; i<SBP_NUM; i=i+1) begin :lp3
-   			assign sbp_requests_o[i]= (goes_straight[i] & sbp_requests_o[i-1]); 	
-   		end
-   		
-    endgenerate	
-
-endmodule
-
-
-
-
-
-module sbp_sig_gen_per_iport
-		import pronoc_pkg::*;
-	#(
-		parameter SW_LOC=0,
-		parameter P=5
-	)(			
-		ivc_info,
-		first_arbiter_granted_ivc,
-		granted_dest_port_i,	
-		sbp_ivc_info_o,
-		ovc_locally_requested
-	);
-		
-	localparam P_1=P-1;	
-	
-	//ivc info 
-	input ivc_info_t ivc_info [V-1 : 0];
-	
-			
-		
-	//sw alloc grants
-	input [V-1 : 0] first_arbiter_granted_ivc;
-	input [P_1-1 :0] granted_dest_port_i;
-	output  sbp_ivc_t  sbp_ivc_info_o [P-1 : 0];
-	output [V-1 : 0] ovc_locally_requested  [P-1 : 0]; 
-
-	logic [Vw-1 : 0] grant_bin;
-	wire  [Vw-1   : 0] assigned_ovc_num_bin [V-1   : 0];
-	logic [P-1 : 0 ] granted_dest_port;
-	
-	sbp_ivc_t  ivc_info_sub [V-1 : 0];
-	sbp_ivc_t  ivc_info_mux;
-	wire [V-1 : 0] sbp_ovc_alloc_may_conflict;
-	
-	
-	
-	
-	genvar i,j;
-	generate for (i=0; i < V; i=i+1) begin : ivc
-			localparam [V-1 : 0]  IVC_CODE =  1<<i;
-			one_hot_to_bin #(
-					.ONE_HOT_WIDTH  (V ), 
-					.BIN_WIDTH      (Vw    )
-				) conv2 (
-					.one_hot_code   (ivc_info[i].assigned_ovc_num  ), 
-					.bin_code       (assigned_ovc_num_bin[i]));	
-			assign ivc_info_sub[i].dest_e_addr = ivc_info[i].dest_e_addr;
-			assign ivc_info_sub[i].ovc_is_assigned= ivc_info[i].ovc_is_assigned;
-			assign ivc_info_sub[i].assigned_ovc_bin=assigned_ovc_num_bin[i];	
-				
-			
-			
-			assign sbp_ovc_alloc_may_conflict[i] = (ivc_info[i].candidate_ovc == IVC_CODE) & 	~ivc_info[i].ovc_is_assigned & ivc_info[i].ivc_req; 
-			for (j=0; j < P; j=j+1) begin : port
-				assign ovc_locally_requested[j][i] = sbp_ovc_alloc_may_conflict[i] & ivc_info[i].destport_one_hot[j]; 
-			end
-			
-	end endgenerate 	
-	
-	
-	
-	
-	
-		
-	
-	onehot_mux_2D	#(.W(SBP_IVC_w),.N(V)) mux1 ( .in(ivc_info_sub), .sel(first_arbiter_granted_ivc), .out(ivc_info_mux));
-	
-	
-	
-	
-	
-	
-	add_sw_loc_one_hot #(
-		.P             (P            ), 
-		.SW_LOC        (SW_LOC       )
-		) add_sw_loc(
-		.destport_in   (granted_dest_port_i  ), 
-		.destport_out  (granted_dest_port ));
-	
-	//demux
-	
-	generate for (i=0; i < P; i=i+1) begin : port
-		assign sbp_ivc_info_o[i] = (granted_dest_port[i]==1'b1)? ivc_info_mux : {SBP_IVC_w{1'b0}};		
-    end endgenerate 	
-	
-	
-			
-endmodule
-
-
-module sbp_sig_gen_per_oport
-		import pronoc_pkg::*;
-		#(
-		parameter SPB_OPORT_NUM=0,
-		parameter P=5
-		)(
-		clk,
-		reset,
-		current_r_addr,
-		sbp_ivc_info_i,
-		any_ovc_granted_i,
-		ovc_allocated_i,
-		
-		sbp_routers_in,
-		sbp_routers_out,
-		sbp_chanel_o
-		
-	);	
-	input reset,clk;
-	input  sbp_ivc_t  sbp_ivc_info_i [P-1 : 0];
-	input   [RAw-1   :0] current_r_addr;
-	input any_ovc_granted_i;
-	input   [RAw-1   :0] sbp_routers_in  [SBP_NUM-1 : 0];
-	input [V-1 : 0] ovc_allocated_i;
-	output 	[RAw-1   :0] sbp_routers_out [SBP_NUM-1 : 0];
-	output sbp_chanel_t sbp_chanel_o;
-	
-	wire [EAw-1 : 0] sbp_destination;
-	
-	
-	reg [SBP_NUM-1 : 0] sbp_flag;	    
-	
-	sbp_ivc_t sbp_ivc_info_o_or;
-	integer i;
-	always @(*)begin 
-		sbp_ivc_info_o_or=0;
-		for (i=0;i<P;i=i+1)		sbp_ivc_info_o_or = sbp_ivc_info_o_or | sbp_ivc_info_i[i];
-	end
-	
-	wire [SBP_NUM-1 : 0] sbp_requests_o_next;
-	sbp_requests_gen_per_oport #(
-		.SPB_OPORT_NUM    (SPB_OPORT_NUM   )
-	) req_gen (
-		.reset            (reset           ), 
-		.clk              (clk             ), 
-		.dest_e_addr      (sbp_ivc_info_o_or.dest_e_addr), 
-		.src_e_addr       (      ), 
-		.current_r_addr   (current_r_addr  ), 
-		.sbp_routers_in   (sbp_routers_in  ), 
-		.sbp_routers_out  (sbp_routers_out ), 
-		.sbp_requests_o   (sbp_requests_o_next), 
-		.sbp_destination_o(sbp_destination  )
-	);
-	
-
-	wire [V-1 : 0] assigned_ovc;
-	bin_to_one_hot #(
-		.BIN_WIDTH      (Vw), 
-		.ONE_HOT_WIDTH  (V )
-		) bin_to_one_hot (
-		.bin_code       (sbp_ivc_info_o_or.assigned_ovc_bin ), 
-		.one_hot_code   (assigned_ovc  ));
-	
-	
-	reg  [V-1: 0]  sbp_ovc; 
-	
-	
-	
-	`ifdef SYNC_RESET_MODE 
-	always @ (posedge clk )begin 
-	`else 
-	always @ (posedge clk or posedge reset)begin 
-	`endif  
-		if(reset) begin 	
-			sbp_chanel_o.requests<={SBP_NUM{1'b0}};
-			sbp_chanel_o.ovc<={V{1'b0}};
-			sbp_chanel_o.destination <={EAw{1'b0}};
-		end else begin
-			sbp_chanel_o.requests <= (any_ovc_granted_i)? sbp_requests_o_next : {SBP_NUM{1'b0}}; 
-			sbp_chanel_o.ovc    <= (sbp_ivc_info_o_or.ovc_is_assigned) ? assigned_ovc : ovc_allocated_i;
-			sbp_chanel_o.destination <=sbp_destination;
-		end
-	end
-	
-endmodule
-	
-	
-	
-	
-	
-module sbp_sig_gen  
- 	import pronoc_pkg::*;
-#(
-	parameter P=5	
-)(
-	
-	
-);
-	genvar i;
-	generate
-	for (i=0;i<P;i=i+1) begin: port
-		sbp_sig_gen_per_iport #(
-			.SW_LOC (i), 
-			.P(P)
-		)
-		sbp_sig_gen_per_iport 
-		(
-		.ivc_info                   (ivc_info[i]               ), 
-		.first_arbiter_granted_ivc  (first_arbiter_granted_ivc[i] ), 
-		.granted_dest_port_i        (granted_dest_port_i[i]    ), 
-		.sbp_ivc_info_o             (sbp_ivc_info_o[i]         ), 
-		.ovc_locally_requested   (ovc_locally_requested[i])
-		);
-	
-	
-		
-	
-	
-	end
-	endgenerate
-		
-	
-	
-endmodule 	
-	
-	
-
-	
-`endif	
 	
 
 

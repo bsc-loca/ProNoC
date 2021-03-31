@@ -303,9 +303,8 @@ module input_queue_per_port
 	wire [EAw-1 : 0] src_e_addr_in;
 	wire [V-1 : 0] vc_num_in;
 	wire [V-1 : 0] hdr_flit_wr,flit_wr;
-	reg  [V-1 : 0] hdr_flit_wr_delayed,sbp_hdr_en_delayed;
-	wire [V-1 : 0] class_rd_fifo,dst_rd_fifo;
-	reg  [V-1 : 0] lk_dst_rd_fifo;
+	
+	
 	wire [DSTPw-1 : 0] lk_destination_in_encoded;
 	wire [WEIGHTw-1  : 0] weight_in;   
 	wire [Fw-1 : 0] buffer_out;
@@ -315,17 +314,63 @@ module input_queue_per_port
 	wire [VELw-1 : 0] endp_localp_num;
 	wire [ELw-1 : 0] endp_l_in;           
 	wire [V-1 : 0] sbp_hdr_en;
-    
+	
+	wire [V-1 : 0] rd_hdr_fwft_fifo,wr_hdr_fwft_fifo,rd_hdr_fwft_fifo_delay,wr_hdr_fwft_fifo_delay;
     
 	logic [V-1  : 0] ovc_is_assigned_next;
 	logic [VV-1 : 0] assigned_ovc_num_next;
 	
+	wire odd_column = current_r_addr[0]; 
+	wire [P-1 : 0] destport_one_hot [V-1 :0];		
+	wire [V-1 : 0] mux_out[V-1 : 0];
 	
+	assign sbp_hdr_en  = (SBP_EN) ? sbp_ctrl_in.ivc_num_getting_ovc_grant: {V{1'b0}};
 	assign reset_ivc  = sbp_ctrl_in.ivc_reset | ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset;
 	assign ivc_num_getting_sw_grant = ssa_ctrl_in.ivc_num_getting_sw_grant | vsa_ctrl_in.ivc_num_getting_sw_grant;
+	assign flit_wr =(flit_in_wr )? vc_num_in : {V{1'b0}};
+	assign rd_hdr_fwft_fifo  = ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset | (sbp_ctrl_in.ivc_reset  & ~ sbp_ctrl_in.single_flit_pck);
+	assign wr_hdr_fwft_fifo  = hdr_flit_wr | (sbp_hdr_en & ~ sbp_ctrl_in.single_flit_pck);
+	assign ivc_request = ivc_not_empty;    
 	
 	
 	
+	register #(.W(V)) reg1(
+			.in		(ovc_is_assigned_next), 
+			.reset  (reset ), 
+			.clk    (clk   ), 
+			.out    (ovc_is_assigned   ));
+		
+	register #(.W(VV)) reg2(
+			.in		(assigned_ovc_num_next), 
+			.reset  (reset ), 
+			.clk    (clk   ), 
+			.out    (assigned_ovc_num  ));
+	
+	register #(.W(V)) reg3(
+			.in		(rd_hdr_fwft_fifo), 
+			.reset  (reset ), 
+			.clk    (clk   ), 
+			.out    (rd_hdr_fwft_fifo_delay ));
+	
+	register #(.W(V)) reg4(
+			.in		(wr_hdr_fwft_fifo), 
+			.reset  (reset ), 
+			.clk    (clk   ), 
+			.out    (wr_hdr_fwft_fifo_delay ));
+	
+	
+	`ifdef SYNC_RESET_MODE 
+		always @ (posedge clk )begin 
+		`else 
+			always @ (posedge clk or posedge reset)begin 
+			`endif   
+			if(reset) begin 
+				iport_weight <= 1;
+			end else begin 
+				if(hdr_flit_wr != {V{1'b0}})  iport_weight <= (weight_in=={WEIGHTw{1'b0}})? 1 : weight_in; // the minimum weight is 1
+			end
+		end
+
 	
 	//extract header flit info
 	extract_header_flit_info #(
@@ -347,75 +392,14 @@ module input_queue_per_port
 			.be_o( ),
 			.data_o( )
 		);
-     
-            
-     
-     
-	// synopsys  translate_off
-	// synthesis translate_off                                      
-	`ifdef MONITORE_PATH
-     
-		genvar j;
-		reg[V-1 :0] t1;
-		generate
-			for (j=0;j<V;j=j+1)begin : lp        
-				always @(posedge clk) begin
-					if(reset)begin 
-						t1[j]<=1'b0;               
-					end else begin 
-						if(flit_in_wr >0 && vc_num_in[j] && t1[j]==0)begin 
-							$display("%t : Parser: class_in=%x, destport_in=%x, dest_e_addr_in=%x, src_e_addr_in=%x, vc_num_in=%x,hdr_flit_wr=%x, hdr_flg_in=%x,tail_flg_in=%x ",$time,class_in, destport_in, dest_e_addr_in, src_e_addr_in, vc_num_in,hdr_flit_wr, hdr_flg_in,tail_flg_in);
-							t1[j]<=1;
-						end           
-					end
-				end
-			end
-		endgenerate
-	`endif
-	// synthesis translate_on
-	// synopsys  translate_on       
-     
-     
-	`ifdef SYNC_RESET_MODE 
-		always @ (posedge clk )begin 
-		`else 
-			always @ (posedge clk or posedge reset)begin 
-			`endif   
-			if(reset) begin 
-				iport_weight <= 1;
-			end else begin 
-				if(hdr_flit_wr != {V{1'b0}})  iport_weight <= (weight_in=={WEIGHTw{1'b0}})? 1 : weight_in; // the minimum weight is 1
-			end
-		end
-
-		// genrate write enable for lk_routing result with one clock cycle latency after reciveing the flit
-		`ifdef SYNC_RESET_MODE 
-			always @ (posedge clk )begin 
-			`else 
-				always @ (posedge clk or posedge reset)begin 
-				`endif   
-				if(reset) begin 
-					hdr_flit_wr_delayed <= {V{1'b0}};
-					//lk_dst_rd_fifo          <= {V{1'b0}};
-					sbp_hdr_en_delayed  <= {V{1'b0}};
-				end else begin 
-					hdr_flit_wr_delayed <= hdr_flit_wr;
-					sbp_hdr_en_delayed  <= sbp_hdr_en;
-					//    lk_dst_rd_fifo          <= dst_rd_fifo;
-				end
-			end 
-
+         
     
-			assign sbp_hdr_en  = (SBP_EN) ? sbp_ctrl_in.ivc_num_getting_ovc_grant: {V{1'b0}};
-    
-			genvar i;
-			generate
-	
-	
-	
-			/* verilator lint_off WIDTH */  
-				if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1)) begin : multi_local
-				/* verilator lint_on WIDTH */  
+		
+	genvar i;
+	generate
+		/* verilator lint_off WIDTH */  
+		if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1)) begin : multi_local
+		/* verilator lint_on WIDTH */  
 				mesh_tori_endp_addr_decode #(
 					.TOPOLOGY("MESH"),
 					.T1(T1),
@@ -450,38 +434,6 @@ module input_queue_per_port
 		end else begin : other
 			assign destport_in_encoded = destport_in;    
 		end
-
-
-		wire odd_column = current_r_addr[0]; 
-		wire [P-1 : 0] destport_one_hot [V-1 :0];
-		
-		
-		register #(.W(V)) reg1(
-				.in(ovc_is_assigned_next), 
-				.reset  (reset ), 
-				.clk    (clk   ), 
-				.out    (ovc_is_assigned   ));
-		
-		register #(.W(VV)) reg2(
-				.in(assigned_ovc_num_next), 
-				.reset  (reset ), 
-				.clk    (clk   ), 
-				.out    (assigned_ovc_num  ));
-		
-		wire [V-1 : 0] mux_out[V-1 : 0];
-		
-		//synthesis translate_off
-		//synopsys  translate_off
-		if(DEBUG_EN)begin :dbg
-		always @ (posedge clk) begin			
-			if((|vsa_ctrl_in.ivc_num_getting_sw_grant)  & (|ssa_ctrl_in.ivc_num_getting_sw_grant))begin 
-				$display("%t: ERROR: VSA/SSA conflict: an input port cannot get both sva and ssa grant at the same time %m",$time);
-				$finish;
-			end			
-		end//always
-		end
-		//synopsys  translate_on
-		//synthesis translate_on
 		
 		
 		for (i=0;i<V; i=i+1) begin: V_
@@ -504,38 +456,7 @@ module input_queue_per_port
 				.out    (mux_out[i]   ) 
 			);
 			
-			
-			
-			
-			
-			//synthesis translate_off
-			//synopsys  translate_off
-			if(DEBUG_EN)begin :dbg
-				always @ (posedge clk) begin
-					if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i]  )begin 
-						if( ~ $onehot (mux_out[i])) begin 
-								$display("%t: ERROR: granted OVC num is not onehot coded %b: %m",$time,mux_out[i]);
-								$finish;
-						end
-					end
-					
-					if( ~ $onehot0( {vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],sbp_ctrl_in.ivc_num_getting_ovc_grant[i]})) begin 
-							$display("%t: ERROR: ivc num %u getting more than one ovc grant from VSA,SSA,SBP: %m",$time,i);
-							$finish;
-					end		
-					
-					
-				end//always
-					
 				
-				
-				
-				
-			end
-			//synopsys  translate_on
-			//synthesis translate_on
-			
-			
 			
 			one_hot_to_bin #(.ONE_HOT_WIDTH(V),.BIN_WIDTH(Vw)) conv (
 					.one_hot_code(assigned_ovc_num[(i+1)*V-1 : i*V]), 
@@ -634,8 +555,8 @@ module input_queue_per_port
 					dest_e_addr_fifo
 					(
 						.din (dest_e_addr_in),
-						.wr_en (hdr_flit_wr[i]| sbp_hdr_en[i]),   // Write enable
-						.rd_en (dst_rd_fifo[i]),   // Read the next word
+						.wr_en (wr_hdr_fwft_fifo[i]),   // Write enable
+						.rd_en (rd_hdr_fwft_fifo[i]),   // Read the next word
 						.dout (ivc_info[i].dest_e_addr),    // Data out
 						.full ( ),
 						.nearly_full ( ),
@@ -661,8 +582,8 @@ module input_queue_per_port
 					class_fifo
 					(
 						.din (class_in),
-						.wr_en (hdr_flit_wr[i]| sbp_hdr_en[i]),   // Write enable
-						.rd_en (class_rd_fifo[i]),   // Read the next word
+						.wr_en (wr_hdr_fwft_fifo[i]),   // Write enable
+						.rd_en (rd_hdr_fwft_fifo[i]),   // Read the next word
 						.dout (class_out[i]),    // Data out
 						.full ( ),
 						.nearly_full ( ),
@@ -685,8 +606,8 @@ module input_queue_per_port
 				lk_dest_fifo
 				(
 					.din (lk_destination_in_encoded),
-					.wr_en (hdr_flit_wr_delayed [i] | sbp_hdr_en_delayed[i]),   // Write enable
-					.rd_en (lk_dst_rd_fifo [i]),   // Read the next word
+					.wr_en (wr_hdr_fwft_fifo_delay [i]),   // Write enable
+					.rd_en (rd_hdr_fwft_fifo_delay [i]),   // Read the next word
 					.dout (lk_destination_encoded  [(i+1)*DSTPw-1 : i*DSTPw]),    // Data out
 					.full (),
 					.nearly_full (),
@@ -696,10 +617,6 @@ module input_queue_per_port
 					.clk (clk)
              
 				);
-			
-			
-			
-			
         
 			/* verilator lint_off WIDTH */    
 			if( ROUTE_TYPE=="DETERMINISTIC") begin : dtrmn_dest
@@ -713,8 +630,8 @@ module input_queue_per_port
 					dest_fifo
 					(
 						.din(destport_in_encoded),
-						.wr_en(hdr_flit_wr[i]| sbp_hdr_en[i]),   // Write enable
-						.rd_en(dst_rd_fifo[i]),   // Read the next word
+						.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
+						.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
 						.dout(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),    // Data out
 						.full(),
 						.nearly_full(),
@@ -734,8 +651,8 @@ module input_queue_per_port
 					dest_fifo
 					(
 						.din(destport_in_encoded),
-						.wr_en(hdr_flit_wr[i]|sbp_hdr_en[i]),   // Write enable
-						.rd_en(dst_rd_fifo[i]),   // Read the next word
+						.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
+						.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
 						.dout(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),    // Data out
 						.full(),
 						.nearly_full(),
@@ -789,8 +706,8 @@ module input_queue_per_port
 					local_dest_fifo
 					(
 						.din(endp_l_in),
-						.wr_en(hdr_flit_wr[i]|sbp_hdr_en[i]),   // Write enable
-						.rd_en(dst_rd_fifo[i]),   // Read the next word
+						.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
+						.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
 						.dout(endp_localp_num[(i+1)*ELw-1 : i*ELw]),    // Data out
 						.full( ),
 						.nearly_full( ),
@@ -920,79 +837,83 @@ module input_queue_per_port
 				);  
   
 		end       
-		endgenerate    
+	endgenerate    
 
-			look_ahead_routing #(
-				.T1(T1),
-				.T2(T2),
-				.T3(T3),
-				.T4(T4), 
-				.P(P),       
-				.RAw(RAw),  
-				.EAw(EAw), 
-				.DSTPw(DSTPw),
-				.SW_LOC(SW_LOC),
-				.TOPOLOGY(TOPOLOGY),
-				.ROUTE_NAME(ROUTE_NAME),
-				.ROUTE_TYPE(ROUTE_TYPE)
-			)
-			lk_routing
-			(
-				.current_r_addr(current_r_addr),
-				.neighbors_r_addr(neighbors_r_addr),
-				.dest_e_addr(dest_e_addr_in),
-				.src_e_addr(src_e_addr_in),
-				.destport_encoded(destport_in_encoded),
-				.lkdestport_encoded(lk_destination_in_encoded),
-				.reset(reset),
-				.clk(clk)
-			);
+	look_ahead_routing #(
+		.T1(T1),
+		.T2(T2),
+		.T3(T3),
+		.T4(T4), 
+		.P(P),       
+		.RAw(RAw),  
+		.EAw(EAw), 
+		.DSTPw(DSTPw),
+		.SW_LOC(SW_LOC),
+		.TOPOLOGY(TOPOLOGY),
+		.ROUTE_NAME(ROUTE_NAME),
+		.ROUTE_TYPE(ROUTE_TYPE)
+	)
+	lk_routing
+	(
+		.current_r_addr(current_r_addr),
+		.neighbors_r_addr(neighbors_r_addr),
+		.dest_e_addr(dest_e_addr_in),
+		.src_e_addr(src_e_addr_in),
+		.destport_encoded(destport_in_encoded),
+		.lkdestport_encoded(lk_destination_in_encoded),
+		.reset(reset),
+		.clk(clk)
+	);
 
-		header_flit_update_lk_route_ovc #(
-				.P(P)    
-			)
-			the_flit_update
-			(
-				.flit_in (buffer_out),
-				.flit_out (flit_out),
-				.vc_num_in(ivc_num_getting_sw_grant),
-				.lk_dest_all_in (lk_destination_encoded),
-				.assigned_ovc_num (assigned_ovc_num),
-				.any_ivc_sw_request_granted(any_ivc_sw_request_granted),
-				.lk_dest_not_registered(lk_destination_in_encoded),
-				.sel (sel),
-				.reset (reset),
-				.clk (clk)
-			);
+	header_flit_update_lk_route_ovc #(
+		.P(P)    
+	)
+	the_flit_update
+	(
+		.flit_in (buffer_out),
+		.flit_out (flit_out),
+		.vc_num_in(ivc_num_getting_sw_grant),
+		.lk_dest_all_in (lk_destination_encoded),
+		.assigned_ovc_num (assigned_ovc_num),
+		.any_ivc_sw_request_granted(any_ivc_sw_request_granted),
+		.lk_dest_not_registered(lk_destination_in_encoded),
+		.sel (sel),
+		.reset (reset),
+		.clk (clk)
+	);
     
-		assign flit_wr =(flit_in_wr )? vc_num_in : {V{1'b0}};
-        
-		`ifdef SYNC_RESET_MODE 
-			always @ (posedge clk )begin 
-			`else 
-				always @ (posedge clk or posedge reset)begin 
-				`endif   
-				if(reset) begin 
-					lk_dst_rd_fifo          <= {V{1'b0}};
-				end else begin 
-					lk_dst_rd_fifo          <= dst_rd_fifo;
-				end
-			end//always 
-      
-    
-			assign    dst_rd_fifo = reset_ivc;
-			assign    class_rd_fifo = (C>1)? reset_ivc : {V{1'bx}};
-			assign    ivc_request = ivc_not_empty;    
-
+		
    
-		//synthesis translate_off
-		//synopsys  translate_off
-		generate 
-		if(DEBUG_EN) begin :debg
-			
-			/* verilator lint_off WIDTH */  
-			if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")) begin : mesh_based
-			/* verilator lint_on WIDTH */  
+	//synthesis translate_off
+	//synopsys  translate_off
+	generate 
+	if(DEBUG_EN) begin :debg
+		
+		always @ (posedge clk) begin			
+			if((|vsa_ctrl_in.ivc_num_getting_sw_grant)  & (|ssa_ctrl_in.ivc_num_getting_sw_grant))begin 
+				$display("%t: ERROR: VSA/SSA conflict: an input port cannot get both sva and ssa grant at the same time %m",$time);
+				$finish;
+			end			
+		end//always
+		
+		for (i=0;i<V;i=i+1)begin : V_       
+		always @ (posedge clk) begin
+			if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i]  )begin 
+				if( ~ $onehot (mux_out[i])) begin 
+					$display("%t: ERROR: granted OVC num is not onehot coded %b: %m",$time,mux_out[i]);
+					$finish;
+				end
+			end					
+			if( ~ $onehot0( {vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],sbp_ctrl_in.ivc_num_getting_ovc_grant[i]})) begin 
+				$display("%t: ERROR: ivc num %u getting more than one ovc grant from VSA,SSA,SBP: %m",$time,i);
+				$finish;
+			end		
+		end//always
+		end
+		
+		/* verilator lint_off WIDTH */  
+		if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")) begin : mesh_based
+		/* verilator lint_on WIDTH */  
 
 				debug_mesh_tori_route_ckeck #(
 						.T1(T1),
@@ -1022,14 +943,34 @@ module input_queue_per_port
 						.src_e_addr_in(src_e_addr_in),
 						.destport_in(destport_in)      
 					);   
-			end//mesh  
-		end//DEBUG_EN 
-		endgenerate 
-		//synopsys  translate_on  
-		//synthesis translate_on
+		end//mesh  
+	end//DEBUG_EN 
+	endgenerate 
+		                                 
+	`ifdef MONITORE_PATH     
+		genvar j;
+		reg[V-1 :0] t1;
+		generate
+			for (j=0;j<V;j=j+1)begin : lp        
+				always @(posedge clk) begin
+					if(reset)begin 
+						t1[j]<=1'b0;               
+					end else begin 
+						if(flit_in_wr >0 && vc_num_in[j] && t1[j]==0)begin 
+							$display("%t : Parser: class_in=%x, destport_in=%x, dest_e_addr_in=%x, src_e_addr_in=%x, vc_num_in=%x,hdr_flit_wr=%x, hdr_flg_in=%x,tail_flg_in=%x ",$time,class_in, destport_in, dest_e_addr_in, src_e_addr_in, vc_num_in,hdr_flit_wr, hdr_flg_in,tail_flg_in);
+							t1[j]<=1;
+						end           
+					end
+				end
+			end
+		endgenerate
+	`endif
+	// synthesis translate_on
+	// synopsys  translate_on    	
+			
+			
 
-
-			endmodule
+endmodule
 
 
 
