@@ -41,7 +41,7 @@ use constant BYPAS_ST 		=> 0x0;
 sub reset_cmd {
 	my ($ctrl_reset, $noc_reset,$jtag_intfc)=@_;
 	my $reset_vector= (($ctrl_reset & 0x1) << 1) +  ($noc_reset & 0x1);
-	my $cmd = "sh $jtag_intfc \" -n ".JTAG_DONE_RESET_INDEX."  -d I:1,D:2:$reset_vector,I:0 \" ";
+	my $cmd = "bash $jtag_intfc \" -n ".JTAG_DONE_RESET_INDEX."  -d I:1,D:2:$reset_vector,I:0 \" ";
 	#print "$cmd\n";
 	return	$cmd;
 }
@@ -49,7 +49,7 @@ sub reset_cmd {
 sub set_time_limit_cmd {
 	my ($time_limit,$jtag_intfc)=@_;
 	my $hex = sprintf("0x%X", $time_limit);
-	my $cmd = "sh $jtag_intfc \" -n ".JTAG_COUNTER_INDEX."  -d I:1,D:".CLK_CNTw.":$hex,I:0 \" ";
+	my $cmd = "bash $jtag_intfc \" -n ".JTAG_COUNTER_INDEX."  -d I:1,D:".CLK_CNTw.":$hex,I:0 \" ";
 	#print "$cmd\n";
 	return	$cmd;
 }
@@ -83,8 +83,20 @@ sub random_dest_gen {
 		
 	}
 	return \@o;
-
 }
+
+sub random_dest_gen_no_shuffle {
+	my $n=shift;
+	my @c=(0..$n-1);
+	my @o;	
+	for (my $i=0; $i<$n; $i++){
+		my @l=  @c;
+		@l=remove_scolar_from_array(\@l,$i);
+		$o[$i]=\@l;
+	}
+	return \@o;
+}
+
 
 sub run_cmd_update_info {
 	my ($cmd,$info)=@_;
@@ -155,6 +167,29 @@ sub gen_synthetic_traffic_ram_line{
 	return ($vs,$vl);
 }
 
+sub get_synthetic_traffic_pattern{
+	my ($self, $sample)=@_;
+	my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($self,$sample);
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info_sub ($topology, $T1, $T2, $T3, $V, $Fpay);
+	my $rnd=random_dest_gen_no_shuffle($NE); 
+	my $traffic=$self->object_get_attribute($sample,"traffic"); 
+	my @traffics=("tornado", "transposed 1", "transposed 2", "bit reverse", "bit complement","random", "hot spot", "shuffle", "neighbor", "bit rotation"  );	
+	
+	#generate each node ram data
+	my $pattern="source->\t destination\n";
+	$traffic=($traffic eq "hot spot") ? "random" : $traffic;
+	my $dest_num = ($traffic eq "hot spot" || $traffic eq "random" ) ? $NE-1 : 1;
+	for (my $endp=0; $endp<$NE; $endp++){
+		$pattern = $pattern."$endp->\n";
+		for (my $num= 0; $num<$dest_num; $num++ ) {		
+		my $dest_e_addr=synthetic_destination($self,$sample,$traffic,$endp,$num,$rnd);
+		my $des_id=endp_addr_decoder($self,$dest_e_addr);		
+		$pattern = ($des_id == $endp)?$pattern."\t$des_id (Off)\n" : $pattern."\t$des_id\n";		
+	}}	
+	return $pattern;
+}
+
+
 
 sub generate_synthetic_traffic_ram{
 	my ($emulate,$endp,$sample,$ratio , $file,$rnd)=@_;
@@ -217,7 +252,7 @@ sub generate_emulator_ram {
 	#if ( !defined $xn || $xn!~ /\s*\d+\b/ ){ add_info($info,"programe_pck_gens:invalid X value\n"); help(); return 0;}
 	#if ( !defined $yn || $yn!~ /\s*\d+\b/ ){ add_info($info,"programe_pck_gens:invalid Y value\n"); help(); return 0;}
 	if ( !grep( /^$traffic$/, @traffics ) ){add_info($info,"programe_pck_gens:$traffic is an invalid Traffic name\n"); help(); return 0;}
-	if ( $EAw >8 ){ add_info($info,"programe_pck_gens:invalid EAw value: ($EAw). should be between 1 and 8 \n"); help(); return 0;}
+	if ( $EAw >8 ){ add_info($info,"Program_pck_gens:invalid EAw value: ($EAw). should be between 1 and 8 \n"); help(); return 0;}
 	#if ( $yn <2 || $yn >16 ){ add_info($info,"programe_pck_gens:invalid Y value:($yn). should be between 2 and 16 \n"); help(); return 0;}
 	#open file pointer
 	#open(my $file, '>', RAM_BIN_FILE) || die "Can not create: \">lib/emulate/emulate_ram.bin\" $!";
@@ -255,8 +290,8 @@ sub programe_pck_gens{
 
 	
 
-	#programe packet generators rams
-	my $cmd= "sh $jtag_intfc \"-n ".JTAG_RAM_INDEX."  -w 8 -i $ENV{'PRONOC_WORK'}/emulate/emulate_ram.bin -c\" ";
+	#program the packet generators rams
+	my $cmd= "bash $jtag_intfc \"-n ".JTAG_RAM_INDEX."  -w 8 -i $ENV{'PRONOC_WORK'}/emulate/emulate_ram.bin -c\" ";
 	#my ($result,$exit) = run_cmd_in_back_ground_get_stdout($cmd);
 	
 	return 0 if(run_cmd_update_info ($cmd,$info));
@@ -274,7 +309,7 @@ return 1;
 
 sub read_jtag_memory{
 	my ($addr,$jtag_intfc,$info)=@_;
-	my $cmd= "sh $jtag_intfc \" -n ".JTAG_STATIC_INDEX." -w 8 -d I:".UPDATE_WB_ADDR.",D:64:$addr,I:5,R:64:$addr,I:0\"";
+	my $cmd= "bash $jtag_intfc \" -n ".JTAG_STATIC_INDEX." -w 8 -d I:".UPDATE_WB_ADDR.",D:64:$addr,I:5,R:64:$addr,I:0\"";
 	#print "$cmd\n";	
 	my ($result,$exit,$stderr) = run_cmd_in_back_ground_get_stdout($cmd);
 	if($exit){
@@ -338,7 +373,7 @@ sub read_statistic_mem_fast {
 	#read static memory
 	my $end= STATISTIC_NUM * 8 *$NE;
 	$end=sprintf ("%X",$end);
-	my $cmd= "sh $jtag_intfc \"-n ".JTAG_STATIC_INDEX."  -w 8 -r -s 0 -e $end\"";
+	my $cmd= "bash $jtag_intfc \"-n ".JTAG_STATIC_INDEX."  -w 8 -r -s 0 -e $end\"";
 	#print "$cmd\n";
 	my ($result,$exit,$stderr) = run_cmd_in_back_ground_get_stdout($cmd);
 	if($exit){
@@ -399,7 +434,7 @@ sub read_pack_gen{
     while ($done ==0){
 		usleep(300000);
 		#my ($result,$exit) = run_cmd_in_back_ground_get_stdout("quartus_stp -t ./lib/tcl/read.tcl done");
-		my ($result,$exit) = run_cmd_in_back_ground_get_stdout("sh $jtag_intfc".READ_DONE_CMD);
+		my ($result,$exit) = run_cmd_in_back_ground_get_stdout("bash $jtag_intfc".READ_DONE_CMD);
 		if($exit != 0 ){
 			add_colored_info($info,$result,'red');
 			return undef;
@@ -448,7 +483,7 @@ sub read_pack_gen{
 	#print "total active router=$total_router\n";
 	#read clock counter
 	my $clk_counter;
-	my ($result,$exit) = run_cmd_in_back_ground_get_stdout("sh $jtag_intfc".READ_COUNTER_CMD);
+	my ($result,$exit) = run_cmd_in_back_ground_get_stdout("bash $jtag_intfc".READ_COUNTER_CMD);
 	if($exit != 0 ){
 		add_colored_info($info,$result,'red');
 		

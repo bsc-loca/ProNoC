@@ -1,0 +1,3 @@
+
+quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify-mesh-4x4/excl160; do model.tcl
+

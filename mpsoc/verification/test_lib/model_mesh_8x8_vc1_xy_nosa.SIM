@@ -1,0 +1,187 @@
+#######################################################################
+##	File: model_mesh_8x8_vc1_xy_nosa.SIM
+##    
+##	Copyright (C) 2014-2016  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.8.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$simulate = bless( {
+                     'noc_type' => {
+                                     'ROUTER_TYPE' => '"INPUT_QUEUED"'
+                                   },
+                     'chart_notebook' => {
+                                           'currentpage' => 0
+                                         },
+                     'fpga_param' => {
+                                       'TIMSTMP_FIFO_NUM' => 16
+                                     },
+                     'noc_setting_gui' => {
+                                            'va' => '376',
+                                            'ha' => '0'
+                                          },
+                     'P2' => {
+                               'active' => 'Received'
+                             },
+                     'graph_save' => {
+                                       'save_all_result' => 0
+                                     },
+                     'noc_param' => {
+                                      'Fpay' => '32',
+                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                      'AVC_ATOMIC_EN' => 0,
+                                      'SSA_EN' => '"NO"',
+                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                      'DEBUG_EN' => '0',
+                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                      'FIRST_ARBITER_EXT_P_EN' => 1,
+                                      'ROUTE_SUBFUNC' => '"XY"',
+                                      'ESCAP_VC_MASK' => '1\'b1',
+                                      'SWA_ARBITER_TYPE' => '"RRA"',
+                                      'T1' => 8,
+                                      'CONGESTION_INDEX' => 3,
+                                      'ROUTE_NAME' => '"XY"',
+                                      'WEIGHTw' => '4',
+                                      'T2' => 8,
+                                      'TOPOLOGY' => '"MESH"',
+                                      'C' => 0,
+                                      'MUX_TYPE' => '"BINARY"',
+                                      'V' => 1,
+                                      'B' => '4'
+                                    },
+                     'P0' => {
+                               'active' => 'Throughput'
+                             },
+                     'P3' => {
+                               'active' => '-'
+                             },
+                     'P0Throughput' => {
+                                         'type' => '2D_line'
+                                       },
+                     'P1Received' => {
+                                       'type' => '3D_bar',
+                                       'dimension' => '3D'
+                                     },
+                     'status' => 'ideal',
+                     'gui_status' => {
+                                       'status' => 'ideal',
+                                       'timeout' => 0
+                                     },
+                     'P3-_param' => {
+                                      'LINEw' => 3,
+                                      'Y_MIN' => 0,
+                                      'legend_placement' => 'BL',
+                                      'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                      'x_axis_font' => 'MediumBold',
+                                      'X_MIN' => 0,
+                                      'legend_font' => 'MediumBold',
+                                      'Y_Title' => 'Total Simulation Time (clk)',
+                                      'X_MAX' => 100,
+                                      'label_font' => 'MediumBold'
+                                    },
+                     'file_name' => undef,
+                     'parameters_order' => {
+                                             'fpga_param' => [
+                                                               'TIMSTMP_FIFO_NUM'
+                                                             ],
+                                             'noc_param' => [
+                                                              'TOPOLOGY',
+                                                              'T1',
+                                                              'T2',
+                                                              'V',
+                                                              'B',
+                                                              'Fpay',
+                                                              'ROUTE_NAME',
+                                                              'SSA_EN',
+                                                              'CONGESTION_INDEX',
+                                                              'ESCAP_VC_MASK',
+                                                              'VC_REALLOCATION_TYPE',
+                                                              'COMBINATION_TYPE',
+                                                              'MUX_TYPE',
+                                                              'C',
+                                                              'DEBUG_EN',
+                                                              'ADD_PIPREG_AFTER_CROSSBAR',
+                                                              'FIRST_ARBITER_EXT_P_EN',
+                                                              'SWA_ARBITER_TYPE',
+                                                              'WEIGHTw',
+                                                              'AVC_ATOMIC_EN',
+                                                              'ROUTE_SUBFUNC'
+                                                            ],
+                                             'noc_type' => [
+                                                             'ROUTER_TYPE'
+                                                           ],
+                                             'sim_param' => [
+                                                              'SAVE_NAME',
+                                                              'BIN_DIR'
+                                                            ]
+                                           },
+                     'P2Received' => {
+                                       'type' => '3D_bar',
+                                       'dimension' => '3D'
+                                     },
+                     'samples' => undef,
+                     'P1' => {
+                               'active' => 'Received'
+                             },
+                     'emulation_column' => {
+                                             'va' => '0',
+                                             'ha' => '0'
+                                           },
+                     'setting' => {
+                                    'show_tile_setting' => 0,
+                                    'soc_path' => 'lib/soc',
+                                    'show_noc_setting' => 1,
+                                    'show_adv_setting' => 1
+                                  },
+                     'P3-' => {
+                                'type' => '2D_line'
+                              },
+                     'simulate_name' => 'model_mesh_8x8_vc1_xy_nosa',
+                     'P1Received_param' => {
+                                             'Y_Title' => 'Received Packets Per Router',
+                                             'label_font' => 'MediumBold',
+                                             'X_MAX' => 100,
+                                             'X_Title' => 'Core ID',
+                                             'x_axis_font' => 'MediumBold',
+                                             'Y_MIN' => 0,
+                                             'LINEw' => 3,
+                                             'legend_placement' => 'BL',
+                                             'legend_font' => 'MediumBold',
+                                             'X_MIN' => 0
+                                           },
+                     'sim_param' => {
+                                      'BIN_DIR' => '/home/alireza/work/mpsoc_work/simulate',
+                                      'SAVE_NAME' => 'model_mesh_8x8_vc1_xy_nosa'
+                                    },
+                     'P0Throughput_param' => {
+                                               'Y_Title' => 'Avg. Throughput (flits/clock (%))',
+                                               'label_font' => 'MediumBold',
+                                               'X_MAX' => 100,
+                                               'x_axis_font' => 'MediumBold',
+                                               'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                               'legend_placement' => 'BL',
+                                               'LINEw' => 3,
+                                               'Y_MIN' => 0,
+                                               'legend_font' => 'MediumBold',
+                                               'X_MIN' => 0
+                                             },
+                     'P2Received_param' => {
+                                             'label_font' => 'MediumBold',
+                                             'X_MAX' => 100,
+                                             'Y_Title' => 'Worst-Case Delay (clk)',
+                                             'legend_font' => 'MediumBold',
+                                             'X_MIN' => 0,
+                                             'x_axis_font' => 'MediumBold',
+                                             'X_Title' => 'Core ID',
+                                             'legend_placement' => 'BL',
+                                             'Y_MIN' => 0,
+                                             'LINEw' => 3
+                                           },
+                     'process_notebook' => {
+                                             'currentpage' => 1
+                                           },
+                     'no_name' => {}
+                   }, 'emulator' );

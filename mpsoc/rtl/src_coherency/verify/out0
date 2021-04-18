@@ -1,0 +1,193 @@
+
+*******./no_cache_wr_rd***************
+
+repeat num=600
+Checked 600 writes on main memory
+All 600 written values on main_mem are correct
+All 2361 Written values on caches are correct
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Error Expected 0 Cache wr (4<=n<=7)  in UC state but got 1161
+All of 2400 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 4161 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./rd ***************
+
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Checked: 600 Cache wr (4<=n<=7)  in UC state
+All 1200 Written values on caches are correct
+All of 1200 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 2400 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./rd_same_addr ***************
+
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Checked: 9 Cache wr (4<=n<=7)  in UC state
+All 609 Written values on caches are correct
+All of 1200 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 1809 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./rd_snpf_evict ***************
+
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Checked: 600 Cache wr (4<=n<=7)  in UC state
+All of 1792 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 2400 snpf updates happend
+All evication of 592 number are done correctly.
+
+*******./wr_hazard ***************
+
+repeat num=600
+Checked 600 writes on main memory
+All writes on caches are done correctly
+All of 1200 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 2097 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr_rd_hazard ***************
+
+repeat num=600
+Checked 600 writes on main memory
+All writes on caches are done correctly
+All of 2400 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 3788 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr_rd_rd_clnu ***************
+
+repeat num=600
+Checked 600 writes on main memory
+Error Expected 600 Cache wr (4<=n<=7)  in UC state but got 1761
+Error Expected 1200 Cache wr (0<=n<=0)  in UC state but got 1192
+Checked: 1200 Cache wr (0<=n<=7)  in SC state
+All of 4800 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 8961 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr_rd_rd_rd_rd(rnd) ***************
+
+REPEAT= 6000
+All of 49670 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 76999 snpf updates happend
+All evication of 1670 number are done correctly.
+
+*******./wr_rd_rd_rd_rd ***************
+
+repeat num=600
+Checked 600 writes on main memory
+All 600 written values on main_mem are correct
+All 5361 Written values on caches are correct
+Checked: 600 Cache wr (0<=n<=3)  in UC state
+Checked: 2400 Cache wr (0<=n<=3)  in SC state
+All of 6000 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 10161 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr_rd_rd_rd ***************
+
+repeat num=600
+Checked 600 writes on main memory
+All 600 written values on main_mem are correct
+Checked: 600 Cache wr (0<=n<=3)  in UC state
+Checked: 1800 Cache wr (0<=n<=7)  in SC state
+All of 4800 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 8361 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr_rd_rd_rdu ***************
+
+repeat num=600
+Checked 600 writes on main memory
+All 600 written values on main_mem are correct
+All 5961 Written values on caches are correct
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Checked: 0 Cache wr (1<=n<=1)  in UC state
+Checked: 600 Cache wr (0<=n<=0)  in SC state
+Checked: 600 Cache wr (1<=n<=1)  in SC state
+Checked: 600 Cache wr (2<=n<=2)  in UC state
+Error Expected 600 Cache wr (4<=n<=7)  in UC state but got 1761
+Checked: 1200 Cache wr (0<=n<=7)  in SC state
+All of 4800 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 9529 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr_rd ***************
+
+repeat num=600
+Checked 600 writes on main memory
+All 600 written values on main_mem are correct
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Error Expected 600 Cache wr (4<=n<=7)  in UC state but got 1161
+All of 2400 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 4161 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr ***************
+
+repeat num=600
+Checked 600 writes on main memory
+All 600 written values on main_mem are correct
+Error Expected 600 Cache wr (4<=n<=7)  in UC state but got 1161
+All 1761 Written values on caches are correct
+All of 1200 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 2361 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./rd_nosnp ***************
+
+Checked: 600 Cache wr (0<=n<=0)  in I state
+Error Expected 600 Cache wr (4<=n<=7)  in UC state but got 0
+All 600 Written values on caches are correct
+All of 1200 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 1200 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./exlusive1 ***************
+
+repeat num=10
+Checked 10 writes on main memory
+All 10 written values on main_mem are correct
+All 71 Written values on caches are correct
+Checked: 20 Cache wr (0<=n<=0)  in UC state
+Checked: 0 Cache wr (1<=n<=1)  in UC state
+Checked: 10 Cache wr (0<=n<=0)  in SC state
+Checked: 10 Cache wr (1<=n<=1)  in SC state
+Error Expected 10 Cache wr (4<=n<=7)  in UC state but got 11
+Checked: 20 Cache wr (0<=n<=7)  in SC state
+Number of exclusive transaction which is failed: 
+Core 0 : 0
+Expected
+Core 1 : 10
+Expected
+All of 100 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 161 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./exlusive2 ***************
+
+repeat num=20
+Checked 20 writes on main memory
+All 20 written values on main_mem are correct
+All 83 Written values on caches are correct
+Checked: 10 Cache wr (0<=n<=0)  in UC state
+Checked: 10 Cache wr (1<=n<=1)  in UC state
+Error Expected 20 Cache wr (4<=n<=7)  in UC state but got 23
+Number of exclusive transaction which is failed: 
+Core 0 : 0
+Expected
+Core 1 : 0
+Expected
+All of 120 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 183 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./atomic_ld_add_accum ***************
+
+####################check atomic ADD 64-bit##############################
+checked. main_mem Addr 0 is written 16 times. Last values on main_mem written as expected
+checked. cch ( 2 ) Addr 0 is written 30 times. Last values written as expected
+All of 32 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 34 snpf updates happend
+All evication of 0 number are done correctly.

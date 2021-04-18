@@ -10,7 +10,7 @@ extern int HOTSPOT_NUM;
 extern char * TRAFFIC;
 extern unsigned char  NEw;
 
-
+int custom_traffic_table[NE];
 
 typedef struct HOTSPOT_NODE {
 	int  ip_num;
@@ -142,25 +142,14 @@ unsigned int pck_dst_gen_2D (unsigned int core_num){
 		 return mesh_tori_addr_join(dest_x,dest_y,dest_l);
      }    
      
-     if( strcmp(TRAFFIC ,"CUSTOM") == 0){
-		//[(x+(k/2-1)) mod k, (y+(k/2-1)) mod k],
-		if(current_x ==0 && current_y == 0 && current_l==0 ){
-           // dest_x =  T1-1;
-           // dest_y =  T2-1;
-           // dest_l =  T3-1;
-			 dest_x =  0;
-			 dest_y =  0;
-			 dest_l =  1;
-            return mesh_tori_addr_join(dest_x,dest_y,dest_l);
-		}// make it invalid
-        dest_x = current_x;
-        dest_y = current_y;
-        dest_l = current_l;
-        return mesh_tori_addr_join(dest_x,dest_y,dest_l);
+     if(( strcmp(TRAFFIC ,"CUSTOM") == 0)|| (strcmp (TRAFFIC,"custom")==0)){
+
+		 return endp_addr_encoder(custom_traffic_table[core_num]);
 
      }  
 
-		 printf ("traffic %s is an unsupported traffic pattern\n",TRAFFIC);
+         fprintf (stderr,"ERROR: traffic %s is an unsupported traffic pattern\n",TRAFFIC);
+
 		 dest_x = current_x;
 		 dest_y = current_y;
 		 dest_l = current_l;
@@ -254,13 +243,13 @@ unsigned int pck_dst_gen_1D (unsigned int core_num){
     	 return endp_addr_encoder((core_num + 1)%NE);
 	 }
      
-     if( strcmp(TRAFFIC ,"CUSTOM") == 0){
-		//[(x+(k/2-1)) mod k, (y+(k/2-1)) mod k],
-		if(core_num ==2  )	 return  endp_addr_encoder(6);
-		return endp_addr_encoder(core_num);
-	 }
+     if(( strcmp(TRAFFIC ,"CUSTOM") == 0)|| (strcmp (TRAFFIC,"custom")==0)){
 
-	 printf ("traffic %s is an unsupported traffic pattern\n",TRAFFIC);
+     	 return endp_addr_encoder(custom_traffic_table[core_num]);
+
+     }
+
+     fprintf (stderr,"ERROR: traffic %s is an unsupported traffic pattern\n",TRAFFIC);
 	 return  endp_addr_encoder(core_num);
 }
 

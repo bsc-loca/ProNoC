@@ -1,0 +1,147 @@
+copy all Packet injector verilog files in rtl_work folder
+split all verilog modules in separate  files
+copy all rnf verilog files in rtl_work folder
+split all verilog modules in separate  files
+make -f Vinject.mk
+make -f Vrnf.mk
+make -f Vhnf.mk
+make -f Vdatrouter.mk
+make -f Vreqrouter.mk
+make -f Vrsprouter.mk
+make -f Vsnf.mk
+make -f Vsnprouter.mk 
+make[1]: Entering directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vinject.cpp > Vinject__ALLcls.cpp
+make[1]: Entering directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vrnf.cpp > Vrnf__ALLcls.cpp
+make[1]: Entering directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+make[1]: Entering directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vdatrouter.cpp > Vdatrouter__ALLcls.cpp
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vhnf.cpp > Vhnf__ALLcls.cpp
+make[1]: Entering directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vreqrouter.cpp > Vreqrouter__ALLcls.cpp
+make[1]: Entering directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vrsprouter.cpp > Vrsprouter__ALLcls.cpp
+make[1]: Entering directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vsnf.cpp > Vsnf__ALLcls.cpp
+make[1]: Entering directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vsnprouter.cpp > Vsnprouter__ALLcls.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vinject__ALLcls.o Vinject__ALLcls.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vrnf__ALLcls.o Vrnf__ALLcls.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vreqrouter__ALLcls.o Vreqrouter__ALLcls.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vsnf__ALLcls.o Vsnf__ALLcls.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vhnf__ALLcls.o Vhnf__ALLcls.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vrsprouter__ALLcls.o Vrsprouter__ALLcls.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vdatrouter__ALLcls.o Vdatrouter__ALLcls.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vsnprouter__ALLcls.o Vsnprouter__ALLcls.cpp
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vsnf__Syms.cpp > Vsnf__ALLsup.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vsnf__ALLsup.o Vsnf__ALLsup.cpp
+      Archiving Vsnf__ALL.a ...
+ar r Vsnf__ALL.a Vsnf__ALLcls.o Vsnf__ALLsup.o
+ranlib Vsnf__ALL.a
+make[1]: Leaving directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vhnf__Syms.cpp > Vhnf__ALLsup.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vhnf__ALLsup.o Vhnf__ALLsup.cpp
+      Archiving Vhnf__ALL.a ...
+ar r Vhnf__ALL.a Vhnf__ALLcls.o Vhnf__ALLsup.o
+ranlib Vhnf__ALL.a
+make[1]: Leaving directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vinject__Syms.cpp > Vinject__ALLsup.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vinject__ALLsup.o Vinject__ALLsup.cpp
+      Archiving Vinject__ALL.a ...
+ar r Vinject__ALL.a Vinject__ALLcls.o Vinject__ALLsup.o
+ranlib Vinject__ALL.a
+make[1]: Leaving directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vrsprouter__Syms.cpp > Vrsprouter__ALLsup.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vrsprouter__ALLsup.o Vrsprouter__ALLsup.cpp
+      Archiving Vrsprouter__ALL.a ...
+ar r Vrsprouter__ALL.a Vrsprouter__ALLcls.o Vrsprouter__ALLsup.o
+ranlib Vrsprouter__ALL.a
+make[1]: Leaving directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vsnprouter__Syms.cpp > Vsnprouter__ALLsup.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vsnprouter__ALLsup.o Vsnprouter__ALLsup.cpp
+      Archiving Vsnprouter__ALL.a ...
+ar r Vsnprouter__ALL.a Vsnprouter__ALLcls.o Vsnprouter__ALLsup.o
+ranlib Vsnprouter__ALL.a
+make[1]: Leaving directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vrnf__Syms.cpp > Vrnf__ALLsup.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vrnf__ALLsup.o Vrnf__ALLsup.cpp
+      Archiving Vrnf__ALL.a ...
+ar r Vrnf__ALL.a Vrnf__ALLcls.o Vrnf__ALLsup.o
+ranlib Vrnf__ALL.a
+make[1]: Leaving directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vreqrouter__Syms.cpp > Vreqrouter__ALLsup.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vreqrouter__ALLsup.o Vreqrouter__ALLsup.cpp
+      Archiving Vreqrouter__ALL.a ...
+ar r Vreqrouter__ALL.a Vreqrouter__ALLcls.o Vreqrouter__ALLsup.o
+ranlib Vreqrouter__ALL.a
+make[1]: Leaving directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+/usr/bin/perl /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vdatrouter__Syms.cpp > Vdatrouter__ALLsup.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3   -c -o Vdatrouter__ALLsup.o Vdatrouter__ALLsup.cpp
+      Archiving Vdatrouter__ALL.a ...
+ar r Vdatrouter__ALL.a Vdatrouter__ALLcls.o Vdatrouter__ALLsup.o
+ranlib Vdatrouter__ALL.a
+make[1]: Leaving directory '/home/alireza/work/hca_git/mpsoc_work/injector/verilator/work/processed_rtl/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3  -DVL_DEBUG=1  -c -o testbench.o testbench.cpp
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -faligned-new -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow     -O3  -DVL_DEBUG=1  -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++    -g testbench.o verilated.o Vinject__ALL.a Vrnf__ALL.a Vhnf__ALL.a Vsnf__ALL.a Vdatrouter__ALL.a Vreqrouter__ALL.a Vrsprouter__ALL.a Vsnprouter__ALL.a    -o testbench -lm -lstdc++ -Wall -O3 2>&1 | c++filt	
+Start Simulation...
+Injector          1 is ready now
+
+Injector          3 is ready now
+
+Injector          5 is ready now
+
+Injector          7 is ready now
+
+Injector          9 is ready now
+
+Injector         11 is ready now
+
+Injector         13 is ready now
+
+Injector         15 is ready now
+
+Injector         17 is ready now
+
+Injector         19 is ready now
+
+Injector         21 is ready now
+
+Injector         23 is ready now
+
+Injector         25 is ready now
+
+Injector         27 is ready now
+
+Injector         29 is ready now
+
+RN[0] read trace num 0: 4000
+RN[0] read trace num 1: 205
+End of trace file 0 at trace_line=2
+                2017: rnf (          1 ) txn (   0 ) ent req flit: qos (  0 ) tgtid (   2 ) srcid (   1 ) returnnid (   0 ) endian ( 0 ) returntxnid (   0 ) opcode (  1 ) flitsize ( 6 ) addr (             64 ) ns ( 1 ) likelyshared ( 0 ).
+                2017: rnf (          1 ) txn (   0 ) ent req flit: allowretry ( 1 ) order ( 3 ) pcrdtype (  0 ) memattr ( 13 ) snpattr ( 1 ) lpid (  0 ) excl_snoopme ( 0 ) expcompack ( 1 ) tracetag ( 0 )
+                2017: rnf (          1 ) req channel has sent a packet:0008080000003800000000102e1b02
+                2021: hnf (          2 ) req channel has recived a packet:0008080000003800000000102e1b02
+                2025: gen (          2 ) txn (   0 ) is generated
+                2025: hnf (          2 ) txn (   0 ) a new ReadShared           req from core (   1 ) is accepted on addr (             64 ) dbid (   0 ) snpf_rdhit ( 0 ) snpf_status  I   spv ( 0000000000000000 ) 
+                2025: hnf (          2 ) txn (   0 ) sends ReadNoSnp
+                2025: hnf (          2 ) txn (   0 ) DMT 
+                2026: hnf (          2 ) req channel has sent a packet:007c100018009800000000102e0f04
+                2027: hnf (          2 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 0000000000000000 )
+                2038: snf (         31 ) req channel has recived a packet:007c100018009800000000102e0f04
+                2093: snf (         31 ) txn (   0 ) got ReadnoSnoop req on addr (             64 )
+                2094: snf (         31 ) dat channel has sent a packet:0004f8002820000ffffffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000
+                2094: snf (         31 ) txn (   0 ) sends CompData_UC ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 )
+                2108: rnf (          1 ) dat channel has recived a packet:0004f8002820000ffffffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000
+                2115: rnf (          1 ) rsp channel has sent a packet:0020200400000
+                2119: hnf (          2 ) rsp channel has recived a packet:0020200400000
+                2123: hnf (          2 ) txn (   0 ) sends  UNDAT_TXN_END to Data processing Unit
+                2125: hnf (          2 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 0000000000000001 )
+                2127: gen (          2 ) txn (   0 ) is released
+                2128: hnf (          2 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( FREE ) and spv ( 0000000000000001 )
+RNF[0] counters:
+	Num Txn =1
+	Min Txn delay =91
+	Max Txn delay =91
+	Avg Txn delay =0

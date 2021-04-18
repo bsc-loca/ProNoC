@@ -1,0 +1,409 @@
+#######################################################################
+##	File: acum.TRC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
+################################################################################
+
+$Trace = bless( {
+                  'trace_map' => {
+                                   'va' => '0',
+                                   'ha' => '0'
+                                 },
+                  'merge_5' => {
+                                 'Mbytes' => 1,
+                                 'buff_size' => '512',
+                                 'injct_rate' => 10,
+                                 'max_pck_size' => 5,
+                                 'min_pck_size' => 5,
+                                 'file' => 'top:a:',
+                                 'vc' => 0,
+                                 'burst_size' => 1,
+                                 'scr_port' => 'Output2',
+                                 'dst_port' => 'Input2',
+                                 'selected' => 0,
+                                 'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                                 'class' => 0,
+                                 'injct_rate_var' => 20,
+                                 'destination' => 'add2',
+                                 'chanel' => 0,
+                                 'source' => 'src2',
+                                 'init_weight' => 1
+                               },
+                  'raw_traces' => {
+                                    '4' => 1,
+                                    '2' => 1,
+                                    '5' => 1,
+                                    '0' => 1,
+                                    '1' => 1,
+                                    '3' => 1
+                                  },
+                  'raw_1' => {
+                               'burst_size' => 1,
+                               'scr_port' => 'Output2',
+                               'dst_port' => 'Input2',
+                               'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                               'selected' => 0,
+                               'class' => 0,
+                               'destination' => 'add1',
+                               'chanel' => 0,
+                               'injct_rate_var' => 20,
+                               'source' => 'src1',
+                               'init_weight' => 1,
+                               'Mbytes' => 1,
+                               'injct_rate' => 10,
+                               'buff_size' => '512',
+                               'max_pck_size' => 5,
+                               'vc' => 0,
+                               'min_pck_size' => 5,
+                               'file' => 'top:a:'
+                             },
+                  'trace_id' => 6,
+                  'gui_status' => {
+                                    'status' => 'ideal',
+                                    'timeout' => 0
+                                  },
+                  'out_name' => undef,
+                  'ni_name' => {
+                                 '3' => 'ni',
+                                 '1' => 'ni',
+                                 '4' => 'ni',
+                                 '2' => 'ni',
+                                 '0' => 'ni',
+                                 '5' => 'ni'
+                               },
+                  'MAP_TASK' => {
+                                  'tile(2)' => 'src1',
+                                  'tile(4)' => 'src2',
+                                  'tile(1)' => 'print',
+                                  'tile(0)' => 'add2',
+                                  'tile(3)' => 'add1'
+                                },
+                  'raw_2' => {
+                               'vc' => 0,
+                               'min_pck_size' => 5,
+                               'file' => 'top:a:',
+                               'injct_rate' => 10,
+                               'buff_size' => '512',
+                               'max_pck_size' => 5,
+                               'Mbytes' => 1,
+                               'init_weight' => 1,
+                               'destination' => 'add1',
+                               'chanel' => 0,
+                               'injct_rate_var' => 20,
+                               'source' => 'src2',
+                               'dst_port' => 'Input1',
+                               'selected' => 0,
+                               'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                               'class' => 0,
+                               'burst_size' => 1,
+                               'scr_port' => 'Output1'
+                             },
+                  'save_as' => 'acum',
+                  'raw_3' => {
+                               'chanel' => 0,
+                               'destination' => 'add2',
+                               'injct_rate_var' => 20,
+                               'source' => 'src2',
+                               'init_weight' => 1,
+                               'burst_size' => 1,
+                               'scr_port' => 'Output2',
+                               'dst_port' => 'Input2',
+                               'class' => 0,
+                               'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                               'selected' => 0,
+                               'vc' => 0,
+                               'file' => 'top:a:',
+                               'min_pck_size' => 5,
+                               'Mbytes' => 1,
+                               'injct_rate' => 10,
+                               'buff_size' => '512',
+                               'max_pck_size' => 5
+                             },
+                  'grouping' => {
+                                  'group(4)_name' => 'group(4)',
+                                  'group(2)_name' => 'group(2)',
+                                  'group(1)_name' => 'group(1)',
+                                  'map_limit' => 1024,
+                                  'group(3)_name' => 'group(3)',
+                                  'group(5)_name' => 'group(5)',
+                                  'trace_icon' => 'icons/cd.png',
+                                  'group(0)_name' => 'group(0)',
+                                  'group_num' => 6,
+                                  'group_name_root' => 'group',
+                                  'ungrouped_name' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'group_name_editble' => 'YES',
+                                  'ungrouped' => [
+                                                   'add1',
+                                                   'add2',
+                                                   'print',
+                                                   'src1',
+                                                   'src2'
+                                                 ],
+                                  'lable' => 'Actors: Drag and drop Actors to bottom group list'
+                                },
+                  'raw_0' => {
+                               'selected' => 0,
+                               'class' => 0,
+                               'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                               'dst_port' => 'Input1',
+                               'scr_port' => 'Output1',
+                               'burst_size' => 1,
+                               'init_weight' => 1,
+                               'source' => 'src1',
+                               'destination' => 'add2',
+                               'chanel' => 0,
+                               'injct_rate_var' => 20,
+                               'max_pck_size' => 5,
+                               'injct_rate' => 10,
+                               'buff_size' => '512',
+                               'Mbytes' => 1,
+                               'vc' => 0,
+                               'min_pck_size' => 5,
+                               'file' => 'top:a:'
+                             },
+                  'raw_5' => {
+                               'file' => 'top:a:',
+                               'min_pck_size' => 5,
+                               'vc' => 0,
+                               'Mbytes' => 1,
+                               'max_pck_size' => 5,
+                               'buff_size' => '512',
+                               'injct_rate' => 10,
+                               'source' => 'add2',
+                               'injct_rate_var' => 20,
+                               'chanel' => 0,
+                               'destination' => 'print',
+                               'init_weight' => 1,
+                               'scr_port' => 'Output',
+                               'burst_size' => 1,
+                               'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                               'class' => 0,
+                               'selected' => 0,
+                               'dst_port' => 'in2'
+                             },
+                  'merge_4' => {
+                                 'source' => 'src2',
+                                 'injct_rate_var' => 20,
+                                 'destination' => 'add1',
+                                 'chanel' => 0,
+                                 'init_weight' => 1,
+                                 'scr_port' => 'Output1',
+                                 'burst_size' => 1,
+                                 'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                                 'selected' => 0,
+                                 'class' => 0,
+                                 'dst_port' => 'Input1',
+                                 'file' => 'top:a:',
+                                 'min_pck_size' => 5,
+                                 'vc' => 0,
+                                 'Mbytes' => 1,
+                                 'max_pck_size' => 5,
+                                 'buff_size' => '512',
+                                 'injct_rate' => 10
+                               },
+                  'merge_1' => {
+                                 'file' => 'top:a:',
+                                 'min_pck_size' => 5,
+                                 'vc' => 0,
+                                 'buff_size' => '512',
+                                 'injct_rate' => 10,
+                                 'max_pck_size' => 5,
+                                 'Mbytes' => 1,
+                                 'init_weight' => 1,
+                                 'injct_rate_var' => 20,
+                                 'chanel' => 0,
+                                 'destination' => 'print',
+                                 'source' => 'add2',
+                                 'dst_port' => 'in2',
+                                 'selected' => 0,
+                                 'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                                 'class' => 0,
+                                 'burst_size' => 1,
+                                 'scr_port' => 'Output'
+                               },
+                  'trace_pad' => {
+                                   'va' => '0',
+                                   'ha' => '0'
+                                 },
+                  'MAP_LOCK' => {},
+                  'soc_name' => {
+                                  '3' => 'mor1k_tile',
+                                  '1' => 'mor1k_tile',
+                                  '4' => 'mor1k_tile',
+                                  '2' => 'mor1k_tile',
+                                  '0' => 'mor1k_tile',
+                                  '5' => 'mor1k_tile'
+                                },
+                  'process_notebook' => {
+                                          'currentpage' => 2
+                                        },
+                  'merge_2' => {
+                                 'vc' => 0,
+                                 'file' => 'top:a:',
+                                 'min_pck_size' => 5,
+                                 'max_pck_size' => 5,
+                                 'injct_rate' => 10,
+                                 'buff_size' => '512',
+                                 'Mbytes' => 1,
+                                 'init_weight' => 1,
+                                 'source' => 'src1',
+                                 'destination' => 'add2',
+                                 'chanel' => 0,
+                                 'injct_rate_var' => 20,
+                                 'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                                 'selected' => 0,
+                                 'class' => 0,
+                                 'dst_port' => 'Input1',
+                                 'scr_port' => 'Output1',
+                                 'burst_size' => 1
+                               },
+                  'merge_0' => {
+                                 'vc' => 0,
+                                 'file' => 'top:a:',
+                                 'min_pck_size' => 5,
+                                 'Mbytes' => 1,
+                                 'max_pck_size' => 5,
+                                 'injct_rate' => 10,
+                                 'buff_size' => '512',
+                                 'source' => 'add1',
+                                 'chanel' => 0,
+                                 'destination' => 'print',
+                                 'injct_rate_var' => 20,
+                                 'init_weight' => 1,
+                                 'scr_port' => 'Output',
+                                 'burst_size' => 1,
+                                 'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                                 'selected' => 0,
+                                 'class' => 0,
+                                 'dst_port' => 'in1'
+                               },
+                  'merge_traces' => {
+                                      '3' => 1,
+                                      '1' => 1,
+                                      '2' => 1,
+                                      '4' => 1,
+                                      '0' => 1,
+                                      '5' => 1
+                                    },
+                  'map_info' => {
+                                  'va' => '0',
+                                  'ha' => '0'
+                                },
+                  'parameters_order' => {
+                                          'map_param' => [
+                                                           'Map_Algrm'
+                                                         ]
+                                        },
+                  'select_multiple' => {
+                                         'action' => 'Select'
+                                       },
+                  'file_id' => 'b',
+                  'noc_param' => {
+                                   'B' => '4',
+                                   'CONGESTION_INDEX' => 3,
+                                   'ROUTE_NAME' => '"XY"',
+                                   'MIN_PCK_SIZE' => '2',
+                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                   'SSA_EN' => '"NO"',
+                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                   'V' => 2,
+                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                   'AVC_ATOMIC_EN' => 0,
+                                   'DEBUG_EN' => '0',
+                                   'ESCAP_VC_MASK' => '2\'b01',
+                                   'BYTE_EN' => '1',
+                                   'C' => '2',
+                                   'WEIGHTw' => '4',
+                                   'T3' => '1',
+                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                   'T2' => '3',
+                                   'T1' => '2',
+                                   'MUX_TYPE' => '"BINARY"',
+                                   'TOPOLOGY' => '"MESH"',
+                                   'Fpay' => '32'
+                                 },
+                  'mpsoc_name' => 'accum',
+                  'raw_4' => {
+                               'max_pck_size' => 5,
+                               'buff_size' => '512',
+                               'injct_rate' => 10,
+                               'Mbytes' => 1,
+                               'file' => 'top:a:',
+                               'min_pck_size' => 5,
+                               'vc' => 0,
+                               'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                               'selected' => 0,
+                               'class' => 0,
+                               'dst_port' => 'in1',
+                               'scr_port' => 'Output',
+                               'burst_size' => 1,
+                               'init_weight' => 1,
+                               'source' => 'add1',
+                               'injct_rate_var' => 20,
+                               'destination' => 'print',
+                               'chanel' => 0
+                             },
+                  'map_param' => {
+                                   'Map_Algrm' => 'Nmap'
+                                 },
+                  'mapping' => {
+                                 'tile(0)_name' => 'tile(0)',
+                                 'lable' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'group_num' => 6,
+                                 'trace_icon' => 'icons/cd2.png',
+                                 'group_name_root' => 'tile',
+                                 'tile(4)' => [
+                                                'src2'
+                                              ],
+                                 'tile(0)' => [
+                                                'add2'
+                                              ],
+                                 'tile(2)_name' => 'tile(2)',
+                                 'tile(1)' => [
+                                                'print'
+                                              ],
+                                 'tile(4)_name' => 'tile(4)',
+                                 'tile(5)_name' => 'tile(5)',
+                                 'tile(2)' => [
+                                                'src1'
+                                              ],
+                                 'ungrouped' => [],
+                                 'ungrouped_name' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'group_name_editble' => 'NO',
+                                 'tile(3)' => [
+                                                'add1'
+                                              ],
+                                 'map_limit' => 1,
+                                 'tile(1)_name' => 'tile(1)',
+                                 'tile(3)_name' => 'tile(3)'
+                               },
+                  'Auto' => {
+                              'Auto_inject' => '1\'b0'
+                            },
+                  'merge_3' => {
+                                 'burst_size' => 1,
+                                 'scr_port' => 'Output2',
+                                 'dst_port' => 'Input2',
+                                 'class' => 0,
+                                 'selected' => 0,
+                                 'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/accum/src/top.csv',
+                                 'chanel' => 0,
+                                 'destination' => 'add1',
+                                 'injct_rate_var' => 20,
+                                 'source' => 'src1',
+                                 'init_weight' => 1,
+                                 'Mbytes' => 1,
+                                 'injct_rate' => 10,
+                                 'buff_size' => '512',
+                                 'max_pck_size' => 5,
+                                 'vc' => 0,
+                                 'file' => 'top:a:',
+                                 'min_pck_size' => 5
+                               }
+                }, 'ProNOC' );

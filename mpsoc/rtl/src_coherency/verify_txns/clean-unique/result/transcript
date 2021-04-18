@@ -1,0 +1,1681 @@
+# do model.tcl
+###################################################################
+##                Start Compilation Script 
+###################################################################
+###################################################################
+##---- Specify variables
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../..
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/..
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim
+# /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work
+# reading modelsim.ini
+# 1
+###################################################################
+##---- 1. Creating working library
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work".
+# QuestaSim-64 vmap 10.7c Lib Mapping Utility 2018.08 Aug 17 2018
+# vmap work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work 
+# Modifying modelsim.ini
+###################################################################
+##---- 3. Compile the Design
+# 1573827314
+# 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/test_localparam.v 
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/test_pattern.v 
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../..+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_localparam.v 
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../..+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../top_mesh_testbench.v 
+# -- Compiling module top_mesh_testbench
+# 
+# Top level modules:
+# 	top_mesh_testbench
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../..+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../top_2x2_testbench.v 
+# -- Compiling module top_2x2_testbench
+# 
+# Top level modules:
+# 	top_2x2_testbench
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/class_table.v 
+# -- Compiling module class_ovc_table
+# -- Compiling module vc_priority_based_dest_port
+# 
+# Top level modules:
+# 	class_ovc_table
+# 	vc_priority_based_dest_port
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/ss_allocator.v 
+# -- Compiling module ss_allocator
+# -- Compiling module ssa_per_vc
+# -- Compiling module ssa_check_destport
+# -- Compiling module add_ss_port
+# 
+# Top level modules:
+# 	ss_allocator
+# 	add_ss_port
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/route_torus.v 
+# -- Compiling module tranc_xy_routing
+# -- Compiling module tranc_west_first_routing
+# -- Compiling module tranc_north_last_routing
+# -- Compiling module tranc_negetive_first_routing
+# -- Compiling module tranc_duato_routing
+# -- Compiling module tranc_dir
+# 
+# Top level modules:
+# 	tranc_xy_routing
+# 	tranc_west_first_routing
+# 	tranc_north_last_routing
+# 	tranc_negetive_first_routing
+# 	tranc_duato_routing
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/header_flit.v 
+# -- Compiling module header_flit_generator
+# -- Compiling module extract_header_flit_info
+# -- Compiling module header_flit_update_lk_route_ovc
+# -- Compiling module hdr_flit_weight_update
+# 
+# Top level modules:
+# 	header_flit_generator
+# 	extract_header_flit_info
+# 	header_flit_update_lk_route_ovc
+# 	hdr_flit_weight_update
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/noc.v 
+# -- Compiling module noc
+# 
+# Top level modules:
+# 	noc
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/main_comp.v 
+# -- Compiling module one_hot_mux
+# -- Compiling module one_hot_demux
+# -- Compiling module custom_or
+# -- Compiling module outport_sum
+# -- Compiling module bin_to_one_hot
+# -- Compiling module one_hot_to_bin
+# -- Compiling module binary_mux
+# -- Compiling module accumulator
+# -- Compiling module set_bits_counter
+# -- Compiling module check_single_bit_assertation
+# -- Compiling module fast_minimum_number
+# -- Compiling module parallel_counter
+# -- Compiling module CS_GEN
+# -- Compiling module PC_7_3
+# -- Compiling module PC_15_4
+# -- Compiling module PC_31_5
+# -- Compiling module PC_63_6
+# -- Compiling module PC_127_7
+# 
+# Top level modules:
+# 	one_hot_demux
+# 	custom_or
+# 	outport_sum
+# 	bin_to_one_hot
+# 	one_hot_to_bin
+# 	binary_mux
+# 	accumulator
+# 	set_bits_counter
+# 	check_single_bit_assertation
+# 	fast_minimum_number
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/fattree.v 
+# -- Compiling module fattree_noc
+# -- Compiling module fattree_nca_random_up_routing
+# -- Compiling module fattree_nca_destp_up_routing
+# -- Compiling module fattree_nca_straight_up_routing
+# -- Compiling module fattree_destport_up_select
+# -- Compiling module fattree_conventional_routing
+# -- Compiling module fattree_look_ahead_routing
+# -- Compiling module fattree_deterministic_look_ahead_routing
+# -- Compiling module fattree_destport_decoder
+# -- Compiling module fattree_mask_non_assignable_destport
+# -- Compiling module fattree_distance_gen
+# -- Compiling module fattree_addr_encoder
+# -- Compiling module fattree_addr_decoder
+# -- Compiling module fattree_ssa_check_destport
+# -- Compiling module fattree_add_ss_port
+# -- Compiling module fattree_router_addr_decode
+# -- Compiling module fattree_destp_generator
+# 
+# Top level modules:
+# 	fattree_noc
+# 	fattree_destport_up_select
+# 	fattree_look_ahead_routing
+# 	fattree_distance_gen
+# 	fattree_addr_encoder
+# 	fattree_addr_decoder
+# 	fattree_ssa_check_destport
+# 	fattree_add_ss_port
+# 	fattree_router_addr_decode
+# 	fattree_destp_generator
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/comb_nonspec.v 
+# -- Compiling module comb_nonspec_allocator
+# -- Compiling module comb_nonspec_v2_allocator
+# -- Compiling module nonspec_sw_alloc
+# -- Compiling module swa_input_port_arbiter
+# -- Compiling module swa_output_port_arbiter
+# 
+# Top level modules:
+# 	comb_nonspec_allocator
+# 	comb_nonspec_v2_allocator
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/canonical_credit_count.v 
+# -- Compiling module canonical_credit_counter
+# -- Compiling module inport_module_can
+# -- Compiling module sw_mask_gen_can
+# 
+# Top level modules:
+# 	canonical_credit_counter
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:14 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/inout_ports.v 
+# -- Compiling module inout_ports
+# -- Compiling module output_vc_status
+# -- Compiling module vc_alloc_request_gen
+# -- Compiling module vc_alloc_request_gen_determinstic
+# 
+# Top level modules:
+# 	inout_ports
+# 	output_vc_status
+# End time: 15:15:14 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/wrra.v 
+# -- Compiling module wrra
+# -- Compiling module rra_priority_lock
+# -- Compiling module weight_counter
+# -- Compiling module classic_weight_counter
+# -- Compiling module weight_control
+# -- Compiling module wrra_contention_gen
+# -- Compiling module wrra_inputport_destports_sum
+# -- Compiling module weights_update
+# -- Compiling module weight_update_per_port
+# -- Compiling module output_weight_latch
+# 
+# Top level modules:
+# 	wrra
+# 	rra_priority_lock
+# 	weight_control
+# 	wrra_contention_gen
+# 	weights_update
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/input_ports.v 
+# -- Compiling module input_ports
+# -- Compiling module input_queue_per_port
+# -- Compiling module destp_generator
+# 
+# Top level modules:
+# 	input_ports
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/tree.v 
+# -- Compiling module tree_noc
+# -- Compiling module tree_nca_routing
+# -- Compiling module tree_conventional_routing
+# -- Compiling module tree_deterministic_look_ahead_routing
+# -- Compiling module tree_look_ahead_routing
+# -- Compiling module tree_destport_decoder
+# -- Compiling module tree_destp_generator
+# 
+# Top level modules:
+# 	tree_noc
+# 	tree_look_ahead_routing
+# 	tree_destp_generator
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/mesh_torus_noc.v 
+# -- Compiling module mesh_torus_noc
+# 
+# Top level modules:
+# 	mesh_torus_noc
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/comb-spec1.v 
+# -- Compiling module comb_spec1_allocator
+# -- Compiling module spec_sw_alloc
+# -- Compiling module sw_alloc_sub
+# 
+# Top level modules:
+# 	comb_spec1_allocator
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/arbiter.v 
+# -- Compiling module arbiter
+# -- Compiling module arbiter_priority_en
+# -- Compiling module my_one_hot_arbiter
+# -- Compiling module arbiter_2_one_hot
+# -- Compiling module arbiter_3_one_hot
+# -- Compiling module arbiter_4_one_hot
+# -- Compiling module my_one_hot_arbiter_priority_en
+# -- Compiling module thermo_gen
+# -- Compiling module thermo_arbiter
+# -- Compiling module thermo_arbiter_priority_en
+# -- Compiling module thermo_arbiter_ext_priority
+# -- Compiling module tree_arbiter
+# -- Compiling module my_one_hot_arbiter_ext_priority
+# -- Compiling module arbiter_ext_priority
+# -- Compiling module fixed_priority_arbiter
+# 
+# Top level modules:
+# 	arbiter_priority_en
+# 	tree_arbiter
+# 	my_one_hot_arbiter_ext_priority
+# 	arbiter_ext_priority
+# 	fixed_priority_arbiter
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/combined_vc_sw_alloc.v 
+# -- Compiling module combined_vc_sw_alloc
+# 
+# Top level modules:
+# 	combined_vc_sw_alloc
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/mesh_torus_routting.v 
+# -- Compiling module mesh_torus_look_ahead_routing
+# -- Compiling module mesh_torus_deterministic_look_ahead_routing
+# -- Compiling module mesh_torus_adaptive_look_ahead_routing
+# -- Compiling module mesh_torus_next_router_addr_predictor
+# -- Compiling module mesh_torus_next_router_inport_predictor
+# -- Compiling module remove_sw_loc_one_hot
+# -- Compiling module remove_receive_port_one_hot
+# -- Compiling module add_sw_loc_one_hot
+# -- Compiling module mesh_torus_conventional_routing
+# -- Compiling module mesh_torus_ni_conventional_routing
+# -- Compiling module tranc_ring_routing
+# -- Compiling module xy_line_routing
+# 
+# Top level modules:
+# 	mesh_torus_look_ahead_routing
+# 	remove_sw_loc_one_hot
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/baseline.v 
+# -- Compiling module baseline_allocator
+# -- Compiling module canonical_vc_alloc
+# -- Compiling module spec_sw_alloc_can
+# 
+# Top level modules:
+# 	baseline_allocator
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/comb_spec2.v 
+# -- Compiling module comb_spec2_allocator
+# -- Compiling module spec_sw_alloc2
+# -- Compiling module sw_alloc_sub2
+# -- Compiling module spec_sw_alloc_sub2
+# 
+# Top level modules:
+# 	comb_spec2_allocator
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/topology_localparam.v 
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/route_mesh.v 
+# -- Compiling module xy_mesh_routing
+# -- Compiling module west_first_routing
+# -- Compiling module north_last_routing
+# -- Compiling module negetive_first_routing
+# -- Compiling module odd_even_routing
+# -- Compiling module duato_mesh_routing
+# -- Compiling module mesh_dir
+# 
+# Top level modules:
+# 	xy_mesh_routing
+# 	west_first_routing
+# 	north_last_routing
+# 	negetive_first_routing
+# 	odd_even_routing
+# 	duato_mesh_routing
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/traffic_gen.v 
+# -- Compiling module traffic_gen
+# -- Compiling module injection_ratio_ctrl
+# -- Compiling module packet_gen
+# -- Compiling module distance_gen
+# 
+# Top level modules:
+# 	traffic_gen
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/congestion_analyzer.v 
+# -- Compiling module port_presel_based_dst_ports_vc
+# -- Compiling module port_presel_based_dst_ports_credit
+# -- Compiling module mesh_torus_port_presel_based_dst_routers_vc
+# -- Compiling module port_presel_based_dst_routers_ovc
+# -- Compiling module port_pre_sel_gen
+# -- Compiling module congestion_out_based_ivc_req
+# -- Compiling module congestion_out_based_ivc_notgrant
+# -- Compiling module congestion_out_based_3port_avb_ovc
+# -- Compiling module congestion_out_based_avb_ovc_w2
+# -- Compiling module congestion_out_based_avb_ovc_w3
+# -- Compiling module congestion_out_based_avb_ovc_w4
+# -- Compiling module congestion_out_based_avb_ovc_not_granted_ivc
+# -- Compiling module parallel_count_normalize
+# -- Compiling module normalizer
+# -- Compiling module congestion_out_gen
+# -- Compiling module deadlock_detector
+# 
+# Top level modules:
+# 	port_pre_sel_gen
+# 	congestion_out_gen
+# 	deadlock_detector
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/credit_count.v 
+# -- Compiling module credit_counter
+# -- Compiling module inport_module
+# -- Compiling module sw_mask_gen
+# -- Compiling module check_ovc
+# 
+# Top level modules:
+# 	credit_counter
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/routing.v 
+# -- Compiling module ni_conventional_routing
+# -- Compiling module look_ahead_routing
+# -- Compiling module next_router_addr_selector_onehot
+# -- Compiling module next_router_addr_selector_bin
+# 
+# Top level modules:
+# 	ni_conventional_routing
+# 	look_ahead_routing
+# 	next_router_addr_selector_onehot
+# 	next_router_addr_selector_bin
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/router.v 
+# -- Compiling module router
+# 
+# Top level modules:
+# 	router
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/crossbar.v 
+# -- Compiling module crossbar
+# 
+# Top level modules:
+# 	crossbar
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/flit_buffer.v 
+# -- Compiling module flit_buffer
+# -- Compiling module fifo_ram
+# -- Compiling module fifo_ram_mem_size
+# -- Compiling module fwft_fifo
+# -- Compiling module fwft_fifo_with_output_clear
+# -- Compiling module fifo
+# 
+# Top level modules:
+# 	flit_buffer
+# 	fwft_fifo
+# 	fwft_fifo_with_output_clear
+# 	fifo
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/mesh_torus.v 
+# -- Compiling module mesh_torus_vc_alloc_request_gen_adaptive
+# -- Compiling module mesh_tori_dspt_clear_gen
+# -- Compiling module mesh_torus_mask_non_assignable_destport
+# -- Compiling module mesh_torus_swap_port_presel_gen
+# -- Compiling module mesh_torus_adaptive_avb_ovc_mux
+# -- Compiling module mesh_torus_port_selector
+# -- Compiling module mesh_torus_adaptive_dest_encoder
+# -- Compiling module mesh_torus_distance_gen
+# -- Compiling module mesh_torus_ssa_check_destport
+# -- Compiling module mesh_torus_add_ss_port
+# -- Compiling module mesh_tori_router_addr_decode
+# -- Compiling module mesh_tori_endp_addr_decode
+# -- Compiling module mesh_tori_addr_encoder
+# -- Compiling module mesh_torus_destp_generator
+# -- Compiling module mesh_torus_destp_decoder
+# -- Compiling module mesh_torus_dynamic_portsel_control
+# 
+# Top level modules:
+# 	mesh_torus_vc_alloc_request_gen_adaptive
+# 	mesh_torus_adaptive_dest_encoder
+# 	mesh_torus_distance_gen
+# 	mesh_torus_ssa_check_destport
+# 	mesh_torus_add_ss_port
+# 	mesh_tori_router_addr_decode
+# 	mesh_tori_addr_encoder
+# 	mesh_torus_destp_generator
+# 	mesh_torus_dynamic_portsel_control
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/debug.v 
+# -- Compiling module debug_IVC_flit_type_order_check
+# -- Compiling module debug_mesh_tori_route_ckeck
+# -- Compiling module debug_mesh_edges
+# -- Compiling module check_destination_addr
+# 
+# Top level modules:
+# 	debug_IVC_flit_type_order_check
+# 	debug_mesh_tori_route_ckeck
+# 	debug_mesh_edges
+# 	check_destination_addr
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram/generic_ram.v 
+# -- Compiling module generic_dual_port_ram
+# -- Compiling module generic_single_port_ram
+# -- Compiling module dual_port_ram
+# -- Compiling module simple_dual_port_ram
+# -- Compiling module single_port_ram
+# 
+# Top level modules:
+# 	generic_dual_port_ram
+# 	generic_single_port_ram
+# 	simple_dual_port_ram
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram/wb_dual_port_ram.v 
+# -- Compiling module wb_dual_port_ram
+# 
+# Top level modules:
+# 	wb_dual_port_ram
+# End time: 15:15:15 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:15 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram/wb_single_port_ram.v 
+# -- Compiling module wb_single_port_ram
+# -- Compiling module single_port_ram_top
+# 
+# Top level modules:
+# 	wb_single_port_ram
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram/wb_bram_ctrl.v 
+# -- Compiling module wb_bram_ctrl
+# -- Compiling module wb_burst_bram_ctrl
+# 
+# Top level modules:
+# 	wb_bram_ctrl
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_peripheral/ram/byte_enabled_generic_ram.sv 
+# -- Compiling module byte_enabled_true_dual_port_ram
+# -- Compiling module byte_enabled_true_dual_port_ram_1
+# -- Compiling module byte_enabled_true_dual_port_ram_2
+# -- Compiling module byte_enabled_true_dual_port_ram_3
+# -- Compiling module byte_enabled_true_dual_port_ram_4
+# -- Compiling module byte_enabled_true_dual_port_ram_5
+# -- Compiling module byte_enabled_true_dual_port_ram_6
+# -- Compiling module byte_enabled_true_dual_port_ram_7
+# -- Compiling module byte_enabled_true_dual_port_ram_8
+# -- Compiling module byte_enabled_true_dual_port_ram_9
+# -- Compiling module byte_enabled_true_dual_port_ram_10
+# -- Compiling module byte_enabled_true_dual_port_ram_11
+# -- Compiling module byte_enabled_true_dual_port_ram_12
+# -- Compiling module byte_enabled_true_dual_port_ram_13
+# -- Compiling module byte_enabled_true_dual_port_ram_14
+# -- Compiling module byte_enabled_true_dual_port_ram_15
+# -- Compiling module byte_enabled_single_port_ram
+# -- Compiling module byte_enabled_single_port_ram_1
+# -- Compiling module byte_enabled_single_port_ram_2
+# -- Compiling module byte_enabled_single_port_ram_3
+# -- Compiling module byte_enabled_single_port_ram_4
+# -- Compiling module byte_enabled_single_port_ram_5
+# -- Compiling module byte_enabled_single_port_ram_6
+# -- Compiling module byte_enabled_single_port_ram_7
+# -- Compiling module byte_enabled_single_port_ram_8
+# -- Compiling module byte_enabled_single_port_ram_9
+# -- Compiling module byte_enabled_single_port_ram_10
+# -- Compiling module byte_enabled_single_port_ram_11
+# -- Compiling module byte_enabled_single_port_ram_12
+# -- Compiling module byte_enabled_single_port_ram_13
+# -- Compiling module byte_enabled_single_port_ram_14
+# -- Compiling module byte_enabled_single_port_ram_15
+# 
+# Top level modules:
+# 	byte_enabled_true_dual_port_ram
+# 	byte_enabled_single_port_ram
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache/pronoc_cache_dualport.v 
+# -- Compiling module pronoc_cache_dualport
+# 
+# Top level modules:
+# 	pronoc_cache_dualport
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache/pronoc_cache_testbench.v 
+# -- Compiling module pronoc_cache_testbench
+# 
+# Top level modules:
+# 	pronoc_cache_testbench
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache/single_port_ram_with_reset.v 
+# -- Compiling module cache_ram
+# -- Compiling module cache_dual_port_ram
+# -- Compiling module single_port_ram_with_reset
+# -- Compiling module dual_port_ram_with_reset
+# 
+# Top level modules:
+# 	cache_ram
+# 	cache_dual_port_ram
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache/snpf_req_rd_check.v 
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache/atomic_mem_rd.v 
+# -- Compiling module atomic_mem_rd
+# -- Compiling module snpf_rxreq_hazard_detect
+# 
+# Top level modules:
+# 	atomic_mem_rd
+# 	snpf_rxreq_hazard_detect
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../cache/pronoc_cache.v 
+# -- Compiling module pronoc_cache
+# 
+# Top level modules:
+# 	pronoc_cache
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc/chi_wrapper.v 
+# -- Compiling module chi_to_pronoc_wrapper
+# -- Compiling module chi_to_pronoc_snoop_wrapper
+# -- Compiling module pronoc_to_chi_wrapper
+# 
+# Top level modules:
+# 	chi_to_pronoc_wrapper
+# 	chi_to_pronoc_snoop_wrapper
+# 	pronoc_to_chi_wrapper
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc/chi_submodules.v 
+# -- Compiling module txnid_gen
+# -- Compiling module txnid_genfifo
+# -- Compiling module sam
+# -- Compiling module credict_ckeck
+# -- Compiling module rnfid_to_spv_addr_decode
+# -- Compiling module rnf_lpid_addr_decode
+# -- Compiling module spv_to_rnfid_addr_decode
+# -- Compiling module many_to_one_intfc
+# -- Compiling module get_req_flit_excl_info
+# -- Compiling module get_rsp_flit_txnid
+# -- Compiling module get_snp_flit_addr
+# -- Compiling module one_pipereg
+# -- Compiling module pipereg_ctrl
+# -- Compiling module many_to_one_pipereg
+# -- Compiling module many_to_one_pipe_fifo
+# -- Compiling module check_num_asseted_bits
+# -- Compiling module monior_req_flit
+# -- Compiling module monior_rsp_flit
+# -- Compiling module fifo_two_rd_port
+# -- Compiling module fifo_two_wr_port
+# 
+# Top level modules:
+# 	txnid_gen
+# 	sam
+# 	credict_ckeck
+# 	rnfid_to_spv_addr_decode
+# 	rnf_lpid_addr_decode
+# 	spv_to_rnfid_addr_decode
+# 	many_to_one_intfc
+# 	get_req_flit_excl_info
+# 	get_rsp_flit_txnid
+# 	get_snp_flit_addr
+# 	one_pipereg
+# 	pipereg_ctrl
+# 	many_to_one_pipereg
+# 	many_to_one_pipe_fifo
+# 	check_num_asseted_bits
+# 	monior_req_flit
+# 	monior_rsp_flit
+# 	fifo_two_rd_port
+# 	fifo_two_wr_port
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc/top_one_injct.v 
+# -- Compiling module top_one_injct
+# 
+# Top level modules:
+# 	top_one_injct
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc/fifo_depth_incr.v 
+# -- Compiling module fifo_depth_extended
+# 
+# Top level modules:
+# 	fifo_depth_extended
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc/top_mesh.v 
+# -- Compiling module top_mesh
+# 
+# Top level modules:
+# 	top_mesh
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../chi_noc/chi_noc.v 
+# -- Compiling module chi_noc
+# 
+# Top level modules:
+# 	chi_noc
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_cache.v 
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_data_process.v 
+# -- Compiling module hnf_data_process
+# -- Compiling module conv_to_64_bit
+# -- Compiling module alu_64_to_512_mask_gen
+# -- Compiling module dat_alu_64_bit
+# 
+# Top level modules:
+# 	hnf_data_process
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_rx_dat.v 
+# -- Compiling module hnf_rx_data
+# 
+# Top level modules:
+# 	hnf_rx_data
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf.v 
+# -- Compiling module hnf
+# 
+# Top level modules:
+# 	hnf
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_rxrsp_rxdat.v 
+# -- Compiling module hnf_rxrsp_rxdat
+# -- Compiling module hnf_rsv_extend_buffer
+# 
+# Top level modules:
+# 	hnf_rxrsp_rxdat
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_tx_req.v 
+# -- Compiling module hnf_tx_req
+# 
+# Top level modules:
+# 	hnf_tx_req
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_rx_req.v 
+# -- Compiling module hnf_rx_req
+# 
+# Top level modules:
+# 	hnf_rx_req
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_expct_rsp.v 
+# -- Compiling module hnf_expct_rsp
+# 
+# Top level modules:
+# 	hnf_expct_rsp
+# End time: 15:15:16 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:16 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_tx_dat.v 
+# -- Compiling module hnf_tx_dat
+# 
+# Top level modules:
+# 	hnf_tx_dat
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_excl_monitore.v 
+# -- Compiling module hnf_excl_monitor
+# -- Compiling module minimum_single_bit_monitor
+# -- Compiling module address_monitor
+# -- Compiling module hnf_exl_tag_addr_extract
+# 
+# Top level modules:
+# 	hnf_excl_monitor
+# 	hnf_exl_tag_addr_extract
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/snoop_filter.v 
+# -- Compiling module snoop_filter
+# -- Compiling module snoop_filter_cache
+# -- Compiling module snpf_ram
+# -- Compiling module eviction_buffer
+# 
+# Top level modules:
+# 	snoop_filter
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_ibuffer_manager.v 
+# -- Compiling module hnf_req_buffer
+# -- Compiling module hnf_req_retry_manager
+# 
+# Top level modules:
+# 	hnf_req_buffer
+# 	hnf_req_retry_manager
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_tx_rsp.v 
+# -- Compiling module hnf_tx_rsp
+# 
+# Top level modules:
+# 	hnf_tx_rsp
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../hnf/hnf_tx_snp.v 
+# -- Compiling module hnf_tx_snp
+# 
+# Top level modules:
+# 	hnf_tx_snp
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf/snf_rx_req.v 
+# -- Compiling module snf_rx_req
+# -- Compiling module send_main_mem_rd_en_command
+# -- Compiling module get_srcid_num
+# 
+# Top level modules:
+# 	snf_rx_req
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf/snf_rx_dat.v 
+# -- Compiling module snf_rx_dat
+# 
+# Top level modules:
+# 	snf_rx_dat
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf/snf.v 
+# -- Compiling module snf
+# 
+# Top level modules:
+# 	snf
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf/snf_tx_dat.v 
+# -- Compiling module snf_tx_dat
+# 
+# Top level modules:
+# 	snf_tx_dat
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf/main_mem.v 
+# -- Compiling module main_mem_emulator
+# -- Compiling module main_mem
+# -- Compiling module pipeline_addr_fifo
+# 
+# Top level modules:
+# 	main_mem_emulator
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../snf/snf_tx_rsp.v 
+# -- Compiling module snf_tx_rsp
+# 
+# Top level modules:
+# 	snf_tx_rsp
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf.v 
+# -- Compiling module rnf
+# 
+# Top level modules:
+# 	rnf
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_tx_dat.v 
+# -- Compiling module rnf_tx_dat
+# 
+# Top level modules:
+# 	rnf_tx_dat
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_cache.v 
+# -- Compiling module rnf_cache
+# 
+# Top level modules:
+# 	rnf_cache
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_rx_snp.v 
+# -- Compiling module rnf_rx_snp
+# 
+# Top level modules:
+# 	rnf_rx_snp
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_tx_rsp.v 
+# -- Compiling module rnf_tx_rsp
+# 
+# Top level modules:
+# 	rnf_tx_rsp
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_wrap_req.v 
+# -- Compiling module rnf_wrap_req
+# 
+# Top level modules:
+# 	rnf_wrap_req
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_tx_req.v 
+# -- Compiling module rnf_tx_req
+# 
+# Top level modules:
+# 	rnf_tx_req
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/transaction_lookup_table.v 
+# -- Compiling module transaction_lookup_table
+# -- Compiling module transaction_lookup_table_old
+# -- Compiling module pronoc_active_transaction_lookup
+# 
+# Top level modules:
+# 	transaction_lookup_table
+# 	transaction_lookup_table_old
+# 	pronoc_active_transaction_lookup
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_rxdata_rxrsp.v 
+# -- Compiling module rnf_rxdata_rxrsp
+# -- Compiling module rnf_final_cache_state_datcomp
+# -- Compiling module rnf_final_cache_state_comp
+# -- Compiling module get_txn_comp_info
+# 
+# Top level modules:
+# 	rnf_rxdata_rxrsp
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 15:15:17 on Nov 15,2019
+# vlog -work /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../../../verify/modelsim/work "+acc=rn" "+incdir+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/..+/home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique" /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../testbench.v 
+# -- Compiling module testbench
+# 
+# Top level modules:
+# 	testbench
+# End time: 15:15:17 on Nov 15,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 1573827314
+###################################################################
+##                       END OF COMPILATION
+###################################################################
+# vsim -t ps work.testbench 
+# Start time: 15:15:17 on Nov 15,2019
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# //  Questa Sim-64
+# //  Version 10.7c linux_x86_64 Aug 17 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading work.testbench(fast)
+# Loading work.top_mesh(fast)
+# Loading work.chi_noc(fast)
+# Loading work.chi_to_pronoc_wrapper(fast)
+# Loading work.mesh_tori_addr_encoder(fast)
+# Loading work.ni_conventional_routing(fast)
+# Loading work.mesh_tori_router_addr_decode(fast)
+# Loading work.mesh_tori_endp_addr_decode(fast)
+# Loading work.mesh_torus_ni_conventional_routing(fast)
+# Loading work.mesh_torus_conventional_routing(fast__1)
+# Loading work.xy_mesh_routing(fast)
+# Loading work.header_flit_generator(fast)
+# Loading work.chi_to_pronoc_wrapper(fast__1)
+# Loading work.header_flit_generator(fast__1)
+# Loading work.chi_to_pronoc_wrapper(fast__2)
+# Loading work.header_flit_generator(fast__2)
+# Loading work.chi_to_pronoc_snoop_wrapper(fast)
+# Loading work.header_flit_generator(fast__3)
+# Loading work.pronoc_to_chi_wrapper(fast)
+# Loading work.extract_header_flit_info(fast__4)
+# Loading work.pronoc_to_chi_wrapper(fast__1)
+# Loading work.extract_header_flit_info(fast__5)
+# Loading work.pronoc_to_chi_wrapper(fast__2)
+# Loading work.extract_header_flit_info(fast__6)
+# Loading work.pronoc_to_chi_wrapper(fast__3)
+# Loading work.extract_header_flit_info(fast__7)
+# Loading work.noc(fast)
+# Loading work.mesh_torus_noc(fast)
+# Loading work.router(fast)
+# Loading work.inout_ports(fast)
+# Loading work.credit_counter(fast)
+# Loading work.inport_module(fast)
+# Loading work.one_hot_mux(fast__3)
+# Loading work.one_hot_demux(fast)
+# Loading work.sw_mask_gen(fast)
+# Loading work.one_hot_mux(fast)
+# Loading work.port_pre_sel_gen(fast)
+# Loading work.parallel_counter(fast)
+# Loading work.PC_7_3(fast)
+# Loading work.CS_GEN(fast)
+# Loading work.check_ovc(fast)
+# Loading work.add_sw_loc_one_hot(fast)
+# Loading work.one_hot_demux(fast__1)
+# Loading work.vc_alloc_request_gen(fast)
+# Loading work.vc_alloc_request_gen_determinstic(fast)
+# Loading work.congestion_out_gen(fast)
+# Loading work.input_ports(fast)
+# Loading work.input_queue_per_port(fast)
+# Loading work.extract_header_flit_info(fast)
+# Loading work.class_ovc_table(fast)
+# Loading work.fwft_fifo(fast)
+# Loading work.fwft_fifo(fast__1)
+# Loading work.destp_generator(fast)
+# Loading work.mesh_torus_destp_generator(fast)
+# Loading work.mesh_torus_destp_decoder(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast)
+# Loading work.flit_buffer(fast)
+# Loading work.one_hot_mux(fast__4)
+# Loading work.one_hot_to_bin(fast__1)
+# Loading work.fifo_ram(fast)
+# Loading work.look_ahead_routing(fast)
+# Loading work.mesh_torus_look_ahead_routing(fast)
+# Loading work.mesh_torus_deterministic_look_ahead_routing(fast)
+# Loading work.mesh_torus_next_router_addr_predictor(fast)
+# Loading work.mesh_torus_next_router_inport_predictor(fast)
+# Loading work.mesh_torus_conventional_routing(fast)
+# Loading work.remove_receive_port_one_hot(fast)
+# Loading work.one_hot_to_bin(fast)
+# Loading work.one_hot_mux(fast__1)
+# Loading work.bin_to_one_hot(fast)
+# Loading work.header_flit_update_lk_route_ovc(fast)
+# Loading work.one_hot_mux(fast__2)
+# Loading work.debug_IVC_flit_type_order_check(fast)
+# Loading work.debug_mesh_tori_route_ckeck(fast)
+# Loading work.accumulator(fast)
+# Loading work.input_queue_per_port(fast__1)
+# Loading work.destp_generator(fast__1)
+# Loading work.mesh_torus_destp_generator(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__1)
+# Loading work.debug_mesh_tori_route_ckeck(fast__1)
+# Loading work.input_queue_per_port(fast__2)
+# Loading work.destp_generator(fast__2)
+# Loading work.mesh_torus_destp_generator(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__2)
+# Loading work.debug_mesh_tori_route_ckeck(fast__2)
+# Loading work.input_queue_per_port(fast__3)
+# Loading work.destp_generator(fast__3)
+# Loading work.mesh_torus_destp_generator(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__3)
+# Loading work.debug_mesh_tori_route_ckeck(fast__3)
+# Loading work.input_queue_per_port(fast__4)
+# Loading work.destp_generator(fast__4)
+# Loading work.mesh_torus_destp_generator(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__4)
+# Loading work.debug_mesh_tori_route_ckeck(fast__4)
+# Loading work.combined_vc_sw_alloc(fast)
+# Loading work.comb_nonspec_allocator(fast)
+# Loading work.nonspec_sw_alloc(fast)
+# Loading work.swa_input_port_arbiter(fast)
+# Loading work.arbiter_priority_en(fast)
+# Loading work.swa_output_port_arbiter(fast)
+# Loading work.arbiter(fast)
+# Loading work.my_one_hot_arbiter(fast)
+# Loading work.one_hot_to_bin(fast__2)
+# Loading work.one_hot_mux(fast__5)
+# Loading work.arbiter_4_one_hot(fast)
+# Loading work.custom_or(fast)
+# Loading work.arbiter(fast__1)
+# Loading work.crossbar(fast)
+# Loading work.one_hot_mux(fast__6)
+# Loading work.debug_mesh_edges(fast)
+# Loading work.noc(fast__1)
+# Loading work.mesh_torus_noc(fast__1)
+# Loading work.router(fast__1)
+# Loading work.inout_ports(fast__1)
+# Loading work.input_ports(fast__1)
+# Loading work.input_queue_per_port(fast__5)
+# Loading work.extract_header_flit_info(fast__1)
+# Loading work.flit_buffer(fast__1)
+# Loading work.fifo_ram(fast__1)
+# Loading work.header_flit_update_lk_route_ovc(fast__1)
+# Loading work.input_queue_per_port(fast__6)
+# Loading work.input_queue_per_port(fast__7)
+# Loading work.input_queue_per_port(fast__8)
+# Loading work.input_queue_per_port(fast__9)
+# Loading work.crossbar(fast__1)
+# Loading work.one_hot_mux(fast__7)
+# Loading work.noc(fast__2)
+# Loading work.mesh_torus_noc(fast__2)
+# Loading work.router(fast__2)
+# Loading work.inout_ports(fast__2)
+# Loading work.input_ports(fast__2)
+# Loading work.input_queue_per_port(fast__10)
+# Loading work.extract_header_flit_info(fast__2)
+# Loading work.flit_buffer(fast__2)
+# Loading work.fifo_ram(fast__2)
+# Loading work.header_flit_update_lk_route_ovc(fast__2)
+# Loading work.input_queue_per_port(fast__11)
+# Loading work.input_queue_per_port(fast__12)
+# Loading work.input_queue_per_port(fast__13)
+# Loading work.input_queue_per_port(fast__14)
+# Loading work.crossbar(fast__2)
+# Loading work.one_hot_mux(fast__8)
+# Loading work.noc(fast__3)
+# Loading work.mesh_torus_noc(fast__3)
+# Loading work.router(fast__3)
+# Loading work.inout_ports(fast__3)
+# Loading work.input_ports(fast__3)
+# Loading work.input_queue_per_port(fast__15)
+# Loading work.extract_header_flit_info(fast__3)
+# Loading work.flit_buffer(fast__3)
+# Loading work.fifo_ram(fast__3)
+# Loading work.header_flit_update_lk_route_ovc(fast__3)
+# Loading work.input_queue_per_port(fast__16)
+# Loading work.input_queue_per_port(fast__17)
+# Loading work.input_queue_per_port(fast__18)
+# Loading work.input_queue_per_port(fast__19)
+# Loading work.crossbar(fast__3)
+# Loading work.one_hot_mux(fast__9)
+# Loading work.rnf(fast)
+# Loading work.rnf_tx_req(fast)
+# Loading work.txnid_gen(fast)
+# Loading work.txnid_genfifo(fast)
+# Loading work.sam(fast)
+# Loading work.credict_ckeck(fast)
+# Loading work.rnf_rxdata_rxrsp(fast)
+# Loading work.fifo(fast)
+# Loading work.fwft_fifo(fast__2)
+# Loading work.fifo(fast__1)
+# Loading work.get_rsp_flit_txnid(fast)
+# Loading work.get_txn_comp_info(fast)
+# Loading work.many_to_one_pipe_fifo(fast)
+# Loading work.arbiter(fast__2)
+# Loading work.my_one_hot_arbiter(fast__1)
+# Loading work.one_hot_to_bin(fast__3)
+# Loading work.one_hot_mux(fast__10)
+# Loading work.arbiter_2_one_hot(fast)
+# Loading work.one_hot_mux(fast__11)
+# Loading work.fifo_two_rd_port(fast)
+# Loading work.fifo(fast__2)
+# Loading work.rnf_final_cache_state_datcomp(fast)
+# Loading work.rnf_final_cache_state_comp(fast)
+# Loading work.rnf_tx_rsp(fast)
+# Loading work.many_to_one_pipereg(fast)
+# Loading work.one_hot_mux(fast__12)
+# Loading work.rnf_rx_snp(fast)
+# Loading work.get_snp_flit_addr(fast)
+# Loading work.fifo(fast__3)
+# Loading work.fifo(fast__4)
+# Loading work.rnf_tx_dat(fast)
+# Loading work.many_to_one_pipereg(fast__1)
+# Loading work.one_hot_mux(fast__13)
+# Loading work.rnf_cache(fast)
+# Loading work.many_to_one_pipereg(fast__2)
+# Loading work.arbiter(fast__3)
+# Loading work.my_one_hot_arbiter(fast__2)
+# Loading work.one_hot_to_bin(fast__4)
+# Loading work.one_hot_mux(fast__14)
+# Loading work.arbiter_3_one_hot(fast)
+# Loading work.one_hot_mux(fast__15)
+# Loading work.many_to_one_pipe_fifo(fast__1)
+# Loading work.fwft_fifo(fast__3)
+# Loading work.one_hot_mux(fast__16)
+# Loading work.fwft_fifo(fast__4)
+# Loading work.pronoc_cache_dualport(fast)
+# Loading work.fixed_priority_arbiter(fast)
+# Loading work.snpf_ram(fast)
+# Loading work.snpf_ram(fast__1)
+# Loading work.one_hot_to_bin(fast__5)
+# Loading work.one_hot_mux(fast__17)
+# Loading work.transaction_lookup_table(fast)
+# Loading work.transaction_lookup_table(fast__1)
+# Loading work.rnf(fast__1)
+# Loading work.rnf_tx_req(fast__1)
+# Loading work.txnid_gen(fast__1)
+# Loading work.txnid_genfifo(fast__1)
+# Loading work.rnf_rxdata_rxrsp(fast__1)
+# Loading work.rnf_tx_rsp(fast__1)
+# Loading work.rnf_rx_snp(fast__1)
+# Loading work.rnf_tx_dat(fast__1)
+# Loading work.rnf_cache(fast__1)
+# Loading work.rnf(fast__2)
+# Loading work.rnf_tx_req(fast__2)
+# Loading work.txnid_gen(fast__2)
+# Loading work.txnid_genfifo(fast__2)
+# Loading work.rnf_rxdata_rxrsp(fast__2)
+# Loading work.rnf_tx_rsp(fast__2)
+# Loading work.rnf_rx_snp(fast__2)
+# Loading work.rnf_tx_dat(fast__2)
+# Loading work.rnf_cache(fast__2)
+# Loading work.rnf(fast__3)
+# Loading work.rnf_tx_req(fast__3)
+# Loading work.txnid_gen(fast__3)
+# Loading work.txnid_genfifo(fast__3)
+# Loading work.rnf_rxdata_rxrsp(fast__3)
+# Loading work.rnf_tx_rsp(fast__3)
+# Loading work.rnf_rx_snp(fast__3)
+# Loading work.rnf_tx_dat(fast__3)
+# Loading work.rnf_cache(fast__3)
+# Loading work.hnf(fast)
+# Loading work.hnf_rx_req(fast)
+# Loading work.hnf_req_retry_manager(fast)
+# Loading work.fifo(fast__5)
+# Loading work.hnf_req_buffer(fast)
+# Loading work.arbiter_priority_en(fast__1)
+# Loading work.thermo_arbiter_priority_en(fast)
+# Loading work.thermo_gen(fast)
+# Loading work.get_req_flit_excl_info(fast)
+# Loading work.many_to_one_pipereg(fast__3)
+# Loading work.txnid_gen(fast__4)
+# Loading work.txnid_genfifo(fast__4)
+# Loading work.rnfid_to_spv_addr_decode(fast)
+# Loading work.bin_to_one_hot(fast__1)
+# Loading work.rnf_lpid_addr_decode(fast)
+# Loading work.hnf_exl_tag_addr_extract(fast)
+# Loading work.hnf_excl_monitor(fast)
+# Loading work.minimum_single_bit_monitor(fast)
+# Loading work.bin_to_one_hot(fast__2)
+# Loading work.address_monitor(fast)
+# Loading work.hnf_tx_dat(fast)
+# Loading work.hnf_rxrsp_rxdat(fast)
+# Loading work.hnf_rsv_extend_buffer(fast)
+# Loading work.fifo(fast__6)
+# Loading work.fifo(fast__7)
+# Loading work.hnf_tx_req(fast)
+# Loading work.many_to_one_pipereg(fast__4)
+# Loading work.one_hot_mux(fast__18)
+# Loading work.hnf_tx_snp(fast)
+# Loading work.arbiter(fast__4)
+# Loading work.thermo_arbiter(fast)
+# Loading work.spv_to_rnfid_addr_decode(fast)
+# Loading work.hnf_tx_rsp(fast)
+# Loading work.many_to_one_pipereg(fast__5)
+# Loading work.one_hot_mux(fast__19)
+# Loading work.snoop_filter(fast)
+# Loading work.many_to_one_pipereg(fast__6)
+# Loading work.one_hot_mux(fast__20)
+# Loading work.fwft_fifo(fast__5)
+# Loading work.snoop_filter_cache(fast)
+# Loading work.arbiter_priority_en(fast__2)
+# Loading work.thermo_arbiter_priority_en(fast__1)
+# Loading work.thermo_gen(fast__1)
+# Loading work.fixed_priority_arbiter(fast__1)
+# Loading work.snpf_ram(fast__2)
+# Loading work.check_num_asseted_bits(fast)
+# Loading work.check_num_asseted_bits(fast__1)
+# Loading work.eviction_buffer(fast)
+# Loading work.arbiter_priority_en(fast__3)
+# Loading work.my_one_hot_arbiter_priority_en(fast)
+# Loading work.atomic_mem_rd(fast)
+# Loading work.fixed_priority_arbiter(fast__2)
+# Loading work.transaction_lookup_table(fast__2)
+# Loading work.hnf_data_process(fast)
+# Loading work.fifo_two_wr_port(fast)
+# Loading work.transaction_lookup_table(fast__3)
+# Loading work.binary_mux(fast)
+# Loading work.conv_to_64_bit(fast)
+# Loading work.alu_64_to_512_mask_gen(fast)
+# Loading work.dat_alu_64_bit(fast)
+# Loading work.pipereg_ctrl(fast)
+# Loading work.hnf_expct_rsp(fast)
+# Loading work.many_to_one_pipereg(fast__7)
+# Loading work.one_hot_mux(fast__21)
+# Loading work.transaction_lookup_table(fast__4)
+# Loading work.atomic_mem_rd(fast__1)
+# Loading work.one_hot_mux(fast__22)
+# Loading work.hnf(fast__1)
+# Loading work.hnf_rx_req(fast__1)
+# Loading work.txnid_gen(fast__5)
+# Loading work.hnf_excl_monitor(fast__1)
+# Loading work.minimum_single_bit_monitor(fast__1)
+# Loading work.hnf_tx_dat(fast__1)
+# Loading work.hnf_rxrsp_rxdat(fast__1)
+# Loading work.hnf_tx_req(fast__1)
+# Loading work.hnf_tx_snp(fast__1)
+# Loading work.hnf_tx_rsp(fast__1)
+# Loading work.snoop_filter(fast__1)
+# Loading work.snoop_filter_cache(fast__1)
+# Loading work.eviction_buffer(fast__1)
+# Loading work.hnf_data_process(fast__1)
+# Loading work.hnf_expct_rsp(fast__1)
+# Loading work.hnf(fast__2)
+# Loading work.hnf_rx_req(fast__2)
+# Loading work.txnid_gen(fast__6)
+# Loading work.hnf_excl_monitor(fast__2)
+# Loading work.minimum_single_bit_monitor(fast__2)
+# Loading work.hnf_tx_dat(fast__2)
+# Loading work.hnf_rxrsp_rxdat(fast__2)
+# Loading work.hnf_tx_req(fast__2)
+# Loading work.hnf_tx_snp(fast__2)
+# Loading work.hnf_tx_rsp(fast__2)
+# Loading work.snoop_filter(fast__2)
+# Loading work.snoop_filter_cache(fast__2)
+# Loading work.eviction_buffer(fast__2)
+# Loading work.hnf_data_process(fast__2)
+# Loading work.hnf_expct_rsp(fast__2)
+# Loading work.hnf(fast__3)
+# Loading work.hnf_rx_req(fast__3)
+# Loading work.txnid_gen(fast__7)
+# Loading work.hnf_excl_monitor(fast__3)
+# Loading work.minimum_single_bit_monitor(fast__3)
+# Loading work.hnf_tx_dat(fast__3)
+# Loading work.hnf_rxrsp_rxdat(fast__3)
+# Loading work.hnf_tx_req(fast__3)
+# Loading work.hnf_tx_snp(fast__3)
+# Loading work.hnf_tx_rsp(fast__3)
+# Loading work.snoop_filter(fast__3)
+# Loading work.snoop_filter_cache(fast__3)
+# Loading work.eviction_buffer(fast__3)
+# Loading work.hnf_data_process(fast__3)
+# Loading work.hnf_expct_rsp(fast__3)
+# Loading work.snf(fast)
+# Loading work.snf_rx_req(fast)
+# Loading work.get_srcid_num(fast)
+# Loading work.one_hot_to_bin(fast__6)
+# Loading work.one_hot_mux(fast__23)
+# Loading work.send_main_mem_rd_en_command(fast)
+# Loading work.fifo_depth_extended(fast)
+# Loading work.fifo(fast__8)
+# Loading work.fifo(fast__9)
+# Loading work.snf_tx_dat(fast)
+# Loading work.snf_tx_rsp(fast)
+# Loading work.snf_rx_dat(fast)
+# Loading work.fwft_fifo(fast__6)
+# Loading work.main_mem_emulator(fast)
+# Loading work.pipeline_addr_fifo(fast)
+# Loading work.pipeline_addr_fifo(fast__1)
+# Loading work.main_mem(fast)
+# Loading work.generic_dual_port_ram(fast)
+# Loading work.dual_port_ram(fast)
+# Loading work.transaction_lookup_table(fast__5)
+# ** Warning: (vsim-3015) [PCDPC] - Port size (2) does not match connection size (3) for port 'din'. The port definition is at: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/flit_buffer.v(591).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/top_mesh/rn[0]/the_rnf/cache/wr_winner_fifo File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_cache.v Line: 304
+# ** Warning: (vsim-3015) [PCDPC] - Port size (2) does not match connection size (3) for port 'dout'. The port definition is at: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/flit_buffer.v(594).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/top_mesh/rn[0]/the_rnf/cache/wr_winner_fifo File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_cache.v Line: 304
+# ** Warning: (vsim-3015) [PCDPC] - Port size (2) does not match connection size (3) for port 'din'. The port definition is at: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/flit_buffer.v(591).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/top_mesh/rn[1]/the_rnf/cache/wr_winner_fifo File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_cache.v Line: 304
+# ** Warning: (vsim-3015) [PCDPC] - Port size (2) does not match connection size (3) for port 'dout'. The port definition is at: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/flit_buffer.v(594).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/top_mesh/rn[1]/the_rnf/cache/wr_winner_fifo File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_cache.v Line: 304
+# ** Warning: (vsim-3015) [PCDPC] - Port size (2) does not match connection size (3) for port 'din'. The port definition is at: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/flit_buffer.v(591).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/top_mesh/rn[2]/the_rnf/cache/wr_winner_fifo File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_cache.v Line: 304
+# ** Warning: (vsim-3015) [PCDPC] - Port size (2) does not match connection size (3) for port 'dout'. The port definition is at: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/flit_buffer.v(594).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/top_mesh/rn[2]/the_rnf/cache/wr_winner_fifo File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_cache.v Line: 304
+# ** Warning: (vsim-3015) [PCDPC] - Port size (2) does not match connection size (3) for port 'din'. The port definition is at: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/flit_buffer.v(591).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/top_mesh/rn[3]/the_rnf/cache/wr_winner_fifo File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_cache.v Line: 304
+# ** Warning: (vsim-3015) [PCDPC] - Port size (2) does not match connection size (3) for port 'dout'. The port definition is at: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../../src_noc/flit_buffer.v(594).
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/top_mesh/rn[3]/the_rnf/cache/wr_winner_fifo File: /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../../rnf/rnf_cache.v Line: 304
+# wave activecursor not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+#                    0: hnf (           7 ) exl single_bit_monitor_reg=00000000 
+# 
+# ************CleanUnique, SNPF: I, SYSCHC: X, the likelyshared and exclusive flag are de-asserted ************
+#             25030000: gen (           0 ) txn (   0 ) is generated
+#             25030000: rnf (           0 ) txn (   0 ) a new CleanUnique          req is accepted on addr(              0 ) 
+#             25030000: rnf (           0 ) txn (   0 ) sends CleanUnique          req on addr (              0 )
+#             25230000: hnf (           4 ) txn (   0 ) a new CleanUnique          req is accepted on addr (              0 ) dbid ( 100 ) snpf_rdhit ( 0 ) snpf_status  I   spv ( 00000 ) 
+#             25230000: hnf (           4 ) txn ( 100 ) sends COMP_UC
+#             25230000: hnf (           4 ) txn ( 100 ) update lkpt  with rsperr_flag ( 0 ) rsp_type (  6 )  srcid (   0 ) lkpt_addr (              0 ), txnid (   0 )
+#             25230000: hnf (           4 ) txn ( 100 ) rspsnp will wait for ( 00000 ) Nodes to response to the request
+#             25230000: gen (           4 ) txn ( 100 ) is generated
+#             25250000: hnf (           4 ) txn ( 100 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             25270000: hnf (           4 ) snpf addr (              0 ) in ram line (    0 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00000 )
+#             25510000: gen (           0 ) txn (   0 ) is released
+#             25510000: rnf (           0 ) txn (   0 ) rxrsp sends CompAck to core (   4 )
+#             25550000: cch (           0 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 ) with state UCE on addr (              0 )
+#             25730000: hnf (           4 ) txn ( 100 ) sends  UNDAT_TXN_END to Data processing Unit
+#             25750000: hnf (           4 ) txn ( 100 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             25770000: hnf (           4 ) snpf addr (              0 ) in ram line (    0 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00001 )
+#             25810000: gen (           4 ) txn ( 100 ) is released
+#             25830000: hnf (           4 ) snpf addr (              0 ) in ram line (    0 ) way num ( 0 ) is updated with status ( FREE ) and spv ( 00001 )
+# ***********ReadUnique, SNPF: U, SYSCHC: X, likeshrd: 0  excl:0, Holder RN:  UC  *******************
+#             30050000: gen (           0 ) txn (   1 ) is generated
+#             30050000: rnf (           0 ) txn (   1 ) a new ReadShared           req is accepted on addr(             64 ) 
+#             30050000: rnf (           0 ) txn (   1 ) sends ReadShared           req on addr (             64 )
+#             30290000: hnf (           5 ) txn (   1 ) a new ReadShared           req is accepted on addr (             64 ) dbid ( 100 ) snpf_rdhit ( 0 ) snpf_status  I   spv ( 00000 ) 
+#             30290000: hnf (           5 ) txn ( 100 ) sends ReadNoSnp
+#             30290000: hnf (           5 ) txn ( 100 ) DMT 
+#             30290000: hnf (           5 ) txn ( 100 ) update lkpt  with rsperr_flag ( 0 ) rsp_type (  4 )  srcid (   0 ) lkpt_addr (             64 ), txnid (   1 )
+#             30290000: hnf (           5 ) txn ( 100 ) rspsnp will wait for ( 00000 ) Nodes to response to the request
+#             30290000: gen (           5 ) txn ( 100 ) is generated
+#             30310000: hnf (           5 ) txn ( 100 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             30330000: hnf (           5 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00000 )
+#             31490000: snf (           8 ) txn ( 100 ) got ReadnoSnoop req on addr (             64 )
+#             31510000: snf (           8 ) txn ( 100 ) sends CompData_UC (                                                                                                                                                           2 )
+#             31850000: gen (           0 ) txn (   1 ) is released
+#             31850000: rnf (           0 ) txn (   1 ) rxrsp sends CompAck to core (   5 )
+#             31890000: cch (           0 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 ) with state  UC on addr (             64 )
+#             32110000: hnf (           5 ) txn ( 100 ) sends  UNDAT_TXN_END to Data processing Unit
+#             32130000: hnf (           5 ) txn ( 100 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             32150000: hnf (           5 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00001 )
+#             32190000: gen (           5 ) txn ( 100 ) is released
+#             32210000: hnf (           5 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( FREE ) and spv ( 00001 )
+#             35070000: gen (           1 ) txn (  20 ) is generated
+#             35070000: rnf (           1 ) txn (  20 ) a new CleanUnique          req is accepted on addr(             64 ) 
+#             35070000: rnf (           1 ) txn (  20 ) sends CleanUnique          req on addr (             64 )
+#             35270000: hnf (           5 ) txn (  20 ) a new CleanUnique          req is accepted on addr (             64 ) dbid ( 101 ) snpf_rdhit ( 1 ) snpf_status  U   spv ( 00001 ) 
+#             35270000: hnf (           5 ) txn ( 101 ) sends SnpCleanInvalid
+#             35270000: hnf (           5 ) txn ( 101 ) update lkpt  with rsperr_flag ( 0 ) rsp_type (  5 )  srcid (   1 ) lkpt_addr (             64 ), txnid (  20 )
+#             35270000: hnf (           5 ) txn ( 101 ) rspsnp will wait for ( 00001 ) Nodes to response to the request
+#             35270000: gen (           5 ) txn ( 101 ) is generated
+#             35290000: hnf (           5 ) txn ( 101 ) rspsnp wait list changed ( 00001 ). No data is gotton
+#             35310000: hnf (           5 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00001 )
+#             35530000: rnf (           0 ) txn ( 101 ) got SnpCleanInvalid snoop request.
+#             35530000: rnf (           0 ) txn ( 101 ) sends SnpResp_I to RSP channel for addr (             64 ) to core (   5 )
+#             35570000: cch (           0 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 ) with state   I on addr (             64 )
+#             35810000: hnf (           5 ) txn ( 101 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             35830000: hnf (           5 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00000 )
+#             36070000: gen (           1 ) txn (  20 ) is released
+#             36070000: rnf (           1 ) txn (  20 ) rxrsp sends CompAck to core (   5 )
+#             36110000: cch (           1 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 ) with state UCE on addr (             64 )
+#             36290000: hnf (           5 ) txn ( 101 ) sends  UNDAT_TXN_END to Data processing Unit
+#             36310000: hnf (           5 ) txn ( 101 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             36330000: hnf (           5 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00010 )
+#             36370000: gen (           5 ) txn ( 101 ) is released
+#             36390000: hnf (           5 ) snpf addr (             64 ) in ram line (    1 ) way num ( 0 ) is updated with status ( FREE ) and spv ( 00010 )
+# ***LCT****ReadUnique, SNPF: U, SYSCHC: hit, likeshrd: 0  excl:0, Holder RN:  I  *******************
+#             40090000: gen (           0 ) txn (   2 ) is generated
+#             40090000: rnf (           0 ) txn (   2 ) a new ReadUnique           req is accepted on addr(            128 ) 
+#             40090000: rnf (           0 ) txn (   2 ) sends ReadUnique           req on addr (            128 )
+#             40290000: hnf (           6 ) txn (   2 ) a new ReadUnique           req is accepted on addr (            128 ) dbid ( 100 ) snpf_rdhit ( 0 ) snpf_status  I   spv ( 00000 ) 
+#             40290000: hnf (           6 ) txn ( 100 ) sends IDMT_ReadNoSnp
+#             40290000: hnf (           6 ) txn ( 100 ) IDMT 
+#             40290000: hnf (           6 ) txn ( 100 ) update lkpt  with rsperr_flag ( 0 ) rsp_type (  4 )  srcid (   0 ) lkpt_addr (            128 ), txnid (   2 )
+#             40290000: hnf (           6 ) txn ( 100 ) rspsnp will wait for ( 00000 ) Nodes to response to the request
+#             40290000: gen (           6 ) txn ( 100 ) is generated
+#             40310000: hnf (           6 ) txn ( 100 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             40330000: hnf (           6 ) snpf addr (            128 ) in ram line (    2 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00000 )
+#             41530000: snf (           8 ) txn ( 100 ) got ReadnoSnoop req on addr (            128 )
+#             41550000: snf (           8 ) txn ( 100 ) sends CompData_I (                                                                                                                                                           3 )
+#             41710000: hnf (           6 ) txn ( 100 ) sends FW_CompData_UC to Data processing Unit
+#             41730000: hnf (           6 ) txn ( 100 ) rspsnp  wait list changed ( 00000 ). Data is gotton
+#             41790000: cch (           6 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 ) with state  UC on addr (            128 )
+#             41810000: hnf (           6 ) snpf addr (            128 ) in ram line (    2 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 10000 )
+#             42030000: gen (           0 ) txn (   2 ) is released
+#             42030000: rnf (           0 ) txn (   2 ) rxrsp sends CompAck to core (   6 )
+#             42070000: cch (           0 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 ) with state  UC on addr (            128 )
+#             42250000: hnf (           6 ) txn ( 100 ) sends  UNDAT_TXN_END to Data processing Unit
+#             42270000: hnf (           6 ) txn ( 100 ) rspsnp  wait list changed ( 00000 ). Data is gotton
+#             42290000: hnf (           6 ) snpf addr (            128 ) in ram line (    2 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 10001 )
+#             42330000: gen (           6 ) txn ( 100 ) is released
+#             42350000: hnf (           6 ) snpf addr (            128 ) in ram line (    2 ) way num ( 0 ) is updated with status ( FREE ) and spv ( 10001 )
+#             45150000: gen (           1 ) txn (  21 ) is generated
+#             45150000: cch (           0 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 ) with state   I on addr (            128 )
+#             45150000: rnf (           1 ) txn (  21 ) a new CleanUnique          req is accepted on addr(            128 ) 
+#             45150000: rnf (           1 ) txn (  21 ) sends CleanUnique          req on addr (            128 )
+#             45390000: hnf (           6 ) txn (  21 ) a new CleanUnique          req is accepted on addr (            128 ) dbid ( 101 ) snpf_rdhit ( 1 ) snpf_status  U   spv ( 10001 ) 
+#             45390000: hnf (           6 ) txn ( 101 ) sends SnpCleanInvalid
+#             45390000: hnf (           6 ) txn ( 101 ) update lkpt  with rsperr_flag ( 0 ) rsp_type (  5 )  srcid (   1 ) lkpt_addr (            128 ), txnid (  21 )
+#             45390000: hnf (           6 ) txn ( 101 ) rspsnp will wait for ( 00001 ) Nodes to response to the request
+#             45390000: gen (           6 ) txn ( 101 ) is generated
+#             45410000: hnf (           6 ) txn ( 101 ) rspsnp wait list changed ( 00001 ). No data is gotton
+#             45430000: hnf (           6 ) snpf addr (            128 ) in ram line (    2 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 10001 )
+#             45610000: rnf (           0 ) txn ( 101 ) got SnpCleanInvalid snoop request.
+#             45610000: rnf (           0 ) txn ( 101 ) sends SnpResp_I to RSP channel for addr (            128 ) to core (   6 )
+#             45850000: hnf (           6 ) txn ( 101 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             45870000: hnf (           6 ) snpf addr (            128 ) in ram line (    2 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 10000 )
+#             46150000: gen (           1 ) txn (  21 ) is released
+#             46150000: rnf (           1 ) txn (  21 ) rxrsp sends CompAck to core (   6 )
+#             46190000: cch (           1 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 ) with state UCE on addr (            128 )
+#             46410000: hnf (           6 ) txn ( 101 ) sends  UNDAT_TXN_END to Data processing Unit
+#             46430000: hnf (           6 ) txn ( 101 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             46450000: hnf (           6 ) snpf addr (            128 ) in ram line (    2 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 10010 )
+#             46490000: gen (           6 ) txn ( 101 ) is released
+#             46510000: hnf (           6 ) snpf addr (            128 ) in ram line (    2 ) way num ( 0 ) is updated with status ( FREE ) and spv ( 10010 )
+# ****PD****ReadUnique, SNPF: U SYSCHC: x, likeshrd: 0  excl:0, Holder RN:  UD******************
+#             50170000: gen (           0 ) txn (   3 ) is generated
+#             50170000: rnf (           0 ) txn (   3 ) a new ReadShared           req is accepted on addr(            256 ) 
+#             50170000: rnf (           0 ) txn (   3 ) sends ReadShared           req on addr (            256 )
+#             50370000: hnf (           4 ) txn (   3 ) a new ReadShared           req is accepted on addr (            256 ) dbid ( 101 ) snpf_rdhit ( 0 ) snpf_status  I   spv ( 00000 ) 
+#             50370000: hnf (           4 ) txn ( 101 ) sends ReadNoSnp
+#             50370000: hnf (           4 ) txn ( 101 ) DMT 
+#             50370000: hnf (           4 ) txn ( 101 ) update lkpt  with rsperr_flag ( 0 ) rsp_type (  4 )  srcid (   0 ) lkpt_addr (            256 ), txnid (   3 )
+#             50370000: hnf (           4 ) txn ( 101 ) rspsnp will wait for ( 00000 ) Nodes to response to the request
+#             50370000: gen (           4 ) txn ( 101 ) is generated
+#             50390000: hnf (           4 ) txn ( 101 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             50410000: hnf (           4 ) snpf addr (            256 ) in ram line (    4 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00000 )
+#             51610000: snf (           8 ) txn ( 101 ) got ReadnoSnoop req on addr (            256 )
+#             51630000: snf (           8 ) txn ( 101 ) sends CompData_UC (                                                                                                                                                           5 )
+#             51970000: gen (           0 ) txn (   3 ) is released
+#             51970000: rnf (           0 ) txn (   3 ) rxrsp sends CompAck to core (   4 )
+#             52010000: cch (           0 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005 ) with state  UC on addr (            256 )
+#             52190000: hnf (           4 ) txn ( 101 ) sends  UNDAT_TXN_END to Data processing Unit
+#             52210000: hnf (           4 ) txn ( 101 ) rspsnp wait list changed ( 00000 ). No data is gotton
+#             52230000: hnf (           4 ) snpf addr (            256 ) in ram line (    4 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00001 )
+#             52270000: gen (           4 ) txn ( 101 ) is released
+#             52290000: hnf (           4 ) snpf addr (            256 ) in ram line (    4 ) way num ( 0 ) is updated with status ( FREE ) and spv ( 00001 )
+#             55230000: gen (           1 ) txn (  22 ) is generated
+#             55230000: cch (           0 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000378 ) with state  UD on addr (            256 )
+#             55230000: rnf (           1 ) txn (  22 ) a new CleanUnique          req is accepted on addr(            256 ) 
+#             55230000: rnf (           1 ) txn (  22 ) sends CleanUnique          req on addr (            256 )
+#             55390000: hnf (           4 ) txn (  22 ) a new CleanUnique          req is accepted on addr (            256 ) dbid ( 102 ) snpf_rdhit ( 1 ) snpf_status  U   spv ( 00001 ) 
+#             55390000: hnf (           4 ) txn ( 102 ) sends SnpCleanInvalid
+#             55390000: hnf (           4 ) txn ( 102 ) update lkpt  with rsperr_flag ( 0 ) rsp_type (  5 )  srcid (   1 ) lkpt_addr (            256 ), txnid (  22 )
+#             55390000: hnf (           4 ) txn ( 102 ) rspsnp will wait for ( 00001 ) Nodes to response to the request
+#             55390000: gen (           4 ) txn ( 102 ) is generated
+#             55410000: hnf (           4 ) txn ( 102 ) rspsnp wait list changed ( 00001 ). No data is gotton
+#             55430000: hnf (           4 ) snpf addr (            256 ) in ram line (    4 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00001 )
+#             55610000: rnf (           0 ) txn ( 102 ) got SnpCleanInvalid snoop request.
+#             55610000: rnf (           0 ) txn ( 102 ) sends SnpRespData_I_PD to DAT channel to core (   4 ).
+#             55650000: cch (           0 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000378 ) with state   I on addr (            256 )
+#             55790000: hnf (           4 ) txn ( 102 ) sends        WR_LKPT to Data processing Unit
+#             55790000: hnf (           4 ) txn ( 102 ) sends TXREQ_WriteNoSnpFull to reqchannel
+#             55810000: hnf (           4 ) txn ( 102 ) rspsnp  wait list changed ( 10010 ). Data is gotton
+#             55830000: hnf (           4 ) snpf addr (            256 ) in ram line (    4 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00000 )
+#             55970000: snf (           8 ) txn ( 102 ) sends CompDBIDResp 
+#             56030000: gen (           1 ) txn (  22 ) is released
+#             56030000: rnf (           1 ) txn (  22 ) rxrsp sends CompAck to core (   4 )
+#             56070000: cch (           1 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 ) with state UCE on addr (            256 )
+#             56170000: hnf (           4 ) txn ( 102 ) sends    NCBWrData_I to Data processing Unit
+#             56190000: hnf (           4 ) txn ( 102 ) rspsnp  wait list changed ( 00010 ). Data is gotton
+#             56210000: hnf (           4 ) txn ( 102 ) sends  UNDAT_TXN_END to Data processing Unit
+#             56230000: hnf (           4 ) txn ( 102 ) rspsnp  wait list changed ( 00000 ). Data is gotton
+#             56250000: cch (           4 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000378 ) with state  UC on addr (            256 )
+#             56250000: hnf (           4 ) snpf addr (            256 ) in ram line (    4 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 00010 )
+#             56290000: hnf (           4 ) snpf addr (            256 ) in ram line (    4 ) way num ( 0 ) is updated with status ( BUSY ) and spv ( 10010 )
+#             56310000: gen (           4 ) txn ( 102 ) is released
+#             56330000: hnf (           4 ) snpf addr (            256 ) in ram line (    4 ) way num ( 0 ) is updated with status ( FREE ) and spv ( 10010 )
+#             56390000: snf (           8 ) Write ( 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000378 ) on addr (            256 ) on main_mem
+# ** Note: $stop    : /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../testbench.v(165)
+#    Time: 80230 ns  Iteration: 0  Instance: /testbench
+# Break at /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../testbench.v line 165
+# Stopped at /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify_txns/clean-unique/../testbench.v line 165
+# End time: 15:15:22 on Nov 15,2019, Elapsed time: 0:00:05
+# Errors: 0, Warnings: 8

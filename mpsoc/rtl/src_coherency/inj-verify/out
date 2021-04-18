@@ -1,0 +1,67 @@
+
+*******./norm160000 ***************
+
+All of 42529 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 91508 snpf updates happend
+All evication of 13547 number are done correctly.
+Total read trace number is: 100257
+
+*******./excl160 ***************
+
+All of 11 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 44 snpf updates happend
+All evication of 0 number are done correctly.
+Total read trace number is: 364
+
+*******./norm16000 ***************
+
+All of 3121 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 9475 snpf updates happend
+All evication of 0 number are done correctly.
+Total read trace number is: 13311
+
+*******./norm1600 ***************
+
+All of 305 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 915 snpf updates happend
+All evication of 0 number are done correctly.
+Total read trace number is: 1279
+
+*******./norm16 ***************
+
+All of 8 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 24 snpf updates happend
+All evication of 0 number are done correctly.
+Total read trace number is: 25
+
+*******./rd_snpf_evict ***************
+
+All of 308 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 474 snpf updates happend
+All evication of 150 number are done correctly.
+
+*******./rd_snpf_evict ***************
+
+All of 308 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 474 snpf updates happend
+All evication of 150 number are done correctly.
+
+*******./wr_rd_rd_clean1 ***************
+
+repeat num=100
+Checked 100 writes on main memory
+Checked: 100 Cache wr (1<=n<=1)  in UC state
+Checked: 100 Cache wr (0<=n<=7)  in SC state
+All of 600 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 1425 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr_rd_rd_clean2 ***************
+
+repeat num=100
+Checked 100 writes on main memory
+Checked: 200 Cache wr (1<=n<=1)  in UC state
+Checked: 100 Cache wr (0<=n<=7)  in SC state
+All of 700 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 1425 snpf updates happend
+All evication of 0 number are done correctly.

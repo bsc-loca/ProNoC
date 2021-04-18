@@ -1,0 +1,353 @@
+#######################################################################
+##	File: m2.TRC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$Trace = bless( {
+                  'save_as' => 'm2',
+                  'trace_0' => {
+                                 'burst_size' => 1,
+                                 'min_pck_size' => 5,
+                                 'max_pck_size' => 5,
+                                 'init_weight' => 1,
+                                 'injct_rate_var' => 20,
+                                 'selected' => 0,
+                                 'injct_rate' => 10
+                               },
+                  'trace_id' => 6,
+                  'soc_name' => {
+                                  '1' => 'mor1k_tile',
+                                  '0' => 'mor1k_tile',
+                                  '3' => 'mor1k_tile',
+                                  '5' => 'mor1k_tile',
+                                  '4' => 'mor1k_tile',
+                                  '2' => 'mor1k_tile'
+                                },
+                  'trace_5' => {
+                                 'init_weight' => 1,
+                                 'min_pck_size' => 5,
+                                 'max_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'injct_rate' => 10,
+                                 'selected' => 0,
+                                 'injct_rate_var' => 20
+                               },
+                  'out_name' => undef,
+                  'raw_traces' => {
+                                    '4' => 1,
+                                    '2' => 1,
+                                    '5' => 1,
+                                    '3' => 1,
+                                    '0' => 1,
+                                    '1' => 1
+                                  },
+                  'raw_1' => {
+                               'dst_port' => 'Input1',
+                               'init_weight' => 1,
+                               'file_name' => '/home/alireza/eclipse-workspace/chanel/src/accum/src/top.csv',
+                               'Mbytes' => 1,
+                               'buff_size' => '32',
+                               'chanel' => 0,
+                               'file' => 'top:a:',
+                               'destination' => 'add2',
+                               'source' => 'src1',
+                               'scr_port' => 'Output2',
+                               'selected' => 0
+                             },
+                  'merge_3' => {
+                                 'selected' => 0,
+                                 'scr_port' => 'src2_source',
+                                 'source' => 'g1',
+                                 'destination' => 'g0',
+                                 'file' => 'top:a:',
+                                 'chanel' => 0,
+                                 'buff_size' => '32',
+                                 'Mbytes' => 1,
+                                 'file_name' => '/home/alireza/work/hca_git/mpsoc_work/MPSOC/newAdder/sw/src2.c',
+                                 'init_weight' => 1,
+                                 'dst_port' => 'add1_Input2'
+                               },
+                  'noc_param' => {
+                                   'BYTE_EN' => '1',
+                                   'TOPOLOGY' => '"MESH"',
+                                   'V' => '2',
+                                   'T1' => '3',
+                                   'MUX_TYPE' => '"BINARY"',
+                                   'T2' => 2,
+                                   'Fpay' => '32',
+                                   'DEBUG_EN' => '1',
+                                   'B' => '4',
+                                   'AVC_ATOMIC_EN' => 0,
+                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                   'MIN_PCK_SIZE' => '2',
+                                   'ROUTE_NAME' => '"XY"',
+                                   'CONGESTION_INDEX' => 3,
+                                   'SSA_EN' => '"NO"',
+                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                   'T3' => '1',
+                                   'ESCAP_VC_MASK' => '2\'b01',
+                                   'C' => 2,
+                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                   'WEIGHTw' => '4'
+                                 },
+                  'trace_pad' => {
+                                   'ha' => '0',
+                                   'va' => '0'
+                                 },
+                  'parameters_order' => {
+                                          'map_param' => [
+                                                           'Map_Algrm'
+                                                         ]
+                                        },
+                  'process_notebook' => {
+                                          'currentpage' => 2
+                                        },
+                  'ni_name' => {
+                                 '1' => 'ni',
+                                 '3' => 'ni',
+                                 '0' => 'ni',
+                                 '4' => 'ni',
+                                 '2' => 'ni',
+                                 '5' => 'ni'
+                               },
+                  'raw_3' => {
+                               'file' => 'top:a:',
+                               'destination' => 'add2',
+                               'source' => 'src2',
+                               'selected' => 0,
+                               'scr_port' => 'source',
+                               'init_weight' => 1,
+                               'file_name' => '/home/alireza/eclipse-workspace/chanel/src/accum/src/top.csv',
+                               'dst_port' => 'Input2',
+                               'buff_size' => '32',
+                               'chanel' => 1,
+                               'Mbytes' => 1
+                             },
+                  'mapping' => {
+                                 'ungrouped' => [],
+                                 'lable' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'tile(1)' => [
+                                                'g1'
+                                              ],
+                                 'tile(5)_name' => 'tile(5)',
+                                 'group_num' => 6,
+                                 'group_name_editble' => 'NO',
+                                 'tile(0)_name' => 'tile(0)',
+                                 'ungrouped_name' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'trace_icon' => 'icons/cd2.png',
+                                 'tile(3)' => [
+                                                'print2'
+                                              ],
+                                 'tile(4)_name' => 'tile(4)',
+                                 'tile(0)' => [
+                                                'g0'
+                                              ],
+                                 'tile(3)_name' => 'tile(3)',
+                                 'tile(2)_name' => 'tile(2)',
+                                 'tile(1)_name' => 'tile(1)',
+                                 'tile(2)' => [
+                                                'print1'
+                                              ],
+                                 'map_limit' => 1,
+                                 'group_name_root' => 'tile'
+                               },
+                  'MAP_LOCK' => {},
+                  'map_param' => {
+                                   'Map_Algrm' => 'Direct'
+                                 },
+                  'grouping' => {
+                                  'map_limit' => 6,
+                                  'group(4)_name' => 'group(4)',
+                                  'group_name_root' => 'group',
+                                  'group(0)_name' => 'g0',
+                                  'group(2)_name' => 'group(2)',
+                                  'group(5)_name' => 'group(5)',
+                                  'group_name_editble' => 'YES',
+                                  'group(3)_name' => 'group(3)',
+                                  'trace_icon' => 'icons/cd.png',
+                                  'ungrouped_name' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'group(0)' => [
+                                                  'add1',
+                                                  'src1'
+                                                ],
+                                  'group(1)_name' => 'g1',
+                                  'ungrouped' => [
+                                                   'print1',
+                                                   'print2'
+                                                 ],
+                                  'lable' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'group(1)' => [
+                                                  'add2',
+                                                  'src2'
+                                                ],
+                                  'group_num' => 6
+                                },
+                  'raw_0' => {
+                               'scr_port' => 'Output1',
+                               'selected' => 0,
+                               'source' => 'src1',
+                               'destination' => 'add1',
+                               'file' => 'top:a:',
+                               'Mbytes' => 1,
+                               'buff_size' => '32',
+                               'chanel' => 0,
+                               'dst_port' => 'Input1',
+                               'file_name' => '/home/alireza/eclipse-workspace/chanel/src/accum/src/top.csv',
+                               'init_weight' => 1
+                             },
+                  'merge_2' => {
+                                 'scr_port' => 'add2_Output',
+                                 'selected' => 0,
+                                 'file' => 'top:a:',
+                                 'destination' => 'print2',
+                                 'source' => 'g1',
+                                 'Mbytes' => 1,
+                                 'chanel' => 0,
+                                 'buff_size' => '32',
+                                 'dst_port' => 'result',
+                                 'init_weight' => 1,
+                                 'file_name' => '/home/alireza/work/hca_git/mpsoc_work/MPSOC/newAdder/sw/add2.c'
+                               },
+                  'trace_2' => {
+                                 'init_weight' => 1,
+                                 'burst_size' => 1,
+                                 'min_pck_size' => 5,
+                                 'max_pck_size' => 5,
+                                 'selected' => 0,
+                                 'injct_rate' => 10,
+                                 'injct_rate_var' => 20
+                               },
+                  'gui_status' => {
+                                    'timeout' => 0,
+                                    'status' => 'ideal'
+                                  },
+                  'raw_4' => {
+                               'source' => 'add1',
+                               'destination' => 'print1',
+                               'file' => 'top:a:',
+                               'scr_port' => 'Output',
+                               'selected' => 0,
+                               'dst_port' => 'result',
+                               'file_name' => '/home/alireza/eclipse-workspace/chanel/src/accum/src/top.csv',
+                               'init_weight' => 1,
+                               'Mbytes' => 1,
+                               'buff_size' => '32',
+                               'chanel' => 0
+                             },
+                  'merge_1' => {
+                                 'file_name' => '/home/alireza/work/hca_git/mpsoc_work/MPSOC/newAdder/sw/src1.c',
+                                 'init_weight' => 1,
+                                 'dst_port' => 'add2_Input1',
+                                 'chanel' => 0,
+                                 'buff_size' => '32',
+                                 'Mbytes' => 1,
+                                 'source' => 'g0',
+                                 'file' => 'top:a:',
+                                 'destination' => 'g1',
+                                 'selected' => 0,
+                                 'scr_port' => 'src1_Output2'
+                               },
+                  'raw_2' => {
+                               'dst_port' => 'Input2',
+                               'init_weight' => 1,
+                               'file_name' => '/home/alireza/eclipse-workspace/chanel/src/accum/src/top.csv',
+                               'Mbytes' => 1,
+                               'chanel' => 0,
+                               'buff_size' => '32',
+                               'file' => 'top:a:',
+                               'destination' => 'add1',
+                               'source' => 'src2',
+                               'scr_port' => 'source',
+                               'selected' => 0
+                             },
+                  'trace_diagram' => {},
+                  'file_id' => 'b',
+                  'MAP_TASK' => {
+                                  'tile(0)' => 'g0',
+                                  'tile(1)' => 'g1',
+                                  'tile(3)' => 'print2',
+                                  'tile(2)' => 'print1'
+                                },
+                  'mpsoc_name' => 'newAdder',
+                  'trace_3' => {
+                                 'selected' => 0,
+                                 'injct_rate' => 10,
+                                 'injct_rate_var' => 20,
+                                 'init_weight' => 1,
+                                 'burst_size' => 1,
+                                 'min_pck_size' => 5,
+                                 'max_pck_size' => 5
+                               },
+                  'merge_traces' => {
+                                      '2' => 1,
+                                      '1' => 1,
+                                      '3' => 1,
+                                      '0' => 1
+                                    },
+                  'trace_4' => {
+                                 'init_weight' => 1,
+                                 'min_pck_size' => 5,
+                                 'max_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'injct_rate' => 10,
+                                 'selected' => 0,
+                                 'injct_rate_var' => 20
+                               },
+                  'trace_1' => {
+                                 'max_pck_size' => 5,
+                                 'min_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'init_weight' => 1,
+                                 'injct_rate_var' => 20,
+                                 'injct_rate' => 10,
+                                 'selected' => 0
+                               },
+                  'raw_5' => {
+                               'init_weight' => 1,
+                               'file_name' => '/home/alireza/eclipse-workspace/chanel/src/accum/src/top.csv',
+                               'dst_port' => 'result',
+                               'chanel' => 0,
+                               'buff_size' => '32',
+                               'Mbytes' => 1,
+                               'file' => 'top:a:',
+                               'destination' => 'print2',
+                               'source' => 'add2',
+                               'selected' => 0,
+                               'scr_port' => 'Output'
+                             },
+                  'map_info' => {
+                                  'va' => '0',
+                                  'ha' => '0'
+                                },
+                  'Auto' => {
+                              'Auto_inject' => '1\'b0'
+                            },
+                  'locally_connected' => {
+                                           'add1_Input1' => 'src1_Output1',
+                                           'add2_Input2' => 'src2_source'
+                                         },
+                  'merge_0' => {
+                                 'source' => 'g0',
+                                 'file' => 'top:a:',
+                                 'destination' => 'print1',
+                                 'scr_port' => 'add1_Output',
+                                 'selected' => 0,
+                                 'dst_port' => 'result',
+                                 'file_name' => '/home/alireza/work/hca_git/mpsoc_work/MPSOC/newAdder/sw/add1.c',
+                                 'init_weight' => 1,
+                                 'Mbytes' => 1,
+                                 'chanel' => 0,
+                                 'buff_size' => '32'
+                               },
+                  'select_multiple' => {
+                                         'action' => 'Select'
+                                       }
+                }, 'ProNOC' );

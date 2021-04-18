@@ -53,6 +53,11 @@ sub get_ports_type{
 
 
 
+
+
+
+
+
 sub get_ports_rang{
 	my ($vdb,$top_module)=@_;
 	my %ports;

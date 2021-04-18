@@ -1,0 +1,1300 @@
+/*------------------------------------------------------------------------------
+* Copyright (C) 2018, 2019, SemiDynamics Technology Services, S.L.U.  
+* The copyright to the computer program(s) herein is the property of
+* SemiDynamics Technology Services, S.L.U. All Rights Reserved.  NOTICE: the
+* intellectual and technical concepts contained herein are proprietary to
+* SemiDynamics Technology Services, S.L.U. and are protected by trade secret or
+* copyright law.  Dissemination of this information and use or reproduction of
+* this material is strictly forbidden unless prior written permission is
+* obtained from SemiDynamics Technology Services, S.L.U. The program(s) may be
+* used and/or reproduced only with the written permission of SemiDynamics
+* Technology Services, S.L.U. and in accordance with the regulations under the
+* Horizon 2020 Grant Agreement and the terms and conditions of MontBlanc 2020
+* Consortium Agreement under which the program(s) have been distributed. Unless
+* required by applicable law or agreed in writing, the program(s) is distributed
+* on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+* express or implied.
+*-------------------------------------------------------------------------------
+*   Author:         Jordi Cortina
+*   Email:          jordi.cortina@semidynamics.com
+*   Date:           15/11/2018
+*-------------------------------------------------------------------------------
+*   Title:          L2 Controller (FSM)
+*   Description:    
+*   Release Notes:  Initial Release
+*-----------------------------------------------------------------------------*/
+module l2_ctrl #(
+    parameter   DATA_W          = 256                                           ,
+                ADDR_W          = 39                                            ,
+                NOC_RSP_PKT_W   = 100                                           ,
+                SP_OPC_W        = 5                                             ,
+                L1_OPC_W        = 3                                             ,
+                L2_ST_W         = 2                                             ,
+                TIM_PTR_W       = 6                                             ,
+                PTBL_DEPTH      = 32                                            ,
+                L2_INDEX_W      = 13                                            ,
+                RET_2_SRC_W     = 1                                             ,
+                COMP_BIT        = 1 /* COMP RESPONSE INDICATOR */               ,
+                //RSP_ERR_W       = 2                                           ,   // Response Error Field
+                TBL_ID_W        = $clog2(PTBL_DEPTH)                            ,
+                L1_REQ_W        = TIM_PTR_W   + ADDR_W   + L1_OPC_W             ,   // 48 bits
+                FL_REQ_W        = COMP_BIT    + L2_ST_W  + TBL_ID_W             ,   // + RSP_ERR_W ,   // 8  bits
+                SP_REQ_W        = RET_2_SRC_W + TBL_ID_W + ADDR_W   + SP_OPC_W      // 50 bits
+
+)(
+    input   logic                                   clk                 ,
+    input   logic                                   rst_n               ,
+                
+    // From L1 Request Q
+    input   logic [L1_REQ_W-1:0]                    l1_req_i            ,
+    input   logic                                   l1_req_val_i        ,
+    output  logic                                   l1_req_pull_o       ,
+    output  logic [TIM_PTR_W-1:0]                   l1_fill_ptr_o       ,
+    output  logic                                   l1_fill_val_o       ,
+    output  logic                                   l1_stx_ok_o         ,
+
+    // From Snoop Request Q
+    input   logic [SP_REQ_W-1:0]                    sp_req_i            ,
+    input   logic                                   sp_req_val_i        ,
+    output  logic                                   sp_req_pull_o       ,
+
+    // From Fill Q
+    input   logic [FL_REQ_W-1:0]                    fl_req_i            ,
+    input   logic                                   fl_req_val_i        ,
+    output  logic                                   fl_req_pull_o       ,
+
+    // L2 Interface
+    input   logic [L2_ST_W-1:0]                     l2_s2_cst_i         ,                      
+    input   logic [L2_INDEX_W-1:0]                  l2_s2_index_i       ,
+    input   logic                                   l2_s2_blocked_i     ,
+    input   logic [ADDR_W-1:0]                      l2_s2_ev_addr_i     ,
+    input   logic                                   l2_s2_ev_val_i      , 
+
+    output  logic [ADDR_W-1:0]                      l2_s2_address_o     ,
+    output  logic                                   l2_s2_valid_o       ,
+    output  logic                                   l2_s2_miss_o        ,
+    output  logic                                   l2_s2_evict_o       ,
+    output  logic                                   l2_s2_fill_o        ,
+
+    output  logic [L2_INDEX_W-1:0]                  l2_s3_index_o       ,
+    output  logic [L2_ST_W-1:0]                     l2_s3_nst_o         ,
+    output  logic                                   l2_s3_valid_o       ,
+    output  logic                                   l2_s3_snoop_o       ,
+
+    // NoC Response
+    input   logic                                   noc_s2_q_full_i     ,
+    output  logic [NOC_RSP_PKT_W-1:0]               noc_s3_rsp_o        ,
+    output  logic                                   noc_s3_rsp_val_o    ,
+
+    // Evict Queue
+    output  logic [ADDR_W-1:0]                      evict_s3_rsp_o      ,
+    output  logic                                   evict_s3_val_o      ,
+
+    // LP Montior
+    input   logic                                   lp_stx_ok_i         ,
+    output  logic [ADDR_W-1:0]                      lp_addr_o           ,
+    output  logic                                   lp_ldx_o            ,
+    output  logic                                   lp_stx_o            ,
+    output  logic                                   lp_line_is_stx_o    ,
+    output  logic                                   lp_fill_o           ,
+    output  logic                                   lp_snp_o            ,
+    output  logic [L2_ST_W-1:0]                     lp_l2_st_o          ,
+    output  logic                                   lp_stx_req_ack_o    ,
+    input   logic                                   lp_stx_req_val_i    ,
+    input   logic [L1_REQ_W-1:0]                    lp_stx_req_data_i
+
+);
+
+    // Import required packages
+    import l2_pkg::*;
+
+    // Parameters
+    /////////////////////////////////////
+
+    localparam INP_REQ_TYPE_W       = 3                         ;   // Input Request Valid type: {L1, FILL, SNP}
+    localparam INT_REQ_W            = SP_REQ_W                  ;   // It must be the largest possible request size.
+    localparam TAG_W                = (ADDR_W + 1)              ;   // Address width + exclusive bit
+    localparam COMP_BIT_IDX         = (L2_ST_W  + TBL_ID_W)     ;   // Completion bit index (Indicates if a dataless transaction has completed)
+    localparam SNP_TBL_ID_IDX_ST    = (ADDR_W + SP_OPC_W )   ;
+
+    // NoC Request/Response packet type
+    typedef struct packed {
+        rsp_ch_t                        rsp_ch1 ;//_
+        logic       [NOC_OPC_W-1:0]     opcode1 ;// \
+        noc_resp_t                      resp1   ;//  > RSP 1 ( Home Node Req/Rsp )
+                                                 //_/
+        rsp_ch_t                        rsp_ch2 ;// \
+        logic       [NOC_OPC_W-1:0]     opcode2 ;//  > RSP 2 ( Requester Node Req/Rsp )
+        noc_resp_t                      resp2   ;//_/
+        //noc_resp_t                    fwdst2  ;// This field is redundant. Same value as resp1
+
+        logic       [ADDR_W-1:0]        addr    ;
+        logic       [TBL_ID_W-1:0]      tbl_id  ;
+        logic                           ex_bit  ;// LDX/STX bit
+    } noc_req_pkt_t;
+
+    localparam NOC_RESP_PKT_W = $bits(noc_req_pkt_t);
+
+
+    // Logic Declaration 
+    /////////////////////////////////////
+
+    logic                       s0_l1_req_val               ,
+                                s0_sp_req_val               ,
+                                s0_fl_req_val               ;
+
+    logic [INP_REQ_TYPE_W-1:0]  s0_req_aux                  ,
+                                s0_req_val                  ,
+                                s1_req_val_r                ,
+                                s2_req_val_r                ;
+
+    logic [INT_REQ_W-1:0]       s1_int_req_r                ,
+                                s2_int_req_r                ;
+
+    logic [L1_REQ_W-1:0]        s1_l1_req_r                 ,
+                                s2_l1_req_r                 ,
+                                s0_l1_req_mux               ;
+
+    logic                       s1_req_from_lp              ,   // This signal is used to flag an 
+                                s2_req_from_lp              ;   // injected request from the LP Monitor.
+
+    logic [L2_ST_W-1:0]         s2_l2_nst_fl1               ,   // S2 L2 next state from l1 comb
+                                s2_l2_nst_fsp               ,
+                                s2_l2_nst_ffl               ,
+                                s2_l2_cst_r                 ,   // S2 Flopped status bits output from L2
+                                s2_l2_cst_w_evict           ;
+
+    logic                       s2_l2_upd_fl1               ,   // S2 L2 Status bits' update signal
+                                s2_l2_upd_fsp               ;                            
+
+    logic [L2_INDEX_W-1:0]      s1_tbl_l2_index             ,
+                                s2_tbl_l2_index_r           ,
+                                s2_l2_s2_index_r            ;   // S2 L2 index
+
+    logic [L2_ST_W-1:0]         s1_ret_fst                  ,   // Fill expected end state
+                                s2_ret_fst_r                ;
+
+    logic                       s1_ret_dless_rsp_to_l1      ,
+                                s2_ret_dless_rsp_to_l1_r    ;
+
+    logic [TBL_ID_W-1:0]        s1_tbl_id                   ,
+                                s2_tbl_id_r                 ,
+                                s2_tbl_id_muxed             ;
+
+    logic                       s2_add_table_entry          ,
+                                s2_add_evict_entry          ;
+
+    logic [TIM_PTR_W-1:0]       s1_ret_tim_ptr              ,
+                                s2_ret_tim_ptr_r            ,
+                                s2_l1_fill_ptr_ffl          ,
+                                s2_l1_fill_ptr_fl1          ;
+
+    logic                       s2_l1_fill_val_fl1          ;
+
+    noc_req_pkt_t               s2_noc_req_pkt_fl1          ,
+                                s2_noc_req_pkt_fsp          ,
+                                s2_noc_resp                 ,
+                                s3_noc_resp_r               ;
+
+    logic                       s1_ptr_tbl_hit              ,
+                                s1_ptr_table_full           ,
+                                s1_gated_val_l1_req         ,
+                                s1_to_l2_gate_val           ,
+                                s1_to_ptr_table_gate_val    ,
+                                s2_to_ptr_table_gate_val    ,
+                                s2_ptr_tbl_hit              ;
+
+    logic [TAG_W-1:0]           s1_ptr_tbl_tag              ,   // Address + Exclusive bit
+                                s1_ptr_tbl_tag_out          ,   // Used to read addr for LP Monitor
+                                s2_ptr_tbl_tag_out_r        ,
+                                s2_ptr_tbl_tag              ;
+
+    logic                       s2_ret2src                  ;
+
+    logic [TIM_PTR_W-1:0]       s2_l1_resp                  ,
+                                s3_l1_resp_r                ;
+
+    logic                       s2_l1_resp_val              ,
+                                s3_l1_resp_val_r            ;
+
+    logic                       s2_noc_resp_val             ,
+                                s3_noc_resp_val_r           ;
+
+    logic [ADDR_W-1:0]          s2_evict_rsp                ,
+                                s3_evict_rsp                ,
+				s3_evict_rsp_r              ;
+
+    logic                       s2_evict_val                ,
+                                s3_evict_val_r              ;
+
+    logic [L2_ST_W-1:0]         s2_fst                      ;
+    logic                       s2_dless_rsp_to_l1          ,   // Enable/Disable L2 response to L1 after dataless completion
+                                s2_dless_rsp_to_l1_mux      ;
+
+    logic                       s1_ret_use_fst_4_dtx        ,   // Used to allow to alter final state of line after a fill comes
+                                s2_ret_use_fst_4_dtx_r      ,
+                                s2_use_fst_4_dtx            ;   // ignoring the returned end state from the NoC. Used for stores.
+
+    logic                       l2_s2_ev_val_r              ;
+
+    logic                       s1_lp_line_is_stx           ,   // Asserts when a fill from a STX arrives from the NoC.
+                                s2_lp_line_is_stx           ;
+
+
+    // Implementation
+    /////////////////////////////////////
+
+    //////////////////////////////
+    // Stage S0: Select Request //
+    //////////////////////////////
+
+    // Generate Pull signals for the Input Queues
+    assign sp_req_pull_o = s0_req_val[SPR];
+    assign fl_req_pull_o = s0_req_val[FLR];
+    assign l1_req_pull_o = s0_req_val[L1R];
+
+    // If l2 is blocked, the ptr_table is full or 
+    // the NoC RSP/REQ Q is full, freeze L1 requests!
+    assign s0_l1_req_val = ((l1_req_val_i | lp_stx_req_val_i) & ~l2_s2_blocked_i & ~s1_ptr_table_full & ~noc_s2_q_full_i);
+
+    // If NoC Response Queue fills up, freeze SNOOP requests.
+    assign s0_sp_req_val = (sp_req_val_i & ~noc_s2_q_full_i & ~lp_stx_req_val_i);
+
+    assign s0_fl_req_val = (fl_req_val_i & ~lp_stx_req_val_i);
+
+    // Generate Request valid bus
+    assign s0_req_aux = {s0_l1_req_val, s0_fl_req_val, s0_sp_req_val};
+
+    always_comb begin
+        s0_req_val = {INP_REQ_TYPE_W{1'b0}};
+        priority case (s0_req_aux) inside
+            3'b??1 : s0_req_val[SPR] = 1'b1;
+            3'b?1? : s0_req_val[FLR] = 1'b1;
+            3'b1?? : s0_req_val[L1R] = 1'b1;
+        endcase
+    end
+    
+    // Allow Store Exclusive request injection from LP Monitor
+    assign s0_l1_req_mux    = lp_stx_req_val_i ? lp_stx_req_data_i : l1_req_i;
+    assign lp_stx_req_ack_o = s0_req_val[L1R];
+
+    // Request mux priority Flops
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            s1_int_req_r    <= {INT_REQ_W{1'b0}};
+            s1_l1_req_r     <= {L1_REQ_W{1'b0}};
+            s1_req_from_lp  <= 1'b0;
+        end else begin
+            if (s0_req_val[SPR])
+                s1_int_req_r[SP_REQ_W-1:0]  <= sp_req_i;
+            if (s0_req_val[FLR])
+                s1_int_req_r[FL_REQ_W-1:0]  <= fl_req_i;
+            if (s0_req_val[L1R]) begin
+                s1_l1_req_r                 <= s0_l1_req_mux;
+                s1_req_from_lp              <= lp_stx_req_val_i;
+            end
+        end
+    end
+
+    // Flop valid signals to following stage
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            s1_req_val_r <= {INP_REQ_TYPE_W{1'b0}};
+        end else begin
+            if (!s1_ptr_table_full && !l2_s2_blocked_i) begin
+                s1_req_val_r <= s0_req_val;
+            end else begin
+                s1_req_val_r[SPR] <= s0_req_val[SPR];
+                s1_req_val_r[FLR] <= s0_req_val[FLR];
+            end
+        end
+    end
+
+
+    //////////////////////////////
+    // Stage S1: Tag Access     //
+    //////////////////////////////
+
+    // From L1 Q
+    always_comb begin
+        unique case (1'b1)
+            s1_req_val_r[SPR] : l2_s2_address_o  = s1_int_req_r[SP_OPC_W+:ADDR_W];
+            s1_req_val_r[L1R] : l2_s2_address_o  = s1_l1_req_r[L1_OPC_W+:ADDR_W];
+            default           : l2_s2_address_o  = {ADDR_W{1'b0}};
+        endcase
+    end
+
+    // If valid request, access L2
+    assign l2_s2_valid_o = (s1_to_l2_gate_val | s1_req_val_r[SPR] | s1_req_val_r[FLR]);
+    assign l2_s3_snoop_o = s2_req_val_r[SPR];
+    assign l2_s2_miss_o  = (s1_to_l2_gate_val & ~s1_l1_req_r[L1_OPC_W-1]);
+    assign l2_s2_evict_o = (s1_l1_req_r[L1_OPC_W-1] & s1_to_l2_gate_val);
+    assign l2_s2_fill_o  = s1_req_val_r[FLR]; 
+
+    // Miss table Tag: Address + Exclusive bit
+    assign s1_ptr_tbl_tag = {s1_l1_req_r[L1_OPC_W+:ADDR_W],s1_l1_req_r[0]};  // TAG from L1 Request
+
+    wire s2_req_is_stx;
+
+    // Ptr Table Instantiation
+    //  - Tracks outstanding misses
+    //  - Returns pointer back to L1
+
+    
+    ptr_table #(
+        .TAG_W                  ( TAG_W                                 ),
+        .DEPTH                  ( PTBL_DEPTH                            ),
+        .TIM_PTR_W              ( TIM_PTR_W                             ),
+        .LINE_ST_W              ( L2_ST_W                               ),
+        .L2_INDEX_W             ( L2_INDEX_W                            )
+    ) i_ptr_table (
+        .clk                    ( clk                                   ),
+        .rst_n                  ( rst_n                                 ),
+        .s1_tbl_id_i            ( s1_int_req_r[TBL_ID_W-1:0]            ),
+        .s1_tag_val_i           ( s1_to_ptr_table_gate_val              ),
+        .s1_tag_i               ( s1_ptr_tbl_tag                        ),
+        .s1_tim_ptr_o           ( s1_ret_tim_ptr                        ),
+        .s1_use_fst_4_dtx_o     ( s1_ret_use_fst_4_dtx                  ),
+        .s1_fst_o               ( s1_ret_fst                            ),
+        .s1_dless_rsp_to_l1_o   ( s1_ret_dless_rsp_to_l1                ),
+        .s1_lp_stx_o            ( s1_lp_line_is_stx                     ),
+        .s1_l2_index_o          ( s1_tbl_l2_index                       ),
+        .s1_tbl_id_o            ( s1_tbl_id                             ),
+        .s1_tag_o               ( s1_ptr_tbl_tag_out                    ),
+        .s1_l1_hit_o            ( s1_ptr_tbl_hit                        ),
+        .s2_l1_req_i            ( s2_to_ptr_table_gate_val              ),
+        .s2_l1_val_i            ( s2_add_table_entry                    ),
+        .s2_fl_val_i            ( s2_req_val_r[FLR]                     ),
+        .s2_tbl_id_i            ( s2_tbl_id_muxed                       ),
+        .s2_tag_i               ( s2_ptr_tbl_tag                        ),
+        .s2_l2_index_i          ( s2_l2_s2_index_r                      ),
+        .s2_tim_ptr_i           ( s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W]    ),
+        .s2_use_fst_4_dtx_i     ( s2_use_fst_4_dtx                      ),
+        .s2_fst_i               ( s2_fst                                ),
+        .s2_dless_rsp_to_l1_i   ( s2_dless_rsp_to_l1_mux                ),
+        .s2_is_stx_i            ( s2_req_is_stx                         ),
+        .s1_full_o              ( s1_ptr_table_full                     )
+    );
+
+    // Prevent notification to L1 in case of a dataless or StoreX injected by LP Monitor.
+    assign s2_dless_rsp_to_l1_mux = (s2_dless_rsp_to_l1 | s2_req_from_lp);
+
+    // Block Pipeline if either PTR Table of L2 fills up.
+    assign s1_gated_val_l1_req = (s1_req_val_r[L1R] & ~s1_ptr_table_full & ~l2_s2_blocked_i);
+
+    assign s1_to_l2_gate_val        = (s1_req_val_r[L1R] & ~s1_ptr_table_full); 
+    assign s1_to_ptr_table_gate_val = (s1_req_val_r[L1R] & ~l2_s2_blocked_i); 
+    assign s2_to_ptr_table_gate_val = (s2_req_val_r[L1R] & ~l2_s2_blocked_i); 
+
+
+    // Add entry to PTR Table if 
+    //  - It's not a hit in ptr_table and a NoC request is required.
+    //  - It's an evict and line state in L2 is in shared state.
+    assign s2_add_evict_entry   = (s2_l1_req_r[L1_OPC_EVICT_BIT] & (s2_l2_cst_w_evict == S_ST));
+    assign s2_add_table_entry   = ((~s2_ptr_tbl_hit & ~s2_l1_fill_val_fl1 & ~s2_l1_req_r[L1_OPC_EVICT_BIT]) | (s2_add_evict_entry));
+
+    assign s2_tbl_id_muxed      = s2_req_val_r[FLR] ? s2_int_req_r[TBL_ID_W-1:0] : s2_tbl_id_r;
+
+    assign s2_req_is_stx        = (s2_l1_req_r[L1_OPC_W-1:0] == L1_SX);
+
+
+    // Flop request to next pipeline stage
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            s2_int_req_r    <= {INT_REQ_W{1'b0}};
+            s2_l1_req_r     <= {L1_REQ_W{1'b0}};
+            s2_req_from_lp  <= 1'b0;
+        end else begin
+            if (s1_req_val_r[SPR])
+                s2_int_req_r[SP_REQ_W-1:0]  <= s1_int_req_r[SP_REQ_W-1:0];
+            else if (s1_req_val_r[FLR])
+                s2_int_req_r[FL_REQ_W-1:0]  <= s1_int_req_r[FL_REQ_W-1:0];
+            else if (s1_gated_val_l1_req) begin
+                s2_l1_req_r                 <= s1_l1_req_r;
+                s2_req_from_lp              <= s1_req_from_lp;
+            end
+        end
+    end
+
+    // Flop L2 Status Bits to the next stage
+    // Flop Index from L2
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            s2_l2_cst_r             <= {L2_ST_W{1'b0}};
+            s2_l2_s2_index_r        <= {L2_INDEX_W{1'b0}};
+            s2_tbl_id_r             <= {TBL_ID_W{1'b0}};
+            s2_ptr_tbl_tag          <= {TAG_W{1'b0}};
+            s2_ptr_tbl_hit          <= 1'b0;
+	    l2_s2_ev_val_r          <= 1'b0;
+        end else begin
+            if (s1_gated_val_l1_req || s1_req_val_r[SPR]) begin
+                s2_l2_cst_r         <= l2_s2_cst_i;      // L1 Req or SNP only
+ 	        l2_s2_ev_val_r      <= l2_s2_ev_val_i;
+                s2_l2_s2_index_r    <= l2_s2_index_i;
+                s2_tbl_id_r         <= s1_tbl_id;
+                s2_ptr_tbl_tag      <= s1_ptr_tbl_tag;
+                s2_ptr_tbl_hit      <= s1_ptr_tbl_hit;
+            end
+        end
+    end
+
+    // Flop Fill Request required signals
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            s2_ret_tim_ptr_r            <= {TIM_PTR_W{1'b0}};
+            s2_ret_fst_r                <= {L2_ST_W{1'b0}};
+            s2_tbl_l2_index_r           <= {L2_INDEX_W{1'b0}};
+            s2_ptr_tbl_tag_out_r        <= {TAG_W{1'b0}};
+            s2_ret_dless_rsp_to_l1_r    <= 1'b0;
+            s2_ret_use_fst_4_dtx_r      <= 1'b0;
+            s2_lp_line_is_stx           <= 1'b0;
+        end else begin
+            if (s1_req_val_r[FLR]) begin
+                s2_ret_tim_ptr_r            <= s1_ret_tim_ptr;
+                s2_ret_use_fst_4_dtx_r      <= s1_ret_use_fst_4_dtx;
+                s2_ret_fst_r                <= s1_ret_fst;
+                s2_tbl_l2_index_r           <= s1_tbl_l2_index;
+                s2_ptr_tbl_tag_out_r        <= s1_ptr_tbl_tag_out;
+                s2_ret_dless_rsp_to_l1_r    <= s1_ret_dless_rsp_to_l1;
+                s2_lp_line_is_stx           <= s1_lp_line_is_stx;
+            end
+        end
+    end
+
+    // Always flop valid signals to following stage
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            s2_req_val_r    <= {INP_REQ_TYPE_W{1'b0}};
+        end else begin
+            s2_req_val_r        <= s1_req_val_r;
+            s2_req_val_r[L1R]   <= s1_gated_val_l1_req; // Flop gated version of L1 Request valid signal.
+        end
+    end
+
+
+
+    //////////////////////////////
+    // Stage S2: Update         //
+    //////////////////////////////
+
+    // LP Monitor Address generation
+    always_comb begin
+        unique case (1'b1)
+            s2_req_val_r[SPR] : lp_addr_o = s2_int_req_r[SP_OPC_W+:ADDR_W];
+            s2_req_val_r[FLR] : lp_addr_o = s2_ptr_tbl_tag_out_r[TAG_W-1:1];   // Remove exclusive bit
+            s2_req_val_r[L1R] : lp_addr_o = s2_l1_req_r[L1_OPC_W+:ADDR_W];
+            default           : lp_addr_o = {ADDR_W{1'b0}};
+        endcase
+    end
+
+    // During an eviction, L2 current state outputs the status of the evicted
+    // line. The status of the "missed" line is Invalid, hence the need to mask
+    // the status bits during an L1 request when an eviction is triggered. This
+    // allows the generation of two requests to the NoC:
+    //  1.- Request the "missed" Line.
+    //  2.- Request a Write Back of the evicted Line.
+    assign s2_l2_cst_w_evict = s2_l2_cst_r & {L2_ST_W{~l2_s2_ev_val_r}}; 
+
+    // L1 Request
+    always_comb begin
+        s2_l2_nst_fl1               = {L2_ST_W{1'b0}}                   ;
+        s2_l2_upd_fl1               = 1'b0                              ;
+        s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}}                 ;
+        s2_l1_fill_val_fl1          = 1'b0                              ;
+        s2_noc_req_pkt_fl1          = '0                                ;
+        s2_noc_req_pkt_fl1.addr     = s2_l1_req_r[L1_OPC_W+:ADDR_W]     ;
+        s2_noc_req_pkt_fl1.tbl_id   = s2_tbl_id_r                       ;
+        s2_fst                      = {L2_ST_W{1'b0}}                   ;
+        s2_dless_rsp_to_l1          = 1'b1                              ;
+        s2_use_fst_4_dtx            = 1'b0                              ;
+        unique case ({s2_l1_req_r[L1_OPC_W-1:0],s2_l2_cst_w_evict}) inside // case L1 Request Opcode
+        // ----------------------------------------
+        // |   L1 Input Opcode   | L2 Status bits |
+        // ----------------------------------------
+        //   Load Miss Exclusive |   Exclusive
+            {L1_LX,E_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b1;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   Load Miss Exclusive |   Shared
+            {L1_LX,S_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // No update to L1 yet.  
+                                    s2_l1_fill_val_fl1          = 1'b1;                                 // Need to get a clean line.
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // Send Request to Invalidate the line.
+                                end
+
+        //   Load Miss Exclusive |   Modified
+            {L1_LX,M_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b1;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   Load Miss Exclusive |   Invalid
+            {L1_LX,I_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};                    // Do not return resp to L1
+                                    s2_l1_fill_val_fl1          = 1'b0;
+                                    // NoC Response
+                                    if (!s2_ptr_tbl_hit) begin
+                                        s2_noc_req_pkt_fl1.rsp_ch1  = REQT;                             // If recursive miss, don't request
+                                        s2_noc_req_pkt_fl1.opcode1  = RDSHARED;                         // the line to the NoC again...
+                                        s2_noc_req_pkt_fl1.ex_bit   = 1'b1;
+                                    end
+                                end
+        //==============================================================================================================================   
+        //   Load Miss           |   Exclusive
+            {L1_LD,E_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b1;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   Load Miss           |   Shared
+            {L1_LD,S_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b1;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No response needed.
+                                end
+
+        //   Load Miss           |   Modified
+            {L1_LD,M_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b1;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   Load Miss           |   Invalid
+            {L1_LD,I_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};                    // Do not return resp to L1
+                                    s2_l1_fill_val_fl1          = 1'b0;
+                                    // NoC Response
+                                    if (!s2_ptr_tbl_hit) begin
+                                        s2_noc_req_pkt_fl1.rsp_ch1  = REQT;                             // If recursive miss, don't request
+                                        s2_noc_req_pkt_fl1.opcode1  = RDSHARED;                         // the line to the NoC again...
+                                    end
+                                end
+        //==============================================================================================================================   
+        //   Store Exclusive     |   Exclusive
+            {L1_SX,E_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = M_ST;                                 // Transition to Modified
+                                    s2_l2_upd_fl1               = 1'b1;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b1;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   Store Exclusive     |   Shared
+            {L1_SX,S_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};                    // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b0;
+                                    // NoC Response
+                                    if (!s2_ptr_tbl_hit) begin
+                                        s2_noc_req_pkt_fl1.rsp_ch1  = REQT;                             // Get clean line
+                                        s2_noc_req_pkt_fl1.opcode1  = CLUNIQUE;
+                                        s2_noc_req_pkt_fl1.ex_bit   = 1'b1;
+                                        s2_fst                      = M_ST;
+                                    end
+                                end
+
+        //   Store Exclusive     |   Modified
+            {L1_SX,M_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b1;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   Store Exclusive     |   Invalid
+            {L1_SX,I_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = M_ST;                                 // Change to Modified
+                                    s2_l2_upd_fl1               = 1'b1;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};                    // Do not return resp to L1
+                                    s2_l1_fill_val_fl1          = 1'b0;
+                                    // NoC Response
+                                    if (!s2_ptr_tbl_hit) begin
+                                        s2_noc_req_pkt_fl1.rsp_ch1  = REQT;                             // If recursive miss, don't request
+                                        s2_noc_req_pkt_fl1.opcode1  = RDUNIQUE;                         // the line to the NoC again...
+                                        s2_noc_req_pkt_fl1.ex_bit   = 1'b0;
+                                        s2_use_fst_4_dtx            = 1'b1;                             // Injector requirement: returned line
+                                        s2_fst                      = M_ST;                             // state is overriden by s2_fst.
+                                    end
+                                end
+        //==============================================================================================================================   
+        //   Store               |   Exclusive
+            {L1_ST,E_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = M_ST;                                 // Transition to Modified
+                                    s2_l2_upd_fl1               = 1'b1;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b1;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   Store               |   Shared
+            {L1_ST,S_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};                    // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b0;
+                                    // NoC Response
+                                    if (!s2_ptr_tbl_hit) begin
+                                        s2_noc_req_pkt_fl1.rsp_ch1  = REQT;                             // Get clean line
+                                        s2_noc_req_pkt_fl1.opcode1  = CLUNIQUE;
+                                        s2_fst                      = M_ST;
+                                    end
+                                end
+
+        //   Store               |   Modified
+            {L1_ST,M_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = s2_l1_req_r[L1_REQ_W-1-:TIM_PTR_W];   // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b1;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   Store               |   Invalid
+            {L1_ST,I_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = M_ST;                                 // Change to Modified
+                                    s2_l2_upd_fl1               = 1'b1;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};                    // Do not return resp to L1
+                                    s2_l1_fill_val_fl1          = 1'b0;
+                                    // NoC Response
+                                    if (!s2_ptr_tbl_hit) begin
+                                        s2_noc_req_pkt_fl1.rsp_ch1  = REQT;                             // If recursive miss, don't request
+                                        s2_noc_req_pkt_fl1.opcode1  = RDUNIQUE;                         // the line to the NoC again...
+                                        s2_use_fst_4_dtx            = 1'b1;                             // Injector requirement: returned line
+                                        s2_fst                      = M_ST;                             // state is overriden by s2_fst.
+                                    end
+                                end
+        //==============================================================================================================================   
+        //   L1 Eviction         |   Exclusive
+            {L1_ED,E_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = M_ST;                                 // Transition to Modified
+                                    s2_l2_upd_fl1               = 1'b1;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};
+                                    s2_l1_fill_val_fl1          = 1'b0;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   L1 Eviction         |   Shared
+            {L1_ED,S_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};                    // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b0;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = REQT;                                 // Get clean line
+                                    s2_noc_req_pkt_fl1.opcode1  = CLUNIQUE;
+                                    s2_fst                      = M_ST;
+                                    s2_dless_rsp_to_l1          = 1'b0;                                 // Do not send a response back to L1
+                                end
+
+        //   L1 Eviction         |   Modified
+            {L1_ED,M_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};                    // Return Pointer
+                                    s2_l1_fill_val_fl1          = 1'b0;					// No data return for evictions in any case
+				  
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        //   L1 Eviction         |   Invalid
+            {L1_ED,I_ST}    :   begin
+                                    // L2 Status Bits Update
+                                    s2_l2_nst_fl1               = {L2_ST_W{1'b0}};                      // No change
+                                    s2_l2_upd_fl1               = 1'b0;
+                                    // RSP Back to L1
+                                    s2_l1_fill_ptr_fl1          = {TIM_PTR_W{1'b0}};                    // Do not return resp to L1
+                                    s2_l1_fill_val_fl1          = 1'b0;
+                                    // NoC Response
+                                    s2_noc_req_pkt_fl1.rsp_ch1  = NORP;                                 // No Response
+                                end
+
+        endcase
+    end // L1 Request
+
+
+
+    // Snoop Request
+    // Return to source bit
+    assign s2_ret2src = s2_int_req_r[SP_REQ_W-1];
+
+    always_comb begin
+        s2_l2_nst_fsp               = {L2_ST_W{1'b0}}                           ;
+        s2_l2_upd_fsp               = 1'b0                                      ;
+        s2_noc_req_pkt_fsp          = '0                                        ;
+        s2_noc_req_pkt_fsp.addr     = s2_int_req_r[SP_OPC_W+:ADDR_W]            ;
+        s2_noc_req_pkt_fsp.tbl_id   = s2_int_req_r[SNP_TBL_ID_IDX_ST+:TBL_ID_W] ;
+        unique case (s2_int_req_r[SP_OPC_W-1:0])  // case Snoop Request Opcode
+            SNPONCE             :   begin
+                                        if (s2_l2_cst_r == I_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == E_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = s2_ret2src ? WDAT : SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_UCD;
+                                        end
+                                        if (s2_l2_cst_r == M_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_UCD;
+                                        end
+                                        if (s2_l2_cst_r == S_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = s2_ret2src ? WDAT : SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_SC;
+                                        end
+                                    end
+                                            
+            SNPCLEAN,
+            SNPSHARED,
+            SNPNOTSHAREDDIRTY   :   begin 
+                                        if (s2_l2_cst_r == I_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == E_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = S_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = s2_ret2src ? WDAT : SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_SC;
+                                        end
+                                        if (s2_l2_cst_r == M_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = S_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_SC_PD;
+                                        end
+                                        if (s2_l2_cst_r == S_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = s2_ret2src ? WDAT : SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_SC;
+                                        end
+                                    
+                                    end
+            SNPUNIQUE           :   begin
+                                        if (s2_l2_cst_r == I_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == E_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = s2_ret2src ? WDAT : SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == M_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I_PD;
+                                        end
+                                        if (s2_l2_cst_r == S_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = s2_ret2src ? WDAT : SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                    end
+
+            SNPCLEANSHARED      :   begin                             
+                                        if (s2_l2_cst_r == I_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == E_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_UCD;
+                                        end
+                                        if (s2_l2_cst_r == M_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = E_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_UCD_PD;
+                                        end
+                                        if (s2_l2_cst_r == S_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_SC;
+                                        end
+                                    end
+            SNPCLEANINVALID     :   begin                             
+                                        if (s2_l2_cst_r == I_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == E_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == M_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I_PD;
+                                        end
+                                        if (s2_l2_cst_r == S_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                    end
+            SNPMAKEINVALID      :   begin                             
+                                        if (s2_l2_cst_r == I_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == E_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == M_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == S_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                    end
+            SNPONCEFWD          :   begin                             
+                                        if (s2_l2_cst_r == I_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == E_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRSFW;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_UCD;
+                                            s2_noc_req_pkt_fsp.rsp_ch2  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode2  = COMPDATA;
+                                            s2_noc_req_pkt_fsp.resp2    = ST_I;
+                                            //s2_noc_req_pkt_fsp.fwdst2   = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == M_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRSFW;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_UCD;
+                                            s2_noc_req_pkt_fsp.rsp_ch2  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode2  = COMPDATA;
+                                            s2_noc_req_pkt_fsp.resp2    = ST_I;
+                                            //s2_noc_req_pkt_fsp.fwdst2   = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == S_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRSFW;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_SC;
+                                            s2_noc_req_pkt_fsp.rsp_ch2  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode2  = COMPDATA;
+                                            s2_noc_req_pkt_fsp.resp2    = ST_I;
+                                            //s2_noc_req_pkt_fsp.fwdst2   = ST_I;
+                                        end
+                                    end
+        SNPCLEANFWD,         
+        SNPSHAREDFWD,
+        SNPNOTSHAREDDIRTYFWD    :   begin                             
+                                        if (s2_l2_cst_r == I_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == E_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = S_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = s2_ret2src ? WDAT : SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = s2_ret2src ? SNPRFWD : SNPRSFW;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_SC;
+                                            s2_noc_req_pkt_fsp.rsp_ch2  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode2  = COMPDATA;
+                                            s2_noc_req_pkt_fsp.resp2    = ST_SC;
+                                            //s2_noc_req_pkt_fsp.fwdst2   = ST_SC;
+                                        end
+                                        if (s2_l2_cst_r == M_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = S_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRFWD;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_SC_PD;
+                                            s2_noc_req_pkt_fsp.rsp_ch2  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode2  = COMPDATA;
+                                            s2_noc_req_pkt_fsp.resp2    = ST_SC;
+                                            //s2_noc_req_pkt_fsp.fwdst2   = ST_SC;
+                                        end
+                                        if (s2_l2_cst_r == S_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = s2_ret2src ? WDAT : SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = s2_ret2src ? SNPRFWD : SNPRSFW;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_SC;
+                                            s2_noc_req_pkt_fsp.rsp_ch2  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode2  = COMPDATA;
+                                            s2_noc_req_pkt_fsp.resp2    = ST_SC;
+                                            //s2_noc_req_pkt_fsp.fwdst2   = ST_SC;
+                                        end
+                                    end
+            SNPUNIQUEFWD        :   begin                             
+                                        if (s2_l2_cst_r == I_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = {L2_ST_W{1'b0}};
+                                            s2_l2_upd_fsp               = 1'b0;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRESP;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                        end
+                                        if (s2_l2_cst_r == E_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRSFW;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                            s2_noc_req_pkt_fsp.rsp_ch2  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode2  = COMPDATA;
+                                            s2_noc_req_pkt_fsp.resp2    = ST_UCD;
+                                            //s2_noc_req_pkt_fsp.fwdst2   = ST_UCD;
+                                        end
+                                        if (s2_l2_cst_r == M_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRSFW;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                            s2_noc_req_pkt_fsp.rsp_ch2  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode2  = COMPDATA;
+                                            s2_noc_req_pkt_fsp.resp2    = ST_UCD_PD;
+                                            //s2_noc_req_pkt_fsp.fwdst2   = ST_UCD_PD;
+                                        end
+                                        if (s2_l2_cst_r == S_ST) begin
+                                            // L2 Status Bits Update
+                                            s2_l2_nst_fsp               = I_ST;
+                                            s2_l2_upd_fsp               = 1'b1;
+                                            // NoC Response
+                                            s2_noc_req_pkt_fsp.rsp_ch1  = SRSP;
+                                            s2_noc_req_pkt_fsp.opcode1  = SNPRSFW;
+                                            s2_noc_req_pkt_fsp.resp1    = ST_I;
+                                            s2_noc_req_pkt_fsp.rsp_ch2  = WDAT;
+                                            s2_noc_req_pkt_fsp.opcode2  = COMPDATA;
+                                            s2_noc_req_pkt_fsp.resp2    = ST_UCD;
+                                            //s2_noc_req_pkt_fsp.fwdst2   = ST_UCD;
+                                        end
+                                   end
+        endcase
+    end
+
+
+    // Fill Queue
+    //////////////////////////////
+    // L2 Status Bits Update
+    assign s2_l2_nst_ffl       = ( s2_int_req_r[COMP_BIT_IDX] | s2_ret_use_fst_4_dtx_r ) ?  // If COMP response or store, update L2
+                                   s2_ret_fst_r : s2_int_req_r[TBL_ID_W+:2];                // with the stored FST. Else, update L2 
+                                                                                            // with the returned end line state.            
+                                                                                            
+    // RSP Back to L1
+    assign s2_l1_fill_ptr_ffl  = s2_ret_tim_ptr_r;         // Return Pointer
+
+
+    // S2 L2 Update
+    // L2 Status bit update bus mux
+    assign l2_s3_nst_o   = ((s2_l2_nst_fsp & {L2_ST_W{s2_req_val_r[SPR]}}) |
+                            (s2_l2_nst_ffl & {L2_ST_W{s2_req_val_r[FLR]}}) |
+                            (s2_l2_nst_fl1 & {L2_ST_W{s2_req_val_r[L1R]}}));
+
+    assign l2_s3_index_o = s2_req_val_r[FLR] ? s2_tbl_l2_index_r : s2_l2_s2_index_r;
+
+    assign l2_s3_valid_o = ((s2_l2_upd_fsp & s2_req_val_r[SPR]) | 
+                            (s2_l2_upd_fl1 & s2_req_val_r[L1R]) |
+                            (                s2_req_val_r[FLR]));
+
+
+    // Response Muxes
+    // Evict Queue
+    assign s2_evict_rsp    = l2_s2_ev_addr_i; 
+    assign s2_evict_val    = (s2_req_val_r[L1R] & (s2_l2_cst_r == M_ST) & l2_s2_ev_val_r); // Pedro changed that
+
+
+    // L1 Resp Queue
+    assign s2_l1_resp      = ((s2_l1_fill_ptr_ffl & {TIM_PTR_W{s2_req_val_r[FLR]}}) |
+                              (s2_l1_fill_ptr_fl1 & {TIM_PTR_W{s2_req_val_r[L1R]}}));
+
+    assign s2_l1_resp_val  = ((s2_ret_dless_rsp_to_l1_r & s2_req_val_r[FLR]) | 
+                              (s2_l1_fill_val_fl1 & s2_req_val_r[L1R]));
+
+
+    // NoC Resp/Req Queue
+    assign s2_noc_resp     = ((s2_noc_req_pkt_fl1 & {NOC_RESP_PKT_W{s2_req_val_r[L1R]}}) |
+                              (s2_noc_req_pkt_fsp & {NOC_RESP_PKT_W{s2_req_val_r[SPR]}}));
+
+    assign s2_noc_resp_val = ((|s2_noc_req_pkt_fl1.rsp_ch1 & s2_req_val_r[L1R]) |
+                              (|s2_noc_req_pkt_fsp.rsp_ch1 & s2_req_val_r[SPR]));
+
+
+    // LP Monitor Output Logic
+    assign l1_stx_ok_o      = lp_stx_ok_i;
+    assign lp_ldx_o         = ((s2_l1_req_r[L1_OPC_W-1:0] == L1_LX) & s2_req_val_r[L1R]);
+    assign lp_stx_o         = ((s2_l1_req_r[L1_OPC_W-1:0] == L1_SX) & s2_req_val_r[L1R]);
+    assign lp_l2_st_o       = s2_l2_cst_w_evict;
+    assign lp_fill_o        = s2_req_val_r[FLR];
+    assign lp_line_is_stx_o = s2_lp_line_is_stx;
+    assign lp_snp_o         = ( (s2_int_req_r[SP_OPC_W-1:0] != SNPONCE           ) &
+                                (s2_int_req_r[SP_OPC_W-1:0] != SNPCLEANSHARED    ) &
+                                (s2_int_req_r[SP_OPC_W-1:0] != SNPONCEFWD        ) &
+                                (s2_req_val_r[SPR]                               ) );
+
+
+    // Flop Stages
+    // Flop Responses only when valid
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            s3_l1_resp_r        <= {TIM_PTR_W{1'b0}};
+            s3_noc_resp_r       <= {NOC_RESP_PKT_W{1'b0}};
+            s3_evict_rsp_r      <= {ADDR_W{1'b0}};
+            s3_evict_rsp        <= {ADDR_W{1'b0}};
+        end else begin
+	    s3_evict_rsp        <= s2_evict_rsp;
+            if (s2_l1_resp_val) begin
+                s3_l1_resp_r    <= s2_l1_resp;
+            end
+            if (s2_noc_resp_val) begin
+                s3_noc_resp_r   <= s2_noc_resp;    
+            end
+            if (s2_evict_val) begin
+                s3_evict_rsp_r  <= s3_evict_rsp;
+            end
+        end
+    end
+
+
+    // Flop valid signals
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            s3_l1_resp_val_r    <= 1'b0;
+            s3_noc_resp_val_r   <= 1'b0;
+            s3_evict_val_r      <= 1'b0;
+        end else begin
+            s3_l1_resp_val_r    <= s2_l1_resp_val;
+            s3_noc_resp_val_r   <= s2_noc_resp_val;
+            s3_evict_val_r      <= s2_evict_val;
+        end
+    end
+
+
+    //////////////////////////////
+    // Stage S3: Response Gen   //
+    //////////////////////////////
+    
+    assign noc_s3_rsp_o     = s3_noc_resp_r;
+    assign noc_s3_rsp_val_o = s3_noc_resp_val_r;
+
+    assign l1_fill_ptr_o    = s3_l1_resp_r;
+    assign l1_fill_val_o    = s3_l1_resp_val_r;
+
+    assign evict_s3_rsp_o   = s3_evict_rsp_r;
+    assign evict_s3_val_o   = s3_evict_val_r;
+
+
+endmodule : l2_ctrl

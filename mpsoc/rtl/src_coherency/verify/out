@@ -1,0 +1,66 @@
+
+*******./no_cache_wr_rd***************
+
+save logfile in /home/alireza/work/hca_git/mpsoc_work/simulation/verify/no_cache_wr_rd
+repeat num=600
+Checked 600 writes on main memory
+All 600 written values on main_mem are correct
+All 1200 Written values on caches are correct
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Checked: 0 Cache wr (4<=n<=7)  in UC state
+All of 2400 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 4161 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./rd ***************
+
+save logfile in /home/alireza/work/hca_git/mpsoc_work/simulation/verify/rd
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Checked: 600 Cache wr (4<=n<=7)  in UC state
+All 1200 Written values on caches are correct
+All of 1200 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 2400 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./rd_same_addr ***************
+
+save logfile in /home/alireza/work/hca_git/mpsoc_work/simulation/verify/rd_same_addr
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Checked: 9 Cache wr (4<=n<=7)  in UC state
+All 609 Written values on caches are correct
+All of 1200 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 1809 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./rd_snpf_evict ***************
+
+save logfile in /home/alireza/work/hca_git/mpsoc_work/simulation/verify/rd_snpf_evict
+Checked: 600 Cache wr (0<=n<=0)  in UC state
+Checked: 600 Cache wr (4<=n<=7)  in UC state
+All of 1792 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 2400 snpf updates happend
+All evication of 592 number are done correctly.
+
+*******./wr_hazard ***************
+
+save logfile in /home/alireza/work/hca_git/mpsoc_work/simulation/verify/wr_hazard
+repeat num=600
+Checked 600 writes on main memory
+All writes on caches are done correctly
+All of 1200 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 2103 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr_rd_hazard ***************
+
+save logfile in /home/alireza/work/hca_git/mpsoc_work/simulation/verify/wr_rd_hazard
+repeat num=600
+Checked 600 writes on main memory
+All writes on caches are done correctly
+All of 2400 txns are generated/released correctly.
+All snpf adresses are freed at the end of simulation. total of 3786 snpf updates happend
+All evication of 0 number are done correctly.
+
+*******./wr_rd_rd_clnu ***************
+
+save logfile in /home/alireza/work/hca_git/mpsoc_work/simulation/verify/wr_rd_rd_clnu

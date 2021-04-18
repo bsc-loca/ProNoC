@@ -1,0 +1,18 @@
+Name, Package, Actors, Connections, SDF, CSDF, QSDF, KPN, DPN
+top, accum, 6, 6, 0, 0, 0, 0, 0
+
+Name, Incoming, Outgoing, Inputs, Outputs, Actions, FSM, MoC
+src1, 0, 2, 0, 2, 2, false, 
+src2, 0, 2, 0, 1, 1, false, 
+add1, 2, 1, 2, 1, 1, false, 
+add2, 2, 1, 2, 1, 1, false, 
+print1, 1, 0, 1, 0, 1, false, 
+print2, 1, 0, 1, 0, 1, false, 
+
+Source, SrcPort, Target, TgtPort, Size
+src1, Output1, add1, Input1, 32
+src1, Output2, add2, Input1, 32
+src2, source, add1, Input2, 32
+src2, source, add2, Input2, 32
+add1, Output, print1, result, 32
+add2, Output, print2, result, 32

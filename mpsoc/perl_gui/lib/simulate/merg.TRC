@@ -1,0 +1,253 @@
+#######################################################################
+##	File: merg.TRC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAIVOR.
+################################################################################
+
+$Trace = bless( {
+                  'trace_5' => {
+                                 'injct_rate' => 10,
+                                 'file' => 'net:a:',
+                                 'min_pck_size' => 5,
+                                 'chanel' => 0,
+                                 'scr_port' => 'Output',
+                                 'init_weight' => 1,
+                                 'dst_port' => 'result',
+                                 'destination' => 'net:a:print1',
+                                 'max_pck_size' => 5,
+                                 'Mbytes' => 1,
+                                 'source' => 'net:a:add1',
+                                 'injct_rate_var' => 20,
+                                 'selected' => 0,
+                                 'burst_size' => 1,
+                                 'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/verification/test_lib/orcc/accum-8-bit/src/net.csv',
+                                 'buff_size' => '32'
+                               },
+                  'trace_pad' => {
+                                   'va' => '0',
+                                   'ha' => '0'
+                                 },
+                  'trace_2' => {
+                                 'injct_rate' => 10,
+                                 'file' => 'net:a:',
+                                 'min_pck_size' => 5,
+                                 'chanel' => 0,
+                                 'dst_port' => 'Input2',
+                                 'destination' => 'net:a:add1',
+                                 'scr_port' => 'Output1',
+                                 'init_weight' => 1,
+                                 'Mbytes' => 1,
+                                 'max_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'buff_size' => '32',
+                                 'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/verification/test_lib/orcc/accum-8-bit/src/net.csv',
+                                 'source' => 'net:a:src2',
+                                 'injct_rate_var' => 20,
+                                 'selected' => 0
+                               },
+                  'soc_name' => {
+                                  '3' => 'mor1k_tile',
+                                  '1' => 'mor1k_tile',
+                                  '2' => 'mor1k_tile',
+                                  '0' => 'mor1k_tile'
+                                },
+                  'select_multiple' => {
+                                         'action' => 'Select'
+                                       },
+                  'process_notebook' => {
+                                          'currentpage' => 2
+                                        },
+                  'out_name' => undef,
+                  'mpsoc_name' => 'm4',
+                  'traces' => {
+                                '4' => 1,
+                                '0' => 1,
+                                '2' => 1,
+                                '3' => 1,
+                                '1' => 1,
+                                '5' => 1
+                              },
+                  'save_as' => 'merg',
+                  'Auto' => {
+                              'Auto_inject' => '1\'b0'
+                            },
+                  'mapping' => {
+                                 'tile(3)_name' => 'tile(3)',
+                                 'group_name_editble' => 'NO',
+                                 'tile(0)' => [
+                                                'group(0)'
+                                              ],
+                                 'trace_icon' => 'icons/cd2.png',
+                                 'ungrouped_name' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'group_name_root' => 'tile',
+                                 'tile(2)' => [
+                                                'net:a:src1'
+                                              ],
+                                 'ungrouped' => [],
+                                 'map_limit' => 1,
+                                 'lable' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'tile(1)_name' => 'tile(1)',
+                                 'tile(0)_name' => 'tile(0)',
+                                 'tile(3)' => [
+                                                'net:a:src2'
+                                              ],
+                                 'group_num' => 4,
+                                 'tile(1)' => [
+                                                'group(1)'
+                                              ],
+                                 'tile(2)_name' => 'tile(2)'
+                               },
+                  'trace_1' => {
+                                 'Mbytes' => 1,
+                                 'max_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/verification/test_lib/orcc/accum-8-bit/src/net.csv',
+                                 'buff_size' => '32',
+                                 'source' => 'net:a:src1',
+                                 'selected' => 0,
+                                 'injct_rate_var' => 20,
+                                 'min_pck_size' => 5,
+                                 'file' => 'net:a:',
+                                 'injct_rate' => 10,
+                                 'chanel' => 0,
+                                 'dst_port' => 'Input1',
+                                 'destination' => 'net:a:add2',
+                                 'init_weight' => 1,
+                                 'scr_port' => 'Output2'
+                               },
+                  'grouping' => {
+                                  'group_num' => 4,
+                                  'group(0)_name' => 'group(0)',
+                                  'lable' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'ungrouped' => [
+                                                   'net:a:src1',
+                                                   'net:a:src2'
+                                                 ],
+                                  'map_limit' => 4,
+                                  'group(2)' => [],
+                                  'group_name_root' => 'group',
+                                  'group(3)' => [],
+                                  'group(1)_name' => 'group(1)',
+                                  'group(3)_name' => 'group(3)',
+                                  'trace_icon' => 'icons/cd.png',
+                                  'group(2)_name' => 'group(2)',
+                                  'group(1)' => [
+                                                  'net:a:add2',
+                                                  'net:a:print2'
+                                                ],
+                                  'ungrouped_name' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'group_name_editble' => 'YES',
+                                  'group(0)' => [
+                                                  'net:a:add1',
+                                                  'net:a:print1'
+                                                ]
+                                },
+                  'map_param' => {
+                                   'Map_Algrm' => 'Random'
+                                 },
+                  'ni_name' => {
+                                 '3' => 'ni',
+                                 '1' => 'ni',
+                                 '2' => 'ni',
+                                 '0' => 'ni'
+                               },
+                  'parameters_order' => {
+                                          'map_param' => [
+                                                           'Map_Algrm'
+                                                         ]
+                                        },
+                  'trace_0' => {
+                                 'scr_port' => 'Output1',
+                                 'init_weight' => 1,
+                                 'destination' => 'net:a:add1',
+                                 'dst_port' => 'Input1',
+                                 'chanel' => 0,
+                                 'injct_rate' => 10,
+                                 'file' => 'net:a:',
+                                 'min_pck_size' => 5,
+                                 'injct_rate_var' => 20,
+                                 'selected' => 0,
+                                 'source' => 'net:a:src1',
+                                 'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/verification/test_lib/orcc/accum-8-bit/src/net.csv',
+                                 'buff_size' => '32',
+                                 'burst_size' => 1,
+                                 'max_pck_size' => 5,
+                                 'Mbytes' => 1
+                               },
+                  'file_id' => 'b',
+                  'map_info' => {
+                                  'ha' => '0',
+                                  'va' => '0'
+                                },
+                  'noc_param' => {
+                                   'TOPOLOGY' => '"MESH"',
+                                   'C' => 0,
+                                   'CONGESTION_INDEX' => 3,
+                                   'T1' => '2',
+                                   'DEBUG_EN' => '0',
+                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                   'BYTE_EN' => 0,
+                                   'MUX_TYPE' => '"BINARY"',
+                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                   'B' => '4',
+                                   'ROUTE_NAME' => '"XY"',
+                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                   'ESCAP_VC_MASK' => '2\'b01',
+                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                   'T3' => '1',
+                                   'AVC_ATOMIC_EN' => 0,
+                                   'SSA_EN' => '"NO"',
+                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                   'Fpay' => '32',
+                                   'MIN_PCK_SIZE' => '2',
+                                   'V' => '2',
+                                   'T2' => '2',
+                                   'WEIGHTw' => '4'
+                                 },
+                  'trace_4' => {
+                                 'min_pck_size' => 5,
+                                 'injct_rate' => 10,
+                                 'file' => 'net:a:',
+                                 'chanel' => 0,
+                                 'dst_port' => 'result',
+                                 'destination' => 'net:a:print2',
+                                 'init_weight' => 1,
+                                 'scr_port' => 'Output',
+                                 'Mbytes' => 1,
+                                 'max_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'buff_size' => '32',
+                                 'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/verification/test_lib/orcc/accum-8-bit/src/net.csv',
+                                 'source' => 'net:a:add2',
+                                 'selected' => 0,
+                                 'injct_rate_var' => 20
+                               },
+                  'gui_status' => {
+                                    'timeout' => 0,
+                                    'status' => 'ideal'
+                                  },
+                  'trace_3' => {
+                                 'file' => 'net:a:',
+                                 'injct_rate' => 10,
+                                 'min_pck_size' => 5,
+                                 'chanel' => 0,
+                                 'dst_port' => 'Input2',
+                                 'destination' => 'net:a:add2',
+                                 'scr_port' => 'Output2',
+                                 'init_weight' => 1,
+                                 'Mbytes' => 1,
+                                 'max_pck_size' => 5,
+                                 'burst_size' => 1,
+                                 'buff_size' => '32',
+                                 'file_name' => '/home/alireza/work/hca_git/ProNoC/mpsoc/verification/test_lib/orcc/accum-8-bit/src/net.csv',
+                                 'source' => 'net:a:src2',
+                                 'injct_rate_var' => 20,
+                                 'selected' => 0
+                               },
+                  'trace_id' => 6
+                }, 'ProNOC' );

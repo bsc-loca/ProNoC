@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 # Any subsequent commands which fail will cause the shell script to exit immediately
 
 script_path=$(pwd)
 path=$script_path/..
-src_noc_path=$path/src_noc	
-src_modelsim_path=$path/src_modelsim
+src_noc_path=$path/rtl/src_noc	
+src_modelsim_path=$path/rtl/src_modelsim
 src_verilator_path=$path/src_verilator	
 comp_path=$path/../mpsoc_work/verilator
 work_path=$comp_path/work

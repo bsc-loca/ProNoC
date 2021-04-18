@@ -1,0 +1,20 @@
+package accum;
+ 
+  
+  actor src2 () ==> int(size=32) source :
+   
+     int i := 0;
+   	  int INPUT_SIZE = 100;
+ 
+ 	  int SRC1[INPUT_SIZE] = [5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5];
+    
+        sendData: action ==> source:[ Out ]
+          guard
+              i < INPUT_SIZE
+                var
+                   uint(size=32) Out
+  				do
+    			   Out := SRC1[i];
+ 				   i := i+1;
+  end
+end

@@ -1,0 +1,98 @@
+
+
+/**************************************************************************
+**	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT ARE LIKELY TO BE
+**	OVERWRITTEN AND LOST. Rename this file if you wish to do any modification.
+****************************************************************************/
+
+
+
+/**********************************************************************
+**	File: readme
+**    
+**	Copyright (C) 2014-2019  Alireza Monemi
+**    
+**	This file is part of ProNoC 1.8.1 
+**
+**	ProNoC ( stands for Prototype Network-on-chip)  is free software: 
+**	you can redistribute it and/or modify it under the terms of the GNU
+**	Lesser General Public License as published by the Free Software Foundation,
+**	either version 2 of the License, or (at your option) any later version.
+**
+** 	ProNoC is distributed in the hope that it will be useful, but WITHOUT
+** 	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+** 	or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
+** 	Public License for more details.
+**
+** 	You should have received a copy of the GNU Lesser General Public
+** 	License along with ProNoC. If not, see <http:**www.gnu.org/licenses/>.
+******************************************************************************/ 
+
+
+***********************
+**	Program the memories
+***********************
+
+If the memory core and jtag_wb are connected to the same wishbone bus, you can program the memory using 
+
+	bash program.sh  
+
+
+
+***************************
+**	soc parameters
+***************************
+
+	parameter	CORE_ID=3,
+	parameter	SW_LOC="/home/alireza/work/mpsoc_work/MPSOC/mor1kx_mpsoc/sw/tile3" ,
+	parameter	cpu_OPTION_OPERAND_WIDTH=32 ,
+	parameter	cpu_IRQ_NUM=32 ,
+	parameter	cpu_OPTION_DCACHE_SNOOP="ENABLED" ,
+	parameter	cpu_FEATURE_INSTRUCTIONCACHE="ENABLED" ,
+	parameter	cpu_FEATURE_DATACACHE="ENABLED" ,
+	parameter	cpu_FEATURE_IMMU="ENABLED" ,
+	parameter	cpu_FEATURE_DMMU="ENABLED" ,
+	parameter	ni_TOPOLOGY="FATTREE" ,
+	parameter	ni_ROUTE_NAME="NCA_RND_UP" ,
+	parameter	ni_T1=2 ,
+	parameter	ni_T2=2 ,
+	parameter	ni_C=0 ,
+	parameter	ni_V=2 ,
+	parameter	ni_B=4 ,
+	parameter	ni_Fpay=32 ,
+	parameter	ni_DEBUG_EN=0 ,
+	parameter	ni_EXw=4 ,
+	parameter	ni_EYw=4 ,
+	parameter	ni_RXw=4 ,
+	parameter	ni_RYw=4 ,
+	parameter	ram_Dw=32 ,
+	parameter	ram_Aw=14 ,
+	parameter	timer_PRESCALER_WIDTH=8
+
+****************************
+**	wishbone bus(es)  info
+****************************
+	#slave interfaces:
+	#instance name,  interface name, connected to, base address, boundray address 	
+	uart, wb_slave, bus, 0x90000000, 0x9000001f
+ 	ni, wb_slave, bus, 0xb8000000, 0xb80003ff
+ 	ram, wb, bus, 0x00000000, 0x0000ffff
+ 	timer, wb, bus, 0x96000000, 0x9600001f
+
+
+	#master interfaces:
+	#instance name,  interface name, connected to
+	cpu, iwb, bus
+ 	cpu, dwb, bus
+ 	ni, wb_send, bus
+ 	ni, wb_receive, bus
+
+
+****************************
+**	Jtag to wishbone interface (jtag_wb) info:
+****************************
+
+	#instance name, instance name,  VJTAG_INDEX
+
+
+

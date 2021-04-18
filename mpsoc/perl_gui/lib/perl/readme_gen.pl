@@ -1,18 +1,18 @@
 #! /usr/bin/perl -w
 
-use Time::Piece;
+use Consts;
 
 sub get_license_header {
 	my $file_name=shift;
-my $t = Time::Piece->new();
-my $year=$t->year;
+	my $version = Consts::VERSION;
+	my $end  = Consts::END_YEAR;
 	my $head="
 /**********************************************************************
 **	File: $file_name
 **    
-**	Copyright (C) 2014-$year  Alireza Monemi
+**	Copyright (C) 2014-$end  Alireza Monemi
 **    
-**	This file is part of ProNoC $ProNOC::VERSION 
+**	This file is part of ProNoC $version 
 **
 **	ProNoC ( stands for Prototype Network-on-chip)  is free software: 
 **	you can redistribute it and/or modify it under the terms of the GNU
@@ -51,15 +51,17 @@ return $string;
 
 sub perl_file_header {
 	my $file_name=shift;
+	my $version = Consts::VERSION;
+	my $end  = Consts::END_YEAR;
 my $head="#######################################################################
 ##	File: $file_name
 ##    
-##	Copyright (C) 2014-2016  Alireza Monemi
+##	Copyright (C) 2014-$end  Alireza Monemi
 ##    
-##	This file is part of ProNoC $ProNOC::VERSION 
+##	This file is part of ProNoC $version 
 ##
 ## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
-##	MAY CAUSE UNEXPECTED BEHAIVOR.
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
 ################################################################################
 
 ";

@@ -1,0 +1,149 @@
+#######################################################################
+##	File: src_dst.TRC
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
+################################################################################
+
+$Trace = bless( {
+                  'raw_traces' => {
+                                    '0' => 1
+                                  },
+                  'merge_traces' => {},
+                  'mpsoc_name' => 'kc07_mesh4',
+                  'noc_param' => {
+                                   'CONGESTION_INDEX' => 3,
+                                   'SWA_ARBITER_TYPE' => '"RRA"',
+                                   'ESCAP_VC_MASK' => '1\'b1',
+                                   'T1' => '2',
+                                   'TOPOLOGY' => '"MESH"',
+                                   'MIN_PCK_SIZE' => '2',
+                                   'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                   'T2' => '2',
+                                   'DEBUG_EN' => '0',
+                                   'V' => 1,
+                                   'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                   'FIRST_ARBITER_EXT_P_EN' => 1,
+                                   'MUX_TYPE' => '"BINARY"',
+                                   'AVC_ATOMIC_EN' => 0,
+                                   'Fpay' => '32',
+                                   'C' => 0,
+                                   'SSA_EN' => '"NO"',
+                                   'T3' => '1',
+                                   'WEIGHTw' => '4',
+                                   'BYTE_EN' => '1',
+                                   'B' => '4',
+                                   'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                   'ROUTE_NAME' => '"XY"'
+                                 },
+                  'map_info' => {
+                                  'va' => '0',
+                                  'ha' => '0'
+                                },
+                  'raw_0' => {
+                               'vc' => 0,
+                               'init_weight' => 1,
+                               'scr_port' => 'Output',
+                               'min_pck_size' => 5,
+                               'class' => 0,
+                               'buff_size' => '256',
+                               'dst_port' => 'in1',
+                               'source' => 'src',
+                               'max_pck_size' => 5,
+                               'injct_rate_var' => 20,
+                               'destination' => 'consum',
+                               'file_name' => '/home/alireza/work/git/orcc-pronoc/experiments/src_dst/src/test.csv',
+                               'chanel' => 0,
+                               'file' => 'test:a:',
+                               'burst_size' => 1,
+                               'selected' => 0,
+                               'Mbytes' => 1,
+                               'injct_rate' => 10
+                             },
+                  'save_as' => 'src_dst',
+                  'select_multiple' => {
+                                         'action' => 'Select'
+                                       },
+                  'trace_id' => 1,
+                  'ni_name' => {
+                                 '0' => 'ni',
+                                 '2' => 'ni',
+                                 '1' => 'ni',
+                                 '3' => 'ni'
+                               },
+                  'mapping' => {
+                                 'tile(3)_name' => 'tile(3)',
+                                 'tile(1)_name' => 'tile(1)',
+                                 'lable' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'map_limit' => 1,
+                                 'tile(0)_name' => 'tile(0)',
+                                 'group_name_root' => 'tile',
+                                 'tile(1)' => [
+                                                'consum'
+                                              ],
+                                 'tile(2)_name' => 'tile(2)',
+                                 'group_num' => 4,
+                                 'group_name_editble' => 'NO',
+                                 'tile(0)' => [
+                                                'src'
+                                              ],
+                                 'ungrouped_name' => 'Actors: Drag and drop Actors/grouped Actors to bottom tile list',
+                                 'ungrouped' => [],
+                                 'trace_icon' => 'icons/cd2.png'
+                               },
+                  'soc_name' => {
+                                  '0' => 'mor1k_tile',
+                                  '2' => 'mor1k_tile',
+                                  '3' => 'mor1k_tile',
+                                  '1' => 'mor1k_tile'
+                                },
+                  'grouping' => {
+                                  'group(1)_name' => 'group(1)',
+                                  'map_limit' => 1024,
+                                  'lable' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'group(3)_name' => 'group(3)',
+                                  'trace_icon' => 'icons/cd.png',
+                                  'ungrouped' => [
+                                                   'consum',
+                                                   'src'
+                                                 ],
+                                  'ungrouped_name' => 'Actors: Drag and drop Actors to bottom group list',
+                                  'group_name_editble' => 'YES',
+                                  'group_num' => 4,
+                                  'group(2)_name' => 'group(2)',
+                                  'group_name_root' => 'group',
+                                  'group(0)_name' => 'group(0)'
+                                },
+                  'trace_pad' => {
+                                   'ha' => '0',
+                                   'va' => '0'
+                                 },
+                  'Auto' => {
+                              'Auto_inject' => '1\'b0'
+                            },
+                  'map_param' => {
+                                   'Map_Algrm' => 'Random'
+                                 },
+                  'parameters_order' => {
+                                          'map_param' => [
+                                                           'Map_Algrm'
+                                                         ]
+                                        },
+                  'process_notebook' => {
+                                          'currentpage' => 2
+                                        },
+                  'out_name' => undef,
+                  'gui_status' => {
+                                    'status' => 'ideal',
+                                    'timeout' => 0
+                                  },
+                  'file_id' => 'b',
+                  'trace_map' => {
+                                   'ha' => '0',
+                                   'va' => '0'
+                                 }
+                }, 'ProNOC' );

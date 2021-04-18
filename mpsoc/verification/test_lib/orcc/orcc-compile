@@ -1,0 +1,9 @@
+replace size command
+replace "size=32" "size=16" -- *
+
+
+
+compilarion command
+cd /home/alireza/work/develop/for-friends/zakipur/eclipse/oxigen/eclipse-java-oxygen-3a-linux-gtk-x86_64/eclipse
+sdk use  java 8.0.222.j9-adpt
+./eclipse
