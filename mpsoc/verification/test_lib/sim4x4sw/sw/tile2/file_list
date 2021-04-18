@@ -1,0 +1,8 @@
+$files = [
+           '/home/alireza/work/mpsoc_work/MPSOC/mor1kx_mpsoc/sw/tile2/link.ld',
+           '/home/alireza/work/mpsoc_work/MPSOC/mor1kx_mpsoc/sw/tile2/Makefile',
+           '/home/alireza/work/mpsoc_work/MPSOC/mor1kx_mpsoc/sw/tile2/mor1kx',
+           '/home/alireza/work/mpsoc_work/MPSOC/mor1kx_mpsoc/sw/tile2/simple-printf',
+           '/home/alireza/work/mpsoc_work/MPSOC/mor1kx_mpsoc/sw/tile2/define_printf.h',
+           '/home/alireza/work/mpsoc_work/MPSOC/mor1kx_mpsoc/sw/tile2/mor1k_tile.h'
+         ];
