@@ -13,7 +13,6 @@ module  traffic_gen_top
 			
 			//input 
 			ratio,// real injection ratio  = (MAX_RATIO/100)*ratio
-			avg_pck_size_in, 
 			pck_size_in,   
 			current_r_addr,
 			current_e_addr,
@@ -35,6 +34,7 @@ module  traffic_gen_top
 			pck_class_out,   
 			time_stamp_h2h,
 			time_stamp_h2t,
+			pck_size_o,
 			
 			reset,
 			clk
@@ -55,6 +55,7 @@ module  traffic_gen_top
 		PCK_CNTw = log2(MAX_PCK_NUM+1),
 		CLK_CNTw = log2(MAX_SIM_CLKs+1),
 		PCK_SIZw = log2(MAX_PCK_SIZ+1),
+		AVG_PCK_SIZw = log2(10*MAX_PCK_SIZ+1),
 		/* verilator lint_off WIDTH */
 		DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY=="TREE" ) ? log2(2*L+1): log2(NR+1),
 		W=WEIGHTw;
@@ -74,7 +75,6 @@ module  traffic_gen_top
 	input  [EAw-1                   :0] dest_e_addr;  
     
 	output [PCK_CNTw-1              :0] pck_number;
-	input  [PCK_SIZw-1              :0] avg_pck_size_in;
 	input  [PCK_SIZw-1              :0] pck_size_in;
     
 	output reg sent_done;
@@ -85,7 +85,7 @@ module  traffic_gen_top
 	input                               report;
 	// the recieved packet source endpoint address
 	output [EAw-1        :   0]    src_e_addr;
-		
+	output [PCK_SIZw-1   :   0]    pck_size_o;	
 	
 		
 	logic  [Fw-1                   :0] flit_out;     
@@ -181,6 +181,7 @@ module  traffic_gen_top
 		reg     [CLK_CNTw-1             :   0] clk_counter;
 		wire    [Vw-1                   :   0] rd_vc_bin;//,wr_vc_bin;
 		reg     [CLK_CNTw-1             :   0] rsv_time_stamp[V-1:0];
+		reg     [PCK_SIZw-1             :   0] rsv_pck_size    [V-1:0];
 		wire    [V-1                    :   0] rd_vc; 
 		wire                                   wr_vc_is_full,wr_vc_avb,wr_vc_is_empty;
 		reg     [V-1                    :   0] credit_out_next;
@@ -191,7 +192,8 @@ module  traffic_gen_top
 		wire pck_wr,buffer_full,pck_ready,valid_dst;    
 		wire [CLK_CNTw-1 : 0] rd_timestamp;
    
-   
+   		
+		
 		check_destination_addr #(
 				.TOPOLOGY(TOPOLOGY),
 				.T1(T1),
@@ -217,7 +219,7 @@ module  traffic_gen_top
 			pck_inject_ratio_ctrl
 			(
 				.en(inject_en),
-				.pck_size(avg_pck_size_in),
+				.pck_size_in(pck_size_in),
 				.clk(clk),
 				.reset(reset),
 				.freez(buffer_full),
@@ -381,21 +383,19 @@ module  traffic_gen_top
 			);
     
     
-		generate 
-			if(MIN_PCK_SIZE == 1) begin : sf_pck
-    
-			assign src_e_addr            = (rd_hdr_flg & rd_tail_flg)? rd_src_e_addr : rsv_pck_src_e_addr[rd_vc_bin];
-		assign pck_class_out     = (rd_hdr_flg & rd_tail_flg)? rd_class_hdr : rsv_pck_class_in[rd_vc_bin];
+	generate 
+	if(MIN_PCK_SIZE == 1) begin : sf_pck    
+		assign src_e_addr         = (rd_hdr_flg & rd_tail_flg)? rd_src_e_addr : rsv_pck_src_e_addr[rd_vc_bin];
+		assign pck_class_out      = (rd_hdr_flg & rd_tail_flg)? rd_class_hdr : rsv_pck_class_in[rd_vc_bin];
 		assign hdr_flit_timestamp = (rd_hdr_flg & rd_tail_flg)?  clk_counter : rsv_time_stamp[rd_vc_bin];
-		assign rd_timestamp =(rd_hdr_flg & rd_tail_flg)? rd_hdr_data_out : flit_in[CLK_CNTw-1             :   0];
-
+		assign rd_timestamp 	  =	(rd_hdr_flg & rd_tail_flg)? rd_hdr_data_out : flit_in[CLK_CNTw-1             :   0];
+		assign pck_size_o         = (rd_hdr_flg & rd_tail_flg)? 1 : rsv_pck_size[rd_vc_bin];
 	end else begin : no_sf_pck
-    
+		assign pck_size_o = rsv_pck_size[rd_vc_bin];
 		assign src_e_addr            = rsv_pck_src_e_addr[rd_vc_bin];
-	assign pck_class_out    = rsv_pck_class_in[rd_vc_bin];
-	assign hdr_flit_timestamp = rsv_time_stamp[rd_vc_bin];
-	assign rd_timestamp=flit_in[CLK_CNTw-1 :   0];
-        
+		assign pck_class_out    = rsv_pck_class_in[rd_vc_bin];
+		assign hdr_flit_timestamp = rsv_time_stamp[rd_vc_bin];
+		assign rd_timestamp=flit_in[CLK_CNTw-1 :   0];        
 	end
 
 
@@ -552,12 +552,12 @@ module  traffic_gen_top
            
 				//sink
 				if(flit_in_wr) begin 
-					if (flit_in[Fw-1])begin 
+					if (flit_in[Fw-1])begin //header flit
 						rsv_pck_src_e_addr[rd_vc_bin]    <=  rd_src_e_addr;
 						rsv_pck_class_in[rd_vc_bin]    <= rd_class_hdr;
 						rsv_time_stamp[rd_vc_bin]   <= clk_counter;  
 						rsv_counter                 <= rsv_counter+1'b1;
-                                            
+						rsv_pck_size[rd_vc_bin] <=2;                    
 						// distance        <= {{(32-8){1'b0}},flit_in[7:0]};
 						`ifdef RSV_NOTIFICATION
 							// synopsys  translate_off
@@ -567,6 +567,8 @@ module  traffic_gen_top
 							// synthesis translate_on
 							// synopsys  translate_on
 						`endif
+					end else begin 
+						 rsv_pck_size[rd_vc_bin] <=rsv_pck_size[rd_vc_bin]+1; 
 					end
 				end
 				// synopsys  translate_off
@@ -697,130 +699,130 @@ module  traffic_gen_top
 
 
 
-			/*****************************
-
+/*****************************
     injection_ratio_ctrl
-     
-			 *****************************/
-
-				module injection_ratio_ctrl #
-				(
-					parameter MAX_PCK_SIZ=10,
-					parameter MAX_RATIO=100
-				)
-				(
-					en,
-					pck_size, // average packet size in flit
-					clk,
-					reset,
-					inject,// inject one packet
-					freez,
-					ratio // 0~100  flit injection ratio
-				);
-
-
-			function integer log2;
-			input integer number; begin   
-				log2=(number <=1) ? 1: 0;    
-				while(2**log2<number) begin    
-					log2=log2+1;    
-				end       
-			end   
-			endfunction // log2 
    
-   
-				localparam PCK_SIZw= log2(MAX_PCK_SIZ);
-			localparam CNTw    =   log2(MAX_RATIO);
-			localparam STATE_INIT=   MAX_PCK_SIZ*MAX_RATIO;
-			localparam STATEw    =   log2(MAX_PCK_SIZ*2*MAX_RATIO);
-	
-			input                       clk,reset,freez,en;
-			output  reg                 inject;
-			input   [CNTw-1     :   0]  ratio;
-			input   [PCK_SIZw-1 :   0]  pck_size;
-	
-	
-			wire    [CNTw-1     :   0]  on_clks, off_clks;
-			reg     [STATEw-1   :   0]  state,next_state;
-			wire                        input_changed;
-			reg     [CNTw-1     :   0]  ratio_old;    
-	
-			always @(posedge clk ) ratio_old<=ratio;
-	
-			assign input_changed = (ratio_old!=ratio);
-	
-	
-			assign on_clks = ratio; 
-			assign off_clks =MAX_RATIO-ratio; 
-	
-			reg [PCK_SIZw-1 :0] flit_counter,next_flit_counter;
+*****************************/
+module injection_ratio_ctrl #
+	(
+	parameter MAX_PCK_SIZ=10,
+	parameter MAX_RATIO=100
+)(
+	en,
+	pck_size_in, // average packet size in flit x10
+	clk,
+	reset,
+	inject,// inject one packet
+	freez,
+	ratio // 0~100  flit injection ratio
+);
+
+
+	function integer log2;
+	input integer number; begin   
+		log2=(number <=1) ? 1: 0;    
+		while(2**log2<number) begin    
+			log2=log2+1;    
+		end       
+	end   
+	endfunction // log2 
 	
 	
-			reg sent,next_sent,next_inject;
+	localparam PCK_SIZw= log2(MAX_PCK_SIZ);
 	
 	
+	localparam CNTw    =   log2(MAX_RATIO);
+	localparam STATE_INIT=   MAX_PCK_SIZ*MAX_RATIO;
+	localparam STATEw    =   log2(MAX_PCK_SIZ*2*MAX_RATIO);
 	
-			always @(*) begin 
-				next_state        =state;
-				next_flit_counter =flit_counter;
-				next_sent         =sent;
-				if(en && ~freez ) begin
-					case(sent)
-						1'b1: begin 
-							/* verilator lint_off WIDTH */
-							next_state          = state +  off_clks; 
-							/* verilator lint_on WIDTH */
-							next_flit_counter = (flit_counter >= pck_size-1'b1) ? {PCK_SIZw{1'b0}} : flit_counter +1'b1;
-							next_inject         = (flit_counter=={PCK_SIZw{1'b0}});
-							if (next_flit_counter >= pck_size-1'b1) begin 
-								if( next_state  >= STATE_INIT ) next_sent =1'b0;
-							end
-						end
-						1'b0:begin 
-							if( next_state  <  STATE_INIT ) next_sent  = 1'b1;
-							next_inject= 1'b0;
-							/* verilator lint_off WIDTH */
-							next_state = state - on_clks;
-							/* verilator lint_on WIDTH */
-						end
-					endcase     
-				end else begin 
-					next_inject= 1'b0;
-				end
-			end     
+	input                       clk,reset,freez,en;
+	output  reg                 inject;
+	input   [CNTw-1     :   0]  ratio;
+	input  [PCK_SIZw-1          :0] pck_size_in;
+	reg    [PCK_SIZw-1          :0]pck_size;
+	
+	wire    [CNTw-1     :   0]  on_clks, off_clks;
+	reg     [STATEw-1   :   0]  state,next_state;
+	wire                        input_changed;
+	reg     [CNTw-1     :   0]  ratio_old;    
+	
+	always @(posedge clk ) ratio_old<=ratio;
+	
+	assign input_changed = (ratio_old!=ratio);
+	
+	
+	assign on_clks = ratio; 
+	assign off_clks =MAX_RATIO-ratio; 
+	
+	reg [PCK_SIZw-1 :0] flit_counter,next_flit_counter;
+	
+	
+	reg sent,next_sent,next_inject;
 	
 	
 	
-	
-			`ifdef SYNC_RESET_MODE 
-				always @ (posedge clk )begin 
-				`else 
-					always @ (posedge clk or posedge reset)begin 
-					`endif  
-					if( reset) begin            
-						state       <=  STATE_INIT;
-						inject      <=  1'b0; 
-						sent        <=  1'b1; 
-						flit_counter<= 0;
-					end else begin 
-						if(input_changed)begin
-							state       <=  STATE_INIT;
-							inject      <=  1'b0; 
-							sent        <=  1'b1; 
-							flit_counter<= 0;
-						end
-	
-	
-						state       <=  next_state;
-						if(ratio!={CNTw{1'b0}}) inject      <=  next_inject; 
-						sent        <=  next_sent; 
-						flit_counter<=  next_flit_counter;
-	
+	always @(*) begin 
+		next_state        =state;
+		next_flit_counter =flit_counter;
+		next_sent         =sent;
+		if(en && ~freez ) begin
+			case(sent)
+				1'b1: begin 
+					/* verilator lint_off WIDTH */
+					next_state          = state +  off_clks; 
+					/* verilator lint_on WIDTH */
+					next_flit_counter = (flit_counter >= pck_size-1'b1) ? {PCK_SIZw{1'b0}} : flit_counter +1'b1;
+					next_inject         = (flit_counter=={PCK_SIZw{1'b0}});
+					if (next_flit_counter >= pck_size-1'b1) begin 
+						if( next_state  >= STATE_INIT ) next_sent =1'b0;
 					end
-				end     
+				end
+				1'b0:begin 
+					if( next_state  <  STATE_INIT ) next_sent  = 1'b1;
+					next_inject= 1'b0;
+					/* verilator lint_off WIDTH */
+					next_state = state - on_clks;
+					/* verilator lint_on WIDTH */
+				end
+			endcase     
+		end else begin 
+			next_inject= 1'b0;
+		end
+	end     
+	
+	
+	
+	
+	`ifdef SYNC_RESET_MODE 
+		always @ (posedge clk )begin 
+		`else 
+			always @ (posedge clk or posedge reset)begin 
+			`endif  
+			if( reset) begin            
+				state       <=  STATE_INIT;
+				inject      <=  1'b0; 
+				sent        <=  1'b1; 
+				flit_counter<= 0;
+				pck_size<=2;
+			end else begin 
+				if(input_changed)begin
+					state       <=  STATE_INIT;
+					inject      <=  1'b0; 
+					sent        <=  1'b1; 
+					flit_counter<= 0;
+				end
+	
+				if(flit_counter=={PCK_SIZw{1'b0}}) pck_size<=pck_size_in;
+				state       <=  next_state;
+				if(ratio!={CNTw{1'b0}}) inject      <=  next_inject; 
+				sent        <=  next_sent; 
+				flit_counter<=  next_flit_counter;
+	
+			end
+		end     
 
-
-				endmodule
+	
+endmodule
 
 
 
@@ -1069,7 +1071,6 @@ module packet_gen #(
 			
 				//input 
 				ratio,// real injection ratio  = (MAX_RATIO/100)*ratio
-				avg_pck_size_in, 
 				pck_size_in,   
 				current_r_addr,
 				current_e_addr,
@@ -1091,6 +1092,7 @@ module packet_gen #(
 				pck_class_out,   
 				time_stamp_h2h,
 				time_stamp_h2t,
+				pck_size_o,
 			
 				reset,
 				clk
@@ -1116,6 +1118,7 @@ module packet_gen #(
 			PCK_CNTw = log2(MAX_PCK_NUM+1),
 			CLK_CNTw = log2(MAX_SIM_CLKs+1),
 			PCK_SIZw = log2(MAX_PCK_SIZ+1),
+			AVG_PCK_SIZw = log2(10*MAX_PCK_SIZ+1),
 			/* verilator lint_off WIDTH */
 			DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY=="TREE" ) ? log2(2*L+1): log2(NR+1),
 			W=WEIGHTw;
@@ -1135,8 +1138,9 @@ module packet_gen #(
 		input  [EAw-1                   :0] dest_e_addr;  
     
 		output [PCK_CNTw-1              :0] pck_number;
-		input  [PCK_SIZw-1              :0] avg_pck_size_in;
+		
 		input  [PCK_SIZw-1              :0] pck_size_in;
+		output [PCK_SIZw-1              :0] pck_size_o;
     
 		output reg sent_done;
 		output hdr_flit_sent;
@@ -1166,8 +1170,7 @@ module packet_gen #(
 				.MAX_RATIO             (MAX_RATIO            ) 
 			
 			) traffic_gen (
-				.ratio                 (ratio        ), 
-				.avg_pck_size_in       (avg_pck_size_in      ), 
+				.ratio                 (ratio        ), 				 
 				.pck_size_in           (pck_size_in          ), 
 				.current_r_addr        (current_r_addr       ), 
 				.current_e_addr        (current_e_addr       ), 
@@ -1186,6 +1189,7 @@ module packet_gen #(
 				.pck_class_out         (pck_class_out        ), 
 				.time_stamp_h2h        (time_stamp_h2h       ), 
 				.time_stamp_h2t        (time_stamp_h2t       ), 
+				.pck_size_o            (pck_size_o           ),
 				.noc_chan_in           (noc_chan_in          ),
 				.noc_chan_out          (noc_chan_out         ),  
 				.reset                 (reset                ), 

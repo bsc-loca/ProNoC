@@ -350,25 +350,32 @@ sub check_hotspot_parameters{
 }
 
 sub get_district_avg { 
-	my ($self,$sample,$vt,$pt)=@_;
+	my ($self,$sample)=@_;
+	my $vt=$self->object_get_attribute($sample,"DISCRETE_RANGE");
+	$vt =  "2,3,4,5" unless (defined $vt);
+	my $pt=$self->object_get_attribute($sample,"PROBEB_RANGE");
+	$pt= "25,25,25,25" unless (defined $pt);
+	
 	my $avg=0;
 	my @valus = split(',',$vt);
 	my @probs = split(',',$pt);
 	my $i=0;
 	my $sum=0;
 	my $min=10000000;
+	my $max=0;
 	foreach my $v (@valus) { 
 		return ("-","The $v is not numeric value") unless (is_integer($v));
 		$sum+=	$probs[$i];
 		$avg+=$v*$probs[$i];
 		$i++;	
 		$min=$v if($min>$v);
+		$max=$v if($max<$v);
 	}
 	return ("-","The summation of probebilities are $sum which is not equal 100.") if($sum!=100);
 	$avg/=100;
 	
 	$self->object_add_attribute ($sample,"MIN_PCK_SIZE",$min);
-	
+	$self->object_add_attribute ($sample,"MAX_PCK_SIZE",$max);
 	return ($avg,undef); 
 }
 
@@ -443,7 +450,9 @@ sub get_simulator_noc_configuration{
 		
 		my $min=$self->object_get_attribute($sample,'MIN_PCK_SIZE');
 		my $max=$self->object_get_attribute($sample,'MAX_PCK_SIZE');
-		$min=$max=5 if(!defined $min);
+		$min=5 if(!defined $min);
+		$max=5 if(!defined $max);
+		$max= $min if($max< $min);
 		my $avg=floor(($min+$max)/2);	
 		my $msg;
 		my $max_pck_size =	 get_MAX_PCK_SIZ();
@@ -479,6 +488,7 @@ sub get_simulator_noc_configuration{
 		
 		my $t=$self->object_get_attribute($sample,"PCK_SIZ_SEL");
 		if($t eq 'random-range' ){
+			
 			@synthinfo = (	
 			{ label=>"Min pck size :", param_name=>'MIN_PCK_SIZE', type=>'Spin-button', default_val=>5, content=>"1,$max,1", info=>"Minimum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
 			{ label=>"Max pck size :", param_name=>'MAX_PCK_SIZE', type=>'Spin-button', default_val=>5, content=>"$min,$max_pck_size,1", info=>"Maximum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
@@ -486,23 +496,21 @@ sub get_simulator_noc_configuration{
 			);
 			
 		}else{
-			$self->object_add_attribute ($sample,"MIN_PCK_SIZE",2);#will be updated by get_district_avg  
+			#$self->object_add_attribute ($sample,"MIN_PCK_SIZE",2);#will be updated by get_district_avg  
 			my $vt=$self->object_get_attribute($sample,"DISCRETE_RANGE");
 			$vt =  "2,3,4,5" unless (defined $vt);
 			my $pt=$self->object_get_attribute($sample,"PROBEB_RANGE");
 			$pt= "25,25,25,25" unless (defined $pt);
 			
-			($avg,$msg) = get_district_avg($self,$sample,$vt,$pt);
+			#($avg,$msg) = get_district_avg($self,$sample);
 			
 			 
 			@synthinfo = (	
-			{ label=>"pck size discrete range: ", param_name=>'DISCRETE_RANGE', type=>'Entry', default_val=>$vt, content=>undef, info=>"Set discreate set of number as packet size seperated by \",\" (v1,v2,v3 ..). The injected packet size is randomly selected among these discrete valuse", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
-		    { label=>"pck size probebility(%): ", param_name=>'PROBEB_RANGE'  , type=>'Entry', default_val=>$pt, content=>undef, info=>"Set the probebilty  seperated by \",\" (p1,p2,p3 ..). The probabilities pi must satisfy two requirements: every probability pi is a number between 0 and 100, and the sum of all the probabilities is 100.", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
+			{ label=>"pck size discrete range: ", param_name=>'DISCRETE_RANGE', type=>'Entry', default_val=>$vt, content=>undef, info=>"Set discrete set of number as packet size separated by \",\" (v1,v2,v3 ..). The injected packet size is randomly selected among these discrete values", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
+		    { label=>"pck size probebility(%): ", param_name=>'PROBEB_RANGE'  , type=>'Entry', default_val=>$pt, content=>undef, info=>"Set the probability  separated by \",\" (p1,p2,p3 ..). The probabilities pi must satisfy two requirements: every probability pi is a number between 0 and 100, and the sum of all the probabilities is 100.", param_parent=>$sample, ref_delay=>10, new_status=>'ref_set_win'},
 		   # { label=>"Avg. Packet size:", param_name=>'PCK_SIZE', type=>'Fixed', default_val=>$avg, content=>"$avg", info=>undef, param_parent=>$sample, ref_delay=>undef}, 
 			);	
-			if(defined $msg){ push(@synthinfo, 
- 			{ label=>"Format Error:", param_name=>'PCK_ERR', type=>'Fixed', default_val=>$msg, content=>undef, info=>undef, param_parent=>$sample, ref_delay=>undef}, 
-			);}
+			
 			
 		}	
 		
@@ -609,9 +617,19 @@ sub get_simulator_noc_configuration{
 			#check if injection ratios are valid
 			my $r=$self->object_get_attribute($sample,"ratios");
 			my $h;
+			
+			my $t=$self->object_get_attribute($sample,"PCK_SIZ_SEL");
+			unless ($t eq 'random-range' ){
+				($avg,$msg) = get_district_avg($self,$sample);	
+				if(defined $msg){ 
+	 			message_dialog($msg);  
+	 			return;
+				}
+			}	
+			
 			if ($traffic eq 'hot spot'){
 				$h=	check_hotspot_parameters($self,$sample);
-			}	
+			}
 			
 			if(defined $s && defined $r && !defined $h) {	
 					#$set_win->destroy;
@@ -758,12 +776,11 @@ sub run_synthetic_simulation {
 	my $bin=get_sim_bin_path($simulate,$sample,$info);
 	
 	#load traffic configuration
-	my $patern=$simulate->object_get_attribute ($sample,'traffic');
-	my $MIN_PCK_SIZE=$simulate->object_get_attribute ($sample,"MIN_PCK_SIZE");
-	my $MAX_PCK_SIZE=$simulate->object_get_attribute ($sample,"MAX_PCK_SIZE");
+	my $patern=$simulate->object_get_attribute ($sample,'traffic');	
 	my $PCK_NUM_LIMIT=$simulate->object_get_attribute ($sample,"PCK_NUM_LIMIT");
 	my $SIM_CLOCK_LIMIT=$simulate->object_get_attribute ($sample,"SIM_CLOCK_LIMIT");
-	
+	my $MIN_PCK_SIZE=$simulate->object_get_attribute ($sample,"MIN_PCK_SIZE");
+	my $MAX_PCK_SIZE=$simulate->object_get_attribute ($sample,"MAX_PCK_SIZE");
 	
 	
 	#hotspot 
@@ -800,7 +817,7 @@ sub run_synthetic_simulation {
 	
 	
 	
-	
+	my $discrete_sv="";
 	my $hotspot="";
 	my $hotspot_sv="";
 	if($patern eq "hot spot"){
@@ -833,10 +850,31 @@ sub run_synthetic_simulation {
 	}
 	else{ $hotspot_sv.="localparam HOTSPOT_NODE_NUM = 0;\n\thotspot_t  hotspot_info [0:0];\n" }		
 	
+	my $pck_size;
+	my $t=$simulate->object_get_attribute($sample,"PCK_SIZ_SEL");
+	if($t eq 'random-range' ){
+		
+		$pck_size = "-m \"R,$MIN_PCK_SIZE,$MAX_PCK_SIZE\"";
+		$discrete_sv="\t localparam DISCRETE_PCK_SIZ_NUM=1;
+\t rnd_discrete_t rnd_discrete [DISCRETE_PCK_SIZ_NUM-1:0];\n";
 	
-	
-	
-	
+	}else{
+		my $vt=$simulate->object_get_attribute($sample,"DISCRETE_RANGE");
+		my $pt=$simulate->object_get_attribute($sample,"PROBEB_RANGE");
+		$pck_size = "-m \"D,$vt,P,$pt\"";		
+		my @injects = split(',',$vt);
+		my @probs = split(',',$pt);
+		my $i=0;
+		my $sum=0;
+		for my $v (@injects) {
+			$sum+=$probs[$i];
+			$discrete_sv.= "\t assign rnd_discrete[$i].value= $v;\n";
+			$discrete_sv.= "\t assign rnd_discrete[$i].percentage= $sum;\n";
+			$i++;
+		}
+		$discrete_sv="\t localparam DISCRETE_PCK_SIZ_NUM=$i;
+\t rnd_discrete_t rnd_discrete [DISCRETE_PCK_SIZ_NUM-1: 0];\n".$discrete_sv;
+	}
 	
 	my $modelsim_bin=  $ENV{MODELSIM_BIN};
 			if(! defined $modelsim_bin){
@@ -857,11 +895,11 @@ sub run_synthetic_simulation {
 			gen_noc_localparam_v_file($simulate,"$out",$sample);
 			my $param="
 // simulation parameter setting
-// injected packet class percentage
+
 `ifdef INCLUDE_SIM_PARAM
 	localparam 
 		TRAFFIC=\"$traffic{$patern}\",
-			
+		PCK_SIZ_SEL=\"$t\",	
 	  	AVG_LATENCY_METRIC= \"HEAD_2_TAIL\",
 		//simulation min and max packet size. The injected packet take a size randomly selected between min and max value
 		MIN_PACKET_SIZE=$MIN_PCK_SIZE,
@@ -869,9 +907,11 @@ sub run_synthetic_simulation {
 		STOP_PCK_NUM=$PCK_NUM_LIMIT,
 		STOP_SIM_CLK=$SIM_CLOCK_LIMIT;
 	    		
-		$hotspot_sv	
+	$hotspot_sv	
 		
-		$custom_sv
+	$custom_sv
+	
+$discrete_sv
 		
 		parameter INJRATIO=90; 
 `endif			
@@ -942,7 +982,7 @@ run -all
 	    	
 	    	}else{	
 	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
-		    	$cmd="$bin -t \"$patern\"  -s $MIN_PCK_SIZE -m $MAX_PCK_SIZE  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot $custom > $out_path/sim_out$ratio_in & ";
+		    	$cmd="$bin -t \"$patern\"   $pck_size  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot $custom > $out_path/sim_out$ratio_in & ";
 							
 	    	}
 	    	$cmds .=$cmd;	

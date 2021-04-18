@@ -438,23 +438,6 @@ module input_queue_per_port
 		
 		for (i=0;i<V; i=i+1) begin: V_
 	
-			always @(*) begin
-				assigned_ovc_num_next[(i+1)*V-1 : i*V] = assigned_ovc_num[(i+1)*V-1 : i*V] ;
-				if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i] ) begin 
-					assigned_ovc_num_next[(i+1)*V-1 : i*V] = mux_out[i];
-				end
-			end
-			
-			onehot_mux_1D #(
-				.N  (3), 
-				.W  (V)
-			) hot_mux (
-				.in     ({vsa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V], 
-						      ssa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V],
-						      sbp_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V]}), 
-				.sel        ({vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],sbp_ctrl_in.ivc_num_getting_ovc_grant[i]}  ),
-				.out    (mux_out[i]   ) 
-			);
 			
 				
 			
@@ -519,6 +502,25 @@ module input_queue_per_port
 				end//always
 				
 				
+				always @(*) begin
+					assigned_ovc_num_next[(i+1)*V-1 : i*V] = assigned_ovc_num[(i+1)*V-1 : i*V] ;
+					if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i] ) begin 
+						assigned_ovc_num_next[(i+1)*V-1 : i*V] = mux_out[i];
+					end
+				end
+			
+				onehot_mux_1D #(
+						.N  (3), 
+						.W  (V)
+					) hot_mux (
+						.in     ({vsa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V], 
+								ssa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V],
+								sbp_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V]}), 
+						.sel        ({vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],sbp_ctrl_in.ivc_num_getting_ovc_grant[i]}  ),
+						.out    (mux_out[i]   ) 
+					);
+					
+				
 				
 				//tail fifo
 				fwft_fifo #(
@@ -542,6 +544,25 @@ module input_queue_per_port
 			end else begin :single
 				assign flit_is_tail[i]=1'b1;
 				assign ovc_is_assigned_next[i] = 1'b0;
+				
+				always @(*) begin
+					assigned_ovc_num_next[(i+1)*V-1 : i*V] = assigned_ovc_num[(i+1)*V-1 : i*V] ;
+					if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i]) begin 
+						assigned_ovc_num_next[(i+1)*V-1 : i*V] = mux_out[i];
+					end
+				end
+			
+				onehot_mux_1D #(
+						.N  (2), 
+						.W  (V)
+					) hot_mux (
+						.in     ({vsa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V], 
+								ssa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V]}), 
+						.sel        ({vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i]}  ),
+						.out    (mux_out[i]   ) 
+					);
+					
+				
 				
 			end
 			//dest_e_addr_in fifo
@@ -898,14 +919,14 @@ module input_queue_per_port
 		
 		for (i=0;i<V;i=i+1)begin : V_       
 		always @ (posedge clk) begin
-			if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i]  )begin 
+			if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | (sbp_ctrl_in.ivc_num_getting_ovc_grant[i] & (PCK_TYPE == "MULTI_FLIT"))  )begin 
 				if( ~ $onehot (mux_out[i])) begin 
 					$display("%t: ERROR: granted OVC num is not onehot coded %b: %m",$time,mux_out[i]);
 					$finish;
 				end
 			end					
-			if( ~ $onehot0( {vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],sbp_ctrl_in.ivc_num_getting_ovc_grant[i]})) begin 
-				$display("%t: ERROR: ivc num %u getting more than one ovc grant from VSA,SSA,SBP: %m",$time,i);
+			if( ~ $onehot0( {vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],(sbp_ctrl_in.ivc_num_getting_ovc_grant[i]&& (PCK_TYPE == "MULTI_FLIT"))})) begin 
+				$display("%t: ERROR: ivc num %d getting more than one ovc grant from VSA,SSA,SBP: %m",$time,i);
 				$finish;
 			end		
 		end//always
@@ -965,8 +986,9 @@ module input_queue_per_port
 			end
 		endgenerate
 	`endif
+	// synopsys  translate_on   
 	// synthesis translate_on
-	// synopsys  translate_on    	
+	 	
 			
 			
 
@@ -976,40 +998,40 @@ endmodule
 
 
 
-			// decode and mask the destination port according to routing algorithm and topology
-			module destp_generator #(
-				parameter TOPOLOGY="MESH",
-				parameter ROUTE_NAME="XY",
-				parameter ROUTE_TYPE="DETERMINISTIC",
-				parameter T1=3,
-				parameter NL=1,
-				parameter P=5,
-				parameter DSTPw=4,
-				parameter ELw=1,
-				parameter PPSw=4,
-				parameter SW_LOC=0
-    
-			)
-			(
-				destport_one_hot,
-				dest_port_encoded,             
-				dest_port_out,   
-				endp_localp_num,
-				swap_port_presel,
-				port_pre_sel,
-				odd_column
-			);
+// decode and mask the destination port according to routing algorithm and topology
+module destp_generator #(
+	parameter TOPOLOGY="MESH",
+	parameter ROUTE_NAME="XY",
+	parameter ROUTE_TYPE="DETERMINISTIC",
+	parameter T1=3,
+	parameter NL=1,
+	parameter P=5,
+	parameter DSTPw=4,
+	parameter ELw=1,
+	parameter PPSw=4,
+	parameter SW_LOC=0
 
-		localparam P_1= P-1;
-		input [DSTPw-1 : 0]  dest_port_encoded;             
-		input [ELw-1 : 0] endp_localp_num;
-		output [P_1-1: 0] dest_port_out;  
-		output [P-1 : 0] destport_one_hot;
-		input             swap_port_presel;
-		input  [PPSw-1 : 0] port_pre_sel;
-		input odd_column;
+)
+(
+	destport_one_hot,
+	dest_port_encoded,             
+	dest_port_out,   
+	endp_localp_num,
+	swap_port_presel,
+	port_pre_sel,
+	odd_column
+);
+
+	localparam P_1= P-1;
+	input [DSTPw-1 : 0]  dest_port_encoded;             
+	input [ELw-1 : 0] endp_localp_num;
+	output [P_1-1: 0] dest_port_out;  
+	output [P-1 : 0] destport_one_hot;
+	input             swap_port_presel;
+	input  [PPSw-1 : 0] port_pre_sel;
+	input odd_column;
     
-		generate
+	generate
 		/* verilator lint_off WIDTH */
 			if(TOPOLOGY == "FATTREE" ) begin : fat
 			/* verilator lint_on WIDTH */

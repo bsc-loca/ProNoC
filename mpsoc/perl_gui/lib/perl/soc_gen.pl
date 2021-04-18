@@ -1507,7 +1507,7 @@ sub software_edit_soc {
 		my $response =  yes_no_dialog("Are you sure you want to regenerate the main.c file? Note that any changes you have made will be lost");
 		if ($response eq 'yes') {      			
 			save_file ("$sw/main.c",main_c_template($name));
-			$app->load_source("$sw/main.c");	
+			$app->refresh_source("$sw/main.c");	
   		}		
 	});
     

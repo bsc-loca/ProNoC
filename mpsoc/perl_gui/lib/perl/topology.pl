@@ -494,7 +494,72 @@ void inline routers_final(){
 	$st5;
 }		
 ";	
+
+#$includ_h.=" void connect_all_nodes(){\n";
+
+#my $dot_file=get_dot_file_text($self,'topology');
+#print "$dot_file\n";
+#my @lines =split ("\n",$dot_file);
+#foreach my $l (@lines) {
+#    if ( $l =~  m{#*\"\s*R(\d+)\"\s*:\s*\"[pP](\d+)\"\s*->\s*\"R(\d+)\"\s*:\s*\"[pP](\d+)\"} ) {
+#		my ($R1, $P1, $R2,$P2) = ($1, $2,$3,$4);
+#		$includ_h.=connect_sim_nodes ($self,$topology,$R1, $P1, $R2, $P2);
+#		
+#   
+#	}
+#	if ( $l =~  m{#*\"\s*R(\d+)\"\s*:\s*\"[pP](\d+)\"\s*->\s*\"[Tt](\d+)\"} ) {
+#		my ($R1, $P1, $T) = ($1, $2,$3);
+#		$includ_h.=connect_sim_nodes($self,$topology,$R1, $P1, $T);
+#		
+#   
+#	}
+#	if ( $l =~  m{#*\s*\"[Tt](\d+)\"\s*->\s*\"R(\d+)\"\s*:\s*\"[pP](\d+)\"} ) {
+#   		my ($T, $R1, $P1) = ($1, $2,$3);
+#		$includ_h.=connect_sim_nodes($self,$topology,$R1, $P1, $T);
+#	}
+#} 
+#$includ_h.="\n}\n";
+
 	 return ($nr,$ne,$router_p,\%tops,$includ_h);	
+}
+
+sub connect_sim_nodes{
+	my ($self,$topology,$R1, $P1, $R2, $P2)=@_;
+	if(defined $P2){ #R2R
+		if($topology eq '"FATTREE"' || $topology eq '"TREE"'){
+			
+		}else{
+			return connect_r2r(1,$R1, $P1,1, $R2, $P2);
+			
+		}
+	}else {
+		my $T=$R2;
+		if($topology eq '"FATTREE"' || $topology eq '"TREE"'){
+			
+		}else{
+			return connect_r2t(1,$R1, $P1, $T);
+			
+		}
+		
+	}
+	
+	
+}
+
+sub connect_r2r{
+	my ($vrouter1_num,$r1,$p1,$vrouter2_num,$r2,$p2)=@_;
+return "	
+	memcpy(&router${vrouter1_num}[$r1]->chan_in[$p1], router${vrouter2_num}[$r2]->chan_out[$p2] , sizeof( router${vrouter1_num}[$r1]->chan_in[$p1] ) );
+	memcpy(&router${vrouter2_num}[$r2]->chan_in[$p2], router${vrouter1_num}[$r1]->chan_out[$p1] , sizeof( router${vrouter1_num}[$r1]->chan_in[$p1] ) );
+	";
+}
+
+sub connect_r2t{
+my ($vrouter1_num,$r1, $p1, $T)=@_;
+return "
+	memcpy(&router${vrouter1_num}[$r1]->chan_in[$p1], traffic[$T]->chan_out , sizeof( traffic[$T]->chan_in ) );
+	memcpy(&traffic[$T]->chan_in, router${vrouter1_num}[$r1]->chan_out[$p1] , sizeof( traffic[$T]->chan_in ) );	
+	";
 }
 
 

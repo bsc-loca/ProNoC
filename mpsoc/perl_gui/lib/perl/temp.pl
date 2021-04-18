@@ -5,15 +5,20 @@ use Gtk2 -init;
 use FindBin;
 use lib $FindBin::Bin;
 
-require "widget2.pl";
-require "common.pl";
 
-for (my $i=0; $i<256; $i++) {
-	print ".C_PROBE_OUT${i}_WIDTH((NE>${i})? ROUTER_CHANEL_w : 1),\n"
-	
+
+
+my $str1 = 'Usage:524944/1000000 messages';
+
+my $str = '"T3"    -> "R3"  :"p1" [  dir=none];';
+
+#\s*->\s*\"R(\d+)\"\s*:\s*\"[pP](\d+)\"
+if ( $str =~  m{\s*\"[Tt](\d+)\"\s*->\s*\"R(\d+)\"\s*:\s*\"[pP](\d+)\"} ) {
+   my ($R1, $P1, $R2) = ($1, $2,$3);
+	print "($R1, $P1, $R2)\n" ;
+   # here we will have the 524944 in the $used variable
+   # and 1000000 in $total.
 }
-
-
 
 
 

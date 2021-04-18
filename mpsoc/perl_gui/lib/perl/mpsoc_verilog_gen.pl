@@ -33,12 +33,16 @@ sub mpsoc_generate_verilog{
 	#generate the noc
 	my $noc_v=gen_noc_v($mpsoc,$pass_param);
 	
-	#generate socs
-	
-	my ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$clk_set,$href)=gen_socs_v($mpsoc,$top_ip,$sw_dir,$txview);
+	#generate socs	
+	my ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$href)=gen_socs_v($mpsoc,$top_ip,$sw_dir,$txview);
 	my %jtag_info=%{$href};
 	my $jtag_v=add_jtag_ctrl (\%jtag_info,$txview); 
 	
+	my ($clk_set, $clk_io_sim,$clk_io_full, $clk_assigned_port)= get_top_clk_setting($mpsoc);
+   
+	$top_io_short=$top_io_short.",\n$clk_io_sim" if (defined $clk_io_sim);
+    $top_io_full=$top_io_full."\n$clk_io_full";            
+    $top_io_pass=$top_io_pass.",\n$clk_assigned_port" if (defined $clk_assigned_port);
 	
 	#functions
 	my $functions=get_functions();
@@ -533,8 +537,7 @@ sub gen_socs_v{
 	my $socs_v=""; 
 	my ($NE, $NR, $RAw, $EAw, $Fw)= get_topology_info ($mpsoc); 
     
-    my ($clk_set, $clk_io_sim,$clk_io_full, $clk_assigned_port)= get_top_clk_setting($mpsoc);
-   
+  
 	my $processors_en=0;
 	for (my $tile_num=0;$tile_num<$NE;$tile_num++){
 			my ($soc_name,$n,$soc_num)=$mpsoc->mpsoc_get_tile_soc_name($tile_num);
@@ -587,10 +590,8 @@ sub gen_socs_v{
  #  $io_full=$io_full."\n\tinput jtag_system_reset;"; 
  #  $top_io_pass=$top_io_pass.",\n\t\t.jtag_system_reset(jtag_system_reset)";
     
-   $top_io_short=$top_io_short.",\n$clk_io_sim" if (defined $clk_io_sim);
-   $top_io_full=$top_io_full."\n$clk_io_full";            
-   $top_io_pass=$top_io_pass.",\n$clk_assigned_port" if (defined $clk_assigned_port);
-	return ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$clk_set,\%jtag_info);
+   
+	return ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,\%jtag_info);
 
 }
 

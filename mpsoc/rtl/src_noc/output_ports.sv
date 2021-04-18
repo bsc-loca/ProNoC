@@ -44,6 +44,7 @@ module output_ports
     port_pre_sel,
     congestion_in_all,    
     granted_dst_is_from_a_single_flit_pck,
+    granted_ovc_num_all,
     reset,
     clk,
     any_ovc_granted_in_outport_all, 
@@ -57,6 +58,11 @@ module output_ports
     sbp_ctrl_in
 );
 
+localparam OVC_ALLOC_MODE= (B<=4)?   1'b1 : 1'b0;
+// 0: The new ovc is allocated only if its not nearly full. Results in a simpler sw_mask_gen logic    
+// 1: The new ovc is allocated only if its not full. Results in a little more complex sw_mask_gen logic    
+
+ 
    
     function integer log2;
       input integer number; begin   
@@ -98,6 +104,7 @@ module output_ports
     input                      reset,clk;
     output [PPSw-1     :    0] port_pre_sel;
     input  [CONG_ALw-1 :    0] congestion_in_all; 
+    input  [PVV-1 : 0] granted_ovc_num_all;
     
     
     input  [P-1 : 0] granted_dst_is_from_a_single_flit_pck;
@@ -184,11 +191,11 @@ module output_ports
                         if( AVC_ATOMIC_EN== 0) begin :avc_atomic
                             if((((k/V) == NORTH ) || ((k/V) == SOUTH )) && (  ADAPTIVE_VC_MASK[k%V]))  
                                     full_adaptive_ovc_mask_next[k]  =   (credit_counter_next[k]         == Bint);
-                            else    full_adaptive_ovc_mask_next[k] = ~nearly_full_all_next[k];
+                            else    full_adaptive_ovc_mask_next[k] = (OVC_ALLOC_MODE)? full_all_next[k] : ~nearly_full_all_next[k];
                         end else begin :avc_nonatomic
                             if(  ADAPTIVE_VC_MASK[k%V])  
                                     full_adaptive_ovc_mask_next[k]  =   (credit_counter_next[k]         == Bint);
-                            else    full_adaptive_ovc_mask_next[k] = ~nearly_full_all_next[k];    
+                            else    full_adaptive_ovc_mask_next[k] = (OVC_ALLOC_MODE)? full_all_next[k] :~nearly_full_all_next[k];    
                         
                         end                       
                      end // for  
@@ -210,7 +217,8 @@ module output_ports
                 assign ovc_avalable_all              = ~ovc_status & full_adaptive_ovc_mask;
             
             end else begin : par_adpt//par adaptive
-                assign ovc_avalable_all                 = ~(ovc_status | nearly_full_all);
+                assign ovc_avalable_all = (OVC_ALLOC_MODE)? ~(ovc_status | full_all) :  ~(ovc_status | nearly_full_all);
+            	
            end
         end //NONATOMIC    
     endgenerate
@@ -304,23 +312,26 @@ module output_ports
     
     
     
-    for(i=0;i< PV;i=i+1) begin :PV_loop2
+    for(i=0; i<PV; i=i+1) begin :PV_loop2
          sw_mask_gen #(
+         	.OVC_ALLOC_MODE(OVC_ALLOC_MODE),
          	.PCK_TYPE(PCK_TYPE),
          	.V (V), // vc_num_per_port
             .P (P) // router port num
             
         )sw_mask
         (
-            .assigned_ovc_num            (assigned_ovc_num_all[(i+1)*V-1        :i*V]),
-            .dest_port                    (dest_port_all            [(i+1)*P_1-1    :i*P_1]),
-            .full                            (full_perport            [i/V]),
-            .credit_increased            (credit_in_perport    [i/V]),
-            .nearly_full                (nearly_full_perport    [i/V]),
-            .ivc_getting_sw_grant    (ivc_num_getting_sw_grant[i]),
-            .assigned_ovc_is_full    (assigned_ovc_is_full_all[i]),
-            .clk                            (clk),
-            .reset                        (reset)
+        	.granted_ovc_num(granted_ovc_num_all[(i+1)*V-1        :i*V]),
+        	.ovc_is_assigned(ovc_is_assigned_all[i]),
+        	.assigned_ovc_num (assigned_ovc_num_all[(i+1)*V-1        :i*V]),
+            .dest_port (dest_port_all  [(i+1)*P_1-1    :i*P_1]),
+            .full  (full_perport [i/V]),
+            .credit_increased (credit_in_perport [i/V]),
+            .nearly_full (nearly_full_perport    [i/V]),
+            .ivc_getting_sw_grant  (ivc_num_getting_sw_grant[i]),
+            .assigned_ovc_is_full  (assigned_ovc_is_full_all[i]),
+            .clk (clk),
+            .reset  (reset)
         );
     end//for
     
@@ -594,29 +605,34 @@ endmodule
 module sw_mask_gen #(
     parameter PCK_TYPE = "MULTI_FLIT",    
 	parameter V = 4, // vc_num_per_port
-    parameter P    = 5 // router port num
+    parameter P = 5, // router port num
+    parameter OVC_ALLOC_MODE=1'b0
         
 )(
-    assigned_ovc_num,
+	granted_ovc_num,
+	ovc_is_assigned,
+	assigned_ovc_num,
     dest_port,
     full,
     credit_increased,
     nearly_full,
     ivc_getting_sw_grant,
     assigned_ovc_is_full,
-    clk,reset
+    clk,
+    reset
 );
     localparam      P_1   =    P-1    ,
                     VP_1    =    V        *     P_1;
-                    
-    input    [V-1            :    0]    assigned_ovc_num;
-    input    [P_1-1        :    0]    dest_port;
-    input    [VP_1-1        :    0]    full;
-    input    [VP_1-1        :    0]    credit_increased;
-    input    [VP_1-1        :    0]    nearly_full;
-    input                            ivc_getting_sw_grant;
-    output                        assigned_ovc_is_full;
-    input                         clk,reset;
+    input	clk,reset;                
+    input	ovc_is_assigned;
+    input	[V-1           :    0]	assigned_ovc_num,granted_ovc_num;
+    input	[P_1-1         :    0]	dest_port;
+    input	[VP_1-1        :    0]	full;
+    input	[VP_1-1        :    0]	credit_increased;
+    input	[VP_1-1        :    0]	nearly_full;
+    input 	ivc_getting_sw_grant;
+    output	assigned_ovc_is_full;
+    
 
 
     wire        [VP_1-1        :    0]    full_muxin1,nearly_full_muxin1;
@@ -652,25 +668,29 @@ module sw_mask_gen #(
     );
     
     // assigned ovc mux 
+    	
+   
+    	
     onehot_mux_1D #(
         .W (1),
         .N (V)
     )full_mux2
     (
-        .in        (full_muxout1),
-        .out        (full_muxout2),
-        .sel            (assigned_ovc_num)
+        .in  (full_muxout1),
+        .out (full_muxout2),
+        .sel (assigned_ovc_num)
     );
-    
-    
+    	 
+   wire [V-1 : 0]  nearlyfull_sel = (ovc_is_assigned | ~OVC_ALLOC_MODE)? assigned_ovc_num : granted_ovc_num;	
+   	
     onehot_mux_1D #(
         .W  (1),
         .N  (V)
     )nearlfull_mux2
     (
-        .in        (nearly_full_muxout1),
-        .out        (nearly_full_muxout2),
-        .sel            (assigned_ovc_num)
+        .in  (nearly_full_muxout1),
+        .out (nearly_full_muxout2),
+        .sel (nearlyfull_sel)
     );
     
     always @(*) begin 

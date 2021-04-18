@@ -289,6 +289,15 @@ sub new_source_view{
 	$notebook->show_all();
 	my $n= $notebook->get_n_pages();
 	$notebook->set_current_page($n-1);
+	#save $sourceview ref in $app
+	my %srcviews;
+	my $ref = $app->sourceview();
+	if(defined $ref){
+		%srcviews =%{$ref};
+	}
+	$srcviews{$n-1}=$self;
+	$app->sourceview(\%srcviews);
+	
 	
 	$close->signal_connect("clicked" => sub {
 		#check if the file has been modified or not
@@ -419,6 +428,71 @@ sub build_search_box {
 	return $hbox;
 }
 
+sub refresh_source {
+	my $app = shift;
+	my ($filename) = abs_path(@_);
+	
+	
+	my $ref =$app->open_list_ref();
+	my @open_list;
+	@open_list = @{$ref} if(defined $ref); 
+	#check if the file is opend before activate its notebook win, remove its content
+	my $pos=get_scolar_pos ($filename,@open_list);
+	my $self;
+	if (defined $pos){
+		my $notebook = $app->source_view_notebook();
+		$notebook->set_current_page($pos);
+		
+		my $ref = $app->sourceview();
+		if(defined $ref){
+			my %srcviews =%{$ref};
+			my $n = $notebook->get_current_page;
+			$self=$srcviews{$n};
+		}else {		
+			return;
+		}		
+	}
+	else {
+		$self=new_source_view($app,"$filename");
+		push(@open_list,$filename);
+		$app->open_list_ref(\@open_list);
+	
+	}
+	my $buffer = $self->buffer;
+
+	# Guess the programming language of the file
+	$self->detect_language($filename);
+
+	# Loading a file should not be undoable.
+	my $content;
+	do {
+		open my $handle, $filename or die "Can't read file $filename because $!";
+		local $/;
+		$content = <$handle>;
+		close $handle;
+	};
+	$buffer->begin_not_undoable_action();
+	$buffer->set_text($content);
+	$buffer->end_not_undoable_action();
+
+	#$buffer->set_modified(FALSE);
+	$buffer->place_cursor($buffer->get_start_iter);
+
+	
+		
+	my $notebook = $app->source_view_notebook();
+	$notebook->show_all();
+	
+	
+	#$self->window->set_title("$filename - $NAME");
+}
+	
+	
+	
+	
+	
+	
+	
 
 
 

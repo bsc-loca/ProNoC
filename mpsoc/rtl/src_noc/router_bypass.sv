@@ -95,7 +95,7 @@ wire  [W-1 : 0] in_array [N-1 : 0];
 
 genvar i;
 generate
-for (i=0;i<N;i++)begin 
+for (i=0;i<N;i++)begin :sep 
 	assign in_array[i] = in[(i+1)*W-1 : i*W];
 end
 endgenerate

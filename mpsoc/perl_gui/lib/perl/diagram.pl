@@ -939,6 +939,7 @@ sub generate_star_dot_file{
 	for(my $p=0; $p<$pnum; $p++) {
 	$dotfile.=endp_node_dot_sim ("T$p","T$p");
 	$dotfile.="R -> T$p [dir=none];\n";
+	$dotfile.='#'.node_connection('T',$p,undef,undef,'R',0,undef,$p);
 	}
 	
 	$dotfile.="\n}\n";

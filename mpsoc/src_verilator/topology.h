@@ -1,6 +1,8 @@
 #ifndef TOPOLOGY_H
 #define TOPOLOGY_H
 
+
+
 	unsigned int nxw=0;
 	unsigned int nyw=0;
 	unsigned int maskx=0;

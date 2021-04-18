@@ -1132,7 +1132,7 @@ sub add_param_widget {
 		$max=~   s/[^0-9.\-]//g;
 		$step=~  s/[^0-9.\-]//g;
 		$digit=~ s/[^0-9.\-]//g if (defined $digit);
-	
+		  #$max = $min if($max<$min);
 		  $widget=gen_spin($min,$max,$step,$digit);
 		  $widget->set_value($value);
 		  $widget-> signal_connect("value_changed" => sub{

@@ -21,7 +21,8 @@
 #define STND_DEV_EN 1
 #define SYNTHETIC 0
 #define CUSTOM 1 
-
+#define RANDOM_RANGE 1
+#define RANDOM_discrete 2
 
 //Vrouter *router;
 //Vrouter1		*router1[NR];                     // Included in parameter.h file
@@ -29,7 +30,7 @@ Vnoc		 	*noc;
 Vtraffic		*traffic[NE];
 int reset,clk;
 int TRAFFIC_TYPE=SYNTHETIC;
-int PACKET_SIZE=5;
+int AVG_PACKET_SIZE=5;
 int MIN_PACKET_SIZE=5;
 int MAX_PACKET_SIZE=5;
 int MAX_PCK_NUM;
@@ -68,6 +69,10 @@ double sc_time_stamp ();
 int pow2( int );
 char inject_done=0;
 char simulation_done=0;
+char pck_size_sel=RANDOM_RANGE;
+int  * discrete_size;
+int  * discrete_prob;
+unsigned int * rsv_size_array;
 
 #if (STND_DEV_EN)
 	//#include <math.h>
@@ -101,15 +106,17 @@ unsigned int rnd_between (unsigned int, unsigned int );
 
 void  usage(){
 	printf(" ./simulator -f [Traffic Pattern file]\n\nor\n");
-	printf(" ./simulator -t [Traffic Pattern]  -s  [MIN_PCK_SIZE] -m [MAX_PCK_SIZE] -n  [MAX_PCK_NUM]  c	[MAX SIM CLKs]   -i [INJECTION RATIO] -p [class traffic ratios (%%)]  -h[HOTSPOT info] -H[custom traffic pattern]\n");
+	printf(" ./simulator -t [Traffic Pattern]   -m [Packet size info] -n  [MAX_PCK_NUM]  c	[MAX SIM CLKs]   -i [INJECTION RATIO] -p [class traffic ratios (%%)]  -h[HOTSPOT info] -H[custom traffic pattern]\n");
 	printf("      Traffic Pattern: \"HOTSPOT\" \"RANDOM\" \"TORNADO\" \"BIT_REVERSE\"  \"BIT_COMPLEMENT\"  \"TRANSPOSE1\"   \"TRANSPOSE2\"\n");
-	printf("      MIN_PCK_SIZE: Minimum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size\n ");
-	printf("      MAX_PCK_SIZE: Maximum packet size in flit. The injected packet size is randomly selected between minimum and maximum packet size\n ");
 	printf("      MAX_PCK_NUM: total number of sent packets. Simulation will stop when total of sent packet by all nodes reach this number\n");
 	printf("      MAX_SIM_CLKs: simulation clock limit. Simulation will stop when simulation clock number reach this value \n");
-	printf("      INJECTION_RATIO: packet injection ratio");
+	printf("      INJECTION_RATIO: packet injection ratio\n");
 	printf("      class traffic ratios %%: The percentage of traffic injected for each class. represented in string whit each class ratio is separated by comma. \"n0,n1,n2..\" \n");
 	printf("      hotspot traffic info: represented in a string with following format:  \"HOTSPOT PERCENTAGE,HOTSPOT NUM,HOTSPOT CORE 1,HOTSPOT CORE 2,HOTSPOT CORE 3,HOTSPOT CORE 4,HOTSPOT CORE 5, ENABLE HOTSPOT CORES SEND \"   \n");
+	printf("      Packet size info:represented in a string with following format:");
+	printf("      \t\"R,MIN,MAX\" : The injected packets' size in flits are randomly selected in range MIN<= PCK_size <=MAX (Random-Range)\n");
+	printf("      \t\"D,S1,S2,..Sn,P,P1,P2,P3,...Pn\" : Si are the discrete set of numbers representing packet size. The injected packet size is randomly selected among these discrete values according to associated probability values.\n");
+	printf("	  \t\t The probabilities pi must satisfy two requirements: every probability pi is a number between 0 and 100, and the sum of all the probabilities is 100\n");
 	printf("      custom traffic pattern: represented in a string with following format:  \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n");
 
 }
@@ -128,6 +135,7 @@ int parse_string ( char * str, int * array)
     }
    return i; 
 }
+
 
 
 unsigned int pck_dst_gen ( 	unsigned int core_num) {
@@ -183,6 +191,90 @@ void update_custom(char * str){
 	}
 }
 
+void update_pck_size(char *str){
+	int i;
+	int array[1000];
+	char substring[1000];
+	int p;
+	char *pt,*pt2;
+	MIN_PACKET_SIZE=100000;
+	MAX_PACKET_SIZE=1;
+
+
+	pt = strtok (str,",");
+	if(*pt=='R'){//random range
+		p= parse_string (str+2, array);
+		if(p<2){
+			fprintf(stderr,"ERROR: Wrong Packet size format %s. It should be \"R,min,max\" : \n",str);
+			exit(1);
+		}
+
+		MIN_PACKET_SIZE=array[0];
+		MAX_PACKET_SIZE=array[1];
+		AVG_PACKET_SIZE=(MIN_PACKET_SIZE+MAX_PACKET_SIZE)/2;// average packet size
+	}else if(*pt=='D'){//random discrete
+		pck_size_sel =  RANDOM_discrete;
+		pt = strtok (str+2,"P");
+		pt2 = strtok (NULL,"P");
+		if (pt == NULL || pt2==NULL) {
+			fprintf(stderr,"ERROR: Wrong Packet size format %s. It should be \"D,s1,s2..sn,P,p1,p2..pn\". missing letter \"P\" in format  \n",str);
+			exit(1);
+		}
+		p= parse_string (pt, array);
+		if (p==0){
+			fprintf(stderr,"ERROR: Wrong Packet size format %s. It should be \"D,s1,s2..sn,P,p1,p2..pn\". missing si values after letter \"D\" \"P\" in format  \n",str);
+			exit(1);
+		}
+		int in=p;
+		//alocate mmeory for pck size
+		discrete_size = (int*)malloc((p) * sizeof(int));
+		discrete_prob = (int*)malloc((p) * sizeof(int));
+		// Check if the memory has been successfully allocated
+		if (discrete_size == NULL || discrete_prob==NULL) {
+			printf("ERROR: Memory not allocated.\n");
+			exit(1);
+		}
+
+		for (i=0; i<p; i++){
+
+			//printf("I[%u]=%u,\n",i,array[i]);
+			discrete_size[i] = array[i];
+			if(MIN_PACKET_SIZE > array[i]) MIN_PACKET_SIZE = array[i];
+			if(MAX_PACKET_SIZE < array[i]) MAX_PACKET_SIZE = array[i];
+		}
+
+		p= parse_string (pt2+1, array);
+		int sum=0;
+		AVG_PACKET_SIZE=0;
+		for (i=0; i<p; i++){
+			//printf("P[%u]=%u,\n",i,array[i]);
+			if(i<in){
+				 sum+=array[i];
+				 discrete_prob[i]=sum;
+				 AVG_PACKET_SIZE+=discrete_size[i] * array[i];
+
+			}
+		}
+		AVG_PACKET_SIZE/=100;
+
+		if(sum!=100){
+			fprintf(stderr,"ERROR: The accumulatio of the first %u probebility values is %u which is not equal to 100\n",in,sum);
+			exit(1);
+		}
+
+	}else {
+		fprintf(stderr,"ERROR: Wrong Packet size format %s. It should start with one of \"D\" or \"R\" letter\n",str);
+		exit(1);
+	}
+	p=(MAX_PACKET_SIZE-MIN_PACKET_SIZE)+1;
+	rsv_size_array = (unsigned int*) calloc ( p , sizeof(int));
+	if (rsv_size_array==NULL){
+		 fprintf(stderr,"Error: cannot allocate memory for rsv_size_array\n");
+		 exit(1);
+	}
+
+}
+
 void processArgs (int argc, char **argv )
 {
    char c;
@@ -193,7 +285,7 @@ void processArgs (int argc, char **argv )
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage();	
-   while ((c = getopt (argc, argv, "t:s:m:n:c:i:p:h:H:f:")) != -1)
+   while ((c = getopt (argc, argv, "t:m:n:c:i:p:h:H:f:")) != -1)
       {
 	 switch (c)
 	    {
@@ -209,9 +301,6 @@ void processArgs (int argc, char **argv )
 			break;
 		case 's':
 			MIN_PACKET_SIZE=atoi(optarg);
-			break;
-		case 'm':
-			MAX_PACKET_SIZE=atoi(optarg);
 			break;
 		case 'n':
 			 MAX_PCK_NUM=atoi(optarg);
@@ -231,6 +320,10 @@ void processArgs (int argc, char **argv )
 		    C2_p=array[2];
 		    C3_p=array[3];
 			break;
+		case 'm':
+			update_pck_size(optarg);
+
+			break;
 		case 'H':
 			update_custom(optarg);
 			break;
@@ -249,10 +342,22 @@ void processArgs (int argc, char **argv )
 	       exit(1);
 	    }
       }
-   PACKET_SIZE=(MIN_PACKET_SIZE+MAX_PACKET_SIZE)/2;// average packet size
+
 }
 
 
+
+
+int get_new_pck_size(){
+		if(pck_size_sel ==  RANDOM_discrete){
+				int rnd = rand() % 100; // 0~99
+				int i=0;
+				while( rnd > discrete_prob[i] ) i++;
+				return discrete_size [i];
+		}
+		//random range
+		return rnd_between(MIN_PACKET_SIZE,MAX_PACKET_SIZE);
+}
 
 
 int main(int argc, char** argv) {
@@ -291,14 +396,13 @@ int main(int argc, char** argv) {
     	traffic[i]->current_e_addr		= endp_addr_encoder(i);
     	traffic[i]->start=0;
     	traffic[i]->pck_class_in=  pck_class_in_gen( i);
-    	traffic[i]->pck_size_in=rnd_between(MIN_PACKET_SIZE,MAX_PACKET_SIZE);
+    	traffic[i]->pck_size_in=get_new_pck_size();
     	dest_e_addr=pck_dst_gen (i);
     	traffic[i]->dest_e_addr= dest_e_addr;
     	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
     	traffic[i]->stop=inject_done;
     	if(TRAFFIC_TYPE==SYNTHETIC){
-    		traffic[i]->pck_size_in=PACKET_SIZE;
-    		traffic[i]->avg_pck_size_in=PACKET_SIZE;
+    		//traffic[i]->avg_pck_size_in=AVG_PACKET_SIZE;
     		traffic[i]->ratio=ratio;
     		traffic[i]->init_weight=1;
     	}
@@ -463,8 +567,8 @@ void clk_posedge_event(void) {
 			if(traffic[i]->hdr_flit_sent ){
 				traffic[i]->pck_class_in=  pck_class_in_gen( i);
 				sent_core_total_pck_num[i]++;
+				traffic[i]->pck_size_in=get_new_pck_size();
 				if(!FIXED_SRC_DST_PAIR){
-					traffic[i]->pck_size_in=rnd_between(MIN_PACKET_SIZE,MAX_PACKET_SIZE);
 					dest_e_addr=pck_dst_gen (i);
 					traffic[i]->dest_e_addr= dest_e_addr;
 					//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
@@ -525,6 +629,9 @@ void update_noc_statistic (	int	core_num){
 	rsvd_core_total_pck_num[core_num]=rsvd_core_total_pck_num[core_num]+1;
 	if (rsvd_core_worst_delay[core_num] < clk_num_h2t) rsvd_core_worst_delay[core_num] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
     if (sent_core_worst_delay[src] < clk_num_h2t) sent_core_worst_delay[src] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
+    if( traffic[core_num]->pck_size_o >= MIN_PACKET_SIZE && traffic[core_num]->pck_size_o <=MAX_PACKET_SIZE){
+       	rsv_size_array[traffic[core_num]->pck_size_o-MIN_PACKET_SIZE]++;
+    }
 }
 
 
@@ -551,8 +658,14 @@ void print_statistic (char * out_file_name){
   	printf(" Total number of packet = %d \n average latency per hop = %f \n",total_rsv_pck_num,avg_latency_per_hop);
   	printf(" average packet latency = %f \n average flit latency = %f \n",avg_latency_pck, avg_latency_flit);
     min_avg_latency_per_class=1000000;
+    printf(" Total injected packet in different size:\n");
+    for (i=0;i<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);i++){
+    	if(rsv_size_array[i]>0) printf("\t %u flit_sized pck = %u\n",i+ MIN_PACKET_SIZE, rsv_size_array[i]);
+    }
+    printf("\n");
+
     for(i=0;i<C;i++){
-           	avg_throughput		 = (total_rsv_pck_num_per_class[i]>0)? ((double)(total_rsv_pck_num_per_class[i]*PACKET_SIZE*100)/total_active_endp )/clk_counter:0;
+           	avg_throughput		 = (total_rsv_pck_num_per_class[i]>0)? ((double)(total_rsv_pck_num_per_class[i]*AVG_PACKET_SIZE*100)/total_active_endp )/clk_counter:0;
 			avg_latency_flit 	 = (total_rsv_pck_num_per_class[i]>0)? (double)sum_clk_h2h_per_class[i]/total_rsv_pck_num_per_class[i]:0;
 			avg_latency_pck	   	 = (total_rsv_pck_num_per_class[i]>0)? (double)sum_clk_h2t_per_class[i]/total_rsv_pck_num_per_class[i]:0;
 			avg_latency_per_hop  = (total_rsv_pck_num_per_class[i]>0)? (double)sum_clk_per_hop_per_class[i]/total_rsv_pck_num_per_class[i]:0;
@@ -614,8 +727,8 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 #else
     printf ("\tDebuging is disabled\n");
 #endif
-	if(strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)printf ("\tOutput is the average latency on sending the packet header until receiving tail\n");
-	else printf ("\tOutput is the average latency on sending the packet header until receiving header flit at destination node\n");
+	//if(strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)printf ("\tOutput is the average latency on sending the packet header until receiving tail\n");
+	//else printf ("\tOutput is the average latency on sending the packet header until receiving header flit at destination node\n");
 	printf ("\tTraffic pattern:%s\n",TRAFFIC);
 	if(C>0) printf ("\ttraffic percentage of class 0 is : %d\n", C0_p);
 	if(C>1) printf ("\ttraffic percentage of class 1 is : %d\n", C1_p);
@@ -629,7 +742,7 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 	    //printf ("\tTotal packets sent by one router: %u\n", TOTAL_PKT_PER_ROUTER);
 		printf ("\tSimulation timeout =%d\n", MAX_SIM_CLKs);
 		printf ("\tSimulation ends on total packet num of =%d\n", MAX_PCK_NUM);
-	    printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,PACKET_SIZE);
+	    printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
 	    printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
 }
 
@@ -774,7 +887,7 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src){
 	task.byte_sent = task.byte_sent + (task.avg_pck_size * (Fpay/8) );
 
 	traffic[src]->pck_class_in=  pck_class_in_gen(src);
-	traffic[src]->avg_pck_size_in=task.avg_pck_size;
+	//traffic[src]->avg_pck_size_in=task.avg_pck_size;
 	traffic[src]->pck_size_in=rnd_between(task.min_pck_size,task.max_pck_size);
 
 	f=  task.injection_rate;

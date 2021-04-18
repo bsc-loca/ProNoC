@@ -596,19 +596,24 @@ endmodule
  *  pck_size_gen
  * *************************/
 
-module pck_size_gen #(
+module pck_size_gen
+		import pronoc_pkg::*; 
+#(
 		parameter PCK_SIZw=4,
         parameter MIN = 2,
-        parameter MAX = 5
+        parameter MAX = 5,
+        parameter PCK_SIZ_SEL="random-discrete",	
+        parameter DISCRETE_PCK_SIZ_NUM=1
 )
 (
     reset,
     clk,
     en,
-    pck_size 
+    pck_size,
+    rnd_discrete
 );
 
-    
+	input rnd_discrete_t rnd_discrete [DISCRETE_PCK_SIZ_NUM-1: 0];
      
 
     input reset, clk, en;
@@ -616,18 +621,50 @@ module pck_size_gen #(
 
     
     generate
-    if (MIN == MAX) begin :eq 
-        assign pck_size = MIN;
-    end
-    else begin :noteq
-        reg [PCK_SIZw-1 : 0] rnd;
-        always @(posedge clk) begin 
-            if(reset) rnd = MIN;
-            else if(en) rnd = $urandom_range(MAX,MIN);
-        end
-        assign pck_size = rnd;
-    end
-    endgenerate
+	if(PCK_SIZ_SEL == "random-discrete"	) begin :discrete
+		if(DISCRETE_PCK_SIZ_NUM==1) begin :single 
+			assign pck_size = rnd_discrete[0].value;
+		end else begin :multi
+			reg [PCK_SIZw-1 : 0] rnd,rnd_next;
+			integer rnd2;
+			integer k;
+			always @(*) begin 
+				rnd_next = rnd;
+				if(en) begin 
+					if(rnd2 < rnd_discrete[0].percentage) rnd_next = rnd_discrete[0].value;
+					for (k=1;k<DISCRETE_PCK_SIZ_NUM;k++)begin 
+						if(rnd2 >= rnd_discrete[k-1].percentage && rnd2 < rnd_discrete[k].percentage) rnd_next = rnd_discrete[k].value;
+					end
+				end	
+			end//always
+			
+			
+			always @(posedge clk) begin 
+				if(reset)  begin 
+					rnd2<= 0;
+					rnd <= rnd_discrete[0].value;					
+				end else  begin 
+					if(en) rnd2<= $urandom_range(99,0);
+					rnd <= rnd_next;
+				end
+			end//always
+			
+			assign pck_size = rnd;
+		end//multi
+		
+	end else begin :range
+		if (MIN == MAX) begin :eq 
+	        assign pck_size = MIN;
+	    end  else begin :noteq
+	        reg [PCK_SIZw-1 : 0] rnd;
+	        always @(posedge clk) begin 
+	            if(reset) rnd = MIN;
+	            else if(en) rnd = $urandom_range(MAX,MIN);
+	        end
+	        assign pck_size = rnd;
+	    end
+	end
+	endgenerate
 endmodule 
 
 

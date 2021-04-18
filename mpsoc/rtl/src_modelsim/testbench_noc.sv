@@ -89,15 +89,15 @@ module testbench_noc;
 	wire [Cw-1      :   0]  pck_class_in            [NE-1           :0]; 
 	wire [NEw-1     :   0]  src_id					[NE-1           :0]; 
     
-	wire   [PCK_SIZw-1:0]  pck_size_in [NE-1           :0]; 
-       
+	wire [PCK_SIZw-1:   0] pck_size_in [NE-1        :0]; 
+	wire [PCK_SIZw-1:   0] pck_size_o  [NE-1        :0];   
     
     
 	//   wire    [NE-1           :0] report;
 	reg     [CLK_CNTw-1             :0] clk_counter;
     
     
-  
+ 
 	wire    [PCK_CNTw-1     :0] pck_counter     [NE-1        :0];
 	wire    [NE-1           :0] noc_report;
 	wire    [NE-1           :0] update;
@@ -108,8 +108,9 @@ module testbench_noc;
     
 	reg                         count_en;
   	reg [NE-1 : 0] start_o;
-    
-    
+  	integer  rsv_size_array [MAX_PACKET_SIZE - MIN_PACKET_SIZE : 0];
+  		
+  	
     
 	always @(posedge    clk or posedge reset) begin 
 		if (reset) begin 
@@ -183,8 +184,7 @@ module testbench_noc;
 				the_traffic_gen
 				(
        
-					.ratio (ratio),
-					.avg_pck_size_in(AVG_PCK_SIZ[PCK_SIZw-1  :0] ),  
+					.ratio (ratio),					
 					.pck_size_in(pck_size_in[i]),
 					.current_r_addr(CURRENT_ADDR),
 					.current_e_addr(ENDP_ADRR),
@@ -205,7 +205,7 @@ module testbench_noc;
 					.src_e_addr(src_e_addr[i] ),
 					.pck_class_out(msg_class[i]),
 					.report (1'b0),
-            
+					.pck_size_o(pck_size_o[i]),
 					.noc_chan_in(chan_out_all[i]),
 					.noc_chan_out(chan_in_all[i])  
           
@@ -266,14 +266,17 @@ module testbench_noc;
 			pck_size_gen #(
 					.PCK_SIZw(PCK_SIZw),
 					.MIN(MIN_PACKET_SIZE),
-					.MAX(MAX_PACKET_SIZE)
+					.MAX(MAX_PACKET_SIZE),
+					.PCK_SIZ_SEL(PCK_SIZ_SEL),
+					.DISCRETE_PCK_SIZ_NUM(DISCRETE_PCK_SIZ_NUM)
 				)
 				the_pck_siz_gen
 				(
 					.reset(reset),
 					.clk(clk),
 					.en(hdr_flit_sent[i]),
-					.pck_size( pck_size_in[i]) 
+					.pck_size( pck_size_in[i]) ,
+					.rnd_discrete(rnd_discrete)
 				);
   
     
@@ -330,6 +333,7 @@ module testbench_noc;
 				rsvd_core_worst_delay[k]=0;
 				sent_core_worst_delay[k]=0;
 			end
+			for (k=0; k<= MAX_PACKET_SIZE - MIN_PACKET_SIZE; k++) 	rsv_size_array[k]=0;
 			
 		end
 		
@@ -361,7 +365,8 @@ module testbench_noc;
 				rsvd_core_total_rsv_pck_num[core_num]+=1;
 				if (rsvd_core_worst_delay[core_num] < time_stamp_h2t[core_num]) rsvd_core_worst_delay[core_num] = ( AVG_LATENCY_METRIC == "HEAD_2_TAIL")? time_stamp_h2t[core_num] : time_stamp_h2h[core_num];
 				if (sent_core_worst_delay[src_id[core_num]] < time_stamp_h2t[core_num]) sent_core_worst_delay[src_id[core_num]] = (AVG_LATENCY_METRIC == "HEAD_2_TAIL")?  time_stamp_h2t[core_num] : time_stamp_h2h[core_num];
-				
+				if (pck_size_o[core_num] >= MIN_PACKET_SIZE && pck_size_o[core_num] <=MAX_PACKET_SIZE) rsv_size_array[pck_size_o[core_num]-MIN_PACKET_SIZE] = rsv_size_array[pck_size_o[core_num]-MIN_PACKET_SIZE]+1;
+					
 			end			
 		end		
 	end//always
@@ -417,6 +422,7 @@ module testbench_noc;
 		avg_latency_pck	 =sum_clk_h2t/$itor(total_rsv_pck_num);
 		avg_latency_per_hop    = sum_clk_per_hop/$itor(total_rsv_pck_num);
 		
+		$display(" Flit injection ratio per router is =%f \n",ratio);
 		$display(" simulation clock cycles:%d",clk_counter);
 		$display(" total sent/received packets:%d/%d",total_sent_pck_num,total_rsv_pck_num);
 		$display(" total sent/received flits:%d/%d",total_sent_flit_number,total_rsv_flit_number);
@@ -425,10 +431,14 @@ module testbench_noc;
 			
 		
 		
-		$display	 ("\nall : ");
-		if(AVG_LATENCY_METRIC == "HEAD_2_TAIL") $display(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f",total_rsv_pck_num,avg_latency_per_hop,avg_latency_pck);
-		else	$display(" Total number of packet = %d \n average latency per hop = %f \n average latency = %f",total_rsv_pck_num,avg_latency_per_hop,avg_latency_flit);
+		$display("\nall : ");		
+		$display(" Total number of packet = %d \n average latency per hop = %f ",total_rsv_pck_num,avg_latency_per_hop);
+		$display(" average packet latency = %f \n average flit latency = %f ",avg_latency_pck, avg_latency_flit);
 		
+		$display(" Total injected packet in different size:");
+		for (m=0;m<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);m++) begin
+			if(rsv_size_array[m]>0) $display("\t %d flit_sized pck = %d",m+ MIN_PACKET_SIZE, rsv_size_array[m]);
+		end
 		
 		
 		//		if(ratio==RATIO_INIT) first_avg_latency_flit=avg_latency_flit;
@@ -463,6 +473,7 @@ module testbench_noc;
 					//#endif
 		end//for
 		
+				
 
 		for (m=0;m<NE;m++) begin
 			$display	 ("\n\nEndpoint %d",m);
@@ -515,8 +526,8 @@ module testbench_noc;
 		else
 			$display ("\tDebuging is disabled");
 
-		if( AVG_LATENCY_METRIC == "HEAD_2_TAIL")  $display ("\tOutput is the average latency on sending the packet header until receiving tail");
-		else $display ("\tOutput is the average latency on sending the packet header until receiving header flit at destination node");
+		//if( AVG_LATENCY_METRIC == "HEAD_2_TAIL")  $display ("\tOutput is the average latency on sending the packet header until receiving tail");
+		//else $display ("\tOutput is the average latency on sending the packet header until receiving header flit at destination node");
 		$display ("\tTraffic pattern:%s",TRAFFIC);
 		if(C>0) $display ("\ttraffic percentage of class 0 is : %d", C0_p);
 		if(C>1) $display ("\ttraffic percentage of class 1 is : %d", C1_p);

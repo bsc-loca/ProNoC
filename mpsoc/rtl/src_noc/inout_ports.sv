@@ -242,7 +242,7 @@ import pronoc_pkg::*;
 		.assigned_ovc_not_full_all                  (assigned_ovc_not_full_all),
 		.port_pre_sel                               (port_pre_sel),//only valid for adaptive routing
 		.congestion_in_all                          (congestion_in_all),//only valid for adaptive routing
-                          
+		.granted_ovc_num_all 						(granted_ovc_num_all),                  
                
 		.granted_dst_is_from_a_single_flit_pck      (granted_dst_is_from_a_single_flit_pck),
 		.reset                                      (reset),

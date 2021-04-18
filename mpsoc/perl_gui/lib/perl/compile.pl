@@ -1253,7 +1253,7 @@ sub fpga_compilation{
 		my $response =  yes_no_dialog("Are you sure you want to regenerate the Top.v file? Note that any changes you have made will be lost");
 		if ($response eq 'yes') {
 			gen_top_v($self,$board,$name,$top);
-			$app->load_source("$board_top_file");	
+			$app->refresh_source("$board_top_file");	
   		}		
 	});
 	
@@ -1441,8 +1441,21 @@ sub quartus_run_compile{
 	append_text_to_file($qsf_file,$s);
 	add_info($tview,"\n Qsf file has been created\n");
 	
+	
+	
+	
 	#start compilation
-	my $Quartus_bin= $self->object_get_attribute('compile','quartus bin');;
+	my $Quartus_bin= $self->object_get_attribute('compile','quartus bin');
+	
+	my $run_sh = "#!/bin/bash
+$Quartus_bin/quartus_map --64bit $name --read_settings_files=on
+$Quartus_bin/quartus_fit --64bit $name --read_settings_files=on 
+$Quartus_bin/quartus_asm --64bit $name --read_settings_files=on
+$Quartus_bin/quartus_sta --64bit $name	
+	";
+	
+	save_file("$target_dir/Quartus/run.sh",  $run_sh);
+		
 	add_info($tview, "Start Quartus compilation.....\n");
 	my @compilation_command =(
 		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_map --64bit $name --read_settings_files=on; echo \$? > status' ",
@@ -1771,12 +1784,13 @@ sub modelsim_compilation{
 	rmtree("$target_dir/rtl_work");
 	mkpath("$model/rtl_work",1,01777);
 	
+	my ($app,$table,$tview,$window) = software_main("$target_dir/Modelsim",undef);
 	#create testbench.v
-	gen_modelsim_soc_testbench ($self,$name,$top,$target_dir) unless (-f "$target_dir/Modelsim/testbench.v");
+	gen_modelsim_soc_testbench ($self,$name,$top,$target_dir,$tview) unless (-f "$target_dir/Modelsim/testbench.v");
+	$app->refresh_source("$target_dir/Modelsim/testbench.v");	
 
 
-
-	my ($app,$table,$tview,$window) = software_main("$target_dir/Modelsim",'testbench.v');
+	
 	add_info($tview,"create Modelsim dir in $target_dir\n");
 	$table->attach($back,1,2,1,2,'shrink','shrink',2,2);
 	$table->attach($regen,4,5,1,2,'shrink','shrink',2,2);
@@ -1787,8 +1801,8 @@ sub modelsim_compilation{
 	$regen-> signal_connect("clicked" => sub{
 		my $response =  yes_no_dialog("Are you sure you want to regenerate the testbench.v file? Note that any changes you have made will be lost");
 		if ($response eq 'yes') {
-      			gen_modelsim_soc_testbench ($self,$name,$top,$target_dir);
-			$app->load_source("$target_dir/Modelsim/testbench.v");	
+      			gen_modelsim_soc_testbench ($self,$name,$top,$target_dir,$tview);
+			$app->refresh_source("$target_dir/Modelsim/testbench.v");	
   		}		
 	});
 	
@@ -2860,7 +2874,7 @@ sub soc_get_all_parameters_order {
 
 
 sub gen_modelsim_soc_testbench {
-	my ($self,$name,$top,$target_dir)=@_;
+	my ($self,$name,$top,$target_dir,$tview)=@_;
 	my $dir="$target_dir/Modelsim";
 	my $soc_top= $self->object_get_attribute('top_ip',undef);
 	
@@ -2898,7 +2912,7 @@ sub gen_modelsim_soc_testbench {
 			add_text_to_string(\$params_v,"\tlocalparam  $p = $params{$p};\n") if(defined $params{$p} );			
 		}
 	}else{ # we are simulating a mpsoc
-		$params_v= gen_socs_param($self);
+		$params_v= gen_socs_param($self);		
 		
 		
 	}
@@ -2943,6 +2957,14 @@ sub gen_modelsim_soc_testbench {
 			}else{
 				$top_port_def="$top_port_def  wire  $range  $p;\n" 
 			}
+			
+			
+			
+			
+			
+			
+			
+			
 			$pin_assign=(defined $pin_assign)? "$pin_assign,\n\t\t.$p($p)":  "\t\t.$p($p)";
 			$rst_inputs= "$rst_inputs $p=0;\n" if ($key eq 'other' && $type eq 'input' );
 		}
@@ -2951,6 +2973,48 @@ sub gen_modelsim_soc_testbench {
 	}
 my $global_localparam=get_golal_param_v();	
 my $test_v= get_license_header("testbench.v");
+
+my $mpsoc_name=$self->object_get_attribute('mpsoc_name');
+#if(defined $mpsoc_name){
+	if(0){
+	
+	
+	my $top_ip=ip_gen->top_gen_new();
+	my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
+    my $hw_dir     = "$target_dir/src_verilog";
+    my $sw_dir     = "$target_dir/sw";
+	my ($socs_v,$io_short,$io_full,$top_io_short,$top_io_full,$top_io_pass,$href)=gen_socs_v($self,$top_ip,$sw_dir,$tview);
+	my $socs_param= gen_socs_param($self);
+	my $global_localparam=get_golal_param_v();
+	my ($clk_set, $clk_io_sim,$clk_io_full, $clk_assigned_port)= get_top_clk_setting($self);
+  
+	
+$test_v.="
+
+$clk_set, $clk_io_sim,$clk_io_full, $clk_assigned_port
+
+`timescale	 1ns/1ps
+
+module testbench;
+
+$functions_all
+
+$global_localparam	
+
+$socs_param
+
+$top_port_def
+
+
+\t${mpsoc_name} the_${mpsoc_name} (
+$top_io_pass
+
+\t);
+/*****************************************************************/
+";
+
+
+}
 
 $test_v	="$test_v
 
@@ -3059,7 +3123,7 @@ sub verilator_testbench{
 	
 			}
   			      			
-			$app->load_source("$dir/testbench.cpp");	
+			$app->refresh_source("$dir/testbench.cpp");	
   		}	
 	});
 	

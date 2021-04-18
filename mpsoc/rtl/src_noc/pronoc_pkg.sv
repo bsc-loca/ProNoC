@@ -1,13 +1,15 @@
+`timescale     1ns/1ps
 /****************************************************************************
  * pronoc_pkg.sv
  ****************************************************************************/
+
 package pronoc_pkg; 
   
   
 `define NOC_LOCAL_PARAM
 `include "noc_localparam.v"
 
-`define     INCLUDE_TOPOLOGY_LOCALPARAM
+`define  INCLUDE_TOPOLOGY_LOCALPARAM
 `include "topology_localparam.v"
 	
 	
@@ -247,7 +249,12 @@ localparam
  		integer   ip_num;
 		bit send_enable;
 		integer  percentage; // x10	
- 	} hotspot_t;		
+ 	} hotspot_t;
+ 	
+ 	typedef struct packed {
+ 		integer value;
+ 		integer percentage; 	
+ 	}rnd_discrete_t;
 	
 endpackage : pronoc_pkg
 
