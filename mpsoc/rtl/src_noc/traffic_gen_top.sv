@@ -8,8 +8,8 @@ module  traffic_gen_top
 		(
 					
 			//noc port
-			noc_chan_in,
-			noc_chan_out,  
+			chan_in,
+			chan_out,  
 			
 			//input 
 			ratio,// real injection ratio  = (MAX_RATIO/100)*ratio
@@ -22,6 +22,7 @@ module  traffic_gen_top
 			stop,  
 			report,
 			init_weight,
+			start_delay,
       
 			//output
 			pck_number,
@@ -29,6 +30,8 @@ module  traffic_gen_top
 			hdr_flit_sent,
 			update, // update the noc_analayzer
 			src_e_addr,
+			flit_out_wr,
+			flit_in_wr,
    
 			distance,
 			pck_class_out,   
@@ -43,10 +46,11 @@ module  traffic_gen_top
 		
 	localparam
 		RATIOw= $clog2(MAX_RATIO);
+		
 	//	Vw =    $clog2(V);
 			
-	input   router_chanel_t 	noc_chan_in;
-	output  router_chanel_t 	noc_chan_out;  
+	input   router_chanel_t 	chan_in;
+	output  router_chanel_t 	chan_out;  
 		
 		
    
@@ -65,13 +69,13 @@ module  traffic_gen_top
 	input                               start,stop;
 	output                              update;
 	output [CLK_CNTw-1              :0] time_stamp_h2h,time_stamp_h2t;
-	output [DISTw-1                  :0] distance;
+	output [DISTw-1                 :0] distance;
 	output [Cw-1                    :0] pck_class_out;
 	// the connected router address
 	input  [RAw-1                   :0] current_r_addr;    
 	// the current endpoint address
 	input  [EAw-1                   :0] current_e_addr;    
-	// the destination endpoint adress
+	// the destination endpoint address
 	input  [EAw-1                   :0] dest_e_addr;  
     
 	output [PCK_CNTw-1              :0] pck_number;
@@ -83,29 +87,30 @@ module  traffic_gen_top
 	input  [W-1                     :0] init_weight;
 		
 	input                               report;
-	// the recieved packet source endpoint address
+	input  [DELAYw-1           		:0] start_delay;
+	// the received packet source endpoint address
 	output [EAw-1        :   0]    src_e_addr;
 	output [PCK_SIZw-1   :   0]    pck_size_o;	
 	
 		
 	logic  [Fw-1                   :0] flit_out;     
-	logic                         flit_out_wr;   
+	output  logic                       flit_out_wr;   
 	logic   [V-1                    :0] credit_in;
     
 	logic   [Fw-1                   :0] flit_in;   
-	logic                               flit_in_wr;   
+	output logic                              flit_in_wr;   
 	logic  [V-1                :0] credit_out;     
 		
 		
 		
-	assign 	noc_chan_out.flit_chanel.flit = flit_out; 
-	assign  noc_chan_out.flit_chanel.flit_wr = flit_out_wr;
-	assign  noc_chan_out.flit_chanel.credit = credit_out;
+	assign 	chan_out.flit_chanel.flit = flit_out; 
+	assign  chan_out.flit_chanel.flit_wr = flit_out_wr;
+	assign  chan_out.flit_chanel.credit = credit_out;
 		
 		
-	assign flit_in   =  noc_chan_in.flit_chanel.flit;   
-	assign flit_in_wr=  noc_chan_in.flit_chanel.flit_wr; 
-	assign credit_in =  noc_chan_in.flit_chanel.credit;  
+	assign flit_in   =  chan_in.flit_chanel.flit;   
+	assign flit_in_wr=  chan_in.flit_chanel.flit_wr; 
+	assign credit_in =  chan_in.flit_chanel.credit;  
 		
 	//old traffic.v file
 		
@@ -192,7 +197,34 @@ module  traffic_gen_top
 		wire pck_wr,buffer_full,pck_ready,valid_dst;    
 		wire [CLK_CNTw-1 : 0] rd_timestamp;
    
-   		
+   	    
+		
+		logic [DELAYw-1 : 0] start_delay_counter,start_delay_counter_next;
+		logic  start_en_next , start_en;
+
+		register #(.W(1)) streg1 (.reset(reset),.clk(clk), .in(start_en_next), .out(start_en)	);
+		register #(.W(DELAYw)) streg2 (.reset(reset),.clk(clk), .in(start_delay_counter_next), .out(start_delay_counter)	);
+		
+		
+		
+		always @(*) begin 
+			start_en_next =start_en;
+			start_delay_counter_next= start_delay_counter;
+			if(start)	begin 
+				start_en_next=1'b1;
+				start_delay_counter_next={DELAYw{1'b0}};
+			end else if(start_en && ~inject_en) begin 
+				start_delay_counter_next= start_delay_counter + 1'b1;
+			end
+			if(stop) begin 
+				start_en_next=1'b0;			
+			end
+		end//always
+		
+		wire start_injection = (start_delay_counter == start_delay);
+   	    
+   	    
+		
 		
 		check_destination_addr #(
 				.TOPOLOGY(TOPOLOGY),
@@ -541,7 +573,7 @@ module  traffic_gen_top
 			end else begin 
 				//injection
 				not_yet_sent_aflit<=not_yet_sent_aflit_next;
-				inject_en <=  (start |inject_en) & ~stop;  
+				inject_en <=  (start_injection |inject_en) & ~stop;  
 				ps             <= ns;
 				clk_counter     <= clk_counter+1'b1;
 				wr_vc           <=wr_vc_next; 
@@ -1048,152 +1080,9 @@ module packet_gen #(
 		end
 		endgenerate
 
-			endmodule		
+endmodule		
 
 
 
 
-			module  traffic_gen_top_v
-			import pronoc_pkg::*; 
-		#(
-			parameter MAX_RATIO = 1000
-			)
-			(
-					
-				//noc port
-				// NOC interfaces
-				flit_out,    
-				flit_out_wr,   
-				credit_in,
-				flit_in,   
-				flit_in_wr,   
-				credit_out,     
-			
-				//input 
-				ratio,// real injection ratio  = (MAX_RATIO/100)*ratio
-				pck_size_in,   
-				current_r_addr,
-				current_e_addr,
-				dest_e_addr,
-				pck_class_in,        
-				start, 
-				stop,  
-				report,
-				init_weight,
-      
-				//output
-				pck_number,
-				sent_done, // tail flit has been sent
-				hdr_flit_sent,
-				update, // update the noc_analayzer
-				src_e_addr,
-   
-				distance,
-				pck_class_out,   
-				time_stamp_h2h,
-				time_stamp_h2t,
-				pck_size_o,
-			
-				reset,
-				clk
-			
-			);
 		
-		localparam
-			RATIOw= $clog2(MAX_RATIO),
-			Vw =    $clog2(V);
-			
-		// NOC interfaces
-		output  [Fw-1                   :0] flit_out;     
-		output                           flit_out_wr;   
-		input   [V-1                    :0] credit_in;
-    
-		input   [Fw-1                   :0] flit_in;   
-		input                               flit_in_wr;   
-		output  [V-1                :0] credit_out;     
-		
-   
-   
-		localparam
-			PCK_CNTw = log2(MAX_PCK_NUM+1),
-			CLK_CNTw = log2(MAX_SIM_CLKs+1),
-			PCK_SIZw = log2(MAX_PCK_SIZ+1),
-			AVG_PCK_SIZw = log2(10*MAX_PCK_SIZ+1),
-			/* verilator lint_off WIDTH */
-			DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY=="TREE" ) ? log2(2*L+1): log2(NR+1),
-			W=WEIGHTw;
-
-		input reset, clk;
-		input  [RATIOw-1                :0] ratio;
-		input                               start,stop;
-		output                              update;
-		output [CLK_CNTw-1              :0] time_stamp_h2h,time_stamp_h2t;
-		output [DISTw-1                  :0] distance;
-		output [Cw-1                    :0] pck_class_out;
-		// the connected router address
-		input  [RAw-1                   :0] current_r_addr;    
-		// the current endpoint address
-		input  [EAw-1                   :0] current_e_addr;    
-		// the destination endpoint adress
-		input  [EAw-1                   :0] dest_e_addr;  
-    
-		output [PCK_CNTw-1              :0] pck_number;
-		
-		input  [PCK_SIZw-1              :0] pck_size_in;
-		output [PCK_SIZw-1              :0] pck_size_o;
-    
-		output reg sent_done;
-		output hdr_flit_sent;
-		input  [Cw-1                    :0] pck_class_in;
-		input  [W-1                     :0] init_weight;
-		
-		input                               report;
-		// the recieved packet source endpoint address
-		output [EAw-1        :   0]    src_e_addr;
-		
-		router_chanel_t 	noc_chan_in;
-		router_chanel_t 	noc_chan_out;  
-		
-		
-		assign 	flit_out = noc_chan_out.flit_chanel.flit; 
-		assign  flit_out_wr = noc_chan_out.flit_chanel.flit_wr;
-		assign  credit_out = noc_chan_out.flit_chanel.credit;
-		
-		
-		assign noc_chan_in.flit_chanel.flit = flit_in;   
-		assign noc_chan_in.flit_chanel.flit_wr = flit_in_wr; 
-		assign noc_chan_in.flit_chanel.credit = credit_in;  
-		
-		
-		traffic_gen_top #(
-			
-				.MAX_RATIO             (MAX_RATIO            ) 
-			
-			) traffic_gen (
-				.ratio                 (ratio        ), 				 
-				.pck_size_in           (pck_size_in          ), 
-				.current_r_addr        (current_r_addr       ), 
-				.current_e_addr        (current_e_addr       ), 
-				.dest_e_addr           (dest_e_addr          ), 
-				.pck_class_in          (pck_class_in         ), 
-				.start                 (start                ), 
-				.stop                  (stop                 ), 
-				.report                (report               ), 
-				.init_weight           (init_weight          ), 
-				.pck_number            (pck_number           ), 
-				.sent_done             (sent_done            ), 
-				.hdr_flit_sent         (hdr_flit_sent        ), 
-				.update                (update               ), 
-				.src_e_addr            (src_e_addr           ), 
-				.distance              (distance             ), 
-				.pck_class_out         (pck_class_out        ), 
-				.time_stamp_h2h        (time_stamp_h2h       ), 
-				.time_stamp_h2t        (time_stamp_h2t       ), 
-				.pck_size_o            (pck_size_o           ),
-				.noc_chan_in           (noc_chan_in          ),
-				.noc_chan_out          (noc_chan_out         ),  
-				.reset                 (reset                ), 
-				.clk                   (clk                  ));		
-		
-		
-		endmodule

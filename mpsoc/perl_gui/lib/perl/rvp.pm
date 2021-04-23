@@ -97,7 +97,7 @@ BEGIN {
      `nosuppress_faults     `suppress_faults 
      `timescale             `undef
      `resetall              `delay_mode_distributed
-
+     
      `default_nettype  `file `line `ifndef `elsif
     );    #`
 
@@ -1698,18 +1698,21 @@ sub chunk_read {
    if ( $this->{state} == 0 ) {
        $chunk->{type} = "code";
        if ( $this->{linebuf} =~ 
-	    s%^(.*?)((/\*)|           # anything followed by /* comment
+	    s%^(.*?)((/\*)|           # anything followed by /* comment		     
 		     (//)|            #    or // comment
 		     (\(\*(?!\s*\)))| #    or (* attribute (but not (*)
 		     (\`include\s)|   #    or `include
-		     (\"))            #    or start of string   
+		     (\")|            #    or start of string 
+		     (import\s))      # import package
+		     
+		                  
 	    %$2%ox ) {
 	   $chunk->{isEnd} = 1;
 	   $chunk->{text} = $1;
 	   if (defined($3)) {
 	       $this->{state} = 1;  # long comment
 	   }
-	   elsif (defined($4)) {
+	   elsif (defined($4) ||defined($8) ) {
 	       $this->{state} = 2;  # short comment
 	   }
 	   elsif (defined($5)) {

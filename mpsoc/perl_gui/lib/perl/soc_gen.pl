@@ -760,15 +760,15 @@ sub generate_soc{
 		close(FILE) || die "Error closing file: $!";
 			
 		# Write verilog file
-		my $h=autogen_warning().get_license_header("${name}.v")."\n`timescale 1ns / 1ps\n";
-		open(FILE,  ">lib/verilog/$name.v") || die "Can not open: $!";
+		my $h=autogen_warning().get_license_header("${name}.sv")."\n`timescale 1ns / 1ps\n";
+		open(FILE,  ">lib/verilog/$name.sv") || die "Can not open: $!";
 		print FILE $h.$file_v;
 		close(FILE) || die "Error closing file: $!";
 			
 		# Write Top module file
 		if($gen_top){
-			my $l=autogen_warning().get_license_header("${name}_top.v")."\n`timescale 1ns / 1ps\n";
-			open(FILE,  ">lib/verilog/${name}_top.v") || die "Can not open: $!";
+			my $l=autogen_warning().get_license_header("${name}_top.sv")."\n`timescale 1ns / 1ps\n";
+			open(FILE,  ">lib/verilog/${name}_top.sv") || die "Can not open: $!";
 			print FILE "$l\n$top_v";
 			close(FILE) || die "Error closing file: $!";
 		}
@@ -854,8 +854,8 @@ sub generate_soc{
 			copy_file_and_folders(\@jtags,$project_dir,$hw_lib); 
 			add_to_project_file_list(\@jtags,$hw_lib,$hw_path);  
 			 		
-			move ("$dir/lib/verilog/$name.v","$hw_path/"); 
-			move ("$dir/lib/verilog/${name}_top.v","$hw_path/"); 		
+			move ("$dir/lib/verilog/$name.sv","$hw_path/"); 
+			move ("$dir/lib/verilog/${name}_top.sv","$hw_path/"); 		
 			move ("$dir/lib/verilog/README" ,"$sw_path/");
 			move ("$dir/lib/verilog/write_memory.sh" ,"$sw_path/");
 			move ("$dir/lib/verilog/program.sh" ,"$sw_path/");

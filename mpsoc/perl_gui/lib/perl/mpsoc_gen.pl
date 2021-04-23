@@ -1164,8 +1164,8 @@ sub gen_all_tiles{
             generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,0,undef,1);
         }else{
             generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,0,1,"merge",1);
-            move ("$hw_dir/$soc_name.v","$hw_dir/tiles/");
-            my @tmp= ("$hw_dir/tiles/$soc_name.v");
+            move ("$hw_dir/$soc_name.sv","$hw_dir/tiles/");
+            my @tmp= ("$hw_dir/tiles/$soc_name.sv");
             add_to_project_file_list(\@tmp,"$hw_dir/tiles",$hw_dir);       
             
         }      
@@ -1202,7 +1202,7 @@ sub generate_soc_files{
     close(FILE) || die "Error closing file: $!";
         
     # Write verilog file
-    open(FILE,  ">lib/verilog/$soc_name.v") || die "Can not open: $!";
+    open(FILE,  ">lib/verilog/$soc_name.sv") || die "Can not open: $!";
     print FILE $file_v;
     close(FILE) || die "Error closing file: $!";
             
@@ -1255,7 +1255,7 @@ sub generate_soc_files{
             
             
             
-	move ("$dir/lib/verilog/$soc_name.v","$target_dir/src_verilog/tiles/");     
+	move ("$dir/lib/verilog/$soc_name.sv","$target_dir/src_verilog/tiles/");     
 	copy_noc_files($project_dir,"$target_dir/src_verilog/lib");
             
             
@@ -1383,7 +1383,7 @@ sub generate_mpsoc{
     generate_mpsoc_lib_file($mpsoc,$info);
        
     # Write verilog file
-    open(FILE,  ">$target_dir/src_verilog/$name.v") || die "Can not open: $!";
+    open(FILE,  ">$target_dir/src_verilog/$name.sv") || die "Can not open: $!";
     print FILE $file_v;
     close(FILE) || die "Error closing file: $!";
             
@@ -1417,7 +1417,7 @@ sub generate_mpsoc{
     print FILE mpsoc_mem_prog($m_chain);
     close(FILE) || die "Error closing file: $!";
       
-    my @ff= ("$target_dir/src_verilog/$name.v","$target_dir/src_verilog/${name}_top.v");       
+    my @ff= ("$target_dir/src_verilog/$name.sv","$target_dir/src_verilog/${name}_top.v");       
     add_to_project_file_list(\@ff,"$hw_dir/lib/",$hw_dir);   
     
     #write perl_object_file 
@@ -2725,7 +2725,7 @@ my ($NE, $NR, $RAw, $EAw, $Fw)= get_topology_info ($mpsoc);
 			my $dir = Cwd::getcwd();
 			my $mpsoc_name=$mpsoc->object_get_attribute('mpsoc_name');
 			my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
-			my $soc_file="$target_dir/src_verilog/tiles/$soc_name.v";
+			my $soc_file="$target_dir/src_verilog/tiles/$soc_name.sv";
 					
 			my $vdb =read_verilog_file($soc_file);
 				

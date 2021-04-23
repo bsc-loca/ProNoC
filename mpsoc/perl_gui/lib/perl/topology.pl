@@ -284,7 +284,7 @@ sub get_noc_verilator_top_modules_info {
 	
 	my ($ne, $nr, $RAw, $EAw)=get_topology_info($self); 
 
-	
+	my $custom_include;
 	if($topology eq '"FATTREE"') {
 		my $K =  $T1;
         my $L =  $T2;		
@@ -301,7 +301,7 @@ sub get_noc_verilator_top_modules_info {
 			#"Vrouter2" => "router_top_v_p${p2}.v", 
 			"Vrouter1" => "--top-module  router_top_v  -GP=${K}  ", 
 			"Vrouter2" => "--top-module  router_top_v  -GP=${p2} ", 
-	        "Vnoc" => " --top-module noc_connection ",
+	       # "Vnoc" => " --top-module noc_connection ",
 	 		
     	);
 	}elsif ($topology eq '"TREE"'){
@@ -319,7 +319,7 @@ sub get_noc_verilator_top_modules_info {
 			#"Vrouter2" => "router_top_v_p${p2}.v",
 			"Vrouter1" => "--top-module  router_top_v  -GP=${K}  ", 
 			"Vrouter2" => "--top-module  router_top_v  -GP=${p2} ",  
-	        "Vnoc" => " --top-module noc_connection ", 		
+	       # "Vnoc" => " --top-module noc_connection ", 		
     	);
 		
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'){
@@ -331,7 +331,7 @@ sub get_noc_verilator_top_modules_info {
 		%tops = (
 			#"Vrouter1" => "router_top_v_p${ports}.v", 
 	       "Vrouter1" => "--top-module  router_top_v  -GP=${ports}  ", 
-		   "Vnoc" => " --top-module noc_connection ",
+		  # "Vnoc" => " --top-module noc_connection ",
 	 		
     	);
 				
@@ -345,7 +345,7 @@ sub get_noc_verilator_top_modules_info {
         %tops = (
         	#"Vrouter1" => "router_top_v_p${ports}.v",
         	"Vrouter1" => "--top-module  router_top_v  -GP=${ports}  ",  
-	        "Vnoc" => " --top-module noc_connection",
+	      #  "Vnoc" => " --top-module noc_connection",
 	 		
     	);
     }elsif ($topology eq '"STAR"') { 
@@ -355,7 +355,7 @@ sub get_noc_verilator_top_modules_info {
      	  %tops = (
         	#"Vrouter1" => "router_top_v_p${ports}.v",
         	"Vrouter1" => "--top-module  router_top_v  -GP=${ports}  ",  
-	        "Vnoc" => " --top-module noc_connection",
+	      #  "Vnoc" => " --top-module noc_connection",
 	 		
     	);
         
@@ -382,7 +382,7 @@ sub get_noc_verilator_top_modules_info {
 		print $ref;
 		my %router_ps= %{$ref};
 		my $i=1;
-		%tops = ("Vnoc" => " --top-module noc_connection");
+		#%tops = ("Vnoc" => " --top-module noc_connection");
 		
 		#should sort neumeric. The router with smaller port number should comes first
 		
@@ -395,6 +395,8 @@ sub get_noc_verilator_top_modules_info {
 			
 		}	
 		$router_p=$i-1;	
+		${topology_name} =~ s/\"+//g;
+		$custom_include="#include \"${topology_name}_noc.h\"\n";
 	}#else
 	
 		
@@ -423,18 +425,10 @@ sub get_noc_verilator_top_modules_info {
 		$includ_h=$includ_h."
 		
 		
-void router${p}_connect_to_noc (unsigned int r, unsigned int n){
-	
-	router${p}[r]->current_r_addr	= noc->current_r_addr[n];
-	memcpy(&router${p}[r]->chan_in, noc->router_chan_out[n] , sizeof( router${p}[r]->chan_in ) );
-	memcpy(&noc->router_chan_in[n] ,router${p}[r]->chan_out , sizeof( router${p}[r]->chan_out) );
-	
-}
+
 ";
 #if		ROUTER_P_NUM >$j
-$st1=$st1."
-	for(i=0;i<NR${i};i++) router${i}_connect_to_noc (i, i+$accum);
-";
+
 #endif
 
 $st2=$st2."
@@ -466,17 +460,14 @@ $st5=$st5."
 	
 	
 $includ_h=$includ_h."
-void inline connect_all_routers_to_noc ( ){
-	int i;
-    $st1
-}
+
 
 void Vrouter_new(){
 	int i=0;
-	$st2
-
-	
+	$st2	
 }
+
+$custom_include
 
 void inline connect_routers_reset_clk(){
 	int i;

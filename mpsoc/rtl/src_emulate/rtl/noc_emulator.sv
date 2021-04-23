@@ -55,14 +55,14 @@ module  noc_emulator
    
    
     //noc connection channels
-    router_chanel_t noc_chan_in_all  [NE-1 : 0];
-	router_chanel_t noc_chan_out_all [NE-1 : 0];
+    router_chanel_t chan_in_all  [NE-1 : 0];
+	router_chanel_t chan_out_all [NE-1 : 0];
 
 	noc_top the_top(
 		.reset(reset),
 		.clk(clk),    
-		.chan_in_all(noc_chan_in_all),
-		.chan_out_all(noc_chan_out_all)  
+		.chan_in_all(chan_in_all),
+		.chan_out_all(chan_out_all)  
 	);
 
  
@@ -87,8 +87,8 @@ module  noc_emulator
         .clk(clk),
         .done(done),                  
    		//noc            
-        .chan_in_all(noc_chan_out_all),
-		.chan_out_all(noc_chan_in_all)       
+        .chan_in_all(chan_out_all),
+		.chan_out_all(chan_in_all)       
     );
  
   
@@ -532,8 +532,8 @@ module  traffic_gen_ram
         .time_stamp_h2t(time_stamp_h2t),
         
          //noc
-         .noc_chan_in(chan_in),
-		 .noc_chan_out(chan_out),  
+         .chan_in(chan_in),
+		 .chan_out(chan_out),  
 			
                
     );

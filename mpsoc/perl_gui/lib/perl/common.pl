@@ -54,7 +54,7 @@ sub read_verilog_file{
 	my @problems = $vdb->get_problems();
 	if (@problems) {
 	    foreach my $problem ($vdb->get_problems()) {
-		print STDERR "$problem.\n";
+		print STDERR "$problem.\n" unless ( $problem =~ /router_chanel_t/);
 	    }
 	    # die "Warnings parsing files!";
 	}

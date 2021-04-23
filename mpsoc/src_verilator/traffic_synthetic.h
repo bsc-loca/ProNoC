@@ -2,7 +2,7 @@
 #define TRAFFIC_SYNTHETIC_H
 
 
-#include "topology.h"
+//#include "topology.h"
 
 
 extern int TRAFFIC_TYPE;

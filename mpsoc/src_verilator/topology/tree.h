@@ -1,0 +1,121 @@
+#ifndef TREE_H
+	#define TREE_H
+
+ 
+
+
+#define ROOT_L  (L-1) 
+#define ROOT_ID  0
+
+
+  
+unsigned int    Lw;
+unsigned int    Kw;
+unsigned int    LKw; 
+
+	
+	
+void topology_init (void){
+	
+	Lw=log2(L);
+	Kw=log2(K);
+	LKw=L*Kw; 
+	
+ 	
+	//assign current_layer_addr [ROOT_ID] = ROOT_L;
+	//assign current_pos_addr [ROOT_ID] = {LKw{1'b0}}; 
+	unsigned int addr = ROOT_L << LKw; 
+	router1[ROOT_ID]->current_r_addr = addr; 
+
+	unsigned int pos,level;
+	unsigned int num = 0;
+	//connect all up connections
+	for (level = 1; level<L; level=level+1) { // : level_c		
+		unsigned int L1 = L-1-level;
+		unsigned int level2= level - 1;
+		unsigned int L2 = L-1-level2;
+		unsigned int NPOS = powi(K,level); // number of routers in this level
+		for ( pos = 0; pos < NPOS; pos=pos+1 ) { // : pos_c
+          
+			unsigned int ID1 = sum_powi ( K,level) + pos;        
+			unsigned int FATTREE_EQ_POS1 = pos* powi(K,L1);
+			unsigned int ADR_CODE1=fattree_addrencode(FATTREE_EQ_POS1,K,L);       
+			unsigned int POS2 = pos /K ;
+			unsigned int ID2 = sum_powi ( K,level-1) + (pos/K);
+			unsigned int PORT2= pos % K;  
+			unsigned int FATTREE_EQ_POS2 = POS2*powi(K,L2);
+			unsigned int ADR_CODE2=fattree_addrencode(FATTREE_EQ_POS2,K,L);
+
+			
+			      
+			// node_connection('Router[id1][k] to router[id2][pos%k];  
+			//assign  router_chan_out [ID1][K] = router_chan_in [ID2][PORT2];
+			//assign  router_chan_out [ID2][PORT2]= router_chan_in[ID1][K];  
+			//fattree_connect(Ti(ID1),Ri(ID1),port,Ti(ID2),Ri(ID2),PORT2);
+		    r2r_cnt_all[num] =(r2r_cnt_table_t){.t1=Ti(ID1), .r1=Ri(ID1), .p1=K, .t2=Ti(ID2), .r2=Ri(ID2), .p2=PORT2 };    			
+
+			
+			   
+			
+			unsigned int current_layer_addr  = L1;
+			unsigned int current_pos_addr    = ADR_CODE1;         
+			//assign current_r_addr [ID1] = {current_layer_addr [ID1],current_pos_addr[ID1]};
+			unsigned int addr = (current_layer_addr << LKw)| current_pos_addr;    
+       		
+			router2[Ri(ID1)]->current_r_addr = addr;
+        	 num++;
+			}// pos
+    
+		} //level
+
+
+		// connect }points 
+   
+		for ( pos = 0; pos <  NE; pos=pos+1 ) { // : }points
+			//  node_connection T[pos] R[rid][pos %k];
+			unsigned int RID= sum_powi(K,L-1)+(pos/K);
+			unsigned int RPORT = pos%K;
+    		unsigned int CURRENTPOS=   fattree_addrencode(pos/K,K,L);
+			  
+			//assign router_chan_out [RID][RPORT] =    chan_in_all [pos];                     
+			//assign chan_out_all [pos] = router_chan_in [RID][RPORT];
+			r2e_cnt_all[pos].r1=Ri(RID);
+			r2e_cnt_all[pos].p1=RPORT;
+
+			er_addr [pos] = CURRENTPOS;
+ 
+		} //pos    
+	
+}
+ 
+
+void topology_connect_all_nodes (void){
+	unsigned int pos,level;
+	unsigned int num=0;
+	//connect all up connections
+	for (level = 1; level<L; level=level+1) { // : level_c
+		unsigned int NPOS = powi(K,level); // number of routers in this level
+		for ( pos = 0; pos < NPOS; pos=pos+1 ) { // : pos_c
+          	
+			  fattree_connect(r2r_cnt_all[num]); 
+			  num++;   
+			
+		}// pos
+    
+	} //level
+
+
+	// connect }points 
+   
+	for ( pos = 0; pos <  NE; pos=pos+1 ) { // : }points
+			
+			connect_r2e(2,r2e_cnt_all[pos].r1,r2e_cnt_all[pos].p1,pos);     
+ 
+	
+	} 
+}
+
+#endif
+
+
+	

@@ -35,7 +35,10 @@
 `timescale 1ns / 1ps
 // synthesis translate_on
 
-module  ni_master #(    
+module  ni_master 
+		import pronoc_pkg::*; 
+		
+		#(    
     parameter MAX_TRANSACTION_WIDTH=10, // Maximum transaction size will be 2 power of MAX_DMA_TRANSACTION_WIDTH words 
     parameter MAX_BURST_SIZE =256, // in words
     parameter CRC_EN= "NO",// "YES","NO" if CRC is enable then the CRC32 of all packet data is calculated and sent via tail flit. 
@@ -43,21 +46,7 @@ module  ni_master #(
     // The header Data pre capture width. It Will be enabled when it is larger than zero. The header data can optionally carry a short width Data. This data can be pre-captured (completely/partially) 
     // by the NI before saving the packet in a memory buffer. This can give some hints to the software regarding the incoming 
     // packet such as its type, or source port so the software can store the packet in its appropriate buffer.
-    parameter DEBUG_EN = 1, 
-    //NoC parameters
-    parameter TOPOLOGY =    "MESH",//"MESH","TORUS","RING" 
-    parameter ROUTE_NAME    =   "XY",
-    parameter T1 = 4,   // number of node in x axis
-    parameter T2 = 4,   // number of node in y axis
-    parameter T3 = 1,
-    parameter C = 4,    //  number of flit class 
-    parameter V=4,
-    parameter B = 4,
-    parameter Fpay = 32,
-    parameter MIN_PCK_SIZE = 2, //minimum packet size in flits. The minimum value is 1.
-    parameter BYTE_EN=0,
-    parameter SWA_ARBITER_TYPE = "RRA", // RRA WRRA
-    parameter WEIGHTw          = 4, // weight width of WRRA   
+        
     //wishbone port parameters
     parameter Dw            =   32,
     parameter S_Aw          =   7,
@@ -74,12 +63,8 @@ module  ni_master #(
     //noc interface  
     current_r_addr,
     current_e_addr,
-    flit_out,     
-    flit_out_wr,   
-    credit_in,
-    flit_in,   
-    flit_in_wr,   
-    credit_out,     
+    chan_in,
+    chan_out,  
      
     //wishbone slave interface signals
     s_dat_i,
@@ -117,12 +102,9 @@ module  ni_master #(
 
 );
 
-    `define INCLUDE_TOPOLOGY_LOCALPARAM
-    `include "topology_localparam.v" 
+   
 
-    localparam 
-        Fw = 2+V+Fpay, //flit width
-        Cw = log2(C);
+   
  
     input reset,clk;   
 
@@ -130,13 +112,9 @@ module  ni_master #(
      // NOC interfaces
     input   [RAw-1   :   0]  current_r_addr;
     input   [EAw-1   :   0]  current_e_addr;
-
-    output  [Fw-1   :   0]  flit_out;     
-    output                  flit_out_wr;   
-    input   [V-1    :   0]  credit_in;
-    input   [Fw-1   :   0]  flit_in; 
-    input                   flit_in_wr;   
-    output  [V-1    :   0]  credit_out;     
+    
+    input   router_chanel_t 	chan_in;
+    output  router_chanel_t 	chan_out;    
     
     
    //wishbone slave interface signals
@@ -175,6 +153,35 @@ module  ni_master #(
     output                          irq;  
   
     wire                            s_ack_o_next;    
+    
+    
+    
+    
+    logic  [Fw-1   :   0]  flit_out;     
+    logic                  flit_out_wr;   
+    logic   [V-1    :   0]  credit_in;
+    logic   [Fw-1   :   0]  flit_in; 
+    logic                   flit_in_wr;   
+    logic  [V-1    :   0]  credit_out;     
+    
+    
+    assign 	chan_out.flit_chanel.flit = flit_out; 
+    assign  chan_out.flit_chanel.flit_wr = flit_out_wr;
+    assign  chan_out.flit_chanel.credit = credit_out;
+		
+		
+    assign flit_in   =  chan_in.flit_chanel.flit;   
+    assign flit_in_wr=  chan_in.flit_chanel.flit_wr; 
+    assign credit_in =  chan_in.flit_chanel.credit;  
+    
+    //old ni.v file
+    
+    
+    
+    
+    
+    
+    
     
     localparam 
         CTRL_FLGw=14,

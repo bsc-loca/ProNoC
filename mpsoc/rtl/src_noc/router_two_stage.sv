@@ -1,6 +1,6 @@
 `timescale     1ns/1ps
 
-//`define MONITORE_PATH
+`define MONITORE_PATH
 
 /***********************************************************************
  **	File: router.v

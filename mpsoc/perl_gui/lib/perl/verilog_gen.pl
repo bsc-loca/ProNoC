@@ -88,8 +88,11 @@ sub soc_generate_verilog{
 	$unused_wiers_v="" if(!defined $unused_wiers_v);
 	$sockets_assign_v_all=""  if(!defined $sockets_assign_v_all);
 
+my $has_ni =check_for_ni($soc);
+my $import = ($has_ni)? "\n\timport pronoc_pkg::*;\n" : ""; 
+
 my $global_localparam=get_golal_param_v();	
-	my $soc_v = (defined $param_as_in_v_all )? "module $soc_name #(\n $param_as_in_v_all\n)(\n$io_sim_v_all\n);\n": "module $soc_name (\n$io_sim_v_all\n);\n";
+	my $soc_v = (defined $param_as_in_v_all )? "module $soc_name $import #(\n $param_as_in_v_all\n)(\n$io_sim_v_all\n);\n": "module $soc_name (\n$io_sim_v_all\n);\n";
 	$soc_v = $soc_v."
 $functions_all	
 $system_v_all
@@ -122,7 +125,7 @@ endmodule
     my @chains = (sort { $b <=> $a } keys  %jtag_info);
 	$soc->object_add_attribute('JTAG','M_CHAIN',$chains[0]);
     
-	my $top_v = (defined $param_as_in_v_all )? "module ${soc_name}_top #(\n $param_as_in_v_all\n)(\n$top_io_short_all\n);\n": "module ${soc_name}_top (\n $top_io_short_all\n);\n";
+	my $top_v = (defined $param_as_in_v_all )? "module ${soc_name}_top $import #(\n $param_as_in_v_all\n)(\n$top_io_short_all\n);\n": "module ${soc_name}_top (\n $top_io_short_all\n);\n";
 	
 	
 	#my $ins= gen_soc_instance_v($soc,$soc_name,$param_pass_v,$txview);
@@ -350,7 +353,12 @@ sub gen_module_inst {
 				 $io_sim_v= (!defined $io_sim_v)? "\t$assigned_port" : "$io_sim_v,\n\t$assigned_port";
 				 my $new_range = add_instantc_name_to_parameters(\%params,$inst,$range);
 				 my $r = (!defined $new_range)? 0 : (length ($new_range)>1 )?  1 : 0;
-				 my $port_def=($r==1 )? 	"\t$type\t [ $new_range    ] $assigned_port;\n": "\t$type\t\t\t$assigned_port;\n";	
+				 
+				my $str = (!defined $new_range) ? "\t\t\t" : 
+				 			  ($new_range =~ /:/  ) ? "\t[ $new_range ]\t" : "\t$new_range\t";
+				 
+				
+				 my $port_def=  	"\t$type $str $assigned_port;\n";
 				 $io_full_v=$io_full_v.$port_def;
 				 
 				 if ($i_name eq 'RxD_sim' && $sim_only == 0){
@@ -1281,13 +1289,15 @@ sub soc_generate_verilator{
 	$top_io_full_all=$top_io_full_all."\n$src_io_full_all";            
   #  $top_io_pass_all=$top_io_pass_all.",\n$clk_assigned_port";	
 	
+	my $has_ni =check_for_ni($soc);
+    my $import = ($has_ni)? "\n\timport pronoc_pkg::*;\n" : ""; 
 	
 	my $verilator_v =  "
 /*********************
 		${name}
 *********************/
 	
-module ${name} (\n $top_io_short_all\n);\n";
+module ${name} $import (\n $top_io_short_all\n);\n";
 	my $ins= gen_soc_instance_v_no_modfy($soc,$soc_name,$param_pass_v_all);
 	add_text_to_string(\$verilator_v,$functions_all);	
 	add_text_to_string(\$verilator_v,$params_v."\n".$top_io_full_all);

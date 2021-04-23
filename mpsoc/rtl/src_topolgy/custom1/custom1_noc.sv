@@ -93,8 +93,7 @@ module   custom1_noc
 	localparam 
 		NE = 16,
 		NR = 16,
-		RAw=log2(NR),
-        Fw = 2+V+Fpay; //flit width;    
+		RAw=log2(NR);
        
       
 

@@ -107,7 +107,12 @@ module testbench_noc;
 	wire    [Cw-1           :0] msg_class       [NE-1           :0];    
     
 	reg                         count_en;
-  	reg [NE-1 : 0] start_o;
+  	//reg [NE-1 : 0] start_o;
+  	logic [DELAYw-1 : 0] start_delay [NE-1 : 0];
+  	
+  
+  	
+  	
   	integer  rsv_size_array [MAX_PACKET_SIZE - MIN_PACKET_SIZE : 0];
   		
   	
@@ -195,7 +200,7 @@ module testbench_noc;
 					.pck_number(pck_counter[i]),
 					.reset(reset),
 					.clk(clk),
-					.start(start_o[i]),
+					.start(start),
 					.stop(stop),
 					.sent_done(),
 					.update(update[i]),
@@ -206,8 +211,11 @@ module testbench_noc;
 					.pck_class_out(msg_class[i]),
 					.report (1'b0),
 					.pck_size_o(pck_size_o[i]),
-					.noc_chan_in(chan_out_all[i]),
-					.noc_chan_out(chan_in_all[i])  
+					.chan_in(chan_out_all[i]),
+					.chan_out(chan_in_all[i]),
+					.start_delay(start_delay[i]),
+					.flit_out_wr(),
+					.flit_in_wr()
           
 				);
 			endp_addr_decoder #(
@@ -410,6 +418,11 @@ module testbench_noc;
 	real avg_throughput,avg_latency_flit,avg_latency_pck,std_dev,avg_latency_per_hop,min_avg_latency_per_class;
 	integer m;
 	
+	initial begin 
+		for(m=0;m<NE;m++) start_delay[m] =$urandom_range((2**DELAYw)-2,0);  
+	end
+	
+	
 	//report 
 	always @( posedge done) begin
 	
@@ -544,7 +557,8 @@ module testbench_noc;
 		$display ("\tPacket injector FIFO width in flit:%d\n\n",TIMSTMP_FIFO_NUM);
 
 	end//initial
-
+	
+	/*
 	start_delay_gen #(
 			.NC(NE)
 		)
@@ -555,7 +569,7 @@ module testbench_noc;
 			.start_i(start),
 			.start_o(start_o)
 		);
-
+	 */
 
 endmodule
 // synthesis translate_on

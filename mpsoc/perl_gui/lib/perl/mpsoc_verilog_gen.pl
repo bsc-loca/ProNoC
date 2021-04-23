@@ -49,9 +49,8 @@ sub mpsoc_generate_verilog{
 	
 	my $global_localparam=get_golal_param_v();	
 	
-	my $mpsoc_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule $mpsoc_name #(\n $param_as_in_v\n)(\n$io_short\n);\n": "`timescale	 1ns/1ps\nmodule $mpsoc_name (\n$io_short\n);\n";
+	my $mpsoc_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule $mpsoc_name\n\t import pronoc_pkg::*;\n\t #(\n $param_as_in_v\n)(\n$io_short\n);\n": "`timescale	 1ns/1ps\nmodule $mpsoc_name\n \t import pronoc_pkg::*;\n\t(\n$io_short\n);\n";
 	$mpsoc_v=$mpsoc_v. "
-$noc_param
 $functions
 $global_localparam	
 $socs_param
@@ -373,6 +372,11 @@ sub gen_noc_param_h{
 	my $mpsoc=shift;
 	my $param_h="\n\n//NoC parameters\n";
 	
+	my $topology = $mpsoc->object_get_attribute('noc_param','TOPOLOGY');
+	$topology =~ s/"//g;
+	$param_h.="\t#define  IS_${topology}\n";
+	
+	
 	my @params=$mpsoc->object_get_attribute_order('noc_param');
 	my $custom_topology = $mpsoc->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
 	foreach my $p (@params){
@@ -409,6 +413,10 @@ sub gen_noc_param_h{
 	}
 	#add_text_to_string (\$param_h," \tlocalparam  CVw=(C==0)? V : C * V;\n");
 	#add_text_to_string (\$pass_param,".CVw(CVw)\n");
+	
+	
+	
+	
 	return  $param_h;	
 }
 
@@ -428,46 +436,21 @@ sub gen_noc_v{
 
 	my $noc_v="
 
-	localparam
-		NE = $NE,
-		NR = $NR,
-		RAw = $RAw,
-		EAw = $EAw,
-		Fw = $Fw,
-		NEFw = NE * Fw,
-		NEV = NE * V;
-
-	//NoC ports 
-    // connection to NI modules               
-	wire [Fw-1      :   0]  ni_flit_out                 [NE-1           :0];   
-	wire [NE-1      :   0]  ni_flit_out_wr; 
-	wire [V-1       :   0]  ni_credit_in                [NE-1           :0];
-	wire [Fw-1      :   0]  ni_flit_in                  [NE-1           :0];   
-	wire [NE-1      :   0]  ni_flit_in_wr;  
-	wire [V-1       :   0]  ni_credit_out               [NE-1           :0];    
-	
 	//connection wire to NoC
-	wire [NEFw-1    :   0]  flit_out_all;
-	wire [NE-1      :   0]  flit_out_wr_all;
-	wire [NEV-1     :   0]  credit_in_all;
-	wire [NEFw-1    :   0]  flit_in_all;
-	wire [NE-1      :   0]  flit_in_wr_all;  
-	wire [NEV-1     :   0]  credit_out_all;
+	router_chanel_t ni_chan_in  [NE-1 : 0];
+	router_chanel_t ni_chan_out [NE-1 : 0];
 	
 	wire 					noc_clk_in,noc_reset_in;    
    
     //NoC
- 	noc_top_v 	the_noc
+ 	noc_top the_noc
 	(
-		.flit_out_all(flit_out_all),
-		.flit_out_wr_all(flit_out_wr_all),
-		.credit_in_all(credit_in_all),
-		.flit_in_all(flit_in_all),
-		.flit_in_wr_all(flit_in_wr_all),
-		.credit_out_all(credit_out_all),
 		.reset(noc_reset_in),
-		.clk(noc_clk_in)
+		.clk(noc_clk_in),    
+		.chan_in_all(ni_chan_out),
+		.chan_out_all(ni_chan_in)  
 	);
+          
 	
 	
 	
@@ -478,24 +461,7 @@ sub gen_noc_v{
 		.reset_out(noc_reset_in)
 	);    
 ";
-$noc_v=$noc_v.'
 
-//NoC port assignment
-  genvar IP_NUM;
-  generate 
-    for (IP_NUM=0;   IP_NUM<NE; IP_NUM=IP_NUM+1) begin :endp
-          
-            assign  ni_flit_in      [IP_NUM] =   flit_out_all    [(IP_NUM+1)*Fw-1    : IP_NUM*Fw];   
-            assign  ni_flit_in_wr   [IP_NUM] =   flit_out_wr_all [IP_NUM]; 
-            assign  credit_in_all   [(IP_NUM+1)*V-1 : IP_NUM*V]     =   ni_credit_out   [IP_NUM];  
-            assign  flit_in_all     [(IP_NUM+1)*Fw-1    : IP_NUM*Fw]    =   ni_flit_out     [IP_NUM];
-            assign  flit_in_wr_all  [IP_NUM] =   ni_flit_out_wr  [IP_NUM];
-            assign  ni_credit_in    [IP_NUM] =   credit_out_all  [(IP_NUM+1)*V-1 : IP_NUM*V];
-            
-    end
-endgenerate
-
-'
 ;
 	return $noc_v;
 	
@@ -667,7 +633,7 @@ sub   gen_soc_v{
 	my $dir = Cwd::getcwd();
 	my $mpsoc_name=$mpsoc->object_get_attribute('mpsoc_name');
 	my $target_dir  = "$ENV{'PRONOC_WORK'}/MPSOC/$mpsoc_name";
-	my $soc_file="$target_dir/src_verilog/tiles/$soc_name.v";
+	my $soc_file="$target_dir/src_verilog/tiles/$soc_name.sv";
 			
 	my $vdb =read_verilog_file($soc_file);
 		
