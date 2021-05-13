@@ -291,9 +291,9 @@ sub new_source_view{
 	$notebook->set_current_page($n-1);
 	#save $sourceview ref in $app
 	my %srcviews;
-	my $ref = $app->sourceview();
-	if(defined $ref){
-		%srcviews =%{$ref};
+	my $ref2 = $app->sourceview();
+	if(defined $ref2){
+		%srcviews =%{$ref2};
 	}
 	$srcviews{$n-1}=$self;
 	$app->sourceview(\%srcviews);

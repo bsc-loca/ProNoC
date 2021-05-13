@@ -51,8 +51,9 @@ module  noc_top
 
 
 	generate 
+	/* verilator lint_off WIDTH */
 	if (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin : tori_noc 
-
+	/* verilator lint_on WIDTH */
 		mesh_torus_noc_top noc_top (
 			.reset         (reset        ), 
 			.clk           (clk          ), 

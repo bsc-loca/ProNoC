@@ -7,10 +7,28 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <verilated.h>          // Defines common routines
-//#include "Vrouter1.h"          included in parameter.h
-#include "Vnoc.h"
+
 #include "Vtraffic.h"
 #include "parameter.h"
+
+Vtraffic		*traffic[NE];
+
+
+#define CHAN_SIZE   sizeof(traffic[0]->chan_in)
+
+#define conect_r2r(T1,r1,p1,T2,r2,p2)  \
+	memcpy(&router##T1 [r1]->chan_in[p1] , &router##T2 [r2]->chan_out[p2], CHAN_SIZE )
+
+#define connect_r2gnd(T,r,p)\
+	memset(&router##T [r]->chan_in [p],0x00,CHAN_SIZE)
+
+#define connect_r2e(T,r,p,e) \
+	memcpy(&router##T [r]->chan_in[p], &traffic[e]->chan_out, CHAN_SIZE );\
+	memcpy(&traffic[e]->chan_in, &router##T [r]->chan_out[p], CHAN_SIZE )
+
+
+
+#include "topology_top.h"
 #include "traffic_task_graph.h"
 #include "traffic_synthetic.h"
 
@@ -24,10 +42,7 @@
 #define RANDOM_RANGE 1
 #define RANDOM_discrete 2
 
-//Vrouter *router;
-//Vrouter1		*router1[NR];                     // Included in parameter.h file
-Vnoc		 	*noc;
-Vtraffic		*traffic[NE];
+
 int reset,clk;
 int TRAFFIC_TYPE=SYNTHETIC;
 int AVG_PACKET_SIZE=5;
@@ -374,7 +389,7 @@ int main(int argc, char** argv) {
 	
 	Verilated::commandArgs(argc, argv);   // Remember args
 	Vrouter_new();
-	noc								= new Vnoc;
+	//noc								= new Vnoc;
 	for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
 	for(i=0;i<NE;i++)   custom_traffic_table[i]=i; //off
 	processArgs ( argc,  argv );
@@ -389,7 +404,8 @@ int main(int argc, char** argv) {
 
 	reset=1;
 	reset_all_register();
-	noc->start_i=0; 
+	start_i=0; 
+	topology_init();
 
     for (i=0;i<NE;i++){
     	random_var[i] = 100;
@@ -401,6 +417,7 @@ int main(int argc, char** argv) {
     	traffic[i]->dest_e_addr= dest_e_addr;
     	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
     	traffic[i]->stop=inject_done;
+    	traffic[i]->start_delay=rnd_between(1,4*NE-2);
     	if(TRAFFIC_TYPE==SYNTHETIC){
     		//traffic[i]->avg_pck_size_in=AVG_PACKET_SIZE;
     		traffic[i]->ratio=ratio;
@@ -418,13 +435,13 @@ int main(int argc, char** argv) {
 			reset = 0;
 		}
 
-		if(main_time == saved_time+21){ count_en=1; noc->start_i=1;}//for(i=0;i<NC;i++) traffic[i]->start=1;}
-		if(main_time == saved_time+23) noc->start_i=0;// for(i=0;i<NC;i++) traffic[i]->start=0;
+		if(main_time == saved_time+21){ count_en=1; start_i=1;}//for(i=0;i<NC;i++) traffic[i]->start=1;}
+		if(main_time == saved_time+23) start_i=0;// for(i=0;i<NC;i++) traffic[i]->start=0;
 		  
 		clk_posedge_event( );
 		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values 
 		//between modules when the clock . 
-		for (i=0;i<3*(SBP_MAX+1);i++) clk_negedge_event( );
+		for (i=0;i<2*(SBP_MAX+1);i++) clk_negedge_event( );
 				
 		if(simulation_done){
 				for (i=0;i<NE;i++) if(traffic[i]->pck_number>0) total_active_endp   	= 	total_active_endp +1;
@@ -469,7 +486,7 @@ int pow2( int num){
 
 void sim_eval_all (void){
 	int i;
-	noc->eval(); 
+	//noc->eval(); 
 	routers_eval();
 	for(i=0;i<NE;i++) traffic[i]->eval();
 }	
@@ -478,20 +495,17 @@ void sim_final_all (void){
 	int i;
 	routers_final();
 	for(i=0;i<NE;i++) traffic[i]->final();
-	noc->final(); 
+	//noc->final(); 
 }	
 
 void connect_clk_reset_start_all(void){
 	int i;
-	noc-> clk = clk; 
-	noc-> reset = reset;
+	//noc-> clk = clk; 
+	//noc-> reset = reset;
 		 
 	for(i=0;i<NE;i++)	{
-#if (NE<=64)
-		traffic[i]->start=  ((noc->start_o >>i)&  0x01);
-#else
-		traffic[i]->start=   (VL_BITISSET_W(noc->start_o, i)>0);
-#endif			
+		start_o[i]=start_i;//TO DO fix it
+		traffic[i]->start= start_o[i];
 		traffic[i]->reset= reset;
 		traffic[i]->clk	= clk;
 	}
@@ -503,44 +517,22 @@ void clk_negedge_event(void){
 	int i,j;
 	
 	clk = 0;
-#if (NE<=64)
-	noc->ni_flit_in_wr =0;
-#else
-	for(j=0;j<(sizeof(noc->ni_flit_in_wr)/sizeof(noc->ni_flit_in_wr[0])); j++) noc->ni_flit_in_wr[j]=0;
-#endif
+
 	
-	connect_all_routers_to_noc ();
+	topology_connect_all_nodes ();
 			
 
 	for (i=0;i<NE;i++){
 				traffic[i]->stop=inject_done;
-				traffic[i]->current_r_addr		= noc->er_addr[i];
+				traffic[i]->current_r_addr		= er_addr[i];
 
+	}
 
-#if (Fpay<=32)
-				traffic[i]->flit_in  = noc->ni_flit_out [i];
-#else	
-				for(j=0;j<(sizeof(traffic[i]->flit_out)/sizeof(traffic[i]->flit_out[0])); j++) traffic[i]->flit_in[j]  = noc->ni_flit_out [i][j];				
-#endif					
-				traffic[i]->credit_in= noc->ni_credit_out[i];
 			
 
-				noc->ni_credit_in[i] = traffic[i]->credit_out;
-#if (Fpay<=32)				
-				noc->ni_flit_in [i]  = traffic[i]->flit_out;
-#else	
-				for(j=0;j<(sizeof(traffic[i]->flit_out)/sizeof(traffic[i]->flit_out[0])); j++) noc->ni_flit_in [i][j]  = traffic[i]->flit_out[j];
-#endif
+				
 
-#if (NE<=64)
-				if(traffic[i]->flit_out_wr) noc->ni_flit_in_wr = noc->ni_flit_in_wr | ((vluint64_t)1<<i);
-				traffic[i]->flit_in_wr= ((noc->ni_flit_out_wr >> i) & 0x01);
-#else
-				if(traffic[i]->flit_out_wr) MY_VL_SETBIT_W(noc->ni_flit_in_wr ,i);
-				traffic[i]->flit_in_wr=   (VL_BITISSET_W(noc->ni_flit_out_wr,i)>0); 				
-#endif
-
-	}//for
+	
 	connect_clk_reset_start_all();
 	sim_eval_all();
 	

@@ -56,8 +56,10 @@ module wb_single_port_ram #(
     parameter JAw=32, // should be a fixed value for all IPs coneccting to JTAG
     parameter JINDEXw=8,
     parameter JSTATUSw=8,
+/* verilator lint_off WIDTH */
     parameter J2WBw = (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+1+JDw+JAw : 1,
     parameter WB2Jw= (JTAG_CONNECT== "XILINX_JTAG_WB") ? 1+JSTATUSw+JINDEXw+1+JDw  : 1,
+/* verilator lint_on WIDTH */
 	parameter WB_Aw= 20 // Wishbon bus reserved address with range. WB_Aw >=Aw
     )
     (
@@ -136,7 +138,7 @@ module wb_single_port_ram #(
 	`endif
 `endif
 
-
+/* verilator lint_off WIDTH */
 	localparam MEM_NAME =
        (FPGA_VENDOR_MDFY== "ALTERA")? {MEM_CONTENT_FILE_NAME,".mif"} : 
        (FPGA_VENDOR_MDFY== "XILINX")? {MEM_CONTENT_FILE_NAME,".mem"} : 
@@ -146,13 +148,15 @@ module wb_single_port_ram #(
     localparam [7:0] N1 = (CORE_NUM%10) + 48;
     localparam [7:0] N2 = ((CORE_NUM/10)%10) + 48;
     localparam [7:0] N3 = ((CORE_NUM/100)%10) + 48;
+    
     localparam NN = (CORE_NUM<10) ? N1 : (CORE_NUM<100)? {N2,N1} : {N3,N2,N1}; 
+	
 
     localparam  INIT_FILE = 
        (FPGA_VENDOR_MDFY== "XILINX")? {"tile",NN,MEM_NAME}:
        {INIT_FILE_PATH,"/RAM/",MEM_NAME};
 
-     
+/* verilator lint_on WIDTH */ 
 
     wb_bram_ctrl #(
        	.Dw(Dw),

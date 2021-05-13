@@ -1928,10 +1928,7 @@ sub verilator_compilation {
 	#creat verilator dir
 	add_info($outtext,"create verilator dir in $target_dir\n");
 	my $verilator="$target_dir/verilator";
-	#rmtree("$verilator/rtl_work");
-	#rmtree("$verilator/processed_rtl");
-	#mkpath("$verilator/rtl_work/",1,01777);
-	#mkpath("$verilator/processed_rtl/",1,01777);
+	
 	rmtree("$verilator");
 	mkpath("$verilator",1,01777);
 	
@@ -2010,6 +2007,15 @@ make sim
 	
 	
 	save_file ("$verilator/verilate.sh",$vrun);
+	#copy topology connection header files
+	my $project_dir	= get_project_dir();
+	$project_dir= "$project_dir/mpsoc";
+	my $src_verilator_dir="$project_dir/src_verilator";
+	my @files = File::Find::Rule->file()
+        	->name( '*.h')
+            ->in( "$src_verilator_dir" );
+	copy_file_and_folders (\@files,$project_dir,"$verilator/obj_dir/");
+	
 	return 1;
 }
 
@@ -2114,8 +2120,20 @@ sub verilator_compilation_win {
 	
 	my $n= $self->object_get_attribute('soc_name',undef);
 	if(defined $n){	#we are compiling a single tile as SoC
-		my %tops;
-		$tops{"Vtop"}= "$name.v";
+		my $sw_path 	= "$target_dir/sw";
+		my %params = soc_get_all_parameters($self);
+		my $verilator = soc_generate_verilator ($self,$sw_path,"verilator_$n",\%params);	
+        my %tops;
+		$tops{"Vtop"}= "--top-module verilator_$n";
+		my $target_verilator_dr ="$target_dir/src_verilator";
+     	mkpath("$target_verilator_dr",1,01777);
+     	save_file ("$target_verilator_dr/verilator_${n}.sv",$verilator);	
+	
+	
+	
+	
+		
+		#$tops{"Vtop"}= "--top-module $name";
 		$result = verilator_compilation (\%tops,$target_dir,$outtext,$cpu_num);	
 		$self->object_add_attribute('verilator','libs',\%tops);	
 	}
@@ -2254,7 +2272,7 @@ sub  gen_mpsoc_verilator_model{
 	
 	}
 	
-	save_file ("$target_verilator_dr/verilator_tiles.v",$verilator);
+	save_file ("$target_verilator_dr/verilator_tiles.sv",$verilator);
 	my $result = verilator_compilation (\%tops,$target_dir,$outtext,$cpu_num);
 	$self->object_add_attribute('verilator','libs',\%tops);		
 	return $result;
@@ -2512,7 +2530,13 @@ sub gen_verilator_mpsoc_testbench {
 	my $dir="$verilator/";
 	my $parameter_h=gen_noc_param_h($mpsoc);
 	
+	
 	my ($nr,$ne,$router_p,$ref_tops,$includ_h)= get_noc_verilator_top_modules_info($mpsoc);
+	
+	$parameter_h.="
+	#define NE  $ne
+ 	#define NR  $nr
+	";
 	$parameter_h=$parameter_h.$includ_h;
 	
 
@@ -2541,8 +2565,10 @@ sub gen_verilator_mpsoc_testbench {
 	my $no_connected='';
 	my %rxds;
 	
-	
+	my $tile_chans="";
+	my $tmp_reg='';
 	for (my $endp=0; $endp<$ne;$endp++){	
+			
 		
 		my $e_addr=endp_addr_encoder($mpsoc,$endp);
 		my $router_num = get_connected_router_id_to_endp($mpsoc,$endp);
@@ -2565,7 +2591,7 @@ sub gen_verilator_mpsoc_testbench {
 					}
 			}
 		
-						
+				$tile_chans.="\ttile_chan_out[$endp] = &tile$endp->ni_chan_out;\n\ttile_chan_in[$endp] = &tile$endp->ni_chan_in;\n";
 				$libh=$libh."#include \"Vtile${endp}.h\"\n";
 				$inst=$inst."Vtile${endp}\t*tile${endp};\t  // Instantiation of tile${endp}\n";
 				$newinst = $newinst."\ttile${endp}\t=\tnew Vtile${endp};\n"; 
@@ -2617,9 +2643,10 @@ sub gen_verilator_mpsoc_testbench {
 						
 			}else{
 				#this tile is not connected to any ip. the noc input ports will be connected to ground
-				$no_connected=$no_connected."\n // Tile:$endp ($e_addr)   is not assigned to any ip\n";
-				$no_connected=$no_connected."\t\tnoc->ni_credit_in[${endp}]=0; \n";		
-				
+				$tmp_reg.="\tunsigned char tmp1 [1024]={0};\n \tunsigned char tmp2 [1024]={0};";
+				$tile_chans.="\n // Tile:$endp ($e_addr)   is not assigned to any ip. Connet coresponding chan to ground.\n";
+				$tile_chans.="\ttile_chan_out[$endp] = tmp1;\n\ttile_chan_in[$endp] = tmp2;\n";
+						
 			}
 		
 	
@@ -2638,16 +2665,37 @@ $main_c="$main_c
 #include <string.h>
 $include1
 #include <verilated.h>          // Defines common routines
+$tmp_reg
 
-#include \"Vnoc.h\"
+
 $libh
 
-Vnoc		 	*noc;
+
 $inst
 int reset,clk,enable;
 
 
 #include \"parameter.h\"
+void * tile_chan_out[NE];
+void * tile_chan_in[NE];
+
+
+
+#define CHAN_SIZE   sizeof(tile0->ni_chan_in)
+
+#define conect_r2r(T1,r1,p1,T2,r2,p2)  \\
+	memcpy(&router##T1 [r1]->chan_in[p1] , &router##T2 [r2]->chan_out[p2], CHAN_SIZE )
+
+#define connect_r2gnd(T,r,p)\\
+	memset(&router##T [r]->chan_in [p],0x00,CHAN_SIZE)
+
+#define connect_r2e(T,r,p,e) \\
+	memcpy(&router##T [r]->chan_in[p], tile_chan_out[e], CHAN_SIZE );\\
+	memcpy(tile_chan_in[e], &router##T [r]->chan_out[p], CHAN_SIZE )
+
+
+
+#include \"topology_top.h\"
 $include2
 
 /*
@@ -2657,7 +2705,43 @@ $top_port_info
 
 unsigned int main_time = 0; // Current simulation time
 
-void update_all_instances_inputs(void);
+
+
+void connect_clk_reset_en_all(void){
+	//clk,reset,enable
+$tile_reset
+$tile_clk		
+$tile_en
+	connect_routers_reset_clk();	
+}
+
+void sim_eval_all(void){
+   	routers_eval();
+$tile_eval
+}
+
+void sim_final_all(void ){
+	routers_final();	
+$tile_final	
+}	
+
+void clk_posedge_event(void) {
+
+	clk = 1;       // Toggle clock
+	// you can change the inputs and read the outputs here in case they are captured at posedge of clock 
+	$rxd_wr_cal	
+	connect_clk_reset_en_all();
+	sim_eval_all();
+}
+
+
+void clk_negedge_event(void){
+
+	clk = 0;
+	topology_connect_all_nodes ();
+	connect_clk_reset_en_all();
+	sim_eval_all();	
+}	
 
 
 int main(int argc, char** argv) {
@@ -2665,16 +2749,18 @@ int main(int argc, char** argv) {
 	$rxd_info
 	Verilated::commandArgs(argc, argv);   // Remember args
 	Vrouter_new();             // Create instance
-	noc								= new Vnoc;
+	
 $newinst
 	
 	/********************
 	*	initialize input
 	*********************/
-
+	$tile_chans
 	
 	reset=1;
 	enable=1;
+	topology_init();
+	
 	$no_connected
 	
 $tile_addr
@@ -2685,118 +2771,25 @@ $tile_addr
 	while (!Verilated::gotFinish()) {
 	    $rxd_cap_cal
 	    if ((main_time & 0x3FF)==0) fflush(stdout); // fflush \$dispaly command each 1024 clock cycle 
-		if (main_time >= 10 ) { 
-			reset=0;
-		}	
-
-
-		if ((main_time % 5) == 0) {
-			clk = 1;       // Toggle clock
-			// you can change the inputs and read the outputs here in case they are captured at posedge of clock 
-			$rxd_wr_cal
-		}
-		else{
-			clk = 0;       // Toggle clock			
-			update_all_instances_inputs();
-			
-			
+		if (main_time >= 10 ) 	reset=0;
 		
-		}
-
-
-		//clk,reset,enable
-		noc-> clk = clk; 
-		noc-> reset = reset;
-$tile_reset
-$tile_clk		
-$tile_en
-		
-	connect_routers_reset_clk();
-
-		//eval instances
-		noc->eval();
-		routers_eval();
-		
-$tile_eval
-		
+		clk_posedge_event( );
+		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values 
+		//between modules when the clock . 
+		for (i=0;i<2*(SBP_MAX+1);i++) clk_negedge_event( );
 
 		main_time++;  
-		
-
-		
 	}//while
 	
 	// Simulation is done
-	routers_final();
-	noc->final(); 	
-$tile_final 
+	sim_final_all();
 }
 
 double sc_time_stamp () {       // Called by \$time in Verilog
 	return main_time;
 }
-
-
-void update_all_instances_inputs(void){
-	
-	int x,y,i,j;
-	
-
-#if (NC<=64)				
-	noc->ni_flit_in_wr =0;
-#else
-	for(j=0;j<(sizeof(noc->ni_flit_in_wr)/sizeof(noc->ni_flit_in_wr[0])); j++) noc->ni_flit_in_wr[j]=0;
-#endif			
-	
-	connect_all_routers_to_noc ();
-	
-		
-#if (Fpay<=32)
-	//tile[i]->flit_in  = noc->ni_flit_out [i];
-$tile_flit_in
-#else	
-	for(j=0;j<(sizeof(traffic[i]->flit_out)/sizeof(traffic[i]->flit_out[0])); j++){
-		//traffic[i]->flit_in[j]  = noc->ni_flit_out [i][j];
-$tile_flit_in_l	
-	}			
-#endif			
-		
-	//traffic[i]->credit_in= noc->ni_credit_out[i];
-$tile_credit
-	
-	//noc->ni_credit_in[i] = traffic[i]->credit_out;
-$noc_credit
-				
-#if (Fpay<=32)				
-	//noc->ni_flit_in [i]  = traffic[i]->flit_out;
-$noc_flit_in
-	
-#else	
-	for(j=0;j<(sizeof(traffic[i]->flit_out)/sizeof(traffic[i]->flit_out[0])); j++){
-		 //noc->ni_flit_in [i][j]  = traffic[i]->flit_out[j];
-$noc_flit_in_l
-	}
-#endif
-
-
-#if (NC<=64)			
-		//if(traffic[i]->flit_out_wr) noc->ni_flit_in_wr = noc->ni_flit_in_wr | ((vluint64_t)1<<i);
-$noc_flit_in_wr
-		
-		//traffic[i]->flit_in_wr= ((noc->ni_flit_out_wr >> i) & 0x01);
-$tile_flit_in_wr
-#else
-		//if(traffic[i]->flit_out_wr) MY_VL_SETBIT_W(noc->ni_flit_in_wr ,i);
-$noc_flit_in_wr_l
-		
-		//traffic[i]->flit_in_wr=   (VL_BITISSET_W(noc->ni_flit_out_wr,i)>0);
-$tile_flit_in_wr_l		
-		 				
-#endif
-		
-					
 			
-}
+
 ";
 
 	save_file("$dir/parameter.h",$parameter_h);	

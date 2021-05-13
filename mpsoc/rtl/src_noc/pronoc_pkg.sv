@@ -27,7 +27,8 @@ localparam
 	SBP_NUM= (SBP_EN) ? SBP_MAX : 1,	
 	NEV  = NE * V,
 	T4 = 0,
-	BEw = (BYTE_EN)? log2(Fpay/8) : 1;
+	BEw = (BYTE_EN)? log2(Fpay/8) : 1,
+	DELAYw = EAw+2; //Injector start delay counter width
 
 
  localparam CONGw= (CONGESTION_INDEX==3)?  3:
