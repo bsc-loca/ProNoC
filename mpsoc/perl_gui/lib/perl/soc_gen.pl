@@ -1851,7 +1851,7 @@ sub soc_ctrl_tab {
 		my $target_dir  = "$ENV{'PRONOC_WORK'}/SOC/$name";
 		my $hw_dir 	= "$target_dir/src_verilog";
 		my $sw_path 	= "$target_dir/sw";
-		my $top 	= "$target_dir/src_verilog/${name}_top.v";
+		my $top 	= "$target_dir/src_verilog/${name}_top.sv";
 		if (-f $top){
 			unlink  "$hw_dir/file_list";
 			generate_soc($soc,$info,$target_dir,$hw_dir,$sw_path,1,1);	

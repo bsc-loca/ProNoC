@@ -638,8 +638,8 @@ module sw_mask_gen #(
     wire        [VP_1-1        :    0]    full_muxin1,nearly_full_muxin1;
     wire         [V-1            :    0]    full_muxout1,nearly_full_muxout1;
     wire                                full_muxout2,nearly_full_muxout2;
-    reg    full_reg1,full_reg1_next;
-    reg    full_reg2,full_reg2_next;
+    reg    full_reg1,full_reg2;
+    wire   full_reg1_next,full_reg2_next;
     
     
     assign full_muxin1             = full & (~credit_increased);
@@ -693,10 +693,9 @@ module sw_mask_gen #(
         .sel (nearlyfull_sel)
     );
     
-    always @(*) begin 
-        full_reg1_next    =    full_muxout2;
-        full_reg2_next    =    nearly_full_muxout2 & ivc_getting_sw_grant;
-    end
+   assign full_reg1_next    =    full_muxout2;
+   assign full_reg2_next    =    nearly_full_muxout2 & ivc_getting_sw_grant;
+    
     
 `ifdef SYNC_RESET_MODE 
     always @ (posedge clk )begin 

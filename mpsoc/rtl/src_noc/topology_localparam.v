@@ -21,7 +21,7 @@
  
  
  
-     function integer log2;
+     function automatic integer log2;
       input integer number; begin   
          log2=(number <=1) ? 1: 0;    
          while(2**log2<number) begin    
@@ -30,7 +30,7 @@
       end   
     endfunction // log2 
     
-     function integer powi; // x^y
+     function automatic integer powi; // x^y
         input integer x,y;
         integer i;begin //compute x to the y
         powi=1;
@@ -41,7 +41,7 @@
     endfunction // powi
     
     
-    function integer  sum_powi;//x^(y-1) + x^(y-2) + ...+ 1;
+    function automatic integer  sum_powi;//x^(y-1) + x^(y-2) + ...+ 1;
         input integer x,y;
         integer i;begin 
         sum_powi = 0;
@@ -53,7 +53,7 @@
     
    
     // get the port num and return the port located at streight direction. If there is no strieght port return  router_port_num. 
-    function integer strieght_port;
+    function automatic integer strieght_port;
         input integer router_port_num;  //router port num
         input integer current_port;
         begin 

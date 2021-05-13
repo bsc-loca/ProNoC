@@ -32,10 +32,12 @@ sub select_orcc_generated_srcs {
     for (my $tile_num=0;$tile_num<$NE;$tile_num++){
         my ($soc_name,$num)= $self->mpsoc_get_tile_soc_name($tile_num);
         my $top=$self->mpsoc_get_soc($soc_name);
-        my @nis=get_NI_instance_list($top);
-        my $inst_name=$top->top_get_def_of_instance($nis[0],'instance');
-        $p{'ni_name'}{$tile_num}=$inst_name; 
-		$p{'soc_name'}{$tile_num}=$soc_name;
+        if(defined $top){
+        	my @nis=get_NI_instance_list($top);
+        	my $inst_name=$top->top_get_def_of_instance($nis[0],'instance');
+        	$p{'ni_name'}{$tile_num}=$inst_name; 
+			$p{'soc_name'}{$tile_num}=$soc_name;
+        }
     }
     
     

@@ -99,6 +99,7 @@ sub copy_back_custom_soc_param{
 sub get_NI_instance_list {
     my $top=shift;
     my @nis;
+    return if (!defined $top);
     my @instance_list=$top->top_get_all_instances();
     #check if the soc has ni port
     foreach my $instanc(@instance_list){

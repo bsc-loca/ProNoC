@@ -954,17 +954,21 @@ sub gen_soc_instance_v_no_modfy{
 	my $ss="";
 	my $ww="";
 	
-foreach my $intfc (@intfcs){
+	foreach my $intfc (@intfcs){
 	
-	
+		
 		
 	
 		
 			my @ports=$top->top_get_intfc_ports_list($intfc);
 			foreach my $p (@ports){
 			my($inst,$range,$type,$intfc_name,$intfc_port)= $top->top_get_port($p);			
-			$mm="$mm," if ($i);		
-			$mm="$mm\n\t\t.$p($p)";	
+			$mm="$mm," if ($i);	
+			if( $intfc =~ /socket:jtag_to_wb\[/){#dont include jtag connection
+				$mm="$mm\n\t\t.$p( )";
+			}else{	
+				$mm="$mm\n\t\t.$p($p)";
+			}	
 			$i=1;	
 				
 			
@@ -1299,9 +1303,14 @@ sub soc_generate_verilator{
 	
 module ${name} $import (\n $top_io_short_all\n);\n";
 	my $ins= gen_soc_instance_v_no_modfy($soc,$soc_name,$param_pass_v_all);
-	add_text_to_string(\$verilator_v,$functions_all);	
-	add_text_to_string(\$verilator_v,$params_v."\n".$top_io_full_all);
-	add_text_to_string(\$verilator_v,$ins);
+$verilator_v.="
+$functions_all	
+/* verilator lint_off WIDTH */
+$params_v
+/* verilator lint_on WIDTH */
+$top_io_full_all
+$ins
+";
 	my ($readme,$prog)=gen_system_info($soc,$param_as_in_v_all); 
 	return ($verilator_v);
 

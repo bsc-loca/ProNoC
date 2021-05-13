@@ -2120,8 +2120,20 @@ sub verilator_compilation_win {
 	
 	my $n= $self->object_get_attribute('soc_name',undef);
 	if(defined $n){	#we are compiling a single tile as SoC
-		my %tops;
-		$tops{"Vtop"}= "$name.v";
+		my $sw_path 	= "$target_dir/sw";
+		my %params = soc_get_all_parameters($self);
+		my $verilator = soc_generate_verilator ($self,$sw_path,"verilator_$n",\%params);	
+        my %tops;
+		$tops{"Vtop"}= "--top-module verilator_$n";
+		my $target_verilator_dr ="$target_dir/src_verilator";
+     	mkpath("$target_verilator_dr",1,01777);
+     	save_file ("$target_verilator_dr/verilator_${n}.sv",$verilator);	
+	
+	
+	
+	
+		
+		#$tops{"Vtop"}= "--top-module $name";
 		$result = verilator_compilation (\%tops,$target_dir,$outtext,$cpu_num);	
 		$self->object_add_attribute('verilator','libs',\%tops);	
 	}
@@ -2554,9 +2566,8 @@ sub gen_verilator_mpsoc_testbench {
 	my %rxds;
 	
 	my $tile_chans="";
-	
+	my $tmp_reg='';
 	for (my $endp=0; $endp<$ne;$endp++){	
-		$tile_chans.="\ttile_chan_out[$endp] = &tile$endp->ni_chan_out;\n\ttile_chan_in[$endp] = &tile$endp->ni_chan_in;\n";
 			
 		
 		my $e_addr=endp_addr_encoder($mpsoc,$endp);
@@ -2580,7 +2591,7 @@ sub gen_verilator_mpsoc_testbench {
 					}
 			}
 		
-						
+				$tile_chans.="\ttile_chan_out[$endp] = &tile$endp->ni_chan_out;\n\ttile_chan_in[$endp] = &tile$endp->ni_chan_in;\n";
 				$libh=$libh."#include \"Vtile${endp}.h\"\n";
 				$inst=$inst."Vtile${endp}\t*tile${endp};\t  // Instantiation of tile${endp}\n";
 				$newinst = $newinst."\ttile${endp}\t=\tnew Vtile${endp};\n"; 
@@ -2632,9 +2643,10 @@ sub gen_verilator_mpsoc_testbench {
 						
 			}else{
 				#this tile is not connected to any ip. the noc input ports will be connected to ground
-				$no_connected=$no_connected."\n // Tile:$endp ($e_addr)   is not assigned to any ip\n";
-				$no_connected=$no_connected."\t\tnoc->ni_credit_in[${endp}]=0; \n";		
-				
+				$tmp_reg.="\tunsigned char tmp1 [1024]={0};\n \tunsigned char tmp2 [1024]={0};";
+				$tile_chans.="\n // Tile:$endp ($e_addr)   is not assigned to any ip. Connet coresponding chan to ground.\n";
+				$tile_chans.="\ttile_chan_out[$endp] = tmp1;\n\ttile_chan_in[$endp] = tmp2;\n";
+						
 			}
 		
 	
@@ -2653,7 +2665,7 @@ $main_c="$main_c
 #include <string.h>
 $include1
 #include <verilated.h>          // Defines common routines
-
+$tmp_reg
 
 
 $libh

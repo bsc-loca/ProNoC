@@ -180,6 +180,8 @@ module header_flit_info
 
 endmodule
 
+//synthesis translate_off 
+//synopsys  translate_off
 
 module sbp_chanel_check 
 		import pronoc_pkg::*;
@@ -224,7 +226,8 @@ module sbp_chanel_check
 	end	
 endmodule	
  
-
+//synopsys  translate_on
+//synthesis translate_on 
 
 
 
