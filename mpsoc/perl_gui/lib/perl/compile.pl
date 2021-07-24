@@ -1101,8 +1101,8 @@ sub  get_pin_assignment{
 	
 	my $row=0;
 	my $col=0;
-	my @lables= ('Port Direction','Port Range     ','Port name      ','Assignment Type','Board Port name ','Board Port Range');
-	foreach my $p (@lables){
+	my @labels= ('Port Direction','Port Range     ','Port name      ','Assignment Type','Board Port name ','Board Port Range');
+	foreach my $p (@labels){
 		my $l=gen_label_in_left($p);		
 		$l->set_markup("<b>  $p    </b>");
 		$table->attach ($l, $col,$col+1, $row, $row+1,'fill','shrink',2,2); 

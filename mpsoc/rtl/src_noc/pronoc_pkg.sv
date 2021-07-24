@@ -82,7 +82,8 @@ localparam
  		logic [V-1 : 0] ivc_num_getting_ovc_grant;
  		logic [V-1 : 0] ivc_reset;
  		logic [V-1 : 0] buff_space_decreased;
- 		logic [V-1 : 0] single_flit_pck;
+ 		logic [V-1 : 0] ivc_single_flit_pck;
+ 		logic [V-1 : 0] ovc_single_flit_pck;
  		bit      		ssa_flit_wr;
  		logic [V*V-1: 0] ivc_granted_ovc_num;
  	} ssa_ctrl_t;	
@@ -115,7 +116,8 @@ localparam
 		logic   [V-1 : 0] ivc_num_getting_ovc_grant;
 		logic   [V-1 : 0] ivc_reset;
 		logic   [V-1 : 0] mask_available_ovc;
-		logic   [V-1 : 0] single_flit_pck;
+		logic   [V-1 : 0] ivc_single_flit_pck;
+		logic   [V-1 : 0] ovc_single_flit_pck;
 		logic   [V*V-1: 0] ivc_granted_ovc_num;
 	} sbp_ctrl_t;	
 	localparam  SBP_CTRL_w = $bits(sbp_ctrl_t);
@@ -256,6 +258,10 @@ localparam
  		integer value;
  		integer percentage; 	
  	}rnd_discrete_t;
+ 	
+ 	
+ 	
+ 	
 	
 endpackage : pronoc_pkg
 

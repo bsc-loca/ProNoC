@@ -92,7 +92,7 @@ import pronoc_pkg::*;
     localparam
         PV = V * P,
         PVV = PV * V,    
-        P_1 = P-1,
+        P_1 = ( SELF_LOOP_EN=="NO")?  P-1 : P,
         PP_1 = P_1 * P,
         PVP_1 = PV * P_1,       
         PFw = P * Fw,
@@ -527,8 +527,8 @@ import pronoc_pkg::*;
     ssa_ctrl_in
 );
 
-    localparam  P_1     =   P-1,
-                PV      =   V       *   P,
+    localparam  P_1     = (SELF_LOOP_EN == "NO")?  P-1 : P,
+    			PV      =   V       *   P,
                 PVV     =   PV      *  V,
                 PVP_1   =   PV      *   P_1,
                 PVDSTPw= PV * DSTPw;
@@ -571,7 +571,8 @@ import pronoc_pkg::*;
                           
         vc_alloc_request_gen_determinstic #(
         	.P(P),
-        	.V(V)
+        	.V(V),
+        	.SELF_LOOP_EN(SELF_LOOP_EN)
         )
         vc_request_gen
         (
@@ -589,7 +590,7 @@ import pronoc_pkg::*;
     
     end else begin: adptv     
       
-      if(P==5)begin:sl_mesh // combine portsel and available VC mux as proposed in ProNoC paper
+      if(P==5 && SELF_LOOP_EN == "NO" )begin:sl_mesh // combine portsel and available VC mux as proposed in ProNoC paper
       
       mesh_torus_vc_alloc_request_gen_adaptive #(
        	.ROUTE_TYPE(ROUTE_TYPE),
@@ -597,7 +598,7 @@ import pronoc_pkg::*;
       	.DSTPw(DSTPw),
       	.SSA_EN(SSA_EN),
       	.ESCAP_VC_MASK(ESCAP_VC_MASK),
-      	.PPSw(PPSw)
+      	.PPSw(PPSw)      	
       )
       vc_alloc_request_gen
       (
@@ -617,7 +618,7 @@ import pronoc_pkg::*;
       	.clk(clk)
       ); 
       
-      end else begin :ml_mesh // there are several local ports connected to one router. 
+      end else begin :ml_mesh // there are several local ports connected to one router or self loop is enabled 
       //select the port first then select the available vc
         
                 
@@ -649,7 +650,8 @@ import pronoc_pkg::*;
          
         vc_alloc_request_gen_determinstic #(
             .P(P),
-            .V(V)
+            .V(V),
+            .SELF_LOOP_EN(SELF_LOOP_EN)
         )
         vc_request_gen
         (
@@ -672,7 +674,9 @@ endmodule
 
 module  vc_alloc_request_gen_determinstic #(    
     parameter P = 5,
-    parameter V = 4
+    parameter V = 4,
+    parameter SELF_LOOP_EN="NO"
+    
 )(
     ovc_avalable_all,
     candidate_ovc_all,
@@ -682,9 +686,9 @@ module  vc_alloc_request_gen_determinstic #(
     masked_ovc_request_all
 );
 
-    localparam  P_1     =   P-1,
+ 	localparam  P_1     =  (SELF_LOOP_EN == "NO")?  P-1 : P,
                 PV      =   V       *   P,
-                PVV     =   PV      *  V,
+                PVV     =   PV      *   V,
                 PVP_1   =   PV      *   P_1,
                 VP_1    =   V       *   P_1;             
 
@@ -708,16 +712,21 @@ module  vc_alloc_request_gen_determinstic #(
   genvar i;
 
 generate
-    //remove avalable ovc of reciver port 
-    for(i=0;i< P;i=i+1) begin :port_loop
-        if(i==0) begin : first assign ovc_avalable_perport[i]=ovc_avalable_all [PV-1              :   V]; end
-        else if(i==(P-1)) begin : last assign ovc_avalable_perport[i]=ovc_avalable_all [PV-V-1               :   0]; end
-        else  begin : midle  assign ovc_avalable_perport[i]={ovc_avalable_all [PV-1  :   (i+1)*V],ovc_avalable_all [(i*V)-1  :   0]}; end
+	if(SELF_LOOP_EN == "NO") begin
+		//remove available ovc of receiver port 
+		for(i=0;i< P;i=i+1) begin :port_loop
+	        if(i==0) begin : first assign ovc_avalable_perport[i]=ovc_avalable_all [PV-1              :   V]; end
+	        else if(i==(P-1)) begin : last assign ovc_avalable_perport[i]=ovc_avalable_all [PV-V-1               :   0]; end
+	        else  begin : midle  assign ovc_avalable_perport[i]={ovc_avalable_all [PV-1  :   (i+1)*V],ovc_avalable_all [(i*V)-1  :   0]}; end
+	    end
+    end else begin 
+    	for(i=0;i< P;i=i+1) begin :port_loop
+    		 assign ovc_avalable_perport[i]=ovc_avalable_all;
+	    end
     end
-        
     // IVC loop
     for(i=0;i< PV;i=i+1) begin :total_vc_loop
-        //seprate input/output
+        //separate input/output
         assign ovc_avalable_ivc[i]  =   ovc_avalable_perport[(i/V)];
         assign dest_port_ivc   [i]  =   dest_port_in_all [(i+1)*P_1-1  :   i*P_1   ];
         assign ovc_request_ivc [i]  = (non_assigned_ovc_request_all[i])? candidate_ovc_all  [(i+1)*V-1  :   i*V ]: {V{1'b0}};          

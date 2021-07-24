@@ -58,7 +58,7 @@ module asic_top
 	//all routers port 
 	router_chanel_t    router_chan_in   [R_NUM-1 :0][MAX_P-1 : 0];
 	router_chanel_t    router_chan_out  [R_NUM-1 :0][MAX_P-1 : 0];
-
+	
 	wire [RAw-1 : 0] current_r_addr [R_NUM-1 : 0];
 	
 	// mesh torus            
@@ -75,9 +75,9 @@ module asic_top
 	generate
 		for (i=0; i<R_NUM;  i=i+1) begin: R_
 				
-			assign current_r_addr [i] = i;
+			assign ctrl_in[i].current_r_addr  = i;
 			router_top 	 the_router (
-					.current_r_addr  (current_r_addr [i]),    
+					.current_r_addr  (current_r_addr[i]),
 					.chan_in         (router_chan_in [i]), 
 					.chan_out        (router_chan_out[i]), 
 					.clk             (clk            ), 

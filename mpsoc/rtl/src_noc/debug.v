@@ -344,7 +344,8 @@ endmodule
     parameter T2=2,
     parameter T3=2,
     parameter T4=2,
-    parameter EAw=2 
+    parameter EAw=2,
+    parameter SELF_LOOP_EN="NO"
  )(
      dest_is_valid,
      dest_e_addr,
@@ -355,7 +356,9 @@ endmodule
     output dest_is_valid;
  
     // general rules
-    wire valid_dst  = dest_e_addr  !=  current_e_addr;
+    /* verilator lint_off WIDTH */
+    wire valid_dst  = (SELF_LOOP_EN   == "NO")? dest_e_addr  !=  current_e_addr : 1'b1;
+    /* verilator lint_on WIDTH */
     wire valid;
     generate
     /* verilator lint_off WIDTH */ 

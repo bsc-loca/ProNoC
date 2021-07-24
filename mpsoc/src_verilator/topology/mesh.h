@@ -86,9 +86,14 @@ void topology_connect_all_nodes (void){
 					#if defined (IS_MESH) // :last_x_mesh
 						//	assign router_chan_in[`router_id(x,y)][EAST] = {ROUTER_CHANEL_w{1'b0}};					
 						connect_r2gnd(1,router_id(x,y),EAST);
-					#else // : last_x_torus
+					#elif defined (IS_TORUS) // : last_x_torus
 						//assign router_chan_in[`router_id(x,y)][EAST] = router_chan_out [`router_id(0,y)][WEST];
-						conect_r2r(1,router_id(x,y),EAST,1,router_id(0,y),WEST);						
+						conect_r2r(1,router_id(x,y),EAST,1,router_id(0,y),WEST);
+					#elif defined (IS_FMESH) //:last_x_fmesh
+						//connect to endp
+						unsigned int  EAST_ID = T1*T2*T3 + 2*T1 + T2 + y;
+						connect_r2e(1,router_id(x,y),EAST,EAST_ID);
+						er_addr [EAST_ID] = R_ADDR;
 					#endif//topology
 				}
             
@@ -100,9 +105,13 @@ void topology_connect_all_nodes (void){
 					#if defined (IS_MESH) // : first_y_mesh
 					 	//assign router_chan_in[`router_id(x,y)][NORTH] =  {ROUTER_CHANEL_w{1'b0}};												
 					 	connect_r2gnd(1,router_id(x,y),NORTH);	 
-					#else// :first_y_torus
+					#elif defined (IS_TORUS)// :first_y_torus
 						//assign router_chan_in[`router_id(x,y)][NORTH] =  router_chan_out [`router_id(x,(T2-1))][SOUTH];
 						conect_r2r(1,router_id(x,y),NORTH,1,router_id(x,(T2-1)),SOUTH);							
+					#elif defined (IS_FMESH) // :first_y_fmesh
+						unsigned int NORTH_ID = T1*T2*T3 + x;
+						connect_r2e(1,router_id(x,y),NORTH,NORTH_ID);
+						er_addr [NORTH_ID] = R_ADDR;
 					#endif//topology
 				}//y>0
             
@@ -116,9 +125,13 @@ void topology_connect_all_nodes (void){
 						//assign    router_chan_in[`router_id(x,y)][WEST] =   {ROUTER_CHANEL_w{1'b0}};
 						connect_r2gnd(1,router_id(x,y),WEST);							
 						                
-					#else // :first_x_torus
+					#elif defined (IS_TORUS) // :first_x_torus
 						//assign    router_chan_in[`router_id(x,y)][WEST] =   router_chan_out [`router_id((NX-1),y)][EAST] ;						
 						conect_r2r(1,router_id(x,y),WEST,1,router_id((T1-1),y),EAST);
+					#elif defined (IS_FMESH) // :first_x_fmesh
+						unsigned int WEST_ID = T1*T2*T3 + 2*T1 + y;
+						connect_r2e(1,router_id(x,y),WEST,WEST_ID);
+						er_addr [WEST_ID] = R_ADDR;
 					#endif//topology
 				}   
             
@@ -132,9 +145,13 @@ void topology_connect_all_nodes (void){
 						//assign  router_chan_in[`router_id(x,y)][SOUTH]=  {ROUTER_CHANEL_w{1'b0}};
 						connect_r2gnd(1,router_id(x,y),SOUTH);	
 						 
-					#else // :ly_torus						 
+					#elif defined (IS_TORUS) // :ly_torus
 						//assign  router_chan_in[`router_id(x,y)][SOUTH]=    router_chan_out [`router_id(x,0)][NORTH];
-						conect_r2r(1,router_id(x,y),SOUTH,1,router_id(x,0),NORTH);						
+						conect_r2r(1,router_id(x,y),SOUTH,1,router_id(x,0),NORTH);
+					#elif defined (IS_FMESH)  // :ly_Fmesh
+						unsigned int SOUTH_ID = T1*T2*T3 + T1 + x;
+						connect_r2e(1,router_id(x,y),SOUTH,SOUTH_ID);
+						er_addr [SOUTH_ID] = R_ADDR;
 					#endif//topology
 				}         
         

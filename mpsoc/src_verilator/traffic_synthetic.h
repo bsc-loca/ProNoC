@@ -2,6 +2,8 @@
 #define TRAFFIC_SYNTHETIC_H
 
 
+#define INJECT_OFF -1
+
 //#include "topology.h"
 
 
@@ -43,7 +45,13 @@ void setBit(int *num, int b,   int W, int v)
 }
 
 			 
-
+unsigned int get_rnd_ip (unsigned int core_num){
+	unsigned int rnd=rand()%NE;
+	if(IS_SELF_LOOP_EN) return rnd;
+	//make sure its not same as sender core
+	while (rnd==core_num)	rnd=rand()%NE;
+	return rnd;
+}
 
 
 unsigned int pck_dst_gen_2D (unsigned int core_num){
@@ -58,22 +66,20 @@ unsigned int pck_dst_gen_2D (unsigned int core_num){
 	int i;
 
 	if((strcmp (TRAFFIC,"RANDOM")==0) || (strcmp (TRAFFIC,"random")==0)){
-		do{
-			rnd=rand()%NE;
-		}while (rnd==core_num); // get a random IP core, make sure its not same as sender core
-       return endp_addr_encoder(rnd);
+		//get a random IP core
+	    return endp_addr_encoder(get_rnd_ip(core_num));
 	}	
 
 	if ((strcmp(TRAFFIC,"HOTSPOT")==0) || (strcmp (TRAFFIC,"hot spot")==0)){
 		unsigned int rnd1000=0;
-		do{
-			rnd=rand()%NE;
-		}while (rnd==core_num); // get a random IP core, make sure its not same as sender core
+		rnd=get_rnd_ip(core_num);
+
 		rnd1000=rand()%1000; // generate a random number between 0 & 1000
 		for (i=0;i<HOTSPOT_NUM; i++){
 			if ( hotspots[i].send_enable == 0 && core_num ==hotspots[i].ip_num){
-				rnd = core_num; // turn off the core
-				return endp_addr_encoder(rnd);
+				//rnd = core_num; // turn off the core
+				//return endp_addr_encoder(rnd);
+				return INJECT_OFF;
 			}
 		}
 		for (i=0;i<HOTSPOT_NUM; i++){
@@ -149,11 +155,8 @@ unsigned int pck_dst_gen_2D (unsigned int core_num){
      }  
 
          fprintf (stderr,"ERROR: traffic %s is an unsupported traffic pattern\n",TRAFFIC);
+         return INJECT_OFF;
 
-		 dest_x = current_x;
-		 dest_y = current_y;
-		 dest_l = current_l;
-		 return mesh_tori_addr_join(dest_x,dest_y,dest_l);
 }
 
 
@@ -168,24 +171,18 @@ unsigned int pck_dst_gen_1D (unsigned int core_num){
 	
 	
 	if((strcmp (TRAFFIC,"RANDOM")==0) || (strcmp (TRAFFIC,"random")==0)){
-		do{
-			rnd=rand()%NE;
-		}while (rnd==core_num); // get a random IP core, make sure its not same as sender core
-
-		return endp_addr_encoder(rnd);
+		 return endp_addr_encoder(get_rnd_ip(core_num));
 	}
 	
 	if ((strcmp(TRAFFIC,"HOTSPOT")==0) || (strcmp (TRAFFIC,"hot spot")==0)){
 		unsigned int rnd1000=0;
 		int i;
-		do{
-			rnd=rand()%NE;
-		}while (rnd==core_num); // get a random IP core, make sure its not same as sender core
+		rnd=get_rnd_ip(core_num);
 		rnd1000=rand()%1000; // generate a random number between 0 & 1000
 		for (i=0;i<HOTSPOT_NUM; i++){
 			if ( hotspots[i].send_enable == 0 && core_num ==hotspots[i].ip_num){
-				rnd = core_num; // turn off the core
-				return endp_addr_encoder(rnd);
+
+				return INJECT_OFF;
 			}
 		}
 		
@@ -250,7 +247,7 @@ unsigned int pck_dst_gen_1D (unsigned int core_num){
      }
 
      fprintf (stderr,"ERROR: traffic %s is an unsupported traffic pattern\n",TRAFFIC);
-	 return  endp_addr_encoder(core_num);
+	 return  INJECT_OFF;
 }
 
 

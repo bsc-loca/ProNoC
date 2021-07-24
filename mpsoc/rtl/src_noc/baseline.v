@@ -34,7 +34,8 @@ module baseline_allocator #(
     parameter P = 5,//port number
     parameter TREE_ARBITER_EN = 0,
     parameter DEBUG_EN = 1,
-    parameter SWA_ARBITER_TYPE = "WRRA"
+    parameter SWA_ARBITER_TYPE = "WRRA",
+    parameter SELF_LOOP_EN= "NO"
 )
 (
     dest_port_all,
@@ -61,7 +62,7 @@ module baseline_allocator #(
     localparam 
         PV = V * P,
         PVV = PV * V,   
-        P_1 = P-1,
+        P_1 = (SELF_LOOP_EN == "NO") ? P-1 : P,
         PP_1 = P_1 * P,
         PVP_1 = PV * P_1;                   
                     

@@ -549,15 +549,15 @@ sub check_tools{
 	my $table = def_table(10, 1, FALSE);
 	my $row=0;
 	my $pronoc_work = $self->object_get_attribute("PATH","PRONOC_WORK");
-	my $lable1;
+	my $label1;
 	if (Dir_isEmpty("$pronoc_work/toolchain/bin") == 0){
-		$lable1=def_image_label("icons/warning.png","The tools directory is empty! You need to run the Make tools first.");	
+		$label1=def_image_label("icons/warning.png","The tools directory is empty! You need to run the Make tools first.");	
 		
 	}else{
-		$lable1=gen_label_in_left("Regenerate ProNoC tools");
+		$label1=gen_label_in_left("Regenerate ProNoC tools");
 		
 	}
-	$table->attach ($lable1 , 0, 1,  $row, $row+1,'shrink','shrink',2,2); 
+	$table->attach ($label1 , 0, 1,  $row, $row+1,'shrink','shrink',2,2); 
 	
 	my $make=def_image_button('icons/setting2.png','Make tools');
 	$table->attach ($make , 1, 2,  $row, $row+1,'shrink','shrink',2,2); $row++;
@@ -800,58 +800,58 @@ sub generate_main_notebook {
 	$notebook->show_all;
 	if($mode eq 'Generator'){
 		my $intfc_gen=  intfc_main();
-		my $lable1=def_image_label("icons/intfc.png"," _Interface generator ",1);
-		$notebook->append_page ($intfc_gen,$lable1);
-		$lable1->show_all;
+		my $label1=def_image_label("icons/intfc.png"," _Interface generator ",1);
+		$notebook->append_page ($intfc_gen,$label1);
+		$label1->show_all;
 
 		my $ipgen= ipgen_main();
-		my $lable2=def_image_label("icons/ip.png"," I_P generator ",1);
-		$notebook->append_page ($ipgen,$lable2);
-		$lable2->show_all;
+		my $label2=def_image_label("icons/ip.png"," I_P generator ",1);
+		$notebook->append_page ($ipgen,$label2);
+		$label2->show_all;
 
 		my $socgen= socgen_main();
-		my $lable3=def_image_label("icons/tile.png"," P_rocessing tile generator ",1);			
-		$notebook->append_page ($socgen,$lable3 );
-		$lable3->show_all;		
+		my $label3=def_image_label("icons/tile.png"," P_rocessing tile generator ",1);			
+		$notebook->append_page ($socgen,$label3 );
+		$label3->show_all;		
 
 		my $mpsocgen =  mpsocgen_main();
-		my $lable4=def_image_label("icons/noc.png"," _NoC based MPSoC generator ",1);	
-		$notebook->append_page ($mpsocgen,$lable4);
-		$lable4->show_all;	
+		my $label4=def_image_label("icons/noc.png"," _NoC based MPSoC generator ",1);	
+		$notebook->append_page ($mpsocgen,$label4);
+		$label4->show_all;	
 		
 	
 	} elsif($mode eq 'Networkgen'){
 	
 		my $networkgen = network_maker_main();
-		my $lable5=def_image_label("icons/trace.png"," Network Maker ");	
-		$notebook->append_page ($networkgen,$lable5);
-		$lable5->show_all;	
+		my $label5=def_image_label("icons/trace.png"," Network Maker ");	
+		$notebook->append_page ($networkgen,$label5);
+		$label5->show_all;	
 	
 	
 	}else{
 			
 		
 		my $trace_gen= trace_gen_main('task');
-		my $lable1=def_image_label("icons/trace.png"," _Trace generator ",1);
+		my $label1=def_image_label("icons/trace.png"," _Trace generator ",1);
 
-		set_tip($lable1, "Generate trace file from application task graph");
+		set_tip($label1, "Generate trace file from application task graph");
 		
-		$notebook->append_page ($trace_gen,$lable1);		
-		$lable1->show_all;
+		$notebook->append_page ($trace_gen,$label1);		
+		$label1->show_all;
 		$trace_gen->show_all;
 		
 		my $simulator = simulator_main();
-		my $lable2=def_image_label("icons/sim.png"," _NoC simulator ",1);
+		my $label2=def_image_label("icons/sim.png"," _NoC simulator ",1);
 		
 		
-		$notebook->append_page ($simulator,$lable2);
-		$lable2->show_all;
+		$notebook->append_page ($simulator,$label2);
+		$label2->show_all;
 		$simulator->show_all;		
 
 		my $emulator = emulator_main();
-		my $lable3=def_image_label("icons/emul.png"," _NoC emulator ",1);
-		$notebook->append_page ($emulator,$lable3);
-		$lable3->show_all;
+		my $label3=def_image_label("icons/emul.png"," _NoC emulator ",1);
+		$notebook->append_page ($emulator,$label3);
+		$label3->show_all;
 		$emulator->show_all;	
 
 	}		

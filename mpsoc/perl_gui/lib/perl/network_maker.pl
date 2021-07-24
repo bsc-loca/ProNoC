@@ -104,7 +104,7 @@ sub custom_topology_diagram {
 	my $gtype=$self->object_get_attribute("tile_diagram","gtype");
 	if (!defined $gtype){
 		$gtype='comp' ;
-		$self->object_add_attribute("tile_diagram","gtype",$state);
+		$self->object_add_attribute("tile_diagram","gtype",$gtype);
 	}		
 	my $graph_type= ($gtype eq 'comp')? def_colored_button('comp',17): def_colored_button('simple',4);
 	
@@ -791,8 +791,8 @@ sub connection_page{
    	   
    	   	
    	   	
-		my $lable =gen_label_in_left("$inst:");
-		attach_widget_to_table ($table,$row,undef,undef,$lable,$col);  $col+=4;
+		my $label =gen_label_in_left("$inst:");
+		attach_widget_to_table ($table,$row,undef,undef,$label,$col);  $col+=4;
 		
 		for (my $i=0;$i<$pnum; $i++){ 
 			my $pname= "Port[${i}]";
@@ -1791,9 +1791,9 @@ sub show_paths_between_two_endps{
 			});
 			
 			
-			my $lable =gen_label_in_left("$scal");
+			my $label =gen_label_in_left("$scal");
 			$table->attach ($check ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $col++;
-			$table->attach ($lable ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;$col=0;
+			$table->attach ($label ,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;$col=0;
 			
 			$n++;	
 		}

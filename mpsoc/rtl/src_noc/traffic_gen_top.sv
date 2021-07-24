@@ -231,7 +231,8 @@ module  traffic_gen_top
 				.T1(T1),
 				.T2(T2),
 				.T3(T3),   
-				.EAw(EAw)
+				.EAw(EAw),
+				.SELF_LOOP_EN(SELF_LOOP_EN)
 			)
 			check_destination_addr(
 				.dest_e_addr(dest_e_addr),
@@ -633,8 +634,8 @@ module  traffic_gen_top
     
     
 		always @(posedge clk) begin     
-			if(flit_out_wr && hdr_flit && dest_e_addr_reg  == current_e_addr) begin 
-				$display("%t: ERROR: The source and destination address of injected packet is the same in endpoint (%h): %m",$time, dest_e_addr );
+			if(flit_out_wr && hdr_flit && dest_e_addr_reg  == current_e_addr && SELF_LOOP_EN == "NO") begin 
+				$display("%t: ERROR: The self-loop is not enabled in the router while a packet is injected to the NoC with identical source and destination address in endpoint (%h).: %m",$time, dest_e_addr );
 				$finish;
 			end
 			if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr  != current_e_addr )) begin 

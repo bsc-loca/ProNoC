@@ -378,7 +378,7 @@ sub get_soc_parameter_setting_table{
 
 sub tile_set_widget{
     my ($mpsoc,$soc_name,$num,$table,$show,$row)=@_;
-    #my $lable=gen_label_in_left($soc);
+    #my $label=gen_label_in_left($soc);
     my @all_num= $mpsoc->mpsoc_get_soc_tiles_num($soc_name);
     my $init=compress_nums(@all_num);
     my $entry;
@@ -538,7 +538,7 @@ sub noc_topology_setting_gui {
 	my  $label='Topology';
 	my  $param='TOPOLOGY';
 	my  $default='"MESH"';
-	my  $content='"MESH","TORUS","RING","LINE","FATTREE","TREE","STAR","CUSTOM"';
+	my  $content='"MESH","FMESH",TORUS","RING","LINE","FATTREE","TREE","STAR","CUSTOM"';
 	my  $type='Combo-box';
 	my  $info="NoC topology"; 
 	($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
@@ -552,7 +552,7 @@ sub noc_topology_setting_gui {
 	     	($topology eq '"STAR"')? "Total Endpoint number" : 'Routers per row';
 	    $param= 'T1';
 		$default= '2';
-	    $content=($topology eq '"MESH"' || $topology eq '"TORUS"') ? '2,16,1':
+	    $content=($topology eq '"MESH"' || $topology eq '"FMESH"' || $topology eq '"TORUS"') ? '2,16,1':
 		($topology eq '"FATTREE"' || $topology eq '"TREE"' )? '2,6,1':'2,64,1';
 	    $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"' )? 'number of last level individual router`s endpoints.' :'Number of NoC routers in row (X dimension)';
 	    $type= 'Spin-button';             
@@ -560,7 +560,7 @@ sub noc_topology_setting_gui {
 
     
     #Topology T2 parameter
-    if($topology eq '"MESH"' || $topology eq '"TORUS"' || $topology eq '"FATTREE"' || $topology eq '"TREE"' ) {
+    if($topology eq '"MESH"' || $topology eq '"FMESH"' || $topology eq '"TORUS"' || $topology eq '"FATTREE"' || $topology eq '"TREE"' ) {
         $label= ($topology eq '"FATTREE"' || $topology eq '"TREE"')?  'L' :'Routers per column';
         $param= 'T2';
         $default='2';
@@ -573,7 +573,7 @@ sub noc_topology_setting_gui {
     }
     
     #Topology T3 parameter
-    if($topology eq '"MESH"' || $topology eq '"TORUS"' || $topology eq '"RING"' || $topology eq '"LINE"') {
+    if($topology eq '"MESH"' || $topology eq '"FMESH"' || $topology eq '"TORUS"' || $topology eq '"RING"' || $topology eq '"LINE"') {
     	$label="Router's endpoint number";
 		$param= 'T3';
         $default='1';
@@ -685,14 +685,14 @@ if($topology ne '"CUSTOM"' ){
     $param="ROUTE_NAME";
     $type="Combo-box";
     if($router_type eq '"VC_BASED"'){
-        $content=($topology eq '"MESH"')?  '"XY","WEST_FIRST","NORTH_LAST","NEGETIVE_FIRST","ODD_EVEN","DUATO"' :
+        $content=($topology eq '"MESH"' || $topology eq '"FMESH"')?  '"XY","WEST_FIRST","NORTH_LAST","NEGETIVE_FIRST","ODD_EVEN","DUATO"' :
                  ($topology eq '"TORUS"')? '"TRANC_XY","TRANC_WEST_FIRST","TRANC_NORTH_LAST","TRANC_NEGETIVE_FIRST","TRANC_DUATO"':
                  ($topology eq '"RING"')? '"TRANC_XY"' :
                  ($topology eq '"LINE"')?  '"XY"':
                  ($topology eq '"FATTREE"')? '"NCA_RND_UP","NCA_STRAIGHT_UP","NCA_DST_UP"':
                  ($topology eq '"TREE"')? '"NCA"' : '"UNKNOWN"';   
     }else{
-        $content=($topology eq '"MESH"')?  '"XY","WEST_FIRST","NORTH_LAST","NEGETIVE_FIRST","ODD_EVEN"' :
+        $content=($topology eq '"MESH"' || $topology eq '"FMESH"')?  '"XY","WEST_FIRST","NORTH_LAST","NEGETIVE_FIRST","ODD_EVEN"' :
                  ($topology eq '"TORUS"')? '"TRANC_XY","TRANC_WEST_FIRST","TRANC_NORTH_LAST","TRANC_NEGETIVE_FIRST"':
                  ($topology eq '"RING"')? '"TRANC_XY"' : 
 				 ($topology eq '"LINE"')?  '"XY"':
@@ -700,7 +700,7 @@ if($topology ne '"CUSTOM"' ){
 				 ($topology eq '"TREE"')? '"NCA"' : '"UNKNOWN"';    
         
     }
-    $default=($topology eq '"MESH"' || $topology eq '"LINE"' )? '"XY"':
+    $default=($topology eq '"MESH"' || $topology eq '"FMESH"' || $topology eq '"LINE"' )? '"XY"':
     		 ($topology eq '"TORUS"'|| $topology eq '"RING"')?  '"TRANC_XY"' : 
     		 ($topology eq '"FATTREE"')? '"NCA_STRAIGHT_UP"' :
     		 ($topology eq '"TREE"')? '"NCA"' : '"UNKNOWN"';
@@ -958,6 +958,18 @@ arbiters external priority enable';
     $info= 'Maximum weight width';
     $type= 'Spin-button';  
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$wrra_show,'noc_param',undef);  
+    
+    
+    
+    $label='Self loop enable'; 
+    $param='SELF_LOOP_EN';
+    $default='"NO"';
+    $content='"NO","YES"';
+    $type='Combo-box';
+    $info="If Self loop is enabled, it alows a router input port sends packet to the output port having identical index numebr. Enableing it allows a tile can sent packet to itself too."; 
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',1);
+    
+    
     
     #WRRA_CONFIG_INDEX
     $label='Weight configuration index';
@@ -1575,8 +1587,8 @@ sub get_tile_setting {
         my @list=(' ',@socs);
         my $pos=(defined $soc_name)? get_scolar_pos($soc_name,@list): 0;
         my $combo=gen_combo(\@list, $pos);
-        my $lable=gen_label_in_left("  Processing tile name:");
-        $table->attach($lable,0,2,$row,$row+1,'shrink','shrink',2,2);
+        my $label=gen_label_in_left("  Processing tile name:");
+        $table->attach($label,0,2,$row,$row+1,'shrink','shrink',2,2);
         $table->attach($combo,2,3,$row,$row+1,'shrink','shrink',2,2);$row++;
 		add_Hsep_to_table($table,0,3,$row);$row++;
 		$soc_name = ' ' if (!defined $soc_name);
@@ -1732,39 +1744,39 @@ sub show_reqired_brams{
 }
 
 sub check_conflict {
-	my ($self,$tile_num,$lable)=@_;	
+	my ($self,$tile_num,$label)=@_;	
 	
 	my $r1 =$self->object_get_attribute("ROM$tile_num",'end'); 
 	my $r2 =$self->object_get_attribute("RAM$tile_num",'start');
 	
 	if(defined $r1 && defined $r2){
 		if(hex($r1)> hex($r2)){
-			$lable->set_markup("<span  foreground= 'red' ><b>RAM-ROM range Conflict</b></span>");
+			$label->set_markup("<span  foreground= 'red' ><b>RAM-ROM range Conflict</b></span>");
 			
 		}else {	 
-			$lable->set_label(" ");
+			$label->set_label(" ");
 		
 		}
 	}else {
-		$lable->set_label(" ");
+		$label->set_label(" ");
 	
 	} 	
 }
 
 
 sub update_ram_rom_size {
-	my ($self,$tile_num,$name,$lable,$start,$end,$conflict)=@_;	
+	my ($self,$tile_num,$name,$label,$start,$end,$conflict)=@_;	
 	my $s = $start->get_value();
 	my $e = $end->get_value();
 
 	$self->object_add_attribute($name.$tile_num,'start',$start->get_value());
 	$self->object_add_attribute($name.$tile_num,'end',$end->get_value());
 	if($e <= $s){
-		#$lable->set_label("Invalid range" );
-		$lable->set_markup("<span  foreground= 'red' ><b>Invalid range</b></span>");
+		#$label->set_label("Invalid range" );
+		$label->set_markup("<span  foreground= 'red' ><b>Invalid range</b></span>");
 		
 	}else {
-		$lable->set_label( metric_conversion($e - $s) . "B");
+		$label->set_label( metric_conversion($e - $s) . "B");
 	
 	}
 	
@@ -2363,8 +2375,8 @@ sub get_source_assignment_win{
 	my $v2;
 	
 	#if($s eq 'clk'){
-	#	my @lables=("clk name", 'Frequency MHz', 'Period ns', 'rise edge times ns', 'fall edge times ns');
-	#	foreach my $l (@lables){
+	#	my @labels=("clk name", 'Frequency MHz', 'Period ns', 'rise edge times ns', 'fall edge times ns');
+	#	foreach my $l (@labels){
 			#  $table1->attach  (gen_label_in_center($l),$column,$column+1,$row,$row+1,'fill','shrink',2,2);$column+=5;
 	#	}
 		#$row++;
@@ -2477,8 +2489,8 @@ sub get_source_assignment_win2{
    		my @array=@{$ports{$p}};
    		foreach my $q (@array){
    			my $param="${p}_$q"; 
-   			my $lable="  ${p}_$q";    			  			
-   			($row,$column)=  add_param_widget($mpsoc,$lable,$param, $default,'Combo-box',$contents,undef, $table2,$row,$column,1,'SOURCE_SET_CONNECT',undef,undef,'horizontal');
+   			my $label="  ${p}_$q";    			  			
+   			($row,$column)=  add_param_widget($mpsoc,$label,$param, $default,'Combo-box',$contents,undef, $table2,$row,$column,1,'SOURCE_SET_CONNECT',undef,undef,'horizontal');
    			if((($n+1) % 4)==0){$column=0;$row++;}$n++;
    		}		
 	}

@@ -139,11 +139,14 @@ unsigned int get_router_num (unsigned int x, unsigned int y) {
 
 
 #define IS_MESH   (strcmp(TOPOLOGY ,"MESH")==0)
+#define IS_FMESH   (strcmp(TOPOLOGY ,"FMESH")==0)
 #define IS_TORUS  (strcmp(TOPOLOGY ,"TORUS")==0)
 #define IS_LINE   (strcmp(TOPOLOGY ,"LINE")==0)
 #define IS_RING   (strcmp(TOPOLOGY ,"RING")==0)
 #define IS_TREE   (strcmp(TOPOLOGY ,"TREE")==0)
 #define IS_FATTREE   (strcmp(TOPOLOGY ,"FATTREE")==0)
+
+
 
 //remove local port
 #define EAST      0 

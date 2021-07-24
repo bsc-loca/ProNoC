@@ -50,6 +50,7 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
     parameter SSA_EN ="NO",
     parameter PPSw=4,
     parameter [V-1  :   0] ESCAP_VC_MASK = 4'b1000   // mask scape vc, valid only for full adaptive       
+   
 )(
     ovc_avalable_all,
     dest_port_coded_all,
@@ -87,7 +88,7 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
     input   [PV-1       :   0]  ovc_is_assigned_all;  
     output  [PVV-1      :   0]  masked_ovc_request_all;
     input   [PVV-1      :   0]  candidate_ovc_all;
-    input   [PPSw-1      :   0]  port_pre_sel;
+    input   [PPSw-1     :   0]  port_pre_sel;
     output  [PV-1       :   0]  swap_port_presel;   
     output  [PV-1       :   0]  sel;
     output  [PVDSTPw-1 : 0] destport_clear_all;
@@ -100,18 +101,20 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
     wire    [PV-1       :   0]  y_evc_forbiden,x_evc_forbiden;
     wire    [V-1        :   0]  ovc_avb_x_plus,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_y_minus,ovc_avb_local;
     wire    [VP_1-1     :   0]  ovc_avalable_perport            [P-1    :   0];
-    wire    [PPSw-1      :   0]  port_pre_sel_perport            [P-1    :   0];
+    wire    [PPSw-1     :   0]  port_pre_sel_perport            [P-1    :   0];
     wire    [PVV-1      :   0]  candidate_ovc_x_all, candidate_ovc_y_all;
    
     
     assign non_assigned_ovc_request_all =   ivc_request_all & ~ovc_is_assigned_all;   
     assign {ovc_avb_y_minus,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_x_plus,ovc_avb_local} = ovc_avalable_all;
+
     
-    assign ovc_avalable_perport[LOCAL]  = {ovc_avb_x_plus,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_y_minus};
-    assign ovc_avalable_perport[EAST]   = {ovc_avb_local,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_y_minus};
-    assign ovc_avalable_perport[NORTH]  = {ovc_avb_x_plus,ovc_avb_x_minus,ovc_avb_local,ovc_avb_y_minus};
-    assign ovc_avalable_perport[WEST]   = {ovc_avb_x_plus,ovc_avb_local,ovc_avb_y_plus,ovc_avb_y_minus};
-    assign ovc_avalable_perport[SOUTH]  = {ovc_avb_x_plus,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_local};
+   
+        assign ovc_avalable_perport[LOCAL]  = {ovc_avb_x_plus,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_y_minus};
+        assign ovc_avalable_perport[EAST]   = {ovc_avb_local,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_y_minus};
+        assign ovc_avalable_perport[NORTH]  = {ovc_avb_x_plus,ovc_avb_x_minus,ovc_avb_local,ovc_avb_y_minus};
+        assign ovc_avalable_perport[WEST]   = {ovc_avb_x_plus,ovc_avb_local,ovc_avb_y_plus,ovc_avb_y_minus};
+        assign ovc_avalable_perport[SOUTH]  = {ovc_avb_x_plus,ovc_avb_x_minus,ovc_avb_y_plus,ovc_avb_local};
     
     
     
@@ -130,7 +133,7 @@ module  mesh_torus_vc_alloc_request_gen_adaptive #(
     for(i=0;i< PV;i=i+1) begin :all_vc_loop
         
        mesh_torus_adaptive_avb_ovc_mux #(
-       	.V(V)
+       	.V(V)       	
        )
        the_adaptive_avb_ovc_mux
        (
@@ -257,8 +260,77 @@ endmodule
 
 
 
-
 module   mesh_torus_mask_non_assignable_destport #(
+    parameter TOPOLOGY="MESH",
+    parameter ROUTE_NAME="XY",
+    parameter SW_LOC=0,
+    parameter P=5,
+    parameter SELF_LOOP_EN="NO"    
+)
+(
+   odd_column,// use only for odd even routing
+   dest_port_in,
+   dest_port_out
+);
+
+    localparam P_1 = (SELF_LOOP_EN=="NO") ? P-1 : P;
+    input  [P_1-1 : 0 ] dest_port_in;
+    output [P_1-1 : 0 ] dest_port_out;
+    input odd_column;
+
+    wire  [P-2 : 0] dest_port_in_tmp,dest_port_out_tmp;
+    
+    generate 
+    if(SELF_LOOP_EN == "NO") begin :nslp
+        assign dest_port_in_tmp = dest_port_in;
+        assign dest_port_out = dest_port_out_tmp;
+    end else begin :slp
+        remove_sw_loc_one_hot #(
+            .P(P),
+            .SW_LOC(SW_LOC)
+        )
+        remove_sw_loc
+        (
+        	.destport_in(dest_port_in),
+        	.destport_out(dest_port_in_tmp)
+        );
+        //currently self-loop only can happen in local ports. 
+        //Current supported routing algorithms does not results in self-loop in other ports
+        wire sw_loc_val = (SW_LOC>0 && SW_LOC<5) ? 1'b0 : dest_port_in [SW_LOC];
+        
+        add_sw_loc_one_hot_val #(
+            .P(P),
+            .SW_LOC(SW_LOC)
+        )add_sw_loc
+        (
+            .sw_loc_val(sw_loc_val),
+            .destport_in (dest_port_out_tmp),
+            .destport_out(dest_port_out)
+        );
+
+       
+       
+        
+    end    
+    endgenerate
+
+    mesh_torus_mask_non_assignable_destport_no_self_loop # (
+        .TOPOLOGY(TOPOLOGY),
+        .ROUTE_NAME(ROUTE_NAME),
+        .SW_LOC(SW_LOC),
+        .P(P)    
+    )   
+    mask_no_self_loop
+    (
+    	.dest_port_in(dest_port_in_tmp),
+    	.dest_port_out(dest_port_out_tmp),
+    	.odd_column(odd_column)
+    );
+
+
+endmodule
+
+module   mesh_torus_mask_non_assignable_destport_no_self_loop #(
     parameter TOPOLOGY="MESH",
     parameter ROUTE_NAME="XY",
     parameter SW_LOC=0,
@@ -272,7 +344,8 @@ module   mesh_torus_mask_non_assignable_destport #(
 
 localparam
     EAST    =       1, 
-    NORTH   =       2,  
+    NORTH   =       2, 
+    WEST    =       3,
     SOUTH   =       4; 
 
 //port number in north port 
@@ -296,6 +369,13 @@ localparam
     E_WEST    =       2,  
     E_SOUTH   =       3; 
     
+   // port number in east port   
+ localparam
+    W_LOCAL   =       0,
+    W_EAST    =       1, 
+    W_NORTH   =       2,  
+    W_SOUTH   =       3;   
+    
 
     localparam P_1 = P-1;
     input [P_1-1  : 0 ] dest_port_in;
@@ -304,8 +384,8 @@ localparam
     
     
     generate 
-	if(P>5)begin :p5
-	    	assign dest_port_out[P_1-1:4] = dest_port_in[P_1-1:4]; //other local ports
+    if(P>5)begin :p5
+            assign dest_port_out[P_1-1:4] = dest_port_in[P_1-1:4]; //other local ports
             end      
 
 
@@ -335,6 +415,7 @@ localparam
         /* verilator lint_off WIDTH */ 
         end else  if ( ROUTE_NAME == "WEST_FIRST" || ROUTE_NAME  == "TRANC_WEST_FIRST") begin :west_first
         /* verilator lint_on WIDTH */ 
+         // SW &  NW are forbidden 
             if (SW_LOC == NORTH  ) begin : nort_p // north port does not send packets to the west port. 
                 assign dest_port_out[N_LOCAL]= dest_port_in[N_LOCAL]; 
                 assign dest_port_out[N_EAST]= dest_port_in[N_EAST]; 
@@ -352,11 +433,12 @@ localparam
         /* verilator lint_off WIDTH */ 
         end else  if ( ROUTE_NAME == "NORTH_LAST" || ROUTE_NAME  == "TRANC_NORTH_LAST") begin :north_last
         /* verilator lint_on WIDTH */ 
-            if (SW_LOC == NORTH  ) begin : nort_p // north port does not send packets to the east nor to the west port. 
-                assign dest_port_out[N_LOCAL]= dest_port_in[N_LOCAL]; 
-                assign dest_port_out[N_EAST]= 1'b0; // mask east port
-                assign dest_port_out[N_WEST]= 1'b0; // mask west port   
-                assign dest_port_out[N_SOUTH]= dest_port_in[N_SOUTH];                       
+            //NE & NW are forbidden
+            if (SW_LOC == SOUTH  ) begin : south_p // north port does not send packets to the east nor to the west port. 
+                assign dest_port_out[S_LOCAL]= dest_port_in[S_LOCAL]; 
+                assign dest_port_out[S_EAST]= 1'b0; // mask east port
+                assign dest_port_out[S_WEST]= 1'b0; // mask west port   
+                assign dest_port_out[S_NORTH]= dest_port_in[S_NORTH];                       
             end else begin : other_p
                  assign  dest_port_out[3:0] = dest_port_in[3:0];             
             end        
@@ -364,16 +446,17 @@ localparam
         /* verilator lint_off WIDTH */     
         end else  if ( ROUTE_NAME == "NEGETIVE_FIRST" || ROUTE_NAME  == "TRANC_NEGETIVE_FIRST") begin :negetive_first
         /* verilator lint_on WIDTH */ 
-            if (SW_LOC == NORTH  ) begin : nort_p // north port does not send packets to the west port. 
-                assign dest_port_out[N_LOCAL]= dest_port_in[N_LOCAL]; 
-                assign dest_port_out[N_EAST]= dest_port_in[N_EAST]; 
-                assign dest_port_out[N_WEST]= 1'b0; // mask west port   
-                assign dest_port_out[N_SOUTH]= dest_port_in[N_SOUTH];                                       
-            end else if ( SW_LOC == EAST) begin : south_p // east port does not sends packet to south
-                assign dest_port_out[E_LOCAL]= dest_port_in[E_LOCAL]; 
-                assign dest_port_out[E_NORTH]= dest_port_in[E_NORTH]; 
-                assign dest_port_out[E_WEST] = dest_port_in[E_WEST]; 
-                assign dest_port_out[E_SOUTH]= 1'b0; //mask south port
+          //ES & NW is forbiden
+            if (SW_LOC == SOUTH  ) begin : south_p // south port does not send packets to the west port. NW is forbiden
+                assign dest_port_out[S_LOCAL]= dest_port_in[S_LOCAL]; 
+                assign dest_port_out[S_EAST]= dest_port_in[S_EAST]; 
+                assign dest_port_out[S_WEST]= 1'b0; // mask west port   
+                assign dest_port_out[S_NORTH]= dest_port_in[S_NORTH];                                       
+            end else if ( SW_LOC == WEST) begin : west_p // west port does not sends packet to south. ES is forbiden
+                assign dest_port_out[W_LOCAL]= dest_port_in[W_LOCAL]; 
+                assign dest_port_out[W_NORTH]= dest_port_in[W_NORTH]; 
+                assign dest_port_out[W_EAST] = dest_port_in[W_EAST]; 
+                assign dest_port_out[W_SOUTH]= 1'b0; //mask south port
             end else begin : other_p
                  assign  dest_port_out[3:0] = dest_port_in[3:0];             
             end  
@@ -381,29 +464,32 @@ localparam
         /* verilator lint_off WIDTH */ 
         end else  if ( ROUTE_NAME == "ODD_EVEN" ) begin : odd_even   
         /* verilator lint_on WIDTH */ 
-        //Odd column :NW and SW turns are not allowed
+        //Odd column : NW and SW turns are not allowed
         //Even column: EN and ES turns are not allowed
-            if (SW_LOC == NORTH  ) begin : nort_p // north port does not send packets to the west port in odd columns. 
+    
+           if (SW_LOC == NORTH  ) begin : nort_p // north port does not send packets to the west port in odd columns. SW is forbiden
                 assign dest_port_out[N_LOCAL]= dest_port_in[N_LOCAL]; 
                 assign dest_port_out[N_EAST]= dest_port_in[N_EAST]; 
                 assign dest_port_out[N_WEST]= (odd_column)? 1'b0: dest_port_in[N_WEST];  // mask west port in odd columns 
                 assign dest_port_out[N_SOUTH]= dest_port_in[N_SOUTH];          
-             end else if (SW_LOC == SOUTH) begin : south_p // south port does not sends packet to west in odd columns
+             end else if (SW_LOC == SOUTH) begin : south_p // south port does not sends packet to west in odd columns. NW is forbiden
                 assign dest_port_out[S_LOCAL]= dest_port_in[S_LOCAL]; 
                 assign dest_port_out[S_EAST]= dest_port_in[S_EAST]; 
                 assign dest_port_out[S_NORTH]= dest_port_in[S_NORTH]; 
-                assign dest_port_out[S_WEST]= (odd_column)? 1'b0: dest_port_in[S_WEST];  // mask west port   in odd columns                               
-            end else if (SW_LOC == EAST) begin : east_p // east port does not sends packet to north and south ports in even columns
-                assign dest_port_out[E_LOCAL]= dest_port_in[E_LOCAL]; 
-                assign dest_port_out[E_NORTH]= (odd_column)? dest_port_in[E_NORTH] : 1'b0; //mask north in even columns
-                assign dest_port_out[E_WEST] = dest_port_in[E_WEST]; 
-                assign dest_port_out[E_SOUTH]= (odd_column)? dest_port_in[E_SOUTH] : 1'b0; //mask south in even columns
+                assign dest_port_out[S_WEST]= (odd_column)? 1'b0: dest_port_in[S_WEST];  // mask west port   in odd columns 
+            
+            
+           end else if (SW_LOC == WEST) begin : west_p // WEST port does not sends packet to north and south ports in even columns
+            //ES & EN forbiden 
+                assign dest_port_out[W_LOCAL]= dest_port_in[W_LOCAL]; 
+                assign dest_port_out[W_NORTH]= (odd_column)?   dest_port_in[W_NORTH] : 1'b0; //mask north in even columns
+                assign dest_port_out[W_EAST] = dest_port_in[W_EAST]; 
+                assign dest_port_out[W_SOUTH]= (odd_column)? dest_port_in[W_SOUTH] : 1'b0; //mask south in even columns
             end else begin: other_p
-                assign  dest_port_out[3:0] = dest_port_in[3:0];       
+                assign  dest_port_out[3:0] = dest_port_in[3:0]; 
             end
-	      
 
-	end else begin : f_adptv
+    end else begin : f_adptv
                 assign  dest_port_out[3:0] = dest_port_in[3:0];               
         end
     end
@@ -517,8 +603,7 @@ endmodule
 
 ************************/
 module  mesh_torus_adaptive_avb_ovc_mux #(
-    parameter V= 4
-
+   parameter V= 4
 )(
     ovc_avalable,
     sel,
@@ -1357,7 +1442,8 @@ module mesh_torus_destp_generator #(
     parameter NL=1,
     parameter ELw=1,
     parameter PPSw=4,
-    parameter SW_LOC=0
+    parameter SW_LOC=0,
+    parameter SELF_LOOP_EN="NO" 
 )(
     dest_port_out,
     dest_port_coded,
@@ -1366,7 +1452,8 @@ module mesh_torus_destp_generator #(
     port_pre_sel,
     odd_column
 );
-    localparam P_1 = P-1;
+    localparam P_1 =  ( SELF_LOOP_EN=="NO")?  P-1 : P;
+    
     input  [DSTPw-1 : 0] dest_port_coded;
     input  [ELw-1 : 0] endp_localp_num;
     output [P_1-1 : 0] dest_port_out;
@@ -1390,7 +1477,8 @@ module mesh_torus_destp_generator #(
                 .NL(NL),
                 .ELw(ELw),
                 .PPSw(PPSw),
-                .SW_LOC(SW_LOC)
+                .SW_LOC(SW_LOC),
+                .SELF_LOOP_EN(SELF_LOOP_EN)
             )
             decoder
             (
@@ -1409,7 +1497,8 @@ module mesh_torus_destp_generator #(
                 .NL(NL),
                 .ELw(ELw),
                 .PPSw(PPSw),
-                .SW_LOC(SW_LOC)
+                .SW_LOC(SW_LOC),
+                .SELF_LOOP_EN(SELF_LOOP_EN)
             )
             decoder
             (
@@ -1425,7 +1514,8 @@ module mesh_torus_destp_generator #(
             .TOPOLOGY(TOPOLOGY),
             .ROUTE_NAME(ROUTE_NAME),
             .SW_LOC(SW_LOC),
-            .P(P)
+            .P(P),
+            .SELF_LOOP_EN(SELF_LOOP_EN)
         )
         mask_destport
         (
@@ -1443,7 +1533,8 @@ module mesh_torus_destp_decoder #(
     parameter NL=2,
     parameter ELw=1,
     parameter PPSw=4,
-    parameter SW_LOC=0        
+    parameter SW_LOC=0,
+    parameter SELF_LOOP_EN="NO"
 )(
     dest_port_coded,
     endp_localp_num,
@@ -1452,7 +1543,7 @@ module mesh_torus_destp_decoder #(
     port_pre_sel
  );
   
-    localparam P_1 = P-1;
+    localparam P_1 = ( SELF_LOOP_EN=="NO")?  P-1 : P;
   
     input  [DSTPw-1 : 0] dest_port_coded;
     input  [ELw-1 : 0] endp_localp_num;
@@ -1499,7 +1590,7 @@ module mesh_torus_destp_decoder #(
      
      
      if(NL==1) begin :slp        
-        
+        if(SELF_LOOP_EN == "NO") begin :nslp
             remove_sw_loc_one_hot #(
                 .P(5),
                 .SW_LOC(SW_LOC)
@@ -1508,7 +1599,10 @@ module mesh_torus_destp_decoder #(
             (
                 .destport_in(portout),
                 .destport_out(dest_port_out)
-            );   
+            ); 
+         end else begin : slp
+            assign dest_port_out = portout;  
+         end
      end else begin :mlp
 
             wire [P-1 : 0] destport_onehot;
@@ -1525,16 +1619,19 @@ module mesh_torus_destp_decoder #(
             
            assign destport_onehot =(portout[0])?  { endp_localp_onehot[NL-1 : 1] ,{(P-NL){1'b0}},endp_localp_onehot[0]}: /*select local destination*/ 
 			                                      { {(NL-1){1'b0}} ,portout};
-           
-            remove_sw_loc_one_hot #(
-                .P(P),
-                .SW_LOC(SW_LOC)
-            )
-            remove_sw_loc
-            (
-                .destport_in(destport_onehot),
-                .destport_out(dest_port_out)
-            );        
+           if(SELF_LOOP_EN == "NO") begin :nslp
+                remove_sw_loc_one_hot #(
+                    .P(P),
+                    .SW_LOC(SW_LOC)
+                )
+                remove_sw_loc
+                (
+                    .destport_in(destport_onehot),
+                    .destport_out(dest_port_out)
+                );
+            end else begin: slp
+                assign dest_port_out = destport_onehot;            
+            end
     end
     endgenerate
 endmodule
@@ -1551,14 +1648,15 @@ module line_ring_destp_decoder #(
     parameter NL=2,
     parameter ELw=1,
     parameter PPSw=4,
-    parameter SW_LOC=0        
+    parameter SW_LOC=0,
+    parameter SELF_LOOP_EN= "NO"
 )(
     dest_port_coded,
     endp_localp_num,
     dest_port_out   
  );
   
-    localparam P_1 = P-1;
+    localparam P_1 = (SELF_LOOP_EN == "NO")?  P-1 : P;
   
     input  [DSTPw-1 : 0] dest_port_coded;
     input  [ELw-1 : 0] endp_localp_num;
@@ -1580,7 +1678,7 @@ module line_ring_destp_decoder #(
      
      generate
      if(NL==1) begin :slp        
-        
+        if(SELF_LOOP_EN == "NO") begin :nslp
             remove_sw_loc_one_hot #(
                 .P(3),
                 .SW_LOC(SW_LOC)
@@ -1589,7 +1687,10 @@ module line_ring_destp_decoder #(
             (
                 .destport_in(portout),
                 .destport_out(dest_port_out)
-            );   
+            ); 
+         end else begin : slp 
+            assign dest_port_out = portout;
+         end
      end else begin :mlp
 
             wire [P-1 : 0] destport_onehot;
@@ -1606,16 +1707,19 @@ module line_ring_destp_decoder #(
             
            assign destport_onehot =(portout[0])?  { endp_localp_onehot[NL-1 : 1] ,{(P-NL){1'b0}},endp_localp_onehot[0]}: /*select local destination*/ 
                                                   { {(NL-1){1'b0}} ,portout};
-           
-            remove_sw_loc_one_hot #(
-                .P(P),
-                .SW_LOC(SW_LOC)
-            )
-            remove_sw_loc
-            (
-                .destport_in(destport_onehot),
-                .destport_out(dest_port_out)
-            );        
+            if(SELF_LOOP_EN == "NO") begin :nslp
+                remove_sw_loc_one_hot #(
+                    .P(P),
+                    .SW_LOC(SW_LOC)
+                )
+                remove_sw_loc
+                (
+                    .destport_in(destport_onehot),
+                    .destport_out(dest_port_out)
+                ); 
+            end else begin :slp
+                assign dest_port_out = destport_onehot;            
+            end
     end
     endgenerate
 endmodule

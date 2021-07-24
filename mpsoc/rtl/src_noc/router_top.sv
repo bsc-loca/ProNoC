@@ -16,15 +16,30 @@ module router_top
 	# (
 		parameter P = 5     // router port num         
 		)(
-			current_r_addr,// connected to constant parameter  
+			current_r_addr,// connected to constant parameter 
+			
         
 			chan_in,
 			chan_out,
         
 			clk,
 			reset
-
+			
 		);
+	
+	
+	localparam DISABLED =P;
+
+	input [RAw-1 :  0]  current_r_addr;
+    
+	input   router_chanel_t chan_in [P-1 : 0];
+	output  router_chanel_t chan_out [P-1 : 0];
+	input   clk,reset;
+	
+	
+	
+	genvar i,j;
+	
   
 	//synthesis translate_off 
 	//synopsys  translate_off
@@ -43,20 +58,28 @@ module router_top
 			$finish;	
 		end
 	end
+	
+	
+	
+	logic report_active_ivcs = 0;
+	
+	generate 
+	for (i=0; i<P; i=i+1) begin :P_
+		for (j=0; j<V; j=j+1) begin :V_		
+		always @ (posedge report_active_ivcs) begin 
+			if(ivc_info[i][j].ivc_req) $display("%t : The IVC in router[%h] port[%d] VC [%d] is not empty",$time,current_r_addr,i,j);
+		end
+		end
+	end
+	endgenerate
+	
 	/* verilator lint_on WIDTH */
 	//synopsys  translate_on
 	//synthesis translate_on 
 	
 	
-	localparam DISABLED =P;
-
-	input [RAw-1 :  0]  current_r_addr;
-    
-	input   router_chanel_t chan_in [P-1 : 0];
-	output  router_chanel_t chan_out [P-1 : 0];
-	input   clk,reset;
 	
-	genvar i;
+	
 	
 	flit_chanel_t r2_chan_in  [P-1 : 0];
 	flit_chanel_t r2_chan_out [P-1 : 0];
@@ -126,16 +149,16 @@ module router_top
 	router_two_stage  #(//r2
 			.P (P)
 		)router_ref (
-			.ivc_info(ivc_info),
-			.ovc_info(ovc_info),
-			.iport_info(iport_info),
-			.oport_info(oport_info),
-			.sbp_ctrl_in(sbp_ctrl),
-			.current_r_addr  (current_r_addr ), 
-			.chan_in         (r2_chan_in     ), 
-			.chan_out        (r2_chan_out    ), 
-			.clk             (clk            ), 
-			.reset           (reset          )			
+			.ivc_info (ivc_info),
+			.ovc_info (ovc_info),
+			.iport_info (iport_info),
+			.oport_info (oport_info),
+			.sbp_ctrl_in (sbp_ctrl),
+			.current_r_addr(current_r_addr),
+			.chan_in (r2_chan_in), 
+			.chan_out (r2_chan_out), 
+			.clk (clk), 
+			.reset (reset)			
 		);                
 
 	generate 
@@ -191,7 +214,7 @@ module router_top
 						) sbp_allocator(
 							.clk                       (clk                      ), 
 							.reset                     (reset                    ), 
-							.current_r_addr_i          (current_r_addr           ), 
+							.current_r_addr_i          (current_r_addr   ), 
 							.neighbors_r_addr_i        (neighbors_r_addr         ), 
 							.sbp_chanel_i              (chan_in[i].sbp_chanel    ), 
 							.flit_chanel_i             (chan_in[i].flit_chanel   ), 
@@ -201,7 +224,7 @@ module router_top
 							.ss_sbp_chanel_new		   (sbp_chanel_new[SS_PORT]),
 							.ss_port_link_reg_flit_wr  (r2_chan_out[SS_PORT].flit_wr), 
 							
-							.sbp_single_flit_pck_o       (sbp_ctrl[i].single_flit_pck),
+							.sbp_ivc_single_flit_pck_o   (sbp_ctrl[i].ivc_single_flit_pck),
 							.sbp_destport_o				 (sbp_ctrl[i].destport     ),	
 							.sbp_lk_destport_o			 (sbp_ctrl[i].lk_destport  ),	
 							.sbp_hdr_flit_req_o          (sbp_ctrl[i].hdr_flit_req ),
@@ -211,12 +234,13 @@ module router_top
 							.sbp_ivc_num_getting_ovc_grant_o(sbp_ctrl[i].ivc_num_getting_ovc_grant),
 							.sbp_ivc_reset_o             (sbp_ctrl[i].ivc_reset),
 							.sbp_ivc_granted_ovc_num_o   (sbp_ctrl[i].ivc_granted_ovc_num),
+							.sbp_ovc_single_flit_pck_o   (sbp_ctrl[SS_PORT].ovc_single_flit_pck),
 							.sbp_ss_ovc_is_allocated_o	 (sbp_ctrl[SS_PORT].ovc_is_allocated),     
-							.sbp_ss_ovc_is_released_o	 (sbp_ctrl[SS_PORT].ovc_is_released),      
+							.sbp_ss_ovc_is_released_o	 (sbp_ctrl[SS_PORT].ovc_is_released), 
 							.sbp_mask_available_ss_ovc_o (sbp_ctrl[SS_PORT].mask_available_ovc)	
 					
 						);
-				
+				    
 					assign sbp_ctrl[i].ivc_sbp_en = ivc_sbp_en[i];
 					assign sbp_ctrl[i].sbp_en = |ivc_sbp_en[i];
 					
@@ -295,7 +319,7 @@ module router_top_v //to be used as top module in veralator
 	# (
 		parameter P = 5     // router port num         
 		)(
-			current_r_addr,// connected to constant parameter  
+			current_r_addr,
         
 			chan_in,
 			chan_out,
@@ -307,7 +331,7 @@ module router_top_v //to be used as top module in veralator
   
 	
 
-	input [RAw-1 :  0]  current_r_addr;
+	input  [RAw-1 : 0] current_r_addr;
     
 	input   router_chanel_t chan_in [P-1 : 0];
 	output  router_chanel_t chan_out [P-1 : 0];
@@ -318,7 +342,7 @@ module router_top_v //to be used as top module in veralator
 		)
 		router
 		(
-			.current_r_addr(current_r_addr),          
+			.current_r_addr(current_r_addr),
 			.chan_in (chan_in),
 			.chan_out(chan_out),       
 			.clk(clk),
@@ -329,103 +353,3 @@ module router_top_v //to be used as top module in veralator
 endmodule
 
 
-/**********************************
-The router top module that can be called in Verilog module. 
- ***********************************
-
-module router_top_v
-		import pronoc_pkg::*;        
-	# (
-		parameter P = 5     // router port num         
-		)(
-	
-			current_r_addr,
-			neighbors_r_addr_in,
-			neighbors_r_addr_out,
-   
-			flit_in_all,
-			flit_in_wr_all,
-			credit_out_all,
-			congestion_in_all,
-			sbp_chan_in,
-    
-			flit_out_all,
-			flit_out_wr_all,
-			credit_in_all,
-			congestion_out_all,
-			sbp_chan_out,
-    
-			clk,reset
-
-		);
-
-	localparam 
-		PRAw	=P * RAw,
-		PFw		=P * Fw,
-		PV		=P * V,
-		PCONGw	=P * CONGw,
-		PSBPw	=P * SBP_CHANEL_w;
-
-
-	input  [RAw-1 :  0]  current_r_addr;
-	input  [PRAw-1:  0]  neighbors_r_addr_in;
-	output [PRAw-1:  0]  neighbors_r_addr_out;
-
-	input  [PFw-1 :  0]  flit_in_all;
-	input  [P-1 :  0]  flit_in_wr_all;
-	output [PV-1 :  0]  credit_out_all;
-	input  [PCONGw-1 :  0]  congestion_in_all;
-    
-	output [PFw-1 :  0]  flit_out_all;
-	output [P-1 :  0]  flit_out_wr_all;
-	input  [PV-1 :  0]  credit_in_all;
-	output [PCONGw-1 :  0]  congestion_out_all;
-    
-    input  [PSBPw-1 : 0] sbp_chan_in;
-	output [PSBPw-1 : 0] sbp_chan_out;
-    
-    
-	input clk,reset;
-
-	//internal var
-	router_chanel_t chan_in  [P-1 : 0];
-	router_chanel_t chan_out [P-1 : 0];
-
-
-	router_top # (
-			.P(P)           
-		)
-		router
-		(
-			.current_r_addr(current_r_addr),          
-			.chan_in (chan_in),
-			.chan_out(chan_out),       
-			.clk(clk),
-			.reset(reset)
-		);
-
-	genvar i;
-	generate
-		for(i=0;i<P;i=i+1) begin: p
-			assign chan_in[i].flit_chanel.flit 		= flit_in_all   [(i+1)*Fw-1 : i*Fw];
-			assign chan_in[i].flit_chanel.flit_wr 	= flit_in_wr_all[i];
-			assign chan_in[i].flit_chanel.credit 	= credit_in_all [(i+1)*V-1 : i*V];
-			assign chan_in[i].flit_chanel.congestion 	= congestion_in_all [(i+1)*CONGw-1 : i*CONGw];
-			assign chan_in[i].flit_chanel.neighbors_r_addr =neighbors_r_addr_in [(i+1)*RAw-1 : i*RAw];
-			assign chan_in[i].sbp_chanel =  sbp_chan_in [(i+1)*SBP_CHANEL_w-1 : i*SBP_CHANEL_w];
-	
-
-			assign flit_out_all   [(i+1)*Fw-1 : i*Fw] = chan_out[i].flit_chanel.flit;
-			assign flit_out_wr_all[i] = chan_out[i].flit_chanel.flit_wr;
-			assign credit_out_all [(i+1)*V-1 : i*V] = chan_out[i].flit_chanel.credit;
-			assign congestion_out_all [(i+1)*CONGw-1 : i*CONGw] = chan_out[i].flit_chanel.congestion;
-			assign neighbors_r_addr_out [(i+1)*RAw-1 : i*RAw] = chan_out[i].flit_chanel.neighbors_r_addr;
-			assign sbp_chan_out [(i+1)*SBP_CHANEL_w-1 : i*SBP_CHANEL_w]= chan_out[i].sbp_chanel;
-		
-
-		end
-	endgenerate 
-
-
-endmodule 
-*/

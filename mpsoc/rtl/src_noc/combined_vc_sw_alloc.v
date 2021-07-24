@@ -33,7 +33,8 @@ module combined_vc_sw_alloc #(
     parameter FIRST_ARBITER_EXT_P_EN = 1,
     parameter DEBUG_EN = 1,
     parameter SWA_ARBITER_TYPE = "RRA",//"RRA","WRRA". RRA: Round Robin Arbiter WRRA weighted Round Robin Arbiter 
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
+    parameter SELF_LOOP_EN= "NO"
 )
 (
 
@@ -67,7 +68,7 @@ module combined_vc_sw_alloc #(
     localparam
         PV = V * P,
         PVV = PV * V,    
-        P_1 = P-1,
+        P_1 = (SELF_LOOP_EN == "NO")? P-1 : P,
         PP_1 = P_1 * P,
         PVP_1 = PV * P_1;                    
                     
@@ -105,7 +106,8 @@ module combined_vc_sw_alloc #(
             .P(P),                        
             .TREE_ARBITER_EN(1),
             .DEBUG_EN(DEBUG_EN),
-            .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE)
+            .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE),
+            .SELF_LOOP_EN(SELF_LOOP_EN)
         )
         the_base_line
         (
@@ -139,7 +141,8 @@ module combined_vc_sw_alloc #(
             .P(P),
             .DEBUG_EN(DEBUG_EN),
             .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE),
-            .MIN_PCK_SIZE(MIN_PCK_SIZE)
+            .MIN_PCK_SIZE(MIN_PCK_SIZE),
+            .SELF_LOOP_EN(SELF_LOOP_EN)
             
         )
         the_comb_spec1
@@ -176,7 +179,8 @@ module combined_vc_sw_alloc #(
                 .P(P),
                 .DEBUG_EN(DEBUG_EN),
                 .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE),
-                .MIN_PCK_SIZE(MIN_PCK_SIZE)
+                .MIN_PCK_SIZE(MIN_PCK_SIZE),
+                .SELF_LOOP_EN(SELF_LOOP_EN)
             )
             the_comb_spec2
             (
@@ -214,7 +218,8 @@ module combined_vc_sw_alloc #(
                 .P(P),
                 .FIRST_ARBITER_EXT_P_EN(FIRST_ARBITER_EXT_P_EN),
                 .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE),
-                .MIN_PCK_SIZE(MIN_PCK_SIZE)
+                .MIN_PCK_SIZE(MIN_PCK_SIZE),
+                .SELF_LOOP_EN(SELF_LOOP_EN)
             )
             nonspec_comb
             (
@@ -246,7 +251,8 @@ module combined_vc_sw_alloc #(
                 .P(P),
                 .FIRST_ARBITER_EXT_P_EN(FIRST_ARBITER_EXT_P_EN),
                 .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE),
-                .MIN_PCK_SIZE(MIN_PCK_SIZE)
+                .MIN_PCK_SIZE(MIN_PCK_SIZE),
+                .SELF_LOOP_EN(SELF_LOOP_EN)
             )
             nonspec_comb
             (

@@ -65,13 +65,13 @@ sub INIT_INSTANCE {
 	$frame->show;
 	my $event_box = Gtk2::EventBox->new;
 	# $event_box->set_size_request (140, 140);
-	my $lable   = Gtk2::Label->new($self->{label});
-	$event_box->add($lable);
+	my $label   = Gtk2::Label->new($self->{label});
+	$event_box->add($label);
 	
 	$frame->add ($event_box);
 	$event_box->show;
 	$self->{colorbox} = $event_box;
-	$self->{labelbox} = $lable; 
+	$self->{labelbox} = $label; 
 }
 
 sub on_show {

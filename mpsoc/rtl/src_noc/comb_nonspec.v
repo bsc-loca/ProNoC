@@ -35,8 +35,8 @@ module comb_nonspec_allocator #(
     parameter  FIRST_ARBITER_EXT_P_EN = 1,
    // parameter  VC_ARBITER_TYPE = "RRA", // "RRA", "FIX_PR"
     parameter  SWA_ARBITER_TYPE = "WRRA",// "RRA", "WRRA"
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
-
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1. 
+    parameter SELF_LOOP_EN= "NO"
 )(
     //VC allocator
     //input 
@@ -72,7 +72,7 @@ module comb_nonspec_allocator #(
 );
        
     localparam
-        P_1 = P-1,
+        P_1 = (SELF_LOOP_EN == "NO")? P-1 : P,
         PV = V * P,
         VV = V * V,
         VP_1 = V * P_1,                
@@ -117,7 +117,8 @@ module comb_nonspec_allocator #(
         .P(P),
         .FIRST_ARBITER_EXT_P_EN(FIRST_ARBITER_EXT_P_EN),
         .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE),
-        .MIN_PCK_SIZE(MIN_PCK_SIZE)
+        .MIN_PCK_SIZE(MIN_PCK_SIZE),
+        .SELF_LOOP_EN(SELF_LOOP_EN)
     )
     nonspeculative_sw_allocator
     (
@@ -269,11 +270,15 @@ module comb_nonspec_allocator #(
     
     for(i=0;i< PV;i=i+1) begin :total_vc_loop2
         for(j=0;j<P;    j=j+1)begin: assign_loop2
-            if((i/V)<j )begin: jj
-                assign ovc_allocated_all_gen[i][j-1] = cand_ovc_granted[j][i];
-            end else if((i/V)>j) begin: hh
-                assign ovc_allocated_all_gen[i][j] = cand_ovc_granted[j][i-V];
-                
+            if(SELF_LOOP_EN == "NO") begin :nslp
+                if((i/V)<j )begin: jj
+                    assign ovc_allocated_all_gen[i][j-1] = cand_ovc_granted[j][i];
+                end else if((i/V)>j) begin: hh
+                    assign ovc_allocated_all_gen[i][j] = cand_ovc_granted[j][i-V];
+                    
+                end
+            end else begin : slp
+                 assign ovc_allocated_all_gen[i][j] = cand_ovc_granted[j][i];            
             end
         end//j
         
@@ -304,7 +309,8 @@ module  comb_nonspec_v2_allocator #(
     parameter P = 5,
     parameter FIRST_ARBITER_EXT_P_EN = 1,
     parameter SWA_ARBITER_TYPE = "WRRA",
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1.             
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
+    parameter SELF_LOOP_EN= "NO"
 
 )(
     //VC allocator
@@ -341,7 +347,7 @@ module  comb_nonspec_v2_allocator #(
 
      
     localparam
-        P_1 = P-1,
+        P_1 = (SELF_LOOP_EN == "NO") ?  P-1 :P,
         PV = V * P,
         VV = V * V,
         VP_1 = V * P_1,                
@@ -533,7 +539,8 @@ module nonspec_sw_alloc #(
     parameter P = 5,
     parameter FIRST_ARBITER_EXT_P_EN = 1, 
     parameter SWA_ARBITER_TYPE = "WRRA",
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
+    parameter SELF_LOOP_EN="NO"
 
 )(
 
@@ -555,7 +562,7 @@ module nonspec_sw_alloc #(
 );
 
    localparam
-        P_1 = P-1,
+        P_1 = (SELF_LOOP_EN== "NO") ? P-1 : P,
         PV = V * P,
         VP_1 = V * P_1,                
         PP_1 = P_1 * P,
@@ -660,15 +667,19 @@ module nonspec_sw_alloc #(
             
             assign  single_flit_granted_dst[i] = (single_flit_pck_local_grant[i])?  granted_dest_port[i] : {P_1{1'b0}};
     
-            add_sw_loc_one_hot #(
-                .P(P),
-                .SW_LOC(i)
-            )
-            add_sw_loc
-            (
-                .destport_in(single_flit_granted_dst[i]),
-                .destport_out(single_flit_granted_dst_all[(i+1)*P-1 : i*P])
-            );
+            if (SELF_LOOP_EN == "NO") begin :nslp
+                add_sw_loc_one_hot #(
+                    .P(P),
+                    .SW_LOC(i)
+                )
+                add_sw_loc
+                (
+                    .destport_in(single_flit_granted_dst[i]),
+                    .destport_out(single_flit_granted_dst_all[(i+1)*P-1 : i*P])
+                );
+            end else begin :slp
+                assign single_flit_granted_dst_all[(i+1)*P-1 : i*P] = single_flit_granted_dst[i];
+            end
             
         end else begin : single_flit_notsupported 
             assign single_flit_pck_local_grant[i] = 1'bx;
@@ -679,6 +690,7 @@ module nonspec_sw_alloc #(
 
 
     for(j=0;j<P;    j=j+1)begin: assign_loop
+         if (SELF_LOOP_EN == "NO") begin :nslp
             if(i<j)begin: jj
                 assign second_arbiter_request[i][j-1]  = dest_port[j][i];
                 //assign second_arbiter_weight_consumed[i][j-1]  =winner_weight_consumed[j] ;
@@ -691,7 +703,12 @@ module nonspec_sw_alloc #(
                 assign second_arbiter_weight_consumed[i][j]  =iport_weight_is_consumed_all[j];
                 assign granted_dest_port[j][i-1] = second_arbiter_grant  [i][j] ;
             end
-            //if(i==j) wires are left disconnected        
+            //if(i==j) wires are left disconnected 
+        end else begin :slp
+            assign second_arbiter_request[i][j]  = dest_port[j][i];
+            assign second_arbiter_weight_consumed[i][j]  =iport_weight_is_consumed_all[j] ;
+            assign granted_dest_port[j][i] = second_arbiter_grant  [i][j] ;        
+        end
     end
     
         
