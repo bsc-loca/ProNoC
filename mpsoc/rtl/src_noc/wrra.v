@@ -323,7 +323,8 @@ module  weight_control #(
     parameter SW_LOC=0,
     parameter WEIGHTw= 4,
     parameter WRRA_CONFIG_INDEX=0,
-    parameter P=5  
+    parameter P=5,
+    parameter SELF_LOOP_EN = "NO"
 )
 (
    
@@ -341,7 +342,7 @@ module  weight_control #(
     localparam 
         W = WEIGHTw,
         WP = W * P,
-        P_1 = P-1;
+        P_1 = (SELF_LOOP_EN=="NO") ?  P-1 : P;
     
     localparam [W-1 : 0] INIT_WEIGHT = 1;
     localparam [W-1 : 0] MAX_WEIGHT = {W{1'b1}}-1'b1;
@@ -366,17 +367,21 @@ module  weight_control #(
     reg  [W-1 : 0] oport_weight_counter [P-1 : 0];
     reg  [W-1 : 0] oport_weight [P-1 : 0];
     
-    
-    add_sw_loc_one_hot #(
-        .P(P),
-        .SW_LOC(SW_LOC)
-    )
-    add_sw_loc
-    (
-        .destport_in(granted_dest_port),
-        .destport_out(dest_port)
-    );
-    
+    generate
+    if(SELF_LOOP_EN == "NO") begin : nslp
+        add_sw_loc_one_hot #(
+            .P(P),
+            .SW_LOC(SW_LOC)
+        )
+        add_sw_loc
+        (
+            .destport_in(granted_dest_port),
+            .destport_out(dest_port)
+        );
+    end else begin : slp
+        assign dest_port = granted_dest_port;    
+    end
+    endgenerate
     
     assign oports_weight [W-1 : 0] = {W{1'b0}};
     
@@ -575,7 +580,8 @@ module  wrra_contention_gen #(
     parameter V=4,
     parameter P=5,
     parameter WRRA_CONFIG_INDEX=0,
-    parameter WEIGHTw = 4 // WRRA width        
+    parameter WEIGHTw = 4, // WRRA width
+    parameter SELF_LOOP_EN ="NO"
 )(
     ovc_is_assigned_all, 
     ivc_request_all,
@@ -596,7 +602,7 @@ module  wrra_contention_gen #(
     endfunction // log2 
     
     localparam 
-        P_1 = P-1,
+        P_1 = (SELF_LOOP_EN == "NO") ?  P-1 : P,
         PV = P * V, 
         VP_1= V * P_1,
         PVP_1 = PV * P_1,
@@ -644,7 +650,8 @@ module  wrra_contention_gen #(
          wrra_inputport_destports_sum #(
             .V(V),
             .P(P),
-            .SW_LOC(i)
+            .SW_LOC(i),
+            .SELF_LOOP_EN(SELF_LOOP_EN)
          )
          destports_sum
          (
@@ -712,7 +719,8 @@ endmodule
 module  wrra_inputport_destports_sum #(
     parameter V=4,
     parameter P=5,
-    parameter SW_LOC=0        
+    parameter SW_LOC=0,
+    parameter SELF_LOOP_EN = "NO"
 )(
     weight_is_valid,
     dest_ports,
@@ -721,7 +729,7 @@ module  wrra_inputport_destports_sum #(
 );
 
     localparam 
-        P_1 = P - 1,
+        P_1 = (SELF_LOOP_EN== "NO")? P - 1 : P,
         VP_1 = V * P_1;
 
     input [V-1 : 0] weight_is_valid;
@@ -738,7 +746,7 @@ module  wrra_inputport_destports_sum #(
     for (i=0;i<V; i=i+1) begin : port_lp
         assign  dest_ports_masked [(i+1)*P_1-1  : i*P_1] =  (weight_is_valid[i]) ? dest_ports [(i+1)*P_1-1  : i*P_1] : {P_1{1'b0}};     
     end    
-    endgenerate
+    
     
     custom_or #(
         .IN_NUM(V),
@@ -750,18 +758,20 @@ module  wrra_inputport_destports_sum #(
     );
     
     
-    
-    add_sw_loc_one_hot #(
-        .P(P),
-        .SW_LOC(SW_LOC)
-    )
-    add_sw_loc
-    (
-        .destport_in(sum),
-        .destport_out(destports_sum)
-    );
-    
-
+    if(SELF_LOOP_EN=="NO") begin : nslp
+        add_sw_loc_one_hot #(
+            .P(P),
+            .SW_LOC(SW_LOC)
+        )
+        add_sw_loc
+        (
+            .destport_in(sum),
+            .destport_out(destports_sum)
+        );
+    end else begin : slp
+        assign destports_sum = sum;    
+    end
+    endgenerate
 endmodule
 
 /***************

@@ -153,12 +153,18 @@ module mesh_torus_noc_top
 				end else begin :last_x
 					/* verilator lint_off WIDTH */ 
 					if(TOPOLOGY == "MESH") begin :last_x_mesh
-						/* verilator lint_on WIDTH */ 
+					/* verilator lint_on WIDTH */ 
 						assign router_chan_in[`router_id(x,y)][EAST] = {ROUTER_CHANEL_w{1'b0}};					
-						/* verilator lint_off WIDTH */ 
+					/* verilator lint_off WIDTH */ 
 					end else if(TOPOLOGY == "TORUS") begin : last_x_torus
-						/* verilator lint_on WIDTH */ 
+					/* verilator lint_on WIDTH */ 
 						assign router_chan_in[`router_id(x,y)][EAST] = router_chan_out [`router_id(0,y)][WEST];						
+					/* verilator lint_off WIDTH */ 
+					end else if(TOPOLOGY == "FMESH") begin : last_x_fmesh //connect to endp
+					/* verilator lint_on WIDTH */ 
+						localparam EAST_ID = NX*NY*NL + 2*NX + NY +y; 
+						assign router_chan_in [`router_id(x,y)][EAST] =    chan_in_all [EAST_ID];
+						assign chan_out_all [EAST_ID] = router_chan_out [`router_id(x,y)][EAST];						 
 					end //topology
 				end 
             
@@ -170,10 +176,16 @@ module mesh_torus_noc_top
 					if(TOPOLOGY == "MESH") begin : first_y_mesh
 					/* verilator lint_on WIDTH */ 
 						assign router_chan_in[`router_id(x,y)][NORTH] =  {ROUTER_CHANEL_w{1'b0}};												
-						/* verilator lint_off WIDTH */ 
+					/* verilator lint_off WIDTH */ 
 					end else if(TOPOLOGY == "TORUS") begin :first_y_torus
-						/* verilator lint_on WIDTH */ 
+					/* verilator lint_on WIDTH */ 
 						assign router_chan_in[`router_id(x,y)][NORTH] =  router_chan_out [`router_id(x,(NY-1))][SOUTH];						
+					/* verilator lint_off WIDTH */ 
+					end else if(TOPOLOGY == "FMESH") begin : first_y_fmesh //connect to endp
+					/* verilator lint_on WIDTH */ 	
+						localparam NORTH_ID = NX*NY*NL + x; 
+						assign router_chan_in [`router_id(x,y)][NORTH] =    chan_in_all [NORTH_ID];
+						assign chan_out_all [NORTH_ID] = router_chan_out [`router_id(x,y)][NORTH];
 					end//topology
 				end//y>0
             
@@ -183,12 +195,18 @@ module mesh_torus_noc_top
 				end else begin :first_x
 					/* verilator lint_off WIDTH */ 
 					if(TOPOLOGY == "MESH") begin :first_x_mesh
-						/* verilator lint_on WIDTH */ 
+					/* verilator lint_on WIDTH */ 
 						assign    router_chan_in[`router_id(x,y)][WEST] =   {ROUTER_CHANEL_w{1'b0}};						
-						/* verilator lint_off WIDTH */                
+					/* verilator lint_off WIDTH */                
 					end else if(TOPOLOGY == "TORUS") begin :first_x_torus
-						/* verilator lint_on WIDTH */ 
+					/* verilator lint_on WIDTH */ 
 						assign    router_chan_in[`router_id(x,y)][WEST] =   router_chan_out [`router_id((NX-1),y)][EAST] ;						
+					/* verilator lint_off WIDTH */ 
+					end else if(TOPOLOGY == "FMESH") begin : first_x_fmesh //connect to endp
+					/* verilator lint_on WIDTH */ 	
+						localparam WEST_ID = NX*NY*NL +2*NX + y; 
+						assign router_chan_in [`router_id(x,y)][WEST] =    chan_in_all [WEST_ID];
+						assign chan_out_all [WEST_ID] = router_chan_out [`router_id(x,y)][WEST];						
 					end//topology
 				end    
             
@@ -203,6 +221,11 @@ module mesh_torus_noc_top
 					end else if(TOPOLOGY == "TORUS") begin :ly_torus
 						/* verilator lint_on WIDTH */ 
 						assign  router_chan_in[`router_id(x,y)][SOUTH]=    router_chan_out [`router_id(x,0)][NORTH];						
+					end else if(TOPOLOGY == "FMESH") begin : ly_fmesh //connect to endp
+						/* verilator lint_on WIDTH */ 	
+						localparam SOUTH_ID = NX*NY*NL + NX + x; 
+						assign router_chan_in [`router_id(x,y)][SOUTH] =    chan_in_all [SOUTH_ID];
+						assign chan_out_all [SOUTH_ID] = router_chan_out [`router_id(x,y)][SOUTH];
 					end//topology
 				end          
         

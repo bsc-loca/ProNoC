@@ -11,6 +11,8 @@
 #include "Vtraffic.h"
 #include "parameter.h"
 
+#define IS_SELF_LOOP_EN (strcmp(SELF_LOOP_EN ,"YES")==0)
+
 Vtraffic		*traffic[NE];
 
 
@@ -107,7 +109,7 @@ unsigned int * rsv_size_array;
 void update_noc_statistic (	int);
 unsigned char pck_class_in_gen(unsigned int);
 unsigned int pck_dst_gen_task_graph ( unsigned int);
-void print_statistic (char *);
+void print_statistic (void);
 void print_parameter();
 void reset_all_register();
 void sim_eval_all (void);
@@ -380,7 +382,7 @@ int main(int argc, char** argv) {
 	int i,j,x,y;//,report_delay_counter=0;
 	char file_name[100];
 	char deafult_out[] = {"result"};
-	char * out_file_name;
+
 	unsigned int dest_e_addr;
 
 	while((0x1<<NEw) < NE)NEw++;
@@ -391,7 +393,7 @@ int main(int argc, char** argv) {
 	Vrouter_new();
 	//noc								= new Vnoc;
 	for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
-	for(i=0;i<NE;i++)   custom_traffic_table[i]=i; //off
+	for(i=0;i<NE;i++)   custom_traffic_table[i]=INJECT_OFF; //off
 	processArgs ( argc,  argv );
 	
 	
@@ -415,8 +417,9 @@ int main(int argc, char** argv) {
     	traffic[i]->pck_size_in=get_new_pck_size();
     	dest_e_addr=pck_dst_gen (i);
     	traffic[i]->dest_e_addr= dest_e_addr;
+    	if(dest_e_addr == INJECT_OFF) traffic[i]->stop=1;
     	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
-    	traffic[i]->stop=inject_done;
+    	if(inject_done) traffic[i]->stop=1;
     	traffic[i]->start_delay=rnd_between(1,4*NE-2);
     	if(TRAFFIC_TYPE==SYNTHETIC){
     		//traffic[i]->avg_pck_size_in=AVG_PACKET_SIZE;
@@ -449,7 +452,7 @@ int main(int argc, char** argv) {
 				printf(" simulation clock cycles:%d\n",clk_counter);
 				printf(" total received flits:%d\n",total_rsv_flit_number);
 				printf(" total sent flits:%d\n",total_sent_flit_number);
-				print_statistic(out_file_name);
+				print_statistic( );
 				change_injection_ratio = 1;
 				sim_final_all();
 				return 0;
@@ -523,7 +526,7 @@ void clk_negedge_event(void){
 			
 
 	for (i=0;i<NE;i++){
-				traffic[i]->stop=inject_done;
+				if(inject_done) traffic[i]->stop=1;
 				traffic[i]->current_r_addr		= er_addr[i];
 
 	}
@@ -563,6 +566,7 @@ void clk_posedge_event(void) {
 				if(!FIXED_SRC_DST_PAIR){
 					dest_e_addr=pck_dst_gen (i);
 					traffic[i]->dest_e_addr= dest_e_addr;
+					if(dest_e_addr == INJECT_OFF) traffic[i]->stop=1;
 					//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
 				}
 			}
@@ -578,6 +582,7 @@ void clk_posedge_event(void) {
 				if(total_rsv_flit_number_old == total_rsv_flit_number){
 						ideal_rsv_cnt++;
 						if(ideal_rsv_cnt >= 100){
+							print_statistic( );
 							fprintf(stderr,"ERROR: The number of sent (%u) & received flits (%u) were not equal at the end of simulation\n",total_sent_flit_number, total_rsv_flit_number);
 							exit(1);
 						}
@@ -628,7 +633,7 @@ void update_noc_statistic (	int	core_num){
 
 
 
-void print_statistic (char * out_file_name){
+void print_statistic (void){
 	double avg_latency_per_hop,  avg_latency_flit, avg_latency_pck, avg_throughput,min_avg_latency_per_class;
 	int i;
 #if (STND_DEV_EN)
@@ -857,13 +862,13 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src){
 	if(index == DISABLE){
 		traffic[src]->ratio=0;
 		traffic[src]->stop=1;
-		 return endp_addr_encoder(src); //disable sending
+		 return INJECT_OFF; //disable sending
 	}
 
 	if(	read(task_graph_data[src],index,&task)==0){
 		traffic[src]->ratio=0;
 		traffic[src]->stop=1;
-		 return endp_addr_encoder(src); //disable sending
+		 return INJECT_OFF; //disable sending
 
 	}
 
@@ -908,7 +913,7 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src){
 					traffic[src]->ratio=0;
 					traffic[src]->stop=1;
 					if(total_active_routers!=0) total_active_routers--;
-					return endp_addr_encoder(src);
+					return INJECT_OFF;
 				}
 				if(task_graph_abstract[src].active_index>=task_graph_abstract[src].total_index) task_graph_abstract[src].active_index=0;
 	}

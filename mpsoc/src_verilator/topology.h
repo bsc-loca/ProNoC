@@ -81,6 +81,7 @@ unsigned int mesh_tori_addrencode(unsigned int id){
 
 
 unsigned int endp_addr_encoder ( unsigned int id){
+	if(id==INJECT_OFF) return INJECT_OFF;
 	if((strcmp(TOPOLOGY ,"FATTREE")==0)||(strcmp(TOPOLOGY ,"TREE")==0)) {
 		return fattree_addrencode(id, T1, T2);
 	}

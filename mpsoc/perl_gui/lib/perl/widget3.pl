@@ -74,12 +74,12 @@ sub def_h_labeled_combo{
 }	
 
 sub def_h_labeled_combo_scaled{
-		my ($label_name,$combo_list,$combo_active_pos,$lable_w,$comb_w)=@_;
+		my ($label_name,$combo_list,$combo_active_pos,$label_w,$comb_w)=@_;
 		my $table= def_table(1,3,TRUE);
 		my $label= gen_label_in_left($label_name);	
 		my $combo= gen_combo($combo_list, $combo_active_pos);
-		$table->attach_defaults ($label, 0, $lable_w, 0, 1);
-		$table->attach_defaults ($combo, 1, $lable_w+$comb_w, 0, 1);
+		$table->attach_defaults ($label, 0, $label_w, 0, 1);
+		$table->attach_defaults ($combo, 1, $label_w+$comb_w, 0, 1);
 		return ($table,$combo);
 }	
 
@@ -295,8 +295,8 @@ sub def_h_labeled_checkbutton{
 }	
 
 sub gen_checkbutton{
-	my $lable=shift;
-	return Gtk3::CheckButton->new_with_label($lable) if (defined $lable);
+	my $label=shift;
+	return Gtk3::CheckButton->new_with_label($label) if (defined $label);
 	return Gtk3::CheckButton->new;
 }
 
@@ -687,9 +687,9 @@ sub show_gif{
 }
 
 sub gen_radiobutton {
-	my ($from,$lable,$icon,$tip) =@_;
+	my ($from,$label,$icon,$tip) =@_;
 	my $rbtn = (defined $from )? Gtk3::RadioToolButton->new_from_widget($from) : Gtk3::RadioToolButton->new (undef);
-	$rbtn->set_label ($lable) if(defined $lable);
+	$rbtn->set_label ($label) if(defined $label);
 	$rbtn->set_icon_widget (def_icon($icon)) if(defined $icon);
 	set_tip($rbtn, $tip) if(defined $tip);
 	return $rbtn;
@@ -1342,7 +1342,7 @@ sub get_dir_name {
 
 
 sub get_file_name {
-	my ($object,$title,$entry,$attribute1,$attribute2,$extension,$lable,$open_in,$new_status,$ref_delay)= @_;
+	my ($object,$title,$entry,$attribute1,$attribute2,$extension,$label,$open_in,$new_status,$ref_delay)= @_;
 	my $browse= def_image_button("icons/browse.png");
 	
 	$browse->signal_connect("clicked"=> sub{
@@ -1378,9 +1378,9 @@ sub get_file_name {
 				$object->object_add_attribute($attribute1,$attribute2,$file) if(defined $object);
 				set_gui_status($object,$new_status,$ref_delay) if(defined $ref_delay);
 				my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
-				if(defined $lable){
-					$lable->set_markup("<span  foreground= 'black' ><b>$name$suffix</b></span>");
-					$lable->show;
+				if(defined $label){
+					$label->set_markup("<span  foreground= 'black' ><b>$name$suffix</b></span>");
+					$label->show;
 				}
 						
 				#check_input_file($file,$socgen,$soc_state,$info);
@@ -1732,18 +1732,18 @@ sub get_file_name_object {
 	my ($object,$attribute1,$attribute2,$extension,$open_in,$new_status,$ref_delay)=@_;
 	my $widget = def_hbox(FALSE,0);
 	my $value=$object->object_get_attribute($attribute1,$attribute2);
-	my $lable;
+	my $label;
 	if(defined $value){
 		my ($name,$path,$suffix) = fileparse("$value",qr"\..[^.]*$");
-		$lable=gen_label_in_center($name.$suffix);
+		$label=gen_label_in_center($name.$suffix);
 		
 	} else {
-			$lable=gen_label_in_center("Selecet a file");
-			$lable->set_markup("<span  foreground= 'red' ><b>No file has been selected yet</b></span>");
+			$label=gen_label_in_center("Selecet a file");
+			$label->set_markup("<span  foreground= 'red' ><b>No file has been selected yet</b></span>");
 	}
 	my $entry=gen_entry();
-	my $browse= get_file_name($object,undef,$entry,$attribute1,$attribute2,$extension,$lable,$open_in,$new_status,$ref_delay);
-	$widget->pack_start( $lable, FALSE, FALSE, 0);
+	my $browse= get_file_name($object,undef,$entry,$attribute1,$attribute2,$extension,$label,$open_in,$new_status,$ref_delay);
+	$widget->pack_start( $label, FALSE, FALSE, 0);
 	$widget->pack_start( $browse, FALSE, FALSE, 0);
 	return $widget;
 }
@@ -2035,7 +2035,7 @@ use constant ITALIC_COLUMN   => 3;
 use constant NUM_COLUMNS     => 4;
 
 sub create_tree {
-   my ($self,$lable,$info,$tree_ref,$row_selected_func,$row_activated_func)=@_;
+   my ($self,$label,$info,$tree_ref,$row_selected_func,$row_activated_func)=@_;
    my %tree_in = %{$tree_ref};
    my $model = Gtk3::TreeStore->new ('Glib::String', 'Glib::String', 'Glib::Scalar', 'Glib::Boolean');
    my $tree_view = Gtk3::TreeView->new;
@@ -2077,7 +2077,7 @@ sub create_tree {
    my $cell = Gtk3::CellRendererText->new;
    $cell->set ('style' => 'italic');
    my $column = Gtk3::TreeViewColumn->new_with_attributes
- 					("$lable",
+ 					("$label",
                                         $cell,
                                         'text' => DISPLAY_COLUMN,
                                         'style_set' => ITALIC_COLUMN);

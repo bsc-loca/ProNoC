@@ -1038,8 +1038,8 @@ sub get_intfc_setting{
 	my $scrolled_win = add_widget_to_scrolled_win($table);
 	
 	#title
-	my $lable1=gen_label_in_left("interface name");
-	$table->attach ( $lable1,0,2,0,1,'expand','shrink',2,2);
+	my $label1=gen_label_in_left("interface name");
+	$table->attach ( $label1,0,2,0,1,'expand','shrink',2,2);
 	
 	
 	
@@ -1076,12 +1076,12 @@ sub get_intfc_setting{
 	
 	#wishbone addr
 	if($intfc_name eq 'wb_slave' &&  $intfc_type eq 'plug'){ 
-		my $lable2=gen_label_in_center("address range: (start end name)");
-		my $lable3=gen_label_help("This field defines the total memory_map address  which is required by this module in byte. ( =2 ^ block_address_width).
+		my $label2=gen_label_in_center("address range: (start end name)");
+		my $label3=gen_label_help("This field defines the total memory_map address  which is required by this module in byte. ( =2 ^ block_address_width).
 You can define a fixed value or assign it to any of module parameter","block address width");
 
-		$table->attach ( $lable2,2,5,0,1,'expand','shrink',2,2);
-		$table->attach ( $lable3,5,6,0,1,'expand','shrink',2,2);
+		$table->attach ( $label2,2,5,0,1,'expand','shrink',2,2);
+		$table->attach ( $label3,5,6,0,1,'expand','shrink',2,2);
 		
 		my $plug=$intfc_name;
 		my $wb= wb_addr->wb_addr_new();

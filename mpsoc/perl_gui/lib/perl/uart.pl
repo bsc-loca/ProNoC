@@ -79,8 +79,8 @@ sub create_rsv_box {
 	$frame->add ($sw);
 	my $def = 126-$num;
 	my $spin=gen_spin_object($self,'CTRL',"INDEX_$num",'0,128,1',$def,undef,undef);	
-	my $lable=gen_label_in_center("INDEX#");
-	my $box=def_pack_hbox( FALSE, 0 , $lable,$spin);	
+	my $label=gen_label_in_center("INDEX#");
+	my $box=def_pack_hbox( FALSE, 0 , $label,$spin);	
 	$frame->set_label_widget ($box);        
     return ($frame,$tview);	
 }
@@ -165,9 +165,9 @@ sub ctrl_boxes{
 	
 	
 	$col=0;
-	my $lable=gen_label_in_left(" JTAG Connect ");
+	my $label=gen_label_in_left(" JTAG Connect ");
 	my $run= ($state eq 'ON')? def_colored_button('ON',17): def_colored_button('OFF',4); 
-	$table->attach ($lable,  $col, $col+1,$row,$row+1,'fill','shrink',2,2); $col+=1; 
+	$table->attach ($label,  $col, $col+1,$row,$row+1,'fill','shrink',2,2); $col+=1; 
 	$table->attach ($run,  $col, $col+1,$row,$row+1,'shrink','shrink',2,2); $row++;$col=0;
 	$run -> signal_connect("clicked" => sub{ 
 			my $state=$self->object_get_attribute("CTRL","RUN");			
@@ -325,9 +325,9 @@ sub sender_box{
 	}
 	my $indexs = join(',',@indexs);
 	my $comb=gen_combobox_object($self,'CTRL',"SEND_TO_INDEX",$indexs,$def,undef,undef);	
-	my $lable=gen_label_in_center("SEND_TO INDEX#");
+	my $label=gen_label_in_center("SEND_TO INDEX#");
 	my $send = def_image_button($path.'icons/run.png');	
-	my $box=def_pack_hbox( FALSE, 0 , $lable,$comb,$send);	
+	my $box=def_pack_hbox( FALSE, 0 , $label,$comb,$send);	
 	$frame->set_label_widget ($box);   		
 	$table->attach_defaults ($frame, 0, 1 , 0,1);
 	$send-> signal_connect("clicked" => sub{ 

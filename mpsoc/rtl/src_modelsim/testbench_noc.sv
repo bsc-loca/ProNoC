@@ -165,7 +165,7 @@ module testbench_noc;
     
     
 	genvar i;
-    
+    wire [NE-1 : 0] valid_dst;
     
 	generate 
 		for(i=0; i< NE; i=i+1) begin : endpoints
@@ -201,7 +201,7 @@ module testbench_noc;
 					.reset(reset),
 					.clk(clk),
 					.start(start),
-					.stop(stop),
+					.stop(stop | ~valid_dst[i]),
 					.sent_done(),
 					.update(update[i]),
 					.time_stamp_h2h(time_stamp_h2h[i]),
@@ -266,9 +266,10 @@ module testbench_noc;
 					.pck_number(pck_counter[i]),
 					.current_e_addr(ENDP_ADRR),
 					.dest_e_addr(dest_e_addr[i]),
-					.valid_dst(),
+					.valid_dst(valid_dst[i]),
 					.hotspot_info(hotspot_info),
-					.custom_traffic_t(custom_traffic_t)  // defined in sim_param.sv
+					.custom_traffic_t(custom_traffic_t[i]),  // defined in sim_param.sv
+					.custom_traffic_en(custom_traffic_en[i])  // defined in sim_param.sv
 				);
        
 			pck_size_gen #(
@@ -406,6 +407,7 @@ module testbench_noc;
 				end
 				if(rsv_ideal_cnt >= 100) begin //  Injectors stopped sending packets, number of received and sent flits are not equal yet and for 100 cycles no flit is consumed. 
 					$display ("ERROR: The number of sent (%d) & received flits (%d) were not equal at the end of simulation",total_sent_flit_number ,total_rsv_flit_number);
+					
 					$stop;
 				end
 			end

@@ -58,7 +58,7 @@
         input integer current_port;
         begin 
         /* verilator lint_off WIDTH */ 
-        if(TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") begin 
+        if(TOPOLOGY == "MESH" || TOPOLOGY == "FMESH" || TOPOLOGY == "TORUS") begin 
         /* verilator lint_on WIDTH */ 
             strieght_port = 
                 (current_port== EAST)?  WEST:
@@ -101,7 +101,7 @@
   
 
 /*******************
-*   "RING"  "LINE"  "MESH" TORUS"
+*   "RING"  "LINE"  "MESH" TORUS" "FMESH"
 ******************/
 
 
@@ -128,8 +128,16 @@ localparam
     NE_MESH_TORI = NR_MESH_TORI * NL,
     MAX_P_MESH_TORI = R2R_CHANELS_MESH_TORI + R2E_CHANELS_MESH_TORI,
     DSTPw_MESH_TORI =   R2R_CHANELS_MESH_TORI; // P-1
-                       
-    /* verilator lint_on WIDTH */                               
+    /* verilator lint_on WIDTH */    
+     
+/****************
+ *  FMESH
+ * *************/
+ localparam    
+    NE_FMESH = NE_MESH_TORI + 2 * (NX+NY),
+    NR_FMESH = NR_MESH_TORI,
+    EAw_FMESH = (NL==1)? RAw_MESH_TORI + 2 :RAw_MESH_TORI + NLw +1;
+                              
     
       
           
@@ -201,6 +209,7 @@ localparam
             (TOPOLOGY == "FATTREE")? DSTPw_FATTREE:
             (TOPOLOGY == "TREE")?  DSTPw_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? DSTPw_MESH_TORI:
+            (TOPOLOGY == "FMESH")? DSTPw_MESH_TORI:
             (TOPOLOGY == "STAR") ? DSTPw_STAR:
             DSTPw_CUSTOM,
         //router address width        
@@ -208,6 +217,7 @@ localparam
             (TOPOLOGY == "FATTREE")? RAw_FATTREE:
             (TOPOLOGY == "TREE")?  RAw_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? RAw_MESH_TORI:
+            (TOPOLOGY == "FMESH")? RAw_MESH_TORI:
             (TOPOLOGY == "STAR") ? RAw_STAR:
             RAw_CUSTOM,
         //endpoint address width
@@ -215,6 +225,7 @@ localparam
             (TOPOLOGY == "FATTREE")? EAw_FATTREE:
             (TOPOLOGY == "TREE")?  EAw_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? EAw_MESH_TORI:
+            (TOPOLOGY == "FMESH")? EAw_FMESH:
             (TOPOLOGY == "STAR") ? EAw_STAR:
             EAw_CUSTOM,
         // total number of endpoints         
@@ -222,26 +233,31 @@ localparam
             (TOPOLOGY == "FATTREE")? NE_FATTREE:
             (TOPOLOGY == "TREE")?  NE_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? NE_MESH_TORI:
-            (TOPOLOGY == "STAR") ? NE_STAR:
+            (TOPOLOGY == "FMESH")? NE_FMESH: 
+            (TOPOLOGY == "STAR")? NE_STAR:
             NE_CUSTOM,
         //total number of routers        
         NR =
             (TOPOLOGY == "FATTREE")? NR_FATTREE:
             (TOPOLOGY == "TREE")?  NR_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? NR_MESH_TORI:  
+            (TOPOLOGY == "FMESH")? NR_FMESH: 
             (TOPOLOGY == "STAR") ? NR_STAR:
-            NR_CUSTOM,    
+            NR_CUSTOM, 
+        //routing algorithm type    
         ROUTE_TYPE =
             (TOPOLOGY == "FATTREE")? ROUTE_TYPE_FATTREE:
             (TOPOLOGY == "TREE")?  ROUTE_TYPE_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? ROUTE_TYPE_MESH_TORI:
+            (TOPOLOGY == "FMESH")? ROUTE_TYPE_MESH_TORI:
             (TOPOLOGY == "STAR") ? ROUTE_TYPE_STAR:
             ROUTE_TYPE_CUSTOM,
         // maximum number of port in a router in the topology
         MAX_P =
             (TOPOLOGY == "FATTREE")? MAX_P_FATTREE:
             (TOPOLOGY == "TREE")?  MAX_P_TREE:
-            (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? MAX_P_MESH_TORI:            
+            (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? MAX_P_MESH_TORI:
+            (TOPOLOGY == "FMESH")? MAX_P_MESH_TORI:
             (TOPOLOGY == "STAR") ? MAX_P_STAR:
             MAX_P_CUSTOM; 
     /* verilator lint_on WIDTH */         

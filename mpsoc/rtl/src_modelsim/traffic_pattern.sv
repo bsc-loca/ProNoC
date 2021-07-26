@@ -92,7 +92,8 @@ module  pck_dst_gen
     reset,
     valid_dst,
     hotspot_info,
-	custom_traffic_t
+	custom_traffic_t,
+	custom_traffic_en
 ); 
  
  
@@ -119,7 +120,8 @@ module  pck_dst_gen
     input   [EAw-1      :   0]  current_e_addr; 
     output  [EAw-1      :   0]  dest_e_addr; 
     output                      valid_dst; 
-	input  [NEw-1 : 0] custom_traffic_t   [NE-1 : 0]; 
+	input  [NEw-1 : 0] custom_traffic_t;
+	input  custom_traffic_en;
     
     input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
  
@@ -145,7 +147,8 @@ module  pck_dst_gen
             .dest_e_addr(dest_e_addr),
         	.valid_dst(valid_dst),
         	.hotspot_info(hotspot_info),
-			.custom_traffic_t(custom_traffic_t) 
+			.custom_traffic_t(custom_traffic_t),
+			.custom_traffic_en(custom_traffic_en)
         );
         
      end else begin : one_dim
@@ -167,7 +170,8 @@ module  pck_dst_gen
             .dest_e_addr(dest_e_addr),
             .valid_dst(valid_dst),
             .hotspot_info(hotspot_info),
-			.custom_traffic_t(custom_traffic_t) 
+			.custom_traffic_t(custom_traffic_t),
+			.custom_traffic_en(custom_traffic_en)
         );       
        
      end     
@@ -195,7 +199,8 @@ module two_dimension_pck_dst_gen
     reset,
     valid_dst,
     hotspot_info,
-	custom_traffic_t
+	custom_traffic_t,
+	custom_traffic_en
 );    
     
    
@@ -220,7 +225,8 @@ module two_dimension_pck_dst_gen
     output  [EAw-1 : 0]  dest_e_addr;
     output                      valid_dst;  
     input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
-	input  [NEw-1 : 0] custom_traffic_t   [NE-1 : 0]; 
+	input  [NEw-1 : 0] custom_traffic_t;
+	input  custom_traffic_en;
     
     localparam 
         NX = T1,
@@ -253,6 +259,11 @@ module two_dimension_pck_dst_gen
     	.valid( )
     );    
     
+    wire off_flag;
+  
+    
+    
+    
     
     wire    [NEw-1  :   0]  dest_ip_num;
     genvar i;
@@ -264,9 +275,9 @@ module two_dimension_pck_dst_gen
     
     	always @(posedge clk ) begin 
     		if(en | reset) begin 
-    			do begin 
-    				rnd_reg =     $urandom_range(NE-1,0);
-    			end while(rnd_reg==core_num); // get a random IP core, make sure its not same as sender core
+    			rnd_reg =     $urandom_range(NE-1,0);
+    			if(SELF_LOOP_EN	== "NO")	while(rnd_reg==core_num) rnd_reg =     $urandom_range(NE-1,0);// get a random IP core, make sure its not same as sender core   			
+    			
      		end    		
     	end
     	assign dest_ip_num = rnd_reg;
@@ -284,7 +295,7 @@ module two_dimension_pck_dst_gen
        	.id(dest_ip_num),
        	.code(dest_e_addr)
        );
-               
+           
      end else if (TRAFFIC == "HOTSPOT") begin 
                       
      	hot_spot_dest_gen  #(
@@ -298,7 +309,8 @@ module two_dimension_pck_dst_gen
      			.en(en),
      			.hotspot_info(hotspot_info),
      			.dest_ip_num (dest_ip_num),
-     			.core_num(core_num)
+     			.core_num(core_num),
+     			.off_flag(off_flag)
      		);
        
         endp_addr_encoder #(
@@ -316,6 +328,7 @@ module two_dimension_pck_dst_gen
         );
    
        
+        
     end else if( TRAFFIC == "TRANSPOSE1") begin 
        
         assign dest_x   = NX-current_y-1;
@@ -323,12 +336,45 @@ module two_dimension_pck_dst_gen
         assign dest_l   = NL-current_l-1; 
         assign dest_e_addr = (T3==1)? {dest_y,dest_x} : {dest_l,dest_y,dest_x};
         
+        endp_addr_decoder  #(
+        	.T1(T1),
+        	.T2(T2),
+        	.T3(T3),
+        	.NE(NE),
+        	.EAw(EAw),
+        	.TOPOLOGY(TOPOLOGY)
+        )enc
+        (
+        	.code(dest_e_addr),
+        	.id(dest_ip_num)
+        );    
+        
+     
+        
+        
+      
+        
     end else if( TRAFFIC == "TRANSPOSE2") begin :transpose2
         
         assign dest_x   = current_y;
         assign dest_y   = current_x;
         assign dest_l   = current_l;
         assign dest_e_addr = (T3==1)? {dest_y,dest_x} : {dest_l,dest_y,dest_x};
+        
+        endp_addr_decoder  #(
+        		.T1(T1),
+        		.T2(T2),
+        		.T3(T3),
+        		.NE(NE),
+        		.EAw(EAw),
+        		.TOPOLOGY(TOPOLOGY)
+        	)enc
+        	(
+        		.code(dest_e_addr),
+        		.id(dest_ip_num)
+        	);    
+        
+          
          
     end  else if( TRAFFIC == "BIT_REVERSE") begin :bitreverse
         
@@ -348,7 +394,7 @@ module two_dimension_pck_dst_gen
             .id(dest_ip_num),
             .code(dest_e_addr)
         ); 
-                   
+              
    
     end  else if( TRAFFIC == "BIT_COMPLEMENT") begin :bitcomp
 
@@ -356,6 +402,22 @@ module two_dimension_pck_dst_gen
         assign dest_y   = ~current_y;  
         assign dest_l   = ~dest_l;
         assign dest_e_addr = (T3==1)? {dest_y,dest_x} : {dest_l,dest_y,dest_x};
+       
+        endp_addr_decoder  #(
+        		.T1(T1),
+        		.T2(T2),
+        		.T3(T3),
+        		.NE(NE),
+        		.EAw(EAw),
+        		.TOPOLOGY(TOPOLOGY)
+        	)enc
+        	(
+        		.code(dest_e_addr),
+        		.id(dest_ip_num)
+        	);    
+        
+        
+        
                     
     end else if( TRAFFIC == "TORNADO" ) begin :tornado
         //[(x+(k/2-1)) mod k, (y+(k/2-1)) mod k],
@@ -363,7 +425,22 @@ module two_dimension_pck_dst_gen
         assign dest_y  = (current_y> ((NY+1)/2))? current_y- ((NY+1)/2) -1   :  (NY/2)+current_y-1;  //  = ((current_y + ((NY/2)-1))%NY);
         assign dest_l   = current_l;
         assign dest_e_addr = (T3==1)? {dest_y,dest_x} : {dest_l,dest_y,dest_x};
-    
+      
+        endp_addr_decoder  #(
+        		.T1(T1),
+        		.T2(T2),
+        		.T3(T3),
+        		.NE(NE),
+        		.EAw(EAw),
+        		.TOPOLOGY(TOPOLOGY)
+        	)enc
+        	(
+        		.code(dest_e_addr),
+        		.id(dest_ip_num)
+        	);    
+        
+        
+        
    
 	end else if( TRAFFIC == "NEIGHBOR")  begin :neighbor
 		//dx = sx + 1 mod k
@@ -371,7 +448,23 @@ module two_dimension_pck_dst_gen
 		 assign dest_y = (current_y + 1) >= NY? 0 : (current_y + 1);
 		 assign dest_l = current_l;
 		 assign dest_e_addr = (T3==1)? {dest_y,dest_x} : {dest_l,dest_y,dest_x};
-    
+		
+		 endp_addr_decoder  #(
+		 		.T1(T1),
+		 		.T2(T2),
+		 		.T3(T3),
+		 		.NE(NE),
+		 		.EAw(EAw),
+		 		.TOPOLOGY(TOPOLOGY)
+		 	)enc
+		 	(
+		 		.code(dest_e_addr),
+		 		.id(dest_ip_num)
+		 	);    
+		 
+		 
+		 
+		 
 	end else if( TRAFFIC == "SHUFFLE") begin: shuffle
 		//di = si−1 mod b
 		for(i=1; i<(EAw); i=i+1'b1) begin :lp//reverse the address
@@ -389,7 +482,8 @@ module two_dimension_pck_dst_gen
         addr_encoder(
             .id(dest_ip_num),
             .code(dest_e_addr)
-        ); 
+        );
+		
 		
     end else if(TRAFFIC == "BIT_ROTATION") begin :bitrot
 		//di = si+1 mod b
@@ -409,9 +503,10 @@ module two_dimension_pck_dst_gen
             .id(dest_ip_num),
             .code(dest_e_addr)
         ); 
-
+		
 	end else if(TRAFFIC == "CUSTOM" )begin 
-        assign dest_ip_num = custom_traffic_t[core_num];
+		
+        assign dest_ip_num = custom_traffic_t;
 		 endp_addr_encoder #(
             .T1(T1),
             .T2(T2),
@@ -425,7 +520,10 @@ module two_dimension_pck_dst_gen
             .id(dest_ip_num),
             .code(dest_e_addr)
         );
-              
+	
+		assign  off_flag  =  ~custom_traffic_en;	
+		 
+		      
     end  else begin 
 			initial begin 
 				$display("ERROR: Undefined Traffic pattern:%s",TRAFFIC);
@@ -433,11 +531,17 @@ module two_dimension_pck_dst_gen
 			end
 	end
     
-     //check if destination address is valid
+    	
+    	
+    	wire valid_temp  =    (dest_ip_num  <= (NE-1));	
+    	
+    	if (TRAFFIC == "HOTSPOT" || TRAFFIC == "CUSTOM") begin 
+    		assign valid_dst  = ~off_flag & valid_temp;
+    	end else begin 
+    		assign valid_dst  =  valid_temp;
+    	end	
+     
     
-     assign valid_dst  = (dest_e_addr  !=  current_e_addr ) &  (dest_x  <= (NX-1)) & (dest_y  <= (NY-1) & (dest_l <= NL-1));
-    
-   
     endgenerate
      
 endmodule
@@ -467,7 +571,8 @@ import pronoc_pkg::*;
     reset,
     valid_dst,
     hotspot_info,
-	custom_traffic_t
+	custom_traffic_t,
+	custom_traffic_en
 ); 
       
     function integer log2;
@@ -492,10 +597,11 @@ import pronoc_pkg::*;
     output  [EAw-1       :   0]  dest_e_addr;   
     output  valid_dst;  
     input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
-	input  [NEw-1 : 0] custom_traffic_t   [NE-1 : 0]; 
+	input  [NEw-1 : 0] custom_traffic_t; 
+	input  custom_traffic_en;
         
     wire [NEw-1 : 0] dest_ip_num;
-    
+    wire off_flag;
     genvar i;            
     generate     
     if (TRAFFIC == "RANDOM") begin 
@@ -503,11 +609,9 @@ import pronoc_pkg::*;
     
     	always @(posedge clk ) begin 
     		if(en | reset) begin 
-    			do begin
-    				rnd_reg =     $urandom_range(NE-1,0);
-    			end while(rnd_reg==core_num); // get a random IP core, make sure its not same as sender core
-     										
-    		end    		
+    			rnd_reg =     $urandom_range(NE-1,0);
+    			if(SELF_LOOP_EN	== "NO")	while(rnd_reg==core_num) rnd_reg =     $urandom_range(NE-1,0);// get a random IP core, make sure its not same as sender core   			
+     		end    		
     	end
     	assign dest_ip_num = rnd_reg;
          
@@ -524,7 +628,8 @@ import pronoc_pkg::*;
      		.en(en),
      		.hotspot_info(hotspot_info),
      		.dest_ip_num (dest_ip_num),
-     		.core_num(core_num)
+     		.core_num(core_num),
+     		.off_flag(off_flag)
      	);
      	
      	
@@ -565,8 +670,9 @@ import pronoc_pkg::*;
         end
 		assign dest_ip_num[NEw-1]  = core_num [0];		
 	
-	end else if(TRAFFIC == "CUSTOM" )begin 
-         assign dest_ip_num = custom_traffic_t[core_num];
+	end else if(TRAFFIC == "CUSTOM" )begin
+		assign off_flag = ~custom_traffic_en;
+         assign dest_ip_num = custom_traffic_t;
     end   
    
     endp_addr_encoder #(
@@ -582,11 +688,14 @@ import pronoc_pkg::*;
         .id(dest_ip_num),
         .code(dest_e_addr)
     );
-       
-     //check if destination address is valid
-     if(TRAFFIC != "CUSTOM" )begin 
-         assign valid_dst  =  (dest_e_addr   !=   current_e_addr)  &  (dest_ip_num  <= (NE-1));
-     end
+      
+    wire valid_temp  =    (dest_ip_num  <= (NE-1));	
+    	
+    if (TRAFFIC == "HOTSPOT" || TRAFFIC == "CUSTOM") begin 
+    	assign valid_dst  = ~off_flag & valid_temp;
+    end else begin 
+    	assign valid_dst  =  valid_temp;
+    end
    
     endgenerate
      
@@ -683,28 +792,28 @@ reset,
 en,
 hotspot_info,
 core_num,
-dest_ip_num
+dest_ip_num,
+off_flag
 );
 	
 	input clk,en,reset;
 	input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
 	input   [NEw-1 : 0] core_num;
 	output  [NEw-1 : 0] dest_ip_num;
-	
+	output reg off_flag;
 	
 	logic [6 : 0] rnd_reg, hotspot_node;
 	reg [9 : 0] rnd1000;
 	always @(posedge clk ) begin 
 		if(en | reset) begin 
-			do begin 
-				rnd_reg =     $urandom_range(NE-1,0);
-			end while(rnd_reg==core_num); // get a random IP core, make sure its not same as sender core
+			rnd_reg =     $urandom_range(NE-1,0);
+			if(SELF_LOOP_EN	== "NO")	while(rnd_reg==core_num) rnd_reg =     $urandom_range(NE-1,0);// get a random IP core, make sure its not same as sender core    			
      			
 			rnd1000 =     $urandom_range(999,0);// generate a random number between 0 & 1000     					
 		end    		
 	end
      	
-	logic off_flag,hotspot_flag;
+	logic hotspot_flag;
 	integer i;
 	
 	always @(*)begin 

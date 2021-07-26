@@ -189,6 +189,7 @@ sub get_router_instance_v {
 	*******************/
 \twire ${instance}_clk;
 \twire ${instance}_reset;
+
 \twire [RAw-1 :  0] ${instance}_current_r_addr;
 
 \trouter_chanel_t    ${instance}_chan_in   [$Pnum-1 : 0];
@@ -211,8 +212,8 @@ sub get_router_instance_v {
 		.clk(${instance}_clk), 
 		.reset(${instance}_reset),
 		.current_r_addr  (${instance}_current_r_addr), 
-		.chan_in         (${instance}_chan_in), 
-		.chan_out        (${instance}_chan_out)
+		.chan_in   (${instance}_chan_in), 
+		.chan_out  (${instance}_chan_out)
 	);
 ";
 
@@ -351,7 +352,9 @@ sub generate_topology_top_genvar_v{
 //all routers port 
 \trouter_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
 \trouter_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+
 \twire [RAw-1 : 0] current_r_addr [NR-1 : 0];
+
 
 ";
 
@@ -450,10 +453,12 @@ sub generate_topology_top_genvar_v{
 	(	
 		.clk(clk), 
 		.reset(reset),
-		.current_r_addr($router_pos),
-		.chan_in (router_chan_in\[$router_pos\]), 
-		.chan_out(router_chan_out\[$router_pos\])		
+		.current_r_addr($router_pos),	
+		.chan_in  (router_chan_in\[$router_pos\]), 
+		.chan_out (router_chan_out\[$router_pos\])		
 	);
+    
+    
     
 \tend    
 			";
@@ -576,6 +581,9 @@ sub get_router_genvar_instance_v{
 		.chan_in (router_chan_in\[$router_pos\]), 
 		.chan_out(router_chan_out\[$router_pos\])		
 	);
+	
+	
+	
 ";
 
 return $router_v;

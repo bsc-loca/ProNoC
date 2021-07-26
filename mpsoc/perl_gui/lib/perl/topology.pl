@@ -79,6 +79,20 @@ sub get_topology_info_sub {
         my $Lw=log2($NL);         
         $RAw = $Xw + $Yw;
         $EAw = ($NL==1) ? $RAw : $RAw + $Lw;
+	}elsif ($topology eq '"FMESH"'){
+		my $NX=$T1;
+		my $NY=$T2;
+		my $NL=$T3;
+		$NE = $NX*$NY*$NL + 2*($NX + $NY);
+		$NR = $NX*$NY;    
+        my $Xw=log2($NX);
+        my $Yw=log2($NY); 
+        my $Lw=log2($NL);         
+        $RAw = $Xw + $Yw;
+        $EAw = ($NL==1) ? $RAw +2 : $RAw + 2+ $Lw;
+		
+		
+		
 	}elsif ($topology eq '"STAR"' ) {	
 		$NE= $T1; 
 		$NR= 1;
@@ -146,11 +160,24 @@ sub get_connected_router_id_to_endp{
 		 return int($endp_id/$T3);
 	}elsif ($topology eq '"STAR"' ) {	
 		 return 0;#there is only one routerin star topology
+	} elsif ($topology eq '"FMESH"'){
+		my $tmp = $T1*$T2*$T3;
+		return int($endp_id/$T3) if($endp_id<$tmp);
+		return $endp_id-$tmp if($endp_id<$tmp+$T1);
+		return ($endp_id-$tmp-$T1)+ $T1*($T2-1) if($endp_id<$tmp+2*$T1); 
+		return ($endp_id-$tmp-2*$T1)*$T1 if($endp_id<$tmp+2*$T1+$T2); 
+		return ($endp_id-$tmp-2*$T1-$T2+1)*$T1-1;
+		 
 	}else{#custom
 		my @er_addr = $self->object_get_attribute('noc_connection','er_addr');  
 		return $er_addr[$endp_id];		
 	}	
 }
+
+
+
+
+
 
 
 sub get_router_num {
@@ -160,7 +187,7 @@ sub get_router_num {
 	my $T2=$self->object_get_attribute('noc_param','T2');
 	if($topology eq '"FATTREE"') {
 		return fattree_addrdecode($x, $T1, $T2);
-	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
+	}elsif ($topology eq '"RING"' || $topology eq '"LINE"' ||  $topology eq '"FMESH"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		 return ($y*$T1)+$x;		
 	}else{#custom
 		#It is not used for custom & STAR topology 
@@ -336,7 +363,7 @@ sub get_noc_verilator_top_modules_info {
     	);
 				
        
-	}elsif ($topology eq '"MESH"' || $topology eq '"TORUS"' ) {
+	}elsif ($topology eq '"MESH"' || $topology eq '"TORUS"' || $topology eq '"FMESH"') {
 		
         $router_p=1;
         $nr_p{1}=$nr;

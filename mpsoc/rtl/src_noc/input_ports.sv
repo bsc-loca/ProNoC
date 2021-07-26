@@ -75,7 +75,7 @@ module input_ports
 		PV = V * P,
 		VV = V * V,
 		PVV = PV * V,    
-		P_1 = P-1,
+		P_1 = ( SELF_LOOP_EN=="NO")?  P-1 : P,
 		PP_1 = P * P_1, 
 		VP_1 = V * P_1,
 		PVP_1 = PV * P_1,
@@ -243,7 +243,7 @@ module input_queue_per_port
 		VDSTPw = V * DSTPw,		
 		W = WEIGHTw,
 		WP = W * P,
-		P_1=P-1,
+		P_1=( SELF_LOOP_EN=="NO")?  P-1 : P,
 		VP_1 = V * P_1;    
 
 	localparam
@@ -328,8 +328,8 @@ module input_queue_per_port
 	assign reset_ivc  = sbp_ctrl_in.ivc_reset | ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset;
 	assign ivc_num_getting_sw_grant = ssa_ctrl_in.ivc_num_getting_sw_grant | vsa_ctrl_in.ivc_num_getting_sw_grant;
 	assign flit_wr =(flit_in_wr )? vc_num_in : {V{1'b0}};
-	assign rd_hdr_fwft_fifo  = ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset | (sbp_ctrl_in.ivc_reset  & ~ sbp_ctrl_in.single_flit_pck);
-	assign wr_hdr_fwft_fifo  = hdr_flit_wr | (sbp_hdr_en & ~ sbp_ctrl_in.single_flit_pck);
+	assign rd_hdr_fwft_fifo  = ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset | (sbp_ctrl_in.ivc_reset  & ~ sbp_ctrl_in.ivc_single_flit_pck);
+	assign wr_hdr_fwft_fifo  = hdr_flit_wr | (sbp_hdr_en & ~ sbp_ctrl_in.ivc_single_flit_pck);
 	assign ivc_request = ivc_not_empty;    
 	
 	
@@ -496,8 +496,8 @@ module input_queue_per_port
 						)  	ovc_is_assigned_next[i] = 1'b0;
 				
 					else if( vsa_ctrl_in.ivc_num_getting_ovc_grant[i] |
-							(ssa_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  ssa_ctrl_in.single_flit_pck[i])|
-							(sbp_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  sbp_ctrl_in.single_flit_pck[i])
+							(ssa_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  ssa_ctrl_in.ivc_single_flit_pck[i])|
+							(sbp_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  sbp_ctrl_in.ivc_single_flit_pck[i])
 						)       ovc_is_assigned_next[i] = 1'b1;		
 				end//always
 				
@@ -699,6 +699,7 @@ module input_queue_per_port
 					.DSTPw(DSTPw),
 					.ELw(ELw),
 					.PPSw(PPSw),
+					.SELF_LOOP_EN (SELF_LOOP_EN),
 					.SW_LOC(SW_LOC)
 				)
 				decoder
@@ -786,7 +787,8 @@ module input_queue_per_port
 					.SW_LOC(SW_LOC),
 					.WEIGHTw(WEIGHTw),
 					.WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
-					.P(P)
+					.P(P),
+					.SELF_LOOP_EN(SELF_LOOP_EN)
 				)
 				wctrl_iport
 				(   
@@ -1009,7 +1011,8 @@ module destp_generator #(
 	parameter DSTPw=4,
 	parameter ELw=1,
 	parameter PPSw=4,
-	parameter SW_LOC=0
+	parameter SW_LOC=0,
+	parameter SELF_LOOP_EN="NO"
 
 )
 (
@@ -1022,7 +1025,7 @@ module destp_generator #(
 	odd_column
 );
 
-	localparam P_1= P-1;
+	localparam P_1= ( SELF_LOOP_EN=="NO")?  P-1 : P;
 	input [DSTPw-1 : 0]  dest_port_encoded;             
 	input [ELw-1 : 0] endp_localp_num;
 	output [P_1-1: 0] dest_port_out;  
@@ -1039,8 +1042,9 @@ module destp_generator #(
 				.K(T1),
 				.P(P),
 				.SW_LOC(SW_LOC),
-				.DSTPw(DSTPw)
-			)
+				.DSTPw(DSTPw),
+				.SELF_LOOP_EN(SELF_LOOP_EN)
+				)
 			destp_generator
 			(
 				.dest_port_in_encoded(dest_port_encoded),
@@ -1053,7 +1057,8 @@ module destp_generator #(
 			.K(T1),
 			.P(P),
 			.SW_LOC(SW_LOC),
-			.DSTPw(DSTPw)
+			.DSTPw(DSTPw),
+			.SELF_LOOP_EN(SELF_LOOP_EN)
 		)
 		destp_generator
 		(
@@ -1072,7 +1077,8 @@ module destp_generator #(
 			.NL(NL),
 			.ELw(ELw),
 			.PPSw(PPSw),
-			.SW_LOC(SW_LOC)
+			.SW_LOC(SW_LOC),
+			.SELF_LOOP_EN(SELF_LOOP_EN)
 		)
 		destp_generator
 		(
@@ -1090,7 +1096,8 @@ module destp_generator #(
 			.ROUTE_TYPE(ROUTE_TYPE),
 			.DSTPw(DSTPw),
 			.P(P),
-			.SW_LOC(SW_LOC)
+			.SW_LOC(SW_LOC),
+			.SELF_LOOP_EN(SELF_LOOP_EN)
 		)
 		destp_generator
 		(
@@ -1098,16 +1105,26 @@ module destp_generator #(
 			.dest_port_out(dest_port_out)
 		);    
 	end
-		endgenerate
-    
+	
+	if(SELF_LOOP_EN=="NO") begin : nslp
 		add_sw_loc_one_hot #(
-			.P(P),
-			.SW_LOC(SW_LOC)    
+				.P(P),
+				.SW_LOC(SW_LOC)    
 		)add
 		(
-			.destport_in(dest_port_out),
-			.destport_out(destport_one_hot)
+				.destport_in(dest_port_out),
+				.destport_out(destport_one_hot)
 		);
+		
+	end else begin : slp
+		assign destport_one_hot = dest_port_out;		
+	end
+				
+	endgenerate
+    
+	
+	
+		
     
     
     
@@ -1123,14 +1140,15 @@ module custom_topology_destp_decoder #(
 		parameter ROUTE_TYPE="DETERMINISTIC",
 		parameter DSTPw=4,
 		parameter P=5,
-		parameter SW_LOC=0        
+		parameter SW_LOC=0,
+		parameter SELF_LOOP_EN="NO"
 		)(
 		dest_port_in_encoded,
 		dest_port_out
 		);
   
 	localparam
-		P_1 = P-1,
+		P_1 = ( SELF_LOOP_EN=="NO")?  P-1 : P,
 		MAXW =2**DSTPw;
   
 	input  [DSTPw-1 : 0] dest_port_in_encoded;
@@ -1148,7 +1166,7 @@ module custom_topology_destp_decoder #(
 			.bin_code(dest_port_in_encoded),
 			.one_hot_code(dest_port_one_hot)
 		);
-   
+	if( SELF_LOOP_EN=="NO") begin : nslp
 	remove_sw_loc_one_hot #(
 			.P(P),
 			.SW_LOC(SW_LOC)
@@ -1158,7 +1176,9 @@ module custom_topology_destp_decoder #(
 			.destport_in(dest_port_one_hot[P-1 : 0]),
 			.destport_out(dest_port_out)
 		);
-   
+	end else begin : slp		
+		assign dest_port_out = dest_port_one_hot;
+	end
 	//synthesis translate_off 
 	//synopsys  translate_off
    

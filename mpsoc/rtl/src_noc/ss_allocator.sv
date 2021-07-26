@@ -98,7 +98,7 @@ import pronoc_pkg::*;
     wire   [PV-1      :   0] ivc_num_getting_sw_grant_all;
     wire   [PV-1      :   0] ivc_num_getting_ovc_grant_all;
     wire   [PV-1      :   0] ivc_reset_all;
-    wire   [PV-1      :   0] single_flit_pck_all;
+    wire   [PV-1      :   0] single_flit_pck_all,ovc_single_flit_pck_all;
     wire   [PV-1      :   0] decreased_credit_in_ss_ovc_all;
     reg    [P-1       :   0] ssa_flit_wr_all;
   
@@ -131,6 +131,7 @@ import pronoc_pkg::*;
             assign   ivc_reset_all [i]= 1'b0;
             assign   decreased_credit_in_ss_ovc_all[i]=1'b0;
             assign   single_flit_pck_all[i]= 1'b0;
+            assign   ovc_single_flit_pck_all [i] =1'b0;
             assign   ivc_num_getting_sw_grantin_SS_all[i]=1'b0;
           
            // assign   predict_flit_wr_all [i]=1'b0;       
@@ -144,7 +145,7 @@ import pronoc_pkg::*;
             assign   ovc_released_all[(SS_PORT*V)+(i%V)]=ovc_released_in_ss_port[i];
             assign   decreased_credit_in_ss_ovc_all[(SS_PORT*V)+(i%V)]=decreased_credit_in_ss_ovc[i]; 
             assign   ivc_num_getting_sw_grantin_SS_all[i]=  ivc_num_getting_sw_grant_all[(SS_PORT*V)+(i%V)];    
-       
+       	    assign   ovc_single_flit_pck_all [i] =  single_flit_pck_all[(SS_PORT*V)+(i%V)];
        
              
        
@@ -206,7 +207,8 @@ import pronoc_pkg::*;
             assign ssa_ctrl_o[i].ivc_num_getting_ovc_grant= ivc_num_getting_ovc_grant_all[(i+1)*V-1  : i*V];
             assign ssa_ctrl_o[i].ivc_reset= ivc_reset_all[(i+1)*V-1  : i*V];
             assign ssa_ctrl_o[i].buff_space_decreased = decreased_credit_in_ss_ovc_all[(i+1)*V-1  : i*V];
-            assign ssa_ctrl_o[i].single_flit_pck = single_flit_pck_all [(i+1)*V-1  : i*V];
+            assign ssa_ctrl_o[i].ivc_single_flit_pck = single_flit_pck_all [(i+1)*V-1  : i*V];
+            assign ssa_ctrl_o[i].ovc_single_flit_pck = ovc_single_flit_pck_all [(i+1)*V-1  : i*V];
             assign ssa_ctrl_o[i].ssa_flit_wr = ssa_flit_wr_all[i] ;
             assign ssa_ctrl_o[i].ivc_granted_ovc_num = granted_ovc_num_all[(i+1)*VV-1  : i*VV];
             
@@ -321,10 +323,11 @@ module ssa_per_vc
     wire    [V-1 : 0] vc_num_in;
     wire    hdr_flg;
     wire    tail_flg;
+    /* verilator lint_off WIDTH */ 
     assign  single_flit_pck = 
     	(PCK_TYPE == "SINGLE_FLIT")? 1'b1 :
     	(MIN_PCK_SIZE==1)?  hdr_flg & tail_flg : 1'b0; 
-    	
+    /* verilator lint_on WIDTH */ 	
     
     
     wire   condition_1_2_valid;   

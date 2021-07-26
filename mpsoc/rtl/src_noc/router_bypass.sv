@@ -709,7 +709,8 @@ module sbp_allocator_per_iport
 	sbp_mask_available_ss_ovc_o,
 	sbp_hdr_flit_req_o,
 	sbp_ivc_granted_ovc_num_o,	
-	sbp_single_flit_pck_o
+	sbp_ivc_single_flit_pck_o,
+	sbp_ovc_single_flit_pck_o
 );
 	//general
  	input clk, reset;
@@ -737,9 +738,11 @@ module sbp_allocator_per_iport
 		sbp_mask_available_ss_ovc_o,
 		sbp_ivc_num_getting_ovc_grant_o,
 		sbp_ivc_reset_o,		
-		sbp_single_flit_pck_o;	
+		sbp_ivc_single_flit_pck_o,
+		sbp_ovc_single_flit_pck_o;	
 	output [V*V-1 : 0] sbp_ivc_granted_ovc_num_o;
 	
+	assign sbp_ovc_single_flit_pck_o = sbp_ivc_single_flit_pck_o;
 	wire  [DSTPw-1  :   0]  destport,lkdestport;
 	wire  goes_straight;
 	
@@ -844,7 +847,7 @@ module sbp_allocator_per_iport
 			.ss_port_link_reg_flit_wr    (ss_port_link_reg_flit_wr     ), 
 			.ss_ovc_crossbar_wr          (ss_ovc_crossbar_wr[i]),	
 			
-			.sbp_single_flit_pck_o       (sbp_single_flit_pck_o[i]  ),
+			.sbp_single_flit_pck_o       (sbp_ivc_single_flit_pck_o[i]  ),
 			.sbp_ivc_sbp_en_o      		 (sbp_ivc_sbp_en_o[i]	),
 			.sbp_credit_o             	 (sbp_credit_o[i]   	), 
 			.sbp_buff_space_decreased_o  (sbp_buff_space_decreased_o[i]), 

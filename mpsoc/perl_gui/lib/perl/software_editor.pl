@@ -83,12 +83,12 @@ sub software_main_stand_alone(){
 
 
 sub software_main {
-	my ($sw,$file,$pages_ref,$lable_ref) = @_;
+	my ($sw,$file,$pages_ref,$label_ref) = @_;
 
 	
 
 	my $app = __PACKAGE__->new();
-	my ($table,$tview,$widget)=$app->build_gui($sw,$pages_ref,$lable_ref);
+	my ($table,$tview,$widget)=$app->build_gui($sw,$pages_ref,$label_ref);
 	my $main_c=(defined $file)? "$sw/$file" : "$sw/main.c";
 	my @tmp;
 	$app->open_list_ref(\@tmp);
@@ -101,7 +101,7 @@ sub software_main {
 
 
 sub build_gui {
-	my ($app,$sw,$pages_ref,$lable_ref) = @_;
+	my ($app,$sw,$pages_ref,$label_ref) = @_;
 
 	
 	my $table= def_table(2,10,FALSE);	
@@ -127,18 +127,18 @@ sub build_gui {
 		#first page is software editor
 		my $notebook = gen_notebook();
 		
-		my $lable1=def_image_label($path."icons/binary.png","Software Editor",1);
-		$notebook->append_page ($table,$lable1);
-		$lable1->show_all;
+		my $label1=def_image_label($path."icons/binary.png","Software Editor",1);
+		$notebook->append_page ($table,$label1);
+		$label1->show_all;
 		
 		
 		my @pages=@{$pages_ref};
-		my @lables=@{$lable_ref};
+		my @labels=@{$label_ref};
 		my $i=0;
 		foreach my $page (@pages){
-			my $lable=$lables[$i];
-			$notebook->append_page ($page,$lable);
-			$lable->show_all;
+			my $label=$labels[$i];
+			$notebook->append_page ($page,$label);
+			$label->show_all;
 			$i++;	
 		}
 		$notebook->show_all;

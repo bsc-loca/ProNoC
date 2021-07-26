@@ -33,8 +33,8 @@ module comb_spec1_allocator #(
     parameter P = 5,
     parameter DEBUG_EN = 1,
     parameter SWA_ARBITER_TYPE = "WRRA",
-    parameter MIN_PCK_SIZE=2 //minimum packet size in flits. The minimum value is 1. 
-    
+    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1. 
+    parameter SELF_LOOP_EN = "NO"
 )(    
         dest_port_all,
         masked_ovc_request_all,
@@ -62,7 +62,7 @@ module comb_spec1_allocator #(
         PV = V * P,
         VV = V * V,
         PVV = PV * V,   
-        P_1 = P-1,
+        P_1 = (SELF_LOOP_EN=="NO")?  P-1 : P,
         VP_1 = V * P_1,                
         PP_1 = P_1 * P,
         PVP_1 = PV * P_1;

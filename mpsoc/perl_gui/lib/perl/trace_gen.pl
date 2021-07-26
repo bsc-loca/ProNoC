@@ -1954,9 +1954,9 @@ sub get_all_merged_tasks {
 		next if(! defined $gref);
 		next if (scalar @{$gref} == 0);
 		
-		my $lable =  $self->object_get_attribute('grouping',"group($i)"."_name");
-		$lable = "group($i)" if(!defined $lable);		
-		push (@merged,"$lable");
+		my $label =  $self->object_get_attribute('grouping',"group($i)"."_name");
+		$label = "group($i)" if(!defined $label);		
+		push (@merged,"$label");
 	}
 	my $uref= $self->object_get_attribute('grouping','ungrouped');	
 	push (@merged, @{$uref}) if(defined  $uref);	

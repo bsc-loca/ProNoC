@@ -80,7 +80,7 @@ module router_two_stage
 		PV = V * P,
 		VV = V*V,
 		PVV = PV * V,    
-		P_1 = P-1,
+		P_1 = ( SELF_LOOP_EN=="NO")?  P-1 : P,
 		PP_1 = P_1 * P,
 		PVP_1 = PV * P_1,		  
 		PFw = P*Fw,
@@ -184,14 +184,18 @@ module router_two_stage
 			assign  vsa_ctrl[i].buff_space_decreased =  vsa_credit_decreased_all[(i+1)*V-1:  i*V]; 
 			assign  vsa_ctrl[i].ivc_granted_ovc_num = granted_ovc_num_all[(i+1)*VV-1:  i*VV];
 			
-			add_sw_loc_one_hot #(
-					.P(P),
-					.SW_LOC(i)    
-				)add
-				(
-					.destport_in(granted_dest_port_all[(i+1)*P_1-1:  i*P_1]),
-					.destport_out(iport_info[i].granted_oport_one_hot[P-1 : 0])
-				);		
+			if(SELF_LOOP_EN == "NO") begin :nslp
+				add_sw_loc_one_hot #(
+						.P(P),
+						.SW_LOC(i)    
+					)add
+					(
+						.destport_in(granted_dest_port_all[(i+1)*P_1-1:  i*P_1]),
+						.destport_out(iport_info[i].granted_oport_one_hot[P-1 : 0])
+					);	
+			end else begin :slp
+				assign iport_info[i].granted_oport_one_hot[P-1 : 0] = granted_dest_port_all[(i+1)*P_1-1:  i*P_1];
+			end
 			
 		end		
 	endgenerate
@@ -260,7 +264,8 @@ module router_two_stage
 			.FIRST_ARBITER_EXT_P_EN (FIRST_ARBITER_EXT_P_EN),
 			.SWA_ARBITER_TYPE (SWA_ARBITER_TYPE ), 
 			.DEBUG_EN(DEBUG_EN),
-			.MIN_PCK_SIZE(MIN_PCK_SIZE)
+			.MIN_PCK_SIZE(MIN_PCK_SIZE),
+			.SELF_LOOP_EN(SELF_LOOP_EN)
 		)
 		vsa
 		(
@@ -313,7 +318,9 @@ module router_two_stage
 				.P (P),     // router port num
 				.Fw (Fw),
 				.MUX_TYPE (MUX_TYPE),				
-				.SSA_EN (SSA_EN)
+				.SSA_EN (SSA_EN),
+				.SELF_LOOP_EN(SELF_LOOP_EN)
+				
 			)
 			the_crossbar
 			(
@@ -371,7 +378,8 @@ module router_two_stage
 				.WEIGHTw(WEIGHTw),
 				.WRRA_CONFIG_INDEX(WRRA_CONFIG_INDEX),
 				.V(V),
-				.P(P)
+				.P(P),
+				.SELF_LOOP_EN(SELF_LOOP_EN)
 			)
 			contention_gen
 			(
@@ -467,12 +475,11 @@ module router_two_stage
 						t2[i]<=1'b0;             
 					end else begin 
 						if(flit_in_wr_all[i]>0 && t1[i]==0)begin 
-							$display("%t : router (addr=%h, port=%d)",$time,current_r_addr,i);
-							$display("%t : Flit_in=%b, current_r_addr=%x, Port=%x, neighbors_r_addr=%x, ",$time,flit_in_all[(i+1)*Fw-1 : i*Fw],current_r_addr, i, neighbors_r_addr);
+							$display("%t :In router (addr=%h, port=%d), flitin=%h",$time,current_r_addr,i,flit_in_all[(i+1)*Fw-1 : i*Fw]);
 							t1[i]<=1;
 						end
 						if(flit_out_wr_all[i]>0 && t2[i]==0)begin 
-							$display("%t port=%d: Flit_out=%b",$time,i,flit_out_all[(i+1)*Fw-1 : i*Fw]);
+							$display("%t :Out router (addr=%h, port=%d), flitout=%h",$time,current_r_addr,i,flit_out_all[(i+1)*Fw-1 : i*Fw]);
 							t2[i]<=1;
 						end
             

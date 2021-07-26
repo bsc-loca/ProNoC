@@ -917,7 +917,9 @@ module  fattree_addr_decoder #(
     generate 
     for(i=0; i< NE; i=i+1) begin : endpoints
         //Endpoint decoded address
+        /* verilator lint_off WIDTH */
         localparam [LKw-1 : 0] ENDPX= addrencode(i,K,L,Kw);
+        /* verilator lint_on WIDTH */
         assign codes[ENDPX] = i;            
     end
     endgenerate
@@ -1053,13 +1055,14 @@ module  fattree_destp_generator #(
     parameter K=2,
     parameter P=2*K,
     parameter SW_LOC=0,
-    parameter DSTPw=4
+    parameter DSTPw=4,
+    parameter SELF_LOOP_EN = "NO"
 )(
     dest_port_in_encoded,
     dest_port_out
 );
 
-    localparam P_1 = P-1;
+    localparam P_1 = (SELF_LOOP_EN == "NO")? P-1 : P;
     input  [DSTPw-1:0] dest_port_in_encoded;
     output [P_1-1 : 0] dest_port_out;
     
@@ -1088,15 +1091,19 @@ module  fattree_destp_generator #(
             .destport_out(destport_masked)        
         );
        
-       
-        remove_sw_loc_one_hot #(
-            .P(P),
-            .SW_LOC(SW_LOC)
-        )
-        conv
-        (
-            .destport_in(destport_masked[P-1 : 0]),
-            .destport_out(dest_port_out[P_1-1  :   0 ])
-        );  
-
+        generate 
+        if(SELF_LOOP_EN == "NO") begin : nslp
+            remove_sw_loc_one_hot #(
+                .P(P),
+                .SW_LOC(SW_LOC)
+            )
+            conv
+            (
+                .destport_in(destport_masked[P-1 : 0]),
+                .destport_out(dest_port_out[P_1-1  :   0 ])
+            );  
+        end else begin : slp 
+            assign dest_port_out= destport_masked [P_1-1  :   0 ];
+        end
+        endgenerate
  endmodule

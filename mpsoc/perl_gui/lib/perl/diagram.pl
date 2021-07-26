@@ -221,7 +221,7 @@ sub show_tile_diagram {
 
 sub gen_show_diagram{
 	my ($self,$scrolled_win,$type,$name)=@_;
-	
+			
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
 	if ($type eq 'topology' && $topology eq '"CUSTOM"'){
 		
@@ -260,8 +260,20 @@ sub show_topology_diagram {
 	my $plus = def_image_button('icons/plus.png',undef,TRUE);
 	my $minues = def_image_button('icons/minus.png',undef,TRUE);
 	my $save = def_image_button('icons/save.png',undef,TRUE);
-	my $dot_file = def_image_button('icons/add-notes.png',undef,TRUE);	
+	my $dot_file = def_image_button('icons/add-notes.png',undef,TRUE);		
 	set_tip($dot_file, "Show dot file.");
+	
+	my $gtype=$self->object_get_attribute("tile_diagram","gtype");
+	if (!defined $gtype){
+		$gtype='comp' ;
+		$self->object_add_attribute("tile_diagram","gtype",$gtype);
+	}		
+	my $graph_type= ($gtype eq 'comp')? def_colored_button('comp',17): def_colored_button('simple',4);
+	my $box=def_hbox(FALSE,0);
+	$box->pack_start( $graph_type, FALSE, FALSE, 0);
+	
+	
+	
 	
 	my $scale=$self->object_get_attribute("tile_diagram","scale");
 	$scale= 1 if (!defined $scale);
@@ -274,6 +286,7 @@ sub show_topology_diagram {
 	$table->attach ($minues,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach ($save,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	$table->attach ($dot_file,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
+	$table->attach ($box,  $col, $col+1,0,1,'shrink','shrink',2,2); $col++;
 	#$table->attach (gen_label_in_left("     Remove unconnected Interfaces"),  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
 	#$table->attach (gen_label_in_left("     Remove Clk Interfaces"),  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
 	#$table->attach (gen_label_in_left("     Remove Reset Interfaces"),  $col,  $col+1,0,1,'shrink','shrink',2,2); $col++;
@@ -306,6 +319,14 @@ sub show_topology_diagram {
 			show_text_in_scrolled_win($self,$scrolled_win, $dot_file);			
 	});
 	
+	$graph_type-> signal_connect("clicked" => sub{ 
+			my $gtype=$self->object_get_attribute("tile_diagram","gtype");			
+			my $new = ($gtype eq "simple")? "comp" : "simple";
+			$self->object_add_attribute("tile_diagram","gtype",$new);	
+			$graph_type= ($new eq 'comp')? def_colored_button('comp',17): def_colored_button('simple',4);
+			show_topology_diagram($self);
+			$window->destroy;			
+	});	
 	
 	
 	gen_show_diagram($self,$scrolled_win,'topology',"topology_diagram");	
@@ -619,9 +640,11 @@ sub show_trace_diagram {
 
 
 sub node_connection{
-	my ($sn,$sx,$sy,$sp,$dn,$dx,$dy,$dp)=@_;
-	my $spp = (defined $sp) ? ":\"p$sp\"" : " ";
-	my $dpp = (defined $dp) ? ":\"p$dp\"" : " ";
+	my ($sn,$sx,$sy,$sp,$dn,$dx,$dy,$dp,$gtype)=@_;
+	$gtype="comp" if(!defined $gtype);
+	
+	my $spp = (defined $sp  && $gtype eq "comp" ) ? ":\"p$sp\"" : " ";
+	my $dpp = (defined $dp  && $gtype eq "comp" ) ? ":\"p$dp\"" : " ";
 	my $sname = (defined $sy) ? "\"$sn${sx}_${sy}\"" : "\"$sn${sx}\"";
 	my $dname = (defined $dy) ? "\"$dn${dx}_${dy}\"" : "\"$dn${dx}\"";
 	
@@ -650,6 +673,9 @@ sub node_connection2{
 
 sub generate_mesh_dot_file{
 	my $self=shift;
+	
+	my $gtype=$self->object_get_attribute("tile_diagram","gtype");	
+	
 	my $dotfile=
 "digraph G {
 	graph [layout = neato, rankdir = RL , splines = true, overlap = true]; 
@@ -671,8 +697,10 @@ sub generate_mesh_dot_file{
 	my $nx=$self->object_get_attribute('noc_param','T1');
 	my $ny=$self->object_get_attribute('noc_param','T2');
 	my $nz=$self->object_get_attribute('noc_param','T3');
-	my $NE = $nx*$ny*$nz;
-	my $NR = $nx*$ny; 	
+	
+	my ($NE, $NR, $RAw, $EAw, $Fw)  = get_topology_info($self);
+	
+	
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
 		
 	
@@ -688,19 +716,45 @@ sub generate_mesh_dot_file{
 						my $offsety = ($z==0 || $z==1) ? -0.85 : +0.85; 
 						my $tx=$x*3+$offsetx;
 						my $ty=($ny-$y-1)*2.5+1+$offsety;
-
-$dotfile=$dotfile."
-
-T$id\[
-	label = \"T${id}\"
-    pos = \"$tx,$ty!\"
-    shape=record
-	color=orange
-	style=filled
-	fillcolor=orange
-];";								
-	
+						$dotfile.=get_record_endp_dot_file("T$id","T$id", "$tx,$ty!");	
 	}}}
+	
+	if($topology eq '"FMESH"' ) {
+		my $tmp = $ny*$nx*$nz;
+		for(my $x=0; $x<$nx; $x++){ 
+			    #top edges
+				my $id=$tmp + $x;
+				my $tx=$x*3;	
+				my $ty=($ny)*2.5-.5;				
+				$dotfile.=get_record_endp_dot_file("T$id","T$id", "$tx,$ty!");
+				get_connected_router_id_to_endp($self,$id);
+				
+				
+				
+				#down edges
+				$id= $tmp + $nx +$x;
+				$tx=$x*3;	
+				$ty=-.5;				
+				$dotfile.=get_record_endp_dot_file("T$id","T$id", "$tx,$ty!");
+		}
+		for(my $y=0; $y<$ny; $y++){ 
+			    #right edges
+				my $id= $tmp + 2*$nx +$y;
+				my $tx=-1.5;		
+				my $ty=($ny-$y-1)*2.5+1;			
+				$dotfile.=get_record_endp_dot_file("T$id","T$id", "$tx,$ty!");
+				
+				
+				#left edges
+				$id= $tmp + 2*$nx+$ny +$y;
+				$tx=$nx*3-1.5;				
+				$ty=($ny-$y-1)*2.5+1;			
+				$dotfile.=get_record_endp_dot_file("T$id","T$id", "$tx,$ty!");
+				
+		}
+	
+	}
+	
 	
 #generate routers	
 	for(my $y=0; $y<$ny; $y++){ 		
@@ -720,17 +774,9 @@ T$id\[
 					
 
 
-$dotfile=$dotfile."
-\"$n\"\[
-	label = \"$label\"
-    pos = \"$xx,$yy!\"
-    shape=record
-	color=blue
-	style=filled
-	fillcolor=blue
-];
 
-";					
+					$dotfile.=get_router_dot_file($n,$label,"$xx,$yy!",$gtype);
+				
 
 				}}							
 	
@@ -741,20 +787,32 @@ $dotfile=$dotfile."
 	for(my $y=0; $y<$ny; $y++){ 		
 		for(my $x=0; $x<$nx; $x++){
 			 
-			 $dotfile=$dotfile.node_connection('R',get_router_num($self,$x,$y),undef,1,'R',get_router_num($self,($x+1),$y),undef,3) if($x <$nx-1);	
-			 $dotfile=$dotfile.node_connection('R',get_router_num($self,$x,$y),undef,1,'R',get_router_num($self,0,$y),undef,3) if($x == ($nx-1) && $btrace);
-			 $dotfile=$dotfile.node_connection('R',get_router_num($self,$x,$y),undef,2,'R',get_router_num($self,$x,($y-1)),undef,4)if($y>0) ; 
-             $dotfile=$dotfile.node_connection('R',get_router_num($self,$x,$y),undef,2,'R',get_router_num($self,$x,($ny-1)),undef,4) if($y ==0 && $btrace && !$oned);
+			 $dotfile=$dotfile.node_connection('R',get_router_num($self,$x,$y),undef,1,'R',get_router_num($self,($x+1),$y),undef,3,$gtype) if($x <$nx-1);	
+			 $dotfile=$dotfile.node_connection('R',get_router_num($self,$x,$y),undef,1,'R',get_router_num($self,0,$y),undef,3,$gtype) if($x == ($nx-1) && $btrace);
+			 $dotfile=$dotfile.node_connection('R',get_router_num($self,$x,$y),undef,2,'R',get_router_num($self,$x,($y-1)),undef,4,$gtype)if($y>0) ; 
+             $dotfile=$dotfile.node_connection('R',get_router_num($self,$x,$y),undef,2,'R',get_router_num($self,$x,($ny-1)),undef,4,$gtype) if($y ==0 && $btrace && !$oned);
           #   $dotfile=$dotfile.node_connection('R',$x,$y,0,'T',$x,$y);               
     }}
-
+if($topology eq '"FMESH"' ) {
 	for(my $id=0; $id<$NE; $id++){ 
-		my $rid=int($id/$nz);
-		my $p =  $id%$nz+5;
-		$dotfile=$dotfile.node_connection('R',$rid,undef,$p,'T',$id,undef);               
+		my $rid= get_connected_router_id_to_endp($self,$id);
+		my $tmp = $nx*$ny*$nz;
+		my $p = ($id<$tmp)? $id%$nz+5 :
+		        ($id<$tmp+$nx)? 2 :
+		        ($id<$tmp+2*$nx)? 4 :
+		        ($id<$tmp+2*$nx+$ny)? 3:1;
+		$dotfile=$dotfile.node_connection('R',$rid,undef,$p,'T',$id,undef,undef,$gtype);               
 	
 	}
 	
+}else{	
+	for(my $id=0; $id<$NE; $id++){ 
+		my $rid=int($id/$nz);
+		my $p =  $id%$nz+5;
+		$dotfile=$dotfile.node_connection('R',$rid,undef,$p,'T',$id,undef,undef,$gtype);               
+	
+	}
+}	
 	$dotfile=$dotfile."\n}\n";
 	return $dotfile;
 
@@ -797,10 +855,53 @@ sub get_endp_pos {
 		return %pos;
 }
 
+sub get_record_endp_dot_file {
+	my ($name,$label,$pos)=@_;
 
+return "$name\[
+	label = \"$label\"
+    pos = \"$pos\"
+    shape=record
+	color=orange
+	style=filled
+	fillcolor=orange
+];
+"
+;
+}
+
+sub get_router_dot_file {
+	my ($name,$label,$pos,$type)=@_;
+	
+	
+	return ($type eq 'comp')? "\"$name\"\[
+	label=\"$label\"
+    pos = \"$pos\"
+    shape=record
+	color=blue
+	style=filled
+	fillcolor=blue
+];	
+"
+: 
+"\"$name\"\[
+	label=\"$name\"
+    pos = \"$pos\"
+    shape=circle
+	color=blue
+	style=filled
+	fillcolor=blue
+];	
+"
+;	
+	
+	
+}
 
 sub generate_fattree_dot_file{
 	my $self=shift;
+	my $gtype=$self->object_get_attribute("tile_diagram","gtype");	
+	
 		
 	my $dotfile=
 "digraph G {
@@ -845,37 +946,23 @@ $dotfile=$dotfile."T$i\[
 		my $x=($k)*$pos+($k/2)-0.5;	
 		my $y=	1.5*($nl-1)+1;	
 		my $r=$pos;
-		my $lable = "\{R$r\}|\{$bp\}";
-	$dotfile=$dotfile."
-\"R$r\"\[
-	label=\"$lable\"
-    pos = \"$x,$y!\"
-    shape=record
-	color=blue
-	style=filled
-	fillcolor=blue
-];	
-";
+		my $label = "\{R$r\}|\{$bp\}";
+		
+		$dotfile.=get_router_dot_file("R$r",$label,"$x,$y!",$gtype);
+		
 	}
 
 	#add leaves
 	for(my $l=1; $l<$nl; $l++){ 
 	for(my $pos=0; $pos<$NL; $pos++){ 
-	my $x=($k)*$pos+($k/2)-0.5;	
-	my $y=	1.5*($nl-$l-1)+1;	
-	my $r=$NL*$l+$pos;
-	my $lable = "\{$hp\}|\{R$r\}|\{$bp\}";
-	 $dotfile=$dotfile."
-\"R$r\"\[
-	label=\"$lable\"
-    pos = \"$x,$y!\"
-    shape=record
-	color=blue
-	style=filled
-	fillcolor=blue
-];	
-";
-		}
+		my $x=($k)*$pos+($k/2)-0.5;	
+		my $y=	1.5*($nl-$l-1)+1;	
+		my $r=$NL*$l+$pos;
+		my $label = "\{$hp\}|\{R$r\}|\{$bp\}";
+		
+		$dotfile.=get_router_dot_file("R$r",$label,"$x,$y!",$gtype);
+			 
+	}
 	}	
 
 
@@ -909,7 +996,7 @@ $dotfile=$dotfile."T$i\[
 				my $connect_port= ($tmp%$k)+$k;
 				my $id1=$NL*$level+$pos;
 				my $connect_id=$NL*$connect_l+$connect_pos;
-				$dotfile=$dotfile.node_connection('R',$id1,undef,$port,'R',$connect_id,undef,$connect_port);	
+				$dotfile=$dotfile.node_connection('R',$id1,undef,$port,'R',$connect_id,undef,$connect_port,$gtype);	
 			}
 	    }
 	}
@@ -917,7 +1004,7 @@ $dotfile=$dotfile."T$i\[
 	#add endpoints connection
 	for(my $i=0; $i<$NE; $i++){ 
 		my $r= $NL*($nl-1)+int($i/$k);
-		 $dotfile=$dotfile.node_connection('T',$i,undef,undef,'R',$r,undef,$i%($k));	
+		 $dotfile=$dotfile.node_connection('T',$i,undef,undef,'R',$r,undef,$i%($k),$gtype);	
 	
 	}
 	$dotfile=$dotfile."\n}\n";
@@ -959,6 +1046,7 @@ sub generate_star_dot_file{
 
 sub generate_tree_dot_file{
 	my $self=shift;
+	my $gtype=$self->object_get_attribute("tile_diagram","gtype");	
 		
 	my $dotfile=
 "digraph G {
@@ -1006,19 +1094,12 @@ sub generate_tree_dot_file{
 	}
 
 	#add roots
-	my $lable = "\{R0\}|\{$bp\}";
+	my $label = "\{R0\}|\{$bp\}";
 	my $x=(($NE-1)/2);
 	my $y=	1.5*($nl-1)+1;
-	$dotfile=$dotfile."
-\"R0\"\[
-	label=\"$lable\"
-    pos = \"$x,$y!\"
-    shape=record
-	color=blue
-	style=filled
-	fillcolor=blue
-];	
-";
+	$dotfile.=get_router_dot_file("R0",$label,"$x,$y!",$gtype);
+	
+	
 	
 	#add leaves
 	my $t=1;
@@ -1030,17 +1111,11 @@ sub generate_tree_dot_file{
 			my $x= 	$t*$pos + ($t-1)/2 ;
 			my $y=	1.5*($nl-$l)-.5;
 			my $r=sum_powi($k,$l)+$pos;
-	my $lable = "\{$hp\}|\{R$r\}|\{$bp\}";
-	 $dotfile=$dotfile."
-\"R$r\"\[
-	label=\"$lable\"
-    pos = \"$x,$y!\"
-    shape=record
-	color=blue
-	style=filled
-	fillcolor=blue
-];	
-";
+	my $label = "\{$hp\}|\{R$r\}|\{$bp\}";
+	
+	$dotfile.=get_router_dot_file("R$r",$label,"$x,$y!",$gtype);
+	
+	 
 		}
 	}	
 	
@@ -1050,14 +1125,14 @@ sub generate_tree_dot_file{
 		for(my $pos=0; $pos<$NL; $pos++){ 
 			my $id1=sum_powi($k,$l)+$pos;
 			my $id2=sum_powi($k,$l-1)+int($pos/$k);
-			$dotfile=$dotfile.node_connection('R',$id1,undef,$k,'R',$id2,undef,$pos % $k);	
+			$dotfile=$dotfile.node_connection('R',$id1,undef,$k,'R',$id2,undef,$pos % $k,$gtype);	
 		}
 	}
 	
 	#add endpoints connection
 	for(my $i=0; $i<$NE; $i++){ 
 		 my $r= sum_powi($k,$nl-1)+int($i/$k);
-		 $dotfile=$dotfile.node_connection('T',$i,undef,undef,'R',$r,undef,$i%($k));	
+		 $dotfile=$dotfile.node_connection('T',$i,undef,undef,'R',$r,undef,$i%($k),$gtype);	
 	
 	}
 	
@@ -1071,7 +1146,7 @@ sub generate_tree_dot_file{
 sub get_topology_dot_file{
 	my $self=shift;
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
-	return generate_mesh_dot_file ($self) if($topology eq '"RING"' || $topology eq '"LINE"' || $topology eq '"MESH"' || $topology eq '"TORUS"' );
+	return generate_mesh_dot_file ($self) if($topology eq '"RING"' || $topology eq '"LINE"' || $topology eq '"MESH"'|| $topology eq '"FMESH"' || $topology eq '"TORUS"' );
 	return generate_fattree_dot_file ($self) if($topology eq '"FATTREE"');
 	return generate_tree_dot_file($self) if($topology eq '"TREE"');
 	return generate_star_dot_file($self) if($topology eq '"STAR"');

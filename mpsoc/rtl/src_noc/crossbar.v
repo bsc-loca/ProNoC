@@ -31,7 +31,8 @@ module crossbar #(
     parameter P    = 5,     // router port num
     parameter Fw     = 36,
     parameter MUX_TYPE="BINARY",        //"ONE_HOT" or "BINARY"    
-    parameter SSA_EN="YES" // "YES" , "NO"
+    parameter SSA_EN="YES", // "YES" , "NO"
+    parameter SELF_LOOP_EN= "NO"
 )
 (
     granted_dest_port_all,
@@ -56,7 +57,7 @@ module crossbar #(
         VV = V * V,
         PP = P * P,        
         PVV = PV * V,    
-        P_1 = P-1,
+        P_1 = (SELF_LOOP_EN == "NO")? P-1 : P,
         VP_1 = V * P_1,                
         PP_1 = P_1 * P,
         PVP_1 = PV * P_1,
@@ -84,14 +85,20 @@ module crossbar #(
     generate
     for(i=0;i<P;i=i+1)begin : port_loop
         assign granted_dest_port[i] = granted_dest_port_all[(i+1)*P_1-1 : i*P_1];
-        for(j=0;j<P;j=j+1)begin : port_loop2  //remove sender port flit from flit list
-            if(i>j)    begin :if1
+        for(j=0;j<P;j=j+1)begin : port_loop2 
+            if(SELF_LOOP_EN == "NO") begin : nslp
+                //remove sender port flit from flit list
+                if(i>j)    begin :if1
+                    assign mux_in[i][(j+1)*Fw-1 : j*Fw]=     flit_in_all[(j+1)*Fw-1 : j*Fw];
+                    assign mux_sel_pre[i][j] =    granted_dest_port[j][i-1];
+                end
+                else if(i<j) begin :if2
+                    assign mux_in[i][j*Fw-1 : (j-1)*Fw]=     flit_in_all[(j+1)*Fw-1 : j*Fw];
+                    assign mux_sel_pre[i][j-1] =    granted_dest_port[j][i];
+                end
+            end else begin : slp
                 assign mux_in[i][(j+1)*Fw-1 : j*Fw]=     flit_in_all[(j+1)*Fw-1 : j*Fw];
-                assign mux_sel_pre[i][j] =    granted_dest_port[j][i-1];
-            end
-            else if(i<j) begin :if2
-                assign mux_in[i][j*Fw-1 : (j-1)*Fw]=     flit_in_all[(j+1)*Fw-1 : j*Fw];
-                assign mux_sel_pre[i][j-1] =    granted_dest_port[j][i];
+                assign mux_sel_pre[i][j] =    granted_dest_port[j][i];            
             end
         end//for j
         
@@ -158,16 +165,19 @@ module crossbar #(
         end//binary
     
     
-    
-        add_sw_loc_one_hot #(
-            .P(P),
-            .SW_LOC(i)
-        )
-        add_sw_loc
-        (
-            .destport_in(granted_dest_port_all[(i+1)*P_1-1 : i*P_1]),
-            .destport_out(flit_out_wr_gen [(i+1)*P-1 : i*P])
-        );
+        if(SELF_LOOP_EN == "NO") begin : nslp
+            add_sw_loc_one_hot #(
+                .P(P),
+                .SW_LOC(i)
+            )
+            add_sw_loc
+            (
+                .destport_in(granted_dest_port_all[(i+1)*P_1-1 : i*P_1]),
+                .destport_out(flit_out_wr_gen [(i+1)*P-1 : i*P])
+            );
+        end else begin :slp 
+            assign flit_out_wr_gen [(i+1)*P-1 : i*P] = granted_dest_port_all[(i+1)*P_1-1 : i*P_1];
+        end
      
     end//for i    
     endgenerate

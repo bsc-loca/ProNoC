@@ -9,7 +9,7 @@
 	localparam V=2;
 	localparam B=4;
 	localparam Fpay=32;
-	localparam ROUTE_NAME="XY";
+	localparam ROUTE_NAME="DUATO";
 	localparam PCK_TYPE =  "MULTI_FLIT";    //"SINGLE_FLIT";
 	localparam MIN_PCK_SIZE=2;
 	localparam BYTE_EN=0;
@@ -27,9 +27,9 @@
 	localparam WEIGHTw=4;
 	localparam AVC_ATOMIC_EN=0;
 	localparam CLASS_SETTING={V{1'b1}};
- 	localparam  CVw=(C==0)? V : C * V;
+ 	localparam CVw=(C==0)? V : C * V;
  	localparam SBP_MAX=3;
-  
+    localparam SELF_LOOP_EN="YES";
 	
 	
 	//simulation parameter	

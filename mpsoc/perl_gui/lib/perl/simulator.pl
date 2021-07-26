@@ -789,7 +789,7 @@ sub run_synthetic_simulation {
 	if ($patern eq 'custom'){
 		$custom="";
 		my $num=$simulate->object_get_attribute($sample,"CUSTOM_SRC_NUM");
-		$custom_sv.="localparam CUSTOM_NODE_NUM=$num;\n\twire [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];\n";
+		$custom_sv.="localparam CUSTOM_NODE_NUM=$num;\n\twire [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];\n\twire [NE-1 : 0] custom_traffic_en;\n";
 			my @srcs;
 		for (my $i=0;$i<$num; $i++){
 			my $src = $simulate->object_get_attribute($sample,"SRC_$i");
@@ -803,14 +803,15 @@ sub run_synthetic_simulation {
 			
 		for (my $i=0;$i<$NE; $i++){
 			my ($src,$dst) = custom_traffic_dest ($simulate,$sample,$i);
-			$custom_sv.="\tassign custom_traffic_t[$src]=$dst;";
-			$custom_sv.=($src==$dst)? "//off \n" : "\n"
+			$custom_sv.="\tassign custom_traffic_t[$src]=$dst;\n";
+			$custom_sv.="\tassign custom_traffic_en[$src]=";
+			$custom_sv.=($dst==-1)? "1'b0;//off \n" : "1'b1;\n"
 		}	
 		$custom.="\"";	
 		
 	}
 	else{
-		$custom_sv.="localparam CUSTOM_NODE_NUM=0;\n\twire [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];
+		$custom_sv.="localparam CUSTOM_NODE_NUM=0;\n\twire [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];\n\twire [NE-1 : 0] custom_traffic_en;
 		";		
 	}
 	
@@ -824,7 +825,7 @@ sub run_synthetic_simulation {
 		$hotspot="-h \" ";
 		my $num=$simulate->object_get_attribute($sample,"HOTSPOT_NUM");
 		if (defined $num){
-			$hotspot="$hotspot $num";
+			$hotspot.=" $num";
 			
 			$hotspot_sv.="localparam HOTSPOT_NODE_NUM=$num;\n\thotspot_t  hotspot_info [HOTSPOT_NODE_NUM-1 : 0];\n";
 			my $acum=0;
@@ -834,7 +835,7 @@ sub run_synthetic_simulation {
 				my $w2 = $simulate->object_get_attribute($sample,"HOTSPOT_PERCENT_$i");
 				$w2=$w2*10;
 				my $w3 = $simulate->object_get_attribute($sample,"HOTSPOT_SEND_EN_$i");
-				$hotspot="$hotspot,$w1,$w3,$w2";
+				$hotspot.=",$w1,$w3,$w2";
 				$acum+=$w2;
 				
 				$hotspot_sv.="
@@ -845,7 +846,7 @@ sub run_synthetic_simulation {
 			
 		}
 		
-		$hotspot.="$hotspot \"";
+		$hotspot.=" \"";
 				
 	}
 	else{ $hotspot_sv.="localparam HOTSPOT_NODE_NUM = 0;\n\thotspot_t  hotspot_info [0:0];\n" }		
@@ -1413,6 +1414,6 @@ sub custom_traffic_dest{
 			my $dst = $self->object_get_attribute($sample,"DST_$i");
 			return  ($core_num,$dst) if($src == $core_num);
     }
-	return ($core_num, $core_num);#off	
+	return ($core_num, -1);#off	
 }
 

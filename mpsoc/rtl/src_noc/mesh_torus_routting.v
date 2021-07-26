@@ -714,6 +714,34 @@ module add_sw_loc_one_hot #(
  endmodule  
 
 
+module add_sw_loc_one_hot_val #(
+    parameter P          =   5,
+    parameter SW_LOC     = 1
+    
+)
+(
+    sw_loc_val,
+    destport_in,
+    destport_out
+);
+
+    localparam P_1 = P-1;
+    input sw_loc_val;
+    input       [P_1-1     :   0] destport_in;
+    output reg  [P-1       :   0] destport_out;
+    
+    integer i;   
+    always @(*)begin 
+        for(i=0;i<P;i=i+1)begin :port_loop
+            if      (i>SW_LOC)      destport_out[i]      =   destport_in[i-1];
+            else if (i==SW_LOC)     destport_out[i]      =   sw_loc_val;
+            else                    destport_out[i]      =   destport_in[i];
+        end//for 
+    end
+    
+    
+    
+ endmodule  
 
 
 /***************************************************

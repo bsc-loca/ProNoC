@@ -108,7 +108,7 @@ sub create_iconview {
 #Creates an Iconview in a ScrolledWindow. This -----
 #Iconview has the ability to drag items off it  -----
 #---------------------------------------------------
-	my ($self,$lable,$editable,$ref,$name,$param,$limit)=@_;
+	my ($self,$label,$editable,$ref,$name,$param,$limit)=@_;
     my $icon_string= undef;
     my $tree_model = create_iconview_model($self,$name,$ref);
 
@@ -168,9 +168,9 @@ sub create_iconview {
 	
 	
 	
-	my $entry=gen_entry_object($self,$name,$param."_name",$lable);
+	my $entry=gen_entry_object($self,$name,$param."_name",$label);
 	$frame->set_label_widget ($entry) if($editable eq 'YES');
-	$frame->set_label_widget (gen_label_in_center($lable)) unless($editable eq 'YES');
+	$frame->set_label_widget (gen_label_in_center($label)) unless($editable eq 'YES');
     
     
     return ($frame,$tree_model);
