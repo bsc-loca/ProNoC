@@ -263,7 +263,7 @@ module router_top
 					//r2 demux
 					// flit_in_wr demux 
 					always @(*) begin 
-						//mask only flit_wr id sbp_en is asserted 
+						//mask only flit_wr if sbp_en is asserted 
 						r2_chan_in[i]   =  chan_in[i].flit_chanel;
 						//can replace destport here and remove lk rout from internal router 
 						if (sbp_ctrl[i].sbp_en) r2_chan_in[i].flit_wr = 1'b0;

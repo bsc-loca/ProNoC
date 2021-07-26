@@ -191,11 +191,11 @@ localparam OVC_ALLOC_MODE= (B<=4)?   1'b1 : 1'b0;
                         if( AVC_ATOMIC_EN== 0) begin :avc_atomic
                             if((((k/V) == NORTH ) || ((k/V) == SOUTH )) && (  ADAPTIVE_VC_MASK[k%V]))  
                                     full_adaptive_ovc_mask_next[k]  =   (credit_counter_next[k]         == Bint);
-                            else    full_adaptive_ovc_mask_next[k] = (OVC_ALLOC_MODE)? full_all_next[k] : ~nearly_full_all_next[k];
+                            else    full_adaptive_ovc_mask_next[k] = (OVC_ALLOC_MODE)? ~full_all_next[k] : ~nearly_full_all_next[k];
                         end else begin :avc_nonatomic
                             if(  ADAPTIVE_VC_MASK[k%V])  
                                     full_adaptive_ovc_mask_next[k]  =   (credit_counter_next[k]         == Bint);
-                            else    full_adaptive_ovc_mask_next[k] = (OVC_ALLOC_MODE)? full_all_next[k] :~nearly_full_all_next[k];    
+                            else    full_adaptive_ovc_mask_next[k] = (OVC_ALLOC_MODE)? ~full_all_next[k] :~nearly_full_all_next[k];    
                         
                         end                       
                      end // for  

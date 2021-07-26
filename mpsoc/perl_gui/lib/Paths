@@ -11,16 +11,9 @@
 
 $setting = bless( {
                     'gui_status' => {
-                                      'status' => 'ref',
-                                      'timeout' => 10
+                                      'timeout' => 10,
+                                      'status' => 'ref'
                                     },
-                    'PATH' => {
-                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
-                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
-                                'MODELSIM_BIN' => '/home/alireza/intelFPGA_lite/questa/questasim/bin',
-                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
-                                'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work'
-                              },
                     'GUI_SETTING' => {
                                        'ICON_SIZE' => 'default',
                                        'FONT_SIZE' => '10'
@@ -37,5 +30,12 @@ $setting = bless( {
                                                                'FONT_SIZE',
                                                                'ICON_SIZE'
                                                              ]
-                                          }
+                                          },
+                    'PATH' => {
+                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
+                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
+                                'MODELSIM_BIN' => '/home/alireza/intelFPGA_lite/18.1/modelsim_ase/bin',
+                                'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work',
+                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin'
+                              }
                   }, 'ProNOC' );

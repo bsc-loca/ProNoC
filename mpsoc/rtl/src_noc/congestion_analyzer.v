@@ -301,7 +301,8 @@ module mesh_torus_port_presel_based_dst_routers_vc #(
 )
 (
     port_pre_sel,    
-    congestion_in_all   
+    congestion_in_all,
+    reset,clk
 );
   
          
@@ -320,6 +321,7 @@ module mesh_torus_port_presel_based_dst_routers_vc #(
     
     input   [CONG_ALw-1 :   0]  congestion_in_all;
     output  [PPSw-1      :   0]  port_pre_sel;
+    input reset,clk;
     
     wire    [CONGw-1    :   0]  congestion_x_plus,congestion_y_plus,congestion_x_min,congestion_y_min;
     wire    [PPSw-1      :   0]  conjestion_cmp;
@@ -343,8 +345,8 @@ module mesh_torus_port_presel_based_dst_routers_vc #(
  
  
    
-    assign port_pre_sel = conjestion_cmp;
-       
+   // assign port_pre_sel = conjestion_cmp;
+   register #(.W(PPSw)) reg1 (.in(conjestion_cmp ), .reset(reset), .clk(clk), .out(port_pre_sel));    
  
  
 endmodule
@@ -542,7 +544,9 @@ generate
                 port_presel_gen
                 (                    
                     .congestion_in_all(congestion_in_all),
-                    .port_pre_sel(port_pre_sel)
+                    .port_pre_sel(port_pre_sel),
+                    .reset(reset),
+                    .clk(clk)
                 );
           end else if((CONGESTION_INDEX==8) || (CONGESTION_INDEX==10) )begin :dst_ovc
             
