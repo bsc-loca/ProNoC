@@ -237,6 +237,10 @@ module input_queue_per_port
 		end   
 	endfunction // log2 
    
+	
+	localparam PORT_B = port_buffer_size(SW_LOC);	
+		 
+	
     
 	localparam
 		VV = V * V,
@@ -525,7 +529,7 @@ module input_queue_per_port
 				//tail fifo
 				fwft_fifo #(
 					.DATA_WIDTH(1),
-					.MAX_DEPTH (B),
+					.MAX_DEPTH (PORT_B),
 					.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
 				)
 				tail_fifo
@@ -814,7 +818,7 @@ module input_queue_per_port
            
 			flit_buffer #(
 					.V(V),
-					.B(B),   // buffer space :flit per VC 
+					.B(PORT_B),   // buffer space :flit per VC 
 					.PCK_TYPE(PCK_TYPE),
 					.Fw(Fw),
 					.DEBUG_EN(DEBUG_EN),
@@ -839,7 +843,7 @@ module input_queue_per_port
 
 			flit_buffer #(
 					.V(V),
-					.B(B),   // buffer space :flit per VC 
+					.B(PORT_B),   // buffer space :flit per VC 
 					.PCK_TYPE(PCK_TYPE),
 					.Fw(Fw),
 					.DEBUG_EN(DEBUG_EN),

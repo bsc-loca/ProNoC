@@ -538,7 +538,7 @@ sub noc_topology_setting_gui {
 	my  $label='Topology';
 	my  $param='TOPOLOGY';
 	my  $default='"MESH"';
-	my  $content='"MESH","FMESH",TORUS","RING","LINE","FATTREE","TREE","STAR","CUSTOM"';
+	my  $content='"MESH","FMESH","TORUS","RING","LINE","FATTREE","TREE","STAR","CUSTOM"';
 	my  $type='Combo-box';
 	my  $info="NoC topology"; 
 	($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
@@ -669,6 +669,24 @@ sub noc_config{
     $type='Spin-button';
     $info=($router_type eq '"VC_BASED"')?  'Buffer queue size per VC in flits' : 'Buffer queue size in flits';
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',undef);
+    
+    
+    #Local port buffer width per VC
+    $label=($router_type eq '"VC_BASED"')? 'Local port Buffer flits per VC': "Local Port Buffer flits";
+    $param='LB';
+    $default='4';                                  
+    $content='2,256,1';
+    $type='Spin-button';
+    $info = "The Local router ports buffer width (LB) is the width of the ports connected to the endpoints and can take different buffer sizes than other routers ports buffer width (B) connected to neighboring routers .It is valid only for MESH,FMESH, TORUS,LINE and RING topologies. In FMESH topology, this parameter does not affect the  width of extra endpoints connected to edge routers.";
+    
+    if ($topology eq '"MESH"' || $topology eq '"FMESH"' || $topology eq '"TORUS"' || $topology eq '"RING"' || $topology eq '"LINE"'){
+   		($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',undef);
+    }else{
+    	$mpsoc->object_add_attribute('noc_param','LB','B');
+    }
+    
+    
+    
     
     #packet payload width
     $label='Payload width';

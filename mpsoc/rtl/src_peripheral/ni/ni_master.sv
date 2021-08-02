@@ -534,7 +534,7 @@ end
           
           fwft_fifo #(
             .DATA_WIDTH(HDATA_PRECAPw),
-            .MAX_DEPTH(B/MIN_PCK_SIZE),//maximum packet number which can be stored in buffer 
+            .MAX_DEPTH(LB/MIN_PCK_SIZE),//maximum packet number which can be stored in buffer 
             .IGNORE_SAME_LOC_RD_WR_WARNING("YES")
           )
           precap_data_fifo
@@ -925,7 +925,7 @@ end
      
   ovc_status #(
     .V(V),
-    .B(B)
+    .B(LB)
   )
   the_ovc_status
   (
@@ -975,7 +975,7 @@ end
     
     flit_buffer #(
         .V(V),
-        .B(B),
+        .B(LB),
         .PCK_TYPE(PCK_TYPE),
         .Fw(Fw),
         .DEBUG_EN(DEBUG_EN),

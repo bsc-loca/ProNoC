@@ -20,8 +20,7 @@ localparam
 	Vw=  log2(V),
 	Cw=  (C==0)? 1 : log2(C),
 	NEw = log2(NE),
-	Bw  = log2(B),
-	DEPTHw  =  log2(B+1),
+	Bw  = log2(B),	
 	WRRA_CONFIG_INDEX=0,
 	SBP_EN = (SBP_MAX !=0),
 	SBP_NUM= (SBP_EN) ? SBP_MAX : 1,	
@@ -173,13 +172,16 @@ localparam
 	} ivc_info_t;
 	localparam  IVC_INFO_w = $bits( ivc_info_t);
 	
+	localparam 	CREDITw  = (LB>B)?  log2(LB+1) : log2(B+1);
+	
 	//ovc info
 	typedef struct packed {
 		bit avalable; 
 		bit status; //1 : is allocated 0 : not_allocated
-		logic [DEPTHw-1 : 0] credit;//available credit in OVC
+		logic [CREDITw-1 : 0] credit;//available credit in OVC
 		bit full;
 		bit nearly_full;
+		bit empty;
 	}ovc_info_t;
 	localparam  OVC_INFO_w = $bits( ovc_info_t);
 	

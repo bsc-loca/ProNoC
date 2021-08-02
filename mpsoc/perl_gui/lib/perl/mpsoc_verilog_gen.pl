@@ -942,14 +942,7 @@ sub get_top_port_io_info{
 
 
 
-sub log2{
-	my $num=shift;
-	my $log=0;    
-	while( (1<< $log)  < $num) {    
-				$log++;    
-	}
-	return  $log;  
-}
+
 
 	
 

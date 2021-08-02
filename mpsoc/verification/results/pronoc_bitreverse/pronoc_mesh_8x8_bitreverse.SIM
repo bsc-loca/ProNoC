@@ -1,0 +1,388 @@
+#######################################################################
+##	File: pronoc_mesh_8x8_bitreverse.SIM
+##    
+##	Copyright (C) 2014-2019  Alireza Monemi
+##    
+##	This file is part of ProNoC 1.9.1 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
+################################################################################
+
+$simulate = bless( {
+                     'sample0' => {
+                                    'sof_file' => 'model_mesh_8x8_vc2_xy_sa_rra',
+                                    'packet_sent_result' => undef,
+                                    'latency_result' => undef,
+                                    'ratios' => '2:30:2',
+                                    'color' => 15,
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'status' => 'failed',
+                                    'MAX_PCK_SIZE' => 10,
+                                    'sof_path' => '/home/alireza/work/mpsoc_work/simulate',
+                                    'line_name' => 'xy_ssa',
+                                    'worst_delay_rsvd_result' => undef,
+                                    'exe_time_result' => undef,
+                                    'sd_latency_result' => undef,
+                                    'throughput_result' => undef,
+                                    'PCK_SIZE' => '6',
+                                    'worst_delay_sent_result' => undef,
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'MIN_PCK_SIZE' => 2,
+                                    'noc_info' => {
+                                                    'SELF_LOOP_EN' => '"NO"',
+                                                    'MUX_TYPE' => '"BINARY"',
+                                                    'T2' => 8,
+                                                    'CONGESTION_INDEX' => 3,
+                                                    'B' => '4',
+                                                    'SSA_EN' => '"YES"',
+                                                    'ROUTE_NAME' => '"XY"',
+                                                    'WEIGHTw' => '4',
+                                                    'SBP_MAX' => '0',
+                                                    'DEBUG_EN' => '0',
+                                                    'ESCAP_VC_MASK' => '2\'b01',
+                                                    'MIN_PCK_SIZE' => '2',
+                                                    'SWA_ARBITER_TYPE' => '"RRA"',
+                                                    'C' => 0,
+                                                    'FIRST_ARBITER_EXT_P_EN' => 1,
+                                                    'TOPOLOGY' => '"MESH"',
+                                                    'BYTE_EN' => 0,
+                                                    'Fpay' => '32',
+                                                    'PCK_TYPE' => '"MULTI_FLIT"',
+                                                    'V' => '2',
+                                                    'AVC_ATOMIC_EN' => 0,
+                                                    'T3' => '1',
+                                                    'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                                    'ROUTE_SUBFUNC' => '"XY"',
+                                                    'T1' => 8,
+                                                    'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                                    'LB' => '4',
+                                                    'COMBINATION_TYPE' => '"COMB_NONSPEC"'
+                                                  },
+                                    'packet_rsvd_result' => undef,
+                                    'traffic' => 'bit reverse',
+                                    'TRAFFIC_TYPE' => 'Synthetic'
+                                  },
+                     'P3-' => {
+                                'type' => '2D_line'
+                              },
+                     'P3-_param' => {
+                                      'X_MAX' => 100,
+                                      'Y_MIN' => 0,
+                                      'legend_font' => 'MediumBold',
+                                      'X_MIN' => 0,
+                                      'LINEw' => 3,
+                                      'legend_placement' => 'BL',
+                                      'label_font' => 'MediumBold',
+                                      'x_axis_font' => 'MediumBold',
+                                      'Y_Title' => 'Total Simulation Time (clk)',
+                                      'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))'
+                                    },
+                     'noc_setting_gui' => {
+                                            'va' => '0',
+                                            'ha' => '0'
+                                          },
+                     'P1' => {
+                               'active' => 'Received'
+                             },
+                     'noc_type' => {
+                                     'ROUTER_TYPE' => '"VC_BASED"'
+                                   },
+                     'Simulator' => 'Verilator',
+                     'fpga_param' => {
+                                       'TIMSTMP_FIFO_NUM' => 16
+                                     },
+                     'P1Received_param' => {
+                                             'X_MAX' => 100,
+                                             'Y_MIN' => 0,
+                                             'legend_font' => 'MediumBold',
+                                             'legend_placement' => 'BL',
+                                             'LINEw' => 3,
+                                             'X_MIN' => 0,
+                                             'label_font' => 'MediumBold',
+                                             'x_axis_font' => 'MediumBold',
+                                             'Y_Title' => 'Received Packets Per Router',
+                                             'X_Title' => 'Core ID'
+                                           },
+                     'P0Throughput' => {
+                                         'type' => '2D_line'
+                                       },
+                     'noc_param' => {
+                                      'SBP_MAX' => '0',
+                                      'ESCAP_VC_MASK' => '2\'b01',
+                                      'DEBUG_EN' => '0',
+                                      'ROUTE_NAME' => '"XY"',
+                                      'SSA_EN' => '"NO"',
+                                      'WEIGHTw' => '4',
+                                      'SWA_ARBITER_TYPE' => '"RRA"',
+                                      'MIN_PCK_SIZE' => '2',
+                                      'CONGESTION_INDEX' => 3,
+                                      'SELF_LOOP_EN' => '"NO"',
+                                      'T2' => ' 2',
+                                      'MUX_TYPE' => '"BINARY"',
+                                      'B' => '4',
+                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
+                                      'T3' => '1',
+                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                      'LB' => '4',
+                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                      'ROUTE_SUBFUNC' => '"XY"',
+                                      'T1' => '2',
+                                      'TOPOLOGY' => '"MESH"',
+                                      'FIRST_ARBITER_EXT_P_EN' => 1,
+                                      'C' => 0,
+                                      'V' => '2',
+                                      'AVC_ATOMIC_EN' => 0,
+                                      'BYTE_EN' => 0,
+                                      'PCK_TYPE' => '"MULTI_FLIT"',
+                                      'Fpay' => '32'
+                                    },
+                     'P3' => {
+                               'active' => '-'
+                             },
+                     'sample3' => {
+                                    'MIN_PCK_SIZE' => 2,
+                                    'ratios' => '2:30:2',
+                                    'traffic' => 'bit reverse',
+                                    'color' => 28,
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'MAX_PCK_SIZE' => 10,
+                                    'status' => 'done',
+                                    'sof_path' => '/home/alireza/work/mpsoc_work/simulate',
+                                    'line_name' => 'full-2ck',
+                                    'sof_file' => 'model_mesh_8x8_vc2_full_nosa_rra',
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'PCK_SIZE' => '6'
+                                  },
+                     'emulation_column' => {
+                                             'va' => '0',
+                                             'ha' => '0'
+                                           },
+                     'simulate_name' => 'pronoc_mesh_8x8_bitreverse',
+                     'chart_notebook' => {
+                                           'currentpage' => 0
+                                         },
+                     'parameters_order' => {
+                                             'samples' => [
+                                                            'sample0',
+                                                            'sample1',
+                                                            'sample2',
+                                                            'sample3',
+                                                            'sample4'
+                                                          ],
+                                             'sample4' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'MIN_PCK_SIZE',
+                                                            'MAX_PCK_SIZE',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sim_param' => [
+                                                              'SAVE_NAME',
+                                                              'BIN_DIR'
+                                                            ],
+                                             'sample0' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'MIN_PCK_SIZE',
+                                                            'MAX_PCK_SIZE',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sample3' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'MIN_PCK_SIZE',
+                                                            'MAX_PCK_SIZE',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'noc_type' => [
+                                                             'ROUTER_TYPE'
+                                                           ],
+                                             'fpga_param' => [
+                                                               'TIMSTMP_FIFO_NUM'
+                                                             ],
+                                             'compile' => [
+                                                            'cpu_num'
+                                                          ],
+                                             'sample2' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'MIN_PCK_SIZE',
+                                                            'MAX_PCK_SIZE',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'sample1' => [
+                                                            'TRAFFIC_TYPE',
+                                                            'line_name',
+                                                            'traffic',
+                                                            'MIN_PCK_SIZE',
+                                                            'MAX_PCK_SIZE',
+                                                            'PCK_SIZE',
+                                                            'PCK_NUM_LIMIT',
+                                                            'SIM_CLOCK_LIMIT'
+                                                          ],
+                                             'noc_param' => [
+                                                              'TOPOLOGY',
+                                                              'T1',
+                                                              'T2',
+                                                              'V',
+                                                              'B',
+                                                              'Fpay',
+                                                              'ROUTE_NAME',
+                                                              'SSA_EN',
+                                                              'CONGESTION_INDEX',
+                                                              'ESCAP_VC_MASK',
+                                                              'VC_REALLOCATION_TYPE',
+                                                              'COMBINATION_TYPE',
+                                                              'MUX_TYPE',
+                                                              'C',
+                                                              'DEBUG_EN',
+                                                              'ADD_PIPREG_AFTER_CROSSBAR',
+                                                              'FIRST_ARBITER_EXT_P_EN',
+                                                              'SWA_ARBITER_TYPE',
+                                                              'WEIGHTw',
+                                                              'AVC_ATOMIC_EN',
+                                                              'ROUTE_SUBFUNC',
+                                                              'T3',
+                                                              'LB',
+                                                              'PCK_TYPE',
+                                                              'MIN_PCK_SIZE',
+                                                              'BYTE_EN',
+                                                              'SBP_MAX',
+                                                              'SELF_LOOP_EN'
+                                                            ]
+                                           },
+                     'compile' => {
+                                    'cpu_num' => 1
+                                  },
+                     'P2' => {
+                               'active' => 'Received'
+                             },
+                     'setting' => {
+                                    'show_adv_setting' => 0,
+                                    'show_tile_setting' => 0,
+                                    'soc_path' => 'lib/soc',
+                                    'show_noc_setting' => 1
+                                  },
+                     'sample1' => {
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'traffic' => 'bit reverse',
+                                    'packet_rsvd_result' => undef,
+                                    'MIN_PCK_SIZE' => 2,
+                                    'worst_delay_sent_result' => undef,
+                                    'PCK_SIZE' => '6',
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'worst_delay_rsvd_result' => undef,
+                                    'throughput_result' => undef,
+                                    'sd_latency_result' => undef,
+                                    'exe_time_result' => undef,
+                                    'sof_path' => '/home/alireza/work/mpsoc_work/simulate',
+                                    'MAX_PCK_SIZE' => 10,
+                                    'status' => 'done',
+                                    'line_name' => 'xy_2clk',
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'color' => 8,
+                                    'ratios' => '2:30:2',
+                                    'latency_result' => undef,
+                                    'packet_sent_result' => undef,
+                                    'sof_file' => 'model_mesh_8x8_vc2_xy_nosa_rra'
+                                  },
+                     'samples' => undef,
+                     'graph_save' => {
+                                       'save_all_result' => 0
+                                     },
+                     'status' => 'ideal',
+                     'id' => 5,
+                     'P0' => {
+                               'active' => 'Throughput'
+                             },
+                     'P2Received_param' => {
+                                             'x_axis_font' => 'MediumBold',
+                                             'label_font' => 'MediumBold',
+                                             'X_Title' => 'Core ID',
+                                             'Y_Title' => 'Worst-Case Delay (clk)',
+                                             'Y_MIN' => 0,
+                                             'X_MAX' => 100,
+                                             'legend_font' => 'MediumBold',
+                                             'legend_placement' => 'BL',
+                                             'LINEw' => 3,
+                                             'X_MIN' => 0
+                                           },
+                     'sim_param' => {
+                                      'SAVE_NAME' => 'simulate1',
+                                      'BIN_DIR' => '/home/alireza/work/git/hca_git/mpsoc_work/simulate'
+                                    },
+                     'sample4' => {
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'PCK_SIZE' => '6',
+                                    'sof_path' => '/home/alireza/work/mpsoc_work/simulate',
+                                    'status' => 'done',
+                                    'line_name' => 'no-vc',
+                                    'MAX_PCK_SIZE' => 10,
+                                    'sof_file' => 'model_mesh_8x8_vc1_xy_nosa',
+                                    'color' => 11,
+                                    'traffic' => 'bit reverse',
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'MIN_PCK_SIZE' => 2,
+                                    'ratios' => '2:30:2'
+                                  },
+                     'process_notebook' => {
+                                             'currentpage' => 0
+                                           },
+                     'file_name' => undef,
+                     'active_setting' => undef,
+                     'sample2' => {
+                                    'color' => 23,
+                                    'traffic' => 'bit reverse',
+                                    'PCK_NUM_LIMIT' => 200000,
+                                    'TRAFFIC_TYPE' => 'Synthetic',
+                                    'MIN_PCK_SIZE' => 2,
+                                    'ratios' => '2:36:2',
+                                    'SIM_CLOCK_LIMIT' => 100000,
+                                    'PCK_SIZE' => '6',
+                                    'sof_path' => '/home/alireza/work/mpsoc_work/simulate',
+                                    'status' => 'done',
+                                    'line_name' => 'full-ssa',
+                                    'MAX_PCK_SIZE' => 10,
+                                    'sof_file' => 'model_mesh_8x8_vc2_full_sa_rra'
+                                  },
+                     'P0Throughput_param' => {
+                                               'Y_MIN' => 0,
+                                               'legend_font' => 'MediumBold',
+                                               'X_MAX' => 100,
+                                               'legend_placement' => 'BL',
+                                               'LINEw' => 3,
+                                               'X_MIN' => 0,
+                                               'label_font' => 'MediumBold',
+                                               'x_axis_font' => 'MediumBold',
+                                               'Y_Title' => 'Avg. Throughput (flits/clock (%))',
+                                               'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))'
+                                             },
+                     'P2Received' => {
+                                       'type' => '3D_bar',
+                                       'dimension' => '3D'
+                                     },
+                     'no_name' => {},
+                     'gui_status' => {
+                                       'timeout' => 0,
+                                       'status' => 'ideal'
+                                     },
+                     'P1Received' => {
+                                       'type' => '3D_bar',
+                                       'dimension' => '3D'
+                                     }
+                   }, 'emulator' );

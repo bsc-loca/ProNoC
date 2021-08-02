@@ -2020,63 +2020,6 @@ make sim
 }
 
 
-sub gen_verilator_makefile{
-	my ($top_ref,$target_dir) =@_;
-	my %tops = %{$top_ref};
-	my $p='';
-	my $q='';
-	my $h='';
-	my $l;
-	my $lib_num=0;
-	my $all_lib="";
-	foreach my $top (sort keys %tops) {
-		$p = "$p ${top}__ALL.a ";
-		$q = $q."lib$lib_num:\n\t\$(MAKE) -f ${top}.mk\n"; 
-		$h = "$h ${top}.h "; 
-		$l = $top;
-		$all_lib=$all_lib." lib$lib_num";
-		$lib_num++;
-	}
-	
-	
-	my $make= "
-	
-default: sim
-
-
-
-include $l.mk
-
-lib: $all_lib
-
-$q
-
-
-#######################################################################
-# Compile flags
-
-CPPFLAGS += -DVL_DEBUG=1
-ifeq (\$(CFG_WITH_CCWARN),yes)	# Local... Else don't burden users
-CPPFLAGS += -DVL_THREADED=1
-CPPFLAGS += -W -Werror -Wall
-endif
-
-#######################################################################
-# Linking final exe -- presumes have a sim_main.cpp
-
-
-sim:	testbench.o \$(VK_GLOBAL_OBJS) $p
-	\$(LINK) \$(LDFLAGS) -g \$^ \$(LOADLIBES) \$(LDLIBS) -o testbench \$(LIBS) -Wall -O3 2>&1 | c++filt
-
-testbench.o: testbench.cpp $h
-
-clean:
-	rm *.o *.a testbench	
-";
-
-save_file ($target_dir,$make);
-
-}	
 
 
 

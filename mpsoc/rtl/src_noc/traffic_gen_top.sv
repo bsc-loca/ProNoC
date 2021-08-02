@@ -264,7 +264,7 @@ module  traffic_gen_top
     
 		output_vc_status #(
 				.V  (V),
-				.B  (B),
+				.B  (LB),
 				.CAND_VC_SEL_MODE       (0) // 0: use arbieration between not full vcs, 1: select the vc with most availble free space
 			)
 			nic_ovc_status

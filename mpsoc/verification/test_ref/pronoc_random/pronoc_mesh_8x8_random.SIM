@@ -2460,6 +2460,7 @@ $simulate = bless( {
                                                                       }
                                                             },
                                     'traffic' => 'random',
+ 'PCK_SIZ_SEL' => 'random-range',
                                     'sof_file' => 'model_mesh_8x8_vc2_xy_nosa_rra',
                                     'color' => 8,
                                     'PCK_NUM_LIMIT' => 200000,
@@ -7342,6 +7343,7 @@ $simulate = bless( {
                                                                           }
                                                                  },
                                     'traffic' => 'random',
+ 'PCK_SIZ_SEL' => 'random-range',
                                     'sof_file' => 'model_mesh_8x8_vc2_full_nosa_rra',
                                     'color' => 28,
                                     'packet_sent_result' => {
@@ -10993,6 +10995,7 @@ $simulate = bless( {
                                                                       }
                                                             },
                                     'traffic' => 'random',
+ 'PCK_SIZ_SEL' => 'random-range',
                                     'sof_file' => 'model_mesh_8x8_vc2_xy_sa_rra',
                                     'color' => 15,
                                     'PCK_NUM_LIMIT' => 200000,
@@ -17242,6 +17245,7 @@ $simulate = bless( {
                                     'sof_file' => 'model_mesh_8x8_vc2_full_sa_rra',
                                     'color' => 23,
                                     'traffic' => 'random',
+ 'PCK_SIZ_SEL' => 'random-range',
                                     'packet_sent_result' => {
                                                               '16' => {
                                                                         '54' => '2661',
@@ -21012,6 +21016,7 @@ $simulate = bless( {
                                     'sof_file' => 'model_mesh_8x8_vc1_xy_nosa',
                                     'color' => 11,
                                     'traffic' => 'random',
+ 'PCK_SIZ_SEL' => 'random-range',
                                     'worst_delay_rsvd_result' => {
                                                                    '20' => {
                                                                              '51' => '744',

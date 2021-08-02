@@ -8,6 +8,7 @@
 	localparam T3=1;
 	localparam V=2;
 	localparam B=4;
+	localparam LB=B;
 	localparam Fpay=32;
 	localparam ROUTE_NAME="DUATO";
 	localparam PCK_TYPE =  "MULTI_FLIT";    //"SINGLE_FLIT";

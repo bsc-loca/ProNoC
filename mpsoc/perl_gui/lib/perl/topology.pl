@@ -311,7 +311,7 @@ sub get_noc_verilator_top_modules_info {
 	
 	my ($ne, $nr, $RAw, $EAw)=get_topology_info($self); 
 
-	my $custom_include;
+	my $custom_include="";
 	if($topology eq '"FATTREE"') {
 		my $K =  $T1;
         my $L =  $T2;		

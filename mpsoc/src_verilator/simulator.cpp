@@ -50,8 +50,8 @@ int TRAFFIC_TYPE=SYNTHETIC;
 int AVG_PACKET_SIZE=5;
 int MIN_PACKET_SIZE=5;
 int MAX_PACKET_SIZE=5;
-int MAX_PCK_NUM;
-int MAX_SIM_CLKs;
+int end_sim_pck_num;
+int sim_end_clk_num;
 int HOTSPOT_NUM;
 int C0_p=100, C1_p=0, C2_p=0, C3_p=0;
 char * TRAFFIC;
@@ -123,10 +123,10 @@ unsigned int rnd_between (unsigned int, unsigned int );
 
 void  usage(){
 	printf(" ./simulator -f [Traffic Pattern file]\n\nor\n");
-	printf(" ./simulator -t [Traffic Pattern]   -m [Packet size info] -n  [MAX_PCK_NUM]  c	[MAX SIM CLKs]   -i [INJECTION RATIO] -p [class traffic ratios (%%)]  -h[HOTSPOT info] -H[custom traffic pattern]\n");
+	printf(" ./simulator -t [Traffic Pattern]   -m [Packet size info] -n  [end_sim_pck_num]  c	[MAX SIM CLKs]   -i [INJECTION RATIO] -p [class traffic ratios (%%)]  -h[HOTSPOT info] -H[custom traffic pattern]\n");
 	printf("      Traffic Pattern: \"HOTSPOT\" \"RANDOM\" \"TORNADO\" \"BIT_REVERSE\"  \"BIT_COMPLEMENT\"  \"TRANSPOSE1\"   \"TRANSPOSE2\"\n");
-	printf("      MAX_PCK_NUM: total number of sent packets. Simulation will stop when total of sent packet by all nodes reach this number\n");
-	printf("      MAX_SIM_CLKs: simulation clock limit. Simulation will stop when simulation clock number reach this value \n");
+	printf("      end_sim_pck_num: total number of sent packets. Simulation will stop when total of sent packet by all nodes reach this number\n");
+	printf("      sim_end_clk_num: simulation clock limit. Simulation will stop when simulation clock number reach this value \n");
 	printf("      INJECTION_RATIO: packet injection ratio\n");
 	printf("      class traffic ratios %%: The percentage of traffic injected for each class. represented in string whit each class ratio is separated by comma. \"n0,n1,n2..\" \n");
 	printf("      hotspot traffic info: represented in a string with following format:  \"HOTSPOT PERCENTAGE,HOTSPOT NUM,HOTSPOT CORE 1,HOTSPOT CORE 2,HOTSPOT CORE 3,HOTSPOT CORE 4,HOTSPOT CORE 5, ENABLE HOTSPOT CORES SEND \"   \n");
@@ -310,7 +310,7 @@ void processArgs (int argc, char **argv )
 	 		TRAFFIC_TYPE=CUSTOM;
 	 		TRAFFIC=(char *) "CUSTOM from file";
 	 		load_traffic_file(optarg,task_graph_data,task_graph_abstract);
-	 		MAX_PCK_NUM=task_graph_total_pck_num;
+	 		end_sim_pck_num=task_graph_total_pck_num;
 	 		break;
 	    case 't':  
 			TRAFFIC=optarg;
@@ -320,10 +320,10 @@ void processArgs (int argc, char **argv )
 			MIN_PACKET_SIZE=atoi(optarg);
 			break;
 		case 'n':
-			 MAX_PCK_NUM=atoi(optarg);
+			 end_sim_pck_num=atoi(optarg);
 			 break;
 		case 'c':
-			 MAX_SIM_CLKs=atoi(optarg);
+			 sim_end_clk_num=atoi(optarg);
 			 break;
 		case 'i':
 			 f=atof(optarg);
@@ -549,7 +549,7 @@ void clk_posedge_event(void) {
 	unsigned int dest_e_addr;
 	clk = 1;       // Toggle clock
 	if(count_en) clk_counter++;
-		inject_done= ((total_sent_pck_num >= MAX_PCK_NUM) || (clk_counter>= MAX_SIM_CLKs) || total_active_routers == 0);
+		inject_done= ((total_sent_pck_num >= end_sim_pck_num) || (clk_counter>= sim_end_clk_num) || total_active_routers == 0);
 		//if(inject_done) printf("clk_counter=========%d\n",clk_counter);
 		total_rsv_flit_number_old=total_rsv_flit_number;
 		for (i=0;i<NE;i++){
@@ -737,8 +737,8 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 
 	}
 	    //printf ("\tTotal packets sent by one router: %u\n", TOTAL_PKT_PER_ROUTER);
-		printf ("\tSimulation timeout =%d\n", MAX_SIM_CLKs);
-		printf ("\tSimulation ends on total packet num of =%d\n", MAX_PCK_NUM);
+		printf ("\tSimulation timeout =%d\n", sim_end_clk_num);
+		printf ("\tSimulation ends on total packet num of =%d\n", end_sim_pck_num);
 	    printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
 	    printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
 }

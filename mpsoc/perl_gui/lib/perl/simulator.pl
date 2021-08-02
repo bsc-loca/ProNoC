@@ -380,19 +380,56 @@ sub get_district_avg {
 }
 
 sub get_simulator_noc_configuration{
-	my ($self,$mode,$sample,$set_win) =@_;
-	
-	
-	my $table=def_table(10,2,FALSE);
+	my ($self,$mode,$sample,$set_win) =@_;	
+		
+	my $table=def_table(10,2,FALSE);	
 	my $row=0;
 	
 	my $scrolled_win = add_widget_to_scrolled_win ($table);
 		
-	my $ok = def_image_button('icons/select.png','OK');
-	my $mtable = def_table(10, 1, TRUE);
+	my $ok = def_image_button('icons/select.png','_OK',FALSE,1);
+	my $import   = def_image_button('icons/import.png','I_mport',FALSE,1);
+	my $save   = def_image_button('icons/save.png','_Export',FALSE,1);
+	
+	$save ->signal_connect("clicked"=> sub{
+		my $dialog=save_file_dialog  ("Enter configuration file name",'conf');
+		#$dialog->set_current_folder ($open_in) if(defined  $open_in);
+		if ( "ok" eq $dialog->run ) {
+	   		my	$file = $dialog->get_filename;
+	   		my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
+			my $t=$self->object_get_attribute($sample);
+			open(FILE,  ">$path/${name}.conf") || die "Can not open: $!";
+			print FILE Data::Dumper->Dump([\$t],['config']);
+			close FILE;
+		}	
+		$dialog->destroy();			
+	});
+	
+	$import ->signal_connect("clicked"=> sub{
+		my $dialog=save_file_dialog  ("Enter configuration file name",'conf');
+		#$dialog->set_current_folder ($open_in) if(defined  $open_in);
+		if ( "ok" eq $dialog->run ) {
+	   		my	$file = $dialog->get_filename;
+	   		my $pp= do $file ;		
+		    my $status=1;
+		    $status=0 if $@;
+			message_dialog("Error reading: $@") if $@;
+			if ($status==1){
+				$self->object_add_attribute ("$sample",undef,$$pp);
+				set_gui_status($self,'ref_set_win',1);
+			}
+		}
+		$dialog->destroy();		
+	});
+	
+	
+	
+	my $mtable = def_table(10, 3, TRUE);
 
-	$mtable->attach_defaults($scrolled_win,0,1,0,9);
-	$mtable-> attach ($ok , 0, 1,  9, 10,'expand','shrink',2,2); 
+	$mtable->attach_defaults($scrolled_win,0,3,0,9);
+	$mtable-> attach ($ok , 1, 2,  9, 10,'expand','shrink',2,2); 
+	$mtable-> attach ($import , 0, 1,  9, 10,'expand','shrink',2,2); 
+	$mtable-> attach ($save , 2, 3,  9, 10,'expand','shrink',2,2); 
 	
 	
 
@@ -678,6 +715,10 @@ sub get_simulator_noc_configuration{
 		 for (my $i=0; $i<$num; $i++){
 		 	attach_widget_to_table ($table,$row,gen_label_in_left("traffic pattern file $i:"),gen_button_message ("Select the traffic pattern input file. Any custom traffic based on application task graphs can be generated using ProNoC Trace Generator tool.","icons/help.png"), get_file_name_object ($self,$sample,"traffic_file$i",undef,$open_in)); $row++;
 		 }
+		 
+		
+		 
+		 
 		 
 		$ok->signal_connect("clicked"=> sub{
 			#check if sof file has been selected

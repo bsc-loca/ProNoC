@@ -96,8 +96,17 @@
     endfunction
     
     
-    
-    
+    function automatic integer port_buffer_size;
+        input integer router_port_num;  //router port num
+        begin
+        port_buffer_size = B;
+        /* verilator lint_off WIDTH */ 
+        if(TOPOLOGY == "MESH" || TOPOLOGY == "FMESH" || TOPOLOGY == "TORUS" || TOPOLOGY ==  "RING" || TOPOLOGY ==  "LINE")begin 
+        /* verilator lint_on WIDTH */ 
+           if (router_port_num == 0 || router_port_num > 4 ) port_buffer_size = LB;
+        end        
+        end
+    endfunction
   
 
 /*******************

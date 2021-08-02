@@ -245,7 +245,7 @@ generate
     
         always @(posedge clk) begin
             if(~reset)begin
-                if (wr[i] && (depth[i] == B) && !rd[i])begin
+                if (wr[i] && (depth[i] == B [DEPTHw-1 : 0]) && !rd[i])begin
                     $display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
                     $finish;
                 end    
@@ -326,7 +326,7 @@ generate
     
         always @(posedge clk) begin
             if(~reset)begin
-                if (wr[i] && (depth[i] == B) && !rd[i]) begin 
+                if (wr[i] && (depth[i] == B[DEPTHw-1 : 0]) && !rd[i]) begin 
                    $display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
                    $finish;
                 end

@@ -487,8 +487,11 @@ sub gen_emulation_column {
 		
 	}
 	# add new simulation
-	my $add=def_image_button("icons/plus.png", );
-	$table->attach ($add, $order{'+/-'},$order{'+/-'}+1, $row, $row+1,'expand','shrink',2,2);
+
+	my $add=def_image_button("icons/plus.png",' A_dd ',FALSE,1);
+	$table->attach ($add, $order{'+/-'},$order{'+/-'}+2, $row, $row+1,'expand','shrink',2,2);
+
+	  
 
 	$add->signal_connect("clicked"=> sub{
 		my $n=$emulate->object_get_attribute("id",undef);
@@ -502,6 +505,7 @@ sub gen_emulation_column {
 		set_gui_status($emulate,"ref",1);		
 			
 	});	
+
 	
 	 
 	return ($scrolled_win,$set_win);
@@ -752,6 +756,7 @@ sub get_noc_setting_gui {
 	my ($emulate,$info_text,$mode)=@_;
 	my $table=def_table(20,10,FALSE);#	my ($row,$col,$homogeneous)=@_;
 	
+	
 	my $scrolled_win = gen_scr_win_with_adjst ($emulate,"noc_setting_gui");
 	add_widget_to_scrolled_win($table,$scrolled_win);
 	my $row=noc_config ($emulate,$table,$info_text);
@@ -788,12 +793,20 @@ sub get_noc_setting_gui {
 		($row,$coltmp)=add_param_widget  ($emulate, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay});
 	}   
 	  
-	
+	my $maintable=def_table(20,10,FALSE);#	my ($row,$col,$homogeneous)=@_;
 	   
 	my $generate = def_image_button('icons/gen.png','Gener_ate',FALSE,1);
 	my $diagram  = def_image_button('icons/diagram.png','Diagram');
-	$table->attach ($generate, 0,2, $row, $row+1,'expand','shrink',2,2);
-	$table->attach ($diagram, 2,4, $row, $row+1,'expand','shrink',2,2);
+	my $import   = def_image_button('icons/import.png','I_mport',FALSE,1);
+	set_tip($import ,"Import NoC configuration from file");
+	
+	$maintable->attach_defaults ($scrolled_win, 0,10, 0, 9);
+	$maintable->attach_defaults (gen_Hsep(), 0,10, 8, 9);
+	$maintable->attach ($generate, 0,2, 9, 10,'expand','shrink',2,2);
+	$maintable->attach ($diagram, 2,4, 9, 10,'expand','shrink',2,2);
+	$maintable->attach ($import, 4,6, 9, 10,'expand','shrink',2,2);
+	
+	
     $diagram-> signal_connect("clicked" => sub{ 
         show_topology_diagram ($emulate);
     });			
@@ -802,8 +815,39 @@ sub get_noc_setting_gui {
 		generate_sim_bin_file($emulate,$info_text) if($mode eq "simulate");
 		
 	});
-		    
-	return $scrolled_win;	
+	
+	$import-> signal_connect("clicked" => sub{ 
+		import_noc_info_file($emulate,$mode);
+	});
+	
+	$scrolled_win->show_all;	    
+	return $maintable;	
+}
+
+sub import_noc_info_file{
+	my ($self,$mode)=@_;
+	my $file;
+	my $dialog = gen_file_dialog(undef,'inf');
+	
+	my $open_in	  = ($mode ne "emulate" ) ? abs_path("$ENV{'PRONOC_WORK'}/simulate") : abs_path("$ENV{'PRONOC_WORK'}/emulate");
+	$dialog->set_current_folder ($open_in); 
+	if ( "ok" eq $dialog->run ) {
+		my $status=1;
+		$file = $dialog->get_filename;
+		my $pp= do $file ;
+		my $p=$pp->{'noc_param'};
+		$status=0 if $@;
+		message_dialog("Error reading: $@") if $@;
+		if ($status==1){
+			$self->object_add_attribute ("noc_param",undef,$p);
+			my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
+			my $attr1 = ($mode ne "emulate" ) ? 'sim_param' : 'fpga_param';
+			$self->object_add_attribute ($attr1,'SAVE_NAME',$name);
+						
+			set_gui_status($self,"ref",1);
+		}			
+	}
+	$dialog->destroy;	
 }
 
 ##########
@@ -1093,22 +1137,7 @@ sub update_result {
 }	
 
 
-sub capture_cores_data {
-	my ($data,$text)=@_;
-	my %result;
-	my @q =split  (/End_point/,$text);
-	my $i=0;
-	foreach my $p (@q){
-		if ($i!=0){
-			my @d = split (/[^0-9. ]/,$p);
-			my $n=	$d[0];
-			my $val = capture_number_after("$data",$p);
-			$result{remove_all_white_spaces($n)}=remove_all_white_spaces($val);
-		}
-		$i++;
-	}	
-	return %result; 
-}
+
 
 sub gen_sim_parameter_h {
 	my ($param_h,$includ_h,$ne,$nr,$router_p,$fifow)=@_;
