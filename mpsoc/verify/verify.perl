@@ -38,13 +38,13 @@ my @log_report_match =("Error","Warning" );
 save_file ("$dirname/report","Verification Results:\n");
 
 
-#copy_src_files();
+copy_src_files();
 
-#gen_models();
+gen_models();
 
-#compile_models($paralel_run,$app);
+compile_models($paralel_run,$app);
 
-#check_compilation(@log_report_match);
+check_compilation(@log_report_match);
 
 run_all_models($paralel_run);
 

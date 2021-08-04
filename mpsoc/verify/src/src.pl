@@ -185,6 +185,7 @@ sub gen_noc_localparam_v {
 sub copy_src_files{
 	
 	if(defined $ENV{PRONOC_WORK}){
+		rmtree("$rtl_dir");
 	 	unless (-d "$rtl_dir"){
 			print "make a working directory inside $rtl_dir\n"; 
 			mkdir("$rtl_dir", 0700);
@@ -193,7 +194,7 @@ sub copy_src_files{
 			print  "Please set PRONOC_WORK variable first!";
 			exit;
 	}
-
+	
 	dircopy("$dirname/../rtl/src_noc" , "$rtl_dir/src_noc") or die("$!\n") unless (-d "$rtl_dir/src_noc");
     unlink "$rtl_dir/src_noc/noc_localparam.v";
     for my $file (glob "$dirname/../rtl/*.v") {
@@ -376,7 +377,7 @@ sub run_traffic {
 	
     append_text_to_file($report,"****************************$name	: $traffic traffic *******************************:\n");
 	unless (-f "$work/$name/obj_dir/testbench"){
-		append_text_to_file($report,"\t failed. Simulation model is not avaialable");
+		append_text_to_file($report,"\t failed. Simulation model is not avaialable\n");
 		return;
 	}
 

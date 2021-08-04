@@ -1,0 +1,6 @@
+$model = bless( {
+		'compile' => "verilate_mesh.sh",
+        'noc_param'=> {
+						"SBP_MAX" => "6",		
+						}
+}, 'ProNOC' );

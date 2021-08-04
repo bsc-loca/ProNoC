@@ -1,27 +1,53 @@
 Verification Results:
+****************************fmesh_8x8_2cycle_xy : Compile *******************************:
+	 model generation is FAILED.
+	 %Error: /home/alireza/work/git/hca_git/mpsoc_work/verify/rtl/src_noc/routing.v:213:9: Cannot find file containing module: 'custom_ni_routing'
+
+	 %Error: Exiting due to 1 error(s), 1 warning(s)
+
+	 %Error: /home/alireza/work/git/hca_git/mpsoc_work/verify/rtl/src_noc/routing.v:440:9: Cannot find file containing module: 'custom_lkh_routing'
+
+	 %Error: Exiting due to 1 error(s)
+
+	 %Warning-WIDTH: /home/alireza/work/git/hca_git/mpsoc_work/verify/rtl/src_noc/debug.v:513:19: Operator ASSIGNW expects 7 bits on the Assign RHS, but Assign RHS's VARREF 'code' generates 8 bits.
+
+****************************mesh_8x8_2cycle_adaptive : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_8x8_2cycle_west_first : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_8x8_2cycle_xy : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_8x8_sbp6_xy : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_8x8_ssa_xy : Compile *******************************:
+	 model is generated successfully.
+****************************torus_8x8_2cycle_xy : Compile *******************************:
+	 model is generated successfully.
 ****************************fmesh_8x8_2cycle_xy	: random traffic *******************************:
-	 failed. Simulation model is not avaialable****************************mesh_8x8_2cycle_adaptive	: random traffic *******************************:
-	 Error in running simulation:                    0: ERROR: Attempt to write to full FIFO:FIFO size is           2. TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[3].the_input_queue_per_port.V_[0].adptv_dest.dest_fifo
- 
+	 failed. Simulation model is not avaialable
+****************************mesh_8x8_2cycle_adaptive	: random traffic *******************************:
+	 passed  
 ****************************mesh_8x8_2cycle_west_first	: random traffic *******************************:
-	 Error in running simulation:                    0: ERROR: Attempt to write to full FIFO:FIFO size is           2. TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[1].the_input_queue_per_port.V_[0].adptv_dest.dest_fifo
- 
+	 passed  
 ****************************mesh_8x8_2cycle_xy	: random traffic *******************************:
-	 Error in running simulation:                    0: ERROR: Attempt to write to full FIFO:FIFO size is           2. TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[2].the_input_queue_per_port.V_[0].dtrmn_dest.dest_fifo
- 
+	 passed  
+****************************mesh_8x8_sbp6_xy	: random traffic *******************************:
+	 passed  
+****************************mesh_8x8_ssa_xy	: random traffic *******************************:
+	 passed  
 ****************************torus_8x8_2cycle_xy	: random traffic *******************************:
-	 Error in running simulation:                    0: ERROR: Attempt to write to full FIFO:FIFO size is           2. TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[1].the_input_queue_per_port.V_[1].dtrmn_dest.dest_fifo
- 
+	 passed  
 ****************************fmesh_8x8_2cycle_xy	: transposed 1 traffic *******************************:
-	 failed. Simulation model is not avaialable****************************mesh_8x8_2cycle_adaptive	: transposed 1 traffic *******************************:
-	 Error in running simulation:                    0: ERROR: Attempt to write to full FIFO:FIFO size is           2. TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[3].the_input_queue_per_port.V_[1].adptv_dest.dest_fifo
- 
+	 failed. Simulation model is not avaialable
+****************************mesh_8x8_2cycle_adaptive	: transposed 1 traffic *******************************:
+	 passed  
 ****************************mesh_8x8_2cycle_west_first	: transposed 1 traffic *******************************:
-	 Error in running simulation:                    0: ERROR: Attempt to write to full FIFO:FIFO size is           2. TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[1].the_input_queue_per_port.V_[1].adptv_dest.dest_fifo
- 
+	 passed  
 ****************************mesh_8x8_2cycle_xy	: transposed 1 traffic *******************************:
-	 Error in running simulation:                    0: ERROR: Attempt to write to full FIFO:FIFO size is           2. TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[1].the_input_queue_per_port.V_[1].dtrmn_dest.dest_fifo
- 
+	 passed  
+****************************mesh_8x8_sbp6_xy	: transposed 1 traffic *******************************:
+	 passed  
+****************************mesh_8x8_ssa_xy	: transposed 1 traffic *******************************:
+	 passed  
 ****************************torus_8x8_2cycle_xy	: transposed 1 traffic *******************************:
-	 Error in running simulation:                    0: ERROR: Attempt to write to full FIFO:FIFO size is           2. TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[3].the_input_queue_per_port.V_[0].dtrmn_dest.dest_fifo
- 
+	 passed  

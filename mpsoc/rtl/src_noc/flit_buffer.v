@@ -609,7 +609,7 @@ module fwft_fifo #(
 
     
     localparam DEPTH_DATA_WIDTH = log2(MAX_DEPTH +1);
-    localparam MUX_SEL_WIDTH     = log2(MAX_DEPTH);
+    localparam MUX_SEL_WIDTH     = log2(MAX_DEPTH-1);
     
     wire                                        out_ld ;
     wire    [DATA_WIDTH-1                   :   0] dout_next;
@@ -824,7 +824,7 @@ module fwft_fifo_with_output_clear #(
     endfunction // log2 
     
     localparam DEPTH_DATA_WIDTH = log2(MAX_DEPTH +1);
-    localparam MUX_SEL_WIDTH     = log2(MAX_DEPTH);
+    localparam MUX_SEL_WIDTH     = log2(MAX_DEPTH-1);
     
     wire out_ld;
     wire [DATA_WIDTH-1 : 0] dout_next;

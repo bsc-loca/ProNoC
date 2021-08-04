@@ -937,6 +937,8 @@ module mesh_torus_distance_gen #(
         
         /* verilator lint_off WIDTH */
         always @ (*) begin 
+            x_offset= {Xw{1'b0}};
+            y_offset= {Yw{1'b0}};
             
             //x_offset
             if(same_x) x_offset= {Xw{1'b0}};
