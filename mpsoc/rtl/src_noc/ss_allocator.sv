@@ -542,48 +542,48 @@ If no output is granted replace the output port with ss one
 **************************/
  
 
-module add_ss_port #( 
-    parameter TOPOLOGY = "MESH",
-    parameter SW_LOC=1,
+module add_ss_port 
+ 	import pronoc_pkg::*;
+#( 
+    parameter SW_LOC=1,    
     parameter P=5
 )(
     destport_in,
     destport_out 
 );
 
-    localparam P_1     =   P-1;    
+	localparam SS_PORT = strieght_port(P,SW_LOC);
+	localparam DISABLED = P;   
+    localparam P_1     =   ( SELF_LOOP_EN=="NO")?  P-1 : P;   
          
     input  [P_1-1  :   0] destport_in;
     output [P_1-1  :   0] destport_out; 
-     
-    generate
-    /* verilator lint_off WIDTH */
-    if(TOPOLOGY == "FATTREE") begin : fat
-    /* verilator lint_on WIDTH */
-        fattree_add_ss_port #(
-            .SW_LOC(SW_LOC),
-            .P(P)
-        )
-        add_ssp
-        (
-            .destport_in(destport_in),
-            .destport_out(destport_out)
-        );
     
- 
-    end else begin:mesh
-    
-        mesh_torus_add_ss_port #(
-            .SW_LOC(SW_LOC),
-            .P(P)
-        )
-        add_ssp
-        (
-            .destport_in(destport_in),
-            .destport_out(destport_out)
-        );
-      
-     end
+    generate	
+    if(SS_PORT == DISABLED) begin :no_ss
+    	assign destport_out = destport_in;    
+    end else begin : ss 
+    	reg [P_1-1  :   0] destport_temp; 
+    	/* verilator lint_off WIDTH */
+    	if( SELF_LOOP_EN=="YES") begin : slp
+    	/* verilator lint_on WIDTH */
+    		always @(*)begin 
+				destport_temp=destport_in;
+				if(destport_in=={P_1{1'b0}}) destport_temp[SS_PORT]= 1'b1;
+    		end 
+    		assign destport_out = destport_temp;
+    	end else begin : nslp
+    		localparam SS_PORT_CODE = (SW_LOC>SS_PORT) ? SS_PORT : SS_PORT-1;
+    		always @(*)begin 
+    			destport_temp=destport_in;
+    			if(destport_in=={P_1{1'b0}}) begin 
+    				destport_temp[SS_PORT_CODE]= 1'b1;
+    			end
+    		end 
+    		assign destport_out = destport_temp;    	
+    	end     	
+    end //ss
     endgenerate
+        
 endmodule
 

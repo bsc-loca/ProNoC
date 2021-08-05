@@ -252,8 +252,8 @@ module input_queue_per_port
 
 	localparam
 	/* verilator lint_off WIDTH */
-		OFFSET = (B%MIN_PCK_SIZE)? 1 :0,
-		NON_ATOM_PCKS =  (B>MIN_PCK_SIZE)?  (B/MIN_PCK_SIZE)+ OFFSET : 1,
+		OFFSET = (PORT_B%MIN_PCK_SIZE)? 1 :0,
+		NON_ATOM_PCKS =  (PORT_B>MIN_PCK_SIZE)?  (PORT_B/MIN_PCK_SIZE)+ OFFSET : 1,
 		MAX_PCK = (VC_REALLOCATION_TYPE== "ATOMIC")?  1 : NON_ATOM_PCKS + OVC_ALLOC_MODE,// min packet size is two hence the max packet number in buffer is (B/2)
 		IGNORE_SAME_LOC_RD_WR_WARNING = ((SSA_EN=="YES")| SBP_EN)? "YES" : "NO";
 	/* verilator lint_on WIDTH */            

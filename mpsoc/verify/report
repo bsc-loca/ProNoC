@@ -11,6 +11,8 @@ Verification Results:
 
 	 %Warning-WIDTH: /home/alireza/work/git/hca_git/mpsoc_work/verify/rtl/src_noc/debug.v:513:19: Operator ASSIGNW expects 7 bits on the Assign RHS, but Assign RHS's VARREF 'code' generates 8 bits.
 
+****************************mesh_2x2_openpiton : Compile *******************************:
+	 model is generated successfully.
 ****************************mesh_8x8_2cycle_adaptive : Compile *******************************:
 	 model is generated successfully.
 ****************************mesh_8x8_2cycle_west_first : Compile *******************************:
@@ -25,6 +27,8 @@ Verification Results:
 	 model is generated successfully.
 ****************************fmesh_8x8_2cycle_xy	: random traffic *******************************:
 	 failed. Simulation model is not avaialable
+****************************mesh_2x2_openpiton	: random traffic *******************************:
+	 passed  
 ****************************mesh_8x8_2cycle_adaptive	: random traffic *******************************:
 	 passed  
 ****************************mesh_8x8_2cycle_west_first	: random traffic *******************************:
@@ -39,6 +43,8 @@ Verification Results:
 	 passed  
 ****************************fmesh_8x8_2cycle_xy	: transposed 1 traffic *******************************:
 	 failed. Simulation model is not avaialable
+****************************mesh_2x2_openpiton	: transposed 1 traffic *******************************:
+	 passed  
 ****************************mesh_8x8_2cycle_adaptive	: transposed 1 traffic *******************************:
 	 passed  
 ****************************mesh_8x8_2cycle_west_first	: transposed 1 traffic *******************************:

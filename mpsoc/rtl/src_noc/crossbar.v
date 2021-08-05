@@ -107,8 +107,7 @@ module crossbar #(
         /* verilator lint_off WIDTH */
         if (SSA_EN =="YES")begin :predict //If no output is granted replace the output port with SS port
         /* verilator lint_on WIDTH */
-            add_ss_port #(
-                .TOPOLOGY(TOPOLOGY),
+            add_ss_port #(               
                 .SW_LOC(i),
     		    .P(P)
             )

@@ -1125,16 +1125,17 @@ wire [P-1   :   0] dest_port_num,assigned_dest_port_num;
 endmodule
 
 
-
+/*
 module mesh_torus_add_ss_port #(   
     parameter SW_LOC=1,
-    parameter P=5
+    parameter P=5,
+    parameter SELF_LOOP_EN="NO"
 )(
     destport_in,
     destport_out 
 );
      localparam
-        P_1     =   P-1,
+        P_1     = (SELF_LOOP_EN == "NO") ? P-1 : P,
         LOCAL   =   0,  
         EAST    =   1,
         NORTH   =   2, 
@@ -1142,13 +1143,13 @@ module mesh_torus_add_ss_port #(
         SOUTH   =   4;
 
 
+     localparam  NO_SELF_LOOP  = (SELF_LOOP_EN == "NO") ? 1 : 0;
+     localparam  SS_PORT_P5 = (SW_LOC== EAST   )? WEST- NO_SELF_LOOP : // the sender port must be removed from destination port code  
+                              (SW_LOC== NORTH  )? SOUTH- NO_SELF_LOOP: // the sender port must be removed from destination port code  
+                              (SW_LOC== WEST   )? EAST  :
+                                                  NORTH ; 
 
-     localparam  SS_PORT_P5 = (SW_LOC== EAST   )? WEST-1 : // the sender port must be removed from destination port code  
-                             (SW_LOC== NORTH  )? SOUTH-1: // the sender port must be removed from destination port code  
-                             (SW_LOC== WEST   )? EAST  :
-                                                 NORTH ; 
-
-     localparam  SS_PORT_P3 =   1;   
+     localparam  SS_PORT_P3 =  (SELF_LOOP_EN == "NO") ? 1 :   
                                  
 
      localparam  SS_PORT      =   (P==5) ? SS_PORT_P5: SS_PORT_P3;
@@ -1170,7 +1171,7 @@ module mesh_torus_add_ss_port #(
      
 
 endmodule
-
+*/
 
 /**************
  * 
