@@ -95,7 +95,7 @@ module  hnf_rx_data #(
     wire fifo_empty; 
     wire fifo_not_empty = ~ fifo_empty;
    
-   fifo #(
+   bram_based_fifo #(
     .Dw(DAT_FLIT_SIZE),
     .B(B)
    )

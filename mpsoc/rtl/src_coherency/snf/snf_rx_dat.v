@@ -110,7 +110,7 @@ module  snf_rx_dat #(
     assign {qos,tgtid,srcid ,txnid ,homenid ,opcode ,resperr, resp ,fwd_datapull ,dbid ,ccid ,dataid ,tracetag ,be ,data ,datacheck  ,poison}=current_rxdatflit;
     assign rxdat_to_txnlkpt_rd_valid =read_fifo_en;
 
-    fifo #(
+    bram_based_fifo #(
         .Dw(DAT_FLIT_SIZE),
         .B(B)
     )

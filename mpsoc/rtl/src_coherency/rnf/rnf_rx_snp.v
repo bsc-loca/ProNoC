@@ -147,7 +147,7 @@ module  rnf_rx_snp #(
     assign {current_cache_to_rxsnp_rd_hit,current_cache_to_rxsnp_rd_state,current_cache_to_rxsnp_rd_data} = current_cache_data;
    
    
-    fifo #(
+    bram_based_fifo #(
         .Dw(CACHE_FIFOw),
         .B(B)
     )
@@ -165,7 +165,7 @@ module  rnf_rx_snp #(
     );
    
    
-    fifo #(
+    bram_based_fifo #(
         .Dw(SNP_FLIT_SIZE),
         .B(B)
     )

@@ -978,7 +978,7 @@ module packet_gen #(
     
 				/*
 
-    fifo #(
+    bram_based_fifo #(
         .Dw(CLK_CNTw),
         .B(TIMSTMP_FIFO_NUM)
     )

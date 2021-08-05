@@ -206,7 +206,7 @@ module  snf_rx_req#(
  
        
    /* 
-    fifo #(
+    bram_based_fifo #(
         .Dw(REQ_FLIT_SIZE),
         .B(B)
     )
@@ -253,7 +253,7 @@ module  snf_rx_req#(
     
    
    reg rd_dat_fifo_en;
-    fifo #(
+    bram_based_fifo #(
         .Dw(DATA_DAT),
         .B(100)
     )

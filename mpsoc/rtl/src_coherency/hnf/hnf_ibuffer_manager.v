@@ -336,7 +336,7 @@ module  hnf_req_retry_manager #(
     reg [1:0] pst;
     reg [1:0] nst;
    
-    fifo #(
+    bram_based_fifo #(
         .Dw(REQ_FLIT_SIZE),
         .B(EXTND_B)
     )

@@ -41,7 +41,7 @@ module  fifo_depth_extended #(
     output reg credit_out;
     
    
-    fifo #(
+    bram_based_fifo #(
         .Dw(Dw),
         .B(EXTND_B)
     )        

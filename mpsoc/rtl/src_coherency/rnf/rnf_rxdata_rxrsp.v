@@ -200,7 +200,7 @@ module  rnf_rxdata_rxrsp #(
   
   
     
-   fifo #(
+   bram_based_fifo #(
    	.Dw(DAT_FLIT_SIZE),
    	.B(B)
    )
@@ -269,7 +269,7 @@ module  rnf_rxdata_rxrsp #(
     wire rxrsp_fifo_not_empty = ~ rxrsp_fifo_empty;
 
      
-    fifo #(
+    bram_based_fifo #(
         .Dw(RSP_FLIT_SIZE),
         .B(B)
     )
@@ -382,7 +382,7 @@ module  rnf_rxdata_rxrsp #(
     
     
     
-    fifo #(
+    bram_based_fifo #(
         .Dw(DATA_DAT + OPCODE_REQ + ADDR_REQ + CACHE_STATUSw + 1 ),
         .B(B)
     )
@@ -400,7 +400,7 @@ module  rnf_rxdata_rxrsp #(
     );
     
     
-     fifo #(
+     bram_based_fifo #(
         .Dw(DATA_DAT + OPCODE_REQ + ADDR_REQ + CACHE_STATUSw + 1 ),
         .B(B)
     )

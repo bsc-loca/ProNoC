@@ -318,7 +318,7 @@ module  hnf_rxrsp_rxdat #(
 
 
 
-    fifo #(
+    bram_based_fifo #(
         .Dw(RSPDw),
         .B(B)
     )
@@ -400,7 +400,7 @@ module  hnf_rxrsp_rxdat #(
     
     
     
-    fifo #(
+    bram_based_fifo #(
         .Dw(DAT_FLIT_SIZE),
         .B(B)
     )
@@ -522,7 +522,7 @@ module  hnf_rxrsp_rxdat #(
     wire [TXNID_RSP-1:0] rxdat_txnid_in = rxdatflit [TXNID_RSP-1:0];
   
   
-    fifo #(
+    bram_based_fifo #(
         .Dw(DATDw),
         .B(B)
     )
@@ -2114,7 +2114,7 @@ module  hnf_rsv_extend_buffer #(
     reg [1:0] pst;
     reg [1:0] nst;
    
-    fifo #(
+    bram_based_fifo #(
         .Dw(Dw),
         .B(EXTND_B)
     )

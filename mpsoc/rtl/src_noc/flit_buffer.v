@@ -1034,7 +1034,7 @@ module fwft_fifo_bram #(
     end   
     
     
-    fifo  #(
+    bram_based_fifo  #(
         .Dw(DATA_WIDTH),//data_width
         .B(MAX_DEPTH)// buffer num
     )bram_fifo(
@@ -1126,12 +1126,12 @@ endmodule
 
 /**********************************
 
-            fifo
+            bram_based_fifo
 
 *********************************/
 
 
-module fifo  #(
+module bram_based_fifo  #(
     parameter Dw = 72,//data_width
     parameter B  = 10// buffer num
 )(
