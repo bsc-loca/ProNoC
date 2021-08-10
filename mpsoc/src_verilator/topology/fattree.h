@@ -3,13 +3,6 @@
 
 
 
-
-
-
-
-
-
-
 unsigned int    Lw;
 unsigned int    Kw;
 unsigned int    LKw;
@@ -37,7 +30,51 @@ inline void fatree_local_addr (unsigned int t1, unsigned int r1, unsigned int ad
 }
 
 
+unsigned int fattree_addrencode( unsigned int pos, unsigned int k, unsigned int l){
+	unsigned int pow,i,tmp=0;
+	unsigned int addrencode=0;
+	unsigned int kw=0;
+	while((0x1<<kw) < k)kw++;
+	pow=1;
+	for (i = 0; i <l; i=i+1 ) {
+		tmp=(pos/pow);
+		tmp=tmp%k;
+		tmp=tmp<<(i)*kw;
+		addrencode=addrencode | tmp;
+		pow=pow * k;
+	}
+	 return addrencode;
+}
 
+
+unsigned int fattree_addrdecode(unsigned int addrencode , unsigned int k, unsigned int l){
+	unsigned int kw=0;
+	unsigned int mask=0;
+	unsigned int pow,i,tmp;
+	unsigned int pos=0;
+	while((0x1<<kw) < k){
+		kw++;
+		mask<<=1;
+		mask|=0x1;
+	}
+	pow=1;
+	for (i = 0; i <l; i=i+1 ) {
+		tmp = addrencode & mask;
+		tmp=(tmp*pow);
+		pos= pos + tmp;
+		pow=pow * k;
+		addrencode>>=kw;
+	}
+	return pos;
+}
+
+unsigned int endp_addr_encoder ( unsigned int id){
+			return fattree_addrencode(id, T1, T2);
+}
+
+unsigned int endp_addr_decoder (unsigned int code){
+		return fattree_addrdecode(code, T1, T2);
+}
 
 
 void topology_init (void){

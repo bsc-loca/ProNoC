@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use GD::Graph::bars3d;
 use GD::Graph::linespoints;
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
 
 
 

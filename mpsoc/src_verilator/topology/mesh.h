@@ -1,7 +1,7 @@
 #ifndef MESH_H
 	#define MESH_H
 
-
+	#define  LOCAL		0
 	#define  EAST       1 
 	#define  NORTH      2  
 	#define  WEST       3  
@@ -12,6 +12,125 @@
 	#define  BACKWARD   2
 	#define router_id(x,y)  ((y * T1) +    x)
 	#define endp_id(x,y,l)  ((y * T1) +    x) * T3 + l 
+
+
+
+	unsigned int nxw=0;
+	unsigned int nyw=0;
+	unsigned int maskx=0;
+	unsigned int masky=0;
+
+
+
+	void mesh_tori_addrencod_sep(unsigned int id, unsigned int *x, unsigned int *y, unsigned int *l){
+		(*l)=id%T3; // id%NL
+		(*x)=(id/T3)%T1;// (id/NL)%NX
+		(*y)=(id/T3)/T1;// (id/NL)/NX
+	}
+
+
+	void mesh_tori_addr_sep(unsigned int code, unsigned int *x, unsigned int *y, unsigned int *l){
+		(*x) = code &  maskx;
+		code>>=nxw;
+		(*y) = code &  masky;
+		code>>=nyw;
+		(*l) = code;
+	}
+
+
+
+	unsigned int mesh_tori_addr_join(unsigned int x, unsigned int y, unsigned int l){
+
+		unsigned int addrencode=0;
+		addrencode =(T3==1)?   (y<<nxw | x) : (l<<(nxw+nyw)|  (y<<nxw) | x);
+		return addrencode;
+	}
+
+	unsigned int mesh_tori_addrencode (unsigned int id){
+		unsigned int y, x, l;
+		mesh_tori_addrencod_sep(id,&x,&y,&l);
+		return mesh_tori_addr_join(x,y,l);
+	}
+
+
+
+
+
+	unsigned int fmesh_addrencode(unsigned int id){
+	//input integer in,nx,nxw,nl,nyw,ny;
+		unsigned int  y, x, l,p, diff,mul,addrencode;
+		mul  = T1*T2*T3;
+		if(id < mul) {
+			y = ((id/T3) / T1 );
+			x = ((id/T3) % T1 );
+			l = (id % T3);
+			p = (l==0)? LOCAL : 4+l;
+		}else{
+			diff = id -  mul ;
+			if( diff <  T1) { //top mesh edge
+				y = 0;
+				x = diff;
+				p = NORTH;
+			} else if  ( diff < 2* T1) { //bottom mesh edge
+				y = T2-1;
+				x = diff-T1;
+				p = SOUTH;
+			} else if  ( diff < (2* T1) + T2 ) { //left mesh edge
+				y = diff - (2* T1);
+				x = 0;
+				p = WEST;
+			} else { //right mesh edge
+				y = diff - (2* T1) -T2;
+				x = T1-1;
+				p = EAST;
+			}
+		}
+		addrencode = ( p<<(nxw+nyw) | (y<<nxw) | x);
+		return addrencode;
+	}
+
+
+	unsigned int fmesh_endp_addr_decoder (unsigned int code){
+		unsigned int x, y, p;
+		mesh_tori_addr_sep(code,&x,&y,&p);
+		if(p== LOCAL)	return ((y*T1)+x)*T3;
+		if(p > SOUTH)   return ((y*T1)+x)*T3+(p-SOUTH);
+		if(p== NORTH)   return ((T1*T2*T3) + x);
+		if(p== SOUTH)   return ((T1*T2*T3) + T1 + x);
+		if(p== WEST )   return ((T1*T2*T3) + 2*T1 + y);
+		if(p== EAST )   return ((T1*T2*T3) + 2*T1 + T2 + y);
+		return 0;//should not reach here
+	}
+
+
+
+
+
+
+	unsigned int mesh_tori_endp_addr_decoder (unsigned int code){
+		unsigned int x, y, l;
+		mesh_tori_addr_sep(code,&x,&y,&l);
+		//if(code==0x1a) printf("code=%x,x=%u,y=%u,l=%u\n",code,x,y,l);
+		return ((y*T1)+x)*T3+l;
+	}
+
+
+	unsigned int endp_addr_encoder ( unsigned int id){
+			#if defined (IS_MESH) || defined (IS_TORUS) || defined (IS_LINE) || defined (IS_RING )
+				return mesh_tori_addrencode(id);
+			#endif
+			return fmesh_addrencode(id);
+	}
+
+
+	unsigned int endp_addr_decoder (unsigned int code){
+		#if defined (IS_MESH) || defined (IS_TORUS) || defined (IS_LINE) || defined (IS_RING )
+			return mesh_tori_endp_addr_decoder (code);
+		#endif
+		return fmesh_endp_addr_decoder (code);
+	}
+
+
 
 
 void topology_connect_all_nodes (void){
@@ -178,7 +297,8 @@ void topology_connect_all_nodes (void){
 
 
 void topology_init(void){
-
+	while((0x1<<nxw) < T1){nxw++;maskx<<=1; maskx|=1;}
+	while((0x1<<nyw) < T2){nyw++;masky<<=1; masky|=1;}
 }
 
 #endif

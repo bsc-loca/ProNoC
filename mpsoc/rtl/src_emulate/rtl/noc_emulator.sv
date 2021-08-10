@@ -253,18 +253,21 @@ module  Jtag_traffic_gen
     generate 
     for (i=0;   i<NE;   i=i+1) begin: endp
     	     
-     //connected router encoded address
-        localparam CURRENTR=  i/T3;
-        localparam CURRENTX= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")?  addrencode(i/K,K,L,Kw) : CURRENTR%T1;
-        localparam CURRENTY= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")?  0 : CURRENTR/T1;
-        localparam [RAw-1 : 0] CURRENT_ADDR =  (CURRENTY<<NXw) + CURRENTX; 
-        //Endpoint encoded address
-        localparam ENDPL= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")? 0 :(T3>1)? i%T3: 0;
-        localparam ENDPX= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")?  addrencode(i,K,L,Kw) : CURRENTX;
-        localparam ENDPY= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")? 0 : CURRENTY;    
-        localparam [EAw-1 : 0] ENDP_ADRR =          
-        (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE")? 
-        (ENDPL<<(NXw+NYw)) + (ENDPY<<NXw) + ENDPX : i;
+    	wire [EAw-1 : 0] current_e_addr [NE-1 : 0];
+			
+    	endp_addr_encoder #(
+    		.TOPOLOGY(TOPOLOGY),
+    		.T1(T1),
+    		.T2(T2),
+    		.T3(T3),
+    		.EAw(EAw),
+    		.NE(NE)
+    	)
+    	encoder
+    	(
+    		.id(i[NEw-1 : 0]),
+    		.code(current_e_addr[i])
+    	);     
                 
                 
         // seperate interfaces per router             
@@ -283,8 +286,8 @@ module  Jtag_traffic_gen
           (
           	.reset(reset),
           	.clk(clk),
-          	.current_r_addr(CURRENT_ADDR),
-            .current_e_addr(ENDP_ADRR),
+          	.current_r_addr(chan_in_all[i].flit_chanel.neighbors_r_addr),
+            .current_e_addr(current_e_addr[i]),
           	.start(start[i]),
           	.done(done_sep[i]),
           	//pattern updater

@@ -7,7 +7,8 @@ use FindBin;
 use lib $FindBin::Bin;
 use Consts;
 
-use Glib qw(TRUE FALSE);
+use constant::boolean;
+
 
 use Data::Dumper;
 use File::Basename;

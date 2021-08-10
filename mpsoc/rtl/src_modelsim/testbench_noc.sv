@@ -168,133 +168,133 @@ module testbench_noc;
     wire [NE-1 : 0] valid_dst;
     
 	generate 
-		for(i=0; i< NE; i=i+1) begin : endpoints
-			//connected router encoded address
-			localparam CURRENTR=  i/T3;
-			localparam CURRENTX= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")?  addrencode(i/K,K,L,Kw) : CURRENTR%T1;
-			localparam CURRENTY= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")?  0 : CURRENTR/T1;
-			localparam [RAw-1 : 0] CURRENT_ADDR =  (CURRENTY<<NXw) + CURRENTX; 
-			//Endpoint encoded address
-			localparam ENDPL= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")? 0 :(T3>1)? i%T3: 0;
-			localparam ENDPX= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")?  addrencode(i,K,L,Kw) : CURRENTX;
-			localparam ENDPY= (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE")? 0 : CURRENTY;    
-			localparam [EAw-1 : 0] ENDP_ADRR =          
-				(TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE")? 
-				(ENDPL<<(NXw+NYw)) + (ENDPY<<NXw) + ENDPX : i;
-       
+	for(i=0; i< NE; i=i+1) begin : endpoints
+			
+       		wire [EAw-1 : 0] current_e_addr [NE-1 : 0];
+			
+			endp_addr_encoder #(
+				.TOPOLOGY(TOPOLOGY),
+				.T1(T1),
+				.T2(T2),
+				.T3(T3),
+				.EAw(EAw),
+				.NE(NE)
+			)
+			encoder
+			(
+				.id(i[NEw-1 : 0]),
+				.code(current_e_addr[i])
+			);    
+			
             
+			        
+			    
 			traffic_gen_top #(
-					.MAX_RATIO(100)          
-				)
-				the_traffic_gen
-				(
-       
-					.ratio (ratio),					
-					.pck_size_in(pck_size_in[i]),
-					.current_r_addr(CURRENT_ADDR),
-					.current_e_addr(ENDP_ADRR),
-					.dest_e_addr(dest_e_addr[i]),
-					.pck_class_in(pck_class_in[i]),  
-					.init_weight({{(WEIGHTw-1){1'b0}},1'b1}),
-					.hdr_flit_sent(hdr_flit_sent[i]),
-					.pck_number(pck_counter[i]),
-					.reset(reset),
-					.clk(clk),
-					.start(start),
-					.stop(stop | ~valid_dst[i]),
-					.sent_done(),
-					.update(update[i]),
-					.time_stamp_h2h(time_stamp_h2h[i]),
-					.time_stamp_h2t(time_stamp_h2t[i]),
-					.distance(distance[i]),
-					.src_e_addr(src_e_addr[i] ),
-					.pck_class_out(msg_class[i]),
-					.report (1'b0),
-					.pck_size_o(pck_size_o[i]),
-					.chan_in(chan_out_all[i]),
-					.chan_out(chan_in_all[i]),
-					.start_delay(start_delay[i]),
-					.flit_out_wr(),
-					.flit_in_wr()
+				.MAX_RATIO(100)          
+			)
+			the_traffic_gen
+			(
+       			.ratio (ratio),					
+				.pck_size_in(pck_size_in[i]),
+				.current_r_addr(chan_out_all[i].flit_chanel.neighbors_r_addr),
+				.current_e_addr(current_e_addr[i]),
+				.dest_e_addr(dest_e_addr[i]),
+				.pck_class_in(pck_class_in[i]),  
+				.init_weight({{(WEIGHTw-1){1'b0}},1'b1}),
+				.hdr_flit_sent(hdr_flit_sent[i]),
+				.pck_number(pck_counter[i]),
+				.reset(reset),
+				.clk(clk),
+				.start(start),
+				.stop(stop | ~valid_dst[i]),
+				.sent_done(),
+				.update(update[i]),
+				.time_stamp_h2h(time_stamp_h2h[i]),
+				.time_stamp_h2t(time_stamp_h2t[i]),
+				.distance(distance[i]),
+				.src_e_addr(src_e_addr[i] ),
+				.pck_class_out(msg_class[i]),
+				.report (1'b0),
+				.pck_size_o(pck_size_o[i]),
+				.chan_in(chan_out_all[i]),
+				.chan_out(chan_in_all[i]),
+				.start_delay(start_delay[i]),
+				.flit_out_wr(),
+				.flit_in_wr()
           
-				);
+			);
+			
 			endp_addr_decoder #(
-					.TOPOLOGY(TOPOLOGY),
-					.T1(T1),
-					.T2(T2),
-					.T3(T3),
-					.EAw(EAw),
-					.NE(NE)
-				)
-				decoder
-				(
-					.id(src_id[i]),
-					.code(src_e_addr[i])
-				);    
+				.TOPOLOGY(TOPOLOGY),
+				.T1(T1),
+				.T2(T2),
+				.T3(T3),
+				.EAw(EAw),
+				.NE(NE)
+			)
+			decoder
+			(
+				.id(src_id[i]),
+				.code(src_e_addr[i])
+			);    
      
 
 			pck_class_in_gen #(
-					.C(C),
-					.C0_p(C0_p),
-					.C1_p(C1_p),
-					.C2_p(C2_p),
-					.C3_p(C3_p)            
-				)
-				the_pck_class_in_gen
-				(
-					.en(hdr_flit_sent[i]),
-					.pck_class_o(pck_class_in[i]),
-					.reset(reset),
-					.clk(clk)
-				);
+				.C(C),
+				.C0_p(C0_p),
+				.C1_p(C1_p),
+				.C2_p(C2_p),
+				.C3_p(C3_p)            
+			)
+			the_pck_class_in_gen
+			(
+				.en(hdr_flit_sent[i]),
+				.pck_class_o(pck_class_in[i]),
+				.reset(reset),
+				.clk(clk)
+			);
    
    
    
   
 			pck_dst_gen #(
-					.NE(NE),
-					.MAX_PCK_NUM(MAX_PCK_NUM),
-					.TRAFFIC(TRAFFIC),
-					.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
-				)
-				the_pck_dst_gen
-				(
-					.reset(reset),
-					.clk(clk),
-					.en(hdr_flit_sent[i]),
-					.core_num(i[NEw-1  :   0]),
-					.pck_number(pck_counter[i]),
-					.current_e_addr(ENDP_ADRR),
-					.dest_e_addr(dest_e_addr[i]),
-					.valid_dst(valid_dst[i]),
-					.hotspot_info(hotspot_info),
-					.custom_traffic_t(custom_traffic_t[i]),  // defined in sim_param.sv
-					.custom_traffic_en(custom_traffic_en[i])  // defined in sim_param.sv
-				);
+				.NE(NE),
+				.MAX_PCK_NUM(MAX_PCK_NUM),
+				.TRAFFIC(TRAFFIC),
+				.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
+			)
+			the_pck_dst_gen
+			(
+				.reset(reset),
+				.clk(clk),
+				.en(hdr_flit_sent[i]),
+				.core_num(i[NEw-1  :   0]),
+				.pck_number(pck_counter[i]),
+				.current_e_addr(current_e_addr[i]),
+				.dest_e_addr(dest_e_addr[i]),
+				.valid_dst(valid_dst[i]),
+				.hotspot_info(hotspot_info),
+				.custom_traffic_t(custom_traffic_t[i]),  // defined in sim_param.sv
+				.custom_traffic_en(custom_traffic_en[i])  // defined in sim_param.sv
+			);
        
 			pck_size_gen #(
-					.PCK_SIZw(PCK_SIZw),
-					.MIN(MIN_PACKET_SIZE),
-					.MAX(MAX_PACKET_SIZE),
-					.PCK_SIZ_SEL(PCK_SIZ_SEL),
-					.DISCRETE_PCK_SIZ_NUM(DISCRETE_PCK_SIZ_NUM)
-				)
-				the_pck_siz_gen
-				(
-					.reset(reset),
-					.clk(clk),
-					.en(hdr_flit_sent[i]),
-					.pck_size( pck_size_in[i]) ,
-					.rnd_discrete(rnd_discrete)
-				);
+				.PCK_SIZw(PCK_SIZw),
+				.MIN(MIN_PACKET_SIZE),
+				.MAX(MAX_PACKET_SIZE),
+				.PCK_SIZ_SEL(PCK_SIZ_SEL),
+				.DISCRETE_PCK_SIZ_NUM(DISCRETE_PCK_SIZ_NUM)
+			)
+			the_pck_siz_gen
+			(
+				.reset(reset),
+				.clk(clk),
+				.en(hdr_flit_sent[i]),
+				.pck_size( pck_size_in[i]) ,
+				.rnd_discrete(rnd_discrete)
+			);
   
-    
-			
-            
-                        
-		end
-   
-   
+	end
 	endgenerate
 
        
@@ -510,12 +510,15 @@ module testbench_noc;
 		$display ("\tTopology: %s",TOPOLOGY);
 		$display ("\tRouting algorithm: %s",ROUTE_NAME);
 		$display ("\tVC_per port: %d", V);
-		$display ("\tBuffer_width: %d", B);
+		$display ("\tNon-local port buffer_width per VC: %d", B);
+		$display ("\tLocal port buffer_width per VC: %d", LB);
 		if(TOPOLOGY=="MESH" || TOPOLOGY=="TORUS")begin
 			$display ("\tRouter num in row: %d",T1);
 			$display ("\tRouter num in column: %d",T2);
+			$display ("\tEndpoint num per router: %d",T3);
 		end else if (TOPOLOGY=="RING" || TOPOLOGY == "LINE") begin
 			$display ("\t Total Router num: %d",T1);
+			$display ("\tEndpoint num per router: %d",T3);
 		end else if (TOPOLOGY == "TREE" ||  TOPOLOGY == "FATTREE")begin
 			$display ("\tK: %d",T1);
 			$display ("\tL: %d",T2);
@@ -534,7 +537,8 @@ module testbench_noc;
 		$display ("\tMax Streight Bypass:%d",SBP_MAX);
 		$display ("\tSwitch allocator arbitration type:%s",SWA_ARBITER_TYPE);
 		$display ("\tMinimum supported packet size:%d flit(s)",MIN_PCK_SIZE);
-
+		$display ("\tLoop back is enabled::%s",SELF_LOOP_EN);
+		
 		$display ("\nSimulation parameters");
 		if(DEBUG_EN)
 			$display ("\tDebuging is enabled");

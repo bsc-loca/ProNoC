@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 /**********************************************************************
 **  File:  header_flit.sv
 **  Date:2017-07-11   
@@ -378,7 +380,7 @@ module header_flit_update_lk_route_ovc
        
     generate 
     /* verilator lint_off WIDTH */ 
-    if((TOPOLOGY == "MESH" || TOPOLOGY == "TORUS"  || TOPOLOGY ==  "RING") && ROUTE_TYPE != "DETERMINISTIC" )begin :coded
+    if((TOPOLOGY == "MESH" || TOPOLOGY == "FMESH" || TOPOLOGY == "TORUS"  || TOPOLOGY ==  "RING") && ROUTE_TYPE != "DETERMINISTIC" )begin :coded
     /* verilator lint_on WIDTH */ 
         mesh_torus_adaptive_lk_dest_encoder #(
             .V(V),

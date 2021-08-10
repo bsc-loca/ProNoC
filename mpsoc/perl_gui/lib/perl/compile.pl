@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
 use strict;
 use warnings;
 
@@ -1446,6 +1446,15 @@ sub quartus_run_compile{
 	
 	#start compilation
 	my $Quartus_bin= $self->object_get_attribute('compile','quartus bin');
+	my @qfiles = ("quartus_map","quartus_fit","quartus_asm","quartus_sta");
+	foreach my $f (@qfiles){
+		unless(-f "$Quartus_bin/$f" ){
+			$error=1;
+			add_colored_info($tview, "$Quartus_bin/$f No such file or directory\n",'red');
+			last;
+		}
+		
+	}
 	
 	my $run_sh = "#!/bin/bash
 $Quartus_bin/quartus_map --64bit $name --read_settings_files=on
@@ -1458,25 +1467,35 @@ $Quartus_bin/quartus_sta --64bit $name
 		
 	add_info($tview, "Start Quartus compilation.....\n");
 	my @compilation_command =(
-		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_map --64bit $name --read_settings_files=on; echo \$? > status' ",
-		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_fit --64bit $name --read_settings_files=on; echo \$? > status' ",
-		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_asm --64bit $name --read_settings_files=on; echo \$? > status' ",
-		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_sta --64bit $name;echo \$? > status' ");
+		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_map --64bit $name --read_settings_files=on; echo \$? > status; sleep 1' ",
+		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_fit --64bit $name --read_settings_files=on; echo \$? > status; sleep 1' ",
+		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_asm --64bit $name --read_settings_files=on; echo \$? > status; sleep 1' ",
+		"cd \"$target_dir/Quartus\" \n xterm -e bash -c '$Quartus_bin/quartus_sta --64bit $name; echo \$? > status; sleep 1 ' ");
 	
 		foreach my $cmd (@compilation_command){
+			last if($error); 
 		add_info($tview,"$cmd\n");
 		unlink "$target_dir/Quartus/status";
-		my ($stdout,$exit)=run_cmd_in_back_ground_get_stdout( $cmd);
+		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout( $cmd);
+		if($exit){
+			add_colored_info($tview, "$stdout\n",'red') if(defined $stdout);
+			add_colored_info($tview, "$stderr\n",'red') if(defined $stderr);
+			$error=1;
+			last;			
+		}		
+		
 		open(my $fh,  "<$target_dir/Quartus/status") || die "Can not open: $!";
 		read($fh,my $status,1);
 		close($fh);
 		if("$status" != "0"){			
-			($stdout,$exit)=run_cmd_in_back_ground_get_stdout("cd \"$target_dir/Quartus/output_files/\" \n grep -h \"Error (\" *");
-			add_colored_info($tview,"$stdout\n Quartus compilation failed !\n",'red');
+			($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("cd \"$target_dir/Quartus/output_files/\" \n grep -h \"Error (\" *");
+			add_colored_info($tview,"$stderr\n",'red') if(defined $stderr);
+			add_colored_info($tview,"$stdout\n",'red');
 			$error=1;
 			last;
 		}			
 	}
+	add_colored_info($tview,"Quartus compilation failed !\n",'red') if($error==1);
 	add_colored_info($tview,"Quartus compilation is done successfully in $target_dir/Quartus!\n", 'blue') if($error==0);
 	if (defined $end_func){
 		if ($error==0){
@@ -1490,6 +1509,11 @@ $Quartus_bin/quartus_sta --64bit $name
 
 	
 }
+
+
+
+
+
 
 sub xilinx_run_compile{
 	my ($self,$app,$tview,$target_dir,$name,$window,$end_func,$vendor)=@_;

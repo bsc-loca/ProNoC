@@ -1,2 +1,0 @@
-write format wave -window .main_pane.wave.interior.cs.body.pw.wf /home/alireza/work/hca_git/verify/modelsim/wave.do; quit -sim;cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/verify-4-pck-inj/excl160; do model.tcl
-

@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 /**********************************************************************
 **  File:  wrra.v
 **  Date:2017-07-11   
@@ -34,10 +36,6 @@
 **      PROPOGATE_NEQ1 = (WRRA_CONFIG_INDEX==2 );
 **      PROPOGATE_NEQ2 = (WRRA_CONFIG_INDEX==3 );    
 *****************************************************************/
-
-
-
- `timescale  1ns/1ps
 
 module  wrra #(
     parameter ARBITER_WIDTH = 8,

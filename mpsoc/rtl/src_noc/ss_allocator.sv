@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 /**********************************************************************
 **	File:  ss_allocator.v
 **	Date:2016-06-19  
@@ -30,7 +32,7 @@
 **	   The ss ports for each input potrt must be different with the rest
 **	   This result in one clock cycle latency                
 ***************************************/
-`timescale  1ns/1ps
+
 
 module  ss_allocator
 import pronoc_pkg::*;

@@ -1,4 +1,4 @@
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
 #use Gtk2 '-init';
 use strict;
 use warnings;

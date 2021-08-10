@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 /**************************************
 * Module: router_bypass
 * Date:2020-11-24  

@@ -1,3 +1,0 @@
-
-quit -sim; cd /home/alireza/work/git/hca_git/ProNoC/mpsoc/src_coherency/verify-mesh-4x4-full/app; do model.tcl; log -r /*
-

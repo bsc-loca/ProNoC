@@ -237,7 +237,9 @@ module ni_vc_wb_slave_regs #(
     generate 
     if(BYTE_EN)begin
          wire [1:0] send_offset= (add_offsets==0)? 2'b00 : (add_offsets<=(1<<OFFSETw))? 2'b01 : 2'b10;    
+          /* verilator lint_off WIDTH */ 
          assign send_data_size =  send_data_size_reg+ send_offset;
+          /* verilator lint_on WIDTH */ 
     end else begin:nbe
         assign send_data_size = send_data_size_reg;    
     end
@@ -457,6 +459,9 @@ module ni_vc_wb_slave_regs #(
             RECEIVE_POINTER_WB_ADDR,  RECEIVE_MAX_BUFF_SIZ,  
             RECEIVE_START_INDEX_WB_ADDR, RECEIVE_CTRL_WB_ADDR:  
                 if(~receive_fsm_is_ideal) $display("%t: Warning: write on NI receive register %d was not accepted as fsm was not in ideal state. %m!",$time,s_addr_i);
+            default : begin
+            
+            end            
             endcase    
         end       
     end

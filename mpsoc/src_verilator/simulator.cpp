@@ -386,9 +386,8 @@ int main(int argc, char** argv) {
 	unsigned int dest_e_addr;
 
 	while((0x1<<NEw) < NE)NEw++;
-	while((0x1<<nxw) < T1){nxw++;maskx<<=1; maskx|=1;}
-	while((0x1<<nyw) < T2){nyw++;masky<<=1; masky|=1;}
 	
+
 	Verilated::commandArgs(argc, argv);   // Remember args
 	Vrouter_new();
 	//noc								= new Vnoc;

@@ -1,4 +1,4 @@
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
 
 use lib 'lib/perl';
 

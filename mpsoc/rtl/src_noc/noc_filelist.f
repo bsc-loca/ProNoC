@@ -36,7 +36,7 @@
 ./router_top.sv
 ./mesh_torus_noc_top.sv
 ./star_noc.sv
-
+./fmesh.sv
 ./asic_top.sv
 
 

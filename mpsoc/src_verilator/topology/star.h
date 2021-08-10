@@ -18,6 +18,15 @@ void topology_connect_all_nodes (void){
 }
 
 
+
+unsigned int endp_addr_encoder ( unsigned int id){
+	return id;
+}
+
+unsigned int endp_addr_decoder (unsigned int code){
+    return id;
+}
+
 void topology_init (void){
 
 }

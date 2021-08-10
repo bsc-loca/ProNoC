@@ -8,7 +8,7 @@ package ProNOC;
 #add home dir in perl 5.6
 use FindBin;
 use lib $FindBin::Bin;
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
 
 
 use strict;

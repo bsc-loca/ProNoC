@@ -65,7 +65,7 @@ module conventional_routing #(
     
  generate 
     /* verilator lint_off WIDTH */ 
-    if(TOPOLOGY == "MESH" || TOPOLOGY == "TORUS"  || TOPOLOGY ==  "RING" || TOPOLOGY ==  "LINE") begin :mesh_torus
+    if(TOPOLOGY == "MESH" || TOPOLOGY == "FMESH" || TOPOLOGY == "TORUS"  || TOPOLOGY ==  "RING" || TOPOLOGY ==  "LINE") begin :mesh_torus
     /* verilator lint_on WIDTH */ 
     
     localparam
@@ -97,41 +97,61 @@ module conventional_routing #(
         	.valid( )
         );
         
+       /* verilator lint_off WIDTH */   
+        if(TOPOLOGY == "FMESH") begin :fmesh
+         /* verilator lint_on WIDTH */ 
+            fmesh_endp_addr_decode #(
+                .T1(T1),
+                .T2(T2),
+                .T3(T3),
+                .EAw(EAw)
+            )
+            end_addr_decode
+            (
+                .e_addr(dest_e_addr),
+                .ex(dest_ex),
+                .ey(dest_ey),
+                .ep( ),
+                .valid()
+            );        
         
         
-        mesh_tori_endp_addr_decode #(
-        	.TOPOLOGY(TOPOLOGY),
-        	.T1(T1),
-        	.T2(T2),
-        	.T3(T3),
-        	.EAw(EAw)
-        )
-        end_addr_decode
-        (
-        	.e_addr(dest_e_addr),
-        	.ex(dest_ex),
-        	.ey(dest_ey),
-        	.el( ),
-        	.valid()
-        );        
         
+        end else begin : mesh
+            mesh_tori_endp_addr_decode #(
+            	.TOPOLOGY(TOPOLOGY),
+            	.T1(T1),
+            	.T2(T2),
+            	.T3(T3),
+            	.EAw(EAw)
+            )
+            end_addr_decode
+            (
+            	.e_addr(dest_e_addr),
+            	.ex(dest_ex),
+            	.ey(dest_ey),
+            	.el( ),
+            	.valid()
+            );        
+        end//mesh
         
-        mesh_torus_conventional_routing #(
-            .TOPOLOGY(TOPOLOGY),
-            .ROUTE_NAME(ROUTE_NAME),
-            .ROUTE_TYPE(ROUTE_TYPE),
-            .NX(T1),
-            .NY(T2),
-            .LOCATED_IN_NI(LOCATED_IN_NI)
-        )
-        the_conventional_routing
-        (
-            .current_x(current_rx),
-            .current_y(current_ry),
-            .dest_x(dest_ex),
-            .dest_y(dest_ey),
-            .destport(destport)
-        );
+            mesh_torus_conventional_routing #(
+                .TOPOLOGY(TOPOLOGY),
+                .ROUTE_NAME(ROUTE_NAME),
+                .ROUTE_TYPE(ROUTE_TYPE),
+                .NX(T1),
+                .NY(T2),
+                .LOCATED_IN_NI(LOCATED_IN_NI)
+            )
+            the_conventional_routing
+            (
+                .current_x(current_rx),
+                .current_y(current_ry),
+                .dest_x(dest_ex),
+                .dest_y(dest_ey),
+                .destport(destport)
+            );
+       
     /* verilator lint_off WIDTH */ 
     end else if(TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE" ) begin :tree_based
     /* verilator lint_on WIDTH */  
@@ -301,7 +321,7 @@ module look_ahead_routing #(
     genvar i;
     generate 
     /* verilator lint_off WIDTH */ 
-    if(TOPOLOGY == "MESH" || TOPOLOGY == "TORUS"  || TOPOLOGY ==  "RING" || TOPOLOGY ==  "LINE")begin :mesh_torus
+    if(TOPOLOGY == "MESH" || TOPOLOGY == "FMESH" || TOPOLOGY == "TORUS"  || TOPOLOGY ==  "RING" || TOPOLOGY ==  "LINE")begin :mesh_torus
     /* verilator lint_on WIDTH */ 
      
        localparam
@@ -333,23 +353,42 @@ module look_ahead_routing #(
             .ry(current_ry),
             .valid( )
         );
+         /* verilator lint_off WIDTH */ 
+        if(TOPOLOGY == "FMESH") begin :fmesh
+         /* verilator lint_on WIDTH */ 
+             fmesh_endp_addr_decode #(               
+                .T1(T1),
+                .T2(T2),
+                .T3(T3),
+                .EAw(EAw)
+            )
+            end_addr_decode
+            (
+                .e_addr(dest_e_addr),
+                .ex(dest_ex),
+                .ey(dest_ey),
+                .ep( ),
+                .valid()
+            );
+        end else begin :mesh 
+            mesh_tori_endp_addr_decode #(
+                .TOPOLOGY(TOPOLOGY),
+                .T1(T1),
+                .T2(T2),
+                .T3(T3),
+                .EAw(EAw)
+            )
+            end_addr_decode
+            (
+                .e_addr(dest_e_addr),
+                .ex(dest_ex),
+                .ey(dest_ey),
+                .el( ),
+                .valid()
+            );
         
-         mesh_tori_endp_addr_decode #(
-            .TOPOLOGY(TOPOLOGY),
-            .T1(T1),
-            .T2(T2),
-            .T3(T3),
-            .EAw(EAw)
-        )
-        end_addr_decode
-        (
-            .e_addr(dest_e_addr),
-            .ex(dest_ex),
-            .ey(dest_ey),
-            .el( ),
-            .valid()
-        );
-            
+        
+        end
      
         mesh_torus_look_ahead_routing #(
            	.NX(T1),

@@ -294,8 +294,8 @@ module   mesh_torus_mask_non_assignable_destport #(
         	.destport_in(dest_port_in),
         	.destport_out(dest_port_in_tmp)
         );
-        //currently self-loop only can happen in local ports. 
-        //Current supported routing algorithms does not results in self-loop in other ports
+        //currently loop-back only can happen in local ports. 
+        //Current supported routing algorithms does not results in loop-back in other ports
         wire sw_loc_val = (SW_LOC>0 && SW_LOC<5) ? 1'b0 : dest_port_in [SW_LOC];
         
         add_sw_loc_one_hot_val #(
@@ -1443,7 +1443,7 @@ module mesh_torus_destp_generator #(
     parameter P=5,
     parameter DSTPw=4,
     parameter NL=1,
-    parameter ELw=1,
+    parameter PLw=1,
     parameter PPSw=4,
     parameter SW_LOC=0,
     parameter SELF_LOOP_EN="NO" 
@@ -1458,7 +1458,7 @@ module mesh_torus_destp_generator #(
     localparam P_1 =  ( SELF_LOOP_EN=="NO")?  P-1 : P;
     
     input  [DSTPw-1 : 0] dest_port_coded;
-    input  [ELw-1 : 0] endp_localp_num;
+    input  [PLw-1 : 0] endp_localp_num;
     output [P_1-1 : 0] dest_port_out;
     input           swap_port_presel;
     input  [PPSw-1 : 0] port_pre_sel;
@@ -1478,7 +1478,7 @@ module mesh_torus_destp_generator #(
                 .P(P),
                 .DSTPw(DSTPw),
                 .NL(NL),
-                .ELw(ELw),
+                .ELw(PLw),
                 .PPSw(PPSw),
                 .SW_LOC(SW_LOC),
                 .SELF_LOOP_EN(SELF_LOOP_EN)
@@ -1489,7 +1489,7 @@ module mesh_torus_destp_generator #(
                 .dest_port_out(dest_port_in),
                 .endp_localp_num(endp_localp_num)               
             );
-        
+       
         
        end else begin :two_D
        
@@ -1498,7 +1498,7 @@ module mesh_torus_destp_generator #(
                 .P(P),
                 .DSTPw(DSTPw),
                 .NL(NL),
-                .ELw(ELw),
+                .ELw(PLw),
                 .PPSw(PPSw),
                 .SW_LOC(SW_LOC),
                 .SELF_LOOP_EN(SELF_LOOP_EN)
@@ -1511,22 +1511,23 @@ module mesh_torus_destp_generator #(
                 .swap_port_presel(swap_port_presel),
                 .port_pre_sel(port_pre_sel)
             );
-       end 
-       endgenerate 
-        mesh_torus_mask_non_assignable_destport #(
-            .TOPOLOGY(TOPOLOGY),
-            .ROUTE_NAME(ROUTE_NAME),
-            .SW_LOC(SW_LOC),
-            .P(P),
-            .SELF_LOOP_EN(SELF_LOOP_EN)
-        )
-        mask_destport
-        (
-            .dest_port_in(dest_port_in),
-            .dest_port_out(dest_port_out),
-            .odd_column(odd_column)
-        );       
-        
+      end
+ endgenerate     
+          
+      mesh_torus_mask_non_assignable_destport #(
+                .TOPOLOGY(TOPOLOGY),
+                .ROUTE_NAME(ROUTE_NAME),
+                .SW_LOC(SW_LOC),
+                .P(P),
+                .SELF_LOOP_EN(SELF_LOOP_EN)
+            )
+            mask_destport
+            (
+                .dest_port_in(dest_port_in),
+                .dest_port_out(dest_port_out),
+                .odd_column(odd_column)
+            ); 
+
 endmodule
 
 module mesh_torus_destp_decoder #(
@@ -1871,7 +1872,9 @@ module  mesh_torus_dynamic_portsel_control #(
     end//for    
      
 endgenerate
-endmodule                         
+endmodule        
+
+
 
 
 

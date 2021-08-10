@@ -22,7 +22,7 @@ typedef struct HOTSPOT_NODE {
 
 hotspot_st * hotspots;
 	
-
+unsigned int pck_dst_gen_1D (unsigned int);
 
 // number, b:bit location  W: number width log2(num)
 int getBit(int num, int b, int W)
@@ -53,6 +53,7 @@ unsigned int get_rnd_ip (unsigned int core_num){
 	return rnd;
 }
 
+#if (defined (IS_MESH) || defined (IS_TORUS) || defined (IS_LINE) || defined (IS_RING) )
 
 unsigned int pck_dst_gen_2D (unsigned int core_num){
 	//for mesh-tori
@@ -159,7 +160,13 @@ unsigned int pck_dst_gen_2D (unsigned int core_num){
 
 }
 
+#else
 
+	unsigned int pck_dst_gen_2D (unsigned int core_num){
+		return pck_dst_gen_1D (core_num);
+	}
+
+#endif
 
 
 unsigned int pck_dst_gen_1D (unsigned int core_num){

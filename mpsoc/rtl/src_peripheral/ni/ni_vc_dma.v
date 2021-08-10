@@ -285,6 +285,7 @@ module ni_vc_dma #(
     
     assign m_send_sel_o = {SELw{1'b1}};
  
+   
 
  generate   
  if(BYTE_EN)begin:be 
@@ -297,7 +298,9 @@ module ni_vc_dma #(
         if (receive_counter==1)begin 
             receive_size_cal [OFFSETw:0]= byte1;
         end else begin 
+            /* verilator lint_off WIDTH */ 
             receive_size_cal = (((receive_counter-1'b1)<<OFFSETw)+byte2)-receive_start_index_offset;        
+            /* verilator lint_on WIDTH */ 
         end
     end
     assign receive_dat_size_in_byte= receive_size_cal;

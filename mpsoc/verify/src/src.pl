@@ -189,6 +189,7 @@ sub copy_src_files{
 	 	unless (-d "$rtl_dir"){
 			print "make a working directory inside $rtl_dir\n"; 
 			mkdir("$rtl_dir", 0700);
+
 		}
 	}else{
 			print  "Please set PRONOC_WORK variable first!";
@@ -233,7 +234,52 @@ sub gen_file_list{
 	close FILE;
 }
 
+sub gen_verilator_sh{
+	my ($ref,$file)=@_;
+	my %tops = %{$ref};
+	my $make_lib="";
+    my $jobs=0;
+	my $cmd= '#!/bin/bash
+	SCRPT_FULL_PATH=$(realpath ${BASH_SOURCE[0]})
+	SCRPT_DIR_PATH=$(dirname $SCRPT_FULL_PATH)
 
+	cmn="-O3  -CFLAGS -O3"
+	currentver=$(verilator --version | head -n1 | cut -d" " -f2)	
+	requiredver="4.0.0"
+ 	if [ "$(printf \'%s\n\' "$requiredver" "$currentver" | sort -V | head -n1)" = "$requiredver" ]; then 
+        echo "Verilator vesrion Greater than or equal to ${requiredver}, compile with -Wno-TIMESCALEMOD flag"
+		cmn=" $cmn -Wno-TIMESCALEMOD";
+ 	else
+        echo "Verilator vesrion is Less than ${requiredver}"
+ 	fi
+';
+
+	foreach my $top (sort keys %tops) {
+		$cmd.= "verilator  -f \$SCRPT_DIR_PATH/file_list.f --cc $tops{$top}  --prefix \"$top\" \$cmn & \n";
+	}
+	$cmd.="wait\n";
+	foreach my $top (sort keys %tops) {
+		
+		$cmd.=" 
+	if ! [ -f \$SCRPT_DIR_PATH/obj_dir/$top.cpp ]; then
+		echo  \"Failed to generate: \$SCRPT_DIR_PATH/obj_dir/$top.cpp \"
+		exit 1	
+	fi\n";
+		$make_lib.="make lib$jobs &\n";
+		$jobs++;
+	}
+
+
+	$cmd.="
+cd \$SCRPT_DIR_PATH/obj_dir/
+$make_lib
+wait
+
+make sim
+";
+	save_file("$file",$cmd);
+	
+}
 
 sub gen_models {
 	my @models = glob("$dirname/models/*");
@@ -261,10 +307,10 @@ sub gen_models {
 		
 		#generate file list		
 		gen_file_list("$work/$name");
-		#copy verlator.sh file
-		my $compile = $param = $o->{'compile'};
-		copy "$src/$compile", "$work/$name/verilator.sh";
-		print "copy $src/$compile, $work/$name/verilator.sh\n";
+		gen_verilator_sh($tops,"$work/$name/verilator.sh");
+		
+
+
 		#copy C files
 		my @files = File::Find::Rule->file()
                           ->name( '*.h' )
@@ -298,7 +344,7 @@ sub compile_models{
 	my $cmd;
 	foreach my $m (@models){
 		my ($fname,$fpath,$fsuffix) = fileparse("$m",qr"\..[^.]*$");
-		$cmd.=" cd $work/$fname; bash verilator.sh >  $work/$fname/out.log 2>&1  &\n";
+		$cmd.=" cd $work/$fname;  /usr/bin/bash verilator.sh >  $work/$fname/out.log 2>&1  &\n";
 		$i++;
 		$cmd.="wait\n" if(($i % $paralel_run)==0) ;
 	}

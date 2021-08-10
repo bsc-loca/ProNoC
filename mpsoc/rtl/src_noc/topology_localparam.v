@@ -145,7 +145,8 @@ localparam
  localparam    
     NE_FMESH = NE_MESH_TORI + 2 * (NX+NY),
     NR_FMESH = NR_MESH_TORI,
-    EAw_FMESH = (NL==1)? RAw_MESH_TORI + 2 :RAw_MESH_TORI + NLw +1;
+    MAX_P_FMESH = 4 + NL, 
+    EAw_FMESH = RAw_MESH_TORI + log2(MAX_P_FMESH);
                               
     
       

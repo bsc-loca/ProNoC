@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 /**************************************
 * Module: debug
 * Date:2019-04-01  
@@ -389,7 +391,7 @@ endmodule
  
  
  
- module  endp_addr_encoder #(
+module  endp_addr_encoder #(
     parameter TOPOLOGY ="MESH",
     parameter T1=4,
     parameter T2=4,
@@ -440,13 +442,26 @@ endmodule
             .NE(NE),
             .EAw(EAw),
             .TOPOLOGY(TOPOLOGY)
-        )
-        mesh_tori_addr_encoder(
+        ) 
+        addr_encoder
+        (
             .id(id),
             .code(code)
         );
-     
-     
+     end else if (TOPOLOGY == "FMESH") begin :fmesh
+        fmesh_addr_encoder #(
+            .NX(T1),
+            .NY(T2),
+            .NL(T3),
+            .NE(NE),
+            .EAw(EAw)
+        )
+        addr_encoder
+        (
+        .id(id),
+        .code(code)
+        );
+        
      end else begin :custom
      
         assign code =id;
@@ -507,6 +522,19 @@ module endp_addr_decoder  #(
             ) addr_coder (
             .id    (id   ), 
             .code  (code ));
+     end else if (TOPOLOGY == "FMESH") begin :fmesh
+        fmesh_addr_coder #(
+            .NX(T1),
+            .NY(T2),
+            .NL(T3),
+            .NE(NE),
+            .EAw(EAw)
+        )
+        addr_coder
+        (
+        .id(id),
+        .code(code)
+        );
             
     end else begin :custom
      

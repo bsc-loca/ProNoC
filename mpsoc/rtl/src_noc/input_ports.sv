@@ -256,12 +256,15 @@ module input_queue_per_port
 		NON_ATOM_PCKS =  (PORT_B>MIN_PCK_SIZE)?  (PORT_B/MIN_PCK_SIZE)+ OFFSET : 1,
 		MAX_PCK = (VC_REALLOCATION_TYPE== "ATOMIC")?  1 : NON_ATOM_PCKS + OVC_ALLOC_MODE,// min packet size is two hence the max packet number in buffer is (B/2)
 		IGNORE_SAME_LOC_RD_WR_WARNING = ((SSA_EN=="YES")| SBP_EN)? "YES" : "NO";
-	/* verilator lint_on WIDTH */            
+	         
 
 	localparam 
 		ELw = log2(T3),
-		VELw= V * ELw,
+		Pw  = log2(P),
+		PLw = (TOPOLOGY == "FMESH") ? Pw : ELw,
+		VPLw= V * PLw,
 		PRAw= P * RAw;
+	/* verilator lint_on WIDTH */   
    
  
 	input reset, clk;
@@ -315,9 +318,11 @@ module input_queue_per_port
 	wire hdr_flg_in,tail_flg_in;  
 	wire [V-1 : 0] ivc_not_empty;
 	wire [Cw-1 : 0] class_out [V-1 : 0];
-	wire [VELw-1 : 0] endp_localp_num;
-	wire [ELw-1 : 0] endp_l_in;           
+	wire [VPLw-1 : 0] endp_localp_num;
+	          
 	wire [V-1 : 0] sbp_hdr_en;
+	wire [ELw-1 : 0] endp_l_in;
+	wire [Pw-1 : 0] endp_p_in;
 	
 	wire [V-1 : 0] rd_hdr_fwft_fifo,wr_hdr_fwft_fifo,rd_hdr_fwft_fifo_delay,wr_hdr_fwft_fifo_delay;
     
@@ -404,6 +409,9 @@ module input_queue_per_port
 		/* verilator lint_off WIDTH */  
 		if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1)) begin : multi_local
 		/* verilator lint_on WIDTH */  
+		
+				
+		
 				mesh_tori_endp_addr_decode #(
 					.TOPOLOGY("MESH"),
 					.T1(T1),
@@ -420,7 +428,28 @@ module input_queue_per_port
 					.valid( )
 				);
 		end
-
+		/* verilator lint_off WIDTH */  
+		if ( TOPOLOGY == "FMESH") begin : fmesh
+		/* verilator lint_on WIDTH */  
+				
+			
+			
+			fmesh_endp_addr_decode #(
+					.T1(T1),
+					.T2(T2),
+					.T3(T3),
+					.EAw(EAw)
+				)
+				endp_addr_decode
+				(
+					.e_addr(dest_e_addr_in),
+					.ex(),
+					.ey(),
+					.ep(endp_p_in),
+					.valid()
+				);
+		
+		end	
 		/* verilator lint_off WIDTH */  
 		if(TOPOLOGY=="FATTREE" && ROUTE_NAME == "NCA_STRAIGHT_UP") begin : fat
 			/* verilator lint_on WIDTH */  
@@ -701,7 +730,7 @@ module input_queue_per_port
 					.NL(T3),
 					.P(P),
 					.DSTPw(DSTPw),
-					.ELw(ELw),
+					.PLw(PLw),
 					.PPSw(PPSw),
 					.SELF_LOOP_EN (SELF_LOOP_EN),
 					.SW_LOC(SW_LOC)
@@ -711,7 +740,7 @@ module input_queue_per_port
 					.destport_one_hot (destport_one_hot[i]),
 					.dest_port_encoded(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),             
 					.dest_port_out(dest_port[(i+1)*P_1-1 : i*P_1]),   
-					.endp_localp_num(endp_localp_num[(i+1)*ELw-1 : i*ELw]),
+					.endp_localp_num(endp_localp_num[(i+1)*PLw-1 : i*PLw]),
 					.swap_port_presel(swap_port_presel[i]),
 					.port_pre_sel(port_pre_sel),
 					.odd_column(odd_column)
@@ -722,7 +751,8 @@ module input_queue_per_port
 			if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1)) begin : multi_local
 				/* verilator lint_on WIDTH */  
 				// the router has multiple local ports. Save the destination local port 
-                  
+                
+				
             
 				fwft_fifo #(
 						.DATA_WIDTH(ELw),
@@ -734,7 +764,7 @@ module input_queue_per_port
 						.din(endp_l_in),
 						.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
 						.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
-						.dout(endp_localp_num[(i+1)*ELw-1 : i*ELw]),    // Data out
+						.dout(endp_localp_num[(i+1)*PLw-1 : i*PLw]),    // Data out
 						.full( ),
 						.nearly_full( ),
 						.recieve_more_than_0(),
@@ -742,9 +772,31 @@ module input_queue_per_port
 						.reset(reset),
 						.clk(clk) 
 					);       
-  
+			/* verilator lint_off WIDTH */  
+			end else if ( TOPOLOGY == "FMESH") begin : fmesh
+			/* verilator lint_on WIDTH */  
+				
+				fwft_fifo #(
+						.DATA_WIDTH(Pw),
+						.MAX_DEPTH (MAX_PCK),
+						.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
+					)
+					local_dest_fifo
+					(
+						.din(endp_p_in),
+						.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
+						.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
+						.dout(endp_localp_num[(i+1)*PLw-1 : i*PLw]),    // Data out
+						.full( ),
+						.nearly_full( ),
+						.recieve_more_than_0(),
+						.recieve_more_than_1(),
+						.reset(reset),
+						.clk(clk) 
+					);       
+				
 			end else begin : single_local 
-				assign endp_localp_num[(i+1)*ELw-1 : i*ELw] = {ELw{1'bx}}; 
+				assign endp_localp_num[(i+1)*PLw-1 : i*PLw] = {PLw{1'bx}}; 
 			end
         
 			/* verilator lint_off WIDTH */    
@@ -1013,7 +1065,7 @@ module destp_generator #(
 	parameter NL=1,
 	parameter P=5,
 	parameter DSTPw=4,
-	parameter ELw=1,
+	parameter PLw=1,
 	parameter PPSw=4,
 	parameter SW_LOC=0,
 	parameter SELF_LOOP_EN="NO"
@@ -1031,7 +1083,7 @@ module destp_generator #(
 
 	localparam P_1= ( SELF_LOOP_EN=="NO")?  P-1 : P;
 	input [DSTPw-1 : 0]  dest_port_encoded;             
-	input [ELw-1 : 0] endp_localp_num;
+	input [PLw-1 : 0] endp_localp_num;
 	output [P_1-1: 0] dest_port_out;  
 	output [P-1 : 0] destport_one_hot;
 	input             swap_port_presel;
@@ -1070,7 +1122,7 @@ module destp_generator #(
 			.dest_port_out(dest_port_out)
 		);    
 	/* verilator lint_off WIDTH */
-	end else if(TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") begin : mesh
+	end else if(TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH"|| TOPOLOGY == "TORUS") begin : mesh
 		/* verilator lint_on WIDTH */
 		mesh_torus_destp_generator #(
 			.TOPOLOGY(TOPOLOGY),
@@ -1079,7 +1131,7 @@ module destp_generator #(
 			.P(P),
 			.DSTPw(DSTPw),
 			.NL(NL),
-			.ELw(ELw),
+			.PLw(PLw),
 			.PPSw(PPSw),
 			.SW_LOC(SW_LOC),
 			.SELF_LOOP_EN(SELF_LOOP_EN)
@@ -1093,7 +1145,27 @@ module destp_generator #(
 			.port_pre_sel(port_pre_sel),
 			.odd_column(odd_column)// only needed for odd even routing
 		);
-    
+	end else if (TOPOLOGY == "FMESH") begin :fmesh
+		fmesh_destp_generator  #(
+			.ROUTE_NAME(ROUTE_NAME),
+			.ROUTE_TYPE(ROUTE_TYPE),
+			.P(P),
+			.DSTPw(DSTPw),
+			.NL(NL),
+			.PLw(PLw),
+			.PPSw(PPSw),
+			.SW_LOC(SW_LOC),
+			.SELF_LOOP_EN(SELF_LOOP_EN)
+			)
+			destp_generator
+			(
+				.dest_port_coded(dest_port_encoded),
+				.endp_localp_num(endp_localp_num),
+				.dest_port_out(dest_port_out),
+				.swap_port_presel(swap_port_presel),
+				.port_pre_sel(port_pre_sel),
+				.odd_column(odd_column)				// only needed for odd even routing
+			);
 	end else begin :custom
     
 		custom_topology_destp_decoder #(
@@ -1170,6 +1242,7 @@ module custom_topology_destp_decoder #(
 			.bin_code(dest_port_in_encoded),
 			.one_hot_code(dest_port_one_hot)
 		);
+	generate
 	if( SELF_LOOP_EN=="NO") begin : nslp
 	remove_sw_loc_one_hot #(
 			.P(P),
@@ -1183,6 +1256,7 @@ module custom_topology_destp_decoder #(
 	end else begin : slp		
 		assign dest_port_out = dest_port_one_hot;
 	end
+	endgenerate
 	//synthesis translate_off 
 	//synopsys  translate_off
    

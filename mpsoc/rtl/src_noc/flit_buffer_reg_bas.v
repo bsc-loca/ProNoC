@@ -5,6 +5,8 @@
 *
 * Description: 
 ***************************************/
+`timescale 1ns / 1ps
+
 module  flit_buffer_reg_base #(
     parameter V        =   4,
     parameter B        =   4,   // buffer space :flit per VC 

@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Glib qw(TRUE FALSE);
+use constant::boolean;
 
 use FindBin;
 use lib $FindBin::Bin;

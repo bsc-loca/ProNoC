@@ -2,7 +2,7 @@
 `ifdef NOC_LOCAL_PARAM
 
 //NoC parameters
-	localparam TOPOLOGY="MESH";
+	localparam TOPOLOGY="FMESH";
 	localparam T1=2;
 	localparam T2=2;
 	localparam T3=1;

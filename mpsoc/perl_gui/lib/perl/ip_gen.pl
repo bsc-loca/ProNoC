@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
 use strict;
 use warnings;
 
@@ -1223,9 +1223,7 @@ You can define a fixed value or assign it to any of module parameter","block add
 
 
 
-sub is_integer {
-   defined $_[0] && $_[0] =~ /^[+-]?\d+$/;
-}
+
 
 
 #############

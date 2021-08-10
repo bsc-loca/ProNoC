@@ -930,51 +930,51 @@ module packet_gen #(
     
   
 	conventional_routing #(
-			.TOPOLOGY(TOPOLOGY),
-			.ROUTE_NAME(ROUTE_NAME),
-			.ROUTE_TYPE(ROUTE_TYPE),
-			.T1(T1),
-			.T2(T2),
-			.T3(T3),
-			.RAw(RAw),
-			.EAw(EAw),
-			.DSTPw(DSTPw),
-			.LOCATED_IN_NI(1)
-		)
-		routing_module
-		(
-			.reset(reset),
-			.clk(clk),
-			.current_r_addr(current_r_addr),
-			.dest_e_addr(dest_e_addr),
-			.src_e_addr(current_e_addr),
-			.destport(destport)
-		);
+		.TOPOLOGY(TOPOLOGY),
+		.ROUTE_NAME(ROUTE_NAME),
+		.ROUTE_TYPE(ROUTE_TYPE),
+		.T1(T1),
+		.T2(T2),
+		.T3(T3),
+		.RAw(RAw),
+		.EAw(EAw),
+		.DSTPw(DSTPw),
+		.LOCATED_IN_NI(1)
+	)
+	routing_module
+	(
+		.reset(reset),
+		.clk(clk),
+		.current_r_addr(current_r_addr),
+		.dest_e_addr(dest_e_addr),
+		.src_e_addr(current_e_addr),
+		.destport(destport)
+	);
 
-				wire timestamp_fifo_nearly_full , timestamp_fifo_full;
-				assign buffer_full = (MIN_PCK_SIZE==1) ? timestamp_fifo_nearly_full : timestamp_fifo_full;
+	wire timestamp_fifo_nearly_full , timestamp_fifo_full;
+	assign buffer_full = (MIN_PCK_SIZE==1) ? timestamp_fifo_nearly_full : timestamp_fifo_full;
 	
 	
-				wire recieve_more_than_0;
-				fwft_fifo_bram #(
-						.DATA_WIDTH(CLK_CNTw),
-						.MAX_DEPTH(TIMSTMP_FIFO_NUM)        
-					)
-					timestamp_fifo
-					(
-						.din(clk_counter),
-						.wr_en(pck_wr),
-						.rd_en(pck_rd),
-						.dout(pck_timestamp),
-						.full(timestamp_fifo_full),
-						.nearly_full(timestamp_fifo_nearly_full),       
-						.recieve_more_than_0(recieve_more_than_0),
-						.recieve_more_than_1(),
-						.reset(reset),
-						.clk(clk)
-					);
+	wire recieve_more_than_0;
+	fwft_fifo_bram #(
+		.DATA_WIDTH(CLK_CNTw),
+		.MAX_DEPTH(TIMSTMP_FIFO_NUM)        
+	)
+	timestamp_fifo
+	(
+		.din(clk_counter),
+		.wr_en(pck_wr),
+		.rd_en(pck_rd),
+		.dout(pck_timestamp),
+		.full(timestamp_fifo_full),
+		.nearly_full(timestamp_fifo_nearly_full),       
+		.recieve_more_than_0(recieve_more_than_0),
+		.recieve_more_than_1(),
+		.reset(reset),
+		.clk(clk)
+	);
 	
-				assign buffer_empty = ~recieve_more_than_0;
+	assign buffer_empty = ~recieve_more_than_0;
     
 				/*
 
@@ -996,90 +996,107 @@ module packet_gen #(
     );
 				 */ 
     
-				`ifdef SYNC_RESET_MODE 
-					always @ (posedge clk )begin 
-					`else 
-						always @ (posedge clk or posedge reset)begin 
-						`endif   
-						if(reset) begin 
-							packet_counter <= {PCK_CNTw{1'b0}};
+	`ifdef SYNC_RESET_MODE 
+		always @ (posedge clk )begin 
+		`else 
+			always @ (posedge clk or posedge reset)begin 
+			`endif   
+			if(reset) begin 
+				packet_counter <= {PCK_CNTw{1'b0}};
 	
-						end else begin 
-							if(pck_rd) begin 
-								packet_counter <= packet_counter+1'b1;
+			end else begin 
+				if(pck_rd) begin 
+					packet_counter <= packet_counter+1'b1;
 	
-							end
-						end
-					end
+				end
+			end
+		end
 	
-					assign pck_number = packet_counter;
+		assign pck_number = packet_counter;
 	
-	
-					endmodule    
+
+endmodule    
  
  
  
-					/********************
+/********************
 
     distance_gen 
 
-					 ********************/
+********************/
 
-						module distance_gen #(
-							parameter TOPOLOGY  = "MESH",
-							parameter T1=4,
-							parameter T2=4,
-							parameter T3=4,
-							parameter EAw=2,
-							parameter DISTw=4
+module distance_gen #(
+	parameter TOPOLOGY  = "MESH",
+	parameter T1=4,
+	parameter T2=4,
+	parameter T3=4,
+	parameter EAw=2,
+	parameter DISTw=4
 
-						)(
-							src_e_addr,
-							dest_e_addr,
-							distance
-						);
+)(
+	src_e_addr,
+	dest_e_addr,
+	distance
+);
 
-					input [EAw-1 : 0] src_e_addr;
-					input [EAw-1 : 0] dest_e_addr;
-					output [DISTw-1 : 0]   distance;
+	input [EAw-1 : 0] src_e_addr;
+	input [EAw-1 : 0] dest_e_addr;
+	output [DISTw-1 : 0]   distance;
 	
-					generate 
-					/* verilator lint_off WIDTH */ 
-						if (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE")begin : tori_noc 
-						/* verilator lint_on WIDTH */ 
+	generate 
+	/* verilator lint_off WIDTH */ 
+	if (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE")begin : tori_noc 
+	/* verilator lint_on WIDTH */ 
 	
-						mesh_torus_distance_gen #(
-							.T1(T1),
-							.T2(T2),
-							.T3(T3),
-							.TOPOLOGY(TOPOLOGY),
-							.DISTw(DISTw),
-							.EAw(EAw)
-						)
-						distance_gen
-						(
-							.src_e_addr(src_e_addr),
-							.dest_e_addr(dest_e_addr),
-							.distance(distance)
-						);
-					/* verilator lint_off WIDTH */ 
-				end else if (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE") begin : fat 
-					/* verilator lint_on WIDTH */    
-					fattree_distance_gen #(
-						.K(T1),
-						.L(T2)
-					)
-					distance_gen
-					(
-						.src_addr_encoded(src_e_addr),
-						.dest_addr_encoded(dest_e_addr),
-						.distance(distance)
-					);
-			end else if (TOPOLOGY == "STAR") begin 
+		mesh_torus_distance_gen #(
+			.T1(T1),
+			.T2(T2),
+			.T3(T3),
+			.TOPOLOGY(TOPOLOGY),
+			.DISTw(DISTw),
+			.EAw(EAw)
+		)
+		distance_gen
+		(
+			.src_e_addr(src_e_addr),
+			.dest_e_addr(dest_e_addr),
+			.distance(distance)
+		);
+	/* verilator lint_off WIDTH */ 
+	end else if (TOPOLOGY ==    "FMESH") begin :fmesh
+	/* verilator lint_on WIDTH */ 
+		fmesh_distance_gen #(
+			.T1(T1),
+			.T2(T2),
+			.T3(T3),			
+			.DISTw(DISTw),
+			.EAw(EAw)
+		)
+		distance_gen
+		(
+			.src_e_addr(src_e_addr),
+			.dest_e_addr(dest_e_addr),
+			.distance(distance)
+		);
+			
+	/* verilator lint_off WIDTH */ 
+	end else if (TOPOLOGY == "FATTREE" || TOPOLOGY == "TREE") begin : fat 
+	/* verilator lint_on WIDTH */    
+		fattree_distance_gen #(
+			.K(T1),
+			.L(T2)
+		)
+		distance_gen
+		(
+			.src_addr_encoded(src_e_addr),
+			.dest_addr_encoded(dest_e_addr),
+			.distance(distance)
+		);
+	end else if (TOPOLOGY == "STAR") begin 
     
 				assign distance =1 ;
-		end
-		endgenerate
+	end
+	endgenerate
 
 endmodule		
 

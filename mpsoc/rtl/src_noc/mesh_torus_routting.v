@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 
 /************************************
 
@@ -25,7 +26,7 @@ module mesh_torus_look_ahead_routing #(
 );
     
      /* verilator lint_off WIDTH */ 
-    localparam  P = (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")?  5:3;
+    localparam  P = (TOPOLOGY == "MESH" || TOPOLOGY == "FMESH" || TOPOLOGY == "TORUS")?  5:3;
      /* verilator lint_on WIDTH */ 
     
     function integer log2;
@@ -179,7 +180,7 @@ module  mesh_torus_deterministic_look_ahead_routing #(
   
  generate 
   /* verilator lint_off WIDTH */ 
- if (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" ) begin: twoD
+ if (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "FMESH" ) begin: twoD
    /* verilator lint_on WIDTH */   
     mesh_tori_decode_dstport decoder(
         .dstport_encoded(destport),
@@ -451,7 +452,7 @@ module mesh_torus_next_router_addr_predictor #(
     
     generate 
     /* verilator lint_off WIDTH */                                             
-    if(TOPOLOGY=="MESH" || TOPOLOGY == "TORUS") begin : mesh
+    if(TOPOLOGY=="MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "FMESH" ) begin : mesh
     /* verilator lint_on WIDTH */ 
         always @(*) begin
              //default values 
@@ -534,7 +535,7 @@ module mesh_torus_next_router_inport_predictor #(
                 SOUTH   =       3'd4; 
     generate
     /* verilator lint_off WIDTH */ 
-    if(TOPOLOGY=="MESH" || TOPOLOGY == "TORUS") begin : mesh
+    if(TOPOLOGY=="MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "FMESH") begin : mesh
     /* verilator lint_on WIDTH */ 
       
         assign  receive_port[LOCAL]   = destport[LOCAL];
@@ -778,7 +779,7 @@ module mesh_torus_conventional_routing #(
       end   
     endfunction // log2 
    /* verilator lint_off WIDTH */ 
-   localparam P =  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? 3 : 5,
+   localparam P =  (TOPOLOGY=="RING" || TOPOLOGY=="LINE" )? 3 : 5,
    /* verilator lint_on WIDTH */ 
               P_1   =   P-1,
               Xw    =   log2(NX),
@@ -796,7 +797,7 @@ module mesh_torus_conventional_routing #(
   
     generate 
         /* verilator lint_off WIDTH */ 
-        if (TOPOLOGY == "MESH")begin :mesh
+        if (TOPOLOGY == "MESH" || TOPOLOGY == "FMESH")begin :mesh
             if(ROUTE_NAME ==  "XY") begin : xy_routing_blk
         /* verilator lint_on WIDTH */ 
                 

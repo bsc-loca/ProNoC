@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 /**************************************
 *
 *   fattree rout function
@@ -465,6 +466,13 @@ module fattree_conventional_routing #(
             .dest_addr_encoded(dest_addr_encoded),
             .destport_encoded(destport_encoded)
         );
+    end else begin 
+        // synthesis translate_off
+        initial begin 
+            $display( "\t ERROR: %s is an undefined routing algorithm for FATTREE topology",ROUTE_NAME);
+            $finish;
+        end
+        // synthesis translate_on
     end
     endgenerate
 
@@ -977,7 +985,7 @@ module fattree_ssa_check_destport #(
     
 endmodule
 
-
+/*
 module fattree_add_ss_port #(   
     parameter SW_LOC=1,
     parameter P=5
@@ -1014,7 +1022,7 @@ module fattree_add_ss_port #(
      
 
 endmodule
- 
+ */
 module fattree_router_addr_decode #(
     parameter K=4,
     parameter L=4

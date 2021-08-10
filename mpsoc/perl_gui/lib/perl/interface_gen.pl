@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
 use strict;
 use warnings;
 

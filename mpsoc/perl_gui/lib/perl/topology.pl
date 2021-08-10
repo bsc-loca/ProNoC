@@ -2,7 +2,7 @@
 
 #this file contains NoC topology related sub-functions
 
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
 use strict;
 use warnings;
 
@@ -89,9 +89,7 @@ sub get_topology_info_sub {
         my $Yw=log2($NY); 
         my $Lw=log2($NL);         
         $RAw = $Xw + $Yw;
-        $EAw = ($NL==1) ? $RAw +2 : $RAw + 2+ $Lw;
-		
-		
+        $EAw = $RAw + log2(4+$NL);		
 		
 	}elsif ($topology eq '"STAR"' ) {	
 		$NE= $T1; 
@@ -148,6 +146,14 @@ sub fattree_addrdecode{
 	return $pos;
 }
 
+
+
+
+
+
+
+
+
 sub get_connected_router_id_to_endp{
 	my ($self,$endp_id)=@_;
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
@@ -160,7 +166,7 @@ sub get_connected_router_id_to_endp{
 		 return int($endp_id/$T3);
 	}elsif ($topology eq '"STAR"' ) {	
 		 return 0;#there is only one routerin star topology
-	} elsif ($topology eq '"FMESH"'){
+	}elsif ($topology eq '"FMESH"'){
 		my $tmp = $T1*$T2*$T3;
 		return int($endp_id/$T3) if($endp_id<$tmp);
 		return $endp_id-$tmp if($endp_id<$tmp+$T1);
@@ -174,9 +180,70 @@ sub get_connected_router_id_to_endp{
 	}	
 }
 
+sub fmesh_addrencode{ 
+	my($id,$T1,$T2,$T3)=@_;
+	my  ($y, $x, $l,$p, $diff,$mul);
+	$mul  = $T1*$T2*$T3; 
+	
+	my  $LOCAL   =   0;  
+	my	$EAST    =   1; 
+	my	$NORTH   =   2;  
+	my	$WEST    =   3;  
+	my	$SOUTH   =   4;  
+	           
+	if($id < $mul) { 
+		$y = (($id/$T3) / $T1 ); 
+		$x = (($id/$T3) % $T1 ); 
+		$l = ( $id %$T3); 
+		$p = ($l==0)? $LOCAL : 4+$l;		     
+	}else{       
+		$diff = $id -  $mul ;
+		if( $diff <  $T1){ #top mesh edge
+			$y = 0;
+			$x = $diff;
+			$p = $NORTH;			
+		}
+		elsif ( $diff < 2* $T1) { #bottom mesh edge 
+			$y = $T2-1;
+			$x = $diff-$T1;
+			$p = $SOUTH;			 
+		}
+	 	elsif ( $diff < (2* $T1)+$T2 ) { #left mesh edge 
+			$y = $diff - (2* $T1);
+			$x = 0;
+			$p = $WEST;			 
+		}
+		else {	#right mesh edge 
+			$y = $diff - (2* $T1) -$T2;
+			$x = $T1-1;
+			$p = $EAST; 
+		}
+	}
+	my $NXw=log2($T1);
+	my $NYw=log2($T2);
+    my $addrencode=0;
+    $addrencode = ($p<<($NXw+$NYw)|  ($y << $NXw) | $x);
+    return $addrencode;	
+}   
 
-
-
+sub fmesh_endp_addr_decoder {
+	my ($code, $T1, $T2, $T3)=@_;
+	my ($x, $y, $p) =mesh_tori_addr_sep ($code, $T1, $T2, $T3);
+	my  $LOCAL   =   0;  
+	my	$EAST    =   1; 
+	my	$NORTH   =   2;  
+	my	$WEST    =   3;  
+	my	$SOUTH   =   4;  
+	return (($y*$T1)+$x)*$T3 if($p== $LOCAL);
+	return (($y*$T1)+$x)*$T3+($p-$SOUTH) if($p > $SOUTH);
+	return (($T1*$T2*$T3) + $x) if($p== $NORTH);
+	return (($T1*$T2*$T3) + $T1 + $x) if($p== $SOUTH);
+	return (($T1*$T2*$T3) + 2*$T1 + $y) if($p== $WEST );
+	return (($T1*$T2*$T3) + 2*$T1 + $T2 + $y) if($p== $EAST );
+	return 0; #should not reach here
+}
+	
+	
 
 
 
@@ -202,7 +269,7 @@ sub router_addr_encoder{
 	my $T3=$self->object_get_attribute('noc_param','T3');
 	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
 		return fattree_addrencode($id, $T1, $T2);
-	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
+	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"FESH"' || $topology eq '"TORUS"'){
 		return mesh_tori_addrencode($id,$T1, $T2,1);
 	}else { #custom & STAR
 		return $id;		
@@ -219,6 +286,8 @@ sub endp_addr_encoder{
 		return fattree_addrencode($id, $T1, $T2);
 	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
 		return mesh_tori_addrencode($id,$T1, $T2,$T3);
+	}elsif ($topology eq '"FMESH"' ){
+		return 	fmesh_addrencode($id,$T1, $T2,$T3);
 	}else{#CUSTOM & STAR
 		return $id;
 	}
@@ -237,6 +306,8 @@ sub endp_addr_decoder {
 		my ($x, $y, $l) = mesh_tori_addr_sep($code,$T1, $T2,$T3);
 		#print "my ($x, $y, $l) = mesh_tori_addr_sep($code,$T1, $T2,$T3);\n";
 		return (($y*$T1)+$x)*$T3+$l;
+	}elsif ($topology eq '"FMESH"' ){
+		return fmesh_endp_addr_decoder($code,$T1, $T2,$T3);
 	}else{#custom & STAR
 		return $code;
 	}
@@ -611,7 +682,7 @@ sub get_endpoints_mah_distance {
 	my $topology=$self->object_get_attribute('noc_param','TOPOLOGY');
 	if($topology eq '"FATTREE"' || $topology eq '"TREE"') {
 		return fattree_mah_distance($self, $router1,$router2);
-	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"'){
+	}elsif ($topology eq '"RING"' || $topology eq '"LINE"'  ||  $topology eq '"MESH"' || $topology eq '"TORUS"' || $topology eq '"FMESH"' ){
 		return mesh_tori_mah_distance($self, $router1,$router2);
 	}elsif ($topology eq '"STAR"'){
 		return 1;

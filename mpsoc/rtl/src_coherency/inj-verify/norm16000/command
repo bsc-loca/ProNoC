@@ -1,3 +1,0 @@
-
-quit -sim; cd /home/alireza/work/hca_git/ProNoC/mpsoc/src_coherency/inj-verify/rd; do model.tcl
-

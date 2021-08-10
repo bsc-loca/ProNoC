@@ -1,7 +1,7 @@
 #! /usr/bin/perl -w
 
 use strict;
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
 
 
 use FindBin;

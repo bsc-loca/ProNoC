@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module   custom_noc_top 
     	import pronoc_pkg::*; 
 	(

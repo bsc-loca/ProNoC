@@ -357,7 +357,11 @@ module  ni_master
     
     assign  irq =|vc_irq;
     
-   
+    wire [7: 0] temp;
+    generate
+    if (HDw >= 8) assign temp = rsv_hdr_dat [vc_addr][7:0];
+    else assign temp = {{(8-HDw){1'b0}},rsv_hdr_dat [vc_addr]};
+    endgenerate
                                 
                    
     //read wb registers                
@@ -371,7 +375,10 @@ module  ni_master
             end 
             BURST_SIZE_WB_ADDR:begin
                 s_dat_o = {{(Dw-BURST_SIZE_w){1'b0}}, burst_size};  
-            end            
+            end 
+            default: begin 
+            	s_dat_o ={Dw{1'b0}};
+            end
             endcase
         end//0
                 
@@ -383,7 +390,7 @@ module  ni_master
             
             s_dat_o[EAw-1: 0]   =   src_e_addr[vc_addr];   // first&second bytes
             s_dat_o[Cw+15: 16]  =   class_in[vc_addr];  //third byte  
-            s_dat_o[31: 24] =   rsv_hdr_dat [vc_addr];   // 4th byte
+            s_dat_o[31: 24] =       temp;   // 4th byte
         end 
         
         RECEIVE_DATA_SIZE_WB_ADDR: begin        
@@ -391,7 +398,7 @@ module  ni_master
         end        
         
         RECEIVE_PRECAP_DATA_ADDR: begin 
-            s_dat_o[PRE_Dw-1 : 0 ] =  (HDATA_PRECAPw>0)? recive_vc_precap_data[vc_addr]: {{(Dw-STATUS1w){1'b0}}, status1};        
+        	s_dat_o[PRE_Dw-1 : 0 ] =  (HDATA_PRECAPw>0)? recive_vc_precap_data[vc_addr][PRE_Dw-1 : 0 ]: {{PRE_Dw{1'b0}}};        
         end
         default: begin 
              s_dat_o ={Dw{1'b0}};

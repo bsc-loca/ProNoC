@@ -40,7 +40,9 @@ sub find_the_most_similar_position{
 	return $most_similar_pos;
 }
 
-
+sub is_integer {
+   defined $_[0] && $_[0] =~ /^[+-]?\d+$/;
+}
 
 
 ####################

@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 package ProNOC;
-my $paralel_run=4;
+
+
+
 
 use File::Copy::Recursive qw(dircopy);
 use File::Basename;
@@ -11,7 +13,9 @@ use File::Find::Rule;
 #add home dir in perl 5.6
 use FindBin;
 use lib $FindBin::Bin;
-use Glib qw/TRUE FALSE/;
+use constant::boolean;
+
+
 
 
 use strict;
@@ -29,6 +33,14 @@ my $app = __PACKAGE__->new();
 
 my $dirname = dirname(__FILE__);
 require "$dirname/src/src.pl";
+
+my $paralel_run= 4;
+if(defined $ARGV[0]){
+ $paralel_run= $ARGV[0] if(is_integer($ARGV[0]));
+}
+print "maximum number of parallel simulation is $paralel_run\n";
+
+
 
 
 my @log_report_match =("Error","Warning" ); 

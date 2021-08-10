@@ -9,7 +9,7 @@ use lib $FindBin::Bin;
 require "widget.pl";
 
 
-use Glib qw(TRUE FALSE);
+use constant::boolean;
 
 
 use Data::Dumper;

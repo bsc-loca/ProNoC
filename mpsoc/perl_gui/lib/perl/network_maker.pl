@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Glib qw(TRUE FALSE);
+use constant::boolean;
 
 use Cwd 'abs_path';
 use base 'Class::Accessor::Fast';

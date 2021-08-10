@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module custom_lkh_routing  #(
 	parameter TOPOLOGY = "CUSTOM_NAME",
         parameter ROUTE_NAME = "CUSTOM_NAME",
