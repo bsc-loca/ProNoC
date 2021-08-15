@@ -124,7 +124,7 @@ import pronoc_pkg::*;
     //synthesis translate_off 
     //synopsys  translate_off
     initial begin
-        if((DATA_LSB + DATA_w)>=FPAYw)begin
+        if((DATA_LSB + DATA_w)>FPAYw)begin
             $display("%t: ERROR: The reqired header flit size is %d which is larger than %d payload size   ",$time,(DATA_LSB + DATA_w)-1,FPAYw);
             $finish;        
         end
