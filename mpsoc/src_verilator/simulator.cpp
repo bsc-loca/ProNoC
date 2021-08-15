@@ -9,12 +9,9 @@
 #include <verilated.h>          // Defines common routines
 
 #include "Vtraffic.h"
-#include "parameter.h"
+
 
 #define IS_SELF_LOOP_EN (strcmp(SELF_LOOP_EN ,"YES")==0)
-
-Vtraffic		*traffic[NE];
-
 
 #define CHAN_SIZE   sizeof(traffic[0]->chan_in)
 
@@ -28,7 +25,8 @@ Vtraffic		*traffic[NE];
 	memcpy(&router##T [r]->chan_in[p], &traffic[e]->chan_out, CHAN_SIZE );\
 	memcpy(&traffic[e]->chan_in, &router##T [r]->chan_out[p], CHAN_SIZE )
 
-
+#include "parameter.h"
+Vtraffic		*traffic[NE];
 
 #include "topology_top.h"
 #include "traffic_task_graph.h"

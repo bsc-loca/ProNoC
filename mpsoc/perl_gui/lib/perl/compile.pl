@@ -1965,11 +1965,30 @@ sub verilator_compilation {
 	my $tt =create_file_list($target_dir,\@ff,'verilator');	
 	save_file("$verilator/file_list.f",  "$tt");
    	
+   	#check the version of the veriltor compilor. Verilator vesrion Greater than or equal to 4.0.0, compile with -Wno-TIMESCALEMOD flag"
+    my $flag="";
+    my $cmd ="verilator --version | head -n1 | cut -d\" \" -f2";
+   	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+   
+   	my $current_v=$stdout;
+   	$current_v =~ s/[^0-9.]//g;
+   	if (defined $current_v){
+   		$cmd = "printf \'%s\n\' \"4.0.0\" \"$current_v\" | sort -V | head -n1";
+   		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+   		$stdout =~ s/[^0-9.]//g;
+   		if ($stdout eq "4.0.0" ){
+   			add_info($outtext, "Verilator vesrion $current_v is Greater than or equal to 4.0.0. So compile with -Wno-TIMESCALEMOD flag\n");
+			$flag.="-Wno-TIMESCALEMOD";
+   		}else{
+        	add_info($outtext, "Verilator vesrion is $current_v\n");
+ 		}
+   	}
+   	
    	
 	#run verilator
-	my $jobs=0; #a counter o limit the number of paralle process to 4
+	my $jobs=0; #a counter to limit the number of paralle process 
 	my $make_lib=""; 
-	my $cmd="cd \"$verilator\"; ";
+	$cmd="cd \"$verilator\"; ";
 	my $vrun="#!/bin/bash
 cd \"$verilator\"
 ";
@@ -1977,8 +1996,8 @@ cd \"$verilator\"
 	my $length = scalar (keys %tops);
 	foreach my $top (sort keys %tops) {
 		add_colored_info($outtext,"Generate $top Verilator model from $tops{$top} file\n",'green');
-		$cmd.= "verilator  -f ./file_list.f --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3 & ";
-		$vrun.="verilator  -f ./file_list.f --cc $tops{$top}  --prefix \"$top\" -O3  -CFLAGS -O3 &\n";
+		$cmd.= "verilator  -f ./file_list.f --cc $tops{$top}  --prefix \"$top\" $flag -O3  -CFLAGS -O3 & ";
+		$vrun.="verilator  -f ./file_list.f --cc $tops{$top}  --prefix \"$top\" $flag -O3  -CFLAGS -O3 &\n";
 		
 		$make_lib.="make lib$jobs &\n";
 		$jobs++;

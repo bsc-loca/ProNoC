@@ -1,3 +1,7 @@
 mpsoc/script/server/verify/my_password.sh
 mpsoc/script/server/kc07/my_password.sh
 mpsoc/script/server/kc07/Readme
+mpsoc/perl_gui/lib/mpsoc/*.MPSOC
+!mpsoc/perl_gui/lib/mpsoc/mor1k_mpsoc.MPSOC
+mpsoc/perl_gui/lib/soc/*.SOC
+!mpsoc/perl_gui/lib/soc/mor1k_tile.SOC

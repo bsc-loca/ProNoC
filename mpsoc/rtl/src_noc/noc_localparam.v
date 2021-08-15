@@ -10,11 +10,11 @@
 	localparam B=4;
 	localparam LB=B;
 	localparam Fpay=32;
-	localparam ROUTE_NAME="DUATO";
+	localparam ROUTE_NAME="XY";
 	localparam PCK_TYPE =  "MULTI_FLIT";    //"SINGLE_FLIT";
 	localparam MIN_PCK_SIZE=2;
 	localparam BYTE_EN=0;
-	localparam SSA_EN="NO";
+	localparam SSA_EN="YES";
 	localparam CONGESTION_INDEX=3;
 	localparam ESCAP_VC_MASK=2'b01;
 	localparam VC_REALLOCATION_TYPE="NONATOMIC";
@@ -29,7 +29,7 @@
 	localparam AVC_ATOMIC_EN=0;
 	localparam CLASS_SETTING={V{1'b1}};
  	localparam CVw=(C==0)? V : C * V;
- 	localparam SBP_MAX=3;
+ 	localparam SBP_MAX=0;
     localparam SELF_LOOP_EN="YES";
 	
 	

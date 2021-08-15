@@ -507,7 +507,9 @@ sub clone_obj{
 sub get_project_dir{ #mpsoc directory address
 	my $dir = Cwd::getcwd();
 	my @p=	split('/perl_gui',$dir);
-    my $d	  = abs_path("$p[0]/../");
+	@p=	split('/Integration_test',$p[0]);
+    my $d	  = abs_path("$p[0]/../"); 
+     
 	return $d;
 }
 

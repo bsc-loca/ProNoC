@@ -262,6 +262,7 @@ fi
 	echo "ProNoC NI verification"
 	# Running ProNoC GUI		
 	run_ProNoC
+    sleep 1;
 	#gen_tile "${SIM_PATH}/test_lib/ni_test/mor1k_tile.SOC"
         gen_mpsoc "${SIM_PATH}/test_lib/ni_test/mesh3x2.MPSOC"
         run_test "${SIM_PATH}/test_lib/ni_test/t1" "mesh3x2"	

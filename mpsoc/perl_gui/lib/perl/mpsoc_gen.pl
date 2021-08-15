@@ -12,6 +12,9 @@ use POSIX 'strtol';
 use File::Path;
 use File::Copy;
 use Cwd 'abs_path';
+use Glib::Event;
+use Event; # any order
+
 
 require "widget.pl"; 
 require "mpsoc_verilog_gen.pl";
@@ -2363,8 +2366,8 @@ sub clk_setting_win1{
 	$window->add ($mtable);
 	$window->show_all();	
 	$next-> signal_connect("clicked" => sub{ 			
-		$window->destroy;		
 		clk_setting_win2($self,$info,$type);
+		$window->destroy;	
 					
 	});	
 
@@ -2543,6 +2546,8 @@ sub get_all_tiles_clk_sources_list{
 		return  %all_sources;	
 }
 
+
+
 sub clk_setting_win2{
 	my ($self,$info,$type)=@_;
 		
@@ -2576,9 +2581,9 @@ sub clk_setting_win2{
     my $h1=gen_hpaned($tree_box,.15,$device_win);
     $table->attach_defaults ($h1,0, 10, 0, 10);
 	
-     
-     Glib::Timeout->add (110, sub{ 
-     	 	my ($state,$timeout)= get_gui_status($soc);
+    my $event =Event->timer (after => 1, interval => 1, cb => sub { 
+
+my ($state,$timeout)= get_gui_status($soc);
 	        
 	
 	        if ($timeout>0){
@@ -2586,7 +2591,7 @@ sub clk_setting_win2{
 	            set_gui_status($soc,$state,$timeout);                        
 	        }
 	        elsif( $state ne "ideal" ){
-	           
+	          
 	           #check if top is removed add it
 				my @instances=$soc->soc_get_all_instances();
 				my $redefine =1;
@@ -2604,20 +2609,24 @@ sub clk_setting_win2{
 			    	add_mpsoc_to_device($soc,$ip); 
 			    	$self->object_add_attribute('SOURCE_SET',"SOC",$soc);					
 				}
+				
+	            $device_win->destroy;
 	           
-	            $device_win->destroy();
 	            $device_win=show_active_dev($soc,$ip,$infc,$info); 
 	            $h1 -> pack2($device_win, TRUE, TRUE);  
 				$h1 -> show_all; 
-	            $table->show_all();	     
+	            $table->show_all();	
+	            $device_win->show_all();
+	             
 	            $self->object_add_attribute('SOURCE_SET',"SOC",$soc);       
 	            set_gui_status($soc,"ideal",0);
 	             
 	        }    
 	        return TRUE;
-	        
-	    } );
- 
+
+
+ });
+  
  	my $mtable = def_table(10, 5, FALSE);
 	$mtable->attach_defaults($scrolled_win,0,5,0,9);
 	$mtable->attach($back,0,1,9,10,'expand','fill',2,2) if($type ne 'soc');
@@ -2628,20 +2637,27 @@ sub clk_setting_win2{
 	$window->show_all();
 	$self->object_add_attribute('SOURCE_SET',"SOC",$soc);
 	$back-> signal_connect("clicked" => sub{ 			
+		$self->object_add_attribute('SOURCE_SET',"SOC",$soc);		
+		clk_setting_win1($self,$info,$type);
 		$window->destroy;
-		$self->object_add_attribute('SOURCE_SET',"SOC",$soc);
-		clk_setting_win1($self,$info,$type);				
+		$event->cancel;				
 	});	
 	
 	$diagram-> signal_connect("clicked" => sub{ 
 		show_tile_diagram ($soc);
 	});
 	
-	$ok-> signal_connect("clicked" => sub{ 			
+	$ok-> signal_connect("clicked" => sub{ 	
+		set_gui_status($self,"ref",1); 			
 		$window->destroy;
-		
-		set_gui_status($self,"ref",1); 				
+        $event->cancel;						
 	});	
+	
+	  
+ 
+	
+	
+	
 }
 
 sub tmp{

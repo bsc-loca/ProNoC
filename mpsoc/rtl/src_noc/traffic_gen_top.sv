@@ -3,7 +3,8 @@
 module  traffic_gen_top
 		import pronoc_pkg::*; 
 	#(
-		parameter MAX_RATIO = 1000
+		parameter MAX_RATIO = 1000,
+		parameter ENDP_ID   = 10
 		)
 		(
 					
@@ -62,7 +63,9 @@ module  traffic_gen_top
 		AVG_PCK_SIZw = log2(10*MAX_PCK_SIZ+1),
 		/* verilator lint_off WIDTH */
 		DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY=="TREE" ) ? log2(2*L+1): log2(NR+1),
-		W=WEIGHTw;
+		W=WEIGHTw,
+		PORT_B = (TOPOLOGY!="FMESH")?  LB :
+		(ENDP_ID < NE_MESH_TORI)? LB :B; // in FMESH, the buffer size of endpoints connected to edge routers non-local ports are B not LB  
 
 	input reset, clk;
 	input  [RATIOw-1                :0] ratio;
@@ -264,7 +267,7 @@ module  traffic_gen_top
     
 		output_vc_status #(
 				.V  (V),
-				.B  (LB),
+				.B  (PORT_B),
 				.CAND_VC_SEL_MODE       (0) // 0: use arbieration between not full vcs, 1: select the vc with most availble free space
 			)
 			nic_ovc_status

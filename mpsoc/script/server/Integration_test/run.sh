@@ -18,7 +18,7 @@ SERVER_ROOT_DIR="~/pronoc_verify"
 ProNoC="../../.."
 
 my_srcs=( "rtl"
-    "verify"
+    "Integration_test"
 	"src_verilator"
 	"script"
 	"/perl_gui/lib/perl" )
@@ -69,7 +69,7 @@ function copy_sources {
 		echo "Copy $i  on the server"        
 		sshpass -p $my_passwd scp  -o "StrictHostKeyChecking no" -r "$ProNoC/$i"  "$my_server:${SERVER_ROOT_DIR}/mpsoc/$i"
 	done
-	sshpass -p $my_passwd scp  -o "StrictHostKeyChecking no" -r "$SCRPT_DIR_PATH/server_run.sh"  "$my_server:${SERVER_ROOT_DIR}/mpsoc/verify/server_run.sh"	
+	sshpass -p $my_passwd scp  -o "StrictHostKeyChecking no" -r "$SCRPT_DIR_PATH/server_run.sh"  "$my_server:${SERVER_ROOT_DIR}/mpsoc/Integration_test/server_run.sh"	
 }
 
 
@@ -84,15 +84,14 @@ function run_test {
 #1
 select_a_server
 #2
-#copy_sources
+copy_sources
 #3 run the test
-#sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  "cd ${SERVER_ROOT_DIR}/mpsoc/verify; bash server_run.sh"
 
-sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  "cd ${SERVER_ROOT_DIR}/mpsoc/verify; source /etc/profile; /path/script.sh; bash server_run.sh"
+sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  "cd ${SERVER_ROOT_DIR}/mpsoc/Integration_test;  source \"/etc/profile\";  bash   server_run.sh;"
 
 #collect the report
 rm "$SCRPT_DIR_PATH/report"
-sshpass -p $my_passwd scp  -o "StrictHostKeyChecking no" -r   "$my_server:${SERVER_ROOT_DIR}/mpsoc/verify/report"  "$SCRPT_DIR_PATH/report"
+sshpass -p $my_passwd scp  -o "StrictHostKeyChecking no" -r   "$my_server:${SERVER_ROOT_DIR}/mpsoc/Integration_test/report"  "$SCRPT_DIR_PATH/report"
 wait
 gedit "$SCRPT_DIR_PATH/report"
 

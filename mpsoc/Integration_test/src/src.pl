@@ -174,6 +174,9 @@ sub gen_noc_localparam_v {
 	my %tops = %{$ref_tops};	
 	$tops{Vtraffic} = "--top-module traffic_gen_top";	
 
+
+
+
 	my $param_h=gen_noc_param_h($m);
 	$includ_h = gen_sim_parameter_h($param_h,$includ_h,$ne,$nr,$router_p,'16');	
 
@@ -196,11 +199,16 @@ sub copy_src_files{
 			exit;
 	}
 	
-	dircopy("$dirname/../rtl/src_noc" , "$rtl_dir/src_noc") or die("$!\n") unless (-d "$rtl_dir/src_noc");
+	dircopy("$dirname/../rtl/src_noc"    , "$rtl_dir/src_noc"    ) or die("$!\n") unless (-d "$rtl_dir/src_noc"    );
+    dircopy("$dirname/../rtl/src_topolgy", "$rtl_dir/src_topolgy") or die("$!\n") unless (-d "$rtl_dir/src_topolgy");
+
     unlink "$rtl_dir/src_noc/noc_localparam.v";
     for my $file (glob "$dirname/../rtl/*.v") {
    		 copy $file, "$rtl_dir" or die $! ; 
 	}
+
+	
+
 }
 
 
@@ -344,7 +352,7 @@ sub compile_models{
 	my $cmd;
 	foreach my $m (@models){
 		my ($fname,$fpath,$fsuffix) = fileparse("$m",qr"\..[^.]*$");
-		$cmd.=" cd $work/$fname;  /usr/bin/bash verilator.sh >  $work/$fname/out.log 2>&1  &\n";
+		$cmd.=" cd $work/$fname;  bash verilator.sh >  $work/$fname/out.log 2>&1  &\n";
 		$i++;
 		$cmd.="wait\n" if(($i % $paralel_run)==0) ;
 	}

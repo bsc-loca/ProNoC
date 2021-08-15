@@ -488,7 +488,7 @@ module ssa_check_destport #(
         .ss_port_nonhdr_flit(ss_port_nonhdr_flit)
        );
      /* verilator lint_off WIDTH */
-    end else if (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") begin : mesh
+    end else if (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "FMESH") begin : mesh
     /* verilator lint_on WIDTH */
      
         mesh_torus_ssa_check_destport #(

@@ -284,11 +284,8 @@ sub  get_mathced_socket_pos{
 ##############
 
 sub gen_instance{
-	#my ($soc,$ip,$infc,$instance_id,$info)=@_;
 	my ($soc,$ip,$infc,$instance_id,$info,$table,$offset)=@_;
-	
-	
-	
+
 	
 	
 #	my $box= def_vbox (FALSE,0);
@@ -637,9 +634,10 @@ sub generate_dev_table{
 	}
 	my $i=0;
 	
+
+	
 	foreach my $instanc(@instance_list){
-		$row=gen_instance($soc,$ip,$infc,$instanc,$info,$table,$row);
-		
+		$row=gen_instance($soc,$ip,$infc,$instanc,$info,$table,$row);		
 	}
 	if($row<20){for ($i=$row; $i<20; $i++){
 				
@@ -657,12 +655,10 @@ sub generate_dev_table{
 
 sub show_active_dev{
 	my($soc,$ip,$infc,$info)=@_;
-	my $box= def_table (1, 1, FALSE);
 	my $dev_table = generate_dev_table($soc,$ip,$infc,$info);
 	my $scrolled_win = gen_scr_win_with_adjst($soc,'device_win_adj');
 	add_widget_to_scrolled_win($dev_table,$scrolled_win);
 	return $scrolled_win;
-
 }	
 
 
