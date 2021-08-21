@@ -1,5 +1,5 @@
 #######################################################################
-##	File: sbp-mesh4x4.SIM
+##	File: smart-mesh4x4.SIM
 ##    
 ##	Copyright (C) 2014-2019  Alireza Monemi
 ##    
@@ -19,7 +19,7 @@ $simulate = bless( {
                                       'V' => 1,
                                       'BYTE_EN' => 0,
                                       'CONGESTION_INDEX' => 3,
-                                      'SBP_MAX' => '0',
+                                      'SMART_MAX' => '0',
                                       'WEIGHTw' => '4',
                                       'SSA_EN' => '"NO"',
                                       'MIN_PCK_SIZE' => '2',
@@ -80,13 +80,13 @@ $simulate = bless( {
                      'chart_notebook' => {
                                            'currentpage' => 1
                                          },
-                     'simulate_name' => 'sbp-mesh4x4',
+                     'simulate_name' => 'smart-mesh4x4',
                      'samples' => undef,
                      'process_notebook' => {
                                              'currentpage' => 1
                                            },
                      'sample0' => {
-                                    'sof_file' => 'sbp3',
+                                    'sof_file' => 'smart3',
                                     'MAX_PCK_SIZE' => 5,
                                     'throughput_result' => {
                                                              '49' => ' 38.188556 ',
@@ -132,7 +132,7 @@ $simulate = bless( {
                                                     'MIN_PCK_SIZE' => '2',
                                                     'T1' => '4',
                                                     'SSA_EN' => '"NO"',
-                                                    'SBP_MAX' => '3',
+                                                    'SMART_MAX' => '3',
                                                     'WEIGHTw' => '4',
                                                     'CONGESTION_INDEX' => 3,
                                                     'C' => 0,
@@ -616,7 +616,7 @@ $simulate = bless( {
                                                                              '0' => '43'
                                                                            }
                                                                  },
-                                    'line_name' => 'sbp3',
+                                    'line_name' => 'smart3',
                                     'worst_delay_sent_result' => {
                                                                    '29' => {
                                                                              '2' => '113',
@@ -2063,7 +2063,7 @@ $simulate = bless( {
                                                     'BYTE_EN' => 0,
                                                     'CONGESTION_INDEX' => 3,
                                                     'WEIGHTw' => '4',
-                                                    'SBP_MAX' => '0',
+                                                    'SMART_MAX' => '0',
                                                     'SSA_EN' => '"NO"',
                                                     'T1' => '4',
                                                     'ESCAP_VC_MASK' => '1\'b1',
@@ -2136,7 +2136,7 @@ $simulate = bless( {
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
                                                               'SSA_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'CONGESTION_INDEX',
                                                               'ESCAP_VC_MASK',
                                                               'VC_REALLOCATION_TYPE',

@@ -48,12 +48,12 @@ module mesh_torus_noc_top
     
 	input   clk,reset;
 	//local ports 
-	input   router_chanel_t chan_in_all  [NE-1 : 0];
-	output  router_chanel_t chan_out_all [NE-1 : 0];
+	input   smartflit_chanel_t chan_in_all  [NE-1 : 0];
+	output  smartflit_chanel_t chan_out_all [NE-1 : 0];
 	
 	//all routers port 
-	router_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
-	router_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+	smartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+	smartflit_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
 
 	wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
 
@@ -94,7 +94,7 @@ module mesh_torus_noc_top
 					/* verilator lint_off WIDTH */ 
 					if(TOPOLOGY == "LINE") begin : line_last_x
 					/* verilator lint_on WIDTH */ 
-						assign  router_chan_in[x][FORWARD]= {ROUTER_CHANEL_w{1'b0}};										      
+						assign  router_chan_in[x][FORWARD]= {SMARTFLIT_CHANEL_w{1'b0}};										      
 					end else begin : ring_last_x
 						assign router_chan_in[x][FORWARD]= router_chan_out [0][BACKWARD];
 					end
@@ -106,7 +106,7 @@ module mesh_torus_noc_top
 					/* verilator lint_off WIDTH */ 
 					if(TOPOLOGY == "LINE") begin : line_first_x
 						/* verilator lint_on WIDTH */ 
-						assign  router_chan_in[x][BACKWARD]={ROUTER_CHANEL_w{1'b0}};					
+						assign  router_chan_in[x][BACKWARD]={SMARTFLIT_CHANEL_w{1'b0}};					
 					end else begin : ring_first_x
 						assign  router_chan_in[x][BACKWARD]= router_chan_out [(NX-1)][FORWARD];											
 					end
@@ -154,7 +154,7 @@ module mesh_torus_noc_top
 					/* verilator lint_off WIDTH */ 
 					if(TOPOLOGY == "MESH") begin :last_x_mesh
 					/* verilator lint_on WIDTH */ 
-						assign router_chan_in[`router_id(x,y)][EAST] = {ROUTER_CHANEL_w{1'b0}};					
+						assign router_chan_in[`router_id(x,y)][EAST] = {SMARTFLIT_CHANEL_w{1'b0}};					
 					/* verilator lint_off WIDTH */ 
 					end else if(TOPOLOGY == "TORUS") begin : last_x_torus
 					/* verilator lint_on WIDTH */ 
@@ -175,7 +175,7 @@ module mesh_torus_noc_top
 					/* verilator lint_off WIDTH */ 
 					if(TOPOLOGY == "MESH") begin : first_y_mesh
 					/* verilator lint_on WIDTH */ 
-						assign router_chan_in[`router_id(x,y)][NORTH] =  {ROUTER_CHANEL_w{1'b0}};												
+						assign router_chan_in[`router_id(x,y)][NORTH] =  {SMARTFLIT_CHANEL_w{1'b0}};												
 					/* verilator lint_off WIDTH */ 
 					end else if(TOPOLOGY == "TORUS") begin :first_y_torus
 					/* verilator lint_on WIDTH */ 
@@ -196,7 +196,7 @@ module mesh_torus_noc_top
 					/* verilator lint_off WIDTH */ 
 					if(TOPOLOGY == "MESH") begin :first_x_mesh
 					/* verilator lint_on WIDTH */ 
-						assign    router_chan_in[`router_id(x,y)][WEST] =   {ROUTER_CHANEL_w{1'b0}};						
+						assign    router_chan_in[`router_id(x,y)][WEST] =   {SMARTFLIT_CHANEL_w{1'b0}};						
 					/* verilator lint_off WIDTH */                
 					end else if(TOPOLOGY == "TORUS") begin :first_x_torus
 					/* verilator lint_on WIDTH */ 
@@ -216,7 +216,7 @@ module mesh_torus_noc_top
 					/* verilator lint_off WIDTH */ 
 					if(TOPOLOGY == "MESH") begin :ly_mesh
 						/* verilator lint_on WIDTH */ 
-						assign  router_chan_in[`router_id(x,y)][SOUTH]=  {ROUTER_CHANEL_w{1'b0}};						
+						assign  router_chan_in[`router_id(x,y)][SOUTH]=  {SMARTFLIT_CHANEL_w{1'b0}};						
 						/* verilator lint_off WIDTH */ 
 					end else if(TOPOLOGY == "TORUS") begin :ly_torus
 						/* verilator lint_on WIDTH */ 

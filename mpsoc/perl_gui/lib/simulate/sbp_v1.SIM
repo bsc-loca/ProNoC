@@ -1,5 +1,5 @@
 #######################################################################
-##	File: sbp_v1.SIM
+##	File: smart_v1.SIM
 ##    
 ##	Copyright (C) 2014-2019  Alireza Monemi
 ##    
@@ -1673,7 +1673,7 @@ $simulate = bless( {
                                                     'CONGESTION_INDEX' => 3,
                                                     'ESCAP_VC_MASK' => '1\'b1',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b1',
-                                                    'SBP_MAX' => '2',
+                                                    'SMART_MAX' => '2',
                                                     'TOPOLOGY' => '"MESH"',
                                                     'Fpay' => '32',
                                                     'WEIGHTw' => '4',
@@ -3423,7 +3423,7 @@ $simulate = bless( {
                                                     'Fpay' => '32',
                                                     'CONGESTION_INDEX' => 3,
                                                     'ESCAP_VC_MASK' => '1\'b1',
-                                                    'SBP_MAX' => '1',
+                                                    'SMART_MAX' => '1',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
                                                     'TOPOLOGY' => '"MESH"',
                                                     'WEIGHTw' => '4',
@@ -4606,7 +4606,7 @@ $simulate = bless( {
                              },
                      'noc_param' => {
                                       'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
-                                      'SBP_MAX' => '1',
+                                      'SMART_MAX' => '1',
                                       'TOPOLOGY' => '"MESH"',
                                       'CONGESTION_INDEX' => 3,
                                       'ESCAP_VC_MASK' => '1\'b1',
@@ -4687,7 +4687,7 @@ $simulate = bless( {
                                                     'WEIGHTw' => '4',
                                                     'ESCAP_VC_MASK' => '2\'b01',
                                                     'CONGESTION_INDEX' => 3,
-                                                    'SBP_MAX' => '3',
+                                                    'SMART_MAX' => '3',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b1',
                                                     'TOPOLOGY' => '"MESH"',
                                                     'Fpay' => '32',
@@ -5476,7 +5476,7 @@ $simulate = bless( {
                                                                              '9' => '83'
                                                                            }
                                                                  },
-                                    'line_name' => 'sbp',
+                                    'line_name' => 'smart',
                                     'TRAFFIC_TYPE' => 'Synthetic',
                                     'sof_path' => '/home/alireza/work/git/hca_git/mpsoc_work/simulate',
                                     'traffic' => 'random',
@@ -5768,7 +5768,7 @@ $simulate = bless( {
                                                                            }
                                                                  },
                                     'status' => 'done',
-                                    'sof_file' => 'sbp',
+                                    'sof_file' => 'smart',
                                     'PCK_NUM_LIMIT' => '20000',
                                     'latency_result' => {
                                                           '10' => ' 12.869048 ',
@@ -5851,7 +5851,7 @@ $simulate = bless( {
                                                     'BYTE_EN' => 0,
                                                     'TOPOLOGY' => '"MESH"',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b1',
-                                                    'SBP_MAX' => '0',
+                                                    'SMART_MAX' => '0',
                                                     'ESCAP_VC_MASK' => '2\'b01',
                                                     'CONGESTION_INDEX' => 3,
                                                     'Fpay' => '32',
@@ -7548,7 +7548,7 @@ $simulate = bless( {
                                                     'Fpay' => '32',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
                                                     'TOPOLOGY' => '"MESH"',
-                                                    'SBP_MAX' => '2',
+                                                    'SMART_MAX' => '2',
                                                     'CONGESTION_INDEX' => 3,
                                                     'ESCAP_VC_MASK' => '1\'b1',
                                                     'WEIGHTw' => '4'
@@ -9305,7 +9305,7 @@ $simulate = bless( {
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
                                                               'SSA_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'CONGESTION_INDEX',
                                                               'ESCAP_VC_MASK',
                                                               'VC_REALLOCATION_TYPE',
@@ -11117,7 +11117,7 @@ $simulate = bless( {
                                                     'T1' => '6',
                                                     'Fpay' => '32',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
-                                                    'SBP_MAX' => '3',
+                                                    'SMART_MAX' => '3',
                                                     'TOPOLOGY' => '"MESH"',
                                                     'ESCAP_VC_MASK' => '1\'b1',
                                                     'CONGESTION_INDEX' => 3,
@@ -12277,7 +12277,7 @@ $simulate = bless( {
                                                     'CONGESTION_INDEX' => 3,
                                                     'ESCAP_VC_MASK' => '1\'b1',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b1',
-                                                    'SBP_MAX' => '0',
+                                                    'SMART_MAX' => '0',
                                                     'TOPOLOGY' => '"MESH"',
                                                     'WEIGHTw' => '4'
                                                   },
@@ -14030,7 +14030,7 @@ $simulate = bless( {
                                                     'ESCAP_VC_MASK' => '2\'b01',
                                                     'TOPOLOGY' => '"MESH"',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b1',
-                                                    'SBP_MAX' => '0',
+                                                    'SMART_MAX' => '0',
                                                     'Fpay' => '32',
                                                     'WEIGHTw' => '4',
                                                     'SSA_EN' => '"YES"',
@@ -15150,7 +15150,7 @@ $simulate = bless( {
                                        'type' => '3D_bar',
                                        'ratio' => 5
                                      },
-                     'simulate_name' => 'sbp_v1',
+                     'simulate_name' => 'smart_v1',
                      'status' => 'ideal',
                      'P0Avg. packet Latency' => {
                                                   'type' => '2D_line'
@@ -16312,7 +16312,7 @@ $simulate = bless( {
                                                     'WEIGHTw' => '4',
                                                     'TOPOLOGY' => '"MESH"',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b1',
-                                                    'SBP_MAX' => '3',
+                                                    'SMART_MAX' => '3',
                                                     'CONGESTION_INDEX' => 3,
                                                     'ESCAP_VC_MASK' => '1\'b1',
                                                     'Fpay' => '32'
@@ -19147,7 +19147,7 @@ $simulate = bless( {
                                                     'Fpay' => '32',
                                                     'CONGESTION_INDEX' => 3,
                                                     'ESCAP_VC_MASK' => '1\'b1',
-                                                    'SBP_MAX' => '0',
+                                                    'SMART_MAX' => '0',
                                                     'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
                                                     'TOPOLOGY' => '"MESH"',
                                                     'BYTE_EN' => 0,
@@ -20860,7 +20860,7 @@ $simulate = bless( {
                                                      'Fpay' => '32',
                                                      'TOPOLOGY' => '"MESH"',
                                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b1',
-                                                     'SBP_MAX' => '1',
+                                                     'SMART_MAX' => '1',
                                                      'CONGESTION_INDEX' => 3,
                                                      'ESCAP_VC_MASK' => '1\'b1',
                                                      'WEIGHTw' => '4',

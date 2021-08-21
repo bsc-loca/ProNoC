@@ -56,7 +56,8 @@ module output_ports
     ovc_info,    
     vsa_ctrl_in,
     ssa_ctrl_in,
-    sbp_ctrl_in
+    smart_ctrl_in,
+    credit_init_val_in
 );
 
 
@@ -109,8 +110,8 @@ module output_ports
     output ovc_info_t   ovc_info   [P-1 : 0][V-1 : 0];    
     input   vsa_ctrl_t  vsa_ctrl_in [P-1: 0];
     input   ssa_ctrl_t  ssa_ctrl_in [P-1: 0];
-    input   sbp_ctrl_t  sbp_ctrl_in [P-1: 0];
-    
+    input   smart_ctrl_t  smart_ctrl_in [P-1: 0];
+    input   [CRDTw-1 : 0 ] credit_init_val_in  [P-1 : 0][V-1 : 0];
     
     reg    [PV-1    :    0]    ovc_status;
     wire   [PV-1    :    0]    assigned_ovc_is_full_all;
@@ -188,20 +189,20 @@ module output_ports
     assign credit_increased_all         = credit_in_all;
     assign assigned_ovc_not_full_all    =    ~ assigned_ovc_is_full_all;
     
-  //  wire [PV-1 : 0] non_sbp_ovc_allocated_all =    ssa_ovc_allocated_all| vsa_ovc_allocated_all;
-    wire [PV-1 : 0] non_sbp_ovc_allocated_all;
+  //  wire [PV-1 : 0] non_smart_ovc_allocated_all =    ssa_ovc_allocated_all| vsa_ovc_allocated_all;
+    wire [PV-1 : 0] non_smart_ovc_allocated_all;
     generate
     for(i=0;i<P;i=i+1    ) begin :P_
     
-    	assign credit_decreased_all [(i+1)*V-1 : i*V] = vsa_ctrl_in[i].buff_space_decreased | 	ssa_ctrl_in[i].buff_space_decreased | sbp_ctrl_in[i].buff_space_decreased;
-    	assign ovc_released_all 	[(i+1)*V-1 : i*V] = vsa_ctrl_in[i].ovc_is_released  | ssa_ctrl_in[i].ovc_is_released  | sbp_ctrl_in[i].ovc_is_released;
-    	assign ovc_allocated_all 	[(i+1)*V-1 : i*V] = vsa_ctrl_in[i].ovc_is_allocated | ssa_ctrl_in[i].ovc_is_allocated | sbp_ctrl_in[i].ovc_is_allocated;  
-    	//assign non_sbp_ovc_allocated_all [(i+1)*V-1 : i*V] = ssa_ctrl_in[i].ovc_is_allocated | vsa_ctrl_in[i].ovc_is_allocated;
+    	assign credit_decreased_all [(i+1)*V-1 : i*V] = vsa_ctrl_in[i].buff_space_decreased | 	ssa_ctrl_in[i].buff_space_decreased | smart_ctrl_in[i].buff_space_decreased;
+    	assign ovc_released_all 	[(i+1)*V-1 : i*V] = vsa_ctrl_in[i].ovc_is_released  | ssa_ctrl_in[i].ovc_is_released  | smart_ctrl_in[i].ovc_is_released;
+    	assign ovc_allocated_all 	[(i+1)*V-1 : i*V] = vsa_ctrl_in[i].ovc_is_allocated | ssa_ctrl_in[i].ovc_is_allocated | smart_ctrl_in[i].ovc_is_allocated;  
+    	//assign non_smart_ovc_allocated_all [(i+1)*V-1 : i*V] = ssa_ctrl_in[i].ovc_is_allocated | vsa_ctrl_in[i].ovc_is_allocated;
 
-    	assign non_sbp_ovc_allocated_all [(i+1)*V-1 : i*V] =  vsa_ctrl_in[i].ovc_is_allocated;
+    	assign non_smart_ovc_allocated_all [(i+1)*V-1 : i*V] =  vsa_ctrl_in[i].ovc_is_allocated;
 	
     		
-        assign oport_info[i].non_sbp_ovc_is_allocated =  non_sbp_ovc_allocated_all [(i+1)*V-1        :i*V];
+        assign oport_info[i].non_smart_ovc_is_allocated =  non_smart_ovc_allocated_all [(i+1)*V-1        :i*V];
         assign oport_info[i].any_ovc_granted =  any_ovc_granted_in_outport_all [i];  
        
        
@@ -287,6 +288,7 @@ module output_ports
     		)
     		credit_monitor
     		(
+    			.credit_init_val_i(credit_init_val_in[i/V][i%V]),
     			.credit_counter_o (credit_counter[i]),
     			.credit_increased (credit_increased_all[i]),
     			.credit_decreased(credit_decreased_all[i]),
@@ -343,7 +345,7 @@ module output_ports
             	                	
                 	if((vsa_ctrl_in[i/V].ovc_is_allocated[i%V] & ~granted_dst_is_from_a_single_flit_pck[i/V]) |
                 	   (ssa_ctrl_in[i/V].ovc_is_allocated[i%V] & ~ssa_ctrl_in[i/V].ovc_single_flit_pck[i%V])|
-                	   (sbp_ctrl_in[i/V].ovc_is_allocated[i%V] & ~sbp_ctrl_in[i/V].ovc_single_flit_pck[i%V]))  
+                	   (smart_ctrl_in[i/V].ovc_is_allocated[i%V] & ~smart_ctrl_in[i/V].ovc_single_flit_pck[i%V]))  
                 	   ovc_status[i]<=1'b1; // donot change VC status for single flit packet	
                 	
                 end
@@ -472,6 +474,7 @@ module   credit_monitor_per_ovc
 	#( 
 	parameter SW_LOC=0
 	)(
+		credit_init_val_i,
 		credit_increased,
 		credit_decreased,
 		credit_counter_o,
@@ -489,6 +492,7 @@ module   credit_monitor_per_ovc
 		
 	localparam [DEPTHw-1    :    0] Bint    =    PORT_B [DEPTHw-1    :    0];
 	
+	input  [CRDTw-1 : 0] credit_init_val_i;
 	input 	credit_increased;
 	input	credit_decreased;	
 	output  reg [CREDITw-1   :    0]    credit_counter_o ;
@@ -523,7 +527,7 @@ module   credit_monitor_per_ovc
 		always @ (posedge clk or posedge reset)begin 
 	`endif 
 		if(reset) begin 
-			credit_counter   <=  Bint;
+			credit_counter   <=  credit_init_val_i [DEPTHw-1    :    0]; // Bint;
 		end else begin 
 			credit_counter   <=  credit_counter_next;
 		end

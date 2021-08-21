@@ -76,8 +76,8 @@ module testbench_noc;
    
     
     
-	router_chanel_t chan_in_all  [NE-1 : 0];
-	router_chanel_t chan_out_all [NE-1 : 0];
+	smartflit_chanel_t chan_in_all  [NE-1 : 0];
+	smartflit_chanel_t chan_out_all [NE-1 : 0];
     
     
     
@@ -196,7 +196,7 @@ module testbench_noc;
 			(
        			.ratio (ratio),					
 				.pck_size_in(pck_size_in[i]),
-				.current_r_addr(chan_out_all[i].flit_chanel.neighbors_r_addr),
+				.current_r_addr(chan_out_all[i].ctrl_chanel.neighbors_r_addr),
 				.current_e_addr(current_e_addr[i]),
 				.dest_e_addr(dest_e_addr[i]),
 				.pck_class_in(pck_class_in[i]),  
@@ -534,7 +534,7 @@ module testbench_noc;
 		$display ("\tCongestion Index:%d",CONGESTION_INDEX);
 		$display ("\tADD_PIPREG_AFTER_CROSSBAR:%d",ADD_PIPREG_AFTER_CROSSBAR);
 		$display ("\tSSA_EN enabled:%s",SSA_EN);
-		$display ("\tMax Streight Bypass:%d",SBP_MAX);
+		$display ("\tMax Streight Bypass:%d",SMART_MAX);
 		$display ("\tSwitch allocator arbitration type:%s",SWA_ARBITER_TYPE);
 		$display ("\tMinimum supported packet size:%d flit(s)",MIN_PCK_SIZE);
 		$display ("\tLoop back is enabled::%s",SELF_LOOP_EN);

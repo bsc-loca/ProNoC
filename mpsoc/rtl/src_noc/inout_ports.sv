@@ -44,6 +44,8 @@ import pronoc_pkg::*;
     credit_in_all,
     congestion_in_all,
     congestion_out_all,
+    credit_init_val_in,
+    credit_init_val_out,
     
     // from vsa: local vc/sw allocator
     vsa_ovc_allocated_all,
@@ -85,7 +87,7 @@ import pronoc_pkg::*;
     ovc_info,
     oport_info,
     vsa_ctrl_in,
-    sbp_ctrl_in    
+    smart_ctrl_in    
 );
 
    
@@ -114,6 +116,8 @@ import pronoc_pkg::*;
     input [PV-1 : 0] credit_in_all;
     input [PV-1 : 0] vsa_ovc_allocated_all;
     input [PVV-1 : 0] granted_ovc_num_all;
+    
+   
    
     input [PV-1 : 0] ivc_num_getting_ovc_grant;
     input [PVV-1 : 0] spec_ovc_num_all;
@@ -155,12 +159,15 @@ import pronoc_pkg::*;
     output  [PV-1 : 0] vsa_credit_decreased_all;
     output  ivc_info_t   ivc_info    [P-1 : 0][V-1 : 0];
     output  ovc_info_t   ovc_info    [P-1 : 0][V-1 : 0];
+    
     output  oport_info_t oport_info  [P-1 : 0]; 
-    input   sbp_ctrl_t   sbp_ctrl_in [P-1 : 0];
+    input   smart_ctrl_t   smart_ctrl_in [P-1 : 0];
     input   vsa_ctrl_t   vsa_ctrl_in [P-1 : 0];
+    input   [CRDTw-1 : 0 ] credit_init_val_in  [P-1 : 0][V-1 : 0];
+    output  [CRDTw-1 : 0 ] credit_init_val_out [P-1 : 0][V-1 : 0];
    
   
-    wire [PVV-1 : 0] candidate_ovc_all;
+    wire [PVV-1     : 0] candidate_ovc_all;
     wire [PVDSTPw-1 : 0] dest_port_encoded_all;
  
 
@@ -216,9 +223,10 @@ import pronoc_pkg::*;
 		.granted_dest_port_all(granted_dest_port_all),
 		.refresh_w_counter(refresh_w_counter),
 		.ivc_info(ivc_info),
-		.sbp_ctrl_in(sbp_ctrl_in),
+		.smart_ctrl_in(smart_ctrl_in),
 		.vsa_ctrl_in(vsa_ctrl_in),
 		.ssa_ctrl_in(ssa_ctrl),
+		.credit_init_val_out(credit_init_val_out),		
 		.reset (reset),
 		.clk (clk)
 	);               
@@ -253,9 +261,10 @@ import pronoc_pkg::*;
 		.vsa_credit_decreased_all(vsa_credit_decreased_all),
 		.oport_info (oport_info),
 		.ovc_info (ovc_info),
-		.sbp_ctrl_in(sbp_ctrl_in),
+		.smart_ctrl_in(smart_ctrl_in),
 		.vsa_ctrl_in(vsa_ctrl_in),
-		.ssa_ctrl_in(ssa_ctrl)
+		.ssa_ctrl_in(ssa_ctrl),
+		.credit_init_val_in(credit_init_val_in)
 	);
 
 
@@ -279,7 +288,7 @@ import pronoc_pkg::*;
     	.destport_clear_all(destport_clear_all),
     	.ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant),
     	//.ssa_ivc_num_getting_ovc_grant_all(nla_ivc_num_getting_ovc_grant_all),
-    	.sbp_ctrl_in (sbp_ctrl_in),
+    	.smart_ctrl_in (smart_ctrl_in),
     	.ssa_ctrl_in (ssa_ctrl)
     );
 
@@ -359,7 +368,7 @@ import pronoc_pkg::*;
     		wire [PV-1 : 0] non_vsa_ivc_num_getting_ovc_grant_all;
 	    	integer kk;
 	    	for(i=0;i< P;i=i+1) begin :p_
-	    		assign non_vsa_ivc_num_getting_ovc_grant_all [(i+1)*V-1 : i*V] = ssa_ctrl[i].ivc_num_getting_ovc_grant | sbp_ctrl_in[i].ivc_num_getting_ovc_grant;	    		
+	    		assign non_vsa_ivc_num_getting_ovc_grant_all [(i+1)*V-1 : i*V] = ssa_ctrl[i].ivc_num_getting_ovc_grant | smart_ctrl_in[i].ivc_num_getting_ovc_grant;	    		
 	    	end//for 
 	    	always @(posedge clk ) begin
 	    		for(kk=0; kk< PV; kk=kk+1'b1 ) if(reset_ivc_all[kk] & (ivc_num_getting_ovc_grant[kk] | non_vsa_ivc_num_getting_ovc_grant_all[kk]))   $display("%t: ERROR: the ovc %d released and allocat signal is asserted in the same clock cycle : %m",$time,kk);
@@ -381,23 +390,33 @@ endmodule
  ******************/
  
  module output_vc_status #(
-    parameter V     =   4,
-    parameter B =   16,
-    parameter CAND_VC_SEL_MODE      =   0   // 0: use arbieration between not full vcs, 1: select the vc with most availble free space
-
-)
-
-(
-    input   [V-1 :0] wr_in,
-    input   [V-1 :0] credit_in,
-    output  [V-1 :0] nearly_full_vc,
-    output  [V-1 :0] empty_vc,
-    output reg [V-1 :0] cand_vc,
-    input   cand_wr_vc_en,
-    input   clk,
-    input   reset
+    parameter V =  4,
+    parameter B =  16,
+    parameter CAND_VC_SEL_MODE = 0,   // 0: use arbiteration between not full vcs, 1: select the vc with most availble free space
+    parameter CRDTw = 4
+)(
+ 	credit_init_val_in,
+ 	wr_in,
+ 	credit_in,
+ 	nearly_full_vc,
+ 	empty_vc,
+ 	cand_vc,
+ 	cand_wr_vc_en,
+ 	clk,
+ 	reset
 );
 
+
+ 	input   [V-1 : 0] [CRDTw-1 : 0 ] credit_init_val_in ;
+ 	input   [V-1 :0] wr_in;
+ 	input   [V-1 :0] credit_in;
+ 	output  [V-1 :0] nearly_full_vc;
+ 	output  [V-1 :0] empty_vc;
+ 	output reg [V-1 :0] cand_vc;
+ 	input   cand_wr_vc_en;
+ 	input   clk;
+ 	input   reset;
+ 	
     
     function integer log2;
       input integer number; begin   
@@ -408,15 +427,14 @@ endmodule
       end   
     endfunction // log2 
     
-    localparam  BUFF_WIDTH  =   log2(B);
-    localparam  DEPTH_WIDTH =   BUFF_WIDTH+1;
-    localparam  [DEPTH_WIDTH-1 : 0] B_1         =   B-1;
-    localparam  [DEPTH_WIDTH-1 : 0] B_2         =   B-2;
+  
+    localparam  DEPTH_WIDTH =   log2(B+1);
+ 
     
-    
-    reg  [DEPTH_WIDTH-1 : 0] depth    [V-1 : 0];
+    reg  [DEPTH_WIDTH-1 : 0] credit    [V-1 : 0];
     wire  [V-1 : 0] cand_vc_next;
     wire  [V-1 : 0] full_vc;
+    wire  [V-1 :0] request;
     
     genvar i;
     generate
@@ -427,25 +445,22 @@ endmodule
             always @ (posedge clk or posedge reset)begin 
 `endif  
                     if(reset)begin
-                        depth[i]<={DEPTH_WIDTH{1'b0}};
+                        credit[i]<= credit_init_val_in[i][DEPTH_WIDTH-1:0];
                     end else begin
-                        if(  wr_in[i]  && ~credit_in[i])   depth[i] <= depth[i]+1'b1;
-                        if( ~wr_in[i]  &&  credit_in[i])   depth[i] <= depth[i]-1'b1;
+                        if(  wr_in[i]  && ~credit_in[i])   credit[i] <= credit[i]-1'b1;
+                        if( ~wr_in[i]  &&  credit_in[i])   credit[i] <= credit[i]+1'b1;
                     end //reset
             end//always
 
-            assign  full_vc[i]   = (depth[i] == B);
-            assign  nearly_full_vc[i]= (depth[i] >= B_1);
-            assign  empty_vc[i]  = (depth[i] == {DEPTH_WIDTH{1'b0}});
+            assign  full_vc[i]   = (credit[i] == {DEPTH_WIDTH{1'b0}});
+            assign  nearly_full_vc[i]=  (credit[i] == 1) |  full_vc[i];
+            assign  empty_vc[i]  = (credit[i] == credit_init_val_in[i][DEPTH_WIDTH-1:0]);
 
-
-        end//for
-        if(CAND_VC_SEL_MODE==0) begin : nic_arbiter
-            wire  [V-1 :0] request;
-            for(i=0;i<V;i=i+1) begin :req_loop
-                assign  request[i]   = ~ nearly_full_vc[i] & cand_wr_vc_en;
-            end //for
-
+            assign  request[i]   = ~ nearly_full_vc[i] & cand_wr_vc_en;
+  	end//for
+	
+    endgenerate
+        		
 
             arbiter #(
                 .ARBITER_WIDTH      (V)
@@ -459,25 +474,7 @@ endmodule
                     .any_grant       ()
                 );
 
-        end else begin : min_depth_select
-
-        wire [(V*DEPTH_WIDTH)-1 : 0] depth_array;
-        for(i=0;i<V;i=i+1) begin :depth_loop
-            assign depth_array[((i+1)*(DEPTH_WIDTH))-1  : i*DEPTH_WIDTH]=depth[i];
-        end //for
-
-        fast_minimum_number#(
-            .NUM_OF_INPUTS (V),
-            .DATA_WIDTH (DEPTH_WIDTH)
-
-        )
-        the_min_depth
-        (
-            .in_array (depth_array),
-            .min_out (cand_vc_next)
-        );
-
-        end //else
+       
 
 `ifdef SYNC_RESET_MODE 
         always @ (posedge clk )begin 
@@ -488,7 +485,7 @@ endmodule
             else    if(cand_wr_vc_en)    cand_vc    <=  cand_vc_next;
         end
 
-    endgenerate
+   
 
 
 
@@ -523,7 +520,7 @@ import pronoc_pkg::*;
     clk,    
     destport_clear_all,
     ivc_num_getting_ovc_grant, 
-    sbp_ctrl_in,
+    smart_ctrl_in,
     ssa_ctrl_in
 );
 
@@ -549,7 +546,7 @@ import pronoc_pkg::*;
     output  [PVDSTPw-1 : 0] destport_clear_all;
     input   [PV-1 : 0] ivc_num_getting_ovc_grant; 
     input   ssa_ctrl_t  ssa_ctrl_in [P-1: 0];
-    input   sbp_ctrl_t  sbp_ctrl_in [P-1: 0];
+    input   smart_ctrl_t  smart_ctrl_in [P-1: 0];
         
    
     wire [PV-1 : 0] ovc_avalable_all_masked;
@@ -559,8 +556,8 @@ import pronoc_pkg::*;
     generate 
     
     for(i=0;i< P;i=i+1) begin :p_
-		assign ovc_avalable_all_masked [(i+1)*V-1 : i*V] = (SBP_EN)?  ovc_avalable_all [(i+1)*V-1 : i*V] & ~sbp_ctrl_in[i].mask_available_ovc : ovc_avalable_all [(i+1)*V-1 : i*V];
-    	assign non_vsa_ivc_num_getting_ovc_grant_all [(i+1)*V-1 : i*V] = ssa_ctrl_in[i].ivc_num_getting_ovc_grant | sbp_ctrl_in[i].ivc_num_getting_ovc_grant;
+		assign ovc_avalable_all_masked [(i+1)*V-1 : i*V] = (SMART_EN)?  ovc_avalable_all [(i+1)*V-1 : i*V] & ~smart_ctrl_in[i].mask_available_ovc : ovc_avalable_all [(i+1)*V-1 : i*V];
+    	assign non_vsa_ivc_num_getting_ovc_grant_all [(i+1)*V-1 : i*V] = ssa_ctrl_in[i].ivc_num_getting_ovc_grant | smart_ctrl_in[i].ivc_num_getting_ovc_grant;
     end//for
     
     	

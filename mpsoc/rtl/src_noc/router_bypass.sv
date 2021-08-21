@@ -11,11 +11,11 @@
 ***************************************/
 
 /**************************
- * SBP_flags_gen:
- * generate SBP flags based on NoC parameter, current router's port and address,
+ * SMART_flags_gen:
+ * generate SMART flags based on NoC parameter, current router's port and address,
  * and destination router address
  * located in router output port (port number:SPB_OPORT_NUM)
- * sbp_flag_o indicates how many more router in direct line can be bypassed
+ * smart_flag_o indicates how many more router in direct line can be bypassed
  * if SPB_OPORT_NUM  is also one of the possible output port in 
  * lk-ahead routing, The packet can by-pass the next router once the bypassing condition are met
  ***************************/
@@ -185,21 +185,21 @@ endmodule
 //synthesis translate_off 
 //synopsys  translate_off
 
-module sbp_chanel_check 
+module smart_chanel_check 
 		import pronoc_pkg::*;
 	(
 		flit_chanel,
-		sbp_chanel,
+		smart_chanel,
 		reset,
 		clk		
 	);
 
 	input flit_chanel_t  flit_chanel;
-	input sbp_chanel_t   sbp_chanel; 		
+	input smart_chanel_t   smart_chanel; 		
 	input reset,clk;
 	
-	sbp_chanel_t   sbp_chanel_delay; 
-	always @(posedge clk) sbp_chanel_delay<=sbp_chanel;
+	smart_chanel_t   smart_chanel_delay; 
+	always @(posedge clk) smart_chanel_delay<=smart_chanel;
 	
 	hdr_flit_t hdr_flit;
 	header_flit_info extract(
@@ -210,16 +210,16 @@ module sbp_chanel_check
 
 	always @(posedge clk) begin 
 		if(flit_chanel.flit_wr) begin 
-			if(sbp_chanel_delay.ovc!=flit_chanel.flit.vc) begin 
-				$display("%t: ERROR: sbp ovc %d is not equal with flit ovc %d. %m",$time,sbp_chanel_delay.ovc,flit_chanel.flit.vc );
+			if(smart_chanel_delay.ovc!=flit_chanel.flit.vc) begin 
+				$display("%t: ERROR: smart ovc %d is not equal with flit ovc %d. %m",$time,smart_chanel_delay.ovc,flit_chanel.flit.vc );
 				$finish;
 			end
-			if(flit_chanel.flit.hdr_flag==1'b1 &&   hdr_flit.dest_e_addr != sbp_chanel_delay.dest_e_addr) begin 
-				$display("%t: ERROR: sbp dest_e_addr %d is not equal with flit dest_e_addr %d. %m",$time,sbp_chanel_delay.dest_e_addr,hdr_flit.dest_e_addr );
+			if(flit_chanel.flit.hdr_flag==1'b1 &&   hdr_flit.dest_e_addr != smart_chanel_delay.dest_e_addr) begin 
+				$display("%t: ERROR: smart dest_e_addr %d is not equal with flit dest_e_addr %d. %m",$time,smart_chanel_delay.dest_e_addr,hdr_flit.dest_e_addr );
 				$finish;
 			end
-			if(flit_chanel.flit.hdr_flag!=sbp_chanel_delay.hdr_flit) begin 
-				$display("%t: ERROR: sbp and current hdr flag (%d!=%d) miss-match. %m",$time, sbp_chanel_delay.hdr_flit, flit_chanel.flit.hdr_flag);
+			if(flit_chanel.flit.hdr_flag!=smart_chanel_delay.hdr_flit) begin 
+				$display("%t: ERROR: smart and current hdr flag (%d!=%d) miss-match. %m",$time, smart_chanel_delay.hdr_flit, flit_chanel.flit.hdr_flag);
 				$finish;
 			end
 			
@@ -235,7 +235,7 @@ endmodule
 
 
 
-module sbp_forward_ivc_info
+module smart_forward_ivc_info
 	import pronoc_pkg::*;
 	#(
 	parameter P=5
@@ -243,7 +243,7 @@ module sbp_forward_ivc_info
 		ivc_info,
 		iport_info,
 		oport_info,
-		sbp_chanel,
+		smart_chanel,
 		ovc_locally_requested,
 		reset,clk
 );
@@ -255,14 +255,14 @@ module sbp_forward_ivc_info
 	input  ivc_info_t 	ivc_info    [P-1 : 0][V-1 : 0];
 	input  iport_info_t iport_info  [P-1 : 0];
 	input  oport_info_t oport_info  [P-1 : 0]; 
-	output sbp_chanel_t sbp_chanel  [P-1 : 0];
+	output smart_chanel_t smart_chanel  [P-1 : 0];
 	output [V-1 : 0] ovc_locally_requested [P-1 : 0];
 			
-	sbp_ivc_info_t  sbp_ivc_info [P-1 : 0][V-1 : 0];
-	sbp_ivc_info_t  sbp_ivc_mux  [P-1 : 0];
+	smart_ivc_info_t  smart_ivc_info [P-1 : 0][V-1 : 0];
+	smart_ivc_info_t  smart_ivc_mux  [P-1 : 0];
 	
-	sbp_ivc_info_t  sbp_ivc_info_all_port [P-1 : 0] [P-1 : 0];
-	sbp_ivc_info_t  sbp_vc_info_o [P-1 : 0];
+	smart_ivc_info_t  smart_ivc_info_all_port [P-1 : 0] [P-1 : 0];
+	smart_ivc_info_t  smart_vc_info_o [P-1 : 0];
 	
 	wire [V-1 : 0] assigned_ovc [P-1:0];
 	wire [V-1 : 0] non_assigned_vc_req [P-1:0];
@@ -277,7 +277,7 @@ module sbp_forward_ivc_info
 	non_assigned_vc_req[2][0] destport_one_hot[3]--> | [3][0] [2]
 	*/
 	
-	sbp_chanel_t sbp_chanel_next  [P-1 : 0];
+	smart_chanel_t smart_chanel_next  [P-1 : 0];
 	
 	
 	genvar i,j,z;
@@ -285,9 +285,9 @@ module sbp_forward_ivc_info
 	for (i=0;i<P;i=i+1) begin : port_
 				
 		for (j=0; j < V; j=j+1) begin : ivc					
-			assign sbp_ivc_info[i][j].dest_e_addr = ivc_info[i][j].dest_e_addr;
-			assign sbp_ivc_info[i][j].ovc_is_assigned= ivc_info[i][j].ovc_is_assigned;
-			assign sbp_ivc_info[i][j].assigned_ovc_bin=ivc_info[i][j].assigned_ovc_bin;	
+			assign smart_ivc_info[i][j].dest_e_addr = ivc_info[i][j].dest_e_addr;
+			assign smart_ivc_info[i][j].ovc_is_assigned= ivc_info[i][j].ovc_is_assigned;
+			assign smart_ivc_info[i][j].assigned_ovc_bin=ivc_info[i][j].assigned_ovc_bin;	
 			assign non_assigned_vc_req[i][j] = ~ivc_info[i][j].ovc_is_assigned & ivc_info[i][j].ivc_req;
 			for (z=0; z < P; z=z+1) begin : port
 				assign mask_gen[z][j][i] = non_assigned_vc_req[i][j] & ivc_info[i][j].destport_one_hot[z]; 
@@ -300,26 +300,26 @@ module sbp_forward_ivc_info
 		
 		
 		
-		onehot_mux_2D	#(.W(SBP_IVC_w),.N(V)) mux1 ( .in(sbp_ivc_info[i]), .sel(iport_info[i].swa_first_level_grant), .out(sbp_ivc_mux[i]));
+		onehot_mux_2D	#(.W(SMART_IVC_w),.N(V)) mux1 ( .in(smart_ivc_info[i]), .sel(iport_info[i].swa_first_level_grant), .out(smart_ivc_mux[i]));
 		//demux
 		for (j=0;j<P;j=j+1) begin : port_
-			assign sbp_ivc_info_all_port[j][i] = (iport_info[i].granted_oport_one_hot[j]==1'b1)? sbp_ivc_mux[i] : {SBP_IVC_w{1'b0}};	
+			assign smart_ivc_info_all_port[j][i] = (iport_info[i].granted_oport_one_hot[j]==1'b1)? smart_ivc_mux[i] : {SMART_IVC_w{1'b0}};	
 		end		
 		
-		//assign sbp_vc_info_o[i] = sbp_ivc_info_all_port[i].or; not synthesizable
-		// assign sbp_vc_info_o[i] = sbp_ivc_info_all_port[i].[0] | sbp_ivc_info_all_port[i].[1] | sbp_ivc_info_all_port[i].[2]  ... | sbp_ivc_info_all_port[i].[p-1];
+		//assign smart_vc_info_o[i] = smart_ivc_info_all_port[i].or; not synthesizable
+		// assign smart_vc_info_o[i] = smart_ivc_info_all_port[i].[0] | smart_ivc_info_all_port[i].[1] | smart_ivc_info_all_port[i].[2]  ... | smart_ivc_info_all_port[i].[p-1];
 		reduction_or #(
-			.W    (SBP_IVC_w   ), 
+			.W    (SMART_IVC_w   ), 
 			.N    (P   )
 		) _or (
-			.in   (sbp_ivc_info_all_port[i]  ), 
-			.out  (sbp_vc_info_o[i] )
+			.in   (smart_ivc_info_all_port[i]  ), 
+			.out  (smart_vc_info_o[i] )
 		);
 		/*
 		always_comb begin
-			sbp_vc_info_o[i] = {SBP_IVC_w{1'b0}};
+			smart_vc_info_o[i] = {SMART_IVC_w{1'b0}};
 			for (int ii = 0; ii < P; ii++)
-				sbp_vc_info_o[i] |= sbp_ivc_info_all_port[i][ii];
+				smart_vc_info_o[i] |= smart_ivc_info_all_port[i][ii];
 		end
 		*/
 		
@@ -328,28 +328,28 @@ module sbp_forward_ivc_info
 			.BIN_WIDTH      (Vw), 
 			.ONE_HOT_WIDTH  (V )
 		) conv (
-			.bin_code       (sbp_vc_info_o[i].assigned_ovc_bin ), 
+			.bin_code       (smart_vc_info_o[i].assigned_ovc_bin ), 
 			.one_hot_code   (assigned_ovc[i]  )
 		);
 				
 		
 		
-		assign sbp_chanel_next[i].dest_e_addr= sbp_vc_info_o[i].dest_e_addr;	
-		assign sbp_chanel_next[i].ovc= (sbp_vc_info_o[i].ovc_is_assigned)? assigned_ovc[i] : oport_info[i].non_sbp_ovc_is_allocated;
-		assign sbp_chanel_next[i].hdr_flit=~sbp_vc_info_o[i].ovc_is_assigned;
-		assign sbp_chanel_next[i].requests = (oport_info[i].any_ovc_granted)? {SBP_NUM{1'b1}}:{SBP_NUM{1'b0}} ;					
+		assign smart_chanel_next[i].dest_e_addr= smart_vc_info_o[i].dest_e_addr;	
+		assign smart_chanel_next[i].ovc= (smart_vc_info_o[i].ovc_is_assigned)? assigned_ovc[i] : oport_info[i].non_smart_ovc_is_allocated;
+		assign smart_chanel_next[i].hdr_flit=~smart_vc_info_o[i].ovc_is_assigned;
+		assign smart_chanel_next[i].requests = (oport_info[i].any_ovc_granted)? {SMART_NUM{1'b1}}:{SMART_NUM{1'b0}} ;					
 		
 		if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
 			register #(
-				.W      ( SBP_CHANEL_w     )
+				.W      ( SMART_CHANEL_w     )
 				) register (
-				.in     (sbp_chanel_next[i]   ), 
+				.in     (smart_chanel_next[i]   ), 
 				.reset  (reset ), 
 				.clk    (clk   ), 
-				.out    (sbp_chanel[i]   ));
+				.out    (smart_chanel[i]   ));
 		
 		end else begin :no_link_reg
-				assign sbp_chanel[i] = sbp_chanel_next[i];		
+				assign smart_chanel[i] = smart_chanel_next[i];		
 		end
 		/*
 		
@@ -359,14 +359,14 @@ module sbp_forward_ivc_info
 			always @ (posedge clk or posedge reset)begin 
 		`endif  
 				if(reset) begin 	
-					sbp_chanel[i].dest_e_addr<= {EAw{1'b0}};	
-					sbp_chanel[i].ovc<= {V{1'b0}};
-					sbp_chanel[i].hdr_flit<=1'b0;
+					smart_chanel[i].dest_e_addr<= {EAw{1'b0}};	
+					smart_chanel[i].ovc<= {V{1'b0}};
+					smart_chanel[i].hdr_flit<=1'b0;
 				end else begin 	
-					sbp_chanel[i].dest_e_addr<= sbp_vc_info_o[i].dest_e_addr;	
-					sbp_chanel[i].ovc<= (sbp_vc_info_o[i].ovc_is_assigned)? assigned_ovc[i] : oport_info[i].non_sbp_ovc_is_allocated;
-					sbp_chanel[i].hdr_flit<=~sbp_vc_info_o[i].ovc_is_assigned;
-					sbp_chanel[i].requests <= (oport_info[i].any_ovc_granted)? {SBP_NUM{1'b1}}:{SBP_NUM{1'b0}} ;					
+					smart_chanel[i].dest_e_addr<= smart_vc_info_o[i].dest_e_addr;	
+					smart_chanel[i].ovc<= (smart_vc_info_o[i].ovc_is_assigned)? assigned_ovc[i] : oport_info[i].non_smart_ovc_is_allocated;
+					smart_chanel[i].hdr_flit<=~smart_vc_info_o[i].ovc_is_assigned;
+					smart_chanel[i].requests <= (oport_info[i].any_ovc_granted)? {SMART_NUM{1'b1}}:{SMART_NUM{1'b0}} ;					
 				end
 			end		
 	
@@ -380,7 +380,7 @@ module sbp_forward_ivc_info
 		endgenerate	
 	
 //	generate for (i=0; i < P; i=i+1) begin : port
-//			assign sbp_ivc_info_o[i] = (granted_dest_port[i]==1'b1)? ivc_info_mux : {SBP_IVC_w{1'b0}};		
+//			assign smart_ivc_info_o[i] = (granted_dest_port[i]==1'b1)? ivc_info_mux : {SMART_IVC_w{1'b0}};		
 //		end endgenerate 	
 
 			
@@ -389,7 +389,7 @@ endmodule
  
  
  
-module sbp_bypass_chanels
+module smart_bypass_chanels
  	import pronoc_pkg::*;
 #(
 	parameter P=5
@@ -397,31 +397,31 @@ module sbp_bypass_chanels
 	ivc_info,
 	iport_info,
 	oport_info,
-	sbp_chanel_new,
-	sbp_chanel_in,
-	sbp_chanel_out,
-	sbp_req,
+	smart_chanel_new,
+	smart_chanel_in,
+	smart_chanel_out,
+	smart_req,
 	reset,
 	clk
 	
 );
 
 	input reset,clk;	
-	input sbp_chanel_t sbp_chanel_new  [P-1 : 0];
-	input sbp_chanel_t sbp_chanel_in   [P-1 : 0];
+	input smart_chanel_t smart_chanel_new  [P-1 : 0];
+	input smart_chanel_t smart_chanel_in   [P-1 : 0];
 	input ivc_info_t   ivc_info    [P-1 : 0][V-1 : 0];
  	input iport_info_t iport_info  [P-1 : 0];
  	input oport_info_t oport_info  [P-1 : 0];
  	
- 	output [P-1 : 0] sbp_req;
- 	output sbp_chanel_t sbp_chanel_out   [P-1 : 0];
+ 	output [P-1 : 0] smart_req;
+ 	output smart_chanel_t smart_chanel_out   [P-1 : 0];
  	
  	
-	sbp_chanel_t sbp_chanel_shifted  [P-1 : 0];
+	smart_chanel_t smart_chanel_shifted  [P-1 : 0];
 	localparam DISABLE = P;
 	
 	wire [V-1 : 0 ] ivc_forwardable [P-1 : 0];
-	wire [P-1 :0] sbp_forwardable;
+	wire [P-1 :0] smart_forwardable;
 	logic [P-1 :0] outport_is_granted;
 	reg [P-1 : 0] rq;
 	genvar i;
@@ -443,22 +443,22 @@ module sbp_bypass_chanels
 		localparam SS_PORT = strieght_port (P,i); // the straight port number
 		if(SS_PORT != DISABLE) begin: ssp 
 			
-			//sbp_chanel_shifter
-			assign sbp_forwardable[i] = |  (ivc_forwardable[i] & sbp_chanel_in[i].ovc);
+			//smart_chanel_shifter
+			assign smart_forwardable[i] = |  (ivc_forwardable[i] & smart_chanel_in[i].ovc);
 			always @(*) begin 
-				sbp_chanel_shifted[i] = sbp_chanel_in [i];
-				{sbp_chanel_shifted[i].requests,rq[i]} =(sbp_forwardable[i])? {1'b0,sbp_chanel_in[i].requests}:{{SBP_NUM{1'b0}},sbp_chanel_in[i].requests[0]};
+				smart_chanel_shifted[i] = smart_chanel_in [i];
+				{smart_chanel_shifted[i].requests,rq[i]} =(smart_forwardable[i])? {1'b0,smart_chanel_in[i].requests}:{{SMART_NUM{1'b0}},smart_chanel_in[i].requests[0]};
 			end
-			assign sbp_req[i]=rq[i];
-			// mux out sbp chanel
-			assign sbp_chanel_out[i] = (outport_is_granted[i])? sbp_chanel_new[i] : sbp_chanel_shifted[SS_PORT];
+			assign smart_req[i]=rq[i];
+			// mux out smart chanel
+			assign smart_chanel_out[i] = (outport_is_granted[i])? smart_chanel_new[i] : smart_chanel_shifted[SS_PORT];
 			
 			
 			
 			
 		end else begin
-			assign {sbp_chanel_shifted[i].requests,sbp_req[i]} = {(SBP_NUM+1){1'b0}};
-			assign sbp_chanel_out[i] = {SBP_CHANEL_w{1'b0}};
+			assign {smart_chanel_shifted[i].requests,smart_req[i]} = {(SMART_NUM+1){1'b0}};
+			assign smart_chanel_out[i] = {SMART_CHANEL_w{1'b0}};
 		end
 		
 	end	
@@ -533,18 +533,18 @@ endmodule
  
 
 	
-module sbp_validity_check_per_ivc  
+module smart_validity_check_per_ivc  
 	import pronoc_pkg::*;
 #(
 	parameter IVC_NUM = 0
 )(
 	reset                  ,
 	clk                    ,
-	//sbp channel
+	//smart channel
 	goes_straight		   ,
-	sbp_requests_i         ,
-	sbp_ivc_i              ,
-	sbp_hdr_flit		   ,		
+	smart_requests_i         ,
+	smart_ivc_i              ,
+	smart_hdr_flit		   ,		
 	//flit		               
 	flit_hdr_flag_i        ,
 	flit_tail_flag_i       ,
@@ -560,24 +560,24 @@ module sbp_validity_check_per_ivc
 	ss_port_link_reg_flit_wr    ,
 	ss_ovc_crossbar_wr          ,
 	//output                          
-	sbp_single_flit_pck_o		,
-	sbp_ivc_sbp_en_o            ,
-	sbp_credit_o             	,
-	sbp_buff_space_decreased_o  ,
-	sbp_ss_ovc_is_allocated_o   ,
-	sbp_ss_ovc_is_released_o    ,
-	sbp_mask_available_ss_ovc_o ,
-	sbp_ivc_num_getting_ovc_grant_o,
-	sbp_ivc_reset_o,			
-	sbp_ivc_granted_ovc_num_o
+	smart_single_flit_pck_o		,
+	smart_ivc_smart_en_o            ,
+	smart_credit_o             	,
+	smart_buff_space_decreased_o  ,
+	smart_ss_ovc_is_allocated_o   ,
+	smart_ss_ovc_is_released_o    ,
+	smart_mask_available_ss_ovc_o ,
+	smart_ivc_num_getting_ovc_grant_o,
+	smart_ivc_reset_o,			
+	smart_ivc_granted_ovc_num_o
 );
 	
 input reset, clk;
-//sbp channel
+//smart channel
 input goes_straight		   ,
-	sbp_requests_i         ,
-	sbp_ivc_i              ,
-	sbp_hdr_flit		   ,		
+	smart_requests_i         ,
+	smart_ivc_i              ,
+	smart_hdr_flit		   ,		
 	//flit		               
 	flit_hdr_flag_i        ,
 	flit_tail_flag_i       ,
@@ -594,37 +594,37 @@ input goes_straight		   ,
 	ss_port_link_reg_flit_wr    ;
 //output                          
 output 
-	sbp_single_flit_pck_o			,
-	sbp_ivc_sbp_en_o         ,
-	sbp_credit_o             	,
-	sbp_buff_space_decreased_o  ,
-	sbp_ss_ovc_is_allocated_o   ,
-	sbp_ss_ovc_is_released_o    ,
-	sbp_ivc_num_getting_ovc_grant_o,
-	sbp_ivc_reset_o,			
-	sbp_mask_available_ss_ovc_o;	
+	smart_single_flit_pck_o			,
+	smart_ivc_smart_en_o         ,
+	smart_credit_o             	,
+	smart_buff_space_decreased_o  ,
+	smart_ss_ovc_is_allocated_o   ,
+	smart_ss_ovc_is_released_o    ,
+	smart_ivc_num_getting_ovc_grant_o,
+	smart_ivc_reset_o,			
+	smart_mask_available_ss_ovc_o;	
 		
-output reg [V-1 : 0] sbp_ivc_granted_ovc_num_o;
+output reg [V-1 : 0] smart_ivc_granted_ovc_num_o;
 
 always @(*) begin 
-	sbp_ivc_granted_ovc_num_o={V{1'b0}};
-	sbp_ivc_granted_ovc_num_o[IVC_NUM]=sbp_ivc_num_getting_ovc_grant_o;
+	smart_ivc_granted_ovc_num_o={V{1'b0}};
+	smart_ivc_granted_ovc_num_o[IVC_NUM]=smart_ivc_num_getting_ovc_grant_o;
 end	
 		
 		
 		
-wire  sbp_req_valid_next  = sbp_requests_i &  sbp_ivc_i & goes_straight;
-logic sbp_req_valid;	
-wire  sbp_hdr_flit_req_next = sbp_req_valid_next  & sbp_hdr_flit;
-logic sbp_hdr_flit_req;
+wire  smart_req_valid_next  = smart_requests_i &  smart_ivc_i & goes_straight;
+logic smart_req_valid;	
+wire  smart_hdr_flit_req_next = smart_req_valid_next  & smart_hdr_flit;
+logic smart_hdr_flit_req;
 	
-register #(.W(1)) req1 (.in(sbp_req_valid_next), .reset(reset), .clk(clk), .out(sbp_req_valid));
-register #(.W(1)) req2 (.in(sbp_hdr_flit_req_next), .reset(reset), .clk(clk), .out(sbp_hdr_flit_req));
+register #(.W(1)) req1 (.in(smart_req_valid_next), .reset(reset), .clk(clk), .out(smart_req_valid));
+register #(.W(1)) req2 (.in(smart_hdr_flit_req_next), .reset(reset), .clk(clk), .out(smart_hdr_flit_req));
 
 
 
 	
-// condition1: new sbp vc allocation condition
+// condition1: new smart vc allocation condition
 wire hdr_flit_condition    = ~ovc_locally_requested & ss_ovc_avalable_in_ss_port;	
 wire nonhdr_flit_condition = assigned_to_ss_ovc & assigned_ovc_not_full;
 wire condition1 = 
@@ -648,36 +648,36 @@ end
 	
 endgenerate	
 wire conditions_met = condition1 & condition2;
-assign sbp_ivc_sbp_en_o = conditions_met & sbp_req_valid;
+assign smart_ivc_smart_en_o = conditions_met & smart_req_valid;
 	
 
 
-assign sbp_single_flit_pck_o     = 
+assign smart_single_flit_pck_o     = 
 	/* verilator lint_off WIDTH */
 	(PCK_TYPE == "SINGLE_FLIT")? 1'b1 :
 	/* verilator lint_on WIDTH */
 	(MIN_PCK_SIZE==1)?  flit_tail_flag_i & flit_hdr_flag_i : 1'b0; 
 
-assign sbp_buff_space_decreased_o =  sbp_ivc_sbp_en_o & flit_wr_i ;
-assign sbp_ivc_num_getting_ovc_grant_o  =  sbp_buff_space_decreased_o & !ovc_is_assigned  & flit_hdr_flag_i;
-assign sbp_ivc_reset_o   =  sbp_buff_space_decreased_o & flit_tail_flag_i;
-assign sbp_ss_ovc_is_released_o = sbp_ivc_reset_o & ~sbp_single_flit_pck_o;
-assign sbp_ss_ovc_is_allocated_o = sbp_ivc_num_getting_ovc_grant_o & ~sbp_single_flit_pck_o;
+assign smart_buff_space_decreased_o =  smart_ivc_smart_en_o & flit_wr_i ;
+assign smart_ivc_num_getting_ovc_grant_o  =  smart_buff_space_decreased_o & !ovc_is_assigned  & flit_hdr_flag_i;
+assign smart_ivc_reset_o   =  smart_buff_space_decreased_o & flit_tail_flag_i;
+assign smart_ss_ovc_is_released_o = smart_ivc_reset_o & ~smart_single_flit_pck_o;
+assign smart_ss_ovc_is_allocated_o = smart_ivc_num_getting_ovc_grant_o & ~smart_single_flit_pck_o;
 
 
 
 	
 //mask the available SS OVC for local requests allocation if the following conditions met
-assign sbp_mask_available_ss_ovc_o = sbp_hdr_flit_req & ~ovc_locally_requested & condition2;
+assign smart_mask_available_ss_ovc_o = smart_hdr_flit_req & ~ovc_locally_requested & condition2;
 	
 	
-register #(.W(1)) credit(.in(sbp_buff_space_decreased_o), .reset(reset), .clk(clk), .out(sbp_credit_o));
+register #(.W(1)) credit(.in(smart_buff_space_decreased_o), .reset(reset), .clk(clk), .out(smart_credit_o));
 	
 endmodule
 	
 	
 	
-module sbp_allocator_per_iport 
+module smart_allocator_per_iport 
 	import pronoc_pkg::*;
 #(
 	parameter P=5,
@@ -689,37 +689,37 @@ module sbp_allocator_per_iport
 	reset,
 	current_r_addr_i,
 	neighbors_r_addr_i,
-	//sbp_chanel & flit in
-	sbp_chanel_i,
+	//smart_chanel & flit in
+	smart_chanel_i,
 	flit_chanel_i,
 	//router status signals
 	ivc_info,			
 	ss_ovc_info,
-	ovc_locally_requested,//make sure no conflict is existed between local & SBP VC allocation
+	ovc_locally_requested,//make sure no conflict is existed between local & SMART VC allocation
 	ss_port_link_reg_flit_wr,
-	ss_sbp_chanel_new,
+	ss_smart_chanel_new,
 	//output
-	sbp_destport_o,
-	sbp_lk_destport_o,
-	sbp_ivc_sbp_en_o,              		
-	sbp_credit_o,             	
-	sbp_buff_space_decreased_o, 
-	sbp_ss_ovc_is_allocated_o,     
-	sbp_ss_ovc_is_released_o, 
-	sbp_ivc_num_getting_ovc_grant_o,
-	sbp_ivc_reset_o,
-	sbp_mask_available_ss_ovc_o,
-	sbp_hdr_flit_req_o,
-	sbp_ivc_granted_ovc_num_o,	
-	sbp_ivc_single_flit_pck_o,
-	sbp_ovc_single_flit_pck_o
+	smart_destport_o,
+	smart_lk_destport_o,
+	smart_ivc_smart_en_o,              		
+	smart_credit_o,             	
+	smart_buff_space_decreased_o, 
+	smart_ss_ovc_is_allocated_o,     
+	smart_ss_ovc_is_released_o, 
+	smart_ivc_num_getting_ovc_grant_o,
+	smart_ivc_reset_o,
+	smart_mask_available_ss_ovc_o,
+	smart_hdr_flit_req_o,
+	smart_ivc_granted_ovc_num_o,	
+	smart_ivc_single_flit_pck_o,
+	smart_ovc_single_flit_pck_o
 );
 	//general
  	input clk, reset;
  	input [RAw-1   :0]  current_r_addr_i;
  	input [RAw-1:  0]  neighbors_r_addr_i [P-1 : 0];	
 	//channels
-	input sbp_chanel_t sbp_chanel_i;
+	input smart_chanel_t smart_chanel_i;
 	input flit_chanel_t flit_chanel_i;
 	//ivc
 	input ivc_info_t ivc_info [V-1 : 0];
@@ -727,24 +727,24 @@ module sbp_allocator_per_iport
 	//ss port
 	input ovc_info_t   ss_ovc_info [V-1 : 0];
 	input ss_port_link_reg_flit_wr;	
-	input sbp_chanel_t ss_sbp_chanel_new;
+	input smart_chanel_t ss_smart_chanel_new;
 	//output
-	output [DSTPw-1 : 0] sbp_destport_o,sbp_lk_destport_o;
-	output sbp_hdr_flit_req_o;
+	output [DSTPw-1 : 0] smart_destport_o,smart_lk_destport_o;
+	output smart_hdr_flit_req_o;
 	output [V-1 : 0] 
-		sbp_ivc_sbp_en_o,              		
-		sbp_credit_o,             	
-		sbp_buff_space_decreased_o, 
-		sbp_ss_ovc_is_allocated_o,     
-		sbp_ss_ovc_is_released_o, 
-		sbp_mask_available_ss_ovc_o,
-		sbp_ivc_num_getting_ovc_grant_o,
-		sbp_ivc_reset_o,		
-		sbp_ivc_single_flit_pck_o,
-		sbp_ovc_single_flit_pck_o;	
-	output [V*V-1 : 0] sbp_ivc_granted_ovc_num_o;
+		smart_ivc_smart_en_o,              		
+		smart_credit_o,             	
+		smart_buff_space_decreased_o, 
+		smart_ss_ovc_is_allocated_o,     
+		smart_ss_ovc_is_released_o, 
+		smart_mask_available_ss_ovc_o,
+		smart_ivc_num_getting_ovc_grant_o,
+		smart_ivc_reset_o,		
+		smart_ivc_single_flit_pck_o,
+		smart_ovc_single_flit_pck_o;	
+	output [V*V-1 : 0] smart_ivc_granted_ovc_num_o;
 	
-	assign sbp_ovc_single_flit_pck_o = sbp_ivc_single_flit_pck_o;
+	assign smart_ovc_single_flit_pck_o = smart_ivc_single_flit_pck_o;
 	wire  [DSTPw-1  :   0]  destport,lkdestport;
 	wire  goes_straight;
 	
@@ -773,11 +773,11 @@ module sbp_allocator_per_iport
 		.clk             (clk            ), 
 		.current_r_addr  (current_r_addr_i ), 
 		.src_e_addr  	 (			     ),// needed only for custom routing
-		.dest_e_addr     (sbp_chanel_i.dest_e_addr    ), 
+		.dest_e_addr     (smart_chanel_i.dest_e_addr    ), 
 		.destport        (destport)
 	); 
 	
-	register #(.W(DSTPw)) reg1 (.in(destport), .reset(reset), .clk(clk), .out(sbp_destport_o));
+	register #(.W(DSTPw)) reg1 (.in(destport), .reset(reset), .clk(clk), .out(smart_destport_o));
 	
 	check_straight_oport #(
 		.TOPOLOGY      ( TOPOLOGY     ),
@@ -807,32 +807,32 @@ module sbp_allocator_per_iport
 			.clk             (clk            ), 
 			.current_r_addr  (neighbors_r_addr_i[SS_PORT_LOC] ), 
 			.src_e_addr  	 (			     ),// needed only for custom routing
-			.dest_e_addr     (sbp_chanel_i.dest_e_addr    ), 
+			.dest_e_addr     (smart_chanel_i.dest_e_addr    ), 
 			.destport        (lkdestport)
 		); 
 	
-	register #(.W(DSTPw)) reg2 (.in(lkdestport), .reset(reset), .clk(clk), .out(sbp_lk_destport_o));
+	register #(.W(DSTPw)) reg2 (.in(lkdestport), .reset(reset), .clk(clk), .out(smart_lk_destport_o));
 	
 	wire [V-1 : 0] ss_ovc_crossbar_wr;//If asserted, a flit will be injected to ovc at next clk cycle 
-	assign ss_ovc_crossbar_wr = (ss_sbp_chanel_new.requests[0] ) ? ss_sbp_chanel_new.ovc : {V{1'b0}};
+	assign ss_ovc_crossbar_wr = (ss_smart_chanel_new.requests[0] ) ? ss_smart_chanel_new.ovc : {V{1'b0}};
 	
 		
 	
-	//assign sbp_ivc_num_getting_ovc_grant_o = sbp_ss_ovc_is_allocated_o;
-	//assign sbp_ivc_reset_o = sbp_ss_ovc_is_released_o;
+	//assign smart_ivc_num_getting_ovc_grant_o = smart_ss_ovc_is_allocated_o;
+	//assign smart_ivc_reset_o = smart_ss_ovc_is_released_o;
 	
 	genvar i,j;
 	generate
 	for (i=0;i<V; i=i+1) begin : vc
-		sbp_validity_check_per_ivc #(
+		smart_validity_check_per_ivc #(
 				.IVC_NUM(i)		
 		)	validity_check (
 			.reset                       (reset                   		), 
 			.clk                         (clk                     		), 
 			.goes_straight				 (goes_straight),
-			.sbp_requests_i              (sbp_chanel_i.requests[0] 		), 
-			.sbp_ivc_i                   (sbp_chanel_i.ovc  [i]    		),
-			.sbp_hdr_flit				 (sbp_chanel_i.hdr_flit     ),
+			.smart_requests_i              (smart_chanel_i.requests[0] 		), 
+			.smart_ivc_i                   (smart_chanel_i.ovc  [i]    		),
+			.smart_hdr_flit				 (smart_chanel_i.hdr_flit     ),
 						
 			.flit_hdr_flag_i         	(flit_chanel_i.flit.hdr_flag      	),
 			.flit_tail_flag_i        	(flit_chanel_i.flit.tail_flag       ),
@@ -849,16 +849,16 @@ module sbp_allocator_per_iport
 			.ss_port_link_reg_flit_wr    (ss_port_link_reg_flit_wr     ), 
 			.ss_ovc_crossbar_wr          (ss_ovc_crossbar_wr[i]),	
 			
-			.sbp_single_flit_pck_o       (sbp_ivc_single_flit_pck_o[i]  ),
-			.sbp_ivc_sbp_en_o      		 (sbp_ivc_sbp_en_o[i]	),
-			.sbp_credit_o             	 (sbp_credit_o[i]   	), 
-			.sbp_buff_space_decreased_o  (sbp_buff_space_decreased_o[i]), 
-			.sbp_ss_ovc_is_allocated_o   (sbp_ss_ovc_is_allocated_o[i] ), 
-			.sbp_ss_ovc_is_released_o    (sbp_ss_ovc_is_released_o[i]  ),
-			.sbp_mask_available_ss_ovc_o (sbp_mask_available_ss_ovc_o[i] ),
-			.sbp_ivc_num_getting_ovc_grant_o(sbp_ivc_num_getting_ovc_grant_o[i]),
-			.sbp_ivc_reset_o			 (sbp_ivc_reset_o[i]),			
-			.sbp_ivc_granted_ovc_num_o   (sbp_ivc_granted_ovc_num_o[(i+1)*V-1 : i*V])
+			.smart_single_flit_pck_o       (smart_ivc_single_flit_pck_o[i]  ),
+			.smart_ivc_smart_en_o      		 (smart_ivc_smart_en_o[i]	),
+			.smart_credit_o             	 (smart_credit_o[i]   	), 
+			.smart_buff_space_decreased_o  (smart_buff_space_decreased_o[i]), 
+			.smart_ss_ovc_is_allocated_o   (smart_ss_ovc_is_allocated_o[i] ), 
+			.smart_ss_ovc_is_released_o    (smart_ss_ovc_is_released_o[i]  ),
+			.smart_mask_available_ss_ovc_o (smart_mask_available_ss_ovc_o[i] ),
+			.smart_ivc_num_getting_ovc_grant_o(smart_ivc_num_getting_ovc_grant_o[i]),
+			.smart_ivc_reset_o			 (smart_ivc_reset_o[i]),			
+			.smart_ivc_granted_ovc_num_o   (smart_ivc_granted_ovc_num_o[(i+1)*V-1 : i*V])
 		);	
 				
 		
@@ -869,34 +869,34 @@ module sbp_allocator_per_iport
 	endgenerate	
 	
 	
-	register #(.W(1)) reg3 (.in(sbp_chanel_i.hdr_flit), .reset(reset), .clk(clk), .out(sbp_hdr_flit_req_o));
+	register #(.W(1)) reg3 (.in(smart_chanel_i.hdr_flit), .reset(reset), .clk(clk), .out(smart_hdr_flit_req_o));
 	
 endmodule	
  
 //
-module sbp_credit_manage #(
+module smart_credit_manage #(
 	parameter V=4,	
 	parameter B=2
 	)(
 		credit_in,
-		sbp_credit_in,
+		smart_credit_in,
 		credit_out,
 		reset,
 		clk
 	);
 	localparam Bw=$clog2(B);
 		
- 	input [V-1 : 0]  credit_in, sbp_credit_in;
+ 	input [V-1 : 0]  credit_in, smart_credit_in;
  	input reset,	clk;
  	output [V-1 : 0]  credit_out;
 	genvar i;
 	generate 
 	for (i=0;i<V;i=i+1)begin :v_
-	 	sbp_credit_manage_per_vc #(
+	 	smart_credit_manage_per_vc #(
 	 		.Bw(Bw)
 	 		)credit(
 	 			.credit_in(credit_in[i]),
-	 			.sbp_credit_in(sbp_credit_in[i]),
+	 			.smart_credit_in(smart_credit_in[i]),
 	 			.credit_out(credit_out[i]),
 	 			.reset(reset),
 	 			.clk(clk)
@@ -905,29 +905,29 @@ module sbp_credit_manage #(
 	endgenerate	
 endmodule	
 	
-module sbp_credit_manage_per_vc #(
+module smart_credit_manage_per_vc #(
 		parameter Bw=2
 )(
 	credit_in,
-	sbp_credit_in,
+	smart_credit_in,
 	credit_out,
 	reset,
 	clk
 );
 
- 	input credit_in, sbp_credit_in,	reset,	clk;
+ 	input credit_in, smart_credit_in,	reset,	clk;
  	output credit_out;
 
  	logic [Bw : 0] counter, counter_next;
  	
  	always @(*) begin 
  		counter_next=counter;
- 		if(credit_in & 	sbp_credit_in ) counter_next = counter +1'b1;
- 		else if(credit_in |	sbp_credit_in ) counter_next=counter;
+ 		if(credit_in & 	smart_credit_in ) counter_next = counter +1'b1;
+ 		else if(credit_in |	smart_credit_in ) counter_next=counter;
  		else if(counter > 0) counter_next = counter -1'b1;
  	end
 
- 	assign credit_out = credit_in | 	sbp_credit_in | (counter > 0);
+ 	assign credit_out = credit_in | 	smart_credit_in | (counter > 0);
 
  	register #(.W(Bw+1)) reg1 (.in(counter_next), .reset(reset), .clk(clk), .out(counter));
  	

@@ -113,8 +113,8 @@ module  ni_master
     input   [RAw-1   :   0]  current_r_addr;
     input   [EAw-1   :   0]  current_e_addr;
     
-    input   router_chanel_t 	chan_in;
-    output  router_chanel_t 	chan_out;    
+    input   smartflit_chanel_t 	chan_in;
+    output  smartflit_chanel_t 	chan_out;    
     
     
    //wishbone slave interface signals
@@ -583,7 +583,9 @@ end
     
     for (i=0;i<V; i=i+1) begin : vc_    
     
-            
+    	
+		assign chan_out.ctrl_chanel.credit_init_val[i]= LB;
+    
        
        
        
@@ -929,14 +931,17 @@ end
     );
     
   wire [V-1    :   0] wr_vc_send =  (fifo_wr) ? send_vc_enable : {V{1'b0}};  
-     
+  
+  
   ovc_status #(
     .V(V),
-    .B(LB)
+    .B(LB),
+    .CRDTw(CRDTw)    
   )
   the_ovc_status
   (
-    .wr_in(wr_vc_send),
+    .credit_init_val_in ( chan_in.ctrl_chanel.credit_init_val),
+  	.wr_in(wr_vc_send),
     .credit_in(credit_in),
     .full_vc(vc_fifo_full),
     .nearly_full_vc(vc_fifo_nearly_full),
@@ -1051,10 +1056,13 @@ endmodule
  
  module ovc_status #(
     parameter V     =   4,
-    parameter B =   16
+    parameter B =   16,
+    parameter CRDTw =4
 )
 (
-    input   [V-1            :0] wr_in,
+   
+	input   [V-1 : 0] [CRDTw-1 : 0 ] credit_init_val_in,
+	input   [V-1            :0] wr_in,
     input   [V-1            :0] credit_in,
     output  [V-1            :0] full_vc,
     output  [V-1            :0] nearly_full_vc,
@@ -1063,47 +1071,44 @@ endmodule
     input                       reset
 );
 
+ 
+	 function integer log2;
+	 input integer number; begin   
+	 	log2=(number <=1) ? 1: 0;    
+	 	while(2**log2<number) begin    
+	 		log2=log2+1;    
+	 	end 	   
+	 end   
+	 endfunction // log2 
     
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end       
-      end   
-    endfunction // log2 
+  
+ 	localparam  DEPTH_WIDTH =   log2(B+1);
+ 
     
-    localparam  BUFF_WIDTH  =   log2(B);
-    localparam  DEPTH_WIDTH =   BUFF_WIDTH+1;
-    localparam  [DEPTH_WIDTH-1          :   0] B_1         =   B-1;
+	 reg  [DEPTH_WIDTH-1 : 0] credit    [V-1 : 0];
+	 wire  [V-1 : 0] cand_vc_next;
+	
     
-    
-    reg     [DEPTH_WIDTH-1          :   0]  depth       [V-1    :   0];
+	 genvar i;
+	 generate
+	 	for(i=0;i<V;i=i+1) begin : vc_loop
+	 	`ifdef SYNC_RESET_MODE 
+	 		always @ (posedge clk )begin 
+	 	`else 
+	 		always @ (posedge clk or posedge reset)begin 
+	 	`endif  
+	 	if(reset)begin
+	 	credit[i]<= credit_init_val_in[i][DEPTH_WIDTH-1:0];
+	    end else begin
+	    	if(  wr_in[i]  && ~credit_in[i])   credit[i] <= credit[i]-1'b1;
+	    	if( ~wr_in[i]  &&  credit_in[i])   credit[i] <= credit[i]+1'b1;
+	    end //reset
+	    end//always
 
-    
-    genvar i;
-    generate
-        for(i=0;i<V;i=i+1) begin : vc_loop
-        
-`ifdef SYNC_RESET_MODE 
-            always @ (posedge clk )begin 
-`else 
-            always @ (posedge clk or posedge reset)begin 
-`endif         
-        
-           
-                    if(reset)begin
-                        depth[i]<={DEPTH_WIDTH{1'b0}};
-                    end else begin
-                        if(  wr_in[i]   && ~credit_in[i])   depth[i] <= depth[i]+1'b1;
-                        if( ~wr_in[i]   &&  credit_in[i])   depth[i] <= depth[i]-1'b1;
-                    end //reset
-            end//always
-
-            assign  full_vc[i]       = (depth[i] == B);
-            assign  nearly_full_vc[i]= (depth[i] >= B_1);
-            assign  empty_vc[i]      = (depth[i] == {DEPTH_WIDTH{1'b0}});
-        end//for
+	    assign  full_vc[i]   = (credit[i] == {DEPTH_WIDTH{1'b0}});
+	    assign  nearly_full_vc[i]=  (credit[i] == 1) |  full_vc[i];
+	    assign  empty_vc[i]  = (credit[i] == credit_init_val_in[i][DEPTH_WIDTH-1:0]);
+      end//for
     endgenerate
 endmodule
  

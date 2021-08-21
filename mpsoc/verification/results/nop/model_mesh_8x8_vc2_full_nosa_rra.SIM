@@ -42,7 +42,7 @@ $simulate = bless( {
                                                               'PCK_TYPE',
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'SELF_LOOP_EN'
                                                             ],
                                              'noc_type' => [
@@ -105,7 +105,7 @@ $simulate = bless( {
                                       'SELF_LOOP_EN' => '"NO"',
                                       'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
                                       'V' => '2',
-                                      'SBP_MAX' => '0',
+                                      'SMART_MAX' => '0',
                                       'BYTE_EN' => 0,
                                       'Fpay' => '32',
                                       'WEIGHTw' => '4',

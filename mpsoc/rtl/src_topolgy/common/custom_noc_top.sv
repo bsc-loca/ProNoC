@@ -13,8 +13,8 @@ module   custom_noc_top
     
 	input   clk,reset;
 	//local ports 
-	input   router_chanel_t chan_in_all  [NE-1 : 0];
-	output  router_chanel_t chan_out_all [NE-1 : 0];
+	input   smartflit_chanel_t chan_in_all  [NE-1 : 0];
+	output  smartflit_chanel_t chan_out_all [NE-1 : 0];
 	
 	   
 

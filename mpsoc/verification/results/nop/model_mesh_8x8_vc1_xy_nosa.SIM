@@ -118,7 +118,7 @@ $simulate = bless( {
                                                               'PCK_TYPE',
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'SELF_LOOP_EN'
                                                             ],
                                              'fpga_param' => [
@@ -176,7 +176,7 @@ $simulate = bless( {
                                       'C' => 0,
                                       'CONGESTION_INDEX' => 3,
                                       'AVC_ATOMIC_EN' => 0,
-                                      'SBP_MAX' => '0',
+                                      'SMART_MAX' => '0',
                                       'V' => 1,
                                       'PCK_TYPE' => '"MULTI_FLIT"',
                                       'MUX_TYPE' => '"BINARY"',

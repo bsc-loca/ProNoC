@@ -2167,7 +2167,7 @@ $simulate = bless( {
                                                     'ROUTE_NAME' => '"XY"',
                                                     'PCK_TYPE' => '"SINGLE_FLIT"',
                                                     'BYTE_EN' => 0,
-                                                    'SBP_MAX' => '4',
+                                                    'SMART_MAX' => '4',
                                                     'VC_REALLOCATION_TYPE' => '"ATOMIC"',
                                                     'FIRST_ARBITER_EXT_P_EN' => 1,
                                                     'T1' => '4',
@@ -2299,7 +2299,7 @@ $simulate = bless( {
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
                                                               'SSA_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'CONGESTION_INDEX',
                                                               'ESCAP_VC_MASK',
                                                               'VC_REALLOCATION_TYPE',
@@ -2353,7 +2353,7 @@ $simulate = bless( {
                                     },
                      'status' => 'ideal',
                      'graph_save' => {
-                                       'name' => '/home/alireza/work/develop/SBP/paper/smart++/4x4.png',
+                                       'name' => '/home/alireza/work/develop/SMART/paper/smart++/4x4.png',
                                        'save_result' => 0,
                                        'save' => 0,
                                        'save_all_result' => 0,
@@ -2377,7 +2377,7 @@ $simulate = bless( {
                      'noc_param' => {
                                       'FIRST_ARBITER_EXT_P_EN' => 1,
                                       'VC_REALLOCATION_TYPE' => '"ATOMIC"',
-                                      'SBP_MAX' => '4',
+                                      'SMART_MAX' => '4',
                                       'BYTE_EN' => 0,
                                       'T1' => '4',
                                       'SSA_EN' => '"NO"',
@@ -2934,7 +2934,7 @@ $simulate = bless( {
                                     'noc_info' => {
                                                     'T1' => '4',
                                                     'BYTE_EN' => 0,
-                                                    'SBP_MAX' => '4',
+                                                    'SMART_MAX' => '4',
                                                     'VC_REALLOCATION_TYPE' => '"ATOMIC"',
                                                     'FIRST_ARBITER_EXT_P_EN' => 1,
                                                     'T3' => '1',
@@ -6199,7 +6199,7 @@ $simulate = bless( {
                                                            '29' => '4387'
                                                          },
                                     'noc_info' => {
-                                                    'SBP_MAX' => '4',
+                                                    'SMART_MAX' => '4',
                                                     'BYTE_EN' => 0,
                                                     'FIRST_ARBITER_EXT_P_EN' => 1,
                                                     'VC_REALLOCATION_TYPE' => '"ATOMIC"',
@@ -8904,7 +8904,7 @@ $simulate = bless( {
                                                     'T3' => '1',
                                                     'COMBINATION_TYPE' => '"COMB_NONSPEC"',
                                                     'BYTE_EN' => 0,
-                                                    'SBP_MAX' => '4',
+                                                    'SMART_MAX' => '4',
                                                     'VC_REALLOCATION_TYPE' => '"ATOMIC"',
                                                     'FIRST_ARBITER_EXT_P_EN' => 1,
                                                     'T1' => '4',

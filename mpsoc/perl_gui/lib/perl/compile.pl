@@ -2762,7 +2762,7 @@ $tile_addr
 		clk_posedge_event( );
 		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values 
 		//between modules when the clock . 
-		for (i=0;i<2*(SBP_MAX+1);i++) clk_negedge_event( );
+		for (i=0;i<2*(SMART_MAX+1);i++) clk_negedge_event( );
 
 		main_time++;  
 	}//while

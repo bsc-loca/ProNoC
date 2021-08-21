@@ -808,13 +808,13 @@ if($topology ne '"CUSTOM"' ){
     $info="Enable single cycle latency on packets traversing in the same direction using static straight allocator (SSA)"; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);
     
-    #SBP
+    #SMART
     $label='Max Streight Bypass'; 
-    $param='SBP_MAX';
+    $param='SMART_MAX';
     $default='0';
     $content="0,1,2,3,4,5,6,7,8,9";
     $type='Combo-box';
-    $info="If Max Streight Bypass (SBP_MAX) is defined as n>0 then packets are allowed to bypass Maximum of n routers in streight direction in single cycle."; 
+    $info="If Max Streight Bypass (SMART_MAX) is defined as n>0 then packets are allowed to bypass Maximum of n routers in streight direction in single cycle."; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);
    
     
@@ -934,9 +934,9 @@ if($topology ne '"CUSTOM"' ){
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param');
     
     
-    #MAX_SBP_NUM = 4 // 
+    #MAX_SMART_NUM = 4 // 
     $label="Number of multiple router bypassing ";    
-    $param="MAX_SBP_NUM ";
+    $param="MAX_SMART_NUM ";
     $type='Spin-button';
     $content='0,1,1';
     $default=0;

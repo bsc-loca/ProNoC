@@ -45,7 +45,7 @@ $emulate = bless( {
                                      'ROUTE_NAME' => '"XY"',
                                      'T1' => '2',
                                      'CONGESTION_INDEX' => 3,
-                                     'SBP_MAX' => '0'
+                                     'SMART_MAX' => '0'
                                    },
                     'compile' => {
                                    'quartus bin' => '/home/alireza/intelFPGA_lite/questa/questasim/bin/',
@@ -212,7 +212,7 @@ $emulate = bless( {
                                                              'MIN_PCK_SIZE',
                                                              'BYTE_EN',
                                                              'SSA_EN',
-                                                             'SBP_MAX',
+                                                             'SMART_MAX',
                                                              'CONGESTION_INDEX',
                                                              'ESCAP_VC_MASK',
                                                              'VC_REALLOCATION_TYPE',

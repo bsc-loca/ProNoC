@@ -80,7 +80,7 @@ $simulate = bless( {
                                                               'PCK_TYPE',
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'SELF_LOOP_EN'
                                                             ],
                                              'compile' => [
@@ -138,7 +138,7 @@ $simulate = bless( {
                                       'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
                                       'ROUTE_NAME' => '"XY"',
                                       'V' => '2',
-                                      'SBP_MAX' => '0',
+                                      'SMART_MAX' => '0',
                                       'FIRST_ARBITER_EXT_P_EN' => 1,
                                       'CONGESTION_INDEX' => 3,
                                       'LB' => '4',

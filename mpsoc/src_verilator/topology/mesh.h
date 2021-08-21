@@ -153,7 +153,7 @@ void topology_connect_all_nodes (void){
 				} else { //last_node
 					
 					#if defined (IS_LINE) // : line_last_x
-						//assign  router_chan_in[x][FORWARD]= {ROUTER_CHANEL_w{1'b0}};
+						//assign  router_chan_in[x][FORWARD]= {SMARTFLIT_CHANEL_w{1'b0}};
 						connect_r2gnd(1,x,FORWARD);				      
 					#else // : ring_last_x
 						//assign router_chan_in[x][FORWARD]= router_chan_out [0][BACKWARD];
@@ -167,7 +167,7 @@ void topology_connect_all_nodes (void){
 				
 				}else {// :first_x
 					#if defined (IS_LINE) // : line_first_x
-						//assign  router_chan_in[x][BACKWARD]={ROUTER_CHANEL_w{1'b0}};					
+						//assign  router_chan_in[x][BACKWARD]={SMARTFLIT_CHANEL_w{1'b0}};					
 						connect_r2gnd(1,x,BACKWARD);
 					#else // : ring_first_x
 						//assign  router_chan_in[x][BACKWARD]= router_chan_out [(NX-1)][FORWARD];											
@@ -203,7 +203,7 @@ void topology_connect_all_nodes (void){
 									
 				}else {// :last_x
 					#if defined (IS_MESH) // :last_x_mesh
-						//	assign router_chan_in[`router_id(x,y)][EAST] = {ROUTER_CHANEL_w{1'b0}};					
+						//	assign router_chan_in[`router_id(x,y)][EAST] = {SMARTFLIT_CHANEL_w{1'b0}};					
 						connect_r2gnd(1,router_id(x,y),EAST);
 					#elif defined (IS_TORUS) // : last_x_torus
 						//assign router_chan_in[`router_id(x,y)][EAST] = router_chan_out [`router_id(0,y)][WEST];
@@ -222,7 +222,7 @@ void topology_connect_all_nodes (void){
 					conect_r2r(1,router_id(x,y),NORTH,1,router_id(x,(y-1)),SOUTH);		
 				}else {// :first_y
 					#if defined (IS_MESH) // : first_y_mesh
-					 	//assign router_chan_in[`router_id(x,y)][NORTH] =  {ROUTER_CHANEL_w{1'b0}};												
+					 	//assign router_chan_in[`router_id(x,y)][NORTH] =  {SMARTFLIT_CHANEL_w{1'b0}};												
 					 	connect_r2gnd(1,router_id(x,y),NORTH);	 
 					#elif defined (IS_TORUS)// :first_y_torus
 						//assign router_chan_in[`router_id(x,y)][NORTH] =  router_chan_out [`router_id(x,(T2-1))][SOUTH];
@@ -241,7 +241,7 @@ void topology_connect_all_nodes (void){
 				}else {// :first_x
 					 
 					#if defined (IS_MESH) // :first_x_mesh
-						//assign    router_chan_in[`router_id(x,y)][WEST] =   {ROUTER_CHANEL_w{1'b0}};
+						//assign    router_chan_in[`router_id(x,y)][WEST] =   {SMARTFLIT_CHANEL_w{1'b0}};
 						connect_r2gnd(1,router_id(x,y),WEST);							
 						                
 					#elif defined (IS_TORUS) // :first_x_torus
@@ -261,7 +261,7 @@ void topology_connect_all_nodes (void){
 					 
 					#if defined (IS_MESH) // :ly_mesh
 						 
-						//assign  router_chan_in[`router_id(x,y)][SOUTH]=  {ROUTER_CHANEL_w{1'b0}};
+						//assign  router_chan_in[`router_id(x,y)][SOUTH]=  {SMARTFLIT_CHANEL_w{1'b0}};
 						connect_r2gnd(1,router_id(x,y),SOUTH);	
 						 
 					#elif defined (IS_TORUS) // :ly_torus

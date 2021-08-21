@@ -29,7 +29,7 @@
 	localparam AVC_ATOMIC_EN=0;
 	localparam CLASS_SETTING={V{1'b1}};
  	localparam CVw=(C==0)? V : C * V;
- 	localparam SBP_MAX=0;
+ 	localparam SMART_MAX=0;
     localparam SELF_LOOP_EN="YES";
 	
 	

@@ -55,8 +55,8 @@ module  noc_emulator
    
    
     //noc connection channels
-    router_chanel_t chan_in_all  [NE-1 : 0];
-	router_chanel_t chan_out_all [NE-1 : 0];
+    smartflit_chanel_t chan_in_all  [NE-1 : 0];
+	smartflit_chanel_t chan_out_all [NE-1 : 0];
 
 	noc_top the_top(
 		.reset(reset),
@@ -147,8 +147,8 @@ module  Jtag_traffic_gen
     output done;
    
     // NOC interfaces
-    input  router_chanel_t chan_in_all  [NE-1 : 0];
-	output router_chanel_t chan_out_all [NE-1 : 0];
+    input  smartflit_chanel_t chan_in_all  [NE-1 : 0];
+	output smartflit_chanel_t chan_out_all [NE-1 : 0];
    
      
  
@@ -286,7 +286,7 @@ module  Jtag_traffic_gen
           (
           	.reset(reset),
           	.clk(clk),
-          	.current_r_addr(chan_in_all[i].flit_chanel.neighbors_r_addr),
+          	.current_r_addr(chan_in_all[i].ctrl_chanel.neighbors_r_addr),
             .current_e_addr(current_e_addr[i]),
           	.start(start[i]),
           	.done(done_sep[i]),
@@ -430,8 +430,8 @@ module  traffic_gen_ram
     
     
     // NOC interfaces
-    input   router_chanel_t 	chan_in;
-	output  router_chanel_t 	chan_out;  
+    input   smartflit_chanel_t 	chan_in;
+	output  smartflit_chanel_t 	chan_out;  
      
   
    

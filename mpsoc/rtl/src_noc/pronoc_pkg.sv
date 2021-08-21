@@ -22,8 +22,8 @@ localparam
 	NEw = log2(NE),
 	Bw  = log2(B),	
 	WRRA_CONFIG_INDEX=0,
-	SBP_EN = (SBP_MAX !=0),
-	SBP_NUM= (SBP_EN) ? SBP_MAX : 1,	
+	SMART_EN = (SMART_MAX !=0),
+	SMART_NUM= (SMART_EN) ? SMART_MAX : 1,	
 	NEV  = NE * V,
 	T4 = 0,
 	BEw = (BYTE_EN)? log2(Fpay/8) : 1,
@@ -95,22 +95,22 @@ localparam
  	
  	
 /*********************
-*    sbp : straight bypass allocator:
+*    smart : straight bypass allocator:
 *    enable multihub bypassing for flits goes to the same direction
 *********************/
 	typedef struct packed {
 		logic [EAw-1 : 0] dest_e_addr;
 		logic ovc_is_assigned;
 		logic [Vw-1   : 0] assigned_ovc_bin;		
-	} sbp_ivc_info_t;
-	localparam SBP_IVC_w = $bits(sbp_ivc_info_t);
+	} smart_ivc_info_t;
+	localparam SMART_IVC_w = $bits(smart_ivc_info_t);
 	
 	
 	
 	typedef struct packed {
-		bit		sbp_en;
+		bit		smart_en;
 		bit     hdr_flit_req;
-		logic 	[V-1 : 0]        ivc_sbp_en;
+		logic 	[V-1 : 0]        ivc_smart_en;
 		logic   [DSTPw-1  :   0] lk_destport;
 		logic   [DSTPw-1  :   0] destport;
 		logic   [V-1 : 0] credit_out;
@@ -123,8 +123,8 @@ localparam
 		logic   [V-1 : 0] ivc_single_flit_pck;
 		logic   [V-1 : 0] ovc_single_flit_pck;
 		logic   [V*V-1: 0] ivc_granted_ovc_num;
-	} sbp_ctrl_t;	
-	localparam  SBP_CTRL_w = $bits(sbp_ctrl_t);
+	} smart_ctrl_t;	
+	localparam  SMART_CTRL_w = $bits(smart_ctrl_t);
 	
 	/*****************
 	 * port_info
@@ -140,7 +140,7 @@ localparam
 	localparam  IPORT_INFO_w = $bits(iport_info_t);
 	
 	typedef struct packed {
-		logic [V-1 : 0] non_sbp_ovc_is_allocated;
+		logic [V-1 : 0] non_smart_ovc_is_allocated;
 		//logic [V-1 : 0] ovc_is_released;
 		//logic [V-1 : 0] ovc_credit_increased; 
 		//logic [V-1 : 0] ovc_credit_decreased;
@@ -226,8 +226,7 @@ localparam
 	
 	
 	
-	typedef struct packed {
-		logic  [RAw-1:  0]  neighbors_r_addr;
+	typedef struct packed {		
 		flit_t  flit;
 		logic  flit_wr;
 		logic  [V-1 :  0]  credit;
@@ -238,18 +237,28 @@ localparam
 	
 	typedef struct packed {
 		logic [V-1   	: 0] ovc;
-		logic [SBP_NUM-1: 0] requests;
+		logic [SMART_NUM-1: 0] requests;
 		logic [EAw-1 	: 0] dest_e_addr;
 		bit   hdr_flit;
-	} sbp_chanel_t;
-	localparam SBP_CHANEL_w = $bits(sbp_chanel_t);
+	} smart_chanel_t;
+	localparam SMART_CHANEL_w = $bits(smart_chanel_t);
 	
+
+	localparam CRDTw = (B>LB) ? log2(B+1) : log2(LB+1);
+	typedef struct packed {
+		logic [RAw-1:   0]  neighbors_r_addr;
+		logic [V-1  :0] [CRDTw-1: 0] credit_init_val; // the connected port initial credit value. It is taken at reset time		
+	} ctrl_chanel_t; 
+	localparam CTRL_CHANEL_w = $bits(ctrl_chanel_t);
 	
 	typedef struct packed {
-		flit_chanel_t  flit_chanel;
-		sbp_chanel_t   sbp_chanel; 		
-	} router_chanel_t;
-	localparam ROUTER_CHANEL_w = $bits(router_chanel_t); 
+		flit_chanel_t    flit_chanel;
+		smart_chanel_t   smart_chanel; 
+		ctrl_chanel_t    ctrl_chanel;
+	} smartflit_chanel_t;
+	localparam SMARTFLIT_CHANEL_w = $bits(smartflit_chanel_t); 
+	
+	
 	
 	
 /***********

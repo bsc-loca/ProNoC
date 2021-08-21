@@ -5,3 +5,4 @@ mpsoc/perl_gui/lib/mpsoc/*.MPSOC
 !mpsoc/perl_gui/lib/mpsoc/mor1k_mpsoc.MPSOC
 mpsoc/perl_gui/lib/soc/*.SOC
 !mpsoc/perl_gui/lib/soc/mor1k_tile.SOC
+

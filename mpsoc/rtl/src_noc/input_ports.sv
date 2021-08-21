@@ -64,7 +64,8 @@ module input_ports
 			ivc_info,
 			vsa_ctrl_in,
 			ssa_ctrl_in,
-			sbp_ctrl_in,
+			smart_ctrl_in,
+			credit_init_val_out,
 			reset,
 			clk
 		);
@@ -119,8 +120,8 @@ module input_ports
 	output  ivc_info_t ivc_info [P-1 : 0][V-1 : 0]; 
 	input   vsa_ctrl_t  vsa_ctrl_in [P-1: 0];
 	input   ssa_ctrl_t  ssa_ctrl_in [P-1: 0];
-	input   sbp_ctrl_t  sbp_ctrl_in [P-1 : 0];
-	
+	input   smart_ctrl_t  smart_ctrl_in [P-1 : 0];
+	output  [CRDTw-1 : 0 ] credit_init_val_out [P-1 : 0][V-1 : 0];
 	
 	input refresh_w_counter;
     
@@ -169,8 +170,10 @@ module input_ports
 					.granted_dest_port(granted_dest_port_all[(i+1)*P_1-1 : i*P_1]),
 					.ivc_info(ivc_info[i]),
 					.vsa_ctrl_in(vsa_ctrl_in [i]),
-					.sbp_ctrl_in(sbp_ctrl_in [i]),
-					.ssa_ctrl_in(ssa_ctrl_in [i])
+					.smart_ctrl_in(smart_ctrl_in [i]),
+					.ssa_ctrl_in(ssa_ctrl_in [i]),
+					.credit_init_val_out(credit_init_val_out[i])
+					
 				);
     
 		end//for      
@@ -222,9 +225,10 @@ module input_queue_per_port
 			refresh_w_counter,
 			granted_dest_port,
 			ivc_info,
-			sbp_ctrl_in,
+			smart_ctrl_in,
 			vsa_ctrl_in,
-			ssa_ctrl_in
+			ssa_ctrl_in,
+			credit_init_val_out
 		);
 
  
@@ -255,7 +259,7 @@ module input_queue_per_port
 		OFFSET = (PORT_B%MIN_PCK_SIZE)? 1 :0,
 		NON_ATOM_PCKS =  (PORT_B>MIN_PCK_SIZE)?  (PORT_B/MIN_PCK_SIZE)+ OFFSET : 1,
 		MAX_PCK = (VC_REALLOCATION_TYPE== "ATOMIC")?  1 : NON_ATOM_PCKS + OVC_ALLOC_MODE,// min packet size is two hence the max packet number in buffer is (B/2)
-		IGNORE_SAME_LOC_RD_WR_WARNING = ((SSA_EN=="YES")| SBP_EN)? "YES" : "NO";
+		IGNORE_SAME_LOC_RD_WR_WARNING = ((SSA_EN=="YES")| SMART_EN)? "YES" : "NO";
 	         
 
 	localparam 
@@ -298,9 +302,10 @@ module input_queue_per_port
 	input   [V-1  : 0]  swap_port_presel;
   
 	output  ivc_info_t ivc_info [V-1 : 0]; 
-	input   sbp_ctrl_t  sbp_ctrl_in;
+	input   smart_ctrl_t  smart_ctrl_in;
 	input   vsa_ctrl_t  vsa_ctrl_in;
 	input   ssa_ctrl_t  ssa_ctrl_in;
+	output  [CRDTw-1 : 0 ] credit_init_val_out [V-1 : 0];
     
 	wire [Cw-1 : 0] class_in;
 	wire [DSTPw-1 : 0] destport_in,destport_in_encoded;
@@ -320,7 +325,7 @@ module input_queue_per_port
 	wire [Cw-1 : 0] class_out [V-1 : 0];
 	wire [VPLw-1 : 0] endp_localp_num;
 	          
-	wire [V-1 : 0] sbp_hdr_en;
+	wire [V-1 : 0] smart_hdr_en;
 	wire [ELw-1 : 0] endp_l_in;
 	wire [Pw-1 : 0] endp_p_in;
 	
@@ -333,12 +338,12 @@ module input_queue_per_port
 	wire [P-1 : 0] destport_one_hot [V-1 :0];		
 	wire [V-1 : 0] mux_out[V-1 : 0];
 	
-	assign sbp_hdr_en  = (SBP_EN) ? sbp_ctrl_in.ivc_num_getting_ovc_grant: {V{1'b0}};
-	assign reset_ivc  = sbp_ctrl_in.ivc_reset | ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset;
+	assign smart_hdr_en  = (SMART_EN) ? smart_ctrl_in.ivc_num_getting_ovc_grant: {V{1'b0}};
+	assign reset_ivc  = smart_ctrl_in.ivc_reset | ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset;
 	assign ivc_num_getting_sw_grant = ssa_ctrl_in.ivc_num_getting_sw_grant | vsa_ctrl_in.ivc_num_getting_sw_grant;
 	assign flit_wr =(flit_in_wr )? vc_num_in : {V{1'b0}};
-	assign rd_hdr_fwft_fifo  = ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset | (sbp_ctrl_in.ivc_reset  & ~ sbp_ctrl_in.ivc_single_flit_pck);
-	assign wr_hdr_fwft_fifo  = hdr_flit_wr | (sbp_hdr_en & ~ sbp_ctrl_in.ivc_single_flit_pck);
+	assign rd_hdr_fwft_fifo  = ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset | (smart_ctrl_in.ivc_reset  & ~ smart_ctrl_in.ivc_single_flit_pck);
+	assign wr_hdr_fwft_fifo  = hdr_flit_wr | (smart_hdr_en & ~ smart_ctrl_in.ivc_single_flit_pck);
 	assign ivc_request = ivc_not_empty;    
 	
 	
@@ -471,7 +476,7 @@ module input_queue_per_port
 		
 		for (i=0;i<V; i=i+1) begin: V_
 	
-			
+			assign credit_init_val_out [i] = PORT_B [CRDTw-1 : 0 ];
 				
 			
 			one_hot_to_bin #(.ONE_HOT_WIDTH(V),.BIN_WIDTH(Vw)) conv (
@@ -525,19 +530,19 @@ module input_queue_per_port
 					ovc_is_assigned_next[i] = ovc_is_assigned[i];		
 					if( vsa_ctrl_in.ivc_reset[i] |
 							ssa_ctrl_in.ivc_reset[i] |
-							sbp_ctrl_in.ivc_reset[i] 
+							smart_ctrl_in.ivc_reset[i] 
 						)  	ovc_is_assigned_next[i] = 1'b0;
 				
 					else if( vsa_ctrl_in.ivc_num_getting_ovc_grant[i] |
 							(ssa_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  ssa_ctrl_in.ivc_single_flit_pck[i])|
-							(sbp_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  sbp_ctrl_in.ivc_single_flit_pck[i])
+							(smart_ctrl_in.ivc_num_getting_ovc_grant[i] & ~  smart_ctrl_in.ivc_single_flit_pck[i])
 						)       ovc_is_assigned_next[i] = 1'b1;		
 				end//always
 				
 				
 				always @(*) begin
 					assigned_ovc_num_next[(i+1)*V-1 : i*V] = assigned_ovc_num[(i+1)*V-1 : i*V] ;
-					if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | sbp_ctrl_in.ivc_num_getting_ovc_grant[i] ) begin 
+					if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | smart_ctrl_in.ivc_num_getting_ovc_grant[i] ) begin 
 						assigned_ovc_num_next[(i+1)*V-1 : i*V] = mux_out[i];
 					end
 				end
@@ -548,8 +553,8 @@ module input_queue_per_port
 					) hot_mux (
 						.in     ({vsa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V], 
 								ssa_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V],
-								sbp_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V]}), 
-						.sel        ({vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],sbp_ctrl_in.ivc_num_getting_ovc_grant[i]}  ),
+								smart_ctrl_in.ivc_granted_ovc_num[(i+1)*V-1 : i*V]}), 
+						.sel        ({vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],smart_ctrl_in.ivc_num_getting_ovc_grant[i]}  ),
 						.out    (mux_out[i]   ) 
 					);
 					
@@ -599,7 +604,7 @@ module input_queue_per_port
 				
 			end
 			//dest_e_addr_in fifo
-			if(SBP_EN) begin : sbp_
+			if(SMART_EN) begin : smart_
         	
 				fwft_fifo #(
 						.DATA_WIDTH(EAw),
@@ -620,7 +625,7 @@ module input_queue_per_port
 						.clk (clk)            
 					);   	
         	
-			end	else begin : no_sbp
+			end	else begin : no_smart
 				assign ivc_info[i].dest_e_addr = {EAw{1'bx}};
 			end	
         
@@ -878,6 +883,7 @@ module input_queue_per_port
 				)
 				the_flit_buffer
 				(
+					
 					.din(flit_in),     // Data in
 					.vc_num_wr(vc_num_in),//write virtual channel   
 					.vc_num_rd(nonspec_first_arbiter_granted_ivc),//read virtual channel     
@@ -977,14 +983,14 @@ module input_queue_per_port
 		
 		for (i=0;i<V;i=i+1)begin : V_       
 		always @ (posedge clk) begin
-			if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | (sbp_ctrl_in.ivc_num_getting_ovc_grant[i] & (PCK_TYPE == "MULTI_FLIT"))  )begin 
+			if(vsa_ctrl_in.ivc_num_getting_ovc_grant[i] | ssa_ctrl_in.ivc_num_getting_ovc_grant[i] | (smart_ctrl_in.ivc_num_getting_ovc_grant[i] & (PCK_TYPE == "MULTI_FLIT"))  )begin 
 				if( ~ $onehot (mux_out[i])) begin 
 					$display("%t: ERROR: granted OVC num is not onehot coded %b: %m",$time,mux_out[i]);
 					$finish;
 				end
 			end					
-			if( ~ $onehot0( {vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],(sbp_ctrl_in.ivc_num_getting_ovc_grant[i]&& (PCK_TYPE == "MULTI_FLIT"))})) begin 
-				$display("%t: ERROR: ivc num %d getting more than one ovc grant from VSA,SSA,SBP: %m",$time,i);
+			if( ~ $onehot0( {vsa_ctrl_in.ivc_num_getting_ovc_grant[i],ssa_ctrl_in.ivc_num_getting_ovc_grant[i],(smart_ctrl_in.ivc_num_getting_ovc_grant[i]&& (PCK_TYPE == "MULTI_FLIT"))})) begin 
+				$display("%t: ERROR: ivc num %d getting more than one ovc grant from VSA,SSA,SMART: %m",$time,i);
 				$finish;
 			end		
 		end//always

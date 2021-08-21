@@ -52,7 +52,7 @@ $simulate = bless( {
                                                               'PCK_TYPE',
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'SELF_LOOP_EN'
                                                             ],
                                              'sim_param' => [
@@ -166,7 +166,7 @@ $simulate = bless( {
                                       'WEIGHTw' => '4',
                                       'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b0',
                                       'TOPOLOGY' => '"MESH"',
-                                      'SBP_MAX' => '0',
+                                      'SMART_MAX' => '0',
                                       'SWA_ARBITER_TYPE' => '"RRA"',
                                       'MUX_TYPE' => '"BINARY"',
                                       'SSA_EN' => '"YES"',

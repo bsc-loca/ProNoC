@@ -198,7 +198,7 @@ The NI releases the wishbone bus  each time one burst is completed or when the V
                                                    'type' => 'output'
                                                  },
                                'chan_in' => {
-                                              'range' => 'router_chanel_t',
+                                              'range' => 'smartflit_chanel_t',
                                               'intfc_port' => 'chan_in',
                                               'type' => 'input',
                                               'intfc_name' => 'socket:ni[0]'
@@ -225,7 +225,7 @@ The NI releases the wishbone bus  each time one burst is completed or when the V
                                                'type' => 'output',
                                                'intfc_name' => 'socket:ni[0]',
                                                'intfc_port' => 'chan_out',
-                                               'range' => 'router_chanel_t'
+                                               'range' => 'smartflit_chanel_t'
                                              },
                                'm_send_we_o' => {
                                                   'intfc_name' => 'plug:wb_master[0]',

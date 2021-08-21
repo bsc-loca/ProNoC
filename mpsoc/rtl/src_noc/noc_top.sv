@@ -43,8 +43,8 @@ module  noc_top
   	
 	input   clk,reset;
 	//local ports 
-	input   router_chanel_t chan_in_all  [NE-1 : 0];
-	output  router_chanel_t chan_out_all [NE-1 : 0];
+	input   smartflit_chanel_t chan_in_all  [NE-1 : 0];
+	output  smartflit_chanel_t chan_out_all [NE-1 : 0];
 
  
    
@@ -134,8 +134,8 @@ module  noc_top_v
 
 
 	//struct typed array ports which cannot be caled in verilog 
-	router_chanel_t chan_in_all  [NE-1 : 0];
-	router_chanel_t chan_out_all [NE-1 : 0];
+	smartflit_chanel_t chan_in_all  [NE-1 : 0];
+	smartflit_chanel_t chan_out_all [NE-1 : 0];
 
 	noc_top the_top(
 		.reset(reset),

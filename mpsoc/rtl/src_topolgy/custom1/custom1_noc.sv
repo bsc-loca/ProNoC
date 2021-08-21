@@ -104,98 +104,98 @@ module   custom1_noc
 	/*******************
 	*		T0
 	*******************/
-	input  router_chanel_t T0_chan_in;
-	output router_chanel_t T0_chan_out;
+	input  smartflit_chanel_t T0_chan_in;
+	output smartflit_chanel_t T0_chan_out;
 
 	/*******************
 	*		T1
 	*******************/
-	input  router_chanel_t T1_chan_in;
-	output router_chanel_t T1_chan_out;
+	input  smartflit_chanel_t T1_chan_in;
+	output smartflit_chanel_t T1_chan_out;
 
 	/*******************
 	*		T2
 	*******************/
-	input  router_chanel_t T2_chan_in;
-	output router_chanel_t T2_chan_out;
+	input  smartflit_chanel_t T2_chan_in;
+	output smartflit_chanel_t T2_chan_out;
 
 	/*******************
 	*		T3
 	*******************/
-	input  router_chanel_t T3_chan_in;
-	output router_chanel_t T3_chan_out;
+	input  smartflit_chanel_t T3_chan_in;
+	output smartflit_chanel_t T3_chan_out;
 
 	/*******************
 	*		T4
 	*******************/
-	input  router_chanel_t T4_chan_in;
-	output router_chanel_t T4_chan_out;
+	input  smartflit_chanel_t T4_chan_in;
+	output smartflit_chanel_t T4_chan_out;
 
 	/*******************
 	*		T5
 	*******************/
-	input  router_chanel_t T5_chan_in;
-	output router_chanel_t T5_chan_out;
+	input  smartflit_chanel_t T5_chan_in;
+	output smartflit_chanel_t T5_chan_out;
 
 	/*******************
 	*		T6
 	*******************/
-	input  router_chanel_t T6_chan_in;
-	output router_chanel_t T6_chan_out;
+	input  smartflit_chanel_t T6_chan_in;
+	output smartflit_chanel_t T6_chan_out;
 
 	/*******************
 	*		T7
 	*******************/
-	input  router_chanel_t T7_chan_in;
-	output router_chanel_t T7_chan_out;
+	input  smartflit_chanel_t T7_chan_in;
+	output smartflit_chanel_t T7_chan_out;
 
 	/*******************
 	*		T8
 	*******************/
-	input  router_chanel_t T8_chan_in;
-	output router_chanel_t T8_chan_out;
+	input  smartflit_chanel_t T8_chan_in;
+	output smartflit_chanel_t T8_chan_out;
 
 	/*******************
 	*		T9
 	*******************/
-	input  router_chanel_t T9_chan_in;
-	output router_chanel_t T9_chan_out;
+	input  smartflit_chanel_t T9_chan_in;
+	output smartflit_chanel_t T9_chan_out;
 
 	/*******************
 	*		T10
 	*******************/
-	input  router_chanel_t T10_chan_in;
-	output router_chanel_t T10_chan_out;
+	input  smartflit_chanel_t T10_chan_in;
+	output smartflit_chanel_t T10_chan_out;
 
 	/*******************
 	*		T11
 	*******************/
-	input  router_chanel_t T11_chan_in;
-	output router_chanel_t T11_chan_out;
+	input  smartflit_chanel_t T11_chan_in;
+	output smartflit_chanel_t T11_chan_out;
 
 	/*******************
 	*		T12
 	*******************/
-	input  router_chanel_t T12_chan_in;
-	output router_chanel_t T12_chan_out;
+	input  smartflit_chanel_t T12_chan_in;
+	output smartflit_chanel_t T12_chan_out;
 
 	/*******************
 	*		T13
 	*******************/
-	input  router_chanel_t T13_chan_in;
-	output router_chanel_t T13_chan_out;
+	input  smartflit_chanel_t T13_chan_in;
+	output smartflit_chanel_t T13_chan_out;
 
 	/*******************
 	*		T14
 	*******************/
-	input  router_chanel_t T14_chan_in;
-	output router_chanel_t T14_chan_out;
+	input  smartflit_chanel_t T14_chan_in;
+	output smartflit_chanel_t T14_chan_out;
 
 	/*******************
 	*		T15
 	*******************/
-	input  router_chanel_t T15_chan_in;
-	output router_chanel_t T15_chan_out;
+	input  smartflit_chanel_t T15_chan_in;
+	output smartflit_chanel_t T15_chan_out;
 
 	/*******************
 	*		R0
@@ -204,8 +204,8 @@ module   custom1_noc
 	wire R0_reset;
 	wire [RAw-1 :  0] R0_current_r_addr;
 
-	router_chanel_t    R0_chan_in   [3-1 : 0];
-	router_chanel_t    R0_chan_out  [3-1 : 0]; 
+	smartflit_chanel_t    R0_chan_in   [3-1 : 0];
+	smartflit_chanel_t    R0_chan_out  [3-1 : 0]; 
 
 
 	/*******************
@@ -215,8 +215,8 @@ module   custom1_noc
 	wire R1_reset;
 	wire [RAw-1 :  0] R1_current_r_addr;
 
-	router_chanel_t    R1_chan_in   [3-1 : 0];
-	router_chanel_t    R1_chan_out  [3-1 : 0]; 
+	smartflit_chanel_t    R1_chan_in   [3-1 : 0];
+	smartflit_chanel_t    R1_chan_out  [3-1 : 0]; 
 
 
 	/*******************
@@ -226,8 +226,8 @@ module   custom1_noc
 	wire R2_reset;
 	wire [RAw-1 :  0] R2_current_r_addr;
 
-	router_chanel_t    R2_chan_in   [3-1 : 0];
-	router_chanel_t    R2_chan_out  [3-1 : 0]; 
+	smartflit_chanel_t    R2_chan_in   [3-1 : 0];
+	smartflit_chanel_t    R2_chan_out  [3-1 : 0]; 
 
 
 	/*******************
@@ -237,8 +237,8 @@ module   custom1_noc
 	wire R3_reset;
 	wire [RAw-1 :  0] R3_current_r_addr;
 
-	router_chanel_t    R3_chan_in   [3-1 : 0];
-	router_chanel_t    R3_chan_out  [3-1 : 0]; 
+	smartflit_chanel_t    R3_chan_in   [3-1 : 0];
+	smartflit_chanel_t    R3_chan_out  [3-1 : 0]; 
 
 
 	/*******************
@@ -248,8 +248,8 @@ module   custom1_noc
 	wire R4_reset;
 	wire [RAw-1 :  0] R4_current_r_addr;
 
-	router_chanel_t    R4_chan_in   [4-1 : 0];
-	router_chanel_t    R4_chan_out  [4-1 : 0]; 
+	smartflit_chanel_t    R4_chan_in   [4-1 : 0];
+	smartflit_chanel_t    R4_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -259,8 +259,8 @@ module   custom1_noc
 	wire R5_reset;
 	wire [RAw-1 :  0] R5_current_r_addr;
 
-	router_chanel_t    R5_chan_in   [4-1 : 0];
-	router_chanel_t    R5_chan_out  [4-1 : 0]; 
+	smartflit_chanel_t    R5_chan_in   [4-1 : 0];
+	smartflit_chanel_t    R5_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -270,8 +270,8 @@ module   custom1_noc
 	wire R6_reset;
 	wire [RAw-1 :  0] R6_current_r_addr;
 
-	router_chanel_t    R6_chan_in   [4-1 : 0];
-	router_chanel_t    R6_chan_out  [4-1 : 0]; 
+	smartflit_chanel_t    R6_chan_in   [4-1 : 0];
+	smartflit_chanel_t    R6_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -281,8 +281,8 @@ module   custom1_noc
 	wire R7_reset;
 	wire [RAw-1 :  0] R7_current_r_addr;
 
-	router_chanel_t    R7_chan_in   [4-1 : 0];
-	router_chanel_t    R7_chan_out  [4-1 : 0]; 
+	smartflit_chanel_t    R7_chan_in   [4-1 : 0];
+	smartflit_chanel_t    R7_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -292,8 +292,8 @@ module   custom1_noc
 	wire R12_reset;
 	wire [RAw-1 :  0] R12_current_r_addr;
 
-	router_chanel_t    R12_chan_in   [4-1 : 0];
-	router_chanel_t    R12_chan_out  [4-1 : 0]; 
+	smartflit_chanel_t    R12_chan_in   [4-1 : 0];
+	smartflit_chanel_t    R12_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -303,8 +303,8 @@ module   custom1_noc
 	wire R13_reset;
 	wire [RAw-1 :  0] R13_current_r_addr;
 
-	router_chanel_t    R13_chan_in   [4-1 : 0];
-	router_chanel_t    R13_chan_out  [4-1 : 0]; 
+	smartflit_chanel_t    R13_chan_in   [4-1 : 0];
+	smartflit_chanel_t    R13_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -314,8 +314,8 @@ module   custom1_noc
 	wire R14_reset;
 	wire [RAw-1 :  0] R14_current_r_addr;
 
-	router_chanel_t    R14_chan_in   [4-1 : 0];
-	router_chanel_t    R14_chan_out  [4-1 : 0]; 
+	smartflit_chanel_t    R14_chan_in   [4-1 : 0];
+	smartflit_chanel_t    R14_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -325,8 +325,8 @@ module   custom1_noc
 	wire R15_reset;
 	wire [RAw-1 :  0] R15_current_r_addr;
 
-	router_chanel_t    R15_chan_in   [4-1 : 0];
-	router_chanel_t    R15_chan_out  [4-1 : 0]; 
+	smartflit_chanel_t    R15_chan_in   [4-1 : 0];
+	smartflit_chanel_t    R15_chan_out  [4-1 : 0]; 
 
 
 	/*******************
@@ -336,8 +336,8 @@ module   custom1_noc
 	wire R8_reset;
 	wire [RAw-1 :  0] R8_current_r_addr;
 
-	router_chanel_t    R8_chan_in   [5-1 : 0];
-	router_chanel_t    R8_chan_out  [5-1 : 0]; 
+	smartflit_chanel_t    R8_chan_in   [5-1 : 0];
+	smartflit_chanel_t    R8_chan_out  [5-1 : 0]; 
 
 
 	/*******************
@@ -347,8 +347,8 @@ module   custom1_noc
 	wire R9_reset;
 	wire [RAw-1 :  0] R9_current_r_addr;
 
-	router_chanel_t    R9_chan_in   [5-1 : 0];
-	router_chanel_t    R9_chan_out  [5-1 : 0]; 
+	smartflit_chanel_t    R9_chan_in   [5-1 : 0];
+	smartflit_chanel_t    R9_chan_out  [5-1 : 0]; 
 
 
 	/*******************
@@ -358,8 +358,8 @@ module   custom1_noc
 	wire R10_reset;
 	wire [RAw-1 :  0] R10_current_r_addr;
 
-	router_chanel_t    R10_chan_in   [5-1 : 0];
-	router_chanel_t    R10_chan_out  [5-1 : 0]; 
+	smartflit_chanel_t    R10_chan_in   [5-1 : 0];
+	smartflit_chanel_t    R10_chan_out  [5-1 : 0]; 
 
 
 	/*******************
@@ -369,8 +369,8 @@ module   custom1_noc
 	wire R11_reset;
 	wire [RAw-1 :  0] R11_current_r_addr;
 
-	router_chanel_t    R11_chan_in   [5-1 : 0];
-	router_chanel_t    R11_chan_out  [5-1 : 0]; 
+	smartflit_chanel_t    R11_chan_in   [5-1 : 0];
+	smartflit_chanel_t    R11_chan_out  [5-1 : 0]; 
 
 
     

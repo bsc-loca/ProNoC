@@ -55,7 +55,7 @@ $simulate = bless( {
                                                               'PCK_TYPE',
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'SELF_LOOP_EN'
                                                             ],
                                              'compile' => [
@@ -115,7 +115,7 @@ $simulate = bless( {
                                       'CONGESTION_INDEX' => 3,
                                       'T1' => 8,
                                       'B' => '4',
-                                      'SBP_MAX' => '0',
+                                      'SMART_MAX' => '0',
                                       'T2' => 8,
                                       'SSA_EN' => '"YES"',
                                       'MUX_TYPE' => '"BINARY"',

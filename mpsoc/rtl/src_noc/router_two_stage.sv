@@ -40,13 +40,17 @@ module router_two_stage
 		
 		chan_in,
 		chan_out,	
+		
+		ctrl_in,
+		ctrl_out,
+		
 		//internal router status 
 		ivc_info, 
 		ovc_info,
 		iport_info,
 		oport_info,
 		
-		sbp_ctrl_in,
+		smart_ctrl_in,
 		
 		clk,
 		reset
@@ -57,12 +61,14 @@ module router_two_stage
 
 	// The current/neighbor routers addresses/port. These values are fixed in each router and they are supposed to be given as parameter. 
 	// However, in order to give an identical RTL code to each router, they are given as input ports. The identical RTL code reduces the
-	// compilation time. Note that they wont be implimented as  input ports in the final synthesized code. 
+	// compilation time. Note that they wont be implemented as  input ports in the final synthesized code. 
 
 	input [RAw-1 :  0]  current_r_addr;
 	
 	input   flit_chanel_t chan_in  [P-1 : 0];
 	output  flit_chanel_t chan_out [P-1 : 0];
+	input   ctrl_chanel_t ctrl_in  [P-1 : 0];
+	output  ctrl_chanel_t ctrl_out [P-1 : 0];
 	input   clk,reset;
 	
 	
@@ -71,7 +77,7 @@ module router_two_stage
 	output  iport_info_t iport_info  [P-1 : 0];
 	output  oport_info_t oport_info  [P-1 : 0]; 
 	
-	input   sbp_ctrl_t   sbp_ctrl_in [P-1 : 0];
+	input   smart_ctrl_t   smart_ctrl_in [P-1 : 0];
 	
 	
 	vsa_ctrl_t   vsa_ctrl    [P-1 : 0];   
@@ -92,7 +98,7 @@ module router_two_stage
 	
 	
 	
-	wire [PRAw-1:  0]  neighbors_r_addr;
+	
     
 
 	wire  [PFw-1 :  0]  flit_in_all;
@@ -154,18 +160,23 @@ module router_two_stage
 	wire [WPP-1: 0] oports_weight_all;
 	wire refresh_w_counter;
 	
+
+	//ctrl port
+	wire [PRAw-1  :  0] neighbors_r_addr;
+	wire [CRDTw-1 : 0 ] credit_init_val_in  [P-1 : 0][V-1 : 0];
+	wire [CRDTw-1 : 0 ] credit_init_val_out [P-1 : 0][V-1 : 0];
 	
 	
 	
-	genvar i;
+	genvar i,j;
 	generate for (i=0; i<P; i=i+1 ) begin :p_
-			assign  neighbors_r_addr  [(i+1)*RAw-1:  i*RAw] = chan_in[i].neighbors_r_addr;
+			assign  neighbors_r_addr  [(i+1)*RAw-1:  i*RAw] = ctrl_in[i].neighbors_r_addr;			
 			assign  flit_in_all       [(i+1)*Fw-1:  i*Fw] = chan_in[i].flit;
 			assign  flit_in_wr_all    [i] = chan_in[i].flit_wr;   
 			assign  credit_in_all     [(i+1)*V-1:  i*V] = chan_in[i].credit;
 			assign  congestion_in_all [(i+1)*CONGw-1:  i*CONGw] = chan_in[i].congestion; 
 			
-			assign  chan_out[i].neighbors_r_addr = current_r_addr;
+			assign  ctrl_out[i].neighbors_r_addr = current_r_addr;
 			assign  chan_out[i].flit=          flit_out_all       [(i+1)*Fw-1:  i*Fw];       
 			assign  chan_out[i].flit_wr=       flit_out_wr_all    [i];                       
 			assign  chan_out[i].credit=        credit_out_all     [(i+1)*V-1:  i*V];         
@@ -195,6 +206,11 @@ module router_two_stage
 					);	
 			end else begin :slp
 				assign iport_info[i].granted_oport_one_hot[P-1 : 0] = granted_dest_port_all[(i+1)*P_1-1:  i*P_1];
+			end
+			
+			for (j=0;j<V;j++)begin :V_
+				assign credit_init_val_in[i][j]      = ctrl_in[i].credit_init_val[j];
+				assign ctrl_out[i].credit_init_val[j] = credit_init_val_out [i][j];				
 			end
 			
 		end		
@@ -248,8 +264,10 @@ module router_two_stage
 			.ivc_info(ivc_info),
 			.ovc_info(ovc_info),
 			.oport_info(oport_info),
-			.sbp_ctrl_in(sbp_ctrl_in),
+			.smart_ctrl_in(smart_ctrl_in),
 			.vsa_ctrl_in(vsa_ctrl),
+			.credit_init_val_in (credit_init_val_in),
+			.credit_init_val_out (credit_init_val_out),
 			.flit_is_tail_all(flit_is_tail_all),			
 			.crossbar_flit_out_wr_all(crossbar_flit_out_wr_all),
 			.vsa_ovc_released_all(vsa_ovc_released_all),
@@ -334,7 +352,7 @@ module router_two_stage
      
 		//link reg 
 		generate 
-		//if( ADD_PIPREG_AFTER_CROSSBAR == 1 || SBP_EN == 1) begin :link_reg
+		//if( ADD_PIPREG_AFTER_CROSSBAR == 1 || SMART_EN == 1) begin :link_reg
 		if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
             
                 

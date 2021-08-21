@@ -1209,7 +1209,7 @@ $simulate = bless( {
                                     'noc_info' => {
                                                     'T2' => '4',
                                                     'WEIGHTw' => '4',
-                                                    'SBP_MAX' => '0',
+                                                    'SMART_MAX' => '0',
                                                     'COMBINATION_TYPE' => '"COMB_NONSPEC"',
                                                     'CONGESTION_INDEX' => 3,
                                                     'B' => '4',
@@ -1246,7 +1246,7 @@ $simulate = bless( {
                                       'MIN_PCK_SIZE' => '2',
                                       'CONGESTION_INDEX' => 3,
                                       'B' => '4',
-                                      'SBP_MAX' => '3',
+                                      'SMART_MAX' => '3',
                                       'COMBINATION_TYPE' => '"COMB_NONSPEC"',
                                       'WEIGHTw' => '4',
                                       'T2' => '4',
@@ -1291,9 +1291,9 @@ $simulate = bless( {
                                     'color' => 17,
                                     'status' => 'done',
                                     'TRAFFIC_TYPE' => 'Synthetic',
-                                    'line_name' => 'sbp',
+                                    'line_name' => 'smart',
                                     'sof_path' => '/home/alireza/work/git/hca_git/mpsoc_work/simulate',
-                                    'sof_file' => 'sbp',
+                                    'sof_file' => 'smart',
                                     'noc_info' => {
                                                     'TOPOLOGY' => '"MESH"',
                                                     'BYTE_EN' => 0,
@@ -1316,7 +1316,7 @@ $simulate = bless( {
                                                     'B' => '4',
                                                     'CONGESTION_INDEX' => 3,
                                                     'COMBINATION_TYPE' => '"COMB_NONSPEC"',
-                                                    'SBP_MAX' => '3',
+                                                    'SMART_MAX' => '3',
                                                     'WEIGHTw' => '4',
                                                     'T2' => '4'
                                                   },
@@ -2477,7 +2477,7 @@ $simulate = bless( {
                      'topology_diagram' => {},
                      'sim_param' => {
                                       'BIN_DIR' => '/home/alireza/work/git/hca_git/mpsoc_work/simulate',
-                                      'SAVE_NAME' => 'sbp'
+                                      'SAVE_NAME' => 'smart'
                                     },
                      'P0Avg. flit Latency_param' => {
                                                       'X_MAX' => 100,
@@ -3617,7 +3617,7 @@ $simulate = bless( {
                                     'ratios' => '5:70:5',
                                     'noc_info' => {
                                                     'COMBINATION_TYPE' => '"COMB_NONSPEC"',
-                                                    'SBP_MAX' => '0',
+                                                    'SMART_MAX' => '0',
                                                     'WEIGHTw' => '4',
                                                     'T2' => '4',
                                                     'MIN_PCK_SIZE' => '2',
@@ -3698,7 +3698,7 @@ $simulate = bless( {
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
                                                               'SSA_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'CONGESTION_INDEX',
                                                               'ESCAP_VC_MASK',
                                                               'VC_REALLOCATION_TYPE',

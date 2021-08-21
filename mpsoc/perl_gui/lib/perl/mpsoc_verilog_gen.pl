@@ -437,8 +437,8 @@ sub gen_noc_v{
 	my $noc_v="
 
 	//connection wire to NoC
-	router_chanel_t ni_chan_in  [NE-1 : 0];
-	router_chanel_t ni_chan_out [NE-1 : 0];
+	smartflit_chanel_t ni_chan_in  [NE-1 : 0];
+	smartflit_chanel_t ni_chan_out [NE-1 : 0];
 	
 	wire 					noc_clk_in,noc_reset_in;    
    

@@ -50,8 +50,8 @@ module  traffic_gen_top
 		
 	//	Vw =    $clog2(V);
 			
-	input   router_chanel_t 	chan_in;
-	output  router_chanel_t 	chan_out;  
+	input   smartflit_chanel_t 	chan_in;
+	output  smartflit_chanel_t 	chan_out;  
 		
 		
    
@@ -114,6 +114,13 @@ module  traffic_gen_top
 	assign flit_in   =  chan_in.flit_chanel.flit;   
 	assign flit_in_wr=  chan_in.flit_chanel.flit_wr; 
 	assign credit_in =  chan_in.flit_chanel.credit;  
+	
+	genvar i;
+	generate
+	for (i=0; i<V;i++) begin :V_
+		assign chan_out.ctrl_chanel.credit_init_val[i]= PORT_B;
+	end
+	endgenerate
 		
 	//old traffic.v file
 		
@@ -263,15 +270,16 @@ module  traffic_gen_top
 				.ratio(ratio)
 			);
     
-    
+      
     
 		output_vc_status #(
+				.CRDTw(CRDTw),
 				.V  (V),
-				.B  (PORT_B),
-				.CAND_VC_SEL_MODE       (0) // 0: use arbieration between not full vcs, 1: select the vc with most availble free space
+				.B  (PORT_B)				
 			)
 			nic_ovc_status
 			(
+				.credit_init_val_in         ( chan_in.ctrl_chanel.credit_init_val),
 				.wr_in                      (ovc_wr_in),   
 				.credit_in                  (credit_in),
 				.nearly_full_vc             (full_vc),

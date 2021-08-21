@@ -69,8 +69,8 @@ sub generate_topology_top_v {
 	*******************/
 ";
 		
-		$wires=$wires."\tinput  router_chanel_t ${instance}_chan_in;\n";
-		$wires=$wires."\toutput router_chanel_t ${instance}_chan_out;\n";
+		$wires=$wires."\tinput  smartflit_chanel_t ${instance}_chan_in;\n";
+		$wires=$wires."\toutput smartflit_chanel_t ${instance}_chan_out;\n";
 		$ports=$ports.",\n\t${instance}_chan_in,\n\t${instance}_chan_out";
 		
 		foreach my $d (@ports){		
@@ -192,8 +192,8 @@ sub get_router_instance_v {
 
 \twire [RAw-1 :  0] ${instance}_current_r_addr;
 
-\trouter_chanel_t    ${instance}_chan_in   [$Pnum-1 : 0];
-\trouter_chanel_t    ${instance}_chan_out  [$Pnum-1 : 0]; 
+\tsmartflit_chanel_t    ${instance}_chan_in   [$Pnum-1 : 0];
+\tsmartflit_chanel_t    ${instance}_chan_out  [$Pnum-1 : 0]; 
 
 ";
 
@@ -346,12 +346,12 @@ sub generate_topology_top_genvar_v{
     my $ports_def="
 \tinput  reset;
 \tinput  clk;
-\tinput  router_chanel_t chan_in_all  [NE-1 : 0];
-\toutput router_chanel_t chan_out_all [NE-1 : 0];
+\tinput  smartflit_chanel_t chan_in_all  [NE-1 : 0];
+\toutput smartflit_chanel_t chan_out_all [NE-1 : 0];
 
 //all routers port 
-\trouter_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
-\trouter_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+\tsmartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+\tsmartflit_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
 
 \twire [RAw-1 : 0] current_r_addr [NR-1 : 0];
 
@@ -1263,10 +1263,10 @@ sub generate_connection_v{
 \toutput [RAw-1 : 0] er_addr [NE-1 : 0]; // provide router address for each connected endpoint 
 \toutput [RAw-1 : 0] current_r_addr [NR-1 : 0]; // provide each router current address  ;
 \toutput [NE-1 : 0] start_o;
-\toutput router_chanel_t chan_in_all [NE-1 : 0];
-\tinput  router_chanel_t chan_out_all [NE-1 : 0]; 
-\tinput  router_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
-\toutput router_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+\toutput smartflit_chanel_t chan_in_all [NE-1 : 0];
+\tinput  smartflit_chanel_t chan_out_all [NE-1 : 0]; 
+\tinput  smartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
+\toutput smartflit_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
 
 ";
 

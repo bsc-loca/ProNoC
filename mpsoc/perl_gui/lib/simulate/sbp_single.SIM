@@ -1,5 +1,5 @@
 #######################################################################
-##	File: sbp_single.SIM
+##	File: smart_single.SIM
 ##    
 ##	Copyright (C) 2014-2019  Alireza Monemi
 ##    
@@ -22,7 +22,7 @@ $simulate = bless( {
                      'P2' => {
                                'active' => 'Received'
                              },
-                     'simulate_name' => 'sbp_single',
+                     'simulate_name' => 'smart_single',
                      'file_name' => undef,
                      'P1Received_param' => {
                                              'Y_Title' => 'Received Packets Per Router',
@@ -41,7 +41,7 @@ $simulate = bless( {
                              },
                      'noc_param' => {
                                       'TOPOLOGY' => '"MESH"',
-                                      'SBP_MAX' => '3',
+                                      'SMART_MAX' => '3',
                                       'SSA_EN' => '"NO"',
                                       'BYTE_EN' => 0,
                                       'DEBUG_EN' => '1',
@@ -142,7 +142,7 @@ $simulate = bless( {
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
                                                               'SSA_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'CONGESTION_INDEX',
                                                               'ESCAP_VC_MASK',
                                                               'VC_REALLOCATION_TYPE',

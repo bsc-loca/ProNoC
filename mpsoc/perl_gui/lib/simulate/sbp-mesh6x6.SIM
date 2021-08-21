@@ -1,5 +1,5 @@
 #######################################################################
-##	File: sbp-mesh6x6.SIM
+##	File: smart-mesh6x6.SIM
 ##    
 ##	Copyright (C) 2014-2019  Alireza Monemi
 ##    
@@ -19,7 +19,7 @@ $simulate = bless( {
                                       'V' => 1,
                                       'BYTE_EN' => 0,
                                       'CONGESTION_INDEX' => 3,
-                                      'SBP_MAX' => '3',
+                                      'SMART_MAX' => '3',
                                       'WEIGHTw' => '4',
                                       'SSA_EN' => '"NO"',
                                       'MIN_PCK_SIZE' => '2',
@@ -46,7 +46,7 @@ $simulate = bless( {
                      'sim_param' => {
                                       'ALL_RESULT_DIR' => '/home/alireza/work/git/hca_git/mpsoc_work/simulate/results',
                                       'BIN_DIR' => '/home/alireza/work/git/hca_git/mpsoc_work/simulate',
-                                      'SAVE_NAME' => 'sbp4'
+                                      'SAVE_NAME' => 'smart4'
                                     },
                      'status' => 'ideal',
                      'P2' => {
@@ -81,13 +81,13 @@ $simulate = bless( {
                      'chart_notebook' => {
                                            'currentpage' => 0
                                          },
-                     'simulate_name' => 'sbp-mesh6x6',
+                     'simulate_name' => 'smart-mesh6x6',
                      'samples' => undef,
                      'process_notebook' => {
                                              'currentpage' => 0
                                            },
                      'sample0' => {
-                                    'sof_file' => 'sbp4',
+                                    'sof_file' => 'smart4',
                                     'MAX_PCK_SIZE' => 5,
                                     'throughput_result' => {
                                                              '29' => ' 26.677470 ',
@@ -125,7 +125,7 @@ $simulate = bless( {
                                                     'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
                                                     'SSA_EN' => '"NO"',
                                                     'WEIGHTw' => '4',
-                                                    'SBP_MAX' => '3',
+                                                    'SMART_MAX' => '3',
                                                     'C' => 0,
                                                     'CONGESTION_INDEX' => 3,
                                                     'V' => 1,
@@ -1097,7 +1097,7 @@ $simulate = bless( {
                                                                              '17' => '807'
                                                                            }
                                                                  },
-                                    'line_name' => 'sbp3',
+                                    'line_name' => 'smart3',
                                     'worst_delay_sent_result' => {
                                                                    '21' => {
                                                                              '3' => '113',
@@ -3990,7 +3990,7 @@ $simulate = bless( {
                                                     'MUX_TYPE' => '"BINARY"',
                                                     'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
                                                     'WEIGHTw' => '4',
-                                                    'SBP_MAX' => '0'
+                                                    'SMART_MAX' => '0'
                                                   },
                                     'color' => 7,
                                     'exe_time_result' => {
@@ -4057,7 +4057,7 @@ $simulate = bless( {
                                                               'MIN_PCK_SIZE',
                                                               'BYTE_EN',
                                                               'SSA_EN',
-                                                              'SBP_MAX',
+                                                              'SMART_MAX',
                                                               'CONGESTION_INDEX',
                                                               'ESCAP_VC_MASK',
                                                               'VC_REALLOCATION_TYPE',
