@@ -11,7 +11,8 @@
 //check if flits are recived in correct order in a VC
 module check_flit_chanel_type_is_in_order #(
     parameter V=4,
-    parameter PCK_TYPE = "SINGLE_FLIT"
+    parameter PCK_TYPE = "SINGLE_FLIT",
+    parameter MIN_PCK_SIZE=2
 )(
     hdr_flg_in,
     flit_in_wr,
@@ -49,28 +50,28 @@ module check_flit_chanel_type_is_in_order #(
            
             hdr_passed     <= hdr_passed_next;
             if(( hdr_passed & vc_num_hdr_wr)>0  )begin 
-                $display("%t ERROR: a header flit is received in  an active IVC %m",$time);
-               
+                $display("%t ERROR: a header flit is received in  an active IVC %m",$time);               
                 $finish;
             end
             if((~hdr_passed & vc_num_tail_wr & ~single_flit_pck )>0 ) begin 
-                $display("%t ERROR: a tail flit is received in an inactive IVC %m",$time);
-                
+                $display("%t ERROR: a tail flit is received in an inactive IVC %m",$time);                
                 $finish;
             end                
             if ((~hdr_passed & vc_num_bdy_wr    )>0)begin 
-                $display("%t ERROR: a body flit is received in an inactive IVC %m",$time);
-                
+                $display("%t ERROR: a body flit is received in an inactive IVC %m",$time);                
                 $finish;
             end
             /* verilator lint_off WIDTH */
             if((PCK_TYPE == "SINGLE_FLIT") &  flit_in_wr & ~(hdr_flg_in &  tail_flg_in )) begin 
                 $display("%t ERROR: both tail and header flit flags must be asserted in SINGLE_FLIT mode %m",$time);
-                
                 $finish;
-            end   
+            end 
             /* verilator lint_on WIDTH */
-            
+            if( (MIN_PCK_SIZE !=1) &  flit_in_wr & hdr_flg_in &  tail_flg_in ) begin 
+                $display("%t ERROR: A single flit packet is injected while the minimum packet size is set to %d.  %m",$time,MIN_PCK_SIZE);
+                $finish;
+            end
+            //TODO check that the injected packet size meets the MIN_PCK_SIZE
             
         end//else
     end//always

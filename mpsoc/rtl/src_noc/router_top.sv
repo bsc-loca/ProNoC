@@ -124,9 +124,10 @@ module router_top
 				);
 			
 			if(DEBUG_EN) begin :dbg
-			check_flit_chanel_type_is_in_order #(
+				check_flit_chanel_type_is_in_order #(
 					.V(V),
-					.PCK_TYPE(PCK_TYPE)
+					.PCK_TYPE(PCK_TYPE),
+					.MIN_PCK_SIZE(MIN_PCK_SIZE)
 				)
 				IVC_flit_type_check
 				(
