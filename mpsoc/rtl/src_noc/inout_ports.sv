@@ -371,7 +371,10 @@ import pronoc_pkg::*;
 	    		assign non_vsa_ivc_num_getting_ovc_grant_all [(i+1)*V-1 : i*V] = ssa_ctrl[i].ivc_num_getting_ovc_grant | smart_ctrl_in[i].ivc_num_getting_ovc_grant;	    		
 	    	end//for 
 	    	always @(posedge clk ) begin
-	    		for(kk=0; kk< PV; kk=kk+1'b1 ) if(reset_ivc_all[kk] & (ivc_num_getting_ovc_grant[kk] | non_vsa_ivc_num_getting_ovc_grant_all[kk]))   $display("%t: ERROR: the ovc %d released and allocat signal is asserted in the same clock cycle : %m",$time,kk);
+	    		for(kk=0; kk< PV; kk=kk+1'b1 ) if(reset_ivc_all[kk] & (ivc_num_getting_ovc_grant[kk] | non_vsa_ivc_num_getting_ovc_grant_all[kk])) begin 
+	    			$display("%t: ERROR: the ovc %d released and allocat signal is asserted in the same clock cycle : %m",$time,kk);
+	    			$finish;	
+	    		end
 	   	 	end
 		end  
 		//synopsys  translate_on
