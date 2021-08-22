@@ -136,10 +136,6 @@
 void topology_connect_all_nodes (void){
 
 	
-	
-	unsigned int nxw=0;
-	while((0x1<<nxw) < T1)nxw++;	
-
 	unsigned int  x,y,l;
 	#if defined (IS_LINE) || defined (IS_RING ) 
 			#define R2R_CHANELS_MESH_TORI   2 
@@ -297,8 +293,10 @@ void topology_connect_all_nodes (void){
 
 
 void topology_init(void){
-	while((0x1<<nxw) < T1){nxw++;maskx<<=1; maskx|=1;}
-	while((0x1<<nyw) < T2){nyw++;masky<<=1; masky|=1;}
+	nxw=Log2(T1);
+	nyw=Log2(T2);
+    maskx = (0x1<<nxw)-1;
+    masky = (0x1<<nyw)-1;	
 }
 
 #endif

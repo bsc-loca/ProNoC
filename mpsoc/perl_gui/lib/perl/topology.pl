@@ -180,6 +180,7 @@ sub get_connected_router_id_to_endp{
 	}	
 }
 
+
 sub fmesh_addrencode{ 
 	my($id,$T1,$T2,$T3)=@_;
 	my  ($y, $x, $l,$p, $diff,$mul);

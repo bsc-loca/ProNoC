@@ -15,7 +15,7 @@ use IPC::Run qw(start pump finish timeout pumpable);
 
 sub log2{
 	my $num=shift;
-	my $log=0;    
+	my $log=($num <=1) ? 1: 0;        
 	while( (1<< $log)  < $num) {    
 				$log++;    
 	}

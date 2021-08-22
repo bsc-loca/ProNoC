@@ -555,7 +555,9 @@ sub noc_topology_setting_gui {
 	     	($topology eq '"STAR"')? "Total Endpoint number" : 'Routers per row';
 	    $param= 'T1';
 		$default= '2';
-	    $content=($topology eq '"MESH"' || $topology eq '"FMESH"' || $topology eq '"TORUS"') ? '2,16,1':
+	    $content=
+	    ($topology eq '"MESH"'  || $topology eq '"TORUS"') ? '2,16,1':
+	    ($topology eq '"FMESH"')? '1,16,1':
 		($topology eq '"FATTREE"' || $topology eq '"TREE"' )? '2,6,1':'2,64,1';
 	    $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"' )? 'number of last level individual router`s endpoints.' :'Number of NoC routers in row (X dimension)';
 	    $type= 'Spin-button';             
@@ -567,7 +569,7 @@ sub noc_topology_setting_gui {
         $label= ($topology eq '"FATTREE"' || $topology eq '"TREE"')?  'L' :'Routers per column';
         $param= 'T2';
         $default='2';
-        $content='2,16,1';
+        $content=  ($topology eq '"FMESH"')? '1,16,1': '2,16,1';
         $info= ($topology eq '"FATTREE"' || $topology eq '"TREE"')? 'Fattree layer number (The height of FT)':'Number of NoC routers in column (Y dimension)';
         $type= 'Spin-button';             
         ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);

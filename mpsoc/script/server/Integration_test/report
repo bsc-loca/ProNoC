@@ -3,6 +3,8 @@ Verification Results:
 	 model is generated successfully.
 ****************************Fattree_k3_L3_st : Compile *******************************:
 	 model is generated successfully.
+****************************fmesh_1x1_openpiton : Compile *******************************:
+	 model is generated successfully.
 ****************************fmesh_2x2_openpiton : Compile *******************************:
 	 model is generated successfully.
 ****************************fmesh_8x8_2cycle_xy : Compile *******************************:
@@ -27,6 +29,8 @@ Verification Results:
 	 passed  
 ****************************Fattree_k3_L3_st	: random traffic *******************************:
 	 passed  
+****************************fmesh_1x1_openpiton	: random traffic *******************************:
+	 passed  
 ****************************fmesh_2x2_openpiton	: random traffic *******************************:
 	 passed  
 ****************************fmesh_8x8_2cycle_xy	: random traffic *******************************:
@@ -50,6 +54,8 @@ Verification Results:
 ****************************custom1_topology	: transposed 1 traffic *******************************:
 	 passed  
 ****************************Fattree_k3_L3_st	: transposed 1 traffic *******************************:
+	 passed  
+****************************fmesh_1x1_openpiton	: transposed 1 traffic *******************************:
 	 passed  
 ****************************fmesh_2x2_openpiton	: transposed 1 traffic *******************************:
 	 passed  
