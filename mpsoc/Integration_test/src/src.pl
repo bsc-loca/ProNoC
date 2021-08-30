@@ -16,11 +16,8 @@ my $report = "$dirname/report";
 require "$dirname/../perl_gui/lib/perl/common.pl";
 require "$dirname/../perl_gui/lib/perl/topology.pl";
 
-
-
-
-
-
+use strict;
+use warnings;
 
 my $pp;
 	$pp= do "$src/deafult_noc_param";
@@ -136,13 +133,14 @@ sub get_model_parameter {
 	my $model =shift;	
 	my $o;
 	$o= do $model;
+	my %new_param=%{$o};
     die "Error reading: $@" if $@;
 	my %temp;
 	foreach my $p (@params){
 		$temp{$p} = $default_noc_param{$p};       
 	}
-	foreach my $p (sort keys %model){
-		$temp{$p} = $model{$p};
+	foreach my $p (sort keys %new_param){
+		$temp{$p} = $new_param{$p};
 	}
 	return %temp;
 }
@@ -345,7 +343,8 @@ sub gen_models {
 
 
 sub compile_models{
-	my($paralel_run)=@_;
+	my($self,$inref)=@_;
+    my ($paralel_run,$MIN,$MAX,$STEP) = @{$inref};
 	my @models = glob("$dirname/models/*");
 	#generate compile command
 	my $i=0;
@@ -366,23 +365,21 @@ sub compile_models{
 
 }
 sub check_compilation_log {
-	my ($name,@log_report_match) = @_;
-	$logfile	= "$work/$name/out.log";	
+	my ($name,$ref,$inref) = @_;
+    my @log_report_match =@{$ref};
+	my ($paralel_run,$MIN,$MAX,$STEP) = @{$inref};
+	my $logfile	= "$work/$name/out.log";	
 	
 	my @found;
 	foreach my $m (@log_report_match){ 
-		open $INPUT, '<', $logfile;
+		open my $INPUT, '<', $logfile;
 		push(@found , grep ( /$m/, <$INPUT>)) ;
 		close($INPUT);
-	}
-	
+	}	
 	
 	foreach my $line (@found) {
               append_text_to_file($report,"\t $line\n");
     }
-   
-
-
 }
 
 
@@ -390,7 +387,7 @@ sub check_compilation_log {
 
 
 sub check_compilation {
-	my @log_report_match=@_;
+	my ($self,$ref1,$ref2)=@_;
 	my @models = glob("$dirname/models/*");
 	foreach my $m (@models){
 		my ($name,$fpath,$fsuffix) = fileparse("$m",qr"\..[^.]*$");
@@ -398,11 +395,11 @@ sub check_compilation {
 		#check if testbench is generated successfully	
 		if(-f "$work/$name/obj_dir/testbench"){
 			append_text_to_file($report,"\t model is generated successfully.\n"); 
-			check_compilation_log($name,@log_report_match);
+			check_compilation_log($name,$ref1,$ref2);
 
 		}else{
 			append_text_to_file($report,"\t model generation is FAILED.\n"); 
-			check_compilation_log($name,@log_report_match);
+			check_compilation_log($name,$ref1,$ref2);
 		}
 
 	}
@@ -410,20 +407,22 @@ sub check_compilation {
 
 
 sub run_all_models {
-	my ($paralel_run) =@_;
+	my ($self,$inref) =@_;
+    my ($paralel_run,$MIN,$MAX,$STEP) = @{$inref};
 	my @models = glob("$dirname/models/*");
     foreach my $m (@models){
-		run_traffic ($m,'random',$paralel_run);
+		run_traffic ($self,$m,'random',$inref);
 	}
 	foreach my $m (@models){
-		run_traffic ($m,'transposed 1',$paralel_run);
+		run_traffic ($self,$m,'transposed 1',$inref);
 	}
 }
 
 
 
 sub run_traffic {
-	my ($model,$traffic,$paralel_run)=@_;
+	my ($self,$model,$traffic,$inref)=@_;
+     my ($paralel_run,$MIN,$MAX,$STEP) = @{$inref};
 	my ($name,$fpath,$fsuffix) = fileparse("$model",qr"\..[^.]*$");
 	
 	my %param = get_model_parameter($model);
@@ -435,12 +434,19 @@ sub run_traffic {
 		return;
 	}
 
-	mkdir("$work/$name/${traffic}_results/", 0700);
+	
+
+	my $file_name="${traffic}_results";
+    $file_name =~ s/\s+//g;
+
+	mkdir("$work/$name/$file_name/", 0700);
 
 	my $i=0;
 	my $cmd;
-	for (my $inject=75; $inject<=80; $inject+=5){
-		$cmd.="$work/$name/obj_dir/testbench -t \"$traffic\"   -m \"R,$min_pck,10\"  -n  20000  -c	10000   -i $inject -p \"100,0,0,0,0\" >  $work/$name/${traffic}_results/sim$inject 2>&1  &\n";
+
+
+	for (my $inject=$MIN; $inject<=$MAX; $inject+=$STEP){
+		$cmd.="$work/$name/obj_dir/testbench -t \"$traffic\"   -m \"R,$min_pck,10\"  -n  20000  -c	10000   -i $inject -p \"100,0,0,0,0\" >  $work/$name/$file_name/sim$inject 2>&1  &\n";
 		$i++;
 		$cmd.="wait\n" if(($i % $paralel_run)==0) ;
 	}
@@ -452,26 +458,98 @@ sub run_traffic {
 	$proc1->wait;
 	$proc1->die; 
 
-	check_sim_results("$work/$name/${traffic}_results/");
+	check_sim_results($self,$name,$traffic,$inref);
 
+}
+
+
+sub extract_result {
+	my ($self,$file,$filed)=@_;
+
+	my @r = unix_grep($file,$filed);
+    my $string = $r[0];
+    $string =~ s/[^0-9.]+//g;
+	return $string;
+
+}
+
+sub get_zero_load_and_saturation{
+	my ($self,$name,$traffic,$path)=@_;
+	my %results;	
+	my $ref = $self->{'name'}{"$name"}{'traffic'}{$traffic}{"packet_latency"};
+	return if !defined $ref;
+	%results = %{$ref}; 
+	
+	my $zero_latency=9999999;	
+    my $saturat_inject=100;
+    my $zero_inject;
+    my $saturat_latency='-';
+
+	my $txt = "#name:$name\n";
+
+	foreach my $inj (sort {$a <=> $b} keys %results){
+		$txt.="$inj $results{$inj}\n";
+		if ($zero_latency > $results{$inj}) {
+			$zero_latency = $results{$inj};
+			$zero_inject  = $inj;
+		}
+	} 
+	# assum saturation happens when the latency is 5 times of zero load
+	foreach my $inj (sort {$a <=> $b} keys %results){
+		if($results{$inj} >= 5 * $zero_latency ) {
+			if($saturat_inject > $inj){
+				$saturat_inject	=$inj;	
+				$saturat_latency=$results{$inj};
+			}
+		}
+	} 
+	$txt.="\n";
+	save_file("$path/packet_latency.sv",$txt);
+
+
+	return ($zero_inject,$zero_latency, $saturat_inject,$saturat_latency);
 }
 
 
 
 
 sub check_sim_results{
-	my $results_path=shift;
-	my @results = glob("$results_path/*");
+	my ($self,$name,$traffic,$inref)=@_;
+    my ($paralel_run,$MIN,$MAX,$STEP) = @{$inref};
+    my $file_name="${traffic}_results";
+    $file_name =~ s/\s+//g;
+	my $results_path = "$work/$name/$file_name";
+
+	#my @results = glob("$results_path/*");
 	#check for error
 	
+	for (my $inject=$MIN; $inject<=$MAX; $inject+=$STEP){
+		my $file = "$results_path/sim$inject";
 	
-	foreach my $result (@results) {
-		my @errors = unix_grep("$result","ERROR:");
+		my @errors = unix_grep("$file","ERROR:");
 		if (scalar @errors  ){
-			append_text_to_file($report,"\t Error in running simulation: @errors \n");				
+			append_text_to_file($report,"\t Error in running simulation: @errors \n");	
+			$self->{'name'}{"$name"}{'traffic'}{$traffic}{'overal_result'}="Failed";
+			$self->{'name'}{"$name"}{'traffic'}{$traffic}{'message'}="@errors";
 			return;						
-		}		
+		}
+		my $val = extract_result($self,$file,"average packet latency");		
+		if(length $val ==0){
+			$self->{'name'}{"$name"}{'traffic'}{$traffic}{'overal_result'}="Failed";
+			$self->{'name'}{"$name"}{'traffic'}{$traffic}{'message'}="The average packet latency is undefined for $inject";
+			return;						
+		}
+		$self->{'name'}{"$name"}{'traffic'}{$traffic}{"packet_latency"}{$inject}="$val";
+		
 	}
-	append_text_to_file($report,"\t passed  \n");		
+	my  ($z,$zl, $s,$sl) = get_zero_load_and_saturation ($self,$name,$traffic,$results_path);
+	print "($z,$zl, $s,$sl)\n";
+
+	#save results in a text file 
+
+
+
+	append_text_to_file($report,"\t Passed:   zero load ($z,$zl) saturation ($s,$sl)\n");
+    $self->{'name'}{"$name"}{'traffic'}{$traffic}{'overal_result'}="passed";		
 }
 

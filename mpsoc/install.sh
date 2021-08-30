@@ -8,6 +8,11 @@
 	SCRPT_FULL_PATH=$(realpath ${BASH_SOURCE[0]})
 	SCRPT_DIR_PATH=$(dirname $SCRPT_FULL_PATH)
 
+
+
+
+
+
 #list of packages
 LIST_OF_APPS="build-essential  libpango1.0-dev clang lib32z1 libgd-graph-perl libglib-perl cpanminus libusb-1.0 graphviz libcanberra-gtk-module unzip xterm verilator wget python python-pip" 
 
@@ -62,6 +67,9 @@ else
 	cpanm $PERL_LIBS
 	cpanm $PERL_GTK3
 fi
+
+
+
 
 #install python
 echo "install python" 

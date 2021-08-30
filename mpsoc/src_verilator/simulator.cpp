@@ -10,6 +10,8 @@
 
 #include "Vtraffic.h"
 
+#include "netrace_lib.h"
+
 
 #define IS_SELF_LOOP_EN (strcmp(SELF_LOOP_EN ,"YES")==0)
 
@@ -37,10 +39,14 @@ Vtraffic		*traffic[NE];
 #define DISABLE -1
 #define MY_VL_SETBIT_W(data,bit) (data[VL_BITWORD_I(bit)] |= (VL_UL(1) << VL_BITBIT_I(bit)))
 #define STND_DEV_EN 1
-#define SYNTHETIC 0
-#define CUSTOM 1 
 #define RANDOM_RANGE 1
 #define RANDOM_discrete 2
+
+//traffic type
+#define SYNTHETIC 0
+#define TASK      1
+#define NETRACE   2
+
 
 
 int reset,clk;
@@ -120,8 +126,8 @@ unsigned int rnd_between (unsigned int, unsigned int );
 
 
 void  usage(){
-	printf(" ./simulator -f [Traffic Pattern file]\n\nor\n");
-	printf(" ./simulator -t [Traffic Pattern]   -m [Packet size info] -n  [end_sim_pck_num]  c	[MAX SIM CLKs]   -i [INJECTION RATIO] -p [class traffic ratios (%%)]  -h[HOTSPOT info] -H[custom traffic pattern]\n");
+	printf(" ./simulator -f [Trace file] -c [MAX SIM CLKs] \n\nor\n");
+	printf(" ./simulator -t [synthetic Traffic Pattern]   -m [Packet size info] -n  [end_sim_pck_num]  c	[MAX SIM CLKs]   -i [INJECTION RATIO] -p [class traffic ratios (%%)]  -h[HOTSPOT info] -H[custom traffic pattern]\n");
 	printf("      Traffic Pattern: \"HOTSPOT\" \"RANDOM\" \"TORNADO\" \"BIT_REVERSE\"  \"BIT_COMPLEMENT\"  \"TRANSPOSE1\"   \"TRANSPOSE2\"\n");
 	printf("      end_sim_pck_num: total number of sent packets. Simulation will stop when total of sent packet by all nodes reach this number\n");
 	printf("      sim_end_clk_num: simulation clock limit. Simulation will stop when simulation clock number reach this value \n");
@@ -132,9 +138,10 @@ void  usage(){
 	printf("      \t\"R,MIN,MAX\" : The injected packets' size in flits are randomly selected in range MIN<= PCK_size <=MAX (Random-Range)\n");
 	printf("      \t\"D,S1,S2,..Sn,P,P1,P2,P3,...Pn\" : Si are the discrete set of numbers representing packet size. The injected packet size is randomly selected among these discrete values according to associated probability values.\n");
 	printf("	  \t\t The probabilities pi must satisfy two requirements: every probability pi is a number between 0 and 100, and the sum of all the probabilities is 100\n");
-	printf("      custom traffic pattern: represented in a string with following format:  \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n");
+	printf("      task traffic pattern: represented in a string with following format:  \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n");
 
 }
+
 
 
 int parse_string ( char * str, int * array)
@@ -154,7 +161,7 @@ int parse_string ( char * str, int * array)
 
 
 unsigned int pck_dst_gen ( 	unsigned int core_num) {
-	if(TRAFFIC_TYPE==CUSTOM)	return  	pck_dst_gen_task_graph ( core_num);
+	if(TRAFFIC_TYPE==TASK)	return  	pck_dst_gen_task_graph ( core_num);
 	if((strcmp (TOPOLOGY,"MESH")==0)||(strcmp (TOPOLOGY,"TORUS")==0))	return  pck_dst_gen_2D (core_num);
 	return pck_dst_gen_1D (core_num);
 }
@@ -169,17 +176,17 @@ void update_hotspot(char * str){
 	 hotspot_st * new_node;
 	 p= parse_string (str, array);
 	 if (p<4){
-		    fprintf(stderr,"Error in hotspot traffic parameters. 4 value should be given as hotspot parameter\n");
+		    fprintf(stderr,"ERROR: in hotspot traffic parameters. 4 value should be given as hotspot parameter\n");
 			exit(1);
 	 }
 	 HOTSPOT_NUM=array[0];
 	 if (p<1+HOTSPOT_NUM*3){
-		    fprintf(stderr,"Error in hotspot traffic parameters \n");
+		    fprintf(stderr,"ERROR: in hotspot traffic parameters \n");
 			exit(1);
 	 }
 	 new_node =  (hotspot_st *) malloc( HOTSPOT_NUM * sizeof(hotspot_st));
 	 if( new_node == NULL){
-		 fprintf(stderr,"Error: cannot allocate memory for hotspot traffic\n");
+		 fprintf(stderr,"ERROR: cannot allocate memory for hotspot traffic\n");
    	    exit(1);
    	 }
 	 for (i=1;i<3*HOTSPOT_NUM; i+=3){
@@ -196,7 +203,7 @@ void update_hotspot(char * str){
 	 hotspots=new_node;
 }
 
-void update_custom(char * str){
+void update_custom_traffic (char * str){
 	int i;
 	int array[10000];
 	int p;
@@ -284,13 +291,69 @@ void update_pck_size(char *str){
 	p=(MAX_PACKET_SIZE-MIN_PACKET_SIZE)+1;
 	rsv_size_array = (unsigned int*) calloc ( p , sizeof(int));
 	if (rsv_size_array==NULL){
-		 fprintf(stderr,"Error: cannot allocate memory for rsv_size_array\n");
+		 fprintf(stderr,"ERROR: cannot allocate memory for rsv_size_array\n");
 		 exit(1);
 	}
 
 }
 
-void processArgs (int argc, char **argv )
+
+void task_traffic_init (char * str) {
+	load_traffic_file(str,task_graph_data,task_graph_abstract);
+	end_sim_pck_num=task_graph_total_pck_num;
+	MIN_PACKET_SIZE = task_graph_min_pck_size;
+	MAX_PACKET_SIZE = task_graph_max_pck_size;
+	AVG_PACKET_SIZE=(MIN_PACKET_SIZE+MAX_PACKET_SIZE)/2;// average packet size
+	int p=(MAX_PACKET_SIZE-MIN_PACKET_SIZE)+1;
+	rsv_size_array = (unsigned int*) calloc ( p , sizeof(int));
+	if (rsv_size_array==NULL){
+		fprintf(stderr,"ERROR: cannot allocate (%d x int) memory for rsv_size_array. \n",p);
+		 exit(1);
+	}
+}
+
+
+
+
+void netrace_processArgs (int argc, char **argv )
+{
+   char c;
+
+   /* don't want getopt to moan - I can do that just fine thanks! */
+   opterr = 0;
+   if (argc < 2)  usage();
+   while ((c = getopt (argc, argv, "F:drl")) != -1)
+   {
+	 switch (c)
+	 {
+	 	case 'F':
+	 		TRAFFIC_TYPE=NETRACE;
+	 		TRAFFIC=(char *) "NETRACE";
+	 		netrace_init(optarg);
+	 		break;
+	 	case 'd':
+	 		ignore_dependencies=1;
+	 		break;
+	 	case 'r':
+			start_region=atoi(optarg);
+	 		break;
+	 	case 'l':
+	 		reader_throttling=1;
+	 	case '?':
+	 	    if (isprint (optopt))
+	 	    	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+	 		else
+	 		    fprintf (stderr,  "Unknown option character `\\x%x'.\n",  optopt);
+	     default:
+	 	       usage();
+	 	       exit(1);
+	  }
+	}
+}
+
+
+
+void synthetic_task_processArgs (int argc, char **argv )
 {
    char c;
    int p;
@@ -305,10 +368,9 @@ void processArgs (int argc, char **argv )
 	 switch (c)
 	    {
 	 	case 'f':
-	 		TRAFFIC_TYPE=CUSTOM;
-	 		TRAFFIC=(char *) "CUSTOM from file";
-	 		load_traffic_file(optarg,task_graph_data,task_graph_abstract);
-	 		end_sim_pck_num=task_graph_total_pck_num;
+	 		TRAFFIC_TYPE=TASK;
+	 		TRAFFIC=(char *) "TASK";
+	 		task_traffic_init(optarg);
 	 		break;
 	    case 't':  
 			TRAFFIC=optarg;
@@ -340,7 +402,7 @@ void processArgs (int argc, char **argv )
 
 			break;
 		case 'H':
-			update_custom(optarg);
+			update_custom_traffic(optarg);
 			break;
 		case 'h':		
 			update_hotspot(optarg);
@@ -361,6 +423,26 @@ void processArgs (int argc, char **argv )
 }
 
 
+
+void processArgs (int argc, char **argv ){
+	int i;
+	for( i = 1; i < argc; ++i ) {
+		if( strcmp(argv[i], "-t") == 0 ) {
+			synthetic_task_processArgs ( argc, argv );
+			return;
+		} else if( strcmp(argv[i], "-f") == 0 ) {
+			synthetic_task_processArgs ( argc, argv );
+			return;
+
+		} else if( strcmp(argv[i], "-F") == 0 ) {
+			netrace_processArgs (argc, argv );
+			return;
+		}
+	}
+	fprintf (stderr, "you should define one one of Synthetic,Task or nettrace based simulation. \n");
+	usage();
+	exit(1);
+}
 
 
 int get_new_pck_size(){
@@ -394,7 +476,7 @@ int main(int argc, char** argv) {
 	processArgs ( argc,  argv );
 	
 	
-	FIXED_SRC_DST_PAIR = strcmp (TRAFFIC,"RANDOM") &  strcmp(TRAFFIC,"HOTSPOT") & strcmp(TRAFFIC,"random") & strcmp(TRAFFIC,"hot spot") & strcmp(TRAFFIC,"CUSTOM from file");
+	FIXED_SRC_DST_PAIR = strcmp (TRAFFIC,"RANDOM") &  strcmp(TRAFFIC,"HOTSPOT") & strcmp(TRAFFIC,"random") & strcmp(TRAFFIC,"hot spot") & strcmp(TRAFFIC,"TASK");
 	
 
 	/********************
@@ -424,10 +506,14 @@ int main(int argc, char** argv) {
     		traffic[i]->init_weight=1;
     	}
 	}
-
+	
+	
+	
 	main_time=0;
 	print_parameter();
-	if(strcmp(TRAFFIC,"CUSTOM from file")) printf("\n\n\n Flit injection ratio per router is =%f \n",(float)ratio*100/MAX_RATIO);
+
+	if( TRAFFIC_TYPE == SYNTHETIC) printf("\n\n\n Flit injection ratio per router is =%f \n",(float)ratio*100/MAX_RATIO);
+	
 	//printf("\n\n\n delay= %u clk",router->delay);
 	while (!Verilated::gotFinish()) {
 	   
@@ -437,7 +523,8 @@ int main(int argc, char** argv) {
 
 		if(main_time == saved_time+21){ count_en=1; start_i=1;}//for(i=0;i<NC;i++) traffic[i]->start=1;}
 		if(main_time == saved_time+23) start_i=0;// for(i=0;i<NC;i++) traffic[i]->start=0;
-		  
+
+		if(TRAFFIC_TYPE==NETRACE) netrace_posedge_event();
 		clk_posedge_event( );
 		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values 
 		//between modules when the clock . 

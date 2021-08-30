@@ -35,10 +35,31 @@ my $dirname = dirname(__FILE__);
 require "$dirname/src/src.pl";
 
 my $paralel_run= 4;
+#defne minimum , maximum and increasing step of injection ratio
+my ($MIN,$MAX,$STEP)= (5,80,25);
+
+
+
 if(defined $ARGV[0]){
  $paralel_run= $ARGV[0] if(is_integer($ARGV[0]));
 }
-print "maximum number of parallel simulation is $paralel_run\n";
+
+if(defined $ARGV[1]){
+ $MIN= $ARGV[1] if(is_integer($ARGV[1]));
+}
+
+if(defined $ARGV[2]){
+ $MAX= $ARGV[2] if(is_integer($ARGV[2]));
+}
+
+if(defined $ARGV[3]){
+ $STEP= $ARGV[3] if(is_integer($ARGV[3]));
+}
+
+my @inputs =($paralel_run,$MIN,$MAX,$STEP);
+
+
+print "Maximum number of parallel simulation is $paralel_run.\n The injection ratio is set as MIN=$MIN,MAX=$MAX,STEP=$STEP.\n";
 
 
 
@@ -54,11 +75,13 @@ copy_src_files();
 
 gen_models();
 
-compile_models($paralel_run,$app);
+compile_models($app,\@inputs);
 
-check_compilation(@log_report_match);
+check_compilation($app,\@log_report_match,\@inputs);
 
-run_all_models($paralel_run);
+run_all_models($app,\@inputs);
+
+
 
 print "done!\n"
 

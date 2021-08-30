@@ -47,6 +47,7 @@ sub generate_sim_bin_file {
 	my $dir = Cwd::getcwd();
 	my $project_dir	  = abs_path("$dir/..");
 	my $src_verilator_dir="$project_dir/src_verilator";
+	my $src_c="$project_dir/src_c";
 	my $src_noc_dir="$project_dir/rtl/src_noc";	
 	my $script_dir="$project_dir/script";
 	my $testbench_file= "$src_verilator_dir/simulator.cpp";
@@ -155,6 +156,11 @@ sub generate_sim_bin_file {
 	
 	copy_file_and_folders (\@files,$project_dir,$obj_dir);
 	copy($testbench_file,"$obj_dir/testbench.cpp"); 
+		
+	my $r;	
+	#copy nettrace
+	dircopy("$src_c/netrace-1.0","$obj_dir/netrace-1.0") or $r=$!;
+	add_colored_info($info_text,"ERROR: $r\n","red") if(defined $r ) ; 
 		
 	#compile the testbench
 	my $param_h=gen_noc_param_h($simulate);
@@ -778,7 +784,7 @@ sub run_simulator {
 		next if(!check_sim_sample($simulate,$sample,$info));
 		my $traffictype=$simulate->object_get_attribute($sample,"TRAFFIC_TYPE");
 		run_synthetic_simulation($simulate,$info,$sample,$name) if($traffictype eq "Synthetic");
-		run_custom_simulation($simulate,$info,$sample,$name) if($traffictype eq "Task-graph");
+		run_task_simulation($simulate,$info,$sample,$name) if($traffictype eq "Task-graph");
 		
     	
 	}
@@ -1107,7 +1113,7 @@ sub extract_and_update_noc_sim_statistic {
 }
 
 
-sub run_custom_simulation{
+sub run_task_simulation{
 	my ($simulate,$info,$sample,$name)=@_;
 	my $log= (defined $name)? "$ENV{PRONOC_WORK}/simulate/$name.log": "$ENV{PRONOC_WORK}/simulate/sim.log";
 	my $SIM_CLOCK_LIMIT=$simulate->object_get_attribute ($sample,"SIM_CLOCK_LIMIT");
@@ -1141,7 +1147,7 @@ sub run_custom_simulation{
 		 if($jobs % $cpu_num ==0 || $jobs == $total){
 			#run paralle simulation
 			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmds\n wait\n");
-		
+			print "($stdout,$exit,$stderr)\n";
 			if($exit || (length $stderr >4)){
 				add_colored_info($info, "Error in running simulation: $stderr \n",'red');
 				$simulate->object_add_attribute ($sample,"status","failed");	
@@ -1149,10 +1155,20 @@ sub run_custom_simulation{
 				return;
 			 } 
 			 
+			
+			 
+			 
 			#save results
 			for (my $j=0; $j<$c; $j++){
 				my $r      = $paralel_ratio[$j];
 				my $stdout = load_file("$out_path/sim_out$r");
+				my @errors = unix_grep("$out_path/sim_out$r","ERROR:");
+				if (scalar @errors  ){
+						add_colored_info($info, "Error in running simulation: @errors \n",'red');
+						$simulate->object_add_attribute ($sample,"status","failed");	
+						$simulate->object_add_attribute('status',undef,'ideal');
+						return;						
+				}		
 			
 				extract_and_update_noc_sim_statistic ($simulate,$sample,$r,$stdout);
 			} 
