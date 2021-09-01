@@ -196,7 +196,6 @@ module testbench_noc;
 			(
        			.ratio (ratio),					
 				.pck_size_in(pck_size_in[i]),
-				.current_r_addr(chan_out_all[i].ctrl_chanel.neighbors_r_addr),
 				.current_e_addr(current_e_addr[i]),
 				.dest_e_addr(dest_e_addr[i]),
 				.pck_class_in(pck_class_in[i]),  

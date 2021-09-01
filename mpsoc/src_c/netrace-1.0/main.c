@@ -35,6 +35,8 @@
 #include "queue.c"
 #include "netrace.c"
 
+#include "inttypes.h"
+
 #define L2_LATENCY 8
 
 unsigned long long int calc_packet_timing( nt_packet_t* );
@@ -181,6 +183,7 @@ int main( int argc, char** argv ) {
 					long int ptr_addr = reinterpret_cast<long int> (temp_node);
 					//printf ("\t\tpacket pointer addr: %p\n" ,temp_node);
 					printf ("\t\tpacket pointer addr: %lx\n" ,ptr_addr);
+					printf("0x%.16" PRIXPTR " contains 0x%" PRIXPTR "\n", (uintptr_t)&ptr_addr, (uintptr_t)ptr_addr);
 				}
 			}
 		}

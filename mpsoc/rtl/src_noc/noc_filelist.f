@@ -37,6 +37,7 @@
 ./mesh_torus_noc_top.sv
 ./star_noc.sv
 ./fmesh.sv
+./packet_injector.sv
 
 
 

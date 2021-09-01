@@ -1154,6 +1154,7 @@ sub gen_sim_parameter_h {
  	#define ROUTER_P_NUM $router_p
  	
 	extern Vtraffic		*traffic[NE];
+	extern Vpck_inj     *pck_inj[NE];
 	extern int reset,clk;
 	
 	//simulation parameter	

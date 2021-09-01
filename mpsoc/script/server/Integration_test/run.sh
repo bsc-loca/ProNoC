@@ -20,6 +20,7 @@ ProNoC="../../.."
 my_srcs=( "rtl"
     "Integration_test"
 	"src_verilator"
+	"src_c/netrace-1.0"
 	"script"
 	"/perl_gui/lib/perl" )
 
@@ -64,6 +65,7 @@ function select_a_server {
 function copy_sources {
 	sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  rm -rf  ${SERVER_ROOT_DIR}
 	sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  mkdir -p "${SERVER_ROOT_DIR}/mpsoc/perl_gui/lib/"
+    sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  mkdir -p "${SERVER_ROOT_DIR}/mpsoc/src_c/"
 	sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  mkdir -p "${SERVER_ROOT_DIR}/mpsoc_work"
 	for i in "${my_srcs[@]}"; do	
 		echo "Copy $i  on the server"        

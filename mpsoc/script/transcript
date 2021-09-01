@@ -13,31 +13,22 @@
 # //  18 U.S.C. Section 1905.
 # //
 # do model.tcl
-###################################################################
-##                Start Compilation Script 
-###################################################################
-###################################################################
-##---- Specify variables
-# /home/alireza/work/git/hca_git/ProNoC/mpsoc/script
-# /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc
-# /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim
-# /home/alireza/work/git/hca_git/mpsoc_work/simulation
-# /home/alireza/work/git/hca_git/mpsoc_work/simulation/work
-# /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim
-# /home/alireza/work/git/hca_git/mpsoc_work/simulation
-# reading modelsim.ini
-# 1
-###################################################################
-##---- 1. Creating working library
-# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/git/hca_git/mpsoc_work/simulation/work".
+# /mtitcl/vsim
+# /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work
+# if {[file exists $rtl_work]} {
+# 	vdel -lib $rtl_work -all
+# }
+# vlib $rtl_work
+# vmap work $rtl_work
 # QuestaSim-64 vmap 10.7c Lib Mapping Utility 2018.08 Aug 17 2018
-# vmap work /home/alireza/work/git/hca_git/mpsoc_work/simulation/work 
+# vmap work /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work 
 # Modifying modelsim.ini
-###################################################################
-##---- 3. Compile the Design
+# 
+# 
+# vlog  +acc=rn  -F $::env(LM_FILE_LIST)
 # QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
-# Start time: 01:26:57 on Feb 15,2021
-# vlog -reportprogress 300 -sv -work /home/alireza/work/git/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/noc_filelist.f 
+# Start time: 00:53:55 on Sep 02,2021
+# vlog -reportprogress 300 "+acc=rn" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/modelsim_filelist.f 
 # -- Compiling package pronoc_pkg
 # -- Compiling module one_hot_mux
 # -- Compiling module one_hot_demux
@@ -57,6 +48,7 @@
 # -- Compiling module PC_31_5
 # -- Compiling module PC_63_6
 # -- Compiling module PC_127_7
+# -- Compiling module start_delay_gen
 # -- Compiling module arbiter
 # -- Compiling module arbiter_priority_en
 # -- Compiling module my_one_hot_arbiter
@@ -75,6 +67,7 @@
 # -- Compiling module class_ovc_table
 # -- Compiling module vc_priority_based_dest_port
 # -- Compiling module ss_allocator
+# -- Importing package pronoc_pkg
 # -- Compiling module ssa_per_vc
 # -- Compiling module ssa_check_destport
 # -- Compiling module add_ss_port
@@ -89,9 +82,10 @@
 # -- Compiling module header_flit_update_lk_route_ovc
 # -- Compiling module hdr_flit_weight_update
 # -- Compiling module noc_top
-# -- Importing package pronoc_pkg
 # -- Compiling module noc_top_v
 # -- Compiling module fattree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(92): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(93): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
 # -- Compiling module fattree_nca_random_up_routing
 # -- Compiling module fattree_nca_destp_up_routing
 # -- Compiling module fattree_nca_straight_up_routing
@@ -105,7 +99,6 @@
 # -- Compiling module fattree_addr_encoder
 # -- Compiling module fattree_addr_decoder
 # -- Compiling module fattree_ssa_check_destport
-# -- Compiling module fattree_add_ss_port
 # -- Compiling module fattree_router_addr_decode
 # -- Compiling module fattree_destp_generator
 # -- Compiling module comb_nonspec_allocator
@@ -113,9 +106,6 @@
 # -- Compiling module nonspec_sw_alloc
 # -- Compiling module swa_input_port_arbiter
 # -- Compiling module swa_output_port_arbiter
-# -- Compiling module canonical_credit_counter
-# -- Compiling module inport_module_can
-# -- Compiling module sw_mask_gen_can
 # -- Compiling module inout_ports
 # -- Compiling module output_vc_status
 # -- Compiling module vc_alloc_request_gen
@@ -135,6 +125,8 @@
 # -- Compiling module destp_generator
 # -- Compiling module custom_topology_destp_decoder
 # -- Compiling module tree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(90): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(91): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
 # -- Compiling module tree_nca_routing
 # -- Compiling module tree_conventional_routing
 # -- Compiling module tree_deterministic_look_ahead_routing
@@ -153,6 +145,7 @@
 # -- Compiling module remove_sw_loc_one_hot
 # -- Compiling module remove_receive_port_one_hot
 # -- Compiling module add_sw_loc_one_hot
+# -- Compiling module add_sw_loc_one_hot_val
 # -- Compiling module mesh_torus_conventional_routing
 # -- Compiling module tranc_ring_routing
 # -- Compiling module xy_line_routing
@@ -176,22 +169,22 @@
 # -- Compiling module mesh_dir
 # -- Compiling module mesh_tori_encode_dstport
 # -- Compiling module register
-# -- Compiling module onehot_mux
+# -- Compiling module reduction_or
+# -- Compiling module onehot_mux_2D
+# -- Compiling module onehot_mux_1D
 # -- Compiling module header_flit_info
-# -- Compiling module sbp_chanel_check
-# -- Compiling module sbp_forward_ivc_info
-# -- Compiling module sbp_bypass_chanels
+# -- Compiling module smart_chanel_check
+# -- Compiling module smart_forward_ivc_info
+# -- Compiling module smart_bypass_chanels
 # -- Compiling module check_straight_oport
-# -- Compiling module sbp_validity_check_per_ivc
-# -- Compiling module sbp_allocator_per_iport
-# -- Compiling module sbp_credit_manage
-# -- Compiling module sbp_credit_manage_per_vc
-# -- Compiling module traffic_gen
+# -- Compiling module smart_validity_check_per_ivc
+# -- Compiling module smart_allocator_per_iport
+# -- Compiling module smart_credit_manage
+# -- Compiling module smart_credit_manage_per_vc
+# -- Compiling module traffic_gen_top
 # -- Compiling module injection_ratio_ctrl
 # -- Compiling module packet_gen
 # -- Compiling module distance_gen
-# -- Compiling module traffic_gen_top
-# -- Compiling module traffic_gen_top_v
 # -- Compiling module port_presel_based_dst_ports_vc
 # -- Compiling module port_presel_based_dst_ports_credit
 # -- Compiling module mesh_torus_port_presel_based_dst_routers_vc
@@ -208,8 +201,9 @@
 # -- Compiling module normalizer
 # -- Compiling module congestion_out_gen
 # -- Compiling module deadlock_detector
-# -- Compiling module credit_counter
-# -- Compiling module inport_module
+# -- Compiling module output_ports
+# -- Compiling module credit_monitor_per_ovc
+# -- Compiling module oport_ovc_sig_gen
 # -- Compiling module sw_mask_gen
 # -- Compiling module check_ovc
 # -- Compiling module conventional_routing
@@ -224,10 +218,12 @@
 # -- Compiling module fifo_ram_mem_size
 # -- Compiling module fwft_fifo
 # -- Compiling module fwft_fifo_with_output_clear
-# -- Compiling module fifo
+# -- Compiling module fwft_fifo_bram
+# -- Compiling module bram_based_fifo
 # -- Compiling module mesh_torus_vc_alloc_request_gen_adaptive
 # -- Compiling module mesh_tori_dspt_clear_gen
 # -- Compiling module mesh_torus_mask_non_assignable_destport
+# -- Compiling module mesh_torus_mask_non_assignable_destport_no_self_loop
 # -- Compiling module mesh_torus_swap_port_presel_gen
 # -- Compiling module mesh_torus_adaptive_avb_ovc_mux
 # -- Compiling module mesh_torus_port_selector
@@ -236,111 +232,422 @@
 # -- Compiling module mesh_torus_distance_gen
 # -- Compiling module mesh_torus_ssa_check_destport
 # -- Compiling module line_ring_ssa_check_destport
-# -- Compiling module mesh_torus_add_ss_port
 # -- Compiling module mesh_tori_router_addr_decode
 # -- Compiling module mesh_tori_endp_addr_decode
 # -- Compiling module mesh_tori_addr_encoder
+# -- Compiling module mesh_tori_addr_coder
 # -- Compiling module mesh_torus_destp_generator
 # -- Compiling module mesh_torus_destp_decoder
 # -- Compiling module line_ring_destp_decoder
 # -- Compiling module mesh_torus_dynamic_portsel_control
-# -- Compiling module debug_IVC_flit_type_order_check
+# -- Compiling module check_flit_chanel_type_is_in_order
 # -- Compiling module debug_mesh_tori_route_ckeck
 # -- Compiling module debug_mesh_edges
 # -- Compiling module check_destination_addr
+# -- Compiling module endp_addr_encoder
+# -- Compiling module endp_addr_decoder
 # -- Compiling module router_top
 # -- Compiling module router_top_v
 # -- Compiling module mesh_torus_noc_top
-# -- Compiling module non_local_allocator
-# 
-# Top level modules:
-# 	outport_sum
-# 	set_bits_counter
-# 	my_one_hot_arbiter_ext_priority
-# 	arbiter_ext_priority
-# 	fixed_priority_arbiter
-# 	vc_priority_based_dest_port
-# 	noc_top_v
-# 	fattree_addr_encoder
-# 	fattree_addr_decoder
-# 	wrra
-# 	rra_priority_lock
-# 	mesh_torus_next_router_inport_predictor
-# 	remove_receive_port_one_hot
-# 	traffic_gen_top
-# 	traffic_gen_top_v
-# 	deadlock_detector
-# 	iport_reg_base
-# 	fifo
-# 	mesh_torus_dtrmn_dest_encoder
-# 	mesh_tori_addr_encoder
-# 	router_top_v
-# End time: 01:26:57 on Feb 15,2021, Elapsed time: 0:00:00
-# Errors: 0, Warnings: 0
-# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
-# Start time: 01:26:58 on Feb 15,2021
-# vlog -reportprogress 300 -sv -work /home/alireza/work/git/hca_git/mpsoc_work/simulation/work "+acc=rn" "+incdir+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc+/home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/filelist.f 
-# -- Compiling module pseudo_hotspot_no_core
-# -- Compiling module pseudo_hotspot
-# -- Compiling module pseudo_random
-# -- Compiling module pseudo_random_gen
-# -- Compiling module pseudo_random_no_core
-# -- Compiling module crc
-# -- Compiling module testbench_noc
-# -- Importing package pronoc_pkg
+# -- Compiling module star_noc_top
+# -- Compiling module star_conventional_routing
+# -- Compiling module fmesh_addr_encoder
+# -- Compiling module fmesh_addr_coder
+# -- Compiling module fmesh_endp_addr_decode
+# -- Compiling module fmesh_destp_generator
+# -- Compiling module fmesh_destp_decoder
+# -- Compiling module fmesh_distance_gen
+# -- Compiling module packet_injector
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(130): (vlog-2697) LSB of part-select into 'data' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(296): (vlog-2697) MSB of part-select into 'pck_data_o_gen' is out of bounds.
+# -- Compiling module injector_ovc_status
 # -- Compiling module pck_class_in_gen
 # -- Compiling module pck_dst_gen
 # -- Compiling module two_dimension_pck_dst_gen
 # -- Compiling module one_dimension_pck_dst_gen
 # -- Compiling module pck_size_gen
-# -- Compiling module endp_addr_encoder
+# -- Compiling module hot_spot_dest_gen
+# -- Compiling module pck_injector_test
 # 
 # Top level modules:
-# 	pseudo_hotspot
-# 	pseudo_random_gen
-# 	testbench_noc
-# End time: 01:26:58 on Feb 15,2021, Elapsed time: 0:00:00
-# Errors: 0, Warnings: 0
-###################################################################
-##                       END OF COMPILATION
-###################################################################
-# vsim -t ps work.testbench_noc 
-# Start time: 01:26:58 on Feb 15,2021
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# 	outport_sum
+# 	set_bits_counter
+# 	fast_minimum_number
+# 	start_delay_gen
+# 	my_one_hot_arbiter_ext_priority
+# 	arbiter_ext_priority
+# 	fixed_priority_arbiter
+# 	vc_priority_based_dest_port
+# 	noc_top_v
+# 	wrra
+# 	rra_priority_lock
+# 	mesh_torus_next_router_inport_predictor
+# 	remove_receive_port_one_hot
+# 	traffic_gen_top
+# 	deadlock_detector
+# 	iport_reg_base
+# 	mesh_torus_dtrmn_dest_encoder
+# 	router_top_v
+# 	pck_class_in_gen
+# 	pck_dst_gen
+# 	pck_size_gen
+# 	pck_injector_test
+# End time: 00:53:55 on Sep 02,2021, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 6
+# 
+# vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  pck_injector_test
+# vsim -t 1ps -L /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work -L work -voptargs=""+acc"" pck_injector_test 
+# Start time: 00:53:55 on Sep 02,2021
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Error: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(296): (vopt-3373) Range of part-select [-1:0] into 'pck_data_o_gen' [31:0] is reversed.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(296): (vopt-2697) MSB of part-select into 'pck_data_o_gen' is out of bounds.
+# ** Error: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(296): (vopt-3373) Range of part-select [-1:0] into 'pck_data_o_gen' [31:0] is reversed.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(296): (vopt-2697) MSB of part-select into 'pck_data_o_gen' is out of bounds.
+# ** Error: (vopt-2064) Compiler back-end code generation process terminated with code 2.
+# Error loading design
+# Error: Error loading design
+#        Pausing macro execution
+# MACRO ./model.tcl PAUSED at line 31
+# A time value could not be extracted from the current line
+do model.tcl
+#!/usr/bin/tclsh
+# 
+#Get tcl shell path relative to current script
+# set tcl_path	[file dirname [info script]] 
+# /mtitcl/vsim
+# if { [info exists $::env(LM_WORK_PLACE)] } { 
+#   puts "You need to define the work dir as LM_WORK_PLACE linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# if { [info exists $::env(LM_FILE_LIST)] } { 
+#   puts "You need to define the file list path as LM_FILE_LIST linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# 
+# 
+# 
+# set rtl_work $::env(LM_WORK_PLACE)/rtl_work
+# /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work
+# 
+# 
+# transcript on
+# if {[file exists $rtl_work]} {
+# 	vdel -lib $rtl_work -all
+# }
+# vlib $rtl_work
+# vmap work $rtl_work
+# QuestaSim-64 vmap 10.7c Lib Mapping Utility 2018.08 Aug 17 2018
+# vmap work /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work 
+# Modifying modelsim.ini
+# 
+# 
+# vlog  +acc=rn  -F $::env(LM_FILE_LIST)
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 00:58:38 on Sep 02,2021
+# vlog -reportprogress 300 "+acc=rn" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/modelsim_filelist.f 
+# -- Compiling package pronoc_pkg
+# -- Compiling module one_hot_mux
+# -- Compiling module one_hot_demux
+# -- Compiling module custom_or
+# -- Compiling module outport_sum
+# -- Compiling module bin_to_one_hot
+# -- Compiling module one_hot_to_bin
+# -- Compiling module binary_mux
+# -- Compiling module accumulator
+# -- Compiling module set_bits_counter
+# -- Compiling module check_single_bit_assertation
+# -- Compiling module fast_minimum_number
+# -- Compiling module parallel_counter
+# -- Compiling module CS_GEN
+# -- Compiling module PC_7_3
+# -- Compiling module PC_15_4
+# -- Compiling module PC_31_5
+# -- Compiling module PC_63_6
+# -- Compiling module PC_127_7
+# -- Compiling module start_delay_gen
+# -- Compiling module arbiter
+# -- Compiling module arbiter_priority_en
+# -- Compiling module my_one_hot_arbiter
+# -- Compiling module arbiter_2_one_hot
+# -- Compiling module arbiter_3_one_hot
+# -- Compiling module arbiter_4_one_hot
+# -- Compiling module my_one_hot_arbiter_priority_en
+# -- Compiling module thermo_gen
+# -- Compiling module thermo_arbiter
+# -- Compiling module thermo_arbiter_priority_en
+# -- Compiling module thermo_arbiter_ext_priority
+# -- Compiling module tree_arbiter
+# -- Compiling module my_one_hot_arbiter_ext_priority
+# -- Compiling module arbiter_ext_priority
+# -- Compiling module fixed_priority_arbiter
+# -- Compiling module class_ovc_table
+# -- Compiling module vc_priority_based_dest_port
+# -- Compiling module ss_allocator
+# -- Importing package pronoc_pkg
+# -- Compiling module ssa_per_vc
+# -- Compiling module ssa_check_destport
+# -- Compiling module add_ss_port
+# -- Compiling module tranc_xy_routing
+# -- Compiling module tranc_west_first_routing
+# -- Compiling module tranc_north_last_routing
+# -- Compiling module tranc_negetive_first_routing
+# -- Compiling module tranc_duato_routing
+# -- Compiling module tranc_dir
+# -- Compiling module header_flit_generator
+# -- Compiling module extract_header_flit_info
+# -- Compiling module header_flit_update_lk_route_ovc
+# -- Compiling module hdr_flit_weight_update
+# -- Compiling module noc_top
+# -- Compiling module noc_top_v
+# -- Compiling module fattree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(92): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(93): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module fattree_nca_random_up_routing
+# -- Compiling module fattree_nca_destp_up_routing
+# -- Compiling module fattree_nca_straight_up_routing
+# -- Compiling module fattree_destport_up_select
+# -- Compiling module fattree_conventional_routing
+# -- Compiling module fattree_look_ahead_routing
+# -- Compiling module fattree_deterministic_look_ahead_routing
+# -- Compiling module fattree_destport_decoder
+# -- Compiling module fattree_mask_non_assignable_destport
+# -- Compiling module fattree_distance_gen
+# -- Compiling module fattree_addr_encoder
+# -- Compiling module fattree_addr_decoder
+# -- Compiling module fattree_ssa_check_destport
+# -- Compiling module fattree_router_addr_decode
+# -- Compiling module fattree_destp_generator
+# -- Compiling module comb_nonspec_allocator
+# -- Compiling module comb_nonspec_v2_allocator
+# -- Compiling module nonspec_sw_alloc
+# -- Compiling module swa_input_port_arbiter
+# -- Compiling module swa_output_port_arbiter
+# -- Compiling module inout_ports
+# -- Compiling module output_vc_status
+# -- Compiling module vc_alloc_request_gen
+# -- Compiling module vc_alloc_request_gen_determinstic
+# -- Compiling module wrra
+# -- Compiling module rra_priority_lock
+# -- Compiling module weight_counter
+# -- Compiling module classic_weight_counter
+# -- Compiling module weight_control
+# -- Compiling module wrra_contention_gen
+# -- Compiling module wrra_inputport_destports_sum
+# -- Compiling module weights_update
+# -- Compiling module weight_update_per_port
+# -- Compiling module output_weight_latch
+# -- Compiling module input_ports
+# -- Compiling module input_queue_per_port
+# -- Compiling module destp_generator
+# -- Compiling module custom_topology_destp_decoder
+# -- Compiling module tree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(90): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(91): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module tree_nca_routing
+# -- Compiling module tree_conventional_routing
+# -- Compiling module tree_deterministic_look_ahead_routing
+# -- Compiling module tree_look_ahead_routing
+# -- Compiling module tree_destport_decoder
+# -- Compiling module tree_destp_generator
+# -- Compiling module comb_spec1_allocator
+# -- Compiling module spec_sw_alloc
+# -- Compiling module sw_alloc_sub
+# -- Compiling module combined_vc_sw_alloc
+# -- Compiling module mesh_torus_look_ahead_routing
+# -- Compiling module mesh_torus_deterministic_look_ahead_routing
+# -- Compiling module mesh_torus_adaptive_look_ahead_routing
+# -- Compiling module mesh_torus_next_router_addr_predictor
+# -- Compiling module mesh_torus_next_router_inport_predictor
+# -- Compiling module remove_sw_loc_one_hot
+# -- Compiling module remove_receive_port_one_hot
+# -- Compiling module add_sw_loc_one_hot
+# -- Compiling module add_sw_loc_one_hot_val
+# -- Compiling module mesh_torus_conventional_routing
+# -- Compiling module tranc_ring_routing
+# -- Compiling module xy_line_routing
+# -- Compiling module line_ring_encode_dstport
+# -- Compiling module line_ring_decode_dstport
+# -- Compiling module mesh_tori_decode_dstport
+# -- Compiling module baseline_allocator
+# -- Compiling module canonical_vc_alloc
+# -- Compiling module spec_sw_alloc_can
+# -- Compiling module comb_spec2_allocator
+# -- Compiling module spec_sw_alloc2
+# -- Compiling module sw_alloc_sub2
+# -- Compiling module spec_sw_alloc_sub2
+# -- Compiling module flit_buffer_reg_base
+# -- Compiling module xy_mesh_routing
+# -- Compiling module west_first_routing
+# -- Compiling module north_last_routing
+# -- Compiling module negetive_first_routing
+# -- Compiling module odd_even_routing
+# -- Compiling module duato_mesh_routing
+# -- Compiling module mesh_dir
+# -- Compiling module mesh_tori_encode_dstport
+# -- Compiling module register
+# -- Compiling module reduction_or
+# -- Compiling module onehot_mux_2D
+# -- Compiling module onehot_mux_1D
+# -- Compiling module header_flit_info
+# -- Compiling module smart_chanel_check
+# -- Compiling module smart_forward_ivc_info
+# -- Compiling module smart_bypass_chanels
+# -- Compiling module check_straight_oport
+# -- Compiling module smart_validity_check_per_ivc
+# -- Compiling module smart_allocator_per_iport
+# -- Compiling module smart_credit_manage
+# -- Compiling module smart_credit_manage_per_vc
+# -- Compiling module traffic_gen_top
+# -- Compiling module injection_ratio_ctrl
+# -- Compiling module packet_gen
+# -- Compiling module distance_gen
+# -- Compiling module port_presel_based_dst_ports_vc
+# -- Compiling module port_presel_based_dst_ports_credit
+# -- Compiling module mesh_torus_port_presel_based_dst_routers_vc
+# -- Compiling module port_presel_based_dst_routers_ovc
+# -- Compiling module port_pre_sel_gen
+# -- Compiling module congestion_out_based_ivc_req
+# -- Compiling module congestion_out_based_ivc_notgrant
+# -- Compiling module congestion_out_based_3port_avb_ovc
+# -- Compiling module congestion_out_based_avb_ovc_w2
+# -- Compiling module congestion_out_based_avb_ovc_w3
+# -- Compiling module congestion_out_based_avb_ovc_w4
+# -- Compiling module congestion_out_based_avb_ovc_not_granted_ivc
+# -- Compiling module parallel_count_normalize
+# -- Compiling module normalizer
+# -- Compiling module congestion_out_gen
+# -- Compiling module deadlock_detector
+# -- Compiling module output_ports
+# -- Compiling module credit_monitor_per_ovc
+# -- Compiling module oport_ovc_sig_gen
+# -- Compiling module sw_mask_gen
+# -- Compiling module check_ovc
+# -- Compiling module conventional_routing
+# -- Compiling module look_ahead_routing
+# -- Compiling module next_router_addr_selector_onehot
+# -- Compiling module next_router_addr_selector_bin
+# -- Compiling module router_two_stage
+# -- Compiling module crossbar
+# -- Compiling module iport_reg_base
+# -- Compiling module flit_buffer
+# -- Compiling module fifo_ram
+# -- Compiling module fifo_ram_mem_size
+# -- Compiling module fwft_fifo
+# -- Compiling module fwft_fifo_with_output_clear
+# -- Compiling module fwft_fifo_bram
+# -- Compiling module bram_based_fifo
+# -- Compiling module mesh_torus_vc_alloc_request_gen_adaptive
+# -- Compiling module mesh_tori_dspt_clear_gen
+# -- Compiling module mesh_torus_mask_non_assignable_destport
+# -- Compiling module mesh_torus_mask_non_assignable_destport_no_self_loop
+# -- Compiling module mesh_torus_swap_port_presel_gen
+# -- Compiling module mesh_torus_adaptive_avb_ovc_mux
+# -- Compiling module mesh_torus_port_selector
+# -- Compiling module mesh_torus_adaptive_lk_dest_encoder
+# -- Compiling module mesh_torus_dtrmn_dest_encoder
+# -- Compiling module mesh_torus_distance_gen
+# -- Compiling module mesh_torus_ssa_check_destport
+# -- Compiling module line_ring_ssa_check_destport
+# -- Compiling module mesh_tori_router_addr_decode
+# -- Compiling module mesh_tori_endp_addr_decode
+# -- Compiling module mesh_tori_addr_encoder
+# -- Compiling module mesh_tori_addr_coder
+# -- Compiling module mesh_torus_destp_generator
+# -- Compiling module mesh_torus_destp_decoder
+# -- Compiling module line_ring_destp_decoder
+# -- Compiling module mesh_torus_dynamic_portsel_control
+# -- Compiling module check_flit_chanel_type_is_in_order
+# -- Compiling module debug_mesh_tori_route_ckeck
+# -- Compiling module debug_mesh_edges
+# -- Compiling module check_destination_addr
+# -- Compiling module endp_addr_encoder
+# -- Compiling module endp_addr_decoder
+# -- Compiling module router_top
+# -- Compiling module router_top_v
+# -- Compiling module mesh_torus_noc_top
+# -- Compiling module star_noc_top
+# -- Compiling module star_conventional_routing
+# -- Compiling module fmesh_addr_encoder
+# -- Compiling module fmesh_addr_coder
+# -- Compiling module fmesh_endp_addr_decode
+# -- Compiling module fmesh_destp_generator
+# -- Compiling module fmesh_destp_decoder
+# -- Compiling module fmesh_distance_gen
+# -- Compiling module packet_injector
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(132): (vlog-2697) LSB of part-select into 'data' is out of bounds.
+# -- Compiling module injector_ovc_status
+# -- Compiling module pck_class_in_gen
+# -- Compiling module pck_dst_gen
+# -- Compiling module two_dimension_pck_dst_gen
+# -- Compiling module one_dimension_pck_dst_gen
+# -- Compiling module pck_size_gen
+# -- Compiling module hot_spot_dest_gen
+# -- Compiling module pck_injector_test
+# 
+# Top level modules:
+# 	outport_sum
+# 	set_bits_counter
+# 	fast_minimum_number
+# 	start_delay_gen
+# 	my_one_hot_arbiter_ext_priority
+# 	arbiter_ext_priority
+# 	fixed_priority_arbiter
+# 	vc_priority_based_dest_port
+# 	noc_top_v
+# 	wrra
+# 	rra_priority_lock
+# 	mesh_torus_next_router_inport_predictor
+# 	remove_receive_port_one_hot
+# 	traffic_gen_top
+# 	deadlock_detector
+# 	iport_reg_base
+# 	mesh_torus_dtrmn_dest_encoder
+# 	router_top_v
+# 	pck_class_in_gen
+# 	pck_dst_gen
+# 	pck_size_gen
+# 	pck_injector_test
+# End time: 00:58:38 on Sep 02,2021, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 5
+# 
+# vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  pck_injector_test
+# vsim -t 1ps -L /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work -L work -voptargs=""+acc"" pck_injector_test 
+# Start time: 00:53:55 on Sep 02,2021
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-143) Recognized 1 FSM in module "packet_injector(fast)".
 # Loading sv_std.std
 # Loading work.pronoc_pkg(fast)
-# Loading work.testbench_noc(fast)
+# Loading work.pck_injector_test(fast)
 # Loading work.noc_top(fast)
 # Loading work.mesh_torus_noc_top(fast)
 # Loading work.router_top(fast)
+# Loading work.header_flit_info(fast)
 # Loading work.router_two_stage(fast)
 # Loading work.add_sw_loc_one_hot(fast)
 # Loading work.inout_ports(fast)
-# Loading work.non_local_allocator(fast)
-# Loading work.credit_counter(fast)
-# Loading work.inport_module(fast)
-# Loading work.one_hot_mux(fast__2)
-# Loading work.one_hot_mux(fast__3)
-# Loading work.one_hot_demux(fast)
-# Loading work.sw_mask_gen(fast)
-# Loading work.one_hot_mux(fast)
-# Loading work.port_pre_sel_gen(fast)
-# Loading work.vc_alloc_request_gen(fast)
-# Loading work.vc_alloc_request_gen_determinstic(fast)
-# Loading work.congestion_out_gen(fast)
 # Loading work.input_ports(fast)
 # Loading work.input_queue_per_port(fast)
+# Loading work.register(fast)
+# Loading work.register(fast__1)
 # Loading work.extract_header_flit_info(fast)
 # Loading work.one_hot_to_bin(fast)
+# Loading work.one_hot_mux(fast)
 # Loading work.class_ovc_table(fast)
-# Loading work.fwft_fifo(fast)
+# Loading work.onehot_mux_1D(fast__2)
+# Loading work.onehot_mux_2D(fast__2)
 # Loading work.fwft_fifo(fast__1)
+# Loading work.fwft_fifo(fast)
 # Loading work.destp_generator(fast)
 # Loading work.mesh_torus_destp_generator(fast)
 # Loading work.mesh_torus_destp_decoder(fast)
 # Loading work.remove_sw_loc_one_hot(fast)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast)
 # Loading work.flit_buffer(fast)
+# Loading work.onehot_mux_1D(fast__1)
+# Loading work.onehot_mux_2D(fast__1)
 # Loading work.fifo_ram(fast)
 # Loading work.look_ahead_routing(fast)
 # Loading work.mesh_tori_router_addr_decode(fast)
@@ -353,31 +660,54 @@
 # Loading work.xy_mesh_routing(fast)
 # Loading work.mesh_tori_encode_dstport(fast)
 # Loading work.header_flit_update_lk_route_ovc(fast)
-# Loading work.one_hot_mux(fast__1)
+# Loading work.onehot_mux_1D(fast)
+# Loading work.onehot_mux_2D(fast)
 # Loading work.input_queue_per_port(fast__1)
 # Loading work.destp_generator(fast__1)
 # Loading work.mesh_torus_destp_generator(fast__1)
 # Loading work.mesh_torus_destp_decoder(fast__1)
 # Loading work.remove_sw_loc_one_hot(fast__1)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__1)
 # Loading work.input_queue_per_port(fast__2)
 # Loading work.destp_generator(fast__2)
 # Loading work.mesh_torus_destp_generator(fast__2)
 # Loading work.mesh_torus_destp_decoder(fast__2)
 # Loading work.remove_sw_loc_one_hot(fast__2)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__2)
 # Loading work.input_queue_per_port(fast__3)
 # Loading work.destp_generator(fast__3)
 # Loading work.mesh_torus_destp_generator(fast__3)
 # Loading work.mesh_torus_destp_decoder(fast__3)
 # Loading work.remove_sw_loc_one_hot(fast__3)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__3)
 # Loading work.input_queue_per_port(fast__4)
 # Loading work.destp_generator(fast__4)
 # Loading work.mesh_torus_destp_generator(fast__4)
 # Loading work.mesh_torus_destp_decoder(fast__4)
 # Loading work.remove_sw_loc_one_hot(fast__4)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__4)
+# Loading work.output_ports(fast)
+# Loading work.register(fast__2)
+# Loading work.oport_ovc_sig_gen(fast)
+# Loading work.onehot_mux_1D(fast__3)
+# Loading work.onehot_mux_2D(fast__3)
+# Loading work.one_hot_demux(fast)
+# Loading work.credit_monitor_per_ovc(fast)
+# Loading work.sw_mask_gen(fast)
+# Loading work.onehot_mux_1D(fast__4)
+# Loading work.onehot_mux_2D(fast__4)
+# Loading work.credit_monitor_per_ovc(fast__1)
+# Loading work.credit_monitor_per_ovc(fast__2)
+# Loading work.credit_monitor_per_ovc(fast__3)
+# Loading work.credit_monitor_per_ovc(fast__4)
+# Loading work.port_pre_sel_gen(fast)
+# Loading work.vc_alloc_request_gen(fast)
+# Loading work.vc_alloc_request_gen_determinstic(fast)
+# Loading work.congestion_out_gen(fast)
 # Loading work.combined_vc_sw_alloc(fast)
 # Loading work.comb_nonspec_allocator(fast)
 # Loading work.nonspec_sw_alloc(fast)
@@ -389,72 +719,2278 @@
 # Loading work.arbiter(fast)
 # Loading work.my_one_hot_arbiter(fast)
 # Loading work.one_hot_to_bin(fast__1)
+# Loading work.one_hot_mux(fast__1)
 # Loading work.arbiter_4_one_hot(fast)
 # Loading work.custom_or(fast)
 # Loading work.arbiter(fast__1)
 # Loading work.my_one_hot_arbiter(fast__1)
 # Loading work.crossbar(fast)
 # Loading work.binary_mux(fast)
-# Loading work.traffic_gen_top(fast)
-# Loading work.traffic_gen(fast)
-# Loading work.check_destination_addr(fast)
-# Loading work.injection_ratio_ctrl(fast)
-# Loading work.output_vc_status(fast)
-# Loading work.packet_gen(fast)
-# Loading work.conventional_routing(fast)
-# Loading work.mesh_torus_conventional_routing(fast__1)
-# Loading work.fwft_fifo(fast__2)
-# Loading work.header_flit_generator(fast)
-# Loading work.distance_gen(fast)
-# Loading work.mesh_torus_distance_gen(fast)
-# Loading work.pck_class_in_gen(fast)
-# Loading work.pseudo_random(fast)
-# Loading work.pck_dst_gen(fast)
-# Loading work.two_dimension_pck_dst_gen(fast)
-# Loading work.pseudo_random_no_core(fast)
-# Loading work.pseudo_random(fast__1)
 # Loading work.endp_addr_encoder(fast)
 # Loading work.mesh_tori_addr_encoder(fast)
-# Loading work.pck_size_gen(fast)
-# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'avg_pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(16).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[0]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(17).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[0]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (9) for port 'pck_number'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(28).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[0]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (17) for port 'time_stamp_h2h'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(36).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[0]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'avg_pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(16).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[1]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(17).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[1]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (9) for port 'pck_number'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(28).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[1]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (17) for port 'time_stamp_h2h'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(36).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[1]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'avg_pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(16).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[2]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(17).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[2]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (9) for port 'pck_number'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(28).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[2]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (17) for port 'time_stamp_h2h'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(36).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[2]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'avg_pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(16).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[3]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (14) does not match connection size (2) for port 'pck_size_in'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(17).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[3]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (9) for port 'pck_number'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(28).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[3]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-# ** Warning: (vsim-3015) [PCDPC] - Port size (30) does not match connection size (17) for port 'time_stamp_h2h'. The port definition is at: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./traffic_gen_top.sv(36).
-#    Time: 0 ps  Iteration: 0  Instance: /testbench_noc/endpoints[3]/the_traffic_gen File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./testbench_noc.sv Line: 216
-#               550000: ERROR: Attempt to write to full FIFO:FIFO size is           2. testbench_noc.the_noc.tori_noc.noc_top.mesh_torus.y_loop[1].x_loop[1].the_router.router_ref.the_inout_ports.the_input_port.port_loop[0].the_input_queue_per_port.V_loop[0].dtrmn_dest.dest_fifo
-# ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./flit_buffer.v(778)
-#    Time: 550 ns  Iteration: 1  Instance: /testbench_noc/the_noc/tori_noc/noc_top/mesh_torus/y_loop[1]/x_loop[1]/the_router/router_ref/the_inout_ports/the_input_port/port_loop[0]/the_input_queue_per_port/V_loop[0]/dtrmn_dest/dest_fifo
-# 1
-# Break at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./flit_buffer.v line 778
-# A time value could not be extracted from the current line
+# Loading work.packet_injector(fast)
+# Loading work.conventional_routing(fast)
+# Loading work.mesh_torus_conventional_routing(fast__1)
+# Loading work.header_flit_generator(fast)
+# Loading work.injector_ovc_status(fast)
+# Loading work.header_flit_info(fast__1)
+# Loading work.register(fast__3)
+# 
+# add wave *
+# view structure
+# .main_pane.structure.interior.cs.body.struct
+# view signals
+# .main_pane.objects.interior.cs.body.tree
+# run -all
+# pck_inj(          0) got a packet: source= 8, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 9, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source=10, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source=16, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014325
+# pck_inj(          0) got a packet: source=11, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 4, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source=17, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=00000001432c
+# pck_inj(          0) got a packet: source= 8, size=    4, data=00000001432b
+# pck_inj(          0) got a packet: source= 2, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014333
+# pck_inj(          0) got a packet: source=24, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 5, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=000000014336
+# pck_inj(          0) got a packet: source= 1, size=    4, data=00000001433a
+# pck_inj(          0) got a packet: source=12, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=00000001432a
+# pck_inj(          0) got a packet: source=16, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014341
+# pck_inj(          0) got a packet: source= 8, size=    4, data=000000014341
+# pck_inj(          0) got a packet: source= 3, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=000000014325
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014348
+# pck_inj(          0) got a packet: source=18, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=000000014339
+# pck_inj(          0) got a packet: source= 8, size=    4, data=00000001434c
+# pck_inj(          0) got a packet: source= 1, size=    4, data=00000001434f
+# pck_inj(          0) got a packet: source=10, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 6, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source=25, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014356
+# pck_inj(          0) got a packet: source= 8, size=    4, data=000000014357
+# pck_inj(          0) got a packet: source= 2, size=    4, data=000000014348
+# pck_inj(          0) got a packet: source= 9, size=    4, data=00000001433a
+# pck_inj(          0) got a packet: source= 1, size=    4, data=00000001435d
+# pck_inj(          0) got a packet: source=16, size=    4, data=000000014334
+# pck_inj(          0) got a packet: source= 3, size=    4, data=000000014325
+# pck_inj(          0) got a packet: source= 8, size=    4, data=000000014362
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014364
+# pck_inj(          0) got a packet: source=13, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=000000014357
+# pck_inj(          0) got a packet: source=19, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=00000001436b
+# pck_inj(          0) got a packet: source= 8, size=    4, data=00000001436d
+# pck_inj(          0) got a packet: source= 4, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=000000014351
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014372
+# pck_inj(          0) got a packet: source=32, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=000000014366
+# pck_inj(          0) got a packet: source= 8, size=    4, data=000000014378
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014379
+# pck_inj(          0) got a packet: source=10, size=    4, data=000000014325
+# pck_inj(          0) got a packet: source= 3, size=    4, data=000000014341
+# pck_inj(          0) got a packet: source=16, size=    4, data=000000014357
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014380
+# pck_inj(          0) got a packet: source= 8, size=    4, data=000000014383
+# pck_inj(          0) got a packet: source= 2, size=    4, data=000000014375
+# pck_inj(          0) got a packet: source= 9, size=    4, data=000000014368
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014387
+# pck_inj(          0) got a packet: source=17, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 7, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=00000001438e
+# pck_inj(          0) got a packet: source= 1, size=    4, data=00000001438e
+# pck_inj(          0) got a packet: source=11, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 2, size=    4, data=000000014384
+# pck_inj(          0) got a packet: source=24, size=    4, data=000000014322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=000000014395
+# pck_inj(          0) got a packet: source= 8, size=    4, data=000000014399
+# pck_inj(          0) got a packet: source= 3, size=    4, data=000000014360
+# pck_inj(          0) got a packet: source= 9, size=    4, data=00000001437f
+# pck_inj(          0) got a packet: source= 1, size=    4, data=00000001439c
+# pck_inj(          0) got a packet: source=16, size=    4, data=00000001437a
+# pck_inj(          0) got a packet: source= 2, size=    4, data=000000014393
+# pck_inj(          0) got a packet: source= 8, size=    4, data=0000000143a4
+# pck_inj(          0) got a packet: source= 1, size=    4, data=0000000143a3
+# pck_inj(          0) got a packet: source=10, size=    4, data=000000014347
+# pck_inj(          0) got a packet: source= 4, size=    4, data=000000014325
+# pck_inj(          0) got a packet: source=20, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=0000000143aa
+# pck_inj(          0) got a packet: source= 8, size=    4, data=0000000143af
+# pck_inj(          0) got a packet: source= 2, size=    4, data=0000000143a2
+# pck_inj(          0) got a packet: source= 9, size=    4, data=000000014396
+# pck_inj(          0) got a packet: source= 1, size=    4, data=0000000143b1
+# pck_inj(          0) got a packet: source=26, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=00000001437f
+# pck_inj(          0) got a packet: source= 8, size=    4, data=0000000143ba
+# pck_inj(          0) got a packet: source= 1, size=    4, data=0000000143b8
+# pck_inj(          0) got a packet: source=14, size=    4, data=000000014321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=0000000143b1
+# pck_inj(          0) got a packet: source=16, size=    4, data=00000001439d
+# pck_inj(          0) got a packet: source= 1, size=    4, data=0000000143bf
+# ** Note: $stop    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv(93)
+#    Time: 8250 ns  Iteration: 1  Region: /pck_injector_test/endpoints[0]
+# Break in Module pck_injector_test at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv line 93
 do model.tcl
-# Cannot open macro file: model.tcl
-# End time: 02:30:57 on Feb 15,2021, Elapsed time: 1:03:59
-# Errors: 1, Warnings: 16
+#!/usr/bin/tclsh
+# 
+#Get tcl shell path relative to current script
+# set tcl_path	[file dirname [info script]] 
+# /mtitcl/vsim
+# if { [info exists $::env(LM_WORK_PLACE)] } { 
+#   puts "You need to define the work dir as LM_WORK_PLACE linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# if { [info exists $::env(LM_FILE_LIST)] } { 
+#   puts "You need to define the file list path as LM_FILE_LIST linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# 
+# 
+# 
+# set rtl_work $::env(LM_WORK_PLACE)/rtl_work
+# /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work
+# 
+# 
+# transcript on
+# if {[file exists $rtl_work]} {
+# 	vdel -lib $rtl_work -all
+# }
+# ** Warning: (vdel-134) Unable to remove locked optimized design "_opt".  Locker is alireza@alireza-7490.
+# vlib $rtl_work
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work".
+# vmap work $rtl_work
+# QuestaSim-64 vmap 10.7c Lib Mapping Utility 2018.08 Aug 17 2018
+# vmap work /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work 
+# Modifying modelsim.ini
+# 
+# 
+# vlog  +acc=rn  -F $::env(LM_FILE_LIST)
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 01:05:54 on Sep 02,2021
+# vlog -reportprogress 300 "+acc=rn" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/modelsim_filelist.f 
+# -- Compiling package pronoc_pkg
+# -- Compiling module one_hot_mux
+# -- Compiling module one_hot_demux
+# -- Compiling module custom_or
+# -- Compiling module outport_sum
+# -- Compiling module bin_to_one_hot
+# -- Compiling module one_hot_to_bin
+# -- Compiling module binary_mux
+# -- Compiling module accumulator
+# -- Compiling module set_bits_counter
+# -- Compiling module check_single_bit_assertation
+# -- Compiling module fast_minimum_number
+# -- Compiling module parallel_counter
+# -- Compiling module CS_GEN
+# -- Compiling module PC_7_3
+# -- Compiling module PC_15_4
+# -- Compiling module PC_31_5
+# -- Compiling module PC_63_6
+# -- Compiling module PC_127_7
+# -- Compiling module start_delay_gen
+# -- Compiling module arbiter
+# -- Compiling module arbiter_priority_en
+# -- Compiling module my_one_hot_arbiter
+# -- Compiling module arbiter_2_one_hot
+# -- Compiling module arbiter_3_one_hot
+# -- Compiling module arbiter_4_one_hot
+# -- Compiling module my_one_hot_arbiter_priority_en
+# -- Compiling module thermo_gen
+# -- Compiling module thermo_arbiter
+# -- Compiling module thermo_arbiter_priority_en
+# -- Compiling module thermo_arbiter_ext_priority
+# -- Compiling module tree_arbiter
+# -- Compiling module my_one_hot_arbiter_ext_priority
+# -- Compiling module arbiter_ext_priority
+# -- Compiling module fixed_priority_arbiter
+# -- Compiling module class_ovc_table
+# -- Compiling module vc_priority_based_dest_port
+# -- Compiling module ss_allocator
+# -- Importing package pronoc_pkg
+# -- Compiling module ssa_per_vc
+# -- Compiling module ssa_check_destport
+# -- Compiling module add_ss_port
+# -- Compiling module tranc_xy_routing
+# -- Compiling module tranc_west_first_routing
+# -- Compiling module tranc_north_last_routing
+# -- Compiling module tranc_negetive_first_routing
+# -- Compiling module tranc_duato_routing
+# -- Compiling module tranc_dir
+# -- Compiling module header_flit_generator
+# -- Compiling module extract_header_flit_info
+# -- Compiling module header_flit_update_lk_route_ovc
+# -- Compiling module hdr_flit_weight_update
+# -- Compiling module noc_top
+# -- Compiling module noc_top_v
+# -- Compiling module fattree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(92): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(93): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module fattree_nca_random_up_routing
+# -- Compiling module fattree_nca_destp_up_routing
+# -- Compiling module fattree_nca_straight_up_routing
+# -- Compiling module fattree_destport_up_select
+# -- Compiling module fattree_conventional_routing
+# -- Compiling module fattree_look_ahead_routing
+# -- Compiling module fattree_deterministic_look_ahead_routing
+# -- Compiling module fattree_destport_decoder
+# -- Compiling module fattree_mask_non_assignable_destport
+# -- Compiling module fattree_distance_gen
+# -- Compiling module fattree_addr_encoder
+# -- Compiling module fattree_addr_decoder
+# -- Compiling module fattree_ssa_check_destport
+# -- Compiling module fattree_router_addr_decode
+# -- Compiling module fattree_destp_generator
+# -- Compiling module comb_nonspec_allocator
+# -- Compiling module comb_nonspec_v2_allocator
+# -- Compiling module nonspec_sw_alloc
+# -- Compiling module swa_input_port_arbiter
+# -- Compiling module swa_output_port_arbiter
+# -- Compiling module inout_ports
+# -- Compiling module output_vc_status
+# -- Compiling module vc_alloc_request_gen
+# -- Compiling module vc_alloc_request_gen_determinstic
+# -- Compiling module wrra
+# -- Compiling module rra_priority_lock
+# -- Compiling module weight_counter
+# -- Compiling module classic_weight_counter
+# -- Compiling module weight_control
+# -- Compiling module wrra_contention_gen
+# -- Compiling module wrra_inputport_destports_sum
+# -- Compiling module weights_update
+# -- Compiling module weight_update_per_port
+# -- Compiling module output_weight_latch
+# -- Compiling module input_ports
+# -- Compiling module input_queue_per_port
+# -- Compiling module destp_generator
+# -- Compiling module custom_topology_destp_decoder
+# -- Compiling module tree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(90): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(91): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module tree_nca_routing
+# -- Compiling module tree_conventional_routing
+# -- Compiling module tree_deterministic_look_ahead_routing
+# -- Compiling module tree_look_ahead_routing
+# -- Compiling module tree_destport_decoder
+# -- Compiling module tree_destp_generator
+# -- Compiling module comb_spec1_allocator
+# -- Compiling module spec_sw_alloc
+# -- Compiling module sw_alloc_sub
+# -- Compiling module combined_vc_sw_alloc
+# -- Compiling module mesh_torus_look_ahead_routing
+# -- Compiling module mesh_torus_deterministic_look_ahead_routing
+# -- Compiling module mesh_torus_adaptive_look_ahead_routing
+# -- Compiling module mesh_torus_next_router_addr_predictor
+# -- Compiling module mesh_torus_next_router_inport_predictor
+# -- Compiling module remove_sw_loc_one_hot
+# -- Compiling module remove_receive_port_one_hot
+# -- Compiling module add_sw_loc_one_hot
+# -- Compiling module add_sw_loc_one_hot_val
+# -- Compiling module mesh_torus_conventional_routing
+# -- Compiling module tranc_ring_routing
+# -- Compiling module xy_line_routing
+# -- Compiling module line_ring_encode_dstport
+# -- Compiling module line_ring_decode_dstport
+# -- Compiling module mesh_tori_decode_dstport
+# -- Compiling module baseline_allocator
+# -- Compiling module canonical_vc_alloc
+# -- Compiling module spec_sw_alloc_can
+# -- Compiling module comb_spec2_allocator
+# -- Compiling module spec_sw_alloc2
+# -- Compiling module sw_alloc_sub2
+# -- Compiling module spec_sw_alloc_sub2
+# -- Compiling module flit_buffer_reg_base
+# -- Compiling module xy_mesh_routing
+# -- Compiling module west_first_routing
+# -- Compiling module north_last_routing
+# -- Compiling module negetive_first_routing
+# -- Compiling module odd_even_routing
+# -- Compiling module duato_mesh_routing
+# -- Compiling module mesh_dir
+# -- Compiling module mesh_tori_encode_dstport
+# -- Compiling module register
+# -- Compiling module reduction_or
+# -- Compiling module onehot_mux_2D
+# -- Compiling module onehot_mux_1D
+# -- Compiling module header_flit_info
+# -- Compiling module smart_chanel_check
+# -- Compiling module smart_forward_ivc_info
+# -- Compiling module smart_bypass_chanels
+# -- Compiling module check_straight_oport
+# -- Compiling module smart_validity_check_per_ivc
+# -- Compiling module smart_allocator_per_iport
+# -- Compiling module smart_credit_manage
+# -- Compiling module smart_credit_manage_per_vc
+# -- Compiling module traffic_gen_top
+# -- Compiling module injection_ratio_ctrl
+# -- Compiling module packet_gen
+# -- Compiling module distance_gen
+# -- Compiling module port_presel_based_dst_ports_vc
+# -- Compiling module port_presel_based_dst_ports_credit
+# -- Compiling module mesh_torus_port_presel_based_dst_routers_vc
+# -- Compiling module port_presel_based_dst_routers_ovc
+# -- Compiling module port_pre_sel_gen
+# -- Compiling module congestion_out_based_ivc_req
+# -- Compiling module congestion_out_based_ivc_notgrant
+# -- Compiling module congestion_out_based_3port_avb_ovc
+# -- Compiling module congestion_out_based_avb_ovc_w2
+# -- Compiling module congestion_out_based_avb_ovc_w3
+# -- Compiling module congestion_out_based_avb_ovc_w4
+# -- Compiling module congestion_out_based_avb_ovc_not_granted_ivc
+# -- Compiling module parallel_count_normalize
+# -- Compiling module normalizer
+# -- Compiling module congestion_out_gen
+# -- Compiling module deadlock_detector
+# -- Compiling module output_ports
+# -- Compiling module credit_monitor_per_ovc
+# -- Compiling module oport_ovc_sig_gen
+# -- Compiling module sw_mask_gen
+# -- Compiling module check_ovc
+# -- Compiling module conventional_routing
+# -- Compiling module look_ahead_routing
+# -- Compiling module next_router_addr_selector_onehot
+# -- Compiling module next_router_addr_selector_bin
+# -- Compiling module router_two_stage
+# -- Compiling module crossbar
+# -- Compiling module iport_reg_base
+# -- Compiling module flit_buffer
+# -- Compiling module fifo_ram
+# -- Compiling module fifo_ram_mem_size
+# -- Compiling module fwft_fifo
+# -- Compiling module fwft_fifo_with_output_clear
+# -- Compiling module fwft_fifo_bram
+# -- Compiling module bram_based_fifo
+# -- Compiling module mesh_torus_vc_alloc_request_gen_adaptive
+# -- Compiling module mesh_tori_dspt_clear_gen
+# -- Compiling module mesh_torus_mask_non_assignable_destport
+# -- Compiling module mesh_torus_mask_non_assignable_destport_no_self_loop
+# -- Compiling module mesh_torus_swap_port_presel_gen
+# -- Compiling module mesh_torus_adaptive_avb_ovc_mux
+# -- Compiling module mesh_torus_port_selector
+# -- Compiling module mesh_torus_adaptive_lk_dest_encoder
+# -- Compiling module mesh_torus_dtrmn_dest_encoder
+# -- Compiling module mesh_torus_distance_gen
+# -- Compiling module mesh_torus_ssa_check_destport
+# -- Compiling module line_ring_ssa_check_destport
+# -- Compiling module mesh_tori_router_addr_decode
+# -- Compiling module mesh_tori_endp_addr_decode
+# -- Compiling module mesh_tori_addr_encoder
+# -- Compiling module mesh_tori_addr_coder
+# -- Compiling module mesh_torus_destp_generator
+# -- Compiling module mesh_torus_destp_decoder
+# -- Compiling module line_ring_destp_decoder
+# -- Compiling module mesh_torus_dynamic_portsel_control
+# -- Compiling module check_flit_chanel_type_is_in_order
+# -- Compiling module debug_mesh_tori_route_ckeck
+# -- Compiling module debug_mesh_edges
+# -- Compiling module check_destination_addr
+# -- Compiling module endp_addr_encoder
+# -- Compiling module endp_addr_decoder
+# -- Compiling module router_top
+# -- Compiling module router_top_v
+# -- Compiling module mesh_torus_noc_top
+# -- Compiling module star_noc_top
+# -- Compiling module star_conventional_routing
+# -- Compiling module fmesh_addr_encoder
+# -- Compiling module fmesh_addr_coder
+# -- Compiling module fmesh_endp_addr_decode
+# -- Compiling module fmesh_destp_generator
+# -- Compiling module fmesh_destp_decoder
+# -- Compiling module fmesh_distance_gen
+# -- Compiling module packet_injector
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(132): (vlog-2697) LSB of part-select into 'data' is out of bounds.
+# -- Compiling module injector_ovc_status
+# -- Compiling module pck_class_in_gen
+# -- Compiling module pck_dst_gen
+# -- Compiling module two_dimension_pck_dst_gen
+# -- Compiling module one_dimension_pck_dst_gen
+# -- Compiling module pck_size_gen
+# -- Compiling module hot_spot_dest_gen
+# -- Compiling module pck_injector_test
+# 
+# Top level modules:
+# 	outport_sum
+# 	set_bits_counter
+# 	fast_minimum_number
+# 	start_delay_gen
+# 	my_one_hot_arbiter_ext_priority
+# 	arbiter_ext_priority
+# 	fixed_priority_arbiter
+# 	vc_priority_based_dest_port
+# 	noc_top_v
+# 	wrra
+# 	rra_priority_lock
+# 	mesh_torus_next_router_inport_predictor
+# 	remove_receive_port_one_hot
+# 	traffic_gen_top
+# 	deadlock_detector
+# 	iport_reg_base
+# 	mesh_torus_dtrmn_dest_encoder
+# 	router_top_v
+# 	pck_class_in_gen
+# 	pck_dst_gen
+# 	pck_size_gen
+# 	pck_injector_test
+# End time: 01:05:54 on Sep 02,2021, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 5
+# 
+# vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  pck_injector_test
+# End time: 01:05:54 on Sep 02,2021, Elapsed time: 0:11:59
+# Errors: 3, Warnings: 8
+# vsim -t 1ps -L /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work -L work -voptargs=""+acc"" pck_injector_test 
+# Start time: 01:05:54 on Sep 02,2021
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vopt-143) Recognized 1 FSM in module "packet_injector(fast)".
+# Loading sv_std.std
+# Loading work.pronoc_pkg(fast)
+# Loading work.pck_injector_test(fast)
+# Loading work.noc_top(fast)
+# Loading work.mesh_torus_noc_top(fast)
+# Loading work.router_top(fast)
+# Loading work.header_flit_info(fast)
+# Loading work.router_two_stage(fast)
+# Loading work.add_sw_loc_one_hot(fast)
+# Loading work.inout_ports(fast)
+# Loading work.input_ports(fast)
+# Loading work.input_queue_per_port(fast)
+# Loading work.register(fast)
+# Loading work.register(fast__1)
+# Loading work.extract_header_flit_info(fast)
+# Loading work.one_hot_to_bin(fast)
+# Loading work.one_hot_mux(fast)
+# Loading work.class_ovc_table(fast)
+# Loading work.onehot_mux_1D(fast__2)
+# Loading work.onehot_mux_2D(fast__2)
+# Loading work.fwft_fifo(fast__1)
+# Loading work.fwft_fifo(fast)
+# Loading work.destp_generator(fast)
+# Loading work.mesh_torus_destp_generator(fast)
+# Loading work.mesh_torus_destp_decoder(fast)
+# Loading work.remove_sw_loc_one_hot(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast)
+# Loading work.flit_buffer(fast)
+# Loading work.onehot_mux_1D(fast__1)
+# Loading work.onehot_mux_2D(fast__1)
+# Loading work.fifo_ram(fast)
+# Loading work.look_ahead_routing(fast)
+# Loading work.mesh_tori_router_addr_decode(fast)
+# Loading work.mesh_tori_endp_addr_decode(fast)
+# Loading work.mesh_torus_look_ahead_routing(fast)
+# Loading work.mesh_torus_deterministic_look_ahead_routing(fast)
+# Loading work.mesh_tori_decode_dstport(fast)
+# Loading work.mesh_torus_next_router_addr_predictor(fast)
+# Loading work.mesh_torus_conventional_routing(fast)
+# Loading work.xy_mesh_routing(fast)
+# Loading work.mesh_tori_encode_dstport(fast)
+# Loading work.header_flit_update_lk_route_ovc(fast)
+# Loading work.onehot_mux_1D(fast)
+# Loading work.onehot_mux_2D(fast)
+# Loading work.input_queue_per_port(fast__1)
+# Loading work.destp_generator(fast__1)
+# Loading work.mesh_torus_destp_generator(fast__1)
+# Loading work.mesh_torus_destp_decoder(fast__1)
+# Loading work.remove_sw_loc_one_hot(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__1)
+# Loading work.input_queue_per_port(fast__2)
+# Loading work.destp_generator(fast__2)
+# Loading work.mesh_torus_destp_generator(fast__2)
+# Loading work.mesh_torus_destp_decoder(fast__2)
+# Loading work.remove_sw_loc_one_hot(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__2)
+# Loading work.input_queue_per_port(fast__3)
+# Loading work.destp_generator(fast__3)
+# Loading work.mesh_torus_destp_generator(fast__3)
+# Loading work.mesh_torus_destp_decoder(fast__3)
+# Loading work.remove_sw_loc_one_hot(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__3)
+# Loading work.input_queue_per_port(fast__4)
+# Loading work.destp_generator(fast__4)
+# Loading work.mesh_torus_destp_generator(fast__4)
+# Loading work.mesh_torus_destp_decoder(fast__4)
+# Loading work.remove_sw_loc_one_hot(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__4)
+# Loading work.output_ports(fast)
+# Loading work.register(fast__2)
+# Loading work.oport_ovc_sig_gen(fast)
+# Loading work.onehot_mux_1D(fast__3)
+# Loading work.onehot_mux_2D(fast__3)
+# Loading work.one_hot_demux(fast)
+# Loading work.credit_monitor_per_ovc(fast)
+# Loading work.sw_mask_gen(fast)
+# Loading work.onehot_mux_1D(fast__4)
+# Loading work.onehot_mux_2D(fast__4)
+# Loading work.credit_monitor_per_ovc(fast__1)
+# Loading work.credit_monitor_per_ovc(fast__2)
+# Loading work.credit_monitor_per_ovc(fast__3)
+# Loading work.credit_monitor_per_ovc(fast__4)
+# Loading work.port_pre_sel_gen(fast)
+# Loading work.vc_alloc_request_gen(fast)
+# Loading work.vc_alloc_request_gen_determinstic(fast)
+# Loading work.congestion_out_gen(fast)
+# Loading work.combined_vc_sw_alloc(fast)
+# Loading work.comb_nonspec_allocator(fast)
+# Loading work.nonspec_sw_alloc(fast)
+# Loading work.swa_input_port_arbiter(fast)
+# Loading work.arbiter_priority_en(fast)
+# Loading work.my_one_hot_arbiter_priority_en(fast)
+# Loading work.arbiter_2_one_hot(fast)
+# Loading work.swa_output_port_arbiter(fast)
+# Loading work.arbiter(fast)
+# Loading work.my_one_hot_arbiter(fast)
+# Loading work.one_hot_to_bin(fast__1)
+# Loading work.one_hot_mux(fast__1)
+# Loading work.arbiter_4_one_hot(fast)
+# Loading work.custom_or(fast)
+# Loading work.arbiter(fast__1)
+# Loading work.my_one_hot_arbiter(fast__1)
+# Loading work.crossbar(fast)
+# Loading work.binary_mux(fast)
+# Loading work.endp_addr_encoder(fast)
+# Loading work.mesh_tori_addr_encoder(fast)
+# Loading work.packet_injector(fast)
+# Loading work.conventional_routing(fast)
+# Loading work.mesh_torus_conventional_routing(fast__1)
+# Loading work.header_flit_generator(fast)
+# Loading work.injector_ovc_status(fast)
+# Loading work.header_flit_info(fast__1)
+# Loading work.register(fast__3)
+# 
+# add wave *
+# view structure
+# .main_pane.structure.interior.cs.body.struct
+# view signals
+# .main_pane.objects.interior.cs.body.tree
+# run -all
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source=10, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source=11, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 4, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source=17, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765432c
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba98765432b
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654333
+# pck_inj(          0) got a packet: source=24, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 5, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654336
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765433a
+# pck_inj(          0) got a packet: source=12, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba98765432a
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654341
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654341
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654348
+# pck_inj(          0) got a packet: source=18, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654339
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba98765434c
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765434f
+# pck_inj(          0) got a packet: source=10, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 6, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source=25, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654356
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654357
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654348
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba98765433a
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765435d
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba987654334
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654362
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654364
+# pck_inj(          0) got a packet: source=13, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654357
+# pck_inj(          0) got a packet: source=19, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765436b
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba98765436d
+# pck_inj(          0) got a packet: source= 4, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654351
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654372
+# pck_inj(          0) got a packet: source=32, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654366
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654378
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654379
+# pck_inj(          0) got a packet: source=10, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654341
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba987654357
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654380
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654383
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654375
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654368
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654387
+# pck_inj(          0) got a packet: source=17, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 7, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba98765438e
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765438e
+# pck_inj(          0) got a packet: source=11, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654384
+# pck_inj(          0) got a packet: source=24, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654395
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654399
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654360
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba98765437f
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765439c
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba98765437a
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654393
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba9876543a4
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543a3
+# pck_inj(          0) got a packet: source=10, size=    4, data=cba987654347
+# pck_inj(          0) got a packet: source= 4, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source=20, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543aa
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba9876543af
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba9876543a2
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654396
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543b1
+# pck_inj(          0) got a packet: source=26, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba98765437f
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba9876543ba
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543b8
+# pck_inj(          0) got a packet: source=14, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba9876543b1
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba98765439d
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543bf
+# ** Note: $stop    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv(93)
+#    Time: 8250 ns  Iteration: 1  Region: /pck_injector_test/endpoints[0]
+# Break in Module pck_injector_test at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv line 93
+do model.tcl
+#!/usr/bin/tclsh
+# 
+#Get tcl shell path relative to current script
+# set tcl_path	[file dirname [info script]] 
+# /mtitcl/vsim
+# if { [info exists $::env(LM_WORK_PLACE)] } { 
+#   puts "You need to define the work dir as LM_WORK_PLACE linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# if { [info exists $::env(LM_FILE_LIST)] } { 
+#   puts "You need to define the file list path as LM_FILE_LIST linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# 
+# 
+# 
+# set rtl_work $::env(LM_WORK_PLACE)/rtl_work
+# /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work
+# 
+# 
+# transcript on
+# if {[file exists $rtl_work]} {
+# 	vdel -lib $rtl_work -all
+# }
+# ** Warning: (vdel-134) Unable to remove locked optimized design "_opt".  Locker is alireza@alireza-7490.
+# vlib $rtl_work
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work".
+# vmap work $rtl_work
+# QuestaSim-64 vmap 10.7c Lib Mapping Utility 2018.08 Aug 17 2018
+# vmap work /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work 
+# Modifying modelsim.ini
+# 
+# 
+# vlog  +acc=rn  -F $::env(LM_FILE_LIST)
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 01:08:22 on Sep 02,2021
+# vlog -reportprogress 300 "+acc=rn" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/modelsim_filelist.f 
+# -- Compiling package pronoc_pkg
+# -- Compiling module one_hot_mux
+# -- Compiling module one_hot_demux
+# -- Compiling module custom_or
+# -- Compiling module outport_sum
+# -- Compiling module bin_to_one_hot
+# -- Compiling module one_hot_to_bin
+# -- Compiling module binary_mux
+# -- Compiling module accumulator
+# -- Compiling module set_bits_counter
+# -- Compiling module check_single_bit_assertation
+# -- Compiling module fast_minimum_number
+# -- Compiling module parallel_counter
+# -- Compiling module CS_GEN
+# -- Compiling module PC_7_3
+# -- Compiling module PC_15_4
+# -- Compiling module PC_31_5
+# -- Compiling module PC_63_6
+# -- Compiling module PC_127_7
+# -- Compiling module start_delay_gen
+# -- Compiling module arbiter
+# -- Compiling module arbiter_priority_en
+# -- Compiling module my_one_hot_arbiter
+# -- Compiling module arbiter_2_one_hot
+# -- Compiling module arbiter_3_one_hot
+# -- Compiling module arbiter_4_one_hot
+# -- Compiling module my_one_hot_arbiter_priority_en
+# -- Compiling module thermo_gen
+# -- Compiling module thermo_arbiter
+# -- Compiling module thermo_arbiter_priority_en
+# -- Compiling module thermo_arbiter_ext_priority
+# -- Compiling module tree_arbiter
+# -- Compiling module my_one_hot_arbiter_ext_priority
+# -- Compiling module arbiter_ext_priority
+# -- Compiling module fixed_priority_arbiter
+# -- Compiling module class_ovc_table
+# -- Compiling module vc_priority_based_dest_port
+# -- Compiling module ss_allocator
+# -- Importing package pronoc_pkg
+# -- Compiling module ssa_per_vc
+# -- Compiling module ssa_check_destport
+# -- Compiling module add_ss_port
+# -- Compiling module tranc_xy_routing
+# -- Compiling module tranc_west_first_routing
+# -- Compiling module tranc_north_last_routing
+# -- Compiling module tranc_negetive_first_routing
+# -- Compiling module tranc_duato_routing
+# -- Compiling module tranc_dir
+# -- Compiling module header_flit_generator
+# -- Compiling module extract_header_flit_info
+# -- Compiling module header_flit_update_lk_route_ovc
+# -- Compiling module hdr_flit_weight_update
+# -- Compiling module noc_top
+# -- Compiling module noc_top_v
+# -- Compiling module fattree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(92): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(93): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module fattree_nca_random_up_routing
+# -- Compiling module fattree_nca_destp_up_routing
+# -- Compiling module fattree_nca_straight_up_routing
+# -- Compiling module fattree_destport_up_select
+# -- Compiling module fattree_conventional_routing
+# -- Compiling module fattree_look_ahead_routing
+# -- Compiling module fattree_deterministic_look_ahead_routing
+# -- Compiling module fattree_destport_decoder
+# -- Compiling module fattree_mask_non_assignable_destport
+# -- Compiling module fattree_distance_gen
+# -- Compiling module fattree_addr_encoder
+# -- Compiling module fattree_addr_decoder
+# -- Compiling module fattree_ssa_check_destport
+# -- Compiling module fattree_router_addr_decode
+# -- Compiling module fattree_destp_generator
+# -- Compiling module comb_nonspec_allocator
+# -- Compiling module comb_nonspec_v2_allocator
+# -- Compiling module nonspec_sw_alloc
+# -- Compiling module swa_input_port_arbiter
+# -- Compiling module swa_output_port_arbiter
+# -- Compiling module inout_ports
+# -- Compiling module output_vc_status
+# -- Compiling module vc_alloc_request_gen
+# -- Compiling module vc_alloc_request_gen_determinstic
+# -- Compiling module wrra
+# -- Compiling module rra_priority_lock
+# -- Compiling module weight_counter
+# -- Compiling module classic_weight_counter
+# -- Compiling module weight_control
+# -- Compiling module wrra_contention_gen
+# -- Compiling module wrra_inputport_destports_sum
+# -- Compiling module weights_update
+# -- Compiling module weight_update_per_port
+# -- Compiling module output_weight_latch
+# -- Compiling module input_ports
+# -- Compiling module input_queue_per_port
+# -- Compiling module destp_generator
+# -- Compiling module custom_topology_destp_decoder
+# -- Compiling module tree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(90): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(91): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module tree_nca_routing
+# -- Compiling module tree_conventional_routing
+# -- Compiling module tree_deterministic_look_ahead_routing
+# -- Compiling module tree_look_ahead_routing
+# -- Compiling module tree_destport_decoder
+# -- Compiling module tree_destp_generator
+# -- Compiling module comb_spec1_allocator
+# -- Compiling module spec_sw_alloc
+# -- Compiling module sw_alloc_sub
+# -- Compiling module combined_vc_sw_alloc
+# -- Compiling module mesh_torus_look_ahead_routing
+# -- Compiling module mesh_torus_deterministic_look_ahead_routing
+# -- Compiling module mesh_torus_adaptive_look_ahead_routing
+# -- Compiling module mesh_torus_next_router_addr_predictor
+# -- Compiling module mesh_torus_next_router_inport_predictor
+# -- Compiling module remove_sw_loc_one_hot
+# -- Compiling module remove_receive_port_one_hot
+# -- Compiling module add_sw_loc_one_hot
+# -- Compiling module add_sw_loc_one_hot_val
+# -- Compiling module mesh_torus_conventional_routing
+# -- Compiling module tranc_ring_routing
+# -- Compiling module xy_line_routing
+# -- Compiling module line_ring_encode_dstport
+# -- Compiling module line_ring_decode_dstport
+# -- Compiling module mesh_tori_decode_dstport
+# -- Compiling module baseline_allocator
+# -- Compiling module canonical_vc_alloc
+# -- Compiling module spec_sw_alloc_can
+# -- Compiling module comb_spec2_allocator
+# -- Compiling module spec_sw_alloc2
+# -- Compiling module sw_alloc_sub2
+# -- Compiling module spec_sw_alloc_sub2
+# -- Compiling module flit_buffer_reg_base
+# -- Compiling module xy_mesh_routing
+# -- Compiling module west_first_routing
+# -- Compiling module north_last_routing
+# -- Compiling module negetive_first_routing
+# -- Compiling module odd_even_routing
+# -- Compiling module duato_mesh_routing
+# -- Compiling module mesh_dir
+# -- Compiling module mesh_tori_encode_dstport
+# -- Compiling module register
+# -- Compiling module reduction_or
+# -- Compiling module onehot_mux_2D
+# -- Compiling module onehot_mux_1D
+# -- Compiling module header_flit_info
+# -- Compiling module smart_chanel_check
+# -- Compiling module smart_forward_ivc_info
+# -- Compiling module smart_bypass_chanels
+# -- Compiling module check_straight_oport
+# -- Compiling module smart_validity_check_per_ivc
+# -- Compiling module smart_allocator_per_iport
+# -- Compiling module smart_credit_manage
+# -- Compiling module smart_credit_manage_per_vc
+# -- Compiling module traffic_gen_top
+# -- Compiling module injection_ratio_ctrl
+# -- Compiling module packet_gen
+# -- Compiling module distance_gen
+# -- Compiling module port_presel_based_dst_ports_vc
+# -- Compiling module port_presel_based_dst_ports_credit
+# -- Compiling module mesh_torus_port_presel_based_dst_routers_vc
+# -- Compiling module port_presel_based_dst_routers_ovc
+# -- Compiling module port_pre_sel_gen
+# -- Compiling module congestion_out_based_ivc_req
+# -- Compiling module congestion_out_based_ivc_notgrant
+# -- Compiling module congestion_out_based_3port_avb_ovc
+# -- Compiling module congestion_out_based_avb_ovc_w2
+# -- Compiling module congestion_out_based_avb_ovc_w3
+# -- Compiling module congestion_out_based_avb_ovc_w4
+# -- Compiling module congestion_out_based_avb_ovc_not_granted_ivc
+# -- Compiling module parallel_count_normalize
+# -- Compiling module normalizer
+# -- Compiling module congestion_out_gen
+# -- Compiling module deadlock_detector
+# -- Compiling module output_ports
+# -- Compiling module credit_monitor_per_ovc
+# -- Compiling module oport_ovc_sig_gen
+# -- Compiling module sw_mask_gen
+# -- Compiling module check_ovc
+# -- Compiling module conventional_routing
+# -- Compiling module look_ahead_routing
+# -- Compiling module next_router_addr_selector_onehot
+# -- Compiling module next_router_addr_selector_bin
+# -- Compiling module router_two_stage
+# -- Compiling module crossbar
+# -- Compiling module iport_reg_base
+# -- Compiling module flit_buffer
+# -- Compiling module fifo_ram
+# -- Compiling module fifo_ram_mem_size
+# -- Compiling module fwft_fifo
+# -- Compiling module fwft_fifo_with_output_clear
+# -- Compiling module fwft_fifo_bram
+# -- Compiling module bram_based_fifo
+# -- Compiling module mesh_torus_vc_alloc_request_gen_adaptive
+# -- Compiling module mesh_tori_dspt_clear_gen
+# -- Compiling module mesh_torus_mask_non_assignable_destport
+# -- Compiling module mesh_torus_mask_non_assignable_destport_no_self_loop
+# -- Compiling module mesh_torus_swap_port_presel_gen
+# -- Compiling module mesh_torus_adaptive_avb_ovc_mux
+# -- Compiling module mesh_torus_port_selector
+# -- Compiling module mesh_torus_adaptive_lk_dest_encoder
+# -- Compiling module mesh_torus_dtrmn_dest_encoder
+# -- Compiling module mesh_torus_distance_gen
+# -- Compiling module mesh_torus_ssa_check_destport
+# -- Compiling module line_ring_ssa_check_destport
+# -- Compiling module mesh_tori_router_addr_decode
+# -- Compiling module mesh_tori_endp_addr_decode
+# -- Compiling module mesh_tori_addr_encoder
+# -- Compiling module mesh_tori_addr_coder
+# -- Compiling module mesh_torus_destp_generator
+# -- Compiling module mesh_torus_destp_decoder
+# -- Compiling module line_ring_destp_decoder
+# -- Compiling module mesh_torus_dynamic_portsel_control
+# -- Compiling module check_flit_chanel_type_is_in_order
+# -- Compiling module debug_mesh_tori_route_ckeck
+# -- Compiling module debug_mesh_edges
+# -- Compiling module check_destination_addr
+# -- Compiling module endp_addr_encoder
+# -- Compiling module endp_addr_decoder
+# -- Compiling module router_top
+# -- Compiling module router_top_v
+# -- Compiling module mesh_torus_noc_top
+# -- Compiling module star_noc_top
+# -- Compiling module star_conventional_routing
+# -- Compiling module fmesh_addr_encoder
+# -- Compiling module fmesh_addr_coder
+# -- Compiling module fmesh_endp_addr_decode
+# -- Compiling module fmesh_destp_generator
+# -- Compiling module fmesh_destp_decoder
+# -- Compiling module fmesh_distance_gen
+# -- Compiling module packet_injector
+# -- Compiling module injector_ovc_status
+# -- Compiling module pck_class_in_gen
+# -- Compiling module pck_dst_gen
+# -- Compiling module two_dimension_pck_dst_gen
+# -- Compiling module one_dimension_pck_dst_gen
+# -- Compiling module pck_size_gen
+# -- Compiling module hot_spot_dest_gen
+# -- Compiling module pck_injector_test
+# 
+# Top level modules:
+# 	outport_sum
+# 	set_bits_counter
+# 	fast_minimum_number
+# 	start_delay_gen
+# 	my_one_hot_arbiter_ext_priority
+# 	arbiter_ext_priority
+# 	fixed_priority_arbiter
+# 	vc_priority_based_dest_port
+# 	noc_top_v
+# 	wrra
+# 	rra_priority_lock
+# 	mesh_torus_next_router_inport_predictor
+# 	remove_receive_port_one_hot
+# 	traffic_gen_top
+# 	deadlock_detector
+# 	iport_reg_base
+# 	mesh_torus_dtrmn_dest_encoder
+# 	router_top_v
+# 	pck_class_in_gen
+# 	pck_dst_gen
+# 	pck_size_gen
+# 	pck_injector_test
+# End time: 01:08:22 on Sep 02,2021, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 4
+# 
+# vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  pck_injector_test
+# End time: 01:08:22 on Sep 02,2021, Elapsed time: 0:02:28
+# Errors: 0, Warnings: 5
+# vsim -t 1ps -L /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work -L work -voptargs=""+acc"" pck_injector_test 
+# Start time: 01:08:22 on Sep 02,2021
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vopt-143) Recognized 1 FSM in module "packet_injector(fast)".
+# Loading sv_std.std
+# Loading work.pronoc_pkg(fast)
+# Loading work.pck_injector_test(fast)
+# Loading work.noc_top(fast)
+# Loading work.mesh_torus_noc_top(fast)
+# Loading work.router_top(fast)
+# Loading work.header_flit_info(fast)
+# Loading work.router_two_stage(fast)
+# Loading work.add_sw_loc_one_hot(fast)
+# Loading work.inout_ports(fast)
+# Loading work.input_ports(fast)
+# Loading work.input_queue_per_port(fast)
+# Loading work.register(fast)
+# Loading work.register(fast__1)
+# Loading work.extract_header_flit_info(fast)
+# Loading work.one_hot_to_bin(fast)
+# Loading work.one_hot_mux(fast)
+# Loading work.class_ovc_table(fast)
+# Loading work.onehot_mux_1D(fast__2)
+# Loading work.onehot_mux_2D(fast__2)
+# Loading work.fwft_fifo(fast__1)
+# Loading work.fwft_fifo(fast)
+# Loading work.destp_generator(fast)
+# Loading work.mesh_torus_destp_generator(fast)
+# Loading work.mesh_torus_destp_decoder(fast)
+# Loading work.remove_sw_loc_one_hot(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast)
+# Loading work.flit_buffer(fast)
+# Loading work.onehot_mux_1D(fast__1)
+# Loading work.onehot_mux_2D(fast__1)
+# Loading work.fifo_ram(fast)
+# Loading work.look_ahead_routing(fast)
+# Loading work.mesh_tori_router_addr_decode(fast)
+# Loading work.mesh_tori_endp_addr_decode(fast)
+# Loading work.mesh_torus_look_ahead_routing(fast)
+# Loading work.mesh_torus_deterministic_look_ahead_routing(fast)
+# Loading work.mesh_tori_decode_dstport(fast)
+# Loading work.mesh_torus_next_router_addr_predictor(fast)
+# Loading work.mesh_torus_conventional_routing(fast)
+# Loading work.xy_mesh_routing(fast)
+# Loading work.mesh_tori_encode_dstport(fast)
+# Loading work.header_flit_update_lk_route_ovc(fast)
+# Loading work.onehot_mux_1D(fast)
+# Loading work.onehot_mux_2D(fast)
+# Loading work.input_queue_per_port(fast__1)
+# Loading work.destp_generator(fast__1)
+# Loading work.mesh_torus_destp_generator(fast__1)
+# Loading work.mesh_torus_destp_decoder(fast__1)
+# Loading work.remove_sw_loc_one_hot(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__1)
+# Loading work.input_queue_per_port(fast__2)
+# Loading work.destp_generator(fast__2)
+# Loading work.mesh_torus_destp_generator(fast__2)
+# Loading work.mesh_torus_destp_decoder(fast__2)
+# Loading work.remove_sw_loc_one_hot(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__2)
+# Loading work.input_queue_per_port(fast__3)
+# Loading work.destp_generator(fast__3)
+# Loading work.mesh_torus_destp_generator(fast__3)
+# Loading work.mesh_torus_destp_decoder(fast__3)
+# Loading work.remove_sw_loc_one_hot(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__3)
+# Loading work.input_queue_per_port(fast__4)
+# Loading work.destp_generator(fast__4)
+# Loading work.mesh_torus_destp_generator(fast__4)
+# Loading work.mesh_torus_destp_decoder(fast__4)
+# Loading work.remove_sw_loc_one_hot(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__4)
+# Loading work.output_ports(fast)
+# Loading work.register(fast__2)
+# Loading work.oport_ovc_sig_gen(fast)
+# Loading work.onehot_mux_1D(fast__3)
+# Loading work.onehot_mux_2D(fast__3)
+# Loading work.one_hot_demux(fast)
+# Loading work.credit_monitor_per_ovc(fast)
+# Loading work.sw_mask_gen(fast)
+# Loading work.onehot_mux_1D(fast__4)
+# Loading work.onehot_mux_2D(fast__4)
+# Loading work.credit_monitor_per_ovc(fast__1)
+# Loading work.credit_monitor_per_ovc(fast__2)
+# Loading work.credit_monitor_per_ovc(fast__3)
+# Loading work.credit_monitor_per_ovc(fast__4)
+# Loading work.port_pre_sel_gen(fast)
+# Loading work.vc_alloc_request_gen(fast)
+# Loading work.vc_alloc_request_gen_determinstic(fast)
+# Loading work.congestion_out_gen(fast)
+# Loading work.combined_vc_sw_alloc(fast)
+# Loading work.comb_nonspec_allocator(fast)
+# Loading work.nonspec_sw_alloc(fast)
+# Loading work.swa_input_port_arbiter(fast)
+# Loading work.arbiter_priority_en(fast)
+# Loading work.my_one_hot_arbiter_priority_en(fast)
+# Loading work.arbiter_2_one_hot(fast)
+# Loading work.swa_output_port_arbiter(fast)
+# Loading work.arbiter(fast)
+# Loading work.my_one_hot_arbiter(fast)
+# Loading work.one_hot_to_bin(fast__1)
+# Loading work.one_hot_mux(fast__1)
+# Loading work.arbiter_4_one_hot(fast)
+# Loading work.custom_or(fast)
+# Loading work.arbiter(fast__1)
+# Loading work.my_one_hot_arbiter(fast__1)
+# Loading work.crossbar(fast)
+# Loading work.binary_mux(fast)
+# Loading work.endp_addr_encoder(fast)
+# Loading work.mesh_tori_addr_encoder(fast)
+# Loading work.packet_injector(fast)
+# Loading work.conventional_routing(fast)
+# Loading work.mesh_torus_conventional_routing(fast__1)
+# Loading work.header_flit_generator(fast)
+# Loading work.injector_ovc_status(fast)
+# Loading work.header_flit_info(fast__1)
+# Loading work.register(fast__3)
+# 
+# add wave *
+# view structure
+# .main_pane.structure.interior.cs.body.struct
+# view signals
+# .main_pane.objects.interior.cs.body.tree
+# run -all
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 9, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source=10, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source=16, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654325
+# pck_inj(          0) got a packet: source=11, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 4, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source=17, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba98765432c
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba98765432b
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654333
+# pck_inj(          0) got a packet: source=24, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 5, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba987654336
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba98765433a
+# pck_inj(          0) got a packet: source=12, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba98765432a
+# pck_inj(          0) got a packet: source=16, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654341
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba987654341
+# pck_inj(          0) got a packet: source= 3, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=1cba987654325
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654348
+# pck_inj(          0) got a packet: source=18, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba987654339
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba98765434c
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba98765434f
+# pck_inj(          0) got a packet: source=10, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 6, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source=25, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654356
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba987654357
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba987654348
+# pck_inj(          0) got a packet: source= 9, size=    4, data=1cba98765433a
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba98765435d
+# pck_inj(          0) got a packet: source=16, size=    4, data=1cba987654334
+# pck_inj(          0) got a packet: source= 3, size=    4, data=1cba987654325
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba987654362
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654364
+# pck_inj(          0) got a packet: source=13, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba987654357
+# pck_inj(          0) got a packet: source=19, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba98765436b
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba98765436d
+# pck_inj(          0) got a packet: source= 4, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=1cba987654351
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654372
+# pck_inj(          0) got a packet: source=32, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba987654366
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba987654378
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654379
+# pck_inj(          0) got a packet: source=10, size=    4, data=1cba987654325
+# pck_inj(          0) got a packet: source= 3, size=    4, data=1cba987654341
+# pck_inj(          0) got a packet: source=16, size=    4, data=1cba987654357
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654380
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba987654383
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba987654375
+# pck_inj(          0) got a packet: source= 9, size=    4, data=1cba987654368
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654387
+# pck_inj(          0) got a packet: source=17, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 7, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba98765438e
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba98765438e
+# pck_inj(          0) got a packet: source=11, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba987654384
+# pck_inj(          0) got a packet: source=24, size=    4, data=1cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba987654395
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba987654399
+# pck_inj(          0) got a packet: source= 3, size=    4, data=1cba987654360
+# pck_inj(          0) got a packet: source= 9, size=    4, data=1cba98765437f
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba98765439c
+# pck_inj(          0) got a packet: source=16, size=    4, data=1cba98765437a
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba987654393
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba9876543a4
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba9876543a3
+# pck_inj(          0) got a packet: source=10, size=    4, data=1cba987654347
+# pck_inj(          0) got a packet: source= 4, size=    4, data=1cba987654325
+# pck_inj(          0) got a packet: source=20, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba9876543aa
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba9876543af
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba9876543a2
+# pck_inj(          0) got a packet: source= 9, size=    4, data=1cba987654396
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba9876543b1
+# pck_inj(          0) got a packet: source=26, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=1cba98765437f
+# pck_inj(          0) got a packet: source= 8, size=    4, data=1cba9876543ba
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba9876543b8
+# pck_inj(          0) got a packet: source=14, size=    4, data=1cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=1cba9876543b1
+# pck_inj(          0) got a packet: source=16, size=    4, data=1cba98765439d
+# pck_inj(          0) got a packet: source= 1, size=    4, data=1cba9876543bf
+# ** Note: $stop    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv(93)
+#    Time: 8250 ns  Iteration: 1  Region: /pck_injector_test/endpoints[0]
+# Break in Module pck_injector_test at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv line 93
+do model.tcl
+#!/usr/bin/tclsh
+# 
+#Get tcl shell path relative to current script
+# set tcl_path	[file dirname [info script]] 
+# /mtitcl/vsim
+# if { [info exists $::env(LM_WORK_PLACE)] } { 
+#   puts "You need to define the work dir as LM_WORK_PLACE linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# if { [info exists $::env(LM_FILE_LIST)] } { 
+#   puts "You need to define the file list path as LM_FILE_LIST linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# 
+# 
+# 
+# set rtl_work $::env(LM_WORK_PLACE)/rtl_work
+# /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work
+# 
+# 
+# transcript on
+# if {[file exists $rtl_work]} {
+# 	vdel -lib $rtl_work -all
+# }
+# ** Warning: (vdel-134) Unable to remove locked optimized design "_opt".  Locker is alireza@alireza-7490.
+# vlib $rtl_work
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work".
+# vmap work $rtl_work
+# QuestaSim-64 vmap 10.7c Lib Mapping Utility 2018.08 Aug 17 2018
+# vmap work /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work 
+# Modifying modelsim.ini
+# 
+# 
+# vlog  +acc=rn  -F $::env(LM_FILE_LIST)
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 01:09:52 on Sep 02,2021
+# vlog -reportprogress 300 "+acc=rn" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/modelsim_filelist.f 
+# -- Compiling package pronoc_pkg
+# -- Compiling module one_hot_mux
+# -- Compiling module one_hot_demux
+# -- Compiling module custom_or
+# -- Compiling module outport_sum
+# -- Compiling module bin_to_one_hot
+# -- Compiling module one_hot_to_bin
+# -- Compiling module binary_mux
+# -- Compiling module accumulator
+# -- Compiling module set_bits_counter
+# -- Compiling module check_single_bit_assertation
+# -- Compiling module fast_minimum_number
+# -- Compiling module parallel_counter
+# -- Compiling module CS_GEN
+# -- Compiling module PC_7_3
+# -- Compiling module PC_15_4
+# -- Compiling module PC_31_5
+# -- Compiling module PC_63_6
+# -- Compiling module PC_127_7
+# -- Compiling module start_delay_gen
+# -- Compiling module arbiter
+# -- Compiling module arbiter_priority_en
+# -- Compiling module my_one_hot_arbiter
+# -- Compiling module arbiter_2_one_hot
+# -- Compiling module arbiter_3_one_hot
+# -- Compiling module arbiter_4_one_hot
+# -- Compiling module my_one_hot_arbiter_priority_en
+# -- Compiling module thermo_gen
+# -- Compiling module thermo_arbiter
+# -- Compiling module thermo_arbiter_priority_en
+# -- Compiling module thermo_arbiter_ext_priority
+# -- Compiling module tree_arbiter
+# -- Compiling module my_one_hot_arbiter_ext_priority
+# -- Compiling module arbiter_ext_priority
+# -- Compiling module fixed_priority_arbiter
+# -- Compiling module class_ovc_table
+# -- Compiling module vc_priority_based_dest_port
+# -- Compiling module ss_allocator
+# -- Importing package pronoc_pkg
+# -- Compiling module ssa_per_vc
+# -- Compiling module ssa_check_destport
+# -- Compiling module add_ss_port
+# -- Compiling module tranc_xy_routing
+# -- Compiling module tranc_west_first_routing
+# -- Compiling module tranc_north_last_routing
+# -- Compiling module tranc_negetive_first_routing
+# -- Compiling module tranc_duato_routing
+# -- Compiling module tranc_dir
+# -- Compiling module header_flit_generator
+# -- Compiling module extract_header_flit_info
+# -- Compiling module header_flit_update_lk_route_ovc
+# -- Compiling module hdr_flit_weight_update
+# -- Compiling module noc_top
+# -- Compiling module noc_top_v
+# -- Compiling module fattree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(92): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(93): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module fattree_nca_random_up_routing
+# -- Compiling module fattree_nca_destp_up_routing
+# -- Compiling module fattree_nca_straight_up_routing
+# -- Compiling module fattree_destport_up_select
+# -- Compiling module fattree_conventional_routing
+# -- Compiling module fattree_look_ahead_routing
+# -- Compiling module fattree_deterministic_look_ahead_routing
+# -- Compiling module fattree_destport_decoder
+# -- Compiling module fattree_mask_non_assignable_destport
+# -- Compiling module fattree_distance_gen
+# -- Compiling module fattree_addr_encoder
+# -- Compiling module fattree_addr_decoder
+# -- Compiling module fattree_ssa_check_destport
+# -- Compiling module fattree_router_addr_decode
+# -- Compiling module fattree_destp_generator
+# -- Compiling module comb_nonspec_allocator
+# -- Compiling module comb_nonspec_v2_allocator
+# -- Compiling module nonspec_sw_alloc
+# -- Compiling module swa_input_port_arbiter
+# -- Compiling module swa_output_port_arbiter
+# -- Compiling module inout_ports
+# -- Compiling module output_vc_status
+# -- Compiling module vc_alloc_request_gen
+# -- Compiling module vc_alloc_request_gen_determinstic
+# -- Compiling module wrra
+# -- Compiling module rra_priority_lock
+# -- Compiling module weight_counter
+# -- Compiling module classic_weight_counter
+# -- Compiling module weight_control
+# -- Compiling module wrra_contention_gen
+# -- Compiling module wrra_inputport_destports_sum
+# -- Compiling module weights_update
+# -- Compiling module weight_update_per_port
+# -- Compiling module output_weight_latch
+# -- Compiling module input_ports
+# -- Compiling module input_queue_per_port
+# -- Compiling module destp_generator
+# -- Compiling module custom_topology_destp_decoder
+# -- Compiling module tree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(90): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(91): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module tree_nca_routing
+# -- Compiling module tree_conventional_routing
+# -- Compiling module tree_deterministic_look_ahead_routing
+# -- Compiling module tree_look_ahead_routing
+# -- Compiling module tree_destport_decoder
+# -- Compiling module tree_destp_generator
+# -- Compiling module comb_spec1_allocator
+# -- Compiling module spec_sw_alloc
+# -- Compiling module sw_alloc_sub
+# -- Compiling module combined_vc_sw_alloc
+# -- Compiling module mesh_torus_look_ahead_routing
+# -- Compiling module mesh_torus_deterministic_look_ahead_routing
+# -- Compiling module mesh_torus_adaptive_look_ahead_routing
+# -- Compiling module mesh_torus_next_router_addr_predictor
+# -- Compiling module mesh_torus_next_router_inport_predictor
+# -- Compiling module remove_sw_loc_one_hot
+# -- Compiling module remove_receive_port_one_hot
+# -- Compiling module add_sw_loc_one_hot
+# -- Compiling module add_sw_loc_one_hot_val
+# -- Compiling module mesh_torus_conventional_routing
+# -- Compiling module tranc_ring_routing
+# -- Compiling module xy_line_routing
+# -- Compiling module line_ring_encode_dstport
+# -- Compiling module line_ring_decode_dstport
+# -- Compiling module mesh_tori_decode_dstport
+# -- Compiling module baseline_allocator
+# -- Compiling module canonical_vc_alloc
+# -- Compiling module spec_sw_alloc_can
+# -- Compiling module comb_spec2_allocator
+# -- Compiling module spec_sw_alloc2
+# -- Compiling module sw_alloc_sub2
+# -- Compiling module spec_sw_alloc_sub2
+# -- Compiling module flit_buffer_reg_base
+# -- Compiling module xy_mesh_routing
+# -- Compiling module west_first_routing
+# -- Compiling module north_last_routing
+# -- Compiling module negetive_first_routing
+# -- Compiling module odd_even_routing
+# -- Compiling module duato_mesh_routing
+# -- Compiling module mesh_dir
+# -- Compiling module mesh_tori_encode_dstport
+# -- Compiling module register
+# -- Compiling module reduction_or
+# -- Compiling module onehot_mux_2D
+# -- Compiling module onehot_mux_1D
+# -- Compiling module header_flit_info
+# -- Compiling module smart_chanel_check
+# -- Compiling module smart_forward_ivc_info
+# -- Compiling module smart_bypass_chanels
+# -- Compiling module check_straight_oport
+# -- Compiling module smart_validity_check_per_ivc
+# -- Compiling module smart_allocator_per_iport
+# -- Compiling module smart_credit_manage
+# -- Compiling module smart_credit_manage_per_vc
+# -- Compiling module traffic_gen_top
+# -- Compiling module injection_ratio_ctrl
+# -- Compiling module packet_gen
+# -- Compiling module distance_gen
+# -- Compiling module port_presel_based_dst_ports_vc
+# -- Compiling module port_presel_based_dst_ports_credit
+# -- Compiling module mesh_torus_port_presel_based_dst_routers_vc
+# -- Compiling module port_presel_based_dst_routers_ovc
+# -- Compiling module port_pre_sel_gen
+# -- Compiling module congestion_out_based_ivc_req
+# -- Compiling module congestion_out_based_ivc_notgrant
+# -- Compiling module congestion_out_based_3port_avb_ovc
+# -- Compiling module congestion_out_based_avb_ovc_w2
+# -- Compiling module congestion_out_based_avb_ovc_w3
+# -- Compiling module congestion_out_based_avb_ovc_w4
+# -- Compiling module congestion_out_based_avb_ovc_not_granted_ivc
+# -- Compiling module parallel_count_normalize
+# -- Compiling module normalizer
+# -- Compiling module congestion_out_gen
+# -- Compiling module deadlock_detector
+# -- Compiling module output_ports
+# -- Compiling module credit_monitor_per_ovc
+# -- Compiling module oport_ovc_sig_gen
+# -- Compiling module sw_mask_gen
+# -- Compiling module check_ovc
+# -- Compiling module conventional_routing
+# -- Compiling module look_ahead_routing
+# -- Compiling module next_router_addr_selector_onehot
+# -- Compiling module next_router_addr_selector_bin
+# -- Compiling module router_two_stage
+# -- Compiling module crossbar
+# -- Compiling module iport_reg_base
+# -- Compiling module flit_buffer
+# -- Compiling module fifo_ram
+# -- Compiling module fifo_ram_mem_size
+# -- Compiling module fwft_fifo
+# -- Compiling module fwft_fifo_with_output_clear
+# -- Compiling module fwft_fifo_bram
+# -- Compiling module bram_based_fifo
+# -- Compiling module mesh_torus_vc_alloc_request_gen_adaptive
+# -- Compiling module mesh_tori_dspt_clear_gen
+# -- Compiling module mesh_torus_mask_non_assignable_destport
+# -- Compiling module mesh_torus_mask_non_assignable_destport_no_self_loop
+# -- Compiling module mesh_torus_swap_port_presel_gen
+# -- Compiling module mesh_torus_adaptive_avb_ovc_mux
+# -- Compiling module mesh_torus_port_selector
+# -- Compiling module mesh_torus_adaptive_lk_dest_encoder
+# -- Compiling module mesh_torus_dtrmn_dest_encoder
+# -- Compiling module mesh_torus_distance_gen
+# -- Compiling module mesh_torus_ssa_check_destport
+# -- Compiling module line_ring_ssa_check_destport
+# -- Compiling module mesh_tori_router_addr_decode
+# -- Compiling module mesh_tori_endp_addr_decode
+# -- Compiling module mesh_tori_addr_encoder
+# -- Compiling module mesh_tori_addr_coder
+# -- Compiling module mesh_torus_destp_generator
+# -- Compiling module mesh_torus_destp_decoder
+# -- Compiling module line_ring_destp_decoder
+# -- Compiling module mesh_torus_dynamic_portsel_control
+# -- Compiling module check_flit_chanel_type_is_in_order
+# -- Compiling module debug_mesh_tori_route_ckeck
+# -- Compiling module debug_mesh_edges
+# -- Compiling module check_destination_addr
+# -- Compiling module endp_addr_encoder
+# -- Compiling module endp_addr_decoder
+# -- Compiling module router_top
+# -- Compiling module router_top_v
+# -- Compiling module mesh_torus_noc_top
+# -- Compiling module star_noc_top
+# -- Compiling module star_conventional_routing
+# -- Compiling module fmesh_addr_encoder
+# -- Compiling module fmesh_addr_coder
+# -- Compiling module fmesh_endp_addr_decode
+# -- Compiling module fmesh_destp_generator
+# -- Compiling module fmesh_destp_decoder
+# -- Compiling module fmesh_distance_gen
+# -- Compiling module packet_injector
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(132): (vlog-2697) LSB of part-select into 'data' is out of bounds.
+# -- Compiling module injector_ovc_status
+# -- Compiling module pck_class_in_gen
+# -- Compiling module pck_dst_gen
+# -- Compiling module two_dimension_pck_dst_gen
+# -- Compiling module one_dimension_pck_dst_gen
+# -- Compiling module pck_size_gen
+# -- Compiling module hot_spot_dest_gen
+# -- Compiling module pck_injector_test
+# 
+# Top level modules:
+# 	outport_sum
+# 	set_bits_counter
+# 	fast_minimum_number
+# 	start_delay_gen
+# 	my_one_hot_arbiter_ext_priority
+# 	arbiter_ext_priority
+# 	fixed_priority_arbiter
+# 	vc_priority_based_dest_port
+# 	noc_top_v
+# 	wrra
+# 	rra_priority_lock
+# 	mesh_torus_next_router_inport_predictor
+# 	remove_receive_port_one_hot
+# 	traffic_gen_top
+# 	deadlock_detector
+# 	iport_reg_base
+# 	mesh_torus_dtrmn_dest_encoder
+# 	router_top_v
+# 	pck_class_in_gen
+# 	pck_dst_gen
+# 	pck_size_gen
+# 	pck_injector_test
+# End time: 01:09:52 on Sep 02,2021, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 5
+# 
+# vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  pck_injector_test
+# End time: 01:09:53 on Sep 02,2021, Elapsed time: 0:01:31
+# Errors: 0, Warnings: 6
+# vsim -t 1ps -L /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work -L work -voptargs=""+acc"" pck_injector_test 
+# Start time: 01:09:53 on Sep 02,2021
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vopt-143) Recognized 1 FSM in module "packet_injector(fast)".
+# Loading sv_std.std
+# Loading work.pronoc_pkg(fast)
+# Loading work.pck_injector_test(fast)
+# Loading work.noc_top(fast)
+# Loading work.mesh_torus_noc_top(fast)
+# Loading work.router_top(fast)
+# Loading work.header_flit_info(fast)
+# Loading work.router_two_stage(fast)
+# Loading work.add_sw_loc_one_hot(fast)
+# Loading work.inout_ports(fast)
+# Loading work.input_ports(fast)
+# Loading work.input_queue_per_port(fast)
+# Loading work.register(fast)
+# Loading work.register(fast__1)
+# Loading work.extract_header_flit_info(fast)
+# Loading work.one_hot_to_bin(fast)
+# Loading work.one_hot_mux(fast)
+# Loading work.class_ovc_table(fast)
+# Loading work.onehot_mux_1D(fast__2)
+# Loading work.onehot_mux_2D(fast__2)
+# Loading work.fwft_fifo(fast__1)
+# Loading work.fwft_fifo(fast)
+# Loading work.destp_generator(fast)
+# Loading work.mesh_torus_destp_generator(fast)
+# Loading work.mesh_torus_destp_decoder(fast)
+# Loading work.remove_sw_loc_one_hot(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast)
+# Loading work.flit_buffer(fast)
+# Loading work.onehot_mux_1D(fast__1)
+# Loading work.onehot_mux_2D(fast__1)
+# Loading work.fifo_ram(fast)
+# Loading work.look_ahead_routing(fast)
+# Loading work.mesh_tori_router_addr_decode(fast)
+# Loading work.mesh_tori_endp_addr_decode(fast)
+# Loading work.mesh_torus_look_ahead_routing(fast)
+# Loading work.mesh_torus_deterministic_look_ahead_routing(fast)
+# Loading work.mesh_tori_decode_dstport(fast)
+# Loading work.mesh_torus_next_router_addr_predictor(fast)
+# Loading work.mesh_torus_conventional_routing(fast)
+# Loading work.xy_mesh_routing(fast)
+# Loading work.mesh_tori_encode_dstport(fast)
+# Loading work.header_flit_update_lk_route_ovc(fast)
+# Loading work.onehot_mux_1D(fast)
+# Loading work.onehot_mux_2D(fast)
+# Loading work.input_queue_per_port(fast__1)
+# Loading work.destp_generator(fast__1)
+# Loading work.mesh_torus_destp_generator(fast__1)
+# Loading work.mesh_torus_destp_decoder(fast__1)
+# Loading work.remove_sw_loc_one_hot(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__1)
+# Loading work.input_queue_per_port(fast__2)
+# Loading work.destp_generator(fast__2)
+# Loading work.mesh_torus_destp_generator(fast__2)
+# Loading work.mesh_torus_destp_decoder(fast__2)
+# Loading work.remove_sw_loc_one_hot(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__2)
+# Loading work.input_queue_per_port(fast__3)
+# Loading work.destp_generator(fast__3)
+# Loading work.mesh_torus_destp_generator(fast__3)
+# Loading work.mesh_torus_destp_decoder(fast__3)
+# Loading work.remove_sw_loc_one_hot(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__3)
+# Loading work.input_queue_per_port(fast__4)
+# Loading work.destp_generator(fast__4)
+# Loading work.mesh_torus_destp_generator(fast__4)
+# Loading work.mesh_torus_destp_decoder(fast__4)
+# Loading work.remove_sw_loc_one_hot(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__4)
+# Loading work.output_ports(fast)
+# Loading work.register(fast__2)
+# Loading work.oport_ovc_sig_gen(fast)
+# Loading work.onehot_mux_1D(fast__3)
+# Loading work.onehot_mux_2D(fast__3)
+# Loading work.one_hot_demux(fast)
+# Loading work.credit_monitor_per_ovc(fast)
+# Loading work.sw_mask_gen(fast)
+# Loading work.onehot_mux_1D(fast__4)
+# Loading work.onehot_mux_2D(fast__4)
+# Loading work.credit_monitor_per_ovc(fast__1)
+# Loading work.credit_monitor_per_ovc(fast__2)
+# Loading work.credit_monitor_per_ovc(fast__3)
+# Loading work.credit_monitor_per_ovc(fast__4)
+# Loading work.port_pre_sel_gen(fast)
+# Loading work.vc_alloc_request_gen(fast)
+# Loading work.vc_alloc_request_gen_determinstic(fast)
+# Loading work.congestion_out_gen(fast)
+# Loading work.combined_vc_sw_alloc(fast)
+# Loading work.comb_nonspec_allocator(fast)
+# Loading work.nonspec_sw_alloc(fast)
+# Loading work.swa_input_port_arbiter(fast)
+# Loading work.arbiter_priority_en(fast)
+# Loading work.my_one_hot_arbiter_priority_en(fast)
+# Loading work.arbiter_2_one_hot(fast)
+# Loading work.swa_output_port_arbiter(fast)
+# Loading work.arbiter(fast)
+# Loading work.my_one_hot_arbiter(fast)
+# Loading work.one_hot_to_bin(fast__1)
+# Loading work.one_hot_mux(fast__1)
+# Loading work.arbiter_4_one_hot(fast)
+# Loading work.custom_or(fast)
+# Loading work.arbiter(fast__1)
+# Loading work.my_one_hot_arbiter(fast__1)
+# Loading work.crossbar(fast)
+# Loading work.binary_mux(fast)
+# Loading work.endp_addr_encoder(fast)
+# Loading work.mesh_tori_addr_encoder(fast)
+# Loading work.packet_injector(fast)
+# Loading work.conventional_routing(fast)
+# Loading work.mesh_torus_conventional_routing(fast__1)
+# Loading work.header_flit_generator(fast)
+# Loading work.injector_ovc_status(fast)
+# Loading work.header_flit_info(fast__1)
+# Loading work.register(fast__3)
+# 
+# add wave *
+# view structure
+# .main_pane.structure.interior.cs.body.struct
+# view signals
+# .main_pane.objects.interior.cs.body.tree
+# run -all
+# pck_inj(          0) got a packet: source= 8, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 9, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=4321
+# pck_inj(          0) got a packet: source=10, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4322
+# pck_inj(          0) got a packet: source=16, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4325
+# pck_inj(          0) got a packet: source=11, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 4, size=    4, data=4321
+# pck_inj(          0) got a packet: source=17, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=432c
+# pck_inj(          0) got a packet: source= 8, size=    4, data=432b
+# pck_inj(          0) got a packet: source= 2, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4333
+# pck_inj(          0) got a packet: source=24, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 5, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=4336
+# pck_inj(          0) got a packet: source= 1, size=    4, data=433a
+# pck_inj(          0) got a packet: source=12, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=432a
+# pck_inj(          0) got a packet: source=16, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4341
+# pck_inj(          0) got a packet: source= 8, size=    4, data=4341
+# pck_inj(          0) got a packet: source= 3, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=4325
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4348
+# pck_inj(          0) got a packet: source=18, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=4339
+# pck_inj(          0) got a packet: source= 8, size=    4, data=434c
+# pck_inj(          0) got a packet: source= 1, size=    4, data=434f
+# pck_inj(          0) got a packet: source=10, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 6, size=    4, data=4321
+# pck_inj(          0) got a packet: source=25, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4356
+# pck_inj(          0) got a packet: source= 8, size=    4, data=4357
+# pck_inj(          0) got a packet: source= 2, size=    4, data=4348
+# pck_inj(          0) got a packet: source= 9, size=    4, data=433a
+# pck_inj(          0) got a packet: source= 1, size=    4, data=435d
+# pck_inj(          0) got a packet: source=16, size=    4, data=4334
+# pck_inj(          0) got a packet: source= 3, size=    4, data=4325
+# pck_inj(          0) got a packet: source= 8, size=    4, data=4362
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4364
+# pck_inj(          0) got a packet: source=13, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=4357
+# pck_inj(          0) got a packet: source=19, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=436b
+# pck_inj(          0) got a packet: source= 8, size=    4, data=436d
+# pck_inj(          0) got a packet: source= 4, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=4351
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4372
+# pck_inj(          0) got a packet: source=32, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=4366
+# pck_inj(          0) got a packet: source= 8, size=    4, data=4378
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4379
+# pck_inj(          0) got a packet: source=10, size=    4, data=4325
+# pck_inj(          0) got a packet: source= 3, size=    4, data=4341
+# pck_inj(          0) got a packet: source=16, size=    4, data=4357
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4380
+# pck_inj(          0) got a packet: source= 8, size=    4, data=4383
+# pck_inj(          0) got a packet: source= 2, size=    4, data=4375
+# pck_inj(          0) got a packet: source= 9, size=    4, data=4368
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4387
+# pck_inj(          0) got a packet: source=17, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 7, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=438e
+# pck_inj(          0) got a packet: source= 1, size=    4, data=438e
+# pck_inj(          0) got a packet: source=11, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 2, size=    4, data=4384
+# pck_inj(          0) got a packet: source=24, size=    4, data=4322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=4395
+# pck_inj(          0) got a packet: source= 8, size=    4, data=4399
+# pck_inj(          0) got a packet: source= 3, size=    4, data=4360
+# pck_inj(          0) got a packet: source= 9, size=    4, data=437f
+# pck_inj(          0) got a packet: source= 1, size=    4, data=439c
+# pck_inj(          0) got a packet: source=16, size=    4, data=437a
+# pck_inj(          0) got a packet: source= 2, size=    4, data=4393
+# pck_inj(          0) got a packet: source= 8, size=    4, data=43a4
+# pck_inj(          0) got a packet: source= 1, size=    4, data=43a3
+# pck_inj(          0) got a packet: source=10, size=    4, data=4347
+# pck_inj(          0) got a packet: source= 4, size=    4, data=4325
+# pck_inj(          0) got a packet: source=20, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=43aa
+# pck_inj(          0) got a packet: source= 8, size=    4, data=43af
+# pck_inj(          0) got a packet: source= 2, size=    4, data=43a2
+# pck_inj(          0) got a packet: source= 9, size=    4, data=4396
+# pck_inj(          0) got a packet: source= 1, size=    4, data=43b1
+# pck_inj(          0) got a packet: source=26, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=437f
+# pck_inj(          0) got a packet: source= 8, size=    4, data=43ba
+# pck_inj(          0) got a packet: source= 1, size=    4, data=43b8
+# pck_inj(          0) got a packet: source=14, size=    4, data=4321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=43b1
+# pck_inj(          0) got a packet: source=16, size=    4, data=439d
+# pck_inj(          0) got a packet: source= 1, size=    4, data=43bf
+# ** Note: $stop    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv(93)
+#    Time: 8250 ns  Iteration: 1  Region: /pck_injector_test/endpoints[0]
+# Break in Module pck_injector_test at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv line 93
+do model.tcl
+#!/usr/bin/tclsh
+# 
+#Get tcl shell path relative to current script
+# set tcl_path	[file dirname [info script]] 
+# /mtitcl/vsim
+# if { [info exists $::env(LM_WORK_PLACE)] } { 
+#   puts "You need to define the work dir as LM_WORK_PLACE linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# if { [info exists $::env(LM_FILE_LIST)] } { 
+#   puts "You need to define the file list path as LM_FILE_LIST linux envirement variable \n"
+#   exit(1)
+# }
+# 
+# 
+# 
+# 
+# set rtl_work $::env(LM_WORK_PLACE)/rtl_work
+# /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work
+# 
+# 
+# transcript on
+# if {[file exists $rtl_work]} {
+# 	vdel -lib $rtl_work -all
+# }
+# ** Warning: (vdel-134) Unable to remove locked optimized design "_opt".  Locker is alireza@alireza-7490.
+# vlib $rtl_work
+# ** Warning: (vlib-34) Library already exists at "/home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work".
+# vmap work $rtl_work
+# QuestaSim-64 vmap 10.7c Lib Mapping Utility 2018.08 Aug 17 2018
+# vmap work /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work 
+# Modifying modelsim.ini
+# 
+# 
+# vlog  +acc=rn  -F $::env(LM_FILE_LIST)
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 01:12:05 on Sep 02,2021
+# vlog -reportprogress 300 "+acc=rn" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/modelsim_filelist.f 
+# -- Compiling package pronoc_pkg
+# -- Compiling module one_hot_mux
+# -- Compiling module one_hot_demux
+# -- Compiling module custom_or
+# -- Compiling module outport_sum
+# -- Compiling module bin_to_one_hot
+# -- Compiling module one_hot_to_bin
+# -- Compiling module binary_mux
+# -- Compiling module accumulator
+# -- Compiling module set_bits_counter
+# -- Compiling module check_single_bit_assertation
+# -- Compiling module fast_minimum_number
+# -- Compiling module parallel_counter
+# -- Compiling module CS_GEN
+# -- Compiling module PC_7_3
+# -- Compiling module PC_15_4
+# -- Compiling module PC_31_5
+# -- Compiling module PC_63_6
+# -- Compiling module PC_127_7
+# -- Compiling module start_delay_gen
+# -- Compiling module arbiter
+# -- Compiling module arbiter_priority_en
+# -- Compiling module my_one_hot_arbiter
+# -- Compiling module arbiter_2_one_hot
+# -- Compiling module arbiter_3_one_hot
+# -- Compiling module arbiter_4_one_hot
+# -- Compiling module my_one_hot_arbiter_priority_en
+# -- Compiling module thermo_gen
+# -- Compiling module thermo_arbiter
+# -- Compiling module thermo_arbiter_priority_en
+# -- Compiling module thermo_arbiter_ext_priority
+# -- Compiling module tree_arbiter
+# -- Compiling module my_one_hot_arbiter_ext_priority
+# -- Compiling module arbiter_ext_priority
+# -- Compiling module fixed_priority_arbiter
+# -- Compiling module class_ovc_table
+# -- Compiling module vc_priority_based_dest_port
+# -- Compiling module ss_allocator
+# -- Importing package pronoc_pkg
+# -- Compiling module ssa_per_vc
+# -- Compiling module ssa_check_destport
+# -- Compiling module add_ss_port
+# -- Compiling module tranc_xy_routing
+# -- Compiling module tranc_west_first_routing
+# -- Compiling module tranc_north_last_routing
+# -- Compiling module tranc_negetive_first_routing
+# -- Compiling module tranc_duato_routing
+# -- Compiling module tranc_dir
+# -- Compiling module header_flit_generator
+# -- Compiling module extract_header_flit_info
+# -- Compiling module header_flit_update_lk_route_ovc
+# -- Compiling module hdr_flit_weight_update
+# -- Compiling module noc_top
+# -- Compiling module noc_top_v
+# -- Compiling module fattree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(92): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./fattree_noc_top.sv(93): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module fattree_nca_random_up_routing
+# -- Compiling module fattree_nca_destp_up_routing
+# -- Compiling module fattree_nca_straight_up_routing
+# -- Compiling module fattree_destport_up_select
+# -- Compiling module fattree_conventional_routing
+# -- Compiling module fattree_look_ahead_routing
+# -- Compiling module fattree_deterministic_look_ahead_routing
+# -- Compiling module fattree_destport_decoder
+# -- Compiling module fattree_mask_non_assignable_destport
+# -- Compiling module fattree_distance_gen
+# -- Compiling module fattree_addr_encoder
+# -- Compiling module fattree_addr_decoder
+# -- Compiling module fattree_ssa_check_destport
+# -- Compiling module fattree_router_addr_decode
+# -- Compiling module fattree_destp_generator
+# -- Compiling module comb_nonspec_allocator
+# -- Compiling module comb_nonspec_v2_allocator
+# -- Compiling module nonspec_sw_alloc
+# -- Compiling module swa_input_port_arbiter
+# -- Compiling module swa_output_port_arbiter
+# -- Compiling module inout_ports
+# -- Compiling module output_vc_status
+# -- Compiling module vc_alloc_request_gen
+# -- Compiling module vc_alloc_request_gen_determinstic
+# -- Compiling module wrra
+# -- Compiling module rra_priority_lock
+# -- Compiling module weight_counter
+# -- Compiling module classic_weight_counter
+# -- Compiling module weight_control
+# -- Compiling module wrra_contention_gen
+# -- Compiling module wrra_inputport_destports_sum
+# -- Compiling module weights_update
+# -- Compiling module weight_update_per_port
+# -- Compiling module output_weight_latch
+# -- Compiling module input_ports
+# -- Compiling module input_queue_per_port
+# -- Compiling module destp_generator
+# -- Compiling module custom_topology_destp_decoder
+# -- Compiling module tree_noc_top
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(90): (vlog-2697) MSB of part-select into 'router_chan_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./tree_noc_top.sv(91): (vlog-2697) MSB of part-select into 'router_chan_out' is out of bounds.
+# -- Compiling module tree_nca_routing
+# -- Compiling module tree_conventional_routing
+# -- Compiling module tree_deterministic_look_ahead_routing
+# -- Compiling module tree_look_ahead_routing
+# -- Compiling module tree_destport_decoder
+# -- Compiling module tree_destp_generator
+# -- Compiling module comb_spec1_allocator
+# -- Compiling module spec_sw_alloc
+# -- Compiling module sw_alloc_sub
+# -- Compiling module combined_vc_sw_alloc
+# -- Compiling module mesh_torus_look_ahead_routing
+# -- Compiling module mesh_torus_deterministic_look_ahead_routing
+# -- Compiling module mesh_torus_adaptive_look_ahead_routing
+# -- Compiling module mesh_torus_next_router_addr_predictor
+# -- Compiling module mesh_torus_next_router_inport_predictor
+# -- Compiling module remove_sw_loc_one_hot
+# -- Compiling module remove_receive_port_one_hot
+# -- Compiling module add_sw_loc_one_hot
+# -- Compiling module add_sw_loc_one_hot_val
+# -- Compiling module mesh_torus_conventional_routing
+# -- Compiling module tranc_ring_routing
+# -- Compiling module xy_line_routing
+# -- Compiling module line_ring_encode_dstport
+# -- Compiling module line_ring_decode_dstport
+# -- Compiling module mesh_tori_decode_dstport
+# -- Compiling module baseline_allocator
+# -- Compiling module canonical_vc_alloc
+# -- Compiling module spec_sw_alloc_can
+# -- Compiling module comb_spec2_allocator
+# -- Compiling module spec_sw_alloc2
+# -- Compiling module sw_alloc_sub2
+# -- Compiling module spec_sw_alloc_sub2
+# -- Compiling module flit_buffer_reg_base
+# -- Compiling module xy_mesh_routing
+# -- Compiling module west_first_routing
+# -- Compiling module north_last_routing
+# -- Compiling module negetive_first_routing
+# -- Compiling module odd_even_routing
+# -- Compiling module duato_mesh_routing
+# -- Compiling module mesh_dir
+# -- Compiling module mesh_tori_encode_dstport
+# -- Compiling module register
+# -- Compiling module reduction_or
+# -- Compiling module onehot_mux_2D
+# -- Compiling module onehot_mux_1D
+# -- Compiling module header_flit_info
+# -- Compiling module smart_chanel_check
+# -- Compiling module smart_forward_ivc_info
+# -- Compiling module smart_bypass_chanels
+# -- Compiling module check_straight_oport
+# -- Compiling module smart_validity_check_per_ivc
+# -- Compiling module smart_allocator_per_iport
+# -- Compiling module smart_credit_manage
+# -- Compiling module smart_credit_manage_per_vc
+# -- Compiling module traffic_gen_top
+# -- Compiling module injection_ratio_ctrl
+# -- Compiling module packet_gen
+# -- Compiling module distance_gen
+# -- Compiling module port_presel_based_dst_ports_vc
+# -- Compiling module port_presel_based_dst_ports_credit
+# -- Compiling module mesh_torus_port_presel_based_dst_routers_vc
+# -- Compiling module port_presel_based_dst_routers_ovc
+# -- Compiling module port_pre_sel_gen
+# -- Compiling module congestion_out_based_ivc_req
+# -- Compiling module congestion_out_based_ivc_notgrant
+# -- Compiling module congestion_out_based_3port_avb_ovc
+# -- Compiling module congestion_out_based_avb_ovc_w2
+# -- Compiling module congestion_out_based_avb_ovc_w3
+# -- Compiling module congestion_out_based_avb_ovc_w4
+# -- Compiling module congestion_out_based_avb_ovc_not_granted_ivc
+# -- Compiling module parallel_count_normalize
+# -- Compiling module normalizer
+# -- Compiling module congestion_out_gen
+# -- Compiling module deadlock_detector
+# -- Compiling module output_ports
+# -- Compiling module credit_monitor_per_ovc
+# -- Compiling module oport_ovc_sig_gen
+# -- Compiling module sw_mask_gen
+# -- Compiling module check_ovc
+# -- Compiling module conventional_routing
+# -- Compiling module look_ahead_routing
+# -- Compiling module next_router_addr_selector_onehot
+# -- Compiling module next_router_addr_selector_bin
+# -- Compiling module router_two_stage
+# -- Compiling module crossbar
+# -- Compiling module iport_reg_base
+# -- Compiling module flit_buffer
+# -- Compiling module fifo_ram
+# -- Compiling module fifo_ram_mem_size
+# -- Compiling module fwft_fifo
+# -- Compiling module fwft_fifo_with_output_clear
+# -- Compiling module fwft_fifo_bram
+# -- Compiling module bram_based_fifo
+# -- Compiling module mesh_torus_vc_alloc_request_gen_adaptive
+# -- Compiling module mesh_tori_dspt_clear_gen
+# -- Compiling module mesh_torus_mask_non_assignable_destport
+# -- Compiling module mesh_torus_mask_non_assignable_destport_no_self_loop
+# -- Compiling module mesh_torus_swap_port_presel_gen
+# -- Compiling module mesh_torus_adaptive_avb_ovc_mux
+# -- Compiling module mesh_torus_port_selector
+# -- Compiling module mesh_torus_adaptive_lk_dest_encoder
+# -- Compiling module mesh_torus_dtrmn_dest_encoder
+# -- Compiling module mesh_torus_distance_gen
+# -- Compiling module mesh_torus_ssa_check_destport
+# -- Compiling module line_ring_ssa_check_destport
+# -- Compiling module mesh_tori_router_addr_decode
+# -- Compiling module mesh_tori_endp_addr_decode
+# -- Compiling module mesh_tori_addr_encoder
+# -- Compiling module mesh_tori_addr_coder
+# -- Compiling module mesh_torus_destp_generator
+# -- Compiling module mesh_torus_destp_decoder
+# -- Compiling module line_ring_destp_decoder
+# -- Compiling module mesh_torus_dynamic_portsel_control
+# -- Compiling module check_flit_chanel_type_is_in_order
+# -- Compiling module debug_mesh_tori_route_ckeck
+# -- Compiling module debug_mesh_edges
+# -- Compiling module check_destination_addr
+# -- Compiling module endp_addr_encoder
+# -- Compiling module endp_addr_decoder
+# -- Compiling module router_top
+# -- Compiling module router_top_v
+# -- Compiling module mesh_torus_noc_top
+# -- Compiling module star_noc_top
+# -- Compiling module star_conventional_routing
+# -- Compiling module fmesh_addr_encoder
+# -- Compiling module fmesh_addr_coder
+# -- Compiling module fmesh_endp_addr_decode
+# -- Compiling module fmesh_destp_generator
+# -- Compiling module fmesh_destp_decoder
+# -- Compiling module fmesh_distance_gen
+# -- Compiling module packet_injector
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(132): (vlog-2697) LSB of part-select into 'data' is out of bounds.
+# -- Compiling module injector_ovc_status
+# -- Compiling module pck_class_in_gen
+# -- Compiling module pck_dst_gen
+# -- Compiling module two_dimension_pck_dst_gen
+# -- Compiling module one_dimension_pck_dst_gen
+# -- Compiling module pck_size_gen
+# -- Compiling module hot_spot_dest_gen
+# -- Compiling module pck_injector_test
+# 
+# Top level modules:
+# 	outport_sum
+# 	set_bits_counter
+# 	fast_minimum_number
+# 	start_delay_gen
+# 	my_one_hot_arbiter_ext_priority
+# 	arbiter_ext_priority
+# 	fixed_priority_arbiter
+# 	vc_priority_based_dest_port
+# 	noc_top_v
+# 	wrra
+# 	rra_priority_lock
+# 	mesh_torus_next_router_inport_predictor
+# 	remove_receive_port_one_hot
+# 	traffic_gen_top
+# 	deadlock_detector
+# 	iport_reg_base
+# 	mesh_torus_dtrmn_dest_encoder
+# 	router_top_v
+# 	pck_class_in_gen
+# 	pck_dst_gen
+# 	pck_size_gen
+# 	pck_injector_test
+# End time: 01:12:05 on Sep 02,2021, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 5
+# 
+# vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  pck_injector_test
+# End time: 01:12:07 on Sep 02,2021, Elapsed time: 0:02:14
+# Errors: 0, Warnings: 6
+# vsim -t 1ps -L /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work -L work -voptargs=""+acc"" pck_injector_test 
+# Start time: 01:12:07 on Sep 02,2021
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vopt-143) Recognized 1 FSM in module "packet_injector(fast)".
+# Loading sv_std.std
+# Loading work.pronoc_pkg(fast)
+# Loading work.pck_injector_test(fast)
+# Loading work.noc_top(fast)
+# Loading work.mesh_torus_noc_top(fast)
+# Loading work.router_top(fast)
+# Loading work.header_flit_info(fast)
+# Loading work.router_two_stage(fast)
+# Loading work.add_sw_loc_one_hot(fast)
+# Loading work.inout_ports(fast)
+# Loading work.input_ports(fast)
+# Loading work.input_queue_per_port(fast)
+# Loading work.register(fast)
+# Loading work.register(fast__1)
+# Loading work.extract_header_flit_info(fast)
+# Loading work.one_hot_to_bin(fast)
+# Loading work.one_hot_mux(fast)
+# Loading work.class_ovc_table(fast)
+# Loading work.onehot_mux_1D(fast__2)
+# Loading work.onehot_mux_2D(fast__2)
+# Loading work.fwft_fifo(fast__1)
+# Loading work.fwft_fifo(fast)
+# Loading work.destp_generator(fast)
+# Loading work.mesh_torus_destp_generator(fast)
+# Loading work.mesh_torus_destp_decoder(fast)
+# Loading work.remove_sw_loc_one_hot(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast)
+# Loading work.flit_buffer(fast)
+# Loading work.onehot_mux_1D(fast__1)
+# Loading work.onehot_mux_2D(fast__1)
+# Loading work.fifo_ram(fast)
+# Loading work.look_ahead_routing(fast)
+# Loading work.mesh_tori_router_addr_decode(fast)
+# Loading work.mesh_tori_endp_addr_decode(fast)
+# Loading work.mesh_torus_look_ahead_routing(fast)
+# Loading work.mesh_torus_deterministic_look_ahead_routing(fast)
+# Loading work.mesh_tori_decode_dstport(fast)
+# Loading work.mesh_torus_next_router_addr_predictor(fast)
+# Loading work.mesh_torus_conventional_routing(fast)
+# Loading work.xy_mesh_routing(fast)
+# Loading work.mesh_tori_encode_dstport(fast)
+# Loading work.header_flit_update_lk_route_ovc(fast)
+# Loading work.onehot_mux_1D(fast)
+# Loading work.onehot_mux_2D(fast)
+# Loading work.input_queue_per_port(fast__1)
+# Loading work.destp_generator(fast__1)
+# Loading work.mesh_torus_destp_generator(fast__1)
+# Loading work.mesh_torus_destp_decoder(fast__1)
+# Loading work.remove_sw_loc_one_hot(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__1)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__1)
+# Loading work.input_queue_per_port(fast__2)
+# Loading work.destp_generator(fast__2)
+# Loading work.mesh_torus_destp_generator(fast__2)
+# Loading work.mesh_torus_destp_decoder(fast__2)
+# Loading work.remove_sw_loc_one_hot(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__2)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__2)
+# Loading work.input_queue_per_port(fast__3)
+# Loading work.destp_generator(fast__3)
+# Loading work.mesh_torus_destp_generator(fast__3)
+# Loading work.mesh_torus_destp_decoder(fast__3)
+# Loading work.remove_sw_loc_one_hot(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__3)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__3)
+# Loading work.input_queue_per_port(fast__4)
+# Loading work.destp_generator(fast__4)
+# Loading work.mesh_torus_destp_generator(fast__4)
+# Loading work.mesh_torus_destp_decoder(fast__4)
+# Loading work.remove_sw_loc_one_hot(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport(fast__4)
+# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__4)
+# Loading work.output_ports(fast)
+# Loading work.register(fast__2)
+# Loading work.oport_ovc_sig_gen(fast)
+# Loading work.onehot_mux_1D(fast__3)
+# Loading work.onehot_mux_2D(fast__3)
+# Loading work.one_hot_demux(fast)
+# Loading work.credit_monitor_per_ovc(fast)
+# Loading work.sw_mask_gen(fast)
+# Loading work.onehot_mux_1D(fast__4)
+# Loading work.onehot_mux_2D(fast__4)
+# Loading work.credit_monitor_per_ovc(fast__1)
+# Loading work.credit_monitor_per_ovc(fast__2)
+# Loading work.credit_monitor_per_ovc(fast__3)
+# Loading work.credit_monitor_per_ovc(fast__4)
+# Loading work.port_pre_sel_gen(fast)
+# Loading work.vc_alloc_request_gen(fast)
+# Loading work.vc_alloc_request_gen_determinstic(fast)
+# Loading work.congestion_out_gen(fast)
+# Loading work.combined_vc_sw_alloc(fast)
+# Loading work.comb_nonspec_allocator(fast)
+# Loading work.nonspec_sw_alloc(fast)
+# Loading work.swa_input_port_arbiter(fast)
+# Loading work.arbiter_priority_en(fast)
+# Loading work.my_one_hot_arbiter_priority_en(fast)
+# Loading work.arbiter_2_one_hot(fast)
+# Loading work.swa_output_port_arbiter(fast)
+# Loading work.arbiter(fast)
+# Loading work.my_one_hot_arbiter(fast)
+# Loading work.one_hot_to_bin(fast__1)
+# Loading work.one_hot_mux(fast__1)
+# Loading work.arbiter_4_one_hot(fast)
+# Loading work.custom_or(fast)
+# Loading work.arbiter(fast__1)
+# Loading work.my_one_hot_arbiter(fast__1)
+# Loading work.crossbar(fast)
+# Loading work.binary_mux(fast)
+# Loading work.endp_addr_encoder(fast)
+# Loading work.mesh_tori_addr_encoder(fast)
+# Loading work.packet_injector(fast)
+# Loading work.conventional_routing(fast)
+# Loading work.mesh_torus_conventional_routing(fast__1)
+# Loading work.header_flit_generator(fast)
+# Loading work.injector_ovc_status(fast)
+# Loading work.header_flit_info(fast__1)
+# Loading work.register(fast__3)
+# 
+# add wave *
+# view structure
+# .main_pane.structure.interior.cs.body.struct
+# view signals
+# .main_pane.objects.interior.cs.body.tree
+# run -all
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source=10, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source=11, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 4, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source=17, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765432c
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba98765432b
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654333
+# pck_inj(          0) got a packet: source=24, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 5, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654336
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765433a
+# pck_inj(          0) got a packet: source=12, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba98765432a
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654341
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654341
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654348
+# pck_inj(          0) got a packet: source=18, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654339
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba98765434c
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765434f
+# pck_inj(          0) got a packet: source=10, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 6, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source=25, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654356
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654357
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654348
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba98765433a
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765435d
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba987654334
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654362
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654364
+# pck_inj(          0) got a packet: source=13, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654357
+# pck_inj(          0) got a packet: source=19, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765436b
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba98765436d
+# pck_inj(          0) got a packet: source= 4, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654351
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654372
+# pck_inj(          0) got a packet: source=32, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654366
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654378
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654379
+# pck_inj(          0) got a packet: source=10, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654341
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba987654357
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654380
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654383
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654375
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654368
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654387
+# pck_inj(          0) got a packet: source=17, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 7, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba98765438e
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765438e
+# pck_inj(          0) got a packet: source=11, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654384
+# pck_inj(          0) got a packet: source=24, size=    4, data=cba987654322
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba987654395
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba987654399
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba987654360
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba98765437f
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba98765439c
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba98765437a
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba987654393
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba9876543a4
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543a3
+# pck_inj(          0) got a packet: source=10, size=    4, data=cba987654347
+# pck_inj(          0) got a packet: source= 4, size=    4, data=cba987654325
+# pck_inj(          0) got a packet: source=20, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543aa
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba9876543af
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba9876543a2
+# pck_inj(          0) got a packet: source= 9, size=    4, data=cba987654396
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543b1
+# pck_inj(          0) got a packet: source=26, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 3, size=    4, data=cba98765437f
+# pck_inj(          0) got a packet: source= 8, size=    4, data=cba9876543ba
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543b8
+# pck_inj(          0) got a packet: source=14, size=    4, data=cba987654321
+# pck_inj(          0) got a packet: source= 2, size=    4, data=cba9876543b1
+# pck_inj(          0) got a packet: source=16, size=    4, data=cba98765439d
+# pck_inj(          0) got a packet: source= 1, size=    4, data=cba9876543bf
+# ** Note: $stop    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv(93)
+#    Time: 8250 ns  Iteration: 1  Region: /pck_injector_test/endpoints[0]
+# Break in Module pck_injector_test at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./pck_injector_test.sv line 93

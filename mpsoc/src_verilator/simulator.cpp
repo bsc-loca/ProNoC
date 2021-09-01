@@ -9,8 +9,18 @@
 #include <verilated.h>          // Defines common routines
 
 #include "Vtraffic.h"
+#include "Vpck_inj.h"
 
 #include "netrace_lib.h"
+
+
+//traffic type
+#define SYNTHETIC 0
+#define TASK      1
+#define NETRACE   2
+int TRAFFIC_TYPE=SYNTHETIC;
+void * addr1;
+void * addr2;
 
 
 #define IS_SELF_LOOP_EN (strcmp(SELF_LOOP_EN ,"YES")==0)
@@ -24,12 +34,14 @@
 	memset(&router##T [r]->chan_in [p],0x00,CHAN_SIZE)
 
 #define connect_r2e(T,r,p,e) \
-	memcpy(&router##T [r]->chan_in[p], &traffic[e]->chan_out, CHAN_SIZE );\
-	memcpy(&traffic[e]->chan_in, &router##T [r]->chan_out[p], CHAN_SIZE )
+	addr1=(TRAFFIC_TYPE==NETRACE)? &pck_inj[e]->chan_out  : &traffic[e]->chan_out;\
+	addr2=(TRAFFIC_TYPE==NETRACE)? &pck_inj[e]->chan_in  : &traffic[e]->chan_in;\
+	memcpy(&router##T [r]->chan_in[p], addr1, CHAN_SIZE );\
+	memcpy(addr2, &router##T [r]->chan_out[p], CHAN_SIZE )
 
 #include "parameter.h"
-Vtraffic		*traffic[NE];
-
+Vtraffic		*traffic[NE]; // for synthetic and trace traffic pattern
+Vpck_inj        *pck_inj[NE]; // for netrace
 #include "topology_top.h"
 #include "traffic_task_graph.h"
 #include "traffic_synthetic.h"
@@ -42,15 +54,10 @@ Vtraffic		*traffic[NE];
 #define RANDOM_RANGE 1
 #define RANDOM_discrete 2
 
-//traffic type
-#define SYNTHETIC 0
-#define TASK      1
-#define NETRACE   2
-
 
 
 int reset,clk;
-int TRAFFIC_TYPE=SYNTHETIC;
+
 int AVG_PACKET_SIZE=5;
 int MIN_PACKET_SIZE=5;
 int MAX_PACKET_SIZE=5;
@@ -122,8 +129,10 @@ void clk_negedge_event(void);
 void clk_posedge_event(void);
 void connect_clk_reset_start_all(void);
 unsigned int rnd_between (unsigned int, unsigned int );
-
-
+void traffic_gen_init( void );
+void  pck_inj_init(void);
+void pck_inj_final_report(void);
+void traffic_gen_final_report(void);
 
 void  usage(){
 	printf(" ./simulator -f [Trace file] -c [MAX SIM CLKs] \n\nor\n");
@@ -463,17 +472,20 @@ int main(int argc, char** argv) {
 	char file_name[100];
 	char deafult_out[] = {"result"};
 
-	unsigned int dest_e_addr;
+
 
 	while((0x1<<NEw) < NE)NEw++;
 	
 
 	Verilated::commandArgs(argc, argv);   // Remember args
-	Vrouter_new();
-	//noc								= new Vnoc;
-	for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
-	for(i=0;i<NE;i++)   custom_traffic_table[i]=INJECT_OFF; //off
 	processArgs ( argc,  argv );
+
+	//noc								= new Vnoc;
+	Vrouter_new();
+	if( TRAFFIC_TYPE == NETRACE)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
+	else                            for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
+
+	for(i=0;i<NE;i++)   custom_traffic_table[i]=INJECT_OFF; //off
 	
 	
 	FIXED_SRC_DST_PAIR = strcmp (TRAFFIC,"RANDOM") &  strcmp(TRAFFIC,"HOTSPOT") & strcmp(TRAFFIC,"random") & strcmp(TRAFFIC,"hot spot") & strcmp(TRAFFIC,"TASK");
@@ -487,25 +499,9 @@ int main(int argc, char** argv) {
 	reset_all_register();
 	start_i=0; 
 	topology_init();
+	if( TRAFFIC_TYPE == NETRACE) pck_inj_init();
+	else 	traffic_gen_init();
 
-    for (i=0;i<NE;i++){
-    	random_var[i] = 100;
-    	traffic[i]->current_e_addr		= endp_addr_encoder(i);
-    	traffic[i]->start=0;
-    	traffic[i]->pck_class_in=  pck_class_in_gen( i);
-    	traffic[i]->pck_size_in=get_new_pck_size();
-    	dest_e_addr=pck_dst_gen (i);
-    	traffic[i]->dest_e_addr= dest_e_addr;
-    	if(dest_e_addr == INJECT_OFF) traffic[i]->stop=1;
-    	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
-    	if(inject_done) traffic[i]->stop=1;
-    	traffic[i]->start_delay=rnd_between(1,4*NE-2);
-    	if(TRAFFIC_TYPE==SYNTHETIC){
-    		//traffic[i]->avg_pck_size_in=AVG_PACKET_SIZE;
-    		traffic[i]->ratio=ratio;
-    		traffic[i]->init_weight=1;
-    	}
-	}
 	
 	
 	
@@ -531,15 +527,10 @@ int main(int argc, char** argv) {
 		for (i=0;i<2*(SMART_MAX+1);i++) clk_negedge_event( );
 				
 		if(simulation_done){
-				for (i=0;i<NE;i++) if(traffic[i]->pck_number>0) total_active_endp   	= 	total_active_endp +1;
-
-				printf(" simulation clock cycles:%d\n",clk_counter);
-				printf(" total received flits:%d\n",total_rsv_flit_number);
-				printf(" total sent flits:%d\n",total_sent_flit_number);
-				print_statistic( );
-				change_injection_ratio = 1;
-				sim_final_all();
-				return 0;
+			if( TRAFFIC_TYPE == NETRACE) pck_inj_final_report();
+			else traffic_gen_final_report();
+			sim_final_all();
+			return 0;
 		}
 		
 
@@ -555,7 +546,50 @@ int main(int argc, char** argv) {
 }
 
 
+void pck_inj_final_report(){
+	printf(" netrace simulation clock cycles:%d\n",nt_cycle);
+}
 
+void traffic_gen_final_report(){
+	int i;
+	for (i=0;i<NE;i++) if(traffic[i]->pck_number>0) total_active_endp   	= 	total_active_endp +1;
+	printf(" simulation clock cycles:%d\n",clk_counter);
+	printf(" total received flits:%d\n",total_rsv_flit_number);
+	printf(" total sent flits:%d\n",total_sent_flit_number);
+	print_statistic( );
+}
+
+
+void traffic_gen_init( void ){
+	int i;
+	unsigned int dest_e_addr;
+	for (i=0;i<NE;i++){
+	    	random_var[i] = 100;
+	    	traffic[i]->current_e_addr		= endp_addr_encoder(i);
+	    	traffic[i]->start=0;
+	    	traffic[i]->pck_class_in=  pck_class_in_gen( i);
+	    	traffic[i]->pck_size_in=get_new_pck_size();
+	    	dest_e_addr=pck_dst_gen (i);
+	    	traffic[i]->dest_e_addr= dest_e_addr;
+	    	if(dest_e_addr == INJECT_OFF) traffic[i]->stop=1;
+	    	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
+	    	if(inject_done) traffic[i]->stop=1;
+	    	traffic[i]->start_delay=rnd_between(1,4*NE-2);
+	    	if(TRAFFIC_TYPE==SYNTHETIC){
+	    		//traffic[i]->avg_pck_size_in=AVG_PACKET_SIZE;
+	    		traffic[i]->ratio=ratio;
+	    		traffic[i]->init_weight=1;
+	    	}
+	}
+}
+
+void pck_inj_init (void){
+	int i;
+	for (i=0;i<NE;i++){
+	   	pck_inj[i]->current_e_addr		= endp_addr_encoder(i);
+	}
+
+}
 
 /*************
  * sc_time_stamp 
@@ -575,13 +609,15 @@ void sim_eval_all (void){
 	int i;
 	//noc->eval(); 
 	routers_eval();
-	for(i=0;i<NE;i++) traffic[i]->eval();
+	if( TRAFFIC_TYPE == NETRACE) for(i=0;i<NE;i++) pck_inj[i]->eval();
+	else for(i=0;i<NE;i++) traffic[i]->eval();
 }	
 
 void sim_final_all (void){
 	int i;
 	routers_final();
-	for(i=0;i<NE;i++) traffic[i]->final();
+	if( TRAFFIC_TYPE == NETRACE) for(i=0;i<NE;i++) pck_inj[i]->final();
+	else for(i=0;i<NE;i++) traffic[i]->final();
 	//noc->final(); 
 }	
 
@@ -589,40 +625,33 @@ void connect_clk_reset_start_all(void){
 	int i;
 	//noc-> clk = clk; 
 	//noc-> reset = reset;
-		 
-	for(i=0;i<NE;i++)	{
-		start_o[i]=start_i;//TO DO fix it
-		traffic[i]->start= start_o[i];
-		traffic[i]->reset= reset;
-		traffic[i]->clk	= clk;
+	if( TRAFFIC_TYPE == NETRACE) {
+		for(i=0;i<NE;i++)	{
+			pck_inj[i]->reset= reset;
+			pck_inj[i]->clk	= clk;
+		}
+	}else {
+		for(i=0;i<NE;i++)	{
+			start_o[i]=start_i;
+			traffic[i]->start= start_o[i];
+			traffic[i]->reset= reset;
+			traffic[i]->clk	= clk;
+		}
 	}
 	connect_routers_reset_clk();
 }
 
 
 void clk_negedge_event(void){
-	int i,j;
-	
+	int i;
 	clk = 0;
-
-	
 	topology_connect_all_nodes ();
-			
-
-	for (i=0;i<NE;i++){
-				if(inject_done) traffic[i]->stop=1;
-				traffic[i]->current_r_addr		= er_addr[i];
-
-	}
-
-			
-
-				
-
 	
+	for (i=0;i<NE;i++){
+		if(inject_done) traffic[i]->stop=1;
+	}
 	connect_clk_reset_start_all();
 	sim_eval_all();
-	
 }	
 
 

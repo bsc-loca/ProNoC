@@ -402,6 +402,7 @@ endmodule
  	wr_in,
  	credit_in,
  	nearly_full_vc,
+ 	full_vc,
  	empty_vc,
  	cand_vc,
  	cand_wr_vc_en,
@@ -414,6 +415,7 @@ endmodule
  	input   [V-1 :0] wr_in;
  	input   [V-1 :0] credit_in;
  	output  [V-1 :0] nearly_full_vc;
+ 	output  [V-1 : 0] full_vc;
  	output  [V-1 :0] empty_vc;
  	output reg [V-1 :0] cand_vc;
  	input   cand_wr_vc_en;
@@ -436,7 +438,7 @@ endmodule
     
     reg  [DEPTH_WIDTH-1 : 0] credit    [V-1 : 0];
     wire  [V-1 : 0] cand_vc_next;
-    wire  [V-1 : 0] full_vc;
+   
     wire  [V-1 :0] request;
     
     genvar i;

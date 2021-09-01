@@ -10,6 +10,7 @@ my $dirname = "$script_path/..";
 my $rtl_dir = "$ENV{PRONOC_WORK}/verify/rtl";
 my $work    = "$ENV{PRONOC_WORK}/verify/work";
 my $src_verilator = "$dirname/../src_verilator";
+my $src_c = "$dirname/../src_c";
 my $src = "$script_path";
 my $report = "$dirname/report";
 
@@ -100,6 +101,7 @@ sub gen_sim_parameter_h {
  	#define ROUTER_P_NUM $router_p
  	
 	extern Vtraffic		*traffic[NE];
+	extern Vpck_inj     *pck_inj[NE];
 	extern int reset,clk;
 	
 	//simulation parameter	
@@ -171,6 +173,7 @@ sub gen_noc_localparam_v {
 	my ($nr,$ne,$router_p,$ref_tops,$includ_h) = get_noc_verilator_top_modules_info($m);
 	my %tops = %{$ref_tops};	
 	$tops{Vtraffic} = "--top-module traffic_gen_top";	
+	$tops{Vpck_inj} = "--top-module packet_injector";	
 
 
 
@@ -325,6 +328,10 @@ sub gen_models {
 			copy $p, "$work/$name/obj_dir/";
 		}
 		copy "$src_verilator/simulator.cpp", "$work/$name/obj_dir/testbench.cpp";
+
+		#copy nettrace
+	    dircopy("$src_c/netrace-1.0","$work/$name/obj_dir/netrace-1.0");
+
 		#generate make file
 		gen_verilator_makefile($tops,"$work/$name/obj_dir/Makefile");
 		#generate param.h file

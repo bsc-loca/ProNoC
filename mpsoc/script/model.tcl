@@ -1,99 +1,36 @@
 #!/usr/bin/tclsh
 
-###################################################################
-## Author      : Alireza Monemi
-## Email       : 
-## Description : Compile all verilog files inside the design folder 
-##             : using modelsim
-###################################################################
-
-
-
+#Get tcl shell path relative to current script
+set tcl_path	[file dirname [info script]] 
 if { [info exists $::env(LM_WORK_PLACE)] } { 
   puts "You need to define the work dir as LM_WORK_PLACE linux envirement variable \n"
+  exit(1)
+}
+
+if { [info exists $::env(LM_FILE_LIST)] } { 
+  puts "You need to define the file list path as LM_FILE_LIST linux envirement variable \n"
+  exit(1)
 }
 
 
-set text "###################################################################"
-set text "##                Start Compilation Script "
-set text "###################################################################"
-
-###################################################################
-##---- Specify variables
-set text "###################################################################"
-set text "##---- Specify variables"
-
-##-- Project path variables
 
 
-set path	[pwd]
-set path1 	[file normalize $path/../rtl/src_noc]
-set path2 	[file normalize $path/../rtl/src_modelsim]
-
-set comp_path 	$::env(LM_WORK_PLACE)
-set work_path	$comp_path/work
-set dirs $path1+$path2
+set rtl_work $::env(LM_WORK_PLACE)/rtl_work
 
 
-set text $comp_path   
-
-
-##-- change directory
-file mkdir $comp_path
-
-cd $comp_path
-exec rm -Rf *
-
-proc q  {} {quit -force                  }
-
-proc sleep {N} {
-    after [expr {int($N * 1000)}]
+transcript on
+if {[file exists $rtl_work]} {
+	vdel -lib $rtl_work -all
 }
+vlib $rtl_work
+vmap work $rtl_work
 
 
-#Does this installation support Tk?
-set tk_ok 1
-if [catch {package require Tk}] {set tk_ok 0}
+vlog  +acc=rn  -F $::env(LM_FILE_LIST)
 
-###################################################################
-##---- 1. Creating working library
-set text "###################################################################"
-set text "##---- 1. Creating working library"
+vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  pck_injector_test
 
-##-- Create work lib
-vlib $work_path
-
-##-- Mapping work lib
-vmap work $work_path
-
-
-
-###################################################################
-##---- 3. Compile the Design
-set text "###################################################################"
-set text "##---- 3. Compile the Design"
-
-#+acc=rn
-vlog -sv -work  $work_path +acc=rn  +incdir+$dirs -F  $path1/noc_filelist.f
-vlog -sv -work  $work_path +acc=rn  +incdir+$dirs -F  $path2/filelist.f
- 
-
-
-set text "###################################################################"
-set text "##                       END OF COMPILATION"
-set text "###################################################################"
-
-
-#vsim -t ps work.testbench_router // trun off non-unique case warning 8315,8360
-vsim  -t ps  work.testbench_noc 	
-
-#do "$comp_path/wave.do"
-
-run 100 ms
-
-quit
-
-
-
-#####################################################################################
-
+add wave *
+view structure
+view signals
+run -all

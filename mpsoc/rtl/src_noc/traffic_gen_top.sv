@@ -5,45 +5,44 @@ module  traffic_gen_top
 	#(
 		parameter MAX_RATIO = 1000,
 		parameter ENDP_ID   = 10
-		)
-		(
+	)
+	(
 					
-			//noc port
-			chan_in,
-			chan_out,  
+		//noc port
+		chan_in,
+		chan_out,  
+		
+		//input 
+		ratio,// real injection ratio  = (MAX_RATIO/100)*ratio
+		pck_size_in,		
+		current_e_addr,
+		dest_e_addr,
+		pck_class_in,        
+		start, 
+		stop,  
+		report,
+		init_weight,
+		start_delay,
+		
+		//output
+		pck_number,
+		sent_done, // tail flit has been sent
+		hdr_flit_sent,
+		update, // update the noc_analayzer
+		src_e_addr,
+		flit_out_wr,
+		flit_in_wr,
+		
+		distance,
+		pck_class_out,   
+		time_stamp_h2h,
+		time_stamp_h2t,
+		pck_size_o,
+		
+		reset,
+		clk
 			
-			//input 
-			ratio,// real injection ratio  = (MAX_RATIO/100)*ratio
-			pck_size_in,   
-			current_r_addr,
-			current_e_addr,
-			dest_e_addr,
-			pck_class_in,        
-			start, 
-			stop,  
-			report,
-			init_weight,
-			start_delay,
-      
-			//output
-			pck_number,
-			sent_done, // tail flit has been sent
-			hdr_flit_sent,
-			update, // update the noc_analayzer
-			src_e_addr,
-			flit_out_wr,
-			flit_in_wr,
-   
-			distance,
-			pck_class_out,   
-			time_stamp_h2h,
-			time_stamp_h2t,
-			pck_size_o,
-			
-			reset,
-			clk
-			
-		);
+	);
 		
 	localparam
 		RATIOw= $clog2(MAX_RATIO);
@@ -74,8 +73,7 @@ module  traffic_gen_top
 	output [CLK_CNTw-1              :0] time_stamp_h2h,time_stamp_h2t;
 	output [DISTw-1                 :0] distance;
 	output [Cw-1                    :0] pck_class_out;
-	// the connected router address
-	input  [RAw-1                   :0] current_r_addr;    
+	
 	// the current endpoint address
 	input  [EAw-1                   :0] current_e_addr;    
 	// the destination endpoint address
@@ -103,7 +101,9 @@ module  traffic_gen_top
 	logic   [Fw-1                   :0] flit_in;   
 	output logic                              flit_in_wr;   
 	logic  [V-1                :0] credit_out;     
-		
+	
+	// the connected router address
+	wire  [RAw-1                   :0] current_r_addr;    
 		
 		
 	assign 	chan_out.flit_chanel.flit = flit_out; 
@@ -114,6 +114,7 @@ module  traffic_gen_top
 	assign flit_in   =  chan_in.flit_chanel.flit;   
 	assign flit_in_wr=  chan_in.flit_chanel.flit_wr; 
 	assign credit_in =  chan_in.flit_chanel.credit;  
+	assign current_r_addr = chan_in.ctrl_chanel.neighbors_r_addr;
 	
 	genvar i;
 	generate
@@ -179,7 +180,7 @@ module  traffic_gen_top
    
 		wire    [DSTPw-1                :   0] destport;   
 		wire    [V-1                    :   0] ovc_wr_in;
-		wire    [V-1                    :   0] full_vc,empty_vc;
+		wire    [V-1                    :   0] full_vc,empty_vc,nearly_full_vc;
 		reg     [V-1                    :   0] wr_vc,wr_vc_next;
 		wire    [V-1                    :   0] cand_vc;
     
@@ -282,7 +283,8 @@ module  traffic_gen_top
 				.credit_init_val_in         ( chan_in.ctrl_chanel.credit_init_val),
 				.wr_in                      (ovc_wr_in),   
 				.credit_in                  (credit_in),
-				.nearly_full_vc             (full_vc),
+				.nearly_full_vc             (nearly_full_vc),
+				.full_vc                    (full_vc),
 				.empty_vc                   (empty_vc),
 				.cand_vc                    (cand_vc),
 				.cand_wr_vc_en              (cand_wr_vc_en),
@@ -461,13 +463,14 @@ module  traffic_gen_top
     );
 	 */
 	end 
-		endgenerate
+	endgenerate
     
     
-		assign  ovc_wr_in   = (flit_out_wr ) ?      wr_vc : {V{1'b0}};
-
-	assign  wr_vc_is_full           =   | ( full_vc & wr_vc);
-    
+	assign  ovc_wr_in   = (flit_out_wr ) ?      wr_vc : {V{1'b0}};
+	
+	/* verilator lint_off WIDTH */
+	assign  wr_vc_is_full           = (SSA_EN=="NO")?  | ( full_vc & wr_vc)  : | (nearly_full_vc & wr_vc);
+    /* verilator lint_on WIDTH */ 
     
     
 	generate

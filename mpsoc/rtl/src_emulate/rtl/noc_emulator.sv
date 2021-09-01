@@ -516,7 +516,6 @@ module  traffic_gen_ram
         .start(start_traffic),
         .stop(stop),
         .pck_size_in(pck_size_in), 
-        .current_r_addr(current_r_addr),
         .current_e_addr(current_e_addr),
         .dest_e_addr(dest_e_addr),        
         .pck_class_in(pck_class),         
