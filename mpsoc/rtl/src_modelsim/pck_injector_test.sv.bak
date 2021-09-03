@@ -30,14 +30,17 @@ module pck_injector_test;
 	);
 		
 	reg [NEw-1 : 0] dest_id [NE-1 : 0];
+	wire [NEw-1: 0] current_e_addr [NE-1 : 0];
 		
 	genvar i;
 	generate 
 	for(i=0; i< NE; i=i+1) begin : endpoints
-		packet_injector #( 
-			.ENDP_ID(i)		
-		)pck_inj(
+		
+		endp_addr_encoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode1 ( .id(i[NEw-1 :0]), .code(current_e_addr[i]));
+		
+		packet_injector pck_inj(
 			//general
+			.current_e_addr(current_e_addr[i]),
 			.reset(reset),
 			.clk(clk),		
    			//noc port
@@ -49,13 +52,14 @@ module pck_injector_test;
 		);			
 	
 
-		endp_addr_encoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode1 ( .id(dest_id[i]), .code(pck_injct_in[i].endp_addr));
+		endp_addr_encoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode2 ( .id(dest_id[i]), .code(pck_injct_in[i].endp_addr));
 		
 		
-	
+	   reg [31:0]k;
 
 		initial begin 
 			reset = 1'b1;
+			k=0;
 			pck_injct_in[i].data =0;
 			#10
 			pck_injct_in[i].class_num=0; 
@@ -67,20 +71,28 @@ module pck_injector_test;
 			reset=1'b0;
 			#100
 			@(posedge clk) #1;
-			if(i==2) begin 
-				while (pck_injct_out[i].ready[1] == 1'b0) @(posedge clk) #1;
-					
-				pck_injct_in[i].data='h123456789ABCDEF;
-				pck_injct_in[i].size=4;
-				dest_id[i]=0;				
-				pck_injct_in[i].pck_wr=1'b1;  	
-				@(posedge clk)
-				pck_injct_in[i].pck_wr=1'b0;  				
+			if(i==1) begin 
+				repeat(220) begin 
+					while (pck_injct_out[i].ready[0] == 1'b0) @(posedge clk) #1;
+						
+					pck_injct_in[i].data='h123456789ABCDEFEDCBA987654321+k;
+					pck_injct_in[i].size=2+(k%18);
+					dest_id[i]=0;				
+					pck_injct_in[i].pck_wr=1'b1;  	
+					@(posedge clk)
+					pck_injct_in[i].pck_wr=1'b0;  
+					@(posedge clk)#1 k++;
+				end
+				#8000
+			@(posedge clk) $stop;
+
 			end
 			
-			#8000
-			@(posedge clk)
-			$stop;
+			
+			
+			
+			
+			
 		end
 		
 		always @(posedge clk) begin

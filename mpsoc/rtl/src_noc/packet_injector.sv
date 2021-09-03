@@ -203,6 +203,7 @@ module packet_injector
 				counter<=counter_next;
 				counter2<=counter2_next;
 				if (chan_in.flit_chanel.flit_wr) credit_o<=  chan_in.flit_chanel.flit.vc;
+				else credit_o<={V{1'b0}};		
 			end
 		end	
 		
@@ -247,6 +248,15 @@ module packet_injector
 	
 	reg [PCK_SIZw-1 : 0] rsv_counter [V-1 : 0];
 	reg [EAw-1 : 0] sender_endp_addr_reg [V-1 : 0];
+	
+	
+	//synthesis translate_off
+	wire [NEw-1 : 0] current_id; 
+	wire [NEw-1 : 0] sendor_id; 
+	endp_addr_decoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode1 ( .id(current_id), .code(current_e_addr));
+	endp_addr_decoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode2 ( .id(sendor_id), .code(pck_injct_out.endp_addr));
+	//synthesis translate_on
+	
 	
 	generate 
 		for(i=0; i<V; i++) begin: V_ 
@@ -299,10 +309,23 @@ module packet_injector
 					else assign pck_data_o [i][(k)*Fpay+HDR_DATA_w -1 : (k-1)*Fpay+ HDR_DATA_w] = pck_data_o_gen [i][k];	
 					
 			end //for k
-					
-		end//for i
-		
 			
+			
+			//synthesis translate_off
+			always @(posedge clk) begin 
+				if((pck_injct_out.ready[i] == 1'b0 ) & pck_injct_in.vc[i] & pck_injct_in.pck_wr )begin 
+					$display("%t: ERROR: a packet injection request is recived in core(%d), vc (%d) while packet injectore was not ready. %m",$time,current_id,i);
+					$finish;
+				end
+		
+			end	
+			//synthesis translate_on
+	
+	
+			
+			
+					
+		end//for i			
 	endgenerate
 	
 	wire [V-1 : 0] vc_reg;
@@ -341,6 +364,39 @@ module packet_injector
 	assign chan_out.flit_chanel.congestion = {CONGw{1'b0}};
 	assign chan_out.flit_chanel.credit= credit_o;	
 	assign chan_out.ctrl_chanel.credit_init_val= LB;	
+	
+	//synthesis translate_off
+	`define MONITOR_RSV_DAT
+	
+
+	
+	always @(posedge clk) begin 
+		if((pck_injct_in.vc == {V{1'b0}} ) & pck_injct_in.pck_wr )begin 
+			$display("%t: ERROR: a packet injection request is recived while vc is not set. %m",$time);
+			$finish;
+		end
+		
+		
+		`ifdef MONITOR_RSV_DAT
+		
+			
+		if(pck_injct_in.pck_wr) begin 
+			$display ("pck_inj(%d) send a packet:  size=%d, data=%h, v=%h",current_id,
+					pck_injct_in.size, pck_injct_in.data,pck_injct_in.vc);
+		end	
+			
+		if(pck_injct_out.pck_wr) begin 
+			$display ("pck_inj(%d) got a packet: source=%d, size=%d, data=%h",current_id,
+					sendor_id,pck_injct_out.size,pck_injct_out.data);
+		end	
+		
+		
+		`endif
+		
+	end	
+	//synthesis translate_on
+	
+	
 	
 	
 endmodule
@@ -411,3 +467,107 @@ module injector_ovc_status #(
 endmodule
 
 
+
+
+/**************************************
+ * 
+ * 
+ * ***********************************/
+
+
+
+module packet_injector_verilator 
+import pronoc_pkg::*; 
+(
+	//general
+	current_e_addr,
+	reset,
+	clk,		
+	//noc port
+	chan_in,
+	chan_out,  
+	//control interafce
+	pck_injct_in_data,         
+	pck_injct_in_size,         
+	pck_injct_in_endp_addr,    
+	pck_injct_in_class_num,    
+	pck_injct_in_init_weight,  
+	pck_injct_in_vc,           
+	pck_injct_in_pck_wr,  	 
+	pck_injct_in_ready,        
+	                            
+	pck_injct_out_data,       
+	pck_injct_out_size,       
+	pck_injct_out_endp_addr,  
+	pck_injct_out_class_num,  
+	pck_injct_out_init_weight,
+	pck_injct_out_vc,         
+	pck_injct_out_pck_wr,  	 
+	pck_injct_out_ready      
+	                            
+	
+);
+
+
+//general
+input reset,clk;
+input [EAw-1 :0 ] current_e_addr;
+	
+// the destination endpoint address
+//NoC interface
+input   smartflit_chanel_t 	chan_in;
+output  smartflit_chanel_t 	chan_out;	
+//control interafce
+	
+	
+ input [PCK_INJ_Dw-1 : 0] pck_injct_in_data;
+ input [PCK_SIZw-1   : 0] pck_injct_in_size;
+ input [EAw-1        : 0] pck_injct_in_endp_addr; 
+ input [Cw-1         : 0] pck_injct_in_class_num; 
+ input [WEIGHTw-1    : 0] pck_injct_in_init_weight;
+ input [V-1          : 0] pck_injct_in_vc;
+ input                    pck_injct_in_pck_wr;  	
+ input [V-1          : 0] pck_injct_in_ready;
+
+ output [PCK_INJ_Dw-1 : 0] pck_injct_out_data;             
+ output [PCK_SIZw-1   : 0] pck_injct_out_size;             
+ output [EAw-1        : 0] pck_injct_out_endp_addr;        
+ output [Cw-1         : 0] pck_injct_out_class_num;        
+ output [WEIGHTw-1    : 0] pck_injct_out_init_weight;      
+ output [V-1          : 0] pck_injct_out_vc;               
+ output                    pck_injct_out_pck_wr;  	     
+ output [V-1          : 0] pck_injct_out_ready;            
+ 	
+ pck_injct_t pck_injct_in;
+ pck_injct_t pck_injct_out;
+
+ assign pck_injct_in.data         = pck_injct_in_data;                  
+ assign pck_injct_in.size         = pck_injct_in_size;                 
+ assign pck_injct_in.endp_addr    = pck_injct_in_endp_addr;            
+ assign pck_injct_in.class_num    = pck_injct_in_class_num;            
+ assign pck_injct_in.init_weight  = pck_injct_in_init_weight;          
+ assign pck_injct_in.vc           = pck_injct_in_vc;                   
+ assign pck_injct_in.pck_wr  	  = pck_injct_in_pck_wr;  	        
+ assign pck_injct_in.ready        = pck_injct_in_ready;                
+                                                                   
+ assign pck_injct_out_data        = pck_injct_out.data;           
+ assign pck_injct_out_size        = pck_injct_out.size;           
+ assign pck_injct_out_endp_addr   = pck_injct_out.endp_addr;      
+ assign pck_injct_out_class_num   = pck_injct_out.class_num;      
+ assign pck_injct_out_init_weight = pck_injct_out.init_weight;    
+ assign pck_injct_out_vc          = pck_injct_out.vc;             
+ assign pck_injct_out_pck_wr  	  = pck_injct_out.pck_wr;  	     
+ assign pck_injct_out_ready       = pck_injct_out.ready;          
+
+ 	
+ packet_injector injector (
+	.current_e_addr  (current_e_addr ), 
+	.reset           (reset          ), 
+	.clk             (clk            ), 
+	.chan_in         (chan_in        ), 
+	.chan_out        (chan_out       ), 
+	.pck_injct_in    (pck_injct_in   ), 
+	.pck_injct_out   (pck_injct_out  ));
+
+
+endmodule

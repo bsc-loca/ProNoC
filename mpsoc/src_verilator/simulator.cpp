@@ -11,7 +11,7 @@
 #include "Vtraffic.h"
 #include "Vpck_inj.h"
 
-#include "netrace_lib.h"
+
 
 
 //traffic type
@@ -25,7 +25,7 @@ void * addr2;
 
 #define IS_SELF_LOOP_EN (strcmp(SELF_LOOP_EN ,"YES")==0)
 
-#define CHAN_SIZE   sizeof(traffic[0]->chan_in)
+#define CHAN_SIZE   sizeof(router1[0]->chan_in[0])
 
 #define conect_r2r(T1,r1,p1,T2,r2,p2)  \
 	memcpy(&router##T1 [r1]->chan_in[p1] , &router##T2 [r2]->chan_out[p2], CHAN_SIZE )
@@ -39,12 +39,17 @@ void * addr2;
 	memcpy(&router##T [r]->chan_in[p], addr1, CHAN_SIZE );\
 	memcpy(addr2, &router##T [r]->chan_out[p], CHAN_SIZE )
 
+
+
+
+
 #include "parameter.h"
 Vtraffic		*traffic[NE]; // for synthetic and trace traffic pattern
 Vpck_inj        *pck_inj[NE]; // for netrace
 #include "topology_top.h"
 #include "traffic_task_graph.h"
 #include "traffic_synthetic.h"
+#include "netrace_lib.h"
 
 
 #define RATIO_INIT		2
@@ -66,6 +71,7 @@ int sim_end_clk_num;
 int HOTSPOT_NUM;
 int C0_p=100, C1_p=0, C2_p=0, C3_p=0;
 char * TRAFFIC;
+char * netrace_file;
 unsigned char FIXED_SRC_DST_PAIR;
 unsigned char  NEw=0;
 unsigned long int main_time = 0;     // Current simulation time
@@ -125,14 +131,15 @@ void print_parameter();
 void reset_all_register();
 void sim_eval_all (void);
 void sim_final_all (void);
-void clk_negedge_event(void);
-void clk_posedge_event(void);
+void traffic_clk_negedge_event(void);
+void traffic_clk_posedge_event(void);
 void connect_clk_reset_start_all(void);
 unsigned int rnd_between (unsigned int, unsigned int );
 void traffic_gen_init( void );
 void  pck_inj_init(void);
 void pck_inj_final_report(void);
 void traffic_gen_final_report(void);
+void processArgs (int, char ** );
 
 void  usage(){
 	printf(" ./simulator -f [Trace file] -c [MAX SIM CLKs] \n\nor\n");
@@ -150,6 +157,81 @@ void  usage(){
 	printf("      task traffic pattern: represented in a string with following format:  \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n");
 
 }
+
+
+
+int main(int argc, char** argv) {
+	char change_injection_ratio=0;
+	int i,j,x,y;//,report_delay_counter=0;
+
+	char deafult_out[] = {"result"};
+	NEw=log2(NE);
+
+	Verilated::commandArgs(argc, argv);   // Remember args
+	processArgs ( argc,  argv );
+
+
+	Vrouter_new();
+	if( TRAFFIC_TYPE == NETRACE)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
+	else                            for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
+	for(i=0;i<NE;i++)   custom_traffic_table[i]=INJECT_OFF; //off
+
+	if( TRAFFIC_TYPE == NETRACE) netrace_init(netrace_file);
+
+	FIXED_SRC_DST_PAIR = strcmp (TRAFFIC,"RANDOM") &  strcmp(TRAFFIC,"HOTSPOT") & strcmp(TRAFFIC,"random") & strcmp(TRAFFIC,"hot spot") & strcmp(TRAFFIC,"TASK");
+
+
+	/********************
+	*	initialize input
+	*********************/
+
+	reset=1;
+	reset_all_register();
+	start_i=0;
+	topology_init();
+	if( TRAFFIC_TYPE == NETRACE) pck_inj_init();
+	else 	traffic_gen_init();
+	main_time=0;
+	print_parameter();
+	if( TRAFFIC_TYPE == SYNTHETIC) printf("\n\n\n Flit injection ratio per router is =%f \n",(float)ratio*100/MAX_RATIO);
+
+
+	while (!Verilated::gotFinish()) {
+
+		if (main_time-saved_time >= 10 ) {
+			reset = 0;
+		}
+
+		if(main_time == saved_time+21){ count_en=1; start_i=1;}
+		if(main_time == saved_time+23) start_i=0;
+
+		if(TRAFFIC_TYPE==NETRACE) netrace_posedge_event();
+		else traffic_clk_posedge_event();
+		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values
+		//between modules when the clock .
+		for (i=0;i<2*(SMART_MAX+1);i++) {
+			if(TRAFFIC_TYPE==NETRACE) netrace_clk_negedge_event( );
+			else traffic_clk_negedge_event( );
+		}
+
+		if(simulation_done){
+			if( TRAFFIC_TYPE == NETRACE) pck_inj_final_report();
+			else traffic_gen_final_report();
+			sim_final_all();
+			return 0;
+		}
+
+		main_time++;
+
+	}//Simulating is done
+
+	sim_final_all();
+	return 0;
+
+}
+
+
+
 
 
 
@@ -338,7 +420,7 @@ void netrace_processArgs (int argc, char **argv )
 	 	case 'F':
 	 		TRAFFIC_TYPE=NETRACE;
 	 		TRAFFIC=(char *) "NETRACE";
-	 		netrace_init(optarg);
+	 		netrace_file = optarg;
 	 		break;
 	 	case 'd':
 	 		ignore_dependencies=1;
@@ -466,88 +548,11 @@ int get_new_pck_size(){
 }
 
 
-int main(int argc, char** argv) {
-	char change_injection_ratio=0;
-	int i,j,x,y;//,report_delay_counter=0;
-	char file_name[100];
-	char deafult_out[] = {"result"};
 
-
-
-	while((0x1<<NEw) < NE)NEw++;
-	
-
-	Verilated::commandArgs(argc, argv);   // Remember args
-	processArgs ( argc,  argv );
-
-	//noc								= new Vnoc;
-	Vrouter_new();
-	if( TRAFFIC_TYPE == NETRACE)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
-	else                            for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
-
-	for(i=0;i<NE;i++)   custom_traffic_table[i]=INJECT_OFF; //off
-	
-	
-	FIXED_SRC_DST_PAIR = strcmp (TRAFFIC,"RANDOM") &  strcmp(TRAFFIC,"HOTSPOT") & strcmp(TRAFFIC,"random") & strcmp(TRAFFIC,"hot spot") & strcmp(TRAFFIC,"TASK");
-	
-
-	/********************
-	*	initialize input
-	*********************/
-
-	reset=1;
-	reset_all_register();
-	start_i=0; 
-	topology_init();
-	if( TRAFFIC_TYPE == NETRACE) pck_inj_init();
-	else 	traffic_gen_init();
-
-	
-	
-	
-	main_time=0;
-	print_parameter();
-
-	if( TRAFFIC_TYPE == SYNTHETIC) printf("\n\n\n Flit injection ratio per router is =%f \n",(float)ratio*100/MAX_RATIO);
-	
-	//printf("\n\n\n delay= %u clk",router->delay);
-	while (!Verilated::gotFinish()) {
-	   
-		if (main_time-saved_time >= 10 ) {
-			reset = 0;
-		}
-
-		if(main_time == saved_time+21){ count_en=1; start_i=1;}//for(i=0;i<NC;i++) traffic[i]->start=1;}
-		if(main_time == saved_time+23) start_i=0;// for(i=0;i<NC;i++) traffic[i]->start=0;
-
-		if(TRAFFIC_TYPE==NETRACE) netrace_posedge_event();
-		clk_posedge_event( );
-		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values 
-		//between modules when the clock . 
-		for (i=0;i<2*(SMART_MAX+1);i++) clk_negedge_event( );
-				
-		if(simulation_done){
-			if( TRAFFIC_TYPE == NETRACE) pck_inj_final_report();
-			else traffic_gen_final_report();
-			sim_final_all();
-			return 0;
-		}
-		
-
-		main_time++;  
-		//getchar();   
-
-		
-	}// Done simulating
-	
-	sim_final_all();
-	return 0;
-
-}
 
 
 void pck_inj_final_report(){
-	printf(" netrace simulation clock cycles:%d\n",nt_cycle);
+	printf(" netrace simulation clock cycles: %llu\n",nt_cycle);
 }
 
 void traffic_gen_final_report(){
@@ -587,6 +592,12 @@ void pck_inj_init (void){
 	int i;
 	for (i=0;i<NE;i++){
 	   	pck_inj[i]->current_e_addr		= endp_addr_encoder(i);
+	   //TODO mapping should be done according to number of NE and should be set by the user larer
+	   	netrace_to_pronoc_map[i]=(int)((i* NE)/header->num_nodes);
+	   	pck_inj[i]->pck_injct_in_ready= (0x1<<V)-1;
+	   	pck_inj[i]->pck_injct_in_pck_wr=0;
+		//pronoc_to_netrace_map[i]=i;
+
 	}
 
 }
@@ -642,7 +653,7 @@ void connect_clk_reset_start_all(void){
 }
 
 
-void clk_negedge_event(void){
+void traffic_clk_negedge_event(void){
 	int i;
 	clk = 0;
 	topology_connect_all_nodes ();
@@ -657,38 +668,37 @@ void clk_negedge_event(void){
 
 
 
-void clk_posedge_event(void) {
+void traffic_clk_posedge_event(void) {
 	int i;
 	unsigned int dest_e_addr;
 	clk = 1;       // Toggle clock
 	if(count_en) clk_counter++;
-		inject_done= ((total_sent_pck_num >= end_sim_pck_num) || (clk_counter>= sim_end_clk_num) || total_active_routers == 0);
-		//if(inject_done) printf("clk_counter=========%d\n",clk_counter);
-		total_rsv_flit_number_old=total_rsv_flit_number;
-		for (i=0;i<NE;i++){
-
-			// a packet has been received
-			if(traffic[i]->update & ~reset){
-				update_noc_statistic (i) ;
+	inject_done= ((total_sent_pck_num >= end_sim_pck_num) || (clk_counter>= sim_end_clk_num) || total_active_routers == 0);
+	//if(inject_done) printf("clk_counter=========%d\n",clk_counter);
+	total_rsv_flit_number_old=total_rsv_flit_number;
+	for (i=0;i<NE;i++){
+		// a packet has been received
+		if(traffic[i]->update & ~reset){
+			update_noc_statistic (i) ;
+		}
+		// the header flit has been sent out
+		if(traffic[i]->hdr_flit_sent ){
+			traffic[i]->pck_class_in=  pck_class_in_gen( i);
+			sent_core_total_pck_num[i]++;
+			traffic[i]->pck_size_in=get_new_pck_size();
+			if(!FIXED_SRC_DST_PAIR){
+				dest_e_addr=pck_dst_gen (i);
+				traffic[i]->dest_e_addr= dest_e_addr;
+				if(dest_e_addr == INJECT_OFF) traffic[i]->stop=1;
+				//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
 			}
-			// the header flit has been sent out
-			if(traffic[i]->hdr_flit_sent ){
-				traffic[i]->pck_class_in=  pck_class_in_gen( i);
-				sent_core_total_pck_num[i]++;
-				traffic[i]->pck_size_in=get_new_pck_size();
-				if(!FIXED_SRC_DST_PAIR){
-					dest_e_addr=pck_dst_gen (i);
-					traffic[i]->dest_e_addr= dest_e_addr;
-					if(dest_e_addr == INJECT_OFF) traffic[i]->stop=1;
-					//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
-				}
-			}
+		}
 
-				if(traffic[i]->flit_out_wr==1) total_sent_flit_number++;
-				if(traffic[i]->flit_in_wr==1)  total_rsv_flit_number++;
-				if(traffic[i]->hdr_flit_sent==1)total_sent_pck_num++;
+			if(traffic[i]->flit_out_wr==1) total_sent_flit_number++;
+			if(traffic[i]->flit_in_wr==1)  total_rsv_flit_number++;
+			if(traffic[i]->hdr_flit_sent==1)total_sent_pck_num++;
 
-			}//for
+		}//for
 
 
 			if(inject_done){

@@ -71,26 +71,26 @@ module pck_injector_test;
 			reset=1'b0;
 			#100
 			@(posedge clk) #1;
-			if(i!=0) begin 
+			if(i==1) begin 
 				repeat(220) begin 
-					while (pck_injct_out[i].ready[1] == 1'b0) @(posedge clk) #1;
+					while (pck_injct_out[i].ready[0] == 1'b0) @(posedge clk) pck_injct_in[i].pck_wr=1'b0;  #1;
 						
 					pck_injct_in[i].data='h123456789ABCDEFEDCBA987654321+k;
-					pck_injct_in[i].size=4;
+					pck_injct_in[i].size=2+(k%18);
 					dest_id[i]=0;				
 					pck_injct_in[i].pck_wr=1'b1;  	
-					@(posedge clk)
-					pck_injct_in[i].pck_wr=1'b0;  
-					@(posedge clk)#1 k++;
+					@(posedge clk)	#1 k++;
 				end
+				#8000
+			@(posedge clk) $stop;
+
 			end
 			
 			
 			
 			
-			#8000
-			@(posedge clk)
-			$stop;
+			
+			
 		end
 		
 		always @(posedge clk) begin

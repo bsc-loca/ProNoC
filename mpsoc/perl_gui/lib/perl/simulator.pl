@@ -42,7 +42,7 @@ sub generate_sim_bin_file {
 	my %tops = %{$ref_tops};
 	
 	$tops{Vtraffic} = "--top-module traffic_gen_top";	
-	$tops{Vpck_inj} = "--top-module packet_injector";	
+	$tops{Vpck_inj} = "--top-module packet_injector_verilator";	
 	my $target_dir= "$ENV{PRONOC_WORK}/simulate";
 	
 	my $dir = Cwd::getcwd();

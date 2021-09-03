@@ -280,7 +280,7 @@ localparam
  	}rnd_discrete_t;
  	
  	//packet injector interface
- 	localparam PCK_INJ_Dw =48;//TODO to be defined by user
+ 	localparam PCK_INJ_Dw =64;//TODO to be defined by user
  	localparam PCK_SIZw= log2(MAX_PCK_SIZ);
  	
  	typedef struct packed {

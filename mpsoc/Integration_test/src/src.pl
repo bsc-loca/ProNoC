@@ -173,7 +173,7 @@ sub gen_noc_localparam_v {
 	my ($nr,$ne,$router_p,$ref_tops,$includ_h) = get_noc_verilator_top_modules_info($m);
 	my %tops = %{$ref_tops};	
 	$tops{Vtraffic} = "--top-module traffic_gen_top";	
-	$tops{Vpck_inj} = "--top-module packet_injector";	
+	$tops{Vpck_inj} = "--top-module packet_injector_verilator";	
 
 
 
