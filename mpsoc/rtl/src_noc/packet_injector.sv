@@ -366,7 +366,7 @@ module packet_injector
 	assign chan_out.ctrl_chanel.credit_init_val= LB;	
 	
 	//synthesis translate_off
-	`define MONITOR_RSV_DAT
+	//`define MONITOR_RSV_DAT
 	
 
 	

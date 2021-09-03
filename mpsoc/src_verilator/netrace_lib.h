@@ -16,7 +16,7 @@ extern void topology_connect_all_nodes (void);
 extern Vpck_inj        *pck_inj[NE];
 extern unsigned int  count_en;
 extern unsigned long int main_time;     // Current simulation time
-
+extern int verbosity;
 #define L2_LATENCY 8
 
 
@@ -35,7 +35,10 @@ int nt_packets_left = 0;
 int netrace_to_pronoc_map [64];
 int pronoc_to_netrace_map [NE];
 int pck_injct_in_pck_wr[NE];
-
+unsigned int nt_total_sent_pck_per_node[NE]={0};
+unsigned int nt_total_rsv_pck_per_node[NE]={0};
+unsigned int nt_total_sent_pck=0;
+unsigned int nt_total_rsv_pck=0;
 
 
 typedef struct queue_node queue_node_t;
@@ -87,6 +90,8 @@ void netrace_init( char * tracefile){
 	} else if( !ignore_dependencies ) {
 		nt_init_self_throttling();
 	}
+
+	if(verbosity==1) 	printf("\e[?25l"); //To hide the cursor:
 
 }
 
@@ -169,25 +174,24 @@ void netrace_posedge_event(){
 			packet = temp_node->packet;
 			if( (packet != NULL) && (temp_node->cycle <= nt_cycle) ) {
 
-
-				printf( "Inject: %llu ", nt_cycle );
-				nt_print_packet( packet );
-
+				if(verbosity>1) {
+					printf( "Inject: %llu ", nt_cycle );
+					nt_print_packet( packet );
+				}
 				temp_node = (queue_node_t*) queue_pop_front( inject[i] );
 				temp_node->cycle = nt_cycle + calc_packet_timing( packet );
 				queue_push( traverse[packet->dst], temp_node, temp_node->cycle );
-				//Inject this packet to ProNoC
-				printf("\tInject packet to ProNoC:\n");
-				printf ("\t\tsize=%u\n", nt_get_packet_size(packet));
-				printf ("\t\tdst=%u\n", packet->dst);
-				printf ("\t\tsrc=%u, i=%u\n", packet->src,i);
 				long int ptr_addr = reinterpret_cast<long int> (temp_node);
-				printf ("\t\tpacket pointer addr: %lx\n" ,ptr_addr);
-
-
 				int flit_num = (nt_get_packet_size(packet)* 8) / Fpay;
 				int pronoc_dst =  netrace_to_pronoc_map[packet->dst];
-
+				if(IS_SELF_LOOP_EN ==0){
+					if(packet->dst == pronoc_src ){
+						 fprintf(stderr,"ERROR: ProNoC is not configured with self-loop enable and Netrace aims to inject\n a "
+								 "packet with identical source and destination address. Enable the SELF_LOOP parameter\n"
+								 "in ProNoC and rebuild the simulation model\n");
+						 exit(1);
+					}
+				}
 				pck_inj[pronoc_src]->pck_injct_in_data         = ptr_addr;
 				pck_inj[pronoc_src]->pck_injct_in_size         = flit_num;
 				pck_inj[pronoc_src]->pck_injct_in_endp_addr    = endp_addr_encoder(pronoc_dst);
@@ -195,6 +199,10 @@ void netrace_posedge_event(){
 				pck_inj[pronoc_src]->pck_injct_in_init_weight  = 1;
 				pck_inj[pronoc_src]->pck_injct_in_vc           = 0x1<<sent_vc;
 				pck_inj[pronoc_src]->pck_injct_in_pck_wr  	   = 1;
+				nt_total_sent_pck_per_node[pronoc_src]++;
+				nt_total_sent_pck++;
+
+
 
 			}
 		}
@@ -224,18 +232,23 @@ void netrace_posedge_event(){
 		//check which pck injector got a packet
 		if(pck_inj[i]->pck_injct_out_pck_wr==0) continue;
 		//we have got a packet
-		printf( "data=%lx\n",pck_inj[i]->pck_injct_out_data);
+		//printf( "data=%lx\n",pck_inj[i]->pck_injct_out_data);
 
 		queue_node_t* temp_node = (queue_node_t*)  pck_inj[i]->pck_injct_out_data;
 		if( temp_node != NULL ) {
 			packet = temp_node->packet;
 			if( packet != NULL){
-				printf( "ProNoC Eject: %llu ", nt_cycle );
-				nt_print_packet( packet );
+				if(verbosity>1) {
+					printf( "Eject: %llu ", nt_cycle );
+					nt_print_packet( packet );
+				}
 				// remove from traverse
 				nt_clear_dependencies_free_packet( packet );
-				queue_remove( traverse[packet->src], temp_node );
+				queue_remove( traverse[i], temp_node );
 				free( temp_node );
+				nt_total_rsv_pck_per_node[i]++;
+				nt_total_rsv_pck++;
+
 			}
 		}
 	}
@@ -265,6 +278,8 @@ void netrace_posedge_event(){
 
 	connect_clk_reset_start_all();
 	sim_eval_all();
+	//print total sent packet each 500 clock cycles
+	if(verbosity==1) if(nt_cycle&0x1FF) printf("\rTotal sent packet: %9d", nt_total_sent_pck);
 
 }
 
@@ -277,6 +292,24 @@ void netrace_clk_negedge_event( ){
 	sim_eval_all();
 
 }
+
+
+void netrace_final_report(){
+	int i;
+	if(verbosity==1) 	printf("\e[?25h");//To re-enable the cursor:
+	printf("\nNetrace simulation results-------------------\n"
+			"\tSimulation end clock cycles: %llu\n"
+			"\ttotal injected packets: %u\n"
+			"\ttotal ejected  packets: %u\n"
+	,nt_cycle,nt_total_sent_pck,nt_total_rsv_pck);
+
+	printf("\n\t#node , injected pcks , ejected pcks\n");
+	for(i=0;i<NE;i++){
+
+		printf("\t %u  , %u , %u  \n",	i,nt_total_sent_pck_per_node[i],nt_total_rsv_pck_per_node[i]);
+	}
+}
+
 
 
 #endif

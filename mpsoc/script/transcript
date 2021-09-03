@@ -10308,3 +10308,5 @@ run -all
 #    Time: 270 ns  Iteration: 1  Region: /pck_injector_test/endpoints[1]/pck_inj/V_[0]
 # 1
 # Break in Module packet_injector at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv line 318
+# End time: 02:21:23 on Sep 03,2021, Elapsed time: 1:18:53
+# Errors: 0, Warnings: 0

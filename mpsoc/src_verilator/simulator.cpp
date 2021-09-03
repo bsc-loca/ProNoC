@@ -107,6 +107,7 @@ char pck_size_sel=RANDOM_RANGE;
 int  * discrete_size;
 int  * discrete_prob;
 unsigned int * rsv_size_array;
+int verbosity=1;
 
 #if (STND_DEV_EN)
 	//#include <math.h>
@@ -137,28 +138,13 @@ void connect_clk_reset_start_all(void);
 unsigned int rnd_between (unsigned int, unsigned int );
 void traffic_gen_init( void );
 void  pck_inj_init(void);
-void pck_inj_final_report(void);
 void traffic_gen_final_report(void);
 void processArgs (int, char ** );
-
-void  usage(){
-	printf(" ./simulator -f [Trace file] -c [MAX SIM CLKs] \n\nor\n");
-	printf(" ./simulator -t [synthetic Traffic Pattern]   -m [Packet size info] -n  [end_sim_pck_num]  c	[MAX SIM CLKs]   -i [INJECTION RATIO] -p [class traffic ratios (%%)]  -h[HOTSPOT info] -H[custom traffic pattern]\n");
-	printf("      Traffic Pattern: \"HOTSPOT\" \"RANDOM\" \"TORNADO\" \"BIT_REVERSE\"  \"BIT_COMPLEMENT\"  \"TRANSPOSE1\"   \"TRANSPOSE2\"\n");
-	printf("      end_sim_pck_num: total number of sent packets. Simulation will stop when total of sent packet by all nodes reach this number\n");
-	printf("      sim_end_clk_num: simulation clock limit. Simulation will stop when simulation clock number reach this value \n");
-	printf("      INJECTION_RATIO: packet injection ratio\n");
-	printf("      class traffic ratios %%: The percentage of traffic injected for each class. represented in string whit each class ratio is separated by comma. \"n0,n1,n2..\" \n");
-	printf("      hotspot traffic info: represented in a string with following format:  \"HOTSPOT PERCENTAGE,HOTSPOT NUM,HOTSPOT CORE 1,HOTSPOT CORE 2,HOTSPOT CORE 3,HOTSPOT CORE 4,HOTSPOT CORE 5, ENABLE HOTSPOT CORES SEND \"   \n");
-	printf("      Packet size info:represented in a string with following format:");
-	printf("      \t\"R,MIN,MAX\" : The injected packets' size in flits are randomly selected in range MIN<= PCK_size <=MAX (Random-Range)\n");
-	printf("      \t\"D,S1,S2,..Sn,P,P1,P2,P3,...Pn\" : Si are the discrete set of numbers representing packet size. The injected packet size is randomly selected among these discrete values according to associated probability values.\n");
-	printf("	  \t\t The probabilities pi must satisfy two requirements: every probability pi is a number between 0 and 100, and the sum of all the probabilities is 100\n");
-	printf("      task traffic pattern: represented in a string with following format:  \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n");
-
-}
-
-
+void task_traffic_init (char * );
+int parse_string ( char *, int *);
+void update_pck_size(char *);
+void update_custom_traffic (char *);
+void update_hotspot(char * );
 
 int main(int argc, char** argv) {
 	char change_injection_ratio=0;
@@ -215,7 +201,7 @@ int main(int argc, char** argv) {
 		}
 
 		if(simulation_done){
-			if( TRAFFIC_TYPE == NETRACE) pck_inj_final_report();
+			if( TRAFFIC_TYPE == NETRACE) netrace_final_report();
 			else traffic_gen_final_report();
 			sim_final_all();
 			return 0;
@@ -230,6 +216,162 @@ int main(int argc, char** argv) {
 
 }
 
+
+#define __FILENAME__ (__FILE__ + SOURCE_PATH_SIZE)
+
+void  usage(char * bin_name){
+	printf("Usage:\n"
+" %s -t <synthetic Traffic Pattern name> [synthetic Traffic options]\n"
+" %s -f <Task file> [Task options] or\n"
+" %s -F <netrace file> [Netrace options] \n\n"
+"synthetic Traffic options:\n"
+"  -t <Traffic Pattern>        \"HOTSPOT\", \"RANDOM\", \"BIT_COMPLEMENT\" , \"BIT_REVERSE\",\n "
+"                              \"TORNADO\", \"TRANSPOSE1\", \"TRANSPOSE2\", \"SHUFFEL\", \"CUSTOM\"\n"
+"  -m <Packet size info>       packet size format  Random-Range or Random-discrete:\n"
+"                              Random-Range : \"R,MIN,MAX\" : The injected packets' size in flits are\n"
+"                                 randomly selected in range MIN <= PCK_size <=MAX \n"
+"                              Random-discrete: \"D,S1,S2,..Sn,P,P1,P2,P3,...Pn\": Si are the discrete\n"
+"                                 set of numbers representing packet size. The injected packet size is\n"
+"                                 randomly selected among these discrete values according to associated\n"
+"                                 probability values.\n"
+"  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value\n"
+"  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the noc reaches this number\n"
+"  -i <injection ratio>        flit injection ratio in percentage\n"
+"  -p <class traffic ratios>   The percentage of traffic injected for each class. represented in string\n"
+"                              each class ratio is separated by comma. \"n0,n1,n2..\" \n"
+"  -h <HOTSPOT traffic format> represented in a string with following format:\n"
+"                              total number of hotspot nodes, first hotspot node ID, first hotspot node\n"
+"                              send enable(1 or 0),first hotspot node percentage x10,second hotspot node ...\n"
+"  -H <custom traffic pattern> custom traffic pattern: represented in a string with following format:\n"
+"                              \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n"
+"\nTrace options:\n"
+"  -f <Task file>              path to the task file. any custom task file can be generated using ProNoC gui\n"
+"  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
+"\nNetrace options:\n"
+"  -F <Netrace file>           path to the task file. any custom task file can be generated using ProNoC gui\n"
+"  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
+"  -d                          ignore dependencies\n"
+"  -r <start region>           start region\n"
+"  -l                          reader_throttling\n"
+"  -v <level>                  Verbosity level. 0: off, 1:display live injected trace file percentage,\n"
+"                              3: print packets, default is 1\n",
+bin_name,bin_name,bin_name
+);
+
+}
+
+
+
+void netrace_processArgs (int argc, char **argv )
+{
+   char c;
+
+   /* don't want getopt to moan - I can do that just fine thanks! */
+   opterr = 0;
+   if (argc < 2)  usage(argv[0]);
+   while ((c = getopt (argc, argv, "F:dr:lv:")) != -1)
+   {
+	 switch (c)
+	 {
+	 	case 'F':
+	 		TRAFFIC_TYPE=NETRACE;
+	 		TRAFFIC=(char *) "NETRACE";
+	 		netrace_file = optarg;
+	 		break;
+	 	case 'd':
+	 		ignore_dependencies=1;
+	 		break;
+	 	case 'r':
+			start_region=atoi(optarg);
+	 		break;
+	 	case 'l':
+	 		reader_throttling=1;
+	 		break;
+	 	case 'v':
+	 		verbosity= atoi(optarg);
+	 		break;
+	 	case '?':
+	 	    if (isprint (optopt))
+	 	    	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+	 		else
+	 		    fprintf (stderr,  "Unknown option character `\\x%x'.\n",  optopt);
+	     default:
+	 	       usage(argv[0]);
+	 	       exit(1);
+	  }
+	}
+}
+
+
+
+void synthetic_task_processArgs (int argc, char **argv )
+{
+   char c;
+   int p;
+   int array[10];
+   float f;
+
+   /* don't want getopt to moan - I can do that just fine thanks! */
+   opterr = 0;
+   if (argc < 2)  usage(argv[0]);
+   while ((c = getopt (argc, argv, "t:m:n:c:i:p:h:H:f:")) != -1)
+      {
+	 switch (c)
+	    {
+	 	case 'f':
+	 		TRAFFIC_TYPE=TASK;
+	 		TRAFFIC=(char *) "TASK";
+	 		task_traffic_init(optarg);
+	 		break;
+	    case 't':
+			TRAFFIC=optarg;
+			total_active_routers=-1;
+			break;
+		case 's':
+			MIN_PACKET_SIZE=atoi(optarg);
+			break;
+		case 'n':
+			 end_sim_pck_num=atoi(optarg);
+			 break;
+		case 'c':
+			 sim_end_clk_num=atoi(optarg);
+			 break;
+		case 'i':
+			 f=atof(optarg);
+			 f*=(MAX_RATIO/100);
+			 ratio= (int) f;
+			 break;
+		case 'p':
+			p= parse_string (optarg, array);
+		    C0_p=array[0];
+		    C1_p=array[1];
+		    C2_p=array[2];
+		    C3_p=array[3];
+			break;
+		case 'm':
+			update_pck_size(optarg);
+
+			break;
+		case 'H':
+			update_custom_traffic(optarg);
+			break;
+		case 'h':
+			update_hotspot(optarg);
+			break;
+	    case '?':
+	       if (isprint (optopt))
+		  fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+	       else
+		  fprintf (stderr,
+			   "Unknown option character `\\x%x'.\n",
+			   optopt);
+	    default:
+	       usage(argv[0]);
+	       exit(1);
+	    }
+      }
+
+}
 
 
 
@@ -406,112 +548,6 @@ void task_traffic_init (char * str) {
 
 
 
-void netrace_processArgs (int argc, char **argv )
-{
-   char c;
-
-   /* don't want getopt to moan - I can do that just fine thanks! */
-   opterr = 0;
-   if (argc < 2)  usage();
-   while ((c = getopt (argc, argv, "F:drl")) != -1)
-   {
-	 switch (c)
-	 {
-	 	case 'F':
-	 		TRAFFIC_TYPE=NETRACE;
-	 		TRAFFIC=(char *) "NETRACE";
-	 		netrace_file = optarg;
-	 		break;
-	 	case 'd':
-	 		ignore_dependencies=1;
-	 		break;
-	 	case 'r':
-			start_region=atoi(optarg);
-	 		break;
-	 	case 'l':
-	 		reader_throttling=1;
-	 	case '?':
-	 	    if (isprint (optopt))
-	 	    	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-	 		else
-	 		    fprintf (stderr,  "Unknown option character `\\x%x'.\n",  optopt);
-	     default:
-	 	       usage();
-	 	       exit(1);
-	  }
-	}
-}
-
-
-
-void synthetic_task_processArgs (int argc, char **argv )
-{
-   char c;
-   int p;
-   int array[10];
-   float f;
-
-   /* don't want getopt to moan - I can do that just fine thanks! */
-   opterr = 0;
-   if (argc < 2)  usage();	
-   while ((c = getopt (argc, argv, "t:m:n:c:i:p:h:H:f:")) != -1)
-      {
-	 switch (c)
-	    {
-	 	case 'f':
-	 		TRAFFIC_TYPE=TASK;
-	 		TRAFFIC=(char *) "TASK";
-	 		task_traffic_init(optarg);
-	 		break;
-	    case 't':  
-			TRAFFIC=optarg;
-			total_active_routers=-1;
-			break;
-		case 's':
-			MIN_PACKET_SIZE=atoi(optarg);
-			break;
-		case 'n':
-			 end_sim_pck_num=atoi(optarg);
-			 break;
-		case 'c':
-			 sim_end_clk_num=atoi(optarg);
-			 break;
-		case 'i':
-			 f=atof(optarg);
-			 f*=(MAX_RATIO/100);
-			 ratio= (int) f;
-			 break;
-		case 'p':
-			p= parse_string (optarg, array);
-		    C0_p=array[0];
-		    C1_p=array[1];
-		    C2_p=array[2];
-		    C3_p=array[3];
-			break;
-		case 'm':
-			update_pck_size(optarg);
-
-			break;
-		case 'H':
-			update_custom_traffic(optarg);
-			break;
-		case 'h':		
-			update_hotspot(optarg);
-			break; 			 
-	    case '?':
-	       if (isprint (optopt))
-		  fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-	       else
-		  fprintf (stderr,
-			   "Unknown option character `\\x%x'.\n",
-			   optopt);
-	    default:
-	       usage();
-	       exit(1);
-	    }
-      }
-
-}
 
 
 
@@ -531,7 +567,7 @@ void processArgs (int argc, char **argv ){
 		}
 	}
 	fprintf (stderr, "you should define one one of Synthetic,Task or nettrace based simulation. \n");
-	usage();
+	usage(argv[0]);
 	exit(1);
 }
 
@@ -551,9 +587,6 @@ int get_new_pck_size(){
 
 
 
-void pck_inj_final_report(){
-	printf(" netrace simulation clock cycles: %llu\n",nt_cycle);
-}
 
 void traffic_gen_final_report(){
 	int i;
@@ -811,7 +844,7 @@ void print_statistic (void){
 
 
 void print_parameter (){
-		printf ("Router parameters: \n");
+		printf ("Router parameters:---------------- \n");
 		printf ("\tTopology: %s\n",TOPOLOGY);
 		printf ("\tRouting algorithm: %s\n",ROUTE_NAME);
 	 	printf ("\tVC_per port: %d\n", V);
@@ -841,7 +874,7 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 	    printf ("\tMinimum supported packet size:%d flit(s) \n",MIN_PCK_SIZE);
 
 
-	printf ("\nSimulation parameters\n");
+	printf ("\nSimulation parameters-------------\n");
 #if(DEBUG_EN)
     printf ("\tDebuging is enabled\n");
 #else
@@ -862,8 +895,11 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 	    //printf ("\tTotal packets sent by one router: %u\n", TOTAL_PKT_PER_ROUTER);
 		printf ("\tSimulation timeout =%d\n", sim_end_clk_num);
 		printf ("\tSimulation ends on total packet num of =%d\n", end_sim_pck_num);
-	    printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
+		if(TRAFFIC_TYPE!=NETRACE){
+		printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
 	    printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
+		}
+		printf ("\nSimulation parameters-------------\n");
 }
 
 
