@@ -10,7 +10,55 @@
 
 #include "Vtraffic.h"
 #include "Vpck_inj.h"
+#include <thread>
+#include <vector>
+#include <atomic>
 
+
+#include <cstdint>
+#include <iostream>
+void* operator new(std::size_t size, std::align_val_t align) {
+#if defined(_WIN32) || defined(__CYGWIN__)
+    auto ptr = _aligned_malloc(size, static_cast<std::size_t>(align));
+#else
+    auto ptr = aligned_alloc(static_cast<std::size_t>(align), size);
+#endif
+
+    if (!ptr)
+        throw std::bad_alloc{};
+/*
+    std::cout << "new: " << size << ", align: " 
+              << static_cast<std::size_t>(align) 
+              << ", ptr: " << ptr << '\n';
+*/ 
+    return ptr;
+   
+}
+
+void operator delete(void* ptr, std::size_t size, std::align_val_t align) noexcept {
+/*	
+    std::cout << "delete: " << size << ", align: " 
+              << static_cast<std::size_t>(align) 
+              << ", ptr : " << ptr << '\n';
+*/              
+#if defined(_WIN32) || defined(__CYGWIN__) 
+    _aligned_free(ptr);
+#else
+    free(ptr);
+#endif
+}
+
+void operator delete(void* ptr, std::align_val_t align) noexcept {
+  /*  std::cout << "delete: align: " 
+              << static_cast<std::size_t>(align) 
+              << ", ptr : " << ptr << '\n';
+  */ 
+#if defined(_WIN32) || defined(__CYGWIN__)
+    _aligned_free(ptr);
+#else
+    free(ptr);
+#endif
+}
 
 
 
@@ -108,6 +156,7 @@ int  * discrete_size;
 int  * discrete_prob;
 unsigned int * rsv_size_array;
 int verbosity=1;
+int thread_num =1;
 
 #if (STND_DEV_EN)
 	//#include <math.h>
@@ -145,6 +194,7 @@ int parse_string ( char *, int *);
 void update_pck_size(char *);
 void update_custom_traffic (char *);
 void update_hotspot(char * );
+void initial_threads (void);
 
 int main(int argc, char** argv) {
 	char change_injection_ratio=0;
@@ -180,7 +230,7 @@ int main(int argc, char** argv) {
 	main_time=0;
 	print_parameter();
 	if( TRAFFIC_TYPE == SYNTHETIC) printf("\n\n\n Flit injection ratio per router is =%f \n",(float)ratio*100/MAX_RATIO);
-
+	if( thread_num>1) initial_threads();
 
 	while (!Verilated::gotFinish()) {
 
@@ -195,7 +245,7 @@ int main(int argc, char** argv) {
 		else traffic_clk_posedge_event();
 		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values
 		//between modules when the clock .
-		for (i=0;i<2*(SMART_MAX+1);i++) {
+		for (i=0;i<SMART_MAX+2;i++) {
 			if(TRAFFIC_TYPE==NETRACE) netrace_clk_negedge_event( );
 			else traffic_clk_negedge_event( );
 		}
@@ -244,9 +294,11 @@ void  usage(char * bin_name){
 "                              send enable(1 or 0),first hotspot node percentage x10,second hotspot node ...\n"
 "  -H <custom traffic pattern> custom traffic pattern: represented in a string with following format:\n"
 "                              \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n"
+"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n"	
 "\nTrace options:\n"
 "  -f <Task file>              path to the task file. any custom task file can be generated using ProNoC gui\n"
 "  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
+"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n"	
 "\nNetrace options:\n"
 "  -F <Netrace file>           path to the task file. any custom task file can be generated using ProNoC gui\n"
 "  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
@@ -254,7 +306,8 @@ void  usage(char * bin_name){
 "  -r <start region>           start region\n"
 "  -l                          reader_throttling\n"
 "  -v <level>                  Verbosity level. 0: off, 1:display live injected trace file percentage,\n"
-"                              3: print packets, default is 1\n",
+"                              3: print packets, default is 1\n"
+"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n",						   
 bin_name,bin_name,bin_name
 );
 
@@ -269,7 +322,7 @@ void netrace_processArgs (int argc, char **argv )
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage(argv[0]);
-   while ((c = getopt (argc, argv, "F:dr:lv:")) != -1)
+   while ((c = getopt (argc, argv, "F:dr:lv:T:")) != -1)
    {
 	 switch (c)
 	 {
@@ -290,6 +343,9 @@ void netrace_processArgs (int argc, char **argv )
 	 	case 'v':
 	 		verbosity= atoi(optarg);
 	 		break;
+	 	case  'T':
+			thread_num = atoi(optarg);
+			break;
 	 	case '?':
 	 	    if (isprint (optopt))
 	 	    	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -314,7 +370,7 @@ void synthetic_task_processArgs (int argc, char **argv )
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage(argv[0]);
-   while ((c = getopt (argc, argv, "t:m:n:c:i:p:h:H:f:")) != -1)
+   while ((c = getopt (argc, argv, "t:m:n:c:i:p:h:H:f:T:")) != -1)
       {
 	 switch (c)
 	    {
@@ -358,19 +414,19 @@ void synthetic_task_processArgs (int argc, char **argv )
 		case 'h':
 			update_hotspot(optarg);
 			break;
+		case  'T':
+			thread_num = atoi(optarg);
+			break;
 	    case '?':
 	       if (isprint (optopt))
 		  fprintf (stderr, "Unknown option `-%c'.\n", optopt);
 	       else
-		  fprintf (stderr,
-			   "Unknown option character `\\x%x'.\n",
-			   optopt);
+		  fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
 	    default:
 	       usage(argv[0]);
 	       exit(1);
 	    }
       }
-
 }
 
 
@@ -390,6 +446,9 @@ int parse_string ( char * str, int * array)
     }
    return i; 
 }
+
+
+
 
 
 
@@ -430,8 +489,7 @@ void update_hotspot(char * str){
 		 
 	 }	 
 	 if(acuum> 1000){
-		 	printf("Warning: The hotspot traffic summation %f exceed than 100 percent.  \n", (float) acuum /10);
-   	   
+		 	printf("Warning: The hotspot traffic summation %f exceed than 100 percent.  \n", (float) acuum /10);   	   
 	 } 	
 	 hotspots=new_node;
 }
@@ -649,12 +707,136 @@ int pow2( int num){
 	return pw;
 }
 
+/*
+volatile int *  lock;
+unsigned int  nr_per_thread=0;
+unsigned int  ne_per_thread=0;
+
+void thread_function (int n){
+	int i; 
+	unsigned int node=0;
+	while(1){ 
+		while(lock[n]==0) std::this_thread::yield();
+		for(i=0;i<nr_per_thread;i++){
+			node= (n * nr_per_thread)+i;
+			if (node >= NR) break;
+			single_router_eval(node);
+		}	
+		for(i=0;i<ne_per_thread;i++){
+			node= (n * ne_per_thread)+i;
+			if (node >= NE) break;
+			if( TRAFFIC_TYPE == NETRACE)   pck_inj[node]->eval();
+			else   traffic[node]->eval();
+		}	
+		
+		//router1[n]->eval();
+		//if( TRAFFIC_TYPE == NETRACE)   pck_inj[n]->eval();
+		//else   traffic[n]->eval();
+	
+		lock[n]=0;
+		if(n==0) break;//first thread is the main process 
+	}
+}
+*/
+
+class alignas(64) Vthread
+{
+    // Access specifier
+    public:
+	std::atomic<bool> ready;
+    // Data Members
+    int n;//thread num
+	int nr_per_thread;
+	int ne_per_thread;
+    // Member Functions()
+    //Parameterized Constructor
+    
+    
+    void function ( ){
+		int i; 
+		unsigned int node=0;
+		while(1){ 
+			while(!ready) std::this_thread::yield();
+			for(i=0;i<nr_per_thread;i++){
+				node= (n * nr_per_thread)+i;
+				if (node >= NR) break;
+				single_router_eval(node);
+			}	
+			for(i=0;i<ne_per_thread;i++){
+				node= (n * ne_per_thread)+i;
+				if (node >= NE) break;
+				if( TRAFFIC_TYPE == NETRACE)   pck_inj[node]->eval();
+				else   traffic[node]->eval();
+			}	
+			
+			//router1[n]->eval();
+			//if( TRAFFIC_TYPE == NETRACE)   pck_inj[n]->eval();
+			//else   traffic[n]->eval();
+		
+			ready=false;
+			if(n==0) break;//first thread is the main process 
+		}
+	}
+	
+	Vthread(int x,int r,int e)
+    {
+       n=x; nr_per_thread=r; ne_per_thread=e;
+       ready=false;
+       if(n!=0) {
+		 std::thread th {&Vthread::function,this};     
+         th.detach();      
+	   }
+    }
+	
+	
+};
+
+Vthread ** thread;
+
+void initial_threads (void){
+	int i;
+	//devide nodes equally between threads
+	unsigned int  nr_per_thread=0;
+	unsigned int  ne_per_thread=0;
+	nr_per_thread = (NR % thread_num)?  (unsigned int)(NR/thread_num) + 1 :  (unsigned int)(NR/thread_num);
+	ne_per_thread = (NE % thread_num)?  (unsigned int)(NE/thread_num) + 1 :  (unsigned int)(NE/thread_num);
+	
+	//std::vector<std::thread> threads(thread_num-1);
+	//lock = new int[thread_num];
+	//for(i=0;i<thread_num;i++) lock [i]=0;	
+	
+	//Dynamically Allocating Memory
+	thread = (Vthread **) new Vthread * [thread_num]; 
+	for(i=0;i<thread_num;i++) thread[i] = new Vthread(i,nr_per_thread,ne_per_thread) ;
+	
+	//initiates (thread_num-1) number of live thread	 
+	//for(i=0;i<thread_num-1;i++) threads[i] = std::thread(&thread_function, (i+1));
+	//for (auto& th : threads)    th.detach();
+	
+	unsigned maxThreads = std::thread::hardware_concurrency();
+    printf("Thread is initiated as following:\n"
+    "\tMax hardware supported threads:%u\n"
+    "\tthread_num:%u\n"
+    "\trouter per thread:%u\n"
+    "\tendpoint per thread:%u\n"
+    ,maxThreads,thread_num,nr_per_thread,ne_per_thread);
+}
+
+
+
+
 void sim_eval_all (void){
 	int i;
-	//noc->eval(); 
-	routers_eval();
-	if( TRAFFIC_TYPE == NETRACE) for(i=0;i<NE;i++) pck_inj[i]->eval();
-	else for(i=0;i<NE;i++) traffic[i]->eval();
+	if(thread_num>1) {
+		for(i=0;i<thread_num;i++) thread[i]->ready=true;
+		//thread_function (0);		
+		thread[0]->function();
+		for(i=0;i<thread_num;i++)while(thread[i]->ready);
+	}else{// no thread
+		routers_eval();
+		if( TRAFFIC_TYPE == NETRACE) for(i=0;i<NE;i++) pck_inj[i]->eval();
+		else for(i=0;i<NE;i++) traffic[i]->eval();
+	}
 }	
 
 void sim_final_all (void){
@@ -872,7 +1054,7 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 	    printf ("\tSSA_EN enabled:%s \n",SSA_EN);
 	    printf ("\tSwitch allocator arbitration type:%s \n",SWA_ARBITER_TYPE);
 	    printf ("\tMinimum supported packet size:%d flit(s) \n",MIN_PCK_SIZE);
-
+		printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
 
 	printf ("\nSimulation parameters-------------\n");
 #if(DEBUG_EN)

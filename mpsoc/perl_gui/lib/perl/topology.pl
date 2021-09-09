@@ -504,10 +504,13 @@ sub get_noc_verilator_top_modules_info {
 	for (my $p=1; $p<=$router_p ; $p++){
 		 $includ_h=$includ_h."#include \"Vrouter$p.h\" \n";
 	}
+	my $rns_num = $router_p+1;
+	$includ_h.="int router_NRs[$rns_num];\n\n";
 	for (my $p=1; $p<=$router_p ; $p++){
 		 $includ_h=$includ_h."#define NR${p} $nr_p{$p}\n";
 		 my $pnum= $nr_p{"p$p"};
 		 $includ_h=$includ_h."Vrouter${p}		*router${p}[ $nr_p{$p} ];   // Instantiation of router with $pnum  port number\n";
+		
 	}
 	
 	
@@ -516,6 +519,7 @@ sub get_noc_verilator_top_modules_info {
 	my $st3='';
 	my $st4='';
 	my $st5='';
+	my $st6='';
 	
 	my $i=1;
 	my $j=0;
@@ -531,6 +535,7 @@ sub get_noc_verilator_top_modules_info {
 #endif
 
 $st2=$st2."
+    router_NRs[$p] =$nr_p{$p};
 	for(i=0;i<NR${i};i++)	router${i}[i] 	= new Vrouter${i};            
 ";
 
@@ -551,6 +556,10 @@ $st5=$st5."
 ";
 
 
+$st6=$st6."
+	if (i<NR${i}){ router${i}[i]->eval(); return;}
+	i-=	NR${i};
+";
 	$i++;
 	$j++;
 	$accum=$accum+$nr_p{$p};
@@ -570,19 +579,24 @@ $custom_include
 
 void inline connect_routers_reset_clk(){
 	int i;
-	$st3;
+	$st3
 }
 
 
 void inline routers_eval(){
 	int i=0;
-	$st4;
+	$st4
 }
 
 void inline routers_final(){
 	int i;
-	$st5;
-}		
+	$st5
+}	
+
+void inline single_router_eval(int i){
+	$st6
+}
+	
 ";	
 
 #$includ_h.=" void connect_all_nodes(){\n";

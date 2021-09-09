@@ -204,7 +204,7 @@ endif
 
 
 sim:	testbench.o \$(VK_GLOBAL_OBJS) $p
-	\$(LINK) \$(LDFLAGS) -g \$^ \$(LOADLIBES) \$(LDLIBS) -o testbench \$(LIBS) -Wall -O3 2>&1 | c++filt
+	\$(LINK) \$(LDFLAGS) -g \$^ \$(LOADLIBES) \$(LDLIBS) -o testbench \$(LIBS) -Wall -O3 -lpthread 2>&1 | c++filt
 
 testbench.o: testbench.cpp $h
 
