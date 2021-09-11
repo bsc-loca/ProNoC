@@ -30,6 +30,7 @@ module  traffic_gen_top
 		hdr_flit_sent,
 		update, // update the noc_analayzer
 		src_e_addr,
+		flit_out_class,
 		flit_out_wr,
 		flit_in_wr,
 		
@@ -65,7 +66,7 @@ module  traffic_gen_top
 		W=WEIGHTw,
 		PORT_B = (TOPOLOGY!="FMESH")?  LB :
 		(ENDP_ID < NE_MESH_TORI)? LB :B; // in FMESH, the buffer size of endpoints connected to edge routers non-local ports are B not LB  
-
+		/* verilator lint_on WIDTH */
 	input reset, clk;
 	input  [RATIOw-1                :0] ratio;
 	input                               start,stop;
@@ -95,7 +96,8 @@ module  traffic_gen_top
 	
 		
 	logic  [Fw-1                   :0] flit_out;     
-	output  logic                       flit_out_wr;   
+	output  logic                       flit_out_wr; 
+	output  [Cw-1 : 0] flit_out_class;
 	logic   [V-1                    :0] credit_in;
     
 	logic   [Fw-1                   :0] flit_in;   
@@ -369,7 +371,7 @@ module  traffic_gen_top
 				.be_in({BEw{1'b1}} )// Be is not used in simulation as we dont sent real data
 			);
     
-    
+        assign flit_out_class = pck_class_in;
    
 		assign flit_out_hdr = {hdr_flit,tail_flit};
     
@@ -740,7 +742,19 @@ module  traffic_gen_top
     
 			`endif
     
-			endmodule
+//				`ifdef VERILATOR
+//					logic  endp_is_active   /*verilator public_flat_rd*/ ;
+//			
+//					always @ (*) begin 
+//						endp_is_active  = 1'b0;		
+//						if (chan_out.flit_chanel.flit_wr) endp_is_active=1'b1;
+//						if (chan_out.flit_chanel.credit > {V{1'b0}} ) endp_is_active=1'b1;
+//						if (chan_out.smart_chanel.requests > {SMART_NUM{1'b0}} ) endp_is_active=1'b1;
+//					end	
+//				`endif
+
+				
+endmodule
 
 
 

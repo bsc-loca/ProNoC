@@ -16,185 +16,10 @@
 
 
 #include <cstdint>
+#include <cstdlib>
 #include <iostream>
-void* operator new(std::size_t size, std::align_val_t align) {
-#if defined(_WIN32) || defined(__CYGWIN__)
-    auto ptr = _aligned_malloc(size, static_cast<std::size_t>(align));
-#else
-    auto ptr = aligned_alloc(static_cast<std::size_t>(align), size);
-#endif
 
-    if (!ptr)
-        throw std::bad_alloc{};
-/*
-    std::cout << "new: " << size << ", align: " 
-              << static_cast<std::size_t>(align) 
-              << ", ptr: " << ptr << '\n';
-*/ 
-    return ptr;
-   
-}
-
-void operator delete(void* ptr, std::size_t size, std::align_val_t align) noexcept {
-/*	
-    std::cout << "delete: " << size << ", align: " 
-              << static_cast<std::size_t>(align) 
-              << ", ptr : " << ptr << '\n';
-*/              
-#if defined(_WIN32) || defined(__CYGWIN__) 
-    _aligned_free(ptr);
-#else
-    free(ptr);
-#endif
-}
-
-void operator delete(void* ptr, std::align_val_t align) noexcept {
-  /*  std::cout << "delete: align: " 
-              << static_cast<std::size_t>(align) 
-              << ", ptr : " << ptr << '\n';
-  */ 
-#if defined(_WIN32) || defined(__CYGWIN__)
-    _aligned_free(ptr);
-#else
-    free(ptr);
-#endif
-}
-
-
-
-//traffic type
-#define SYNTHETIC 0
-#define TASK      1
-#define NETRACE   2
-int TRAFFIC_TYPE=SYNTHETIC;
-void * addr1;
-void * addr2;
-
-
-#define IS_SELF_LOOP_EN (strcmp(SELF_LOOP_EN ,"YES")==0)
-
-#define CHAN_SIZE   sizeof(router1[0]->chan_in[0])
-
-#define conect_r2r(T1,r1,p1,T2,r2,p2)  \
-	memcpy(&router##T1 [r1]->chan_in[p1] , &router##T2 [r2]->chan_out[p2], CHAN_SIZE )
-
-#define connect_r2gnd(T,r,p)\
-	memset(&router##T [r]->chan_in [p],0x00,CHAN_SIZE)
-
-#define connect_r2e(T,r,p,e) \
-	addr1=(TRAFFIC_TYPE==NETRACE)? &pck_inj[e]->chan_out  : &traffic[e]->chan_out;\
-	addr2=(TRAFFIC_TYPE==NETRACE)? &pck_inj[e]->chan_in  : &traffic[e]->chan_in;\
-	memcpy(&router##T [r]->chan_in[p], addr1, CHAN_SIZE );\
-	memcpy(addr2, &router##T [r]->chan_out[p], CHAN_SIZE )
-
-
-
-
-
-#include "parameter.h"
-Vtraffic		*traffic[NE]; // for synthetic and trace traffic pattern
-Vpck_inj        *pck_inj[NE]; // for netrace
-#include "topology_top.h"
-#include "traffic_task_graph.h"
-#include "traffic_synthetic.h"
-#include "netrace_lib.h"
-
-
-#define RATIO_INIT		2
-#define DISABLE -1
-#define MY_VL_SETBIT_W(data,bit) (data[VL_BITWORD_I(bit)] |= (VL_UL(1) << VL_BITBIT_I(bit)))
-#define STND_DEV_EN 1
-#define RANDOM_RANGE 1
-#define RANDOM_discrete 2
-
-
-
-int reset,clk;
-
-int AVG_PACKET_SIZE=5;
-int MIN_PACKET_SIZE=5;
-int MAX_PACKET_SIZE=5;
-int end_sim_pck_num;
-int sim_end_clk_num;
-int HOTSPOT_NUM;
-int C0_p=100, C1_p=0, C2_p=0, C3_p=0;
-char * TRAFFIC;
-char * netrace_file;
-unsigned char FIXED_SRC_DST_PAIR;
-unsigned char  NEw=0;
-unsigned long int main_time = 0;     // Current simulation time
-unsigned int saved_time = 0; 
-unsigned int total_rsv_pck_num=0;
-unsigned int total_sent_pck_num=0;
-unsigned int sum_clk_h2h,sum_clk_h2t;
-double 		 sum_clk_per_hop=0;
-const int  CC=(C==0)? 1 : C;
-unsigned int total_rsv_pck_num_per_class[CC]={0};
-unsigned int sum_clk_h2h_per_class[CC]={0};
-unsigned int sum_clk_h2t_per_class[CC]={0};
-double 		 sum_clk_per_hop_per_class[CC]={0};
-unsigned int rsvd_core_total_pck_num[NE]= {0};
-unsigned int rsvd_core_worst_delay[NE] =  {0};
-unsigned int sent_core_total_pck_num[NE]= {0};
-unsigned int sent_core_worst_delay[NE] =  {0};
-unsigned int random_var[NE] = {100};
-unsigned int clk_counter,ideal_rsv_cnt;
-unsigned int count_en;
-unsigned int total_active_endp;
-char all_done=0;
-unsigned int total_sent_flit_number =0;
-unsigned int total_rsv_flit_number =0;
-unsigned int total_rsv_flit_number_old=0;
-int ratio=RATIO_INIT;
-double first_avg_latency_flit,current_avg_latency_flit;
-double sc_time_stamp ();
-int pow2( int );
-char inject_done=0;
-char simulation_done=0;
-char pck_size_sel=RANDOM_RANGE;
-int  * discrete_size;
-int  * discrete_prob;
-unsigned int * rsv_size_array;
-int verbosity=1;
-int thread_num =1;
-
-#if (STND_DEV_EN)
-	//#include <math.h>
-	double sqroot (double s){
-		int i;	
-		double root = s/3;
-		if (s<=0) return 0;
-		for(i=0;i<32;i++) root = (root +s/root)/2;
-		return root;
-	}
-	
-	double 	     sum_clk_pow2=0;
-	double 	     sum_clk_pow2_per_class[C];
-	double standard_dev( double , unsigned int, double);
-#endif
-
-void update_noc_statistic (	int);
-unsigned char pck_class_in_gen(unsigned int);
-unsigned int pck_dst_gen_task_graph ( unsigned int);
-void print_statistic (void);
-void print_parameter();
-void reset_all_register();
-void sim_eval_all (void);
-void sim_final_all (void);
-void traffic_clk_negedge_event(void);
-void traffic_clk_posedge_event(void);
-void connect_clk_reset_start_all(void);
-unsigned int rnd_between (unsigned int, unsigned int );
-void traffic_gen_init( void );
-void  pck_inj_init(void);
-void traffic_gen_final_report(void);
-void processArgs (int, char ** );
-void task_traffic_init (char * );
-int parse_string ( char *, int *);
-void update_pck_size(char *);
-void update_custom_traffic (char *);
-void update_hotspot(char * );
-void initial_threads (void);
+#include "simulator.h"
 
 int main(int argc, char** argv) {
 	char change_injection_ratio=0;
@@ -294,20 +119,26 @@ void  usage(char * bin_name){
 "                              send enable(1 or 0),first hotspot node percentage x10,second hotspot node ...\n"
 "  -H <custom traffic pattern> custom traffic pattern: represented in a string with following format:\n"
 "                              \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n"
-"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n"	
+"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n"
+//"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
+"                              to speed up simulation time"	
 "\nTrace options:\n"
 "  -f <Task file>              path to the task file. any custom task file can be generated using ProNoC gui\n"
 "  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
 "  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n"	
+//"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
+"                              to speed up simulation time"	
 "\nNetrace options:\n"
 "  -F <Netrace file>           path to the task file. any custom task file can be generated using ProNoC gui\n"
-"  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
+"  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the noc reaches this number\n"
 "  -d                          ignore dependencies\n"
 "  -r <start region>           start region\n"
-"  -l                          reader_throttling\n"
-"  -v <level>                  Verbosity level. 0: off, 1:display live injected trace file percentage,\n"
-"                              3: print packets, default is 1\n"
-"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n",						   
+"  -l                          reader throttling\n"
+"  -v <level>                  Verbosity level. 0: off, 1:display a live number of injected packet,\n"
+"                              3: print injected/ejected packets details, default is 1\n"
+"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n"
+//"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
+"                              to speed up simulation time"	,						   
 bin_name,bin_name,bin_name
 );
 
@@ -322,7 +153,7 @@ void netrace_processArgs (int argc, char **argv )
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage(argv[0]);
-   while ((c = getopt (argc, argv, "F:dr:lv:T:")) != -1)
+   while ((c = getopt (argc, argv, "F:dr:lv:T:n:Q")) != -1)
    {
 	 switch (c)
 	 {
@@ -346,6 +177,15 @@ void netrace_processArgs (int argc, char **argv )
 	 	case  'T':
 			thread_num = atoi(optarg);
 			break;
+	 	case 'n':
+	 		end_sim_pck_num=atoi(optarg);
+	 		break;
+	 	case 'Q':
+	 		Quick_sim_en=1;
+	 		fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+	 		usage(argv[0]);
+	 		exit(1);
+	 		break;
 	 	case '?':
 	 	    if (isprint (optopt))
 	 	    	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -370,7 +210,7 @@ void synthetic_task_processArgs (int argc, char **argv )
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage(argv[0]);
-   while ((c = getopt (argc, argv, "t:m:n:c:i:p:h:H:f:T:")) != -1)
+   while ((c = getopt (argc, argv, "t:m:n:c:i:p:h:H:f:T:Q")) != -1)
       {
 	 switch (c)
 	    {
@@ -416,6 +256,12 @@ void synthetic_task_processArgs (int argc, char **argv )
 			break;
 		case  'T':
 			thread_num = atoi(optarg);
+			break;
+		case 'Q':
+			Quick_sim_en=1;
+			fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+			usage(argv[0]);
+			exit(1);
 			break;
 	    case '?':
 	       if (isprint (optopt))
@@ -760,6 +606,7 @@ class alignas(64) Vthread
 			for(i=0;i<nr_per_thread;i++){
 				node= (n * nr_per_thread)+i;
 				if (node >= NR) break;
+				//if(router_is_active[node] | (Quick_sim_en==0))
 				single_router_eval(node);
 			}	
 			for(i=0;i<ne_per_thread;i++){
@@ -833,7 +680,11 @@ void sim_eval_all (void){
 		thread[0]->function();
 		for(i=0;i<thread_num;i++)while(thread[i]->ready);
 	}else{// no thread
-		routers_eval();
+		//routers_eval();
+		for(i=0;i<NR;i++){
+			//if(router_is_active[i] | (Quick_sim_en==0)) 
+			single_router_eval(i);
+		}
 		if( TRAFFIC_TYPE == NETRACE) for(i=0;i<NE;i++) pck_inj[i]->eval();
 		else for(i=0;i<NE;i++) traffic[i]->eval();
 	}
@@ -871,6 +722,7 @@ void connect_clk_reset_start_all(void){
 void traffic_clk_negedge_event(void){
 	int i;
 	clk = 0;
+	//for (i=0;i<NR;i++) router_is_active [i]=0;
 	topology_connect_all_nodes ();
 	
 	for (i=0;i<NE;i++){
@@ -909,9 +761,30 @@ void traffic_clk_posedge_event(void) {
 			}
 		}
 
-			if(traffic[i]->flit_out_wr==1) total_sent_flit_number++;
-			if(traffic[i]->flit_in_wr==1)  total_rsv_flit_number++;
-			if(traffic[i]->hdr_flit_sent==1)total_sent_pck_num++;
+			if(traffic[i]->flit_out_wr==1){
+				total_sent_flit_number++;
+				#if (C>1)
+					sent_stat [i][traffic[i]->flit_out_class].flit_num++;
+				#else
+					sent_stat [i].flit_num++;
+				#endif
+			}
+			if(traffic[i]->flit_in_wr==1){
+				total_rsv_flit_number++;
+				#if (C>1)
+					rsvd_stat [i][traffic[i]->pck_class_out].flit_num++;
+				#else
+					rsvd_stat [i].flit_num++;
+				#endif
+			}
+			if(traffic[i]->hdr_flit_sent==1){
+				total_sent_pck_num++;
+				#if (C>1)
+					sent_stat [i][traffic[i]->flit_out_class].pck_num++;
+				#else
+					sent_stat [i].pck_num++;
+				#endif
+			}
 
 		}//for
 
@@ -940,14 +813,19 @@ void traffic_clk_posedge_event(void) {
  *
  *********************************/
 
-void update_noc_statistic (	int	core_num){
-	unsigned int   	clk_num_h2h =traffic[core_num]->time_stamp_h2h;
-	unsigned int    clk_num_h2t =traffic[core_num]->time_stamp_h2t;
-    unsigned int    distance=traffic[core_num]->distance;
-    unsigned int  	class_num=traffic[core_num]->pck_class_out;
-    unsigned int    src_e_addr=traffic[core_num]->src_e_addr;
-    unsigned int 	src = endp_addr_decoder (src_e_addr);						
+
+
+void update_statistic_at_ejection (
+	int	core_num,
+	unsigned int   	clk_num_h2h,
+	unsigned int    clk_num_h2t,
+	unsigned int    distance,
+	unsigned int  	class_num,
+	unsigned int 	src  	){
+
 	total_rsv_pck_num+=1;
+
+	//old st
 	if((total_rsv_pck_num & 0Xffff )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
 	sum_clk_h2h+=clk_num_h2h;
 	sum_clk_h2t+=clk_num_h2t;
@@ -962,10 +840,170 @@ void update_noc_statistic (	int	core_num){
 	sum_clk_h2t_per_class[class_num]+=clk_num_h2t ;
 	sum_clk_per_hop_per_class[class_num]+= ((double)clk_num_h2h/(double)distance);
 	rsvd_core_total_pck_num[core_num]=rsvd_core_total_pck_num[core_num]+1;
-	if (rsvd_core_worst_delay[core_num] < clk_num_h2t) rsvd_core_worst_delay[core_num] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
-    if (sent_core_worst_delay[src] < clk_num_h2t) sent_core_worst_delay[src] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
-    if( traffic[core_num]->pck_size_o >= MIN_PACKET_SIZE && traffic[core_num]->pck_size_o <=MAX_PACKET_SIZE){
-       	rsv_size_array[traffic[core_num]->pck_size_o-MIN_PACKET_SIZE]++;
+	if( TRAFFIC_TYPE != NETRACE){
+		if (rsvd_core_worst_delay[core_num] < clk_num_h2t) rsvd_core_worst_delay[core_num] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
+		if (sent_core_worst_delay[src] < clk_num_h2t) sent_core_worst_delay[src] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
+
+		if( traffic[core_num]->pck_size_o >= MIN_PACKET_SIZE && traffic[core_num]->pck_size_o <=MAX_PACKET_SIZE){
+		  if(rsv_size_array!=NULL) 	rsv_size_array[traffic[core_num]->pck_size_o-MIN_PACKET_SIZE]++;
+		}
+	}
+    //new one TODO remove old st
+    unsigned int latency = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)? clk_num_h2t :  clk_num_h2h;
+    #if(C>1)
+
+    	rsvd_stat[core_num][class_num].pck_num ++;
+    	rsvd_stat[core_num][class_num].sum_clk_h2h +=clk_num_h2h;
+    	rsvd_stat[core_num][class_num].sum_clk_h2t +=clk_num_h2t;
+    	rsvd_stat[core_num][class_num].sum_clk_per_hop+= ((double)clk_num_h2h/(double)distance);
+    	if (rsvd_stat[core_num][class_num].worst_latency < latency ) rsvd_stat[core_num][class_num].worst_latency =latency;
+    	if (rsvd_stat[core_num][class_num].min_latency==0          ) rsvd_stat[core_num][class_num].min_latency   =latency;
+    	if (rsvd_stat[core_num][class_num].min_latency   > latency ) rsvd_stat[core_num][class_num].min_latency   =latency;
+    	if (sent_stat[src     ][class_num].worst_latency < latency ) sent_stat[src     ][class_num].worst_latency =latency;
+    	if (sent_stat[src     ][class_num].min_latency==0          ) sent_stat[src     ][class_num].min_latency   =latency;
+    	if (sent_stat[src     ][class_num].min_latency   > latency ) sent_stat[src     ][class_num].min_latency   =latency;
+
+		#if (STND_DEV_EN)
+        	rsvd_stat[core_num][class_num].sum_clk_pow2 += (double)clk_num_h2h * (double) clk_num_h2h;
+		#endif
+	#else
+    	rsvd_stat[core_num].pck_num ++;
+        rsvd_stat[core_num].sum_clk_h2h +=(double)clk_num_h2h;
+        rsvd_stat[core_num].sum_clk_h2t +=(double)clk_num_h2t;
+        rsvd_stat[core_num].sum_clk_per_hop+= ((double)clk_num_h2h/(double)distance);
+        if (rsvd_stat[core_num].worst_latency < latency ) rsvd_stat[core_num].worst_latency=latency;
+        if (rsvd_stat[core_num].min_latency==0          ) rsvd_stat[core_num].min_latency  =latency;
+        if (rsvd_stat[core_num].min_latency   > latency ) rsvd_stat[core_num].min_latency  =latency;
+        if (sent_stat[src     ].worst_latency < latency ) sent_stat[src     ].worst_latency=latency;
+        if (sent_stat[src     ].min_latency==0          ) sent_stat[src     ].min_latency  =latency;
+        if (sent_stat[src     ].min_latency   > latency ) sent_stat[src     ].min_latency  =latency;
+
+		#if (STND_DEV_EN)
+        	rsvd_stat[core_num].sum_clk_pow2 += (double)clk_num_h2h * (double) clk_num_h2h;
+		#endif
+	#endif
+
+
+
+
+
+}
+
+void update_noc_statistic (	int	core_num){
+	unsigned int   	clk_num_h2h =traffic[core_num]->time_stamp_h2h;
+	unsigned int    clk_num_h2t =traffic[core_num]->time_stamp_h2t;
+    unsigned int    distance=traffic[core_num]->distance;
+    unsigned int  	class_num=traffic[core_num]->pck_class_out;
+    unsigned int    src_e_addr=traffic[core_num]->src_e_addr;
+    unsigned int 	src = endp_addr_decoder (src_e_addr);
+
+    update_statistic_at_ejection ( core_num,	clk_num_h2h,  clk_num_h2t,  distance,  	class_num, 	src);
+
+
+}
+
+avg_st_t finilize_statistic (unsigned long int total_clk, statistic_t rsvd_stat){
+
+	 avg_st_t avg_statistic;
+	 avg_statistic.avg_throughput= ((double)(rsvd_stat.flit_num*100)/NE )/total_clk;
+	 avg_statistic.avg_latency_flit    = rsvd_stat.sum_clk_h2h/rsvd_stat.pck_num;
+	 avg_statistic.avg_latency_pck	   = rsvd_stat.sum_clk_h2t/rsvd_stat.pck_num;
+	 avg_statistic.avg_latency_per_hop    = rsvd_stat.sum_clk_per_hop/rsvd_stat.pck_num;
+	 #if (STND_DEV_EN)
+	 	 avg_statistic.std_dev =standard_dev( rsvd_stat.sum_clk_pow2,rsvd_stat.pck_num, avg_statistic.avg_latency_flit);
+	 #endif
+	 return avg_statistic;
+}
+
+template<typename T>
+	void myout(T value)
+	{
+	   std::cout << value << std::endl;
+	}
+template<typename First, typename ... Rest>
+	void myout(First first, Rest ... rest)
+	{
+	   std::cout << first << ",";
+	   myout(rest...);
+	}
+
+void print_st_single (unsigned long int total_clk, statistic_t rsvd_stat, statistic_t sent_stat){
+
+
+
+	avg_st_t avg;
+	avg=finilize_statistic (total_clk,  rsvd_stat);
+
+	myout(
+			sent_stat.pck_num,
+			rsvd_stat.pck_num,
+			sent_stat.flit_num,
+			rsvd_stat.flit_num,
+			sent_stat.worst_latency,
+			rsvd_stat.worst_latency,
+			sent_stat.min_latency,
+			rsvd_stat.min_latency,
+			avg.avg_latency_per_hop,
+			avg.avg_latency_flit,
+			avg.avg_latency_pck,
+			avg.avg_throughput,
+			#if (STND_DEV_EN)
+			avg.std_dev
+			#endif
+	);
+	printf("\n");
+
+}
+
+
+void merge_statistic (statistic_t * merge_stat, statistic_t stat_in){
+	merge_stat->pck_num+=stat_in.pck_num;
+	merge_stat->flit_num+=stat_in.flit_num;
+	if(merge_stat->worst_latency <  stat_in.worst_latency) merge_stat->worst_latency= stat_in.worst_latency;
+	if(merge_stat->min_latency   == 0                       ) merge_stat->min_latency  = stat_in.min_latency;
+	if(merge_stat->min_latency   > stat_in.min_latency  && stat_in.min_latency!=0   ) merge_stat->min_latency  = stat_in.min_latency;
+	merge_stat->sum_clk_h2h      +=stat_in.sum_clk_h2h    ;
+	merge_stat->sum_clk_h2t      +=stat_in.sum_clk_h2t    ;
+	merge_stat->sum_clk_per_hop  +=stat_in.sum_clk_per_hop;
+	#if (STND_DEV_EN)
+		merge_stat->sum_clk_pow2 +=stat_in.sum_clk_pow2;
+    #endif
+
+}
+
+void print_statistic_new (unsigned long int total_clk){
+	int i;
+	printf("\n\t#node , "
+			"sent_stat.pck_num,"
+			"rsvd_stat.pck_num,"
+			"sent_stat.flit_num,"
+			"rsvd_stat.flit_num,"
+			"sent_stat.worst_latency,"
+			"rsvd_stat.worst_latency,"
+			"sent_stat.min_latency,"
+			"rsvd_stat.min_latency,"
+			"avg.avg_latency_per_hop,"
+			"avg.avg_latency_flit,"
+			"avg.avg_latency_pck,"
+			"avg.avg_throughput,"
+			#if (STND_DEV_EN)
+			"avg.std_dev"
+			#endif
+			"\n");
+
+	statistic_t merge_rsvd_stat, merge_sent_stat;
+	memset (&merge_rsvd_stat,0,sizeof(statistic_t));
+	memset (&merge_sent_stat,0,sizeof(statistic_t));
+	for (i=0; i<NE;i++){
+		merge_statistic (&merge_rsvd_stat,rsvd_stat[i]);
+		merge_statistic (&merge_sent_stat,sent_stat[i]);
+	}
+	printf("\ttotal,");
+	print_st_single (total_clk, merge_rsvd_stat,merge_sent_stat);
+
+    for (i=0; i<NE;i++){
+    	printf("\t%u,",i);
+    	print_st_single (total_clk, rsvd_stat[i],sent_stat[i] );
     }
 }
 
@@ -977,7 +1015,7 @@ void print_statistic (void){
 #if (STND_DEV_EN)
 	double	std_dev;
 #endif
-	char file_name[100];
+
 	avg_throughput= ((double)(total_sent_flit_number*100)/total_active_endp )/clk_counter;
 	printf(" Total active Endpoint: %d \n",total_active_endp);
 	printf(" Avg throughput is: %f (flits/clk/Total active Endpoint %%)\n",    avg_throughput);
@@ -1075,8 +1113,8 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 
 	}
 	    //printf ("\tTotal packets sent by one router: %u\n", TOTAL_PKT_PER_ROUTER);
-		printf ("\tSimulation timeout =%d\n", sim_end_clk_num);
-		printf ("\tSimulation ends on total packet num of =%d\n", end_sim_pck_num);
+		if(sim_end_clk_num!=0) printf ("\tSimulation timeout =%d\n", sim_end_clk_num);
+		if(end_sim_pck_num!=0) printf ("\tSimulation ends on total packet num of =%d\n", end_sim_pck_num);
 		if(TRAFFIC_TYPE!=NETRACE){
 		printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
 	    printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
@@ -1123,6 +1161,8 @@ void reset_all_register (void){
 
 	 }  //for
 	 total_sent_flit_number=0;
+
+
 }
 
 
@@ -1154,6 +1194,7 @@ double standard_dev( double sum_pow2, unsigned int  total_num, double average){
 	std_dev = (B-A)/N;
 	std_dev = sqrt(std_dev);
 */	
+	if(total_num==0) return 0;
 
 	std_dev = sum_pow2/(double)total_num; //B/N
 	std_dev -= (average*average);// (B/N) - mean^2

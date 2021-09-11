@@ -226,7 +226,12 @@ module packet_injector
 		.empty_vc( ),
 		.clk(clk),
 		.reset(reset)
-	);   	
+	);  
+	
+	
+	
+		
+	
 		
 	
 	wire [HDR_DATA_w-1 : 0]	hdr_data_o;
@@ -248,6 +253,9 @@ module packet_injector
 	
 	reg [PCK_SIZw-1 : 0] rsv_counter [V-1 : 0];
 	reg [EAw-1 : 0] sender_endp_addr_reg [V-1 : 0];
+	
+	
+	
 	
 	
 	//synthesis translate_off
@@ -350,7 +358,7 @@ module packet_injector
 	assign pck_injct_out.data  =  pck_data_o[vc_bin];
 	assign pck_injct_out.size  =  rsv_counter[vc_bin];
 	assign pck_injct_out.ready = (flit_type == HEADER)?  ~vc_fifo_full : {V{1'b0}};	
-	assign pck_injct_out. endp_addr =  sender_endp_addr_reg[vc_bin];
+	assign pck_injct_out.endp_addr =  sender_endp_addr_reg[vc_bin];
 	assign pck_injct_out.vc = vc_reg;
 	assign pck_injct_out.pck_wr = tail_flag_reg;  	
 	
@@ -364,6 +372,28 @@ module packet_injector
 	assign chan_out.flit_chanel.congestion = {CONGw{1'b0}};
 	assign chan_out.flit_chanel.credit= credit_o;	
 	assign chan_out.ctrl_chanel.credit_init_val= LB;	
+	
+	localparam DISTw =  log2(NR+1);
+	
+	distance_gen #(
+			.TOPOLOGY(TOPOLOGY),
+			.T1(T1),
+			.T2(T2),
+			.T3(T3),
+			.EAw(EAw),
+			.DISTw(DISTw)
+		)
+		the_distance_gen
+		(
+			.src_e_addr(sender_endp_addr_reg[vc_bin]),
+			.dest_e_addr(current_e_addr),
+			.distance(pck_injct_out.distance)
+		);
+	
+	
+	
+	
+	
 	
 	//synthesis translate_off
 	//`define MONITOR_RSV_DAT
@@ -394,7 +424,10 @@ module packet_injector
 		`endif
 		
 	end	
+	
+	
 	//synthesis translate_on
+	
 	
 	
 	
@@ -503,7 +536,8 @@ import pronoc_pkg::*;
 	pck_injct_out_init_weight,
 	pck_injct_out_vc,         
 	pck_injct_out_pck_wr,  	 
-	pck_injct_out_ready      
+	pck_injct_out_ready,
+	pck_injct_out_distance
 	                            
 	
 );
@@ -536,7 +570,8 @@ output  smartflit_chanel_t 	chan_out;
  output [WEIGHTw-1    : 0] pck_injct_out_init_weight;      
  output [V-1          : 0] pck_injct_out_vc;               
  output                    pck_injct_out_pck_wr;  	     
- output [V-1          : 0] pck_injct_out_ready;            
+ output [V-1          : 0] pck_injct_out_ready;  
+ output [DESTw-1 	  : 0] pck_injct_out_distance;
  	
  pck_injct_t pck_injct_in;
  pck_injct_t pck_injct_out;
@@ -558,7 +593,7 @@ output  smartflit_chanel_t 	chan_out;
  assign pck_injct_out_vc          = pck_injct_out.vc;             
  assign pck_injct_out_pck_wr  	  = pck_injct_out.pck_wr;  	     
  assign pck_injct_out_ready       = pck_injct_out.ready;          
-
+ assign pck_injct_out_distance    = pck_injct_out.distance;
  	
  packet_injector injector (
 	.current_e_addr  (current_e_addr ), 
@@ -570,4 +605,16 @@ output  smartflit_chanel_t 	chan_out;
 	.pck_injct_out   (pck_injct_out  ));
 
 
+// `ifdef VERILATOR
+// 	logic  endp_is_active   /*verilator public_flat_rd*/ ;
+//			
+// 	always @ (*) begin 
+//		endp_is_active  = 1'b0;		
+// 		if (chan_out.flit_chanel.flit_wr) endp_is_active=1'b1;
+// 		if (chan_out.flit_chanel.credit > {V{1'b0}} ) endp_is_active=1'b1;
+// 		if (chan_out.smart_chanel.requests > {SMART_NUM{1'b0}} ) endp_is_active=1'b1;
+// 	end	
+// `endif 
+ 
+ 
 endmodule

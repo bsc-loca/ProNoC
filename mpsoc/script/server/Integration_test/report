@@ -2,7 +2,13 @@ Verification Results:
 ****************************custom1_topology : Compile *******************************:
 	 model is generated successfully.
 ****************************Fattree_k3_L3_st : Compile *******************************:
-	 model is generated successfully.
+	 model generation is FAILED.
+	 %Error: Exiting due to 1 warning(s)
+
+	 make: *** [testbench.o] Error 1
+
+	 %Warning-WIDTH: /users/amonemi/pronoc_verify/mpsoc/Integration_test/../../mpsoc_work/verify/rtl/src_noc/traffic_gen_top.sv:1121:5: Output port connection 'distance' expects 3 bits on the pin connection, but pin connection's VARREF 'distance' generates 5 bits.
+
 ****************************fmesh_1x1_openpiton : Compile *******************************:
 	 model is generated successfully.
 ****************************fmesh_2x2_openpiton : Compile *******************************:
@@ -30,7 +36,7 @@ Verification Results:
 ****************************custom1_topology	: random traffic *******************************:
 	 Passed:   zero load (2,13.117864) saturation (42,87.105227)
 ****************************Fattree_k3_L3_st	: random traffic *******************************:
-	 Passed:   zero load (2,13.657638) saturation (62,121.906154)
+	 failed. Simulation model is not avaialable
 ****************************fmesh_1x1_openpiton	: random traffic *******************************:
 	 Passed:   zero load (6,7.283544) saturation (62,47.952866)
 ****************************fmesh_2x2_openpiton	: random traffic *******************************:
@@ -58,7 +64,7 @@ Verification Results:
 ****************************custom1_topology	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,12.806510) saturation (30,74.696997)
 ****************************Fattree_k3_L3_st	: transposed 1 traffic *******************************:
-	 Passed:   zero load (6,13.435701) saturation (100,-)
+	 failed. Simulation model is not avaialable
 ****************************fmesh_1x1_openpiton	: transposed 1 traffic *******************************:
 	 Passed:   zero load (50,6.989811) saturation (100,-)
 ****************************fmesh_2x2_openpiton	: transposed 1 traffic *******************************:

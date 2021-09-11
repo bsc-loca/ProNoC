@@ -230,18 +230,18 @@ localparam
 	
 	
 	
-	typedef struct packed {		
-		flit_t  flit;
+	typedef struct packed {	
 		logic  flit_wr;
 		logic  [V-1 :  0]  credit;
+		flit_t  flit;		
 		logic  [CONGw-1 :  0]  congestion;		
 	} flit_chanel_t;
 	localparam FLIT_CHANEL_w = $bits(flit_chanel_t); 
 	
 	
 	typedef struct packed {
-		logic [V-1   	: 0] ovc;
 		logic [SMART_NUM-1: 0] requests;
+		logic [V-1   	: 0] ovc;		
 		logic [EAw-1 	: 0] dest_e_addr;
 		bit   hdr_flit;
 	} smart_chanel_t;
@@ -282,7 +282,7 @@ localparam
  	//packet injector interface
  	localparam PCK_INJ_Dw =64;//TODO to be defined by user
  	localparam PCK_SIZw= log2(MAX_PCK_SIZ);
- 	
+ 	localparam DESTw = log2(NR+1);
  	typedef struct packed {
  		logic [PCK_INJ_Dw-1 : 0] data;
  		logic [PCK_SIZw-1 : 0] size;
@@ -292,6 +292,7 @@ localparam
  		logic [V-1   : 0] vc;
  		bit   pck_wr;  	
  		bit   [V-1   : 0] ready;
+ 		logic [DESTw-1 : 0] distance;
     }	pck_injct_t;
     localparam PCK_INJCT_w = $bits(pck_injct_t); 
     

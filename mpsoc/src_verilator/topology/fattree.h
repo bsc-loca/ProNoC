@@ -204,5 +204,28 @@ void topology_connect_all_nodes (void){
 
 
 
+unsigned int get_mah_distance ( unsigned int id1, unsigned int id2){
+
+	unsigned int k =T1;
+	unsigned int l =T2;
+
+	unsigned int pow,tmp1,tmp2;
+	unsigned int distance=0;
+	pow=1;
+	for (unsigned int i = 0; i <l; i=i+1 ) {
+		tmp1=(id1/pow);
+		tmp2=(id2/pow);
+		tmp1=tmp1 % k;
+		tmp2=tmp2 % k;
+		pow=pow * k;
+		if(tmp1!=tmp2) distance= (i+1)*2-1 ; //distance obtained based on the highest level index which differ
+
+	}
+	 return distance;
+}
+
+
+
+
 
 #endif

@@ -505,7 +505,7 @@ sub get_noc_verilator_top_modules_info {
 		 $includ_h=$includ_h."#include \"Vrouter$p.h\" \n";
 	}
 	my $rns_num = $router_p+1;
-	$includ_h.="int router_NRs[$rns_num];\n\n";
+	$includ_h.="int router_NRs[$rns_num];\n";
 	for (my $p=1; $p<=$router_p ; $p++){
 		 $includ_h=$includ_h."#define NR${p} $nr_p{$p}\n";
 		 my $pnum= $nr_p{"p$p"};
@@ -596,6 +596,8 @@ void inline routers_final(){
 void inline single_router_eval(int i){
 	$st6
 }
+
+
 	
 ";	
 
@@ -721,8 +723,24 @@ sub mesh_tori_mah_distance {
 
 sub fattree_mah_distance {
 	my ($self, $router1,$router2)=@_;
-	my $mah_distance = ($router1 > $router2) ? ($router1 - $router2) : ($router2 - $router1);
-	return $mah_distance;
+	my $k =$self->object_get_attribute('noc_param','T1');
+	my $l =$self->object_get_attribute('noc_param','T2');
+	
+	my  $pow; 
+	my $tmp1;
+	my $tmp2;	
+	my $distance=0;
+	$pow=1;
+	for (my $i = 0; $i <$l; $i=$i+1 ) {
+		$tmp1=int($router1/$pow);
+		$tmp2=int($router2/$pow);		
+		$tmp1=$tmp1 % $k;
+		$tmp2=$tmp2 % $k;		
+		$pow=$pow * $k;		
+		$distance= ($i+1)*2-1 if($tmp1!=$tmp2); # distance obtained based on the highest level index which differ 
+		
+	}
+	 return $distance;	
 }	
 
 1

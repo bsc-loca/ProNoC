@@ -1,6 +1,19 @@
 #ifndef TOPOLOGY_TOP_H
 #define TOPOLOGY_TOP_H
 
+	int get_router_num (int NR_num, int NR_id){
+		int offset=0;
+		if(NR_num* sizeof(int) > sizeof(router_NRs)){
+				fprintf(stderr,"ERROR: NR%u is not defined\n",NR_num);
+				exit(1);
+		}
+		while (NR_num > 1) {
+			NR_num-=1;
+			offset += router_NRs[NR_num];
+		}
+		return offset + NR_id;	
+	}	
+
 
 	unsigned int er_addr [NE+1]; 
 	char start_i=0;

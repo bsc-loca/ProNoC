@@ -17,6 +17,10 @@ extern Vpck_inj        *pck_inj[NE];
 extern unsigned int  count_en;
 extern unsigned long int main_time;     // Current simulation time
 extern int verbosity;
+extern int end_sim_pck_num;
+
+
+
 #define L2_LATENCY 8
 
 
@@ -24,6 +28,8 @@ int ignore_dependencies = 0;
 int start_region = 0;
 int reader_throttling = 0;
 unsigned long long int nt_cycle=0;
+unsigned long long int nt_start_cycle=0;
+
 nt_header_t* header;
 queue_t** waiting;
 queue_t** inject;
@@ -35,11 +41,9 @@ int nt_packets_left = 0;
 int netrace_to_pronoc_map [64];
 int pronoc_to_netrace_map [NE];
 int pck_injct_in_pck_wr[NE];
-unsigned int nt_total_sent_pck_per_node[NE]={0};
-unsigned int nt_total_rsv_pck_per_node[NE]={0};
-unsigned int nt_total_sent_pck=0;
-unsigned int nt_total_rsv_pck=0;
 
+unsigned int nt_total_rd_pck=0; // from trace file
+unsigned int read_done=0;
 
 typedef struct queue_node queue_node_t;
 struct queue_node {
@@ -70,7 +74,10 @@ void netrace_init( char * tracefile){
 	for(i = 0; i < start_region; i++ ) {
 		nt_cycle += header->regions[i].num_cycles;
 	}
-	if(nt_cycle) printf("\tThe simulation start at region %u and %llu cycle\n",start_region,nt_cycle);
+	if(nt_cycle){
+		printf("\tThe simulation start at region %u and %llu cycle\n",start_region,nt_cycle);
+		nt_start_cycle=nt_cycle;
+	}
 
 	waiting  = (queue_t**) malloc( header->num_nodes * sizeof(queue_t*) );
 	inject   = (queue_t**) malloc( header->num_nodes * sizeof(queue_t*) );
@@ -91,6 +98,17 @@ void netrace_init( char * tracefile){
 		nt_init_self_throttling();
 	}
 
+	MIN_PACKET_SIZE = (8*8)/Fpay;
+	MAX_PACKET_SIZE = (64*8)/Fpay;
+	AVG_PACKET_SIZE=(MIN_PACKET_SIZE+MAX_PACKET_SIZE)/2;// average packet size
+	int p=(MAX_PACKET_SIZE-MIN_PACKET_SIZE)+1;
+	rsv_size_array = (unsigned int*) calloc ( p , sizeof(int));
+	if (rsv_size_array==NULL){
+		fprintf(stderr,"ERROR: cannot allocate (%d x int) memory for rsv_size_array. \n",p);
+		 exit(1);
+	}
+
+
 	if(verbosity==1) 	printf("\e[?25l"); //To hide the cursor:
 
 }
@@ -106,47 +124,56 @@ void netrace_posedge_event(){
 		sim_eval_all();
 		return;
 	}
-	if(( nt_cycle > header->num_cycles ) && nt_packets_left==0 )  simulation_done=1;
+	if((( nt_cycle > header->num_cycles) || (read_done==1 )) && nt_packets_left==0 )  simulation_done=1;
 	// Reset packets remaining check
 	nt_packets_left = 0;
 
+
+
 	// Get packets for this cycle
-	if( reader_throttling ) {
-		nt_packet_list_t* list;
-		for( list = nt_get_cleared_packets_list(); list != NULL; list = list->next ) {
-			if( list->node_packet != NULL ) {
-				trace_packet = list->node_packet;
+	if((end_sim_pck_num == 0 ) || (end_sim_pck_num > nt_total_rd_pck )){
+		if( reader_throttling ) {
+			nt_packet_list_t* list;
+			for( list = nt_get_cleared_packets_list(); list != NULL; list = list->next ) {
+				if( list->node_packet != NULL ) {
+					trace_packet = list->node_packet;
+					queue_node_t* new_node = (queue_node_t*) nt_checked_malloc( sizeof(queue_node_t) );
+					new_node->packet = trace_packet;
+					new_node->cycle = (trace_packet->cycle > nt_cycle) ? trace_packet->cycle : nt_cycle;
+					queue_push( inject[trace_packet->src], new_node, new_node->cycle );
+					nt_total_rd_pck++;
+				} else {
+					printf( "ERROR: Malformed packet list" );
+					exit(-1);
+				}
+			}
+			nt_empty_cleared_packets_list();
+		} else {
+			while( (trace_packet != NULL) && (trace_packet->cycle == nt_cycle) ) {
+				// Place in appropriate queue
 				queue_node_t* new_node = (queue_node_t*) nt_checked_malloc( sizeof(queue_node_t) );
 				new_node->packet = trace_packet;
 				new_node->cycle = (trace_packet->cycle > nt_cycle) ? trace_packet->cycle : nt_cycle;
-				queue_push( inject[trace_packet->src], new_node, new_node->cycle );
-			} else {
-				printf( "ERROR: Malformed packet list" );
+				if( ignore_dependencies || nt_dependencies_cleared( trace_packet ) ) {
+					// Add to inject queue
+					queue_push( inject[trace_packet->src], new_node, new_node->cycle );
+					nt_total_rd_pck++;
+				} else {
+					// Add to waiting queue
+					queue_push( waiting[trace_packet->src], new_node, new_node->cycle );
+					nt_total_rd_pck++;
+				}
+				// Get another packet from trace
+				trace_packet = nt_read_packet();
+			}
+			if( (trace_packet != NULL) && (trace_packet->cycle < nt_cycle) ) {
+				// Error check: Crash and burn
+				printf( "ERROR: Invalid trace_packet cycle time: %llu, current cycle: %llu\n", trace_packet->cycle, nt_cycle );
 				exit(-1);
 			}
 		}
-		nt_empty_cleared_packets_list();
-	} else {
-		while( (trace_packet != NULL) && (trace_packet->cycle == nt_cycle) ) {
-			// Place in appropriate queue
-			queue_node_t* new_node = (queue_node_t*) nt_checked_malloc( sizeof(queue_node_t) );
-			new_node->packet = trace_packet;
-			new_node->cycle = (trace_packet->cycle > nt_cycle) ? trace_packet->cycle : nt_cycle;
-			if( ignore_dependencies || nt_dependencies_cleared( trace_packet ) ) {
-				// Add to inject queue
-				queue_push( inject[trace_packet->src], new_node, new_node->cycle );
-			} else {
-				// Add to waiting queue
-				queue_push( waiting[trace_packet->src], new_node, new_node->cycle );
-			}
-			// Get another packet from trace
-			trace_packet = nt_read_packet();
-		}
-		if( (trace_packet != NULL) && (trace_packet->cycle < nt_cycle) ) {
-			// Error check: Crash and burn
-			printf( "ERROR: Invalid trace_packet cycle time: %llu, current cycle: %llu\n", trace_packet->cycle, nt_cycle );
-			exit(-1);
-		}
+	}else {//if ~end_sim_pck_num
+		read_done=1;
 	}
 
 	// Inject where possible (max one per node)
@@ -179,7 +206,7 @@ void netrace_posedge_event(){
 					nt_print_packet( packet );
 				}
 				temp_node = (queue_node_t*) queue_pop_front( inject[i] );
-				temp_node->cycle = nt_cycle + calc_packet_timing( packet );
+				temp_node->cycle = nt_cycle;//injection time
 				queue_push( traverse[packet->dst], temp_node, temp_node->cycle );
 				long int ptr_addr = reinterpret_cast<long int> (temp_node);
 				int flit_num = (nt_get_packet_size(packet)* 8) / Fpay;
@@ -192,15 +219,23 @@ void netrace_posedge_event(){
 						 exit(1);
 					}
 				}
+				unsigned int sent_class =0;
 				pck_inj[pronoc_src]->pck_injct_in_data         = ptr_addr;
 				pck_inj[pronoc_src]->pck_injct_in_size         = flit_num;
 				pck_inj[pronoc_src]->pck_injct_in_endp_addr    = endp_addr_encoder(pronoc_dst);
-				pck_inj[pronoc_src]->pck_injct_in_class_num    = 0;
+				pck_inj[pronoc_src]->pck_injct_in_class_num    = sent_class;
 				pck_inj[pronoc_src]->pck_injct_in_init_weight  = 1;
 				pck_inj[pronoc_src]->pck_injct_in_vc           = 0x1<<sent_vc;
 				pck_inj[pronoc_src]->pck_injct_in_pck_wr  	   = 1;
-				nt_total_sent_pck_per_node[pronoc_src]++;
-				nt_total_sent_pck++;
+				total_sent_pck_num++;
+
+				#if (C>1)
+					sent_stat[pronoc_src][sent_class].pck_num ++;
+					sent_stat[pronoc_src][sent_class].flit_num +=flit_num;
+				#else
+					sent_stat[pronoc_src].pck_num ++;
+					sent_stat[pronoc_src].flit_num +=flit_num;
+				#endif
 
 
 
@@ -245,9 +280,21 @@ void netrace_posedge_event(){
 				// remove from traverse
 				nt_clear_dependencies_free_packet( packet );
 				queue_remove( traverse[i], temp_node );
+				unsigned long long int    clk_num_h2t= (nt_cycle - temp_node->cycle);
+				update_statistic_at_ejection (
+					i,//	core_num
+					(unsigned int) clk_num_h2t, // clk_num_h2h, // not supported by netrace_lib yet
+					(unsigned int) clk_num_h2t, // clk_num_h2t,
+					pck_inj[i]->pck_injct_out_distance, //    distance,
+					0,//  	class_num,
+					packet->src//		unsigned int 	src
+				);
+				#if(C>1)
+					rsvd_stat[i][class_num].flit_num +=pck_inj[i]->pck_injct_out_size;
+   				#else
+					rsvd_stat[i].flit_num+=pck_inj[i]->pck_injct_out_size;
+				#endif
 				free( temp_node );
-				nt_total_rsv_pck_per_node[i]++;
-				nt_total_rsv_pck++;
 
 			}
 		}
@@ -279,7 +326,7 @@ void netrace_posedge_event(){
 	connect_clk_reset_start_all();
 	sim_eval_all();
 	//print total sent packet each 500 clock cycles
-	if(verbosity==1) if(nt_cycle&0x1FF) printf("\rTotal sent packet: %9d", nt_total_sent_pck);
+	if(verbosity==1) if(nt_cycle&0x1FF) printf("\rTotal sent packet: %9d", total_sent_pck_num);
 
 }
 
@@ -294,20 +341,32 @@ void netrace_clk_negedge_event( ){
 }
 
 
+
+
 void netrace_final_report(){
 	int i;
+	unsigned int worst_sent=0, worst_rsv=0;
+	unsigned long long int total_clock = (nt_cycle-nt_start_cycle);
+
 	if(verbosity==1) 	printf("\e[?25h");//To re-enable the cursor:
 	printf("\nNetrace simulation results-------------------\n"
-			"\tSimulation end clock cycles: %llu\n"
-			"\ttotal injected packets: %u\n"
-			"\ttotal ejected  packets: %u\n"
-	,nt_cycle,nt_total_sent_pck,nt_total_rsv_pck);
+			"\tNetrace end clock cycles: %llu\n"
+			"\tSimulation duration clock cycles: %llu\n"
+	,nt_cycle,total_clock);
 
-	printf("\n\t#node , injected pcks , ejected pcks\n");
+
+
+	print_statistic_new (total_clock);
+/*
+	printf("\t total , %u , %u, %u, %u  \n",total_sent_pck_num,	total_rsv_pck_num,total_sent_flit_number,total_rsv_flit_number);
+	printf("\nper node\n");
 	for(i=0;i<NE;i++){
+		printf("\t %u  , %u , %u , %u , %u \n",	i,sent_core_total_pck_num[i],rsvd_core_total_pck_num[i], sent_core_total_flit_num[i],rsv_core_total_flit_num[i]
+		sent_core_worst_delay[i], rsvd_core_worst_delay[i]
 
-		printf("\t %u  , %u , %u  \n",	i,nt_total_sent_pck_per_node[i],nt_total_rsv_pck_per_node[i]);
+		);
 	}
+	*/
 }
 
 

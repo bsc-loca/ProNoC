@@ -53,38 +53,42 @@
 	}
 
 
+	void fmesh_addrencod_sep(unsigned int id, unsigned int *x, unsigned int *y, unsigned int *p){
+		unsigned int  l, diff,mul,addrencode;
+		mul  = T1*T2*T3;
+		if(id < mul) {
+			*y = ((id/T3) / T1 );
+			*x = ((id/T3) % T1 );
+			l = (id % T3);
+			*p = (l==0)? LOCAL : 4+l;
+		}else{
+			diff = id -  mul ;
+			if( diff <  T1) { //top mesh edge
+					*y = 0;
+					*x = diff;
+					*p = NORTH;
+			} else if  ( diff < 2* T1) { //bottom mesh edge
+					*y = T2-1;
+					*x = diff-T1;
+					*p = SOUTH;
+			} else if  ( diff < (2* T1) + T2 ) { //left mesh edge
+					*y = diff - (2* T1);
+					*x = 0;
+					*p = WEST;
+			} else { //right mesh edge
+					*y = diff - (2* T1) -T2;
+					*x = T1-1;
+					*p = EAST;
+			}
+		}
 
+	}
 
 
 	unsigned int fmesh_addrencode(unsigned int id){
 	//input integer in,nx,nxw,nl,nyw,ny;
-		unsigned int  y, x, l,p, diff,mul,addrencode;
-		mul  = T1*T2*T3;
-		if(id < mul) {
-			y = ((id/T3) / T1 );
-			x = ((id/T3) % T1 );
-			l = (id % T3);
-			p = (l==0)? LOCAL : 4+l;
-		}else{
-			diff = id -  mul ;
-			if( diff <  T1) { //top mesh edge
-				y = 0;
-				x = diff;
-				p = NORTH;
-			} else if  ( diff < 2* T1) { //bottom mesh edge
-				y = T2-1;
-				x = diff-T1;
-				p = SOUTH;
-			} else if  ( diff < (2* T1) + T2 ) { //left mesh edge
-				y = diff - (2* T1);
-				x = 0;
-				p = WEST;
-			} else { //right mesh edge
-				y = diff - (2* T1) -T2;
-				x = T1-1;
-				p = EAST;
-			}
-		}
+		unsigned int  y, x, p, addrencode;
+		fmesh_addrencod_sep(id, &x, &y, &p);
 		addrencode = ( p<<(nxw+nyw) | (y<<nxw) | x);
 		return addrencode;
 	}
@@ -298,5 +302,23 @@ void topology_init(void){
     maskx = (0x1<<nxw)-1;
     masky = (0x1<<nyw)-1;	
 }
+
+
+unsigned int get_mah_distance ( unsigned int id1, unsigned int id2){
+	#if defined (IS_FMESH)
+		unsigned int x1,y1,p1,x2,y2,p2;
+		fmesh_addrencod_sep	   ( id1, &x1, &y1, &p1);
+		fmesh_addrencod_sep	   ( id2, &x2, &y2, &p2);
+    #else
+		unsigned int x1,y1,l1,x2,y2,l2;
+		mesh_tori_addrencod_sep(id1, &x1, &y1, &l1);
+		mesh_tori_addrencod_sep(id2, &x2, &y2, &l2);
+	#endif
+
+	unsigned int x_diff = (x1 > x2) ? (x1 - x2) : (x2 - x1);
+	unsigned int y_diff = (y1 > y2) ? (y1 - y2) : (y2 - y1);
+	return x_diff + y_diff;
+}
+
 
 #endif
