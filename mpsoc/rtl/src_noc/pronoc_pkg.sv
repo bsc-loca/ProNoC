@@ -293,6 +293,7 @@ localparam
  		bit   pck_wr;  	
  		bit   [V-1   : 0] ready;
  		logic [DESTw-1 : 0] distance;
+ 		logic [15: 0]  h2t_delay;
     }	pck_injct_t;
     localparam PCK_INJCT_w = $bits(pck_injct_t); 
     

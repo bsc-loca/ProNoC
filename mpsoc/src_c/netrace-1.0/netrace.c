@@ -245,6 +245,7 @@ nt_packet_t* nt_read_packet( void ) {
 			to_return = NULL;
 			return to_return;
 		}
+      
 		if( !nt_dependencies_off ) {
 			// Track dependencies: add to_return to dependencies array
 			nt_dep_ref_node_t* node_ptr = nt_get_dependency_node( to_return->id );
@@ -278,6 +279,7 @@ nt_packet_t* nt_read_packet( void ) {
 	} else {
 		nt_error( "must open trace file with nt_open_trfile before reading" );
 	}
+	
 	return to_return;
 }
 
@@ -311,8 +313,11 @@ void nt_read_ahead( unsigned long long int current_cycle ) {
 	}
 	if( read_to_cycle > nt_latest_active_packet_cycle ) {
 		nt_packet_t* packet;
-		while( nt_latest_active_packet_cycle <= read_to_cycle && !nt_done_reading ) {
+		int d= ((end_sim_pck_num == 0 ) || (end_sim_pck_num > nt_tr_list_pck ));
+		while( nt_latest_active_packet_cycle <= read_to_cycle && !nt_done_reading && (d==1) ) {
 			packet = nt_read_packet();
+			nt_tr_list_pck++;
+			//printf("nt_tr_list_pck=%u\n",nt_tr_list_pck);
 			if( packet == NULL ) {
 				// This is the exit condition... how do we signal it to the
 				// network simulator? We shouldn't need to... It is tracking
@@ -321,6 +326,7 @@ void nt_read_ahead( unsigned long long int current_cycle ) {
 				nt_done_reading = 1;
 			} else if( nt_dependencies_cleared( packet ) ) {
 				nt_add_cleared_packet_to_list( packet );
+				
 			//} else {
 				// Ignore this packet, since the reader is already tracking it
 			}
@@ -456,6 +462,7 @@ nt_packet_list_t* nt_get_cleared_packets_list() {
 
 void nt_prime_self_throttle() {
 	nt_packet_t* packet = nt_read_packet();
+    nt_tr_list_pck++;
 	if( nt_dependencies_cleared( packet ) ) {
 		nt_add_cleared_packet_to_list( packet );
 	}

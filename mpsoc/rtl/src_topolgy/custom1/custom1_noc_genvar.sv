@@ -61,7 +61,9 @@ module   custom1_noc_genvar
 //all routers port 
 	smartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
 	smartflit_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+
 	wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
+
 
 
 
@@ -82,10 +84,12 @@ module   custom1_noc_genvar
 	(	
 		.clk(clk), 
 		.reset(reset),
-		.current_r_addr(i),
-		.chan_in (router_chan_in[i]), 
-		.chan_out(router_chan_out[i])		
+		.current_r_addr(i),	
+		.chan_in  (router_chan_in[i]), 
+		.chan_out (router_chan_out[i])		
 	);
+    
+    
     
 	end    
 			
@@ -98,10 +102,12 @@ module   custom1_noc_genvar
 	(	
 		.clk(clk), 
 		.reset(reset),
-		.current_r_addr(i+4),
-		.chan_in (router_chan_in[i+4]), 
-		.chan_out(router_chan_out[i+4])		
+		.current_r_addr(i+4),	
+		.chan_in  (router_chan_in[i+4]), 
+		.chan_out (router_chan_out[i+4])		
 	);
+    
+    
     
 	end    
 			
@@ -114,10 +120,12 @@ module   custom1_noc_genvar
 	(	
 		.clk(clk), 
 		.reset(reset),
-		.current_r_addr(i+12),
-		.chan_in (router_chan_in[i+12]), 
-		.chan_out(router_chan_out[i+12])		
+		.current_r_addr(i+12),	
+		.chan_in  (router_chan_in[i+12]), 
+		.chan_out (router_chan_out[i+12])		
 	);
+    
+    
     
 	end    
 			endgenerate

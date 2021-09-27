@@ -72,17 +72,19 @@ module pck_injector_test;
 			#100
 			@(posedge clk) #1;
 			if(i==1) begin 
-				repeat(220) begin 
-					while (pck_injct_out[i].ready[0] == 1'b0) @(posedge clk) #1;
+				repeat(10) begin 
+					while (pck_injct_out[i].ready[0] == 1'b0) @(posedge clk)   #1;
 						
-					pck_injct_in[i].data='h123456789ABCDEFEDCBA987654321+k;
-					pck_injct_in[i].size=2+(k%18);
+					pck_injct_in[i].data='h123456789ABCDEFEDCBA987654321;//+k;
+					pck_injct_in[i].size=3+(k%18);
 					dest_id[i]=0;				
 					pck_injct_in[i].pck_wr=1'b1;  	
-					@(posedge clk)
-					pck_injct_in[i].pck_wr=1'b0;  
-					@(posedge clk)#1 k++;
+					@(posedge clk)	#1 k++;
+					pck_injct_in[i].pck_wr=1'b0;
+					@(posedge clk)	#1 k++;
+
 				end
+
 				#8000
 			@(posedge clk) $stop;
 
@@ -97,7 +99,7 @@ module pck_injector_test;
 		
 		always @(posedge clk) begin
 			if(pck_injct_out[i].pck_wr) begin 
-				$display ("pck_inj(%d) got a packet: source=%d, size=%d, data=%h",i,
+				$display ("%t:pck_inj(%d) got a packet: source=%d, size=%d, data=%h",$time,i,
 						pck_injct_out[i].endp_addr,pck_injct_out[i].size,pck_injct_out[i].data);
 			end		
 			

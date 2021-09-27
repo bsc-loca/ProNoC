@@ -47,7 +47,7 @@
 #define NT_NODE_TYPE_L1I	1
 #define NT_NODE_TYPE_L2		2
 #define NT_NODE_TYPE_MC		3
-#define NT_READ_AHEAD		1000000
+#define NT_READ_AHEAD		100000//1000000
 
 // Type Declaration
 typedef unsigned int nt_dependency_t;

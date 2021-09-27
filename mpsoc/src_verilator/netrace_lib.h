@@ -17,7 +17,7 @@ extern Vpck_inj        *pck_inj[NE];
 extern unsigned int  count_en;
 extern unsigned long int main_time;     // Current simulation time
 extern int verbosity;
-extern int end_sim_pck_num;
+
 
 
 
@@ -37,6 +37,7 @@ queue_t** traverse;
 nt_packet_t* trace_packet = NULL;
 nt_packet_t* packet = NULL;
 int nt_packets_left = 0;
+
 
 int netrace_to_pronoc_map [64];
 int pronoc_to_netrace_map [NE];
@@ -67,6 +68,9 @@ void netrace_init( char * tracefile){
 	if( ignore_dependencies ) {
 		nt_disable_dependencies();
 		printf("\tDependencies is turned off in tracking cleared packets list\n");
+	}
+	if( reader_throttling ) {
+		printf("\treader throttling is enabled\n");
 	}
 	nt_print_trheader();
 	header = nt_get_trheader();
@@ -116,19 +120,15 @@ void netrace_init( char * tracefile){
 
 
 
-void netrace_posedge_event(){
+void netrace_eval(unsigned int eval_num){
 	int i;
-	clk = 1;       // Toggle clock
-	if(reset | (count_en==0)){
-		connect_clk_reset_start_all();
-		sim_eval_all();
-		return;
-	}
+
+	if((reset==1) || (count_en==0))	return;
+
 	if((( nt_cycle > header->num_cycles) || (read_done==1 )) && nt_packets_left==0 )  simulation_done=1;
+
 	// Reset packets remaining check
 	nt_packets_left = 0;
-
-
 
 	// Get packets for this cycle
 	if((end_sim_pck_num == 0 ) || (end_sim_pck_num > nt_total_rd_pck )){
@@ -176,6 +176,13 @@ void netrace_posedge_event(){
 		read_done=1;
 	}
 
+	if(eval_num<netrace_speed_up-1) {
+		nt_cycle++;
+		nt_packets_left=1;
+		return;
+	}
+
+
 	// Inject where possible (max one per node)
 	for( i = 0; i < header->num_nodes; ++i ) {
 		nt_packets_left |= !queue_empty( inject[i] );
@@ -210,6 +217,7 @@ void netrace_posedge_event(){
 				queue_push( traverse[packet->dst], temp_node, temp_node->cycle );
 				long int ptr_addr = reinterpret_cast<long int> (temp_node);
 				int flit_num = (nt_get_packet_size(packet)* 8) / Fpay;
+				if(flit_num< pck_inj[pronoc_src]->min_pck_size) flit_num = pck_inj[pronoc_src]->min_pck_size;
 				int pronoc_dst =  netrace_to_pronoc_map[packet->dst];
 				if(IS_SELF_LOOP_EN ==0){
 					if(packet->dst == pronoc_src ){
@@ -236,9 +244,6 @@ void netrace_posedge_event(){
 					sent_stat[pronoc_src].pck_num ++;
 					sent_stat[pronoc_src].flit_num +=flit_num;
 				#endif
-
-
-
 			}
 		}
 	}
@@ -280,17 +285,25 @@ void netrace_posedge_event(){
 				// remove from traverse
 				nt_clear_dependencies_free_packet( packet );
 				queue_remove( traverse[i], temp_node );
-				unsigned long long int    clk_num_h2t= (nt_cycle - temp_node->cycle);
+				unsigned long long int    clk_num_h2t= (nt_cycle - temp_node->cycle)/netrace_speed_up;
+				unsigned int    clk_num_h2h= clk_num_h2t - pck_inj[i]->pck_injct_out_h2t_delay;
+				/*
+				printf("clk_num_h2t (%llu) h2t_delay(%u)\n", clk_num_h2t , pck_inj[i]->pck_injct_out_h2t_delay);
+				if(clk_num_h2t < pck_inj[i]->pck_injct_out_h2t_delay){
+					fprintf(stderr, "ERROR:clk_num_h2t (%llu) is smaller than  injector h2t_delay(%u)\n", clk_num_h2t , pck_inj[i]->pck_injct_out_h2t_delay);
+					exit(1);
+				}
+				*/
 				update_statistic_at_ejection (
 					i,//	core_num
-					(unsigned int) clk_num_h2t, // clk_num_h2h, // not supported by netrace_lib yet
+					clk_num_h2h, // clk_num_h2h,
 					(unsigned int) clk_num_h2t, // clk_num_h2t,
 					pck_inj[i]->pck_injct_out_distance, //    distance,
-					0,//  	class_num,
+					pck_inj[i]->pck_injct_out_class_num,//  	class_num,
 					packet->src//		unsigned int 	src
 				);
 				#if(C>1)
-					rsvd_stat[i][class_num].flit_num +=pck_inj[i]->pck_injct_out_size;
+					rsvd_stat[i][pck_inj[i]->pck_injct_out_class_num].flit_num +=pck_inj[i]->pck_injct_out_size;
    				#else
 					rsvd_stat[i].flit_num+=pck_inj[i]->pck_injct_out_size;
 				#endif
@@ -321,13 +334,18 @@ void netrace_posedge_event(){
 			}
 		}
 	}
-		nt_cycle++;
+	nt_cycle++;
+}
 
+
+void netrace_posedge_event(){
+	unsigned int i;
+	clk = 1;       // Toggle clock
+	for(i=0;i<netrace_speed_up; i++)  netrace_eval(i);
 	connect_clk_reset_start_all();
 	sim_eval_all();
-	//print total sent packet each 500 clock cycles
-	if(verbosity==1) if(nt_cycle&0x1FF) printf("\rTotal sent packet: %9d", total_sent_pck_num);
-
+	//print total sent packet each 1024 clock cycles
+	if(verbosity==1) if(nt_cycle&0x3FF) printf("\rTotal sent packet: %9d", total_sent_pck_num);
 }
 
 
@@ -347,16 +365,18 @@ void netrace_final_report(){
 	int i;
 	unsigned int worst_sent=0, worst_rsv=0;
 	unsigned long long int total_clock = (nt_cycle-nt_start_cycle);
+	unsigned long long int pronoc_total_clock = total_clock/netrace_speed_up;
 
 	if(verbosity==1) 	printf("\e[?25h");//To re-enable the cursor:
 	printf("\nNetrace simulation results-------------------\n"
 			"\tNetrace end clock cycles: %llu\n"
-			"\tSimulation duration clock cycles: %llu\n"
-	,nt_cycle,total_clock);
+			"\tNetrace duration clock cycles: %llu\n"
+			"\tProNoC  duration clock cycles: %llu\n"
+	,nt_cycle,total_clock,pronoc_total_clock);
 
 
 
-	print_statistic_new (total_clock);
+	print_statistic_new (pronoc_total_clock);
 /*
 	printf("\t total , %u , %u, %u, %u  \n",total_sent_pck_num,	total_rsv_pck_num,total_sent_flit_number,total_rsv_flit_number);
 	printf("\nper node\n");

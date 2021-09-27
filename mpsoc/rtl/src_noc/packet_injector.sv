@@ -101,7 +101,9 @@ module packet_injector
 		REMAIN_DAT_FLIT_I = (REMAIN_DATw / Fpay),
 		REMAIN_DAT_FLIT_F = (REMAIN_DATw % Fpay == 0)? 0 : 1,
 		REMAIN_DAT_FLIT   = REMAIN_DAT_FLIT_I + REMAIN_DAT_FLIT_F,
-		CNTw = log2(REMAIN_DAT_FLIT);
+		CNTw = log2(REMAIN_DAT_FLIT),
+		MIN_PCK_SIZ = REMAIN_DAT_FLIT +1;
+		
 	
 	reg [PCK_SIZw-1             :   0]  counter, counter_next;
 	reg [CNTw-1                 :   0]  counter2,counter2_next;
@@ -253,8 +255,8 @@ module packet_injector
 	
 	reg [PCK_SIZw-1 : 0] rsv_counter [V-1 : 0];
 	reg [EAw-1 : 0] sender_endp_addr_reg [V-1 : 0];
-	
-	
+	logic [15:0] h2t_counter [V-1 : 0];
+	logic [15:0] h2t_counter_next [V-1 : 0];
 	
 	
 	
@@ -268,27 +270,38 @@ module packet_injector
 	
 	generate 
 		for(i=0; i<V; i++) begin: V_ 
+			always@(*) begin
+				h2t_counter_next[i]=h2t_counter[i]+1'b1;
+				if(chan_in.flit_chanel.flit.vc[i] & chan_in.flit_chanel.flit_wr & chan_in.flit_chanel.flit.hdr_flag)begin 
+							h2t_counter_next[i]= 16'd0; // reset once header flit is received
+				end//hdr flit wr
+			end//always
+			
+			
+			
+			
 			always_ff @(posedge clk or posedge reset) begin
 				if (reset)  begin
 					rsv_counter[i]<= {PCK_SIZw{1'b0}};
+					h2t_counter[i]<= 16'd0;
 					sender_endp_addr_reg [i]<= {EAw{1'b0}};
 				end else begin 
+					h2t_counter[i]<=h2t_counter_next[i];
 					if(chan_in.flit_chanel.flit.vc[i] & chan_in.flit_chanel.flit_wr ) begin 
-						if(chan_in.flit_chanel.flit.hdr_flag)begin 
+						if(chan_in.flit_chanel.flit.hdr_flag)begin						
 							rsv_counter[i]<= {{(PCK_SIZw-1){1'b0}}, 1'b1};
 							sender_endp_addr_reg [i]<= hdr_flit_i.src_e_addr; 
 							//synthesis translate_off
 							if(hdr_flit_i.dest_e_addr != current_e_addr) begin 
 								$display("%t: ERROR: packet destination address %d does not match reciver endp address %d. %m",$time,hdr_flit_i.dest_e_addr , current_e_addr );
 								$finish;
-							end
+							end//if hdr_flit_i
 							//synthesis translate_on	
-						end
-						else rsv_counter[i]<= rsv_counter[i]+1'b1;
-						
-					end
-				end
-			end
+						end //if hdr_flag
+						else rsv_counter[i]<= rsv_counter[i]+1'b1;						
+					end//flit wr					
+				end//reset
+			end//always
 			
 			
 				
@@ -331,7 +344,6 @@ module packet_injector
 	
 	
 			
-			
 					
 		end//for i			
 	endgenerate
@@ -357,6 +369,7 @@ module packet_injector
 	
 	assign pck_injct_out.data  =  pck_data_o[vc_bin];
 	assign pck_injct_out.size  =  rsv_counter[vc_bin];
+	assign pck_injct_out.h2t_delay = h2t_counter[vc_bin];
 	assign pck_injct_out.ready = (flit_type == HEADER)?  ~vc_fifo_full : {V{1'b0}};	
 	assign pck_injct_out.endp_addr =  sender_endp_addr_reg[vc_bin];
 	assign pck_injct_out.vc = vc_reg;
@@ -405,7 +418,10 @@ module packet_injector
 			$display("%t: ERROR: a packet injection request is recived while vc is not set. %m",$time);
 			$finish;
 		end
-		
+		if(pck_injct_in.pck_wr && (pck_injct_in.size<MIN_PCK_SIZ[PCK_SIZw-1 : 0])) begin 
+			$display("%t: ERROR: requested %d flit packet size is smaller than minimum %d flits to send %d bits of data. %m",$time,pck_injct_in.size,MIN_PCK_SIZ, PCK_INJ_Dw );
+			$finish;
+		end
 		
 		`ifdef MONITOR_RSV_DAT
 		
@@ -453,7 +469,7 @@ module injector_ovc_status #(
 		input   [V-1            :0] credit_in,
 		output  [V-1            :0] full_vc,
 		output  [V-1            :0] nearly_full_vc,
-		output  [V-1            :0] empty_vc,
+		output  [V-1            :0] empty_vc,		
 		input                       clk,
 		input                       reset
 		);
@@ -537,7 +553,9 @@ import pronoc_pkg::*;
 	pck_injct_out_vc,         
 	pck_injct_out_pck_wr,  	 
 	pck_injct_out_ready,
-	pck_injct_out_distance
+	pck_injct_out_distance,
+	pck_injct_out_h2t_delay,
+	min_pck_size
 	                            
 	
 );
@@ -572,7 +590,9 @@ output  smartflit_chanel_t 	chan_out;
  output                    pck_injct_out_pck_wr;  	     
  output [V-1          : 0] pck_injct_out_ready;  
  output [DESTw-1 	  : 0] pck_injct_out_distance;
- 	
+ output [15			  : 0] pck_injct_out_h2t_delay;
+ output [4			  : 0] min_pck_size;
+ 
  pck_injct_t pck_injct_in;
  pck_injct_t pck_injct_out;
 
@@ -594,6 +614,7 @@ output  smartflit_chanel_t 	chan_out;
  assign pck_injct_out_pck_wr  	  = pck_injct_out.pck_wr;  	     
  assign pck_injct_out_ready       = pck_injct_out.ready;          
  assign pck_injct_out_distance    = pck_injct_out.distance;
+ assign pck_injct_out_h2t_delay   = pck_injct_out.h2t_delay;
  	
  packet_injector injector (
 	.current_e_addr  (current_e_addr ), 
@@ -603,6 +624,20 @@ output  smartflit_chanel_t 	chan_out;
 	.chan_out        (chan_out       ), 
 	.pck_injct_in    (pck_injct_in   ), 
 	.pck_injct_out   (pck_injct_out  ));
+ 
+ 
+ localparam 
+ 	HDR_BYTE_NUM =	HDR_MAX_DATw / 8, // = HDR_MAX_DATw / (8 - HDR_MAX_DATw %8)
+ 	HDR_DATA_w_tmp   =  HDR_BYTE_NUM * 8,
+ 	HDR_DATA_w = (PCK_INJ_Dw < HDR_DATA_w_tmp)? PCK_INJ_Dw : HDR_DATA_w_tmp,
+ 	REMAIN_DATw =  PCK_INJ_Dw - HDR_DATA_w,
+ 	REMAIN_DAT_FLIT_I = (REMAIN_DATw / Fpay),
+ 	REMAIN_DAT_FLIT_F = (REMAIN_DATw % Fpay == 0)? 0 : 1,
+ 	REMAIN_DAT_FLIT   = REMAIN_DAT_FLIT_I + REMAIN_DAT_FLIT_F,
+ 	CNTw = log2(REMAIN_DAT_FLIT),
+ 	MIN_PCK_SIZ = REMAIN_DAT_FLIT +1;
+ 
+ assign  min_pck_size = MIN_PCK_SIZ[4:0];
 
 
 // `ifdef VERILATOR

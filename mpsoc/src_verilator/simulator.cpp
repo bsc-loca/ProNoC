@@ -31,6 +31,11 @@ int main(int argc, char** argv) {
 	Verilated::commandArgs(argc, argv);   // Remember args
 	processArgs ( argc,  argv );
 
+	if (class_percentage==NULL) {
+			class_percentage =   (int *) malloc(sizeof(int));
+			class_percentage[0]=100;
+	}
+
 
 	Vrouter_new();
 	if( TRAFFIC_TYPE == NETRACE)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
@@ -119,24 +124,26 @@ void  usage(char * bin_name){
 "                              send enable(1 or 0),first hotspot node percentage x10,second hotspot node ...\n"
 "  -H <custom traffic pattern> custom traffic pattern: represented in a string with following format:\n"
 "                              \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n"
-"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n"
+"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
 "                              to speed up simulation time"	
 "\nTrace options:\n"
 "  -f <Task file>              path to the task file. any custom task file can be generated using ProNoC gui\n"
 "  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
-"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n"	
+"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
 "                              to speed up simulation time"	
 "\nNetrace options:\n"
 "  -F <Netrace file>           path to the task file. any custom task file can be generated using ProNoC gui\n"
-"  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the noc reaches this number\n"
+"  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the NoC reaches this number\n"
 "  -d                          ignore dependencies\n"
 "  -r <start region>           start region\n"
 "  -l                          reader throttling\n"
 "  -v <level>                  Verbosity level. 0: off, 1:display a live number of injected packet,\n"
 "                              3: print injected/ejected packets details, default is 1\n"
-"  -T <thread-num>             total number of threads. The deafult is one (no-thread).   \n"
+"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
+"  -s <speed-up-num>		   the speed-up-num  is the ratio of netrace frequency to pronoc.The higher value\n"
+"                              results in higher injection ratio to the NoC. Default is one" 
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
 "                              to speed up simulation time"	,						   
 bin_name,bin_name,bin_name
@@ -153,7 +160,7 @@ void netrace_processArgs (int argc, char **argv )
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage(argv[0]);
-   while ((c = getopt (argc, argv, "F:dr:lv:T:n:Q")) != -1)
+   while ((c = getopt (argc, argv, "F:dr:lv:T:n:s:")) != -1)
    {
 	 switch (c)
 	 {
@@ -180,11 +187,9 @@ void netrace_processArgs (int argc, char **argv )
 	 	case 'n':
 	 		end_sim_pck_num=atoi(optarg);
 	 		break;
-	 	case 'Q':
-	 		Quick_sim_en=1;
-	 		fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-	 		usage(argv[0]);
-	 		exit(1);
+	 	case 's':
+	 		netrace_speed_up=atoi(optarg);
+
 	 		break;
 	 	case '?':
 	 	    if (isprint (optopt))
@@ -239,10 +244,17 @@ void synthetic_task_processArgs (int argc, char **argv )
 			 break;
 		case 'p':
 			p= parse_string (optarg, array);
-		    C0_p=array[0];
-		    C1_p=array[1];
-		    C2_p=array[2];
-		    C3_p=array[3];
+			if (p==0) {
+				printf("Warning: class setting is ignored!\n");
+				break;
+			}
+			class_percentage =   (int *) malloc( p * sizeof(int));
+			for(int k=0;k<p;k++){
+				class_percentage[k]=array[k];
+			}
+			if(p >1 && p>C){
+				printf("Warning: the number of given class %u is larger than the number of message classes in ProNoC (C=%u)!\n",p,C);
+			}
 			break;
 		case 'm':
 			update_pck_size(optarg);
@@ -258,7 +270,7 @@ void synthetic_task_processArgs (int argc, char **argv )
 			thread_num = atoi(optarg);
 			break;
 		case 'Q':
-			Quick_sim_en=1;
+			//Quick_sim_en=1;
 			fprintf (stderr, "Unknown option `-%c'.\n", optopt);
 			usage(argv[0]);
 			exit(1);
@@ -825,6 +837,8 @@ void update_statistic_at_ejection (
 
 	total_rsv_pck_num+=1;
 
+	if( TRAFFIC_TYPE != NETRACE){
+
 	//old st
 	if((total_rsv_pck_num & 0Xffff )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
 	sum_clk_h2h+=clk_num_h2h;
@@ -840,7 +854,7 @@ void update_statistic_at_ejection (
 	sum_clk_h2t_per_class[class_num]+=clk_num_h2t ;
 	sum_clk_per_hop_per_class[class_num]+= ((double)clk_num_h2h/(double)distance);
 	rsvd_core_total_pck_num[core_num]=rsvd_core_total_pck_num[core_num]+1;
-	if( TRAFFIC_TYPE != NETRACE){
+
 		if (rsvd_core_worst_delay[core_num] < clk_num_h2t) rsvd_core_worst_delay[core_num] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
 		if (sent_core_worst_delay[src] < clk_num_h2t) sent_core_worst_delay[src] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
 
@@ -849,6 +863,8 @@ void update_statistic_at_ejection (
 		}
 	}
     //new one TODO remove old st
+
+	if(verbosity==0 &&  TRAFFIC_TYPE == NETRACE) if((total_rsv_pck_num & 0X1FFFF )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
     unsigned int latency = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)? clk_num_h2t :  clk_num_h2h;
     #if(C>1)
 
@@ -908,7 +924,8 @@ avg_st_t finilize_statistic (unsigned long int total_clk, statistic_t rsvd_stat)
 	 avg_statistic.avg_throughput= ((double)(rsvd_stat.flit_num*100)/NE )/total_clk;
 	 avg_statistic.avg_latency_flit    = rsvd_stat.sum_clk_h2h/rsvd_stat.pck_num;
 	 avg_statistic.avg_latency_pck	   = rsvd_stat.sum_clk_h2t/rsvd_stat.pck_num;
-	 avg_statistic.avg_latency_per_hop    = rsvd_stat.sum_clk_per_hop/rsvd_stat.pck_num;
+	 avg_statistic.avg_latency_per_hop = ( rsvd_stat.pck_num==0)? 0 : rsvd_stat.sum_clk_per_hop/rsvd_stat.pck_num;
+	 avg_statistic.avg_pck_siz        = ( rsvd_stat.pck_num==0)? 0 : (double)(rsvd_stat.flit_num / rsvd_stat.pck_num);
 	 #if (STND_DEV_EN)
 	 	 avg_statistic.std_dev =standard_dev( rsvd_stat.sum_clk_pow2,rsvd_stat.pck_num, avg_statistic.avg_latency_flit);
 	 #endif
@@ -947,11 +964,12 @@ void print_st_single (unsigned long int total_clk, statistic_t rsvd_stat, statis
 			avg.avg_latency_flit,
 			avg.avg_latency_pck,
 			avg.avg_throughput,
+			avg.avg_pck_siz,
 			#if (STND_DEV_EN)
 			avg.std_dev
 			#endif
 	);
-	printf("\n");
+//	printf("\n");
 
 }
 
@@ -982,28 +1000,72 @@ void print_statistic_new (unsigned long int total_clk){
 			"rsvd_stat.worst_latency,"
 			"sent_stat.min_latency,"
 			"rsvd_stat.min_latency,"
-			"avg.avg_latency_per_hop,"
-			"avg.avg_latency_flit,"
-			"avg.avg_latency_pck,"
-			"avg.avg_throughput,"
+			"avg_latency_per_hop,"
+			"avg_latency_flit,"
+			"avg_latency_pck,"
+			"avg_throughput(%%),"
+			"avg_pck_size,"
 			#if (STND_DEV_EN)
 			"avg.std_dev"
 			#endif
 			"\n");
 
-	statistic_t merge_rsvd_stat, merge_sent_stat;
-	memset (&merge_rsvd_stat,0,sizeof(statistic_t));
-	memset (&merge_sent_stat,0,sizeof(statistic_t));
+
+
+#if(C>1)
+	int c;
+	statistic_t sent_stat_class [NE];
+	statistic_t rsvd_stat_class [NE];
+	statistic_t sent_stat_per_class [C];
+	statistic_t rsvd_stat_per_class [C];
+
+	memset (&rsvd_stat_class,0,sizeof(statistic_t)*NE);
+	memset (&sent_stat_class,0,sizeof(statistic_t)*NE);
+	memset (&rsvd_stat_per_class,0,sizeof(statistic_t)*C);
+	memset (&sent_stat_per_class,0,sizeof(statistic_t)*C);
+
+
 	for (i=0; i<NE;i++){
-		merge_statistic (&merge_rsvd_stat,rsvd_stat[i]);
-		merge_statistic (&merge_sent_stat,sent_stat[i]);
+		for (c=0; c<C;c++){
+			merge_statistic (&rsvd_stat_class[i],rsvd_stat[i][c]);
+			merge_statistic (&sent_stat_class[i],sent_stat[i][c]);
+			merge_statistic (&rsvd_stat_per_class[c],rsvd_stat[i][c]);
+			merge_statistic (&sent_stat_per_class[c],sent_stat[i][c]);
+		}
+	}
+
+
+
+
+#else
+	#define sent_stat_class  sent_stat
+	#define rsvd_stat_class  rsvd_stat
+#endif
+
+
+
+
+
+	statistic_t rsvd_stat_total, sent_stat_total;
+	memset (&rsvd_stat_total,0,sizeof(statistic_t));
+	memset (&sent_stat_total,0,sizeof(statistic_t));
+	for (i=0; i<NE;i++){
+		merge_statistic (&rsvd_stat_total,rsvd_stat_class[i]);
+		merge_statistic (&sent_stat_total,sent_stat_class[i]);
 	}
 	printf("\ttotal,");
-	print_st_single (total_clk, merge_rsvd_stat,merge_sent_stat);
+	print_st_single (total_clk, rsvd_stat_total,sent_stat_total);
+
+#if(C>1)
+	for (c=0; c<C;c++){
+		printf("\ttotal_class%u,",c);
+		print_st_single (total_clk, rsvd_stat_per_class[c],sent_stat_per_class[c]);
+	}
+#endif
 
     for (i=0; i<NE;i++){
     	printf("\t%u,",i);
-    	print_st_single (total_clk, rsvd_stat[i],sent_stat[i] );
+    	print_st_single (total_clk, rsvd_stat_class[i],sent_stat_class[i] );
     }
 }
 
@@ -1060,6 +1122,10 @@ void print_statistic (void){
 		printf	 ("\n\ttotal number of sent packets: %u\n",traffic[i]->pck_number);
 		printf	 ("\n\tworst-case-delay of sent packets (clks): %u\n",sent_core_worst_delay[i] );
 	}
+
+	print_statistic_new (clk_counter);
+
+
 }
 
 
@@ -1103,10 +1169,10 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 	//if(strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)printf ("\tOutput is the average latency on sending the packet header until receiving tail\n");
 	//else printf ("\tOutput is the average latency on sending the packet header until receiving header flit at destination node\n");
 	printf ("\tTraffic pattern:%s\n",TRAFFIC);
-	if(C>0) printf ("\ttraffic percentage of class 0 is : %d\n", C0_p);
-	if(C>1) printf ("\ttraffic percentage of class 1 is : %d\n", C1_p);
-	if(C>2) printf ("\ttraffic percentage of class 2 is : %d\n", C2_p);
-	if(C>3) printf ("\ttraffic percentage of class 3 is : %d\n", C3_p);
+	size_t n = sizeof(class_percentage)/sizeof(class_percentage[0]);
+	for(int p=0;p<n; p++){
+		printf ("\ttraffic percentage of class %u is : %d\n",p,  class_percentage[p]);
+	}
 	if(strcmp (TRAFFIC,"HOTSPOT")==0){
 		//printf ("\tHot spot percentage: %u\n", HOTSPOT_PERCENTAGE);
 	    printf ("\tNumber of hot spot cores: %d\n", HOTSPOT_NUM);
@@ -1220,10 +1286,16 @@ unsigned char  pck_class_in_gen(
 ) {
 	unsigned char pck_class_in;
 	unsigned char  rnd=rand()%100;
-	pck_class_in= 	  ( rnd <    C0_p		)?  0:
-    				  ( rnd <   (C0_p+C1_p)	)?	1:
-    				  ( rnd <   (C0_p+C1_p+C2_p))?2:3;
-    return pck_class_in;
+	int c=0;
+	int sum=class_percentage[0];
+	size_t n = sizeof(class_percentage)/sizeof(class_percentage[0]);
+	for(;;){
+		if( rnd < sum) return c;
+		if( c==n-1 ) return c;
+		c++;
+		sum+=class_percentage[c];
+	}
+	return 0;
 }
 
 

@@ -218,6 +218,7 @@ module testbench_noc;
 				.chan_in(chan_out_all[i]),
 				.chan_out(chan_in_all[i]),
 				.start_delay(start_delay[i]),
+                .flit_out_class(),
 				.flit_out_wr(),
 				.flit_in_wr()
           

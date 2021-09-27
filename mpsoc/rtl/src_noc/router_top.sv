@@ -93,23 +93,27 @@ module router_top
 	smart_chanel_t smart_chanel_out  [P-1 : 0]; 
 	smart_ctrl_t   smart_ctrl        [P-1 : 0];
 	
-	
-	
-	// synthesis translate_off
-	//header flit info, it is useful for debugin 
-	hdr_flit_t hdr_flit_i [P-1 : 0]; // the received packet header flit info 
-	hdr_flit_t hdr_flit_o [P-1 : 0]; // the sent packet header flit info 
-	
+
 	ctrl_chanel_t ctrl_in  [P-1 : 0];
 	ctrl_chanel_t ctrl_out [P-1 : 0];
 	
+	generate 
+		for (i=0; i<P; i=i+1) begin :Pt_		
+			assign  ctrl_in [i] = chan_in[i].ctrl_chanel;
+			assign  chan_out[i].ctrl_chanel= ctrl_out [i];	
+		end
+	endgenerate 
 	
+	// synthesis translate_off
+	
+	//header flit info, it is useful for debugin 
+	hdr_flit_t hdr_flit_i [P-1 : 0]; // the received packet header flit info 
+	hdr_flit_t hdr_flit_o [P-1 : 0]; // the sent packet header flit info 
+		
 	generate 
 		for (i=0; i<P; i=i+1) begin :Port_		
 		
-			assign  ctrl_in [i] = chan_in[i].ctrl_chanel;
-			assign  chan_out[i].ctrl_chanel= ctrl_out [i];
-			
+					
 		
 			header_flit_info in_extract(
 					.flit(chan_in[i].flit_chanel.flit),

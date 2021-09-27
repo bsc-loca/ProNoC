@@ -202,6 +202,7 @@ module   custom1_noc
 	*******************/
 	wire R0_clk;
 	wire R0_reset;
+
 	wire [RAw-1 :  0] R0_current_r_addr;
 
 	smartflit_chanel_t    R0_chan_in   [3-1 : 0];
@@ -213,6 +214,7 @@ module   custom1_noc
 	*******************/
 	wire R1_clk;
 	wire R1_reset;
+
 	wire [RAw-1 :  0] R1_current_r_addr;
 
 	smartflit_chanel_t    R1_chan_in   [3-1 : 0];
@@ -224,6 +226,7 @@ module   custom1_noc
 	*******************/
 	wire R2_clk;
 	wire R2_reset;
+
 	wire [RAw-1 :  0] R2_current_r_addr;
 
 	smartflit_chanel_t    R2_chan_in   [3-1 : 0];
@@ -235,6 +238,7 @@ module   custom1_noc
 	*******************/
 	wire R3_clk;
 	wire R3_reset;
+
 	wire [RAw-1 :  0] R3_current_r_addr;
 
 	smartflit_chanel_t    R3_chan_in   [3-1 : 0];
@@ -246,6 +250,7 @@ module   custom1_noc
 	*******************/
 	wire R4_clk;
 	wire R4_reset;
+
 	wire [RAw-1 :  0] R4_current_r_addr;
 
 	smartflit_chanel_t    R4_chan_in   [4-1 : 0];
@@ -257,6 +262,7 @@ module   custom1_noc
 	*******************/
 	wire R5_clk;
 	wire R5_reset;
+
 	wire [RAw-1 :  0] R5_current_r_addr;
 
 	smartflit_chanel_t    R5_chan_in   [4-1 : 0];
@@ -268,6 +274,7 @@ module   custom1_noc
 	*******************/
 	wire R6_clk;
 	wire R6_reset;
+
 	wire [RAw-1 :  0] R6_current_r_addr;
 
 	smartflit_chanel_t    R6_chan_in   [4-1 : 0];
@@ -279,6 +286,7 @@ module   custom1_noc
 	*******************/
 	wire R7_clk;
 	wire R7_reset;
+
 	wire [RAw-1 :  0] R7_current_r_addr;
 
 	smartflit_chanel_t    R7_chan_in   [4-1 : 0];
@@ -290,6 +298,7 @@ module   custom1_noc
 	*******************/
 	wire R12_clk;
 	wire R12_reset;
+
 	wire [RAw-1 :  0] R12_current_r_addr;
 
 	smartflit_chanel_t    R12_chan_in   [4-1 : 0];
@@ -301,6 +310,7 @@ module   custom1_noc
 	*******************/
 	wire R13_clk;
 	wire R13_reset;
+
 	wire [RAw-1 :  0] R13_current_r_addr;
 
 	smartflit_chanel_t    R13_chan_in   [4-1 : 0];
@@ -312,6 +322,7 @@ module   custom1_noc
 	*******************/
 	wire R14_clk;
 	wire R14_reset;
+
 	wire [RAw-1 :  0] R14_current_r_addr;
 
 	smartflit_chanel_t    R14_chan_in   [4-1 : 0];
@@ -323,6 +334,7 @@ module   custom1_noc
 	*******************/
 	wire R15_clk;
 	wire R15_reset;
+
 	wire [RAw-1 :  0] R15_current_r_addr;
 
 	smartflit_chanel_t    R15_chan_in   [4-1 : 0];
@@ -334,6 +346,7 @@ module   custom1_noc
 	*******************/
 	wire R8_clk;
 	wire R8_reset;
+
 	wire [RAw-1 :  0] R8_current_r_addr;
 
 	smartflit_chanel_t    R8_chan_in   [5-1 : 0];
@@ -345,6 +358,7 @@ module   custom1_noc
 	*******************/
 	wire R9_clk;
 	wire R9_reset;
+
 	wire [RAw-1 :  0] R9_current_r_addr;
 
 	smartflit_chanel_t    R9_chan_in   [5-1 : 0];
@@ -356,6 +370,7 @@ module   custom1_noc
 	*******************/
 	wire R10_clk;
 	wire R10_reset;
+
 	wire [RAw-1 :  0] R10_current_r_addr;
 
 	smartflit_chanel_t    R10_chan_in   [5-1 : 0];
@@ -367,6 +382,7 @@ module   custom1_noc
 	*******************/
 	wire R11_clk;
 	wire R11_reset;
+
 	wire [RAw-1 :  0] R11_current_r_addr;
 
 	smartflit_chanel_t    R11_chan_in   [5-1 : 0];
@@ -386,8 +402,8 @@ module   custom1_noc
 		.clk(R0_clk), 
 		.reset(R0_reset),
 		.current_r_addr  (R0_current_r_addr), 
-		.chan_in         (R0_chan_in), 
-		.chan_out        (R0_chan_out)
+		.chan_in   (R0_chan_in), 
+		.chan_out  (R0_chan_out)
 	);
 
 		assign R0_clk = clk;
@@ -412,8 +428,8 @@ module   custom1_noc
 		.clk(R1_clk), 
 		.reset(R1_reset),
 		.current_r_addr  (R1_current_r_addr), 
-		.chan_in         (R1_chan_in), 
-		.chan_out        (R1_chan_out)
+		.chan_in   (R1_chan_in), 
+		.chan_out  (R1_chan_out)
 	);
 
 		assign R1_clk = clk;
@@ -438,8 +454,8 @@ module   custom1_noc
 		.clk(R2_clk), 
 		.reset(R2_reset),
 		.current_r_addr  (R2_current_r_addr), 
-		.chan_in         (R2_chan_in), 
-		.chan_out        (R2_chan_out)
+		.chan_in   (R2_chan_in), 
+		.chan_out  (R2_chan_out)
 	);
 
 		assign R2_clk = clk;
@@ -464,8 +480,8 @@ module   custom1_noc
 		.clk(R3_clk), 
 		.reset(R3_reset),
 		.current_r_addr  (R3_current_r_addr), 
-		.chan_in         (R3_chan_in), 
-		.chan_out        (R3_chan_out)
+		.chan_in   (R3_chan_in), 
+		.chan_out  (R3_chan_out)
 	);
 
 		assign R3_clk = clk;
@@ -490,8 +506,8 @@ module   custom1_noc
 		.clk(R4_clk), 
 		.reset(R4_reset),
 		.current_r_addr  (R4_current_r_addr), 
-		.chan_in         (R4_chan_in), 
-		.chan_out        (R4_chan_out)
+		.chan_in   (R4_chan_in), 
+		.chan_out  (R4_chan_out)
 	);
 
 		assign R4_clk = clk;
@@ -518,8 +534,8 @@ module   custom1_noc
 		.clk(R5_clk), 
 		.reset(R5_reset),
 		.current_r_addr  (R5_current_r_addr), 
-		.chan_in         (R5_chan_in), 
-		.chan_out        (R5_chan_out)
+		.chan_in   (R5_chan_in), 
+		.chan_out  (R5_chan_out)
 	);
 
 		assign R5_clk = clk;
@@ -546,8 +562,8 @@ module   custom1_noc
 		.clk(R6_clk), 
 		.reset(R6_reset),
 		.current_r_addr  (R6_current_r_addr), 
-		.chan_in         (R6_chan_in), 
-		.chan_out        (R6_chan_out)
+		.chan_in   (R6_chan_in), 
+		.chan_out  (R6_chan_out)
 	);
 
 		assign R6_clk = clk;
@@ -574,8 +590,8 @@ module   custom1_noc
 		.clk(R7_clk), 
 		.reset(R7_reset),
 		.current_r_addr  (R7_current_r_addr), 
-		.chan_in         (R7_chan_in), 
-		.chan_out        (R7_chan_out)
+		.chan_in   (R7_chan_in), 
+		.chan_out  (R7_chan_out)
 	);
 
 		assign R7_clk = clk;
@@ -602,8 +618,8 @@ module   custom1_noc
 		.clk(R12_clk), 
 		.reset(R12_reset),
 		.current_r_addr  (R12_current_r_addr), 
-		.chan_in         (R12_chan_in), 
-		.chan_out        (R12_chan_out)
+		.chan_in   (R12_chan_in), 
+		.chan_out  (R12_chan_out)
 	);
 
 		assign R12_clk = clk;
@@ -630,8 +646,8 @@ module   custom1_noc
 		.clk(R13_clk), 
 		.reset(R13_reset),
 		.current_r_addr  (R13_current_r_addr), 
-		.chan_in         (R13_chan_in), 
-		.chan_out        (R13_chan_out)
+		.chan_in   (R13_chan_in), 
+		.chan_out  (R13_chan_out)
 	);
 
 		assign R13_clk = clk;
@@ -658,8 +674,8 @@ module   custom1_noc
 		.clk(R14_clk), 
 		.reset(R14_reset),
 		.current_r_addr  (R14_current_r_addr), 
-		.chan_in         (R14_chan_in), 
-		.chan_out        (R14_chan_out)
+		.chan_in   (R14_chan_in), 
+		.chan_out  (R14_chan_out)
 	);
 
 		assign R14_clk = clk;
@@ -686,8 +702,8 @@ module   custom1_noc
 		.clk(R15_clk), 
 		.reset(R15_reset),
 		.current_r_addr  (R15_current_r_addr), 
-		.chan_in         (R15_chan_in), 
-		.chan_out        (R15_chan_out)
+		.chan_in   (R15_chan_in), 
+		.chan_out  (R15_chan_out)
 	);
 
 		assign R15_clk = clk;
@@ -714,8 +730,8 @@ module   custom1_noc
 		.clk(R8_clk), 
 		.reset(R8_reset),
 		.current_r_addr  (R8_current_r_addr), 
-		.chan_in         (R8_chan_in), 
-		.chan_out        (R8_chan_out)
+		.chan_in   (R8_chan_in), 
+		.chan_out  (R8_chan_out)
 	);
 
 		assign R8_clk = clk;
@@ -744,8 +760,8 @@ module   custom1_noc
 		.clk(R9_clk), 
 		.reset(R9_reset),
 		.current_r_addr  (R9_current_r_addr), 
-		.chan_in         (R9_chan_in), 
-		.chan_out        (R9_chan_out)
+		.chan_in   (R9_chan_in), 
+		.chan_out  (R9_chan_out)
 	);
 
 		assign R9_clk = clk;
@@ -774,8 +790,8 @@ module   custom1_noc
 		.clk(R10_clk), 
 		.reset(R10_reset),
 		.current_r_addr  (R10_current_r_addr), 
-		.chan_in         (R10_chan_in), 
-		.chan_out        (R10_chan_out)
+		.chan_in   (R10_chan_in), 
+		.chan_out  (R10_chan_out)
 	);
 
 		assign R10_clk = clk;
@@ -804,8 +820,8 @@ module   custom1_noc
 		.clk(R11_clk), 
 		.reset(R11_reset),
 		.current_r_addr  (R11_current_r_addr), 
-		.chan_in         (R11_chan_in), 
-		.chan_out        (R11_chan_out)
+		.chan_in   (R11_chan_in), 
+		.chan_out  (R11_chan_out)
 	);
 
 		assign R11_clk = clk;

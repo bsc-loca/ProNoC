@@ -532,7 +532,7 @@ module  traffic_gen_ram
         .pck_class_out( ),   
         .time_stamp_h2h( ),
         .time_stamp_h2t(time_stamp_h2t),
-        
+        .flit_out_class(),
          //noc
          .chan_in(chan_in),
 		 .chan_out(chan_out),  

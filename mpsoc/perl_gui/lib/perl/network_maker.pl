@@ -15,7 +15,8 @@ use FindBin;
 use lib $FindBin::Bin;
 use tsort;
 
-
+use File::Basename;
+use Cwd 'abs_path';
 
 __PACKAGE__->mk_accessors(qw{
 	window
@@ -2837,6 +2838,20 @@ sub generate_topology{
 	add_routing_instance_v($self,$info,$dir);
 	add_noc_instance_v($self,$info,$dir);
 	save_topology_parameter_object_file($self,$info);	
+	
+	#create the file list
+	my $txt="+incdir+./\n";
+	my @files = File::Find::Rule->file()
+                            ->name( '*.v','*.sv')
+                            ->in( "$dir/../" );	
+    foreach my $f (@files){
+    	my $d = basename(dirname(abs_path($f)));
+    	my $n = basename($f);
+    	$txt.="./$d/$n\n";    	
+    }
+	save_file("$dir/../custom_flist.f",$txt);
+	
+	
 }
 
 

@@ -10,26 +10,6 @@
 ################################################################################
 
 $setting = bless( {
-                    'parameters_order' => {
-                                            'PATH' => [
-                                                        'PRONOC_WORK',
-                                                        'QUARTUS_BIN',
-                                                        'VIVADO_BIN',
-                                                        'SDK_BIN',
-                                                        'MODELSIM_BIN'
-                                                      ],
-                                            'GUI_SETTING' => [
-                                                               'FONT_SIZE',
-                                                               'ICON_SIZE'
-                                                             ]
-                                          },
-                    'PATH' => {
-                                'MODELSIM_BIN' => '/home/alireza/intelFPGA_lite/questa/questasim/bin',
-                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
-                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
-                                'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work',
-                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin'
-                              },
                     'GUI_SETTING' => {
                                        'ICON_SIZE' => 'default',
                                        'FONT_SIZE' => '10'
@@ -37,5 +17,25 @@ $setting = bless( {
                     'gui_status' => {
                                       'timeout' => 10,
                                       'status' => 'ref'
-                                    }
+                                    },
+                    'PATH' => {
+                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
+                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
+                                'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work',
+                                'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
+                                'MODELSIM_BIN' => '/home/alireza/intelFPGA_lite/questa/questasim/bin'
+                              },
+                    'parameters_order' => {
+                                            'GUI_SETTING' => [
+                                                               'FONT_SIZE',
+                                                               'ICON_SIZE'
+                                                             ],
+                                            'PATH' => [
+                                                        'PRONOC_WORK',
+                                                        'QUARTUS_BIN',
+                                                        'VIVADO_BIN',
+                                                        'SDK_BIN',
+                                                        'MODELSIM_BIN'
+                                                      ]
+                                          }
                   }, 'ProNOC' );

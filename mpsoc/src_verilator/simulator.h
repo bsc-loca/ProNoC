@@ -3,6 +3,7 @@
 	#define  SIMULATOR_H
 
 #if (__cplusplus > 201103L) //"C++11\n";
+
 	void* operator new(std::size_t size, std::align_val_t align) {
 	#if defined(_WIN32) || defined(__CYGWIN__)
 		auto ptr = _aligned_malloc(size, static_cast<std::size_t>(align));
@@ -105,6 +106,11 @@ Vpck_inj        *pck_inj[NE]; // for netrace
 
 unsigned int total_rsv_pck_num=0;
 unsigned int total_sent_pck_num=0;
+unsigned int end_sim_pck_num=0;
+unsigned int sim_end_clk_num;
+unsigned long int nt_tr_list_pck=0;
+int netrace_speed_up =1;
+
 unsigned int * rsv_size_array;
 int AVG_PACKET_SIZE=5;
 int MIN_PACKET_SIZE=5;
@@ -119,7 +125,7 @@ unsigned int sent_core_worst_delay[NE] =  {0};
 unsigned int random_var[NE] = {100};
 
 
-typedef struct alignas(64) statistic_struct {
+typedef struct  statistic_struct {
 	unsigned int pck_num;
 	unsigned int flit_num;
 	unsigned int worst_latency;
@@ -134,11 +140,12 @@ typedef struct alignas(64) statistic_struct {
 } statistic_t;
 
 
-typedef struct alignas(64) avg_st_struct {
+typedef struct  avg_st_struct {
 	double avg_latency_per_hop;
 	double avg_latency_flit;
 	double avg_latency_pck;
 	double avg_throughput;
+	double avg_pck_siz;
 #if (STND_DEV_EN)
 	double std_dev;
 #endif
@@ -199,10 +206,9 @@ void print_statistic_new (unsigned long int);
 
 
 
-int end_sim_pck_num=0;
-int sim_end_clk_num;
+
 int HOTSPOT_NUM;
-int C0_p=100, C1_p=0, C2_p=0, C3_p=0;
+int  * class_percentage;
 char * TRAFFIC;
 char * netrace_file;
 unsigned char FIXED_SRC_DST_PAIR;
@@ -235,10 +241,10 @@ char simulation_done=0;
 char pck_size_sel=RANDOM_RANGE;
 int  * discrete_size;
 int  * discrete_prob;
-
 int verbosity=1;
 int thread_num =1;
-int Quick_sim_en =0;
+
+
 
 
 

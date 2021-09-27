@@ -44,6 +44,8 @@ sub download_from_google_drive{
 	
 	die "\n./gdown.pl 'gdrive file url' [desired file name]\n\n" if $URL eq '';
 
+
+
 	
 	$FILENAME='gdown.'.strftime("%Y%m%d%H%M%S", localtime).'.'.substr(rand,2) if $FILENAME eq '';
 
@@ -82,7 +84,14 @@ sub download_from_google_drive{
 			}
     	}
 		close fFILENAME;
-	    die "Couldn't download the file :-(\n" if ($check==0);
+	    #die "Couldn't download the file :-(\n" if ($check==0);
+		if($check == 0 ) {
+			message_dialog("Error: Couldn't download the file :-(",'error');
+			return;
+		}
+
+
+		
 	    $URL=~s/confirm=([^;&]+)/confirm=$confirm/ if $confirm ne '';
 
 	    execute_command($TEMP,$FILENAME,$URL);
