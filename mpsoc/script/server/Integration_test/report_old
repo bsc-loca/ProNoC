@@ -1,8 +1,8 @@
 Verification Results:
+****************************bintree_k3_L3_st : Compile *******************************:
+	 model is generated successfully.
 ****************************custom1_topology : Compile *******************************:
-	 model generation is FAILED.
-	 make: *** [/opt/verilator/share/verilator/include/verilated.mk:235: testbench.o] Error 1
-
+	 model is generated successfully.
 ****************************Fattree_k3_L3_st : Compile *******************************:
 	 model is generated successfully.
 ****************************fmesh_1x1_openpiton : Compile *******************************:
@@ -29,8 +29,10 @@ Verification Results:
 	 model is generated successfully.
 ****************************torus_8x8_2cycle_xy : Compile *******************************:
 	 model is generated successfully.
+****************************bintree_k3_L3_st	: random traffic *******************************:
+	 Passed:   zero load (2,14.728061) saturation (14,590.075267)
 ****************************custom1_topology	: random traffic *******************************:
-	 failed. Simulation model is not avaialable
+	 Passed:   zero load (2,13.117864) saturation (42,87.105227)
 ****************************Fattree_k3_L3_st	: random traffic *******************************:
 	 Passed:   zero load (2,13.657638) saturation (62,121.906154)
 ****************************fmesh_1x1_openpiton	: random traffic *******************************:
@@ -57,8 +59,10 @@ Verification Results:
 	 Passed:   zero load (2,14.460973) saturation (34,160.415994)
 ****************************torus_8x8_2cycle_xy	: random traffic *******************************:
 	 Passed:   zero load (2,16.560606) saturation (38,167.524583)
+****************************bintree_k3_L3_st	: transposed 1 traffic *******************************:
+	 Passed:   zero load (2,14.775176) saturation (14,501.411410)
 ****************************custom1_topology	: transposed 1 traffic *******************************:
-	 failed. Simulation model is not avaialable
+	 Passed:   zero load (2,12.806510) saturation (30,74.696997)
 ****************************Fattree_k3_L3_st	: transposed 1 traffic *******************************:
 	 Passed:   zero load (6,13.435701) saturation (100,-)
 ****************************fmesh_1x1_openpiton	: transposed 1 traffic *******************************:

@@ -26,8 +26,8 @@ int main(int argc, char** argv) {
 	int i,j,x,y;//,report_delay_counter=0;
 
 	char deafult_out[] = {"result"};
-	NEw=log2(NE);
-
+	NEw=Log2(NE);
+	for(i=0;i<NE;i++)   custom_traffic_table[i]=INJECT_OFF; //off
 	Verilated::commandArgs(argc, argv);   // Remember args
 	processArgs ( argc,  argv );
 
@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
 	Vrouter_new();
 	if( TRAFFIC_TYPE == NETRACE)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
 	else                            for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
-	for(i=0;i<NE;i++)   custom_traffic_table[i]=INJECT_OFF; //off
+
 
 	if( TRAFFIC_TYPE == NETRACE) netrace_init(netrace_file);
 
@@ -59,7 +59,6 @@ int main(int argc, char** argv) {
 	else 	traffic_gen_init();
 	main_time=0;
 	print_parameter();
-	if( TRAFFIC_TYPE == SYNTHETIC) printf("\n\n\n Flit injection ratio per router is =%f \n",(float)ratio*100/MAX_RATIO);
 	if( thread_num>1) initial_threads();
 
 	while (!Verilated::gotFinish()) {
@@ -290,7 +289,6 @@ void synthetic_task_processArgs (int argc, char **argv )
 
 
 
-
 int parse_string ( char * str, int * array)
 {
     int i=0; 
@@ -507,10 +505,23 @@ int get_new_pck_size(){
 void traffic_gen_final_report(){
 	int i;
 	for (i=0;i<NE;i++) if(traffic[i]->pck_number>0) total_active_endp   	= 	total_active_endp +1;
-	printf(" simulation clock cycles:%d\n",clk_counter);
-	printf(" total received flits:%d\n",total_rsv_flit_number);
-	printf(" total sent flits:%d\n",total_sent_flit_number);
-	print_statistic( );
+	printf("\nsimulation results-------------------\n");
+	printf("\tSimulation clock cycles:%d\n",clk_counter);
+	printf("\n\tTotal injected packet in different size:\n");
+	printf("\tflit_size,");
+	for (i=0;i<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);i++){
+		if(rsv_size_array[i]>0) printf("%u,",i+ MIN_PACKET_SIZE);
+	}
+	printf("\n\t#pck,");
+	for (i=0;i<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);i++){
+	   	if(rsv_size_array[i]>0) printf("%u,",rsv_size_array[i]);
+	}
+	printf("\n");
+
+//	printf(" total received flits:%d\n",total_rsv_flit_number);
+//	printf(" total sent flits:%d\n",total_sent_flit_number);
+	print_statistic_new (clk_counter);
+
 }
 
 
@@ -991,7 +1002,7 @@ void merge_statistic (statistic_t * merge_stat, statistic_t stat_in){
 
 void print_statistic_new (unsigned long int total_clk){
 	int i;
-	printf("\n\t#node , "
+	printf("\n\t#node,"
 			"sent_stat.pck_num,"
 			"rsvd_stat.pck_num,"
 			"sent_stat.flit_num,"
@@ -1130,7 +1141,7 @@ void print_statistic (void){
 
 
 void print_parameter (){
-		printf ("Router parameters:---------------- \n");
+		printf ("NoC parameters:---------------- \n");
 		printf ("\tTopology: %s\n",TOPOLOGY);
 		printf ("\tRouting algorithm: %s\n",ROUTE_NAME);
 	 	printf ("\tVC_per port: %d\n", V);
@@ -1159,7 +1170,7 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 	    printf ("\tSwitch allocator arbitration type:%s \n",SWA_ARBITER_TYPE);
 	    printf ("\tMinimum supported packet size:%d flit(s) \n",MIN_PCK_SIZE);
 		printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
-
+	printf ("NoC parameters:---------------- \n");
 	printf ("\nSimulation parameters-------------\n");
 #if(DEBUG_EN)
     printf ("\tDebuging is enabled\n");
@@ -1182,10 +1193,11 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 		if(sim_end_clk_num!=0) printf ("\tSimulation timeout =%d\n", sim_end_clk_num);
 		if(end_sim_pck_num!=0) printf ("\tSimulation ends on total packet num of =%d\n", end_sim_pck_num);
 		if(TRAFFIC_TYPE!=NETRACE){
-		printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
-	    printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
+			printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
+			printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
 		}
-		printf ("\nSimulation parameters-------------\n");
+		if( TRAFFIC_TYPE == SYNTHETIC) printf("\tFlit injection ratio per router is =%f (flits/clk/Total Endpoint %%)\n",(float)ratio*100/MAX_RATIO);
+		printf ("Simulation parameters-------------\n");
 }
 
 

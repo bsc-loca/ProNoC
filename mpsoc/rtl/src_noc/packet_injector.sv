@@ -386,7 +386,7 @@ module packet_injector
 	assign chan_out.flit_chanel.credit= credit_o;	
 	assign chan_out.ctrl_chanel.credit_init_val= LB;	
 	
-	localparam DISTw =  log2(NR+1);
+	
 	
 	distance_gen #(
 			.TOPOLOGY(TOPOLOGY),
@@ -589,7 +589,7 @@ output  smartflit_chanel_t 	chan_out;
  output [V-1          : 0] pck_injct_out_vc;               
  output                    pck_injct_out_pck_wr;  	     
  output [V-1          : 0] pck_injct_out_ready;  
- output [DESTw-1 	  : 0] pck_injct_out_distance;
+ output [DISTw-1 	  : 0] pck_injct_out_distance;
  output [15			  : 0] pck_injct_out_h2t_delay;
  output [4			  : 0] min_pck_size;
  

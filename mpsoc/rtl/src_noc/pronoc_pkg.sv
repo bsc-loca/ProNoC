@@ -56,7 +56,9 @@ localparam
  	/* verilator lint_on WIDTH */
  	
  	/* verilator lint_off WIDTH */ 
- 	localparam OVC_ALLOC_MODE= (B<=4 && SSA_EN=="NO")?   1'b1 : 1'b0;
+localparam 
+	DISTw =  (TOPOLOGY=="FATTREE" || TOPOLOGY=="TREE" ) ? log2(2*L+1): log2(NR+1),
+	OVC_ALLOC_MODE= (B<=4 && SSA_EN=="NO")?   1'b1 : 1'b0;
  	/* verilator lint_on WIDTH */ 
  	
  	// 0: The new ovc is allocated only if its not nearly full. Results in a simpler sw_mask_gen logic    
@@ -282,7 +284,9 @@ localparam
  	//packet injector interface
  	localparam PCK_INJ_Dw =64;//TODO to be defined by user
  	localparam PCK_SIZw= log2(MAX_PCK_SIZ);
- 	localparam DESTw = log2(NR+1);
+	
+ 	
+
  	typedef struct packed {
  		logic [PCK_INJ_Dw-1 : 0] data;
  		logic [PCK_SIZw-1 : 0] size;
@@ -292,7 +296,7 @@ localparam
  		logic [V-1   : 0] vc;
  		bit   pck_wr;  	
  		bit   [V-1   : 0] ready;
- 		logic [DESTw-1 : 0] distance;
+ 		logic [DISTw-1 : 0] distance;
  		logic [15: 0]  h2t_delay;
     }	pck_injct_t;
     localparam PCK_INJCT_w = $bits(pck_injct_t); 

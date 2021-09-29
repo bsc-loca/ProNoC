@@ -150,7 +150,7 @@ unsigned int pck_dst_gen_2D (unsigned int core_num){
      }    
      
      if(( strcmp(TRAFFIC ,"CUSTOM") == 0)|| (strcmp (TRAFFIC,"custom")==0)){
-
+    	 if (custom_traffic_table[core_num]== INJECT_OFF) return INJECT_OFF;
 		 return endp_addr_encoder(custom_traffic_table[core_num]);
 
      }  
@@ -248,7 +248,7 @@ unsigned int pck_dst_gen_1D (unsigned int core_num){
 	 }
      
      if(( strcmp(TRAFFIC ,"CUSTOM") == 0)|| (strcmp (TRAFFIC,"custom")==0)){
-
+    	 if (custom_traffic_table[core_num]== INJECT_OFF) return INJECT_OFF;
      	 return endp_addr_encoder(custom_traffic_table[core_num]);
 
      }
