@@ -8,7 +8,8 @@
  `ifdef     INCLUDE_TOPOLOGY_LOCALPARAM
  
      //MESH, TORUS Topology p=5           
-    localparam    EAST    =   1,
+    localparam    LOCAL   =   0,
+                  EAST    =   1,
                   NORTH   =   2, 
                   WEST    =   3,
                   SOUTH   =   4;

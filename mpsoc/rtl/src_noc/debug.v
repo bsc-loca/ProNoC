@@ -9,6 +9,7 @@
 ***************************************/
 
 //check if flits are recived in correct order in a VC
+
 module check_flit_chanel_type_is_in_order #(
     parameter V=4,
     parameter PCK_TYPE = "SINGLE_FLIT",
@@ -42,6 +43,7 @@ module check_flit_chanel_type_is_in_order #(
         hdr_passed_next = (hdr_passed | vc_num_hdr_wr) & ~vc_num_tail_wr; 
     end
     
+    // synthesis translate_off
     always @ (posedge clk or posedge reset) begin 
         if(reset)  begin 
             hdr_passed <= 0;
@@ -75,6 +77,7 @@ module check_flit_chanel_type_is_in_order #(
             
         end//else
     end//always
+    // synthesis translate_on
 endmodule
 
 
@@ -192,14 +195,14 @@ localparam
     LOCAL =  0, 
     NORTH =  2,  
     SOUTH =  4; 
-
+ // synthesis translate_off 
 generate
 
 /* verilator lint_off WIDTH */
 if(ROUTE_TYPE == "DETERMINISTIC")begin :dtrmn
 /* verilator lint_on WIDTH */  
     
-     
+   
     always@( posedge clk)begin 
         if(flit_in_wr & hdr_flg_in )   
                if( destport_in[1:0]==2'b11) begin 
@@ -208,6 +211,7 @@ if(ROUTE_TYPE == "DETERMINISTIC")begin :dtrmn
                end
         end//if
     end//always
+    
     
 /* verilator lint_off WIDTH */
 if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
@@ -266,6 +270,9 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
     
     end// mesh  
   endgenerate
+  
+  // synthesis translate_on
+  
   endmodule
   
   
@@ -324,7 +331,7 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
         NORTH = 2,
         WEST = 3,
         SOUTH = 4;
- 
+  // synthesis translate_off 
         always @(posedge clk) begin 
         /* verilator lint_off WIDTH */ 
                 if(current_rx == {RXw{1'b0}}         && flit_out_wr_all[WEST]) $display ( "%t\t  ERROR: a packet is going to the WEST in a router located in first column in mesh topology %m",$time ); 
@@ -333,7 +340,7 @@ if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
                 if(current_ry == T2-1    && flit_out_wr_all[SOUTH])$display ( "%t\t  ERROR: a packet is going to the SOUTH in a router located in last row in mesh topology %m",$time); 
       /* verilator lint_on WIDTH */ 
         end//always
-   
+  // synthesis translate_on  
 endmodule
 
 

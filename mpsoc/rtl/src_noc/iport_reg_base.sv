@@ -605,8 +605,9 @@ generate
             .class_all()
         );
         
-        reg check_dout;
-        
+        //synthesis translate_off 
+        //synopsys  translate_off
+        reg check_dout;        
         always @(posedge clk )begin 
             check_dout<=any_ivc_sw_request_granted;
             if(new_ivc_not_empty != ivc_not_empty) begin 
@@ -619,6 +620,11 @@ generate
                 $stop; 
            end
         end
+        //synopsys  translate_on
+        //synthesis translate_on 
+       
+        
+        
         
         // for (i=0;i<V; i=i+1) begin: V_loop3
          

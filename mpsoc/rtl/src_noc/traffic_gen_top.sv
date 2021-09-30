@@ -634,10 +634,10 @@ module  traffic_gen_top
         
 			end
 		end//always
+		
+		
 		// synopsys  translate_off
-		// synthesis translate_off
-					
-			
+		// synthesis translate_off			
 			
 		localparam NEw=log2(NE);
 		wire [NEw-1: 0]  src_id,dst_id,current_id;
@@ -674,10 +674,7 @@ module  traffic_gen_top
 					$display("%t: ERROR: In src %d, the current time (%d) should be larger than or equal to the packet timestamp %d.  %m",$time, current_id, clk_counter, wr_timestamp);
 					$finish;
 				end
-			end
-				
-				
-				
+			end				
 				
 		end
 		// synthesis translate_on

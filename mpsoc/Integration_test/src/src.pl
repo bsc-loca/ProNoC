@@ -540,7 +540,12 @@ sub check_sim_results{
 			$self->{'name'}{"$name"}{'traffic'}{$traffic}{'message'}="@errors";
 			return;						
 		}
-		my $val = extract_result($self,$file,"average packet latency");		
+		my @r = unix_grep($file,"total,");
+    	my $string = $r[0];
+		my @fileds=split(',',$string);
+		my $val=$fileds[11];
+		$val =~ s/[^0-9.]+//g;
+	#	my $val = extract_result($self,$file,"average packet latency");		
 		if(length $val ==0){
 			$self->{'name'}{"$name"}{'traffic'}{$traffic}{'overal_result'}="Failed";
 			$self->{'name'}{"$name"}{'traffic'}{$traffic}{'message'}="The average packet latency is undefined for $inject";
