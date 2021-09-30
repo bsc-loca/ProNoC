@@ -443,14 +443,25 @@ module fifo_ram     #(
     parameter SSA_EN="YES" // "YES" , "NO"       
     )
     (
-        input [DATA_WIDTH-1         :       0]  wr_data,        
-        input [ADDR_WIDTH-1         :       0]      wr_addr,
-        input [ADDR_WIDTH-1         :       0]      rd_addr,
-        input                                               wr_en,
-        input                                               rd_en,
-        input                                           clk,
-        output [DATA_WIDTH-1   :       0]      rd_data
+        wr_data,        
+        wr_addr,
+        rd_addr,
+        wr_en,
+        rd_en,
+        clk,
+        rd_data
     );  
+    
+    
+     input [DATA_WIDTH-1         :       0]  wr_data;        
+     input [ADDR_WIDTH-1         :       0]  wr_addr;
+     input [ADDR_WIDTH-1         :       0]  rd_addr;
+     input                                   wr_en;
+     input                                   rd_en;
+     input                                   clk;
+     output [DATA_WIDTH-1   :       0]       rd_data;
+    
+    
 
 	reg [DATA_WIDTH-1:0] memory_rd_data; 
    // memory
@@ -526,47 +537,53 @@ module fifo_ram_mem_size     #(
 
     localparam ADDR_WIDTH=log2(MEM_SIZE);
     
-    input [DATA_WIDTH-1         :       0]  wr_data;       
-    input [ADDR_WIDTH-1         :       0]  wr_addr;
-    input [ADDR_WIDTH-1         :       0]  rd_addr;
-    input                                   wr_en;
-    input                                   rd_en;
-    input                                   clk;
-    output reg  [DATA_WIDTH-1   :       0]  rd_data;
+    input  [DATA_WIDTH-1         :       0]  wr_data;       
+    input  [ADDR_WIDTH-1         :       0]  wr_addr;
+    input  [ADDR_WIDTH-1         :       0]  rd_addr;
+    input                                    wr_en;
+    input                                    rd_en;
+    input                                    clk;
+    output [DATA_WIDTH-1        :       0]   rd_data;
     
     
      
+    
+    
+    
+    reg [DATA_WIDTH-1:0] memory_rd_data; 
+    // memory
+    reg [DATA_WIDTH-1:0] queue [MEM_SIZE-1:0] /* synthesis ramstyle = "no_rw_check , M9K" */;
+    always @(posedge clk ) begin
+            if (wr_en)
+                 queue[wr_addr] <= wr_data;
+            if (rd_en)
+                 memory_rd_data <=  queue[rd_addr];
+    end
+         
     generate 
     /* verilator lint_off WIDTH */
     if(SSA_EN =="YES") begin :predict
     /* verilator lint_on WIDTH */
-        reg [DATA_WIDTH-1:0] queue [MEM_SIZE-1:0] /* synthesis ramstyle = "no_rw_check , M9K" */;
-                
+        //add bypass
+        reg [DATA_WIDTH-1:0]  bypass_reg;
+        reg rd_en_delayed;
         always @(posedge clk ) begin
-            if (wr_en)
-                queue[wr_addr] <= wr_data;
-            if (rd_en) begin 
-                rd_data <=   queue[rd_addr];
-            end else begin // id rd is not asserted by pass the input to the output in next clock cycle
-                rd_data <=   wr_data;            
-            end           
+             bypass_reg     <=wr_data;
+             rd_en_delayed  <=rd_en;
         end
+          
+        assign rd_data = (rd_en_delayed)? memory_rd_data  : bypass_reg;
+          
+          
     
     end else begin : no_predict
-    
-        reg [DATA_WIDTH-1:0] queue [MEM_SIZE-1:0] /* synthesis ramstyle = "no_rw_check , M9K" */;
-        
-        always @(posedge clk ) begin
-            if (wr_en)
-                queue[wr_addr] <= wr_data;
-            if (rd_en) 
-                rd_data <= queue[rd_addr];
-              
-        end
+        assign rd_data =  memory_rd_data;
     end
     endgenerate
-    
 endmodule
+    
+    
+
 
 
 /**********************************
