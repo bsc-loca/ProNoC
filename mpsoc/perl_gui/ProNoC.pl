@@ -261,16 +261,38 @@ sub show_setting{
 
 	#title2		
 	my $title2=gen_label_in_center("Toolchain");
-	$table->attach ($title2 , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
+	$table->attach ($title2 , 0, 5,  $row, $row+1,'expand','shrink',2,2); 	
+	$table->attach (gen_label_in_center("ORCC EDK"), 5, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
+
+
 	
 	add_Hsep_to_table($table, 0, 10 , $row);	$row++;
 
 	#check which toolchain is available in the system
-	$table->attach_defaults (check_toolchains($self,$set_win,$reset) , 0, 10 , $row, $row+1);	$row++;
+	my @f1=("/bin/mb-g++","/bin/mb-objcopy");
+	my @f2=("/bin/lm32-elf-gcc","/bin/lm32-elf-ld","/bin/lm32-elf-objcopy","/bin/lm32-elf-objdump","/lm32-elf/lib","/lib/gcc/lm32-elf/4.5.3");
+	my @f3=("/bin/or1k-elf-gcc","/bin/or1k-elf-ld","/bin/or1k-elf-objcopy","/bin/or1k-elf-objdump","/lib/gcc/or1k-elf/5.2.0");
 	
+	my @tool = (
+	{ label=>"aeMB", tooldir=>"aemb", files=>\@f1, size=>'21 MB', path=>'https://drive.google.com/file/d/1PT7lliPzhqsVl2Xq2bJsFuKu83Vk1ee4/view?usp=sharing' },
+	{ label=>"lm32", tooldir=>"lm32", files=>\@f2, size=>'57 MB', path=>'https://drive.google.com/file/d/1ly32nItfQwBNxhTjDd5xoi7kXPPQjZz7/view?usp=sharing' },
+	{ label=>"or1k-elf", tooldir=>"or1k-elf", files=>\@f3, size=>'219 MB', path=>'https://drive.google.com/file/d/1AeV3oeSltZ_aEqHcd419kfeI8EtHmUwr/view?usp=sharing' },
+	);
+
+	my @f4=("/dropins","/plugins");
+    my @f5=("/AddArray", "/Communication", "/HelloWorld", "/README.md","/StreamBlocks");
+
+	my @tool2 = (
+	{ label=>"eclipse-orcc", tooldir=>"eclipse-orcc", files=>\@f4, size=>'208 MB', path=>'https://drive.google.com/file/d/1YAOAyAk8PA6LXwIPz3aIy-Mongh__WBW/view?usp=sharing' },
+	{ label=>"orcc-apps", tooldir=>"orc-apps", files=>\@f5, size=>'28 MB', path=>'https://drive.google.com/file/d/1Qs4rxcSr-E5H4lYaxawqczTHfCPPCo4V/view?usp=sharing' },
+	#{ label=>"or1k-elf", tooldir=>"or1k-elf", files=>\@f3, size=>'219 MB', path=>'https://drive.google.com/file/d/1AeV3oeSltZ_aEqHcd419kfeI8EtHmUwr/view?usp=sharing' },
+	);
+
+	$table->attach_defaults (check_toolchains($self,$set_win,$reset,"toolchain",@tool) , 0, 5 , $row, $row+1);	
+	add_Vsep_to_table($table, 5, $row,$row+1);	
+	$table->attach_defaults (check_toolchains($self,$set_win,$reset,"orcc",@tool2) , 5, 10 , $row, $row+1);	
 	
-	
-		
+	$row++;	
 	#title3
 	$table->attach (gen_label_in_center("Tools") , 0, 10,  $row, $row+1,'expand','shrink',2,2); $row++;
 	add_Hsep_to_table($table, 0, 10 , $row);	$row++;
@@ -423,19 +445,11 @@ sub update_bashrc_file {
 
 
 sub check_toolchains{
-	my ($self,$set_win,$reset)=@_;
+	my ($self,$set_win,$reset,$root,@tool)=@_;
 	my $table = def_table(10, 1, FALSE);
+    my $pronoc_work = $self->object_get_attribute("PATH","PRONOC_WORK");
+	mkpath("$pronoc_work/$root",1,01777) unless -d "$pronoc_work/$root";
 	
-	my @f1=("/bin/mb-g++","/bin/mb-objcopy");
-	my @f2=("/bin/lm32-elf-gcc","/bin/lm32-elf-ld","/bin/lm32-elf-objcopy","/bin/lm32-elf-objdump","/lm32-elf/lib","/lib/gcc/lm32-elf/4.5.3");
-	my @f3=("/bin/or1k-elf-gcc","/bin/or1k-elf-ld","/bin/or1k-elf-objcopy","/bin/or1k-elf-objdump","/lib/gcc/or1k-elf/5.2.0");
-	
-	my @tool = (
-
-	{ label=>"aeMB", tooldir=>"aemb", files=>\@f1, size=>'21 MB', path=>'https://drive.google.com/file/d/1PT7lliPzhqsVl2Xq2bJsFuKu83Vk1ee4/view?usp=sharing' },
-	{ label=>"lm32", tooldir=>"lm32", files=>\@f2, size=>'57 MB', path=>'https://drive.google.com/file/d/1ly32nItfQwBNxhTjDd5xoi7kXPPQjZz7/view?usp=sharing' },
-	{ label=>"or1k-elf", tooldir=>"or1k-elf", files=>\@f3, size=>'219 MB', path=>'https://drive.google.com/file/d/1AeV3oeSltZ_aEqHcd419kfeI8EtHmUwr/view?usp=sharing' },
-	);
 	
 	my $row =0;
 	my $download_st=0;
@@ -448,7 +462,7 @@ sub check_toolchains{
 		my $pronoc_work = $self->object_get_attribute("PATH","PRONOC_WORK");
 		my $tooldir=$d->{tooldir};
 		my @files=@{$d->{files}};
-		my $tool_path="$pronoc_work/toolchain/$tooldir";
+		my $tool_path="$pronoc_work/$root/$tooldir";
 		unless (-d $tool_path){
 			$exist=0;
 			$miss=$miss." $tool_path is missing\n";
@@ -477,20 +491,20 @@ sub check_toolchains{
 				my $load= show_gif("icons/load.gif");
 				$table->attach ($load, $col, $col+1, $srow,$srow+ 1,'shrink','shrink',0,0);  $col++;
 				$load->show_all;
-				my $filename="$pronoc_work/toolchain/$d->{label}.zip";
-				my $target="$pronoc_work/toolchain/$d->{label}";
+				my $filename="$pronoc_work/$root/$d->{label}.zip";
+				my $target="$pronoc_work/$root/$d->{label}";
 				#download the file from google drive
 				download_from_google_drive("$d->{path}" ,"$filename"  );
 				#unzip the file
-				my $cmd= "unzip $pronoc_work/toolchain/$d->{label}.zip -d $pronoc_work/toolchain/";				
+				my $cmd= "unzip $pronoc_work/$root/$d->{label}.zip -d $pronoc_work/$root/";				
 				return if(run_cmd_message_dialog_errors($cmd));
 				$load->destroy;
 				#remove zip file
-				unlink "$pronoc_work/toolchain/$d->{label}.zip";
+				unlink "$pronoc_work/$root/$d->{label}.zip";
 				$download_st = $download_st & ~(1 << $index);
 				
 				if ($download_st==0){
-					$cmd = "chmod +x -Rf $pronoc_work/toolchain/";
+					$cmd = "chmod +x -Rf $pronoc_work/$root/";
 					return if(run_cmd_message_dialog_errors($cmd));
 					$set_win->destroy;
 					show_setting($reset);
@@ -506,6 +520,12 @@ sub check_toolchains{
 	}			
 	return $table;	
 }
+
+
+
+
+
+
 
 sub Dir_isEmpty {
     return 0 unless -d $_[0];
@@ -832,14 +852,7 @@ sub generate_main_notebook {
 	}else{
 			
 		
-		my $trace_gen= trace_gen_main('task');
-		my $label1=def_image_label("icons/trace.png"," _Trace generator ",1);
-
-		set_tip($label1, "Generate trace file from application task graph");
 		
-		$notebook->append_page ($trace_gen,$label1);		
-		$label1->show_all;
-		$trace_gen->show_all;
 		
 		my $simulator = simulator_main();
 		my $label2=def_image_label("icons/sim.png"," _NoC simulator ",1);
@@ -854,6 +867,16 @@ sub generate_main_notebook {
 		$notebook->append_page ($emulator,$label3);
 		$label3->show_all;
 		$emulator->show_all;	
+
+		my $trace_gen= trace_gen_main('task');
+		my $label1=def_image_label("icons/trace.png"," _Trace generator ",1);
+
+		set_tip($label1, "Generate trace file from application task graph");
+		
+		$notebook->append_page ($trace_gen,$label1);		
+		$label1->show_all;
+		$trace_gen->show_all;
+
 
 	}		
 		my $scrolled_win = add_widget_to_scrolled_win($notebook);			

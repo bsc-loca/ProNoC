@@ -14,9 +14,9 @@
 
 
 #list of packages
-LIST_OF_APPS="build-essential  libpango1.0-dev clang lib32z1 libgd-graph-perl libglib-perl cpanminus libusb-1.0 graphviz libcanberra-gtk-module unzip xterm verilator wget python python-pip" 
+LIST_OF_APPS="build-essential  libpango1.0-dev clang lib32z1 libgd-graph-perl libgd-gd2-perl libglib-perl cpanminus libusb-1.0 graphviz libcanberra-gtk-module unzip xterm verilator wget python python-pip curl" 
 
-PERL_LIBS="ExtUtils::Depends ExtUtils::PkgConfig Glib Pango String::Similarity  IO::CaptureOutput Proc::Background List::MoreUtils File::Find::Rule  Verilog::EditFiles IPC::Run File::Which Class::Accessor String::Scanf File::Copy::Recursive  GD::Graph::bars3d GD::Graph::linespoints constant::boolean Event::MakeMaker Glib::Event" 
+PERL_LIBS="ExtUtils::Depends ExtUtils::PkgConfig Glib Pango String::Similarity  IO::CaptureOutput Proc::Background List::MoreUtils File::Find::Rule  Verilog::EditFiles IPC::Run File::Which Class::Accessor String::Scanf File::Copy::Recursive  GD::Graph::bars3d GD::Graph::linespoints GD::Graph::Data constant::boolean Event::MakeMaker Glib::Event" 
 
 
 
@@ -52,18 +52,30 @@ use constant GTK_VERSION => '$gtk_version';
 
 
 
+function aptget_array {
+	#Call apt-get for each package
+	arr=("$@")
+   	for pkg in "${arr[@]}"
+	do
+	    sudo apt-get -y install $pkg
+	done
+	
+}
+
+
+
 
 if [ "${gtk_version}" = '2' ]
 then 
 	echo "Install ProNoC GUI with GTK2"
-	apt-get install -y $LIST_OF_APPS
-	apt-get install -y $APP_GTK2
+	aptget_array $LIST_OF_APPS
+	aptget_array $APP_GTK2
 	cpanm $PERL_LIBS
 	cpanm $PERL_GTK2
 else 
 	echo "Install ProNoC GUI with GTK3"
-	apt-get install -y $LIST_OF_APPS
-	apt-get install -y $APP_GTK3
+	aptget_array $LIST_OF_APPS
+	aptget_array $APP_GTK3
 	cpanm $PERL_LIBS
 	cpanm $PERL_GTK3
 fi
@@ -75,9 +87,10 @@ fi
 echo "install python" 
 apt-get install -y python2
 echo "install python-pipe. Installation may take several minutes" 
-curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py
+curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
 sudo python2 get-pip.py 
 pip install trueskill numpy "networkx<2.0"
+
 
 
 

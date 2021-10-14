@@ -460,14 +460,10 @@ sub get_simulator_noc_configuration{
 	my @files = glob "$open_in/*";
 	my $exe_files="";
 	foreach my $file (@files){
-		#print "$file is executable\n" if( -x $file && -f $file) ;
-		
-		if( -x $file && -f $file){
-			my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
-			$exe_files="$exe_files,$name"
-			
-		} 
-		
+		my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
+		if($suffix eq '.inf'){
+			$exe_files="$exe_files,$name";
+		}		
 	}
 		
 	attach_widget_to_table ($table,$row,gen_label_in_left(" Verilated Model:"),gen_button_message ("Select the verilator simulation file. Different NoC simulators can be generated using Generate NoC configuration tab.","icons/help.png"), 
@@ -935,12 +931,15 @@ sub run_synthetic_simulation {
 	my $cpu_num = $simulate->object_get_attribute('compile', 'cpu_num');
 	$cpu_num = 1 if (!defined $cpu_num);
 	
-	if ($simulator eq 'Modelsim'){
+	my $thread_num = $simulate->object_get_attribute('compile', 'thread_num');
+	$thread_num = 1 if (!defined $thread_num);
+	
+	if ($simulator ne 'Verilator'){
 		for (my $i=0; $i<$cpu_num; $i++  ){
 			my $out="$out_path/modelsim/work$i";
 			rmtree("$out");
 			mkpath("$out",1,01777);
-						
+	my $vsim = ($simulator eq 'Modelsim')? "vsim -c": "vsim";					
 			gen_noc_localparam_v_file($simulate,"$out",$sample);
 			my $param="
 // simulation parameter setting
@@ -994,12 +993,13 @@ vmap work rtl_work
 
 vlog  +acc=rn  -F $out/file_list.f
 
-vsim -t 1ps  -L rtl_work -L work -voptargs=\"+acc\"  testbench_noc
+$vsim -t 1ps  -L rtl_work -L work -voptargs=\"+acc\"  testbench_noc
 
 add wave *
 view structure
 view signals
 run -all
+quit
 ";
 	
 			save_file ("$out/model.tcl",$tcl);
@@ -1019,6 +1019,8 @@ run -all
 	my $jobs=0;	
 	my $c=0;
 	my $cmds="";
+	
+	
 	foreach  my $ratio_in (@ratios){						
 	    	#my $r= $ratio_in * MAX_RATIO/100;
 	    	my $cmd;
@@ -1026,12 +1028,16 @@ run -all
 	    	if ($simulator eq 'Modelsim'){
 	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
 	    		my $out="$out_path/modelsim/work$c";
-	    		$cmd="	    		
-	    		cd $out; sed -i \"s/ INJRATIO=\[\[:digit:\]\]\\+/ INJRATIO=$ratio_in/\" $out/sim_param.sv;  rm -Rf rtl_work; $modelsim_bin/vsim -do $out/model.tcl; 	";			
+	    		$cmd="	xterm -e bash -c '	cd $out; sed -i \"s/ INJRATIO=\[\[:digit:\]\]\\+/ INJRATIO=$ratio_in/\" $out/sim_param.sv;  rm -Rf rtl_work; $modelsim_bin/vsim -c -do $out/model.tcl -l $out_path/sim_out$ratio_in;' &\n	";			
+	    	
+	    	}elsif ($simulator eq 'Modelsim gui'){
+	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
+	    		my $out="$out_path/modelsim/work$c";
+	    		$cmd="cd $out; sed -i \"s/ INJRATIO=\[\[:digit:\]\]\\+/ INJRATIO=$ratio_in/\" $out/sim_param.sv;  rm -Rf rtl_work; $modelsim_bin/vsim  -do $out/model.tcl -l $out_path/sim_out$ratio_in;	";			
 	    	
 	    	}else{	
 	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
-		    	$cmd="$bin -t \"$patern\"   $pck_size  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot $custom > $out_path/sim_out$ratio_in & ";
+		    	$cmd="$bin -t \"$patern\"   $pck_size -T $thread_num  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot $custom > $out_path/sim_out$ratio_in & ";
 							
 	    	}
 	    	$cmds .=$cmd;	
@@ -1044,14 +1050,16 @@ run -all
 			push (@paralel_ratio,$ratio_in);
 			$c++;
 			if($jobs % $cpu_num ==0 || $jobs == $total){
+				
 				#run paralle simulation				
-				my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmds\n wait\n");
-				if($exit || (length $stderr >4)){
-						add_colored_info($info, "Error in running simulation: $stderr \n",'red');
-						$simulate->object_add_attribute ($sample,"status","failed");	
-						$simulate->object_add_attribute('status',undef,'ideal');
-						return;
-				 } 
+					my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmds\n wait\n");
+					if($exit || (length $stderr >4)){
+							add_colored_info($info, "Error in running simulation: $stderr \n",'red');
+							$simulate->object_add_attribute ($sample,"status","failed");	
+							$simulate->object_add_attribute('status',undef,'ideal');
+							return;
+					 } 
+				
 				#save results
 				for (my $i=0; $i<$c; $i++){
 					my $r      = $paralel_ratio[$i];
@@ -1095,6 +1103,7 @@ sub extract_and_update_noc_sim_statistic {
 	my $i=0;
 	foreach my $line (@lines){
 		$line=remove_all_white_spaces($line);
+		$line =~ s/^#//g; #remove # from beginig of each line in modelsim 
 		if($i==0){
 			 @names=split(",",$line);
 			
@@ -1306,20 +1315,29 @@ sub noc_sim_ctrl{
 	my $cpus=select_parallel_process_num($simulate);
 	my ($object,$attribute1,$attribute2,$content,$default,$status,$timeout)=@_;
 	
-	my $compiler =def_pack_hbox('FALSE',0, gen_label_in_center('Simulator:'), gen_combobox_object($simulate,'Simulator',undef,"Modelsim,Verilator","Verilator",'ref',1));
+	my $compiler =def_pack_hbox('FALSE',0, gen_label_in_center('Simulator:'), gen_combobox_object($simulate,'Simulator',undef,"Modelsim gui,Modelsim,Verilator","Verilator",'ref',1));
 	
 	
 	my $entry = gen_entry_object($simulate,'simulate_name',undef,undef,undef,undef);
 	my $entrybox=gen_label_info(" Save as:",$entry);
 	$entrybox->pack_start( $save, FALSE, FALSE, 0);
 	
-	my $simulator =$simulate->object_get_attribute("Simulator");	
+	my $simulator =$simulate->object_get_attribute("Simulator");
+	
+	
+	my $thread=select_parallel_thread_num($simulate);
+	
+		
 	my $table = def_table (1, 12, FALSE);
 	$table->attach ($open,		0, 1, 0,1,'expand','shrink',2,2);
 	$table->attach ($compiler, 1, 2, 0,1,'expand','shrink',2,2);
 	
 	$table->attach ($cpus, 		2, 4, 0,1,'expand','shrink',2,2);
-	$table->attach ($entrybox,	4, 7, 0,1,'expand','shrink',2,2);
+	if($simulator eq "Verilator"){
+		$table->attach ($thread, 4, 5, 0,1,'expand','shrink',2,2);		
+	}
+	
+	$table->attach ($entrybox,	5, 7, 0,1,'expand','shrink',2,2);
 	$table->attach ($save_all_results, 7, 8, 0,1,'shrink','shrink',2,2);
 	$table->attach ($generate, 	8, 9, 0,1,'expand','shrink',2,2);
 	

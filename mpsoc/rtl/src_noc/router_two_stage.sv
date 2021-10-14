@@ -440,7 +440,8 @@ module router_two_stage
          
 	end // WRRA
 	else begin : rra_    
-		assign flit_out_all  =  link_flit_out_all;      
+		assign flit_out_all  =  link_flit_out_all;   
+		assign refresh_w_counter = 1'b0;
 	end		
 	endgenerate 
 		assign  flit_out_wr_all = link_flit_out_wr_all;

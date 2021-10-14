@@ -1145,12 +1145,15 @@ void print_parameter (){
 		printf ("\tTopology: %s\n",TOPOLOGY);
 		printf ("\tRouting algorithm: %s\n",ROUTE_NAME);
 	 	printf ("\tVC_per port: %d\n", V);
-		printf ("\tBuffer_width: %d\n", B);
+	 	printf ("\tNon-local port buffer_width per VC: %d\n", B);
+	 	printf ("\tLocal port buffer_width per VC: %d\n", LB);
 if((strcmp (TOPOLOGY,"MESH")==0)||(strcmp (TOPOLOGY,"TORUS")==0)){
 	    printf ("\tRouter num in row: %d \n",T1);
 	    printf ("\tRouter num in column: %d \n",T2);
+	    printf ("\tEndpoint num per router: %d\n",T3);
 }else if ((strcmp (TOPOLOGY,"RING")==0)||(strcmp (TOPOLOGY,"LINE")==0)){
-		printf ("\t Total Router num: %d \n",T1);
+		printf ("\tTotal Router num: %d \n",T1);
+		printf ("\tEndpoint num per router: %d\n",T3);
 }
 else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 		printf ("\tK: %d \n",T1);
@@ -1169,7 +1172,8 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 	    printf ("\tSSA_EN enabled:%s \n",SSA_EN);
 	    printf ("\tSwitch allocator arbitration type:%s \n",SWA_ARBITER_TYPE);
 	    printf ("\tMinimum supported packet size:%d flit(s) \n",MIN_PCK_SIZE);
-		printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
+	    printf ("\tLoop back is enabled:%s",SELF_LOOP_EN);
+	    printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
 	printf ("NoC parameters:---------------- \n");
 	printf ("\nSimulation parameters-------------\n");
 #if(DEBUG_EN)

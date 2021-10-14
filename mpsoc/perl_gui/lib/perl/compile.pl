@@ -378,10 +378,31 @@ sub select_parallel_process_num {
 		 	$cpu_num =$number if  ($number > 0 );
 		 }
 	}
-	($row,$col)= add_param_widget ($self,"Paralle compilation num.:" , "cpu_num", 1, 'Spin-button', "1,$cpu_num,1","specify the number of processors the Verilator can use at once to run parallel compilation", $table,$row,$col,1, 'compile', undef,undef,'vertical');
+	($row,$col)= add_param_widget ($self,"Paralle run:" , "cpu_num", 1, 'Spin-button', "1,$cpu_num,1","specify the number of processors the Verilator can use at once to run parallel compilations/simulations", $table,$row,$col,1, 'compile', undef,undef,'vertical');
 	return $table;	
 }
-
+sub select_parallel_thread_num {
+	my ($self,$name,$top,$target_dir)=@_;	
+	my $table = def_table(2, 2, FALSE);
+	my $col=0;
+	my $row=0;
+	
+	#get total number of processor in the system
+	my $cmd = "nproc\n";
+	my $cpu_num=4;
+	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+	if(length $stderr>1){			
+		#nproc command has failed. set default 4 paralel processor
+					
+	}else {
+		 my ($number ) = $stdout =~ /(\d+)/;
+		 if (defined  $number ){ 
+		 	$cpu_num =$number if  ($number > 0 );
+		 }
+	}
+	($row,$col)= add_param_widget ($self,"Thread run:" , "thread_num", 1, 'Spin-button', "1,$cpu_num,1","specify the number of threads the Verilator can use at once in one simulation", $table,$row,$col,1, 'compile', undef,undef,'vertical');
+	return $table;	
+}
 
 
 
@@ -1965,25 +1986,35 @@ sub verilator_compilation {
 	my $tt =create_file_list($target_dir,\@ff,'verilator');	
 	save_file("$verilator/file_list.f",  "$tt");
    	
-   	#check the version of the veriltor compilor. Verilator vesrion Greater than or equal to 4.0.0, compile with -Wno-TIMESCALEMOD flag"
+   	#check if -Wno-TIMESCALEMOD flag is supported"
     my $flag="";
-    my $cmd ="verilator --version | head -n1 | cut -d\" \" -f2";
-   	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+ #   my $cmd ="verilator --version | head -n1 | cut -d\" \" -f2";
+  # 	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
    
-   	my $current_v=$stdout;
-   	$current_v =~ s/[^0-9.]//g;
-   	if (defined $current_v){
-   		$cmd = "printf \'%s\n\' \"4.0.0\" \"$current_v\" | sort -V | head -n1";
-   		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
-   		$stdout =~ s/[^0-9.]//g;
-   		if ($stdout eq "4.0.0" ){
-   			add_info($outtext, "Verilator vesrion $current_v is Greater than or equal to 4.0.0. So compile with -Wno-TIMESCALEMOD flag\n");
-			$flag.="-Wno-TIMESCALEMOD";
-   		}else{
-        	add_info($outtext, "Verilator vesrion is $current_v\n");
- 		}
-   	}
-   	
+   #	my $current_v=$stdout;
+   #	$current_v =~ s/[^0-9.]//g;
+   #	if (defined $current_v){
+   #		$cmd = "printf \'%s\n\' \"4.0.0\" \"$current_v\" | sort -V | head -n1";
+   #		my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd);
+   #		$stdout =~ s/[^0-9.]//g;
+   #		if ($stdout eq "4.0.0" ){
+   #			add_info($outtext, "Verilator vesrion $current_v is Greater than or equal to 4.0.0. So compile with -Wno-TIMESCALEMOD flag\n");
+   #			$flag.="-Wno-TIMESCALEMOD";
+   #		}else{
+   #     		add_info($outtext, "Verilator vesrion is $current_v\n");
+   #		}
+   # 	}
+  my $pdir	  = get_project_dir();
+  my $tmp = "$pdir/mpsoc/perl_gui/lib/verilog/tmp.v";
+  my $cmd = "verilator --lint-only $tmp  -Wno-TIMESCALEMOD";
+  my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout($cmd); 
+ 
+  if(length $stderr>1){	#-Wno-TIMESCALEMOD not supported		
+		#add_info($outtext,"$stderr\n"); #verilator compain some ignoerabe warnning as error.  
+  }else {
+		#add_info($outtext,"compile verilator with -Wno-TIMESCALEMOD\n");
+		$flag.="-Wno-TIMESCALEMOD";
+  } 	
    	
 	#run verilator
 	my $jobs=0; #a counter to limit the number of paralle process 

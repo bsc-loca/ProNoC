@@ -310,7 +310,8 @@ module  traffic_gen_top
 				.MAX_PCK_NUM(MAX_PCK_NUM),
 				.MAX_SIM_CLKs(MAX_SIM_CLKs),
 				.TIMSTMP_FIFO_NUM(TIMSTMP_FIFO_NUM),
-				.MIN_PCK_SIZE(MIN_PCK_SIZE)
+				.MIN_PCK_SIZE(MIN_PCK_SIZE),
+				.MAX_PCK_SIZ(MAX_PCK_SIZ)
 			)
 			packet_buffer
 			(
@@ -327,7 +328,9 @@ module  traffic_gen_top
 				.buffer_full(buffer_full),
 				.pck_ready(pck_ready),
 				.valid_dst(valid_dst),
-				.destport(destport)
+				.destport(destport),
+				.pck_size_in(pck_size_in),
+				.pck_size_o(pck_size)
 			);
 
     
@@ -584,7 +587,7 @@ module  traffic_gen_top
 				credit_out      <= {V{1'd0}};
 				rsv_counter     <= 0;
 				clk_counter     <=  0;
-				pck_size        <= 0;
+				//pck_size        <= 0;
 				not_yet_sent_aflit<=1'b1;          
         
 			end else begin 
@@ -597,7 +600,7 @@ module  traffic_gen_top
 				if (flit_cnt_rst)      flit_counter    <= {PCK_SIZw{1'b0}};
 				else if(flit_cnt_inc)   flit_counter    <= flit_counter + 1'b1;     
 				credit_out      <= credit_out_next;
-				pck_size  <= pck_size_next;
+				//pck_size  <= pck_size_next;
            
 				//sink
 				if(flit_in_wr) begin 
@@ -904,7 +907,8 @@ module packet_gen #(
 	parameter MAX_PCK_NUM   = 10000,
 	parameter MAX_SIM_CLKs  = 100000,
 	parameter TIMSTMP_FIFO_NUM=16,
-	parameter MIN_PCK_SIZE=2
+	parameter MIN_PCK_SIZE=2,
+	parameter MAX_PCK_SIZ=100
 
 )(
 	clk_counter,
@@ -919,6 +923,8 @@ module packet_gen #(
 	buffer_full,
 	pck_ready,
 	valid_dst,
+	pck_size_in,
+	pck_size_o,
 	clk,
 	reset 
 );
@@ -935,18 +941,22 @@ module packet_gen #(
      
 	localparam 
 	PCK_CNTw    =   log2(MAX_PCK_NUM+1),
-	CLK_CNTw    =   log2(MAX_SIM_CLKs+1);     
+	CLK_CNTw    =   log2(MAX_SIM_CLKs+1),
+	PCK_SIZw    =   log2(MAX_PCK_SIZ);
  
 	input  reset,clk, pck_wr, pck_rd;
 	input  [RAw-1  :0] current_r_addr;
 	input  [EAw-1 : 0] current_e_addr;
-	input  [CLK_CNTw-1 :0] clk_counter;
+	input  [CLK_CNTw-1 :0] clk_counter;	
+	input  [PCK_SIZw-1 :0] pck_size_in;
+	input  [EAw-1  :0] dest_e_addr;
+	input  valid_dst; 
 	
 	output [PCK_CNTw-1 :0] pck_number;
-	input  [EAw-1  :0] dest_e_addr;
-	output [CLK_CNTw-1 :0] pck_timestamp;   
+	output [CLK_CNTw-1 :0] pck_timestamp;  
+	output [PCK_SIZw-1 :0] pck_size_o;
 	output buffer_full,pck_ready;
-	input  valid_dst; 
+	
 	output [DSTPw-1    :0] destport; 
 	reg    [PCK_CNTw-1 :0] packet_counter;  
 	wire   buffer_empty; 
@@ -982,15 +992,15 @@ module packet_gen #(
 	
 	wire recieve_more_than_0;
 	fwft_fifo_bram #(
-		.DATA_WIDTH(CLK_CNTw),
+		.DATA_WIDTH(CLK_CNTw+PCK_SIZw),
 		.MAX_DEPTH(TIMSTMP_FIFO_NUM)        
 	)
 	timestamp_fifo
 	(
-		.din(clk_counter),
+		.din({pck_size_in,clk_counter}),
 		.wr_en(pck_wr),
 		.rd_en(pck_rd),
-		.dout(pck_timestamp),
+		.dout({pck_size_o,pck_timestamp}),
 		.full(timestamp_fifo_full),
 		.nearly_full(timestamp_fifo_nearly_full),       
 		.recieve_more_than_0(recieve_more_than_0),
