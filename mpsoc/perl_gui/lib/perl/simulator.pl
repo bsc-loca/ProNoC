@@ -607,6 +607,25 @@ sub get_simulator_noc_configuration{
 		}
 		
 		
+		my $d= { label=>'number of message class:', param_name=>'MESSAGE_CLASS', type=>'Spin-button', default_val=>0,  content=>"0,256,1", info=>"Number of packet message classes. Each message class can be configured to use specefic subset of avilable VCs",			  param_parent=>$sample, ref_delay=> 1, new_status=>'ref_set_win'};
+		($row,$coltmp)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status});
+		my $num=$self->object_get_attribute($sample,"MESSAGE_CLASS");
+		if($num>0){
+			my $htable=def_table(10,2,FALSE);
+			$htable->attach ( gen_label_in_left ("Class num "), 0, 1,  $row,$row+1,'fill','shrink',2,2);
+			$htable->attach ( gen_label_in_left (" - "), 1, 2,  $row,$row+1,'fill','shrink',2,2);
+			$htable->attach ( gen_label_in_left ("Traffic(%)"), 2, 3,  $row,$row+1,'fill','shrink',2,2);						
+			$row++;
+			
+			for (my $i=0;$i<$num;$i++){	
+				$htable->attach ( gen_label_in_left ("$i"), 0, 1,  $row,$row+1,'fill','shrink',2,2);
+				my $w1 = gen_spin_object ($self,$sample,"CLASS_$i","0,100,1", 100/$num,undef,undef);
+				$htable->attach ( $w1, 2, 3,  $row,$row+1,'fill','shrink',2,2);
+				$row++;
+			}
+			$table->attach  ($htable , 0, 3,  $row,$row+1,'shrink','shrink',2,2); $row++;
+		}
+		
 		
 
 		if ($traffic eq 'hot spot'){
@@ -743,6 +762,7 @@ sub get_simulator_noc_configuration{
 			}
 			#$set_win->destroy;
 			$set_win->hide();
+			$self->object_add_attribute("active_setting",undef,undef);
 			set_gui_status($self,"ref",1);
 				
 		});
@@ -859,8 +879,14 @@ sub run_synthetic_simulation {
 		";		
 	}
 	
+	my $classes;
+	my $num=$simulate->object_get_attribute($sample,"MESSAGE_CLASS");
+	$classes.="-p 100" if($num==0);
+	for (my $i=0;$i<$num;$i++){
+		my $w1 = $simulate->object_get_attribute($sample,"CLASS_$i");
+		$classes.= ($i==0)?  "-p $w1" : ",$w1" ;		
 	
-	
+	}
 	
 	my $discrete_sv="";
 	my $hotspot="";
@@ -1037,7 +1063,7 @@ quit
 	    	
 	    	}else{	
 	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
-		    	$cmd="$bin -t \"$patern\"   $pck_size -T $thread_num  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in -p \"100,0,0,0,0\"  $hotspot $custom > $out_path/sim_out$ratio_in & ";
+		    	$cmd="$bin -t \"$patern\"   $pck_size -T $thread_num  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in $classes  $hotspot $custom > $out_path/sim_out$ratio_in & ";
 							
 	    	}
 	    	$cmds .=$cmd;	
@@ -1186,7 +1212,7 @@ sub run_task_simulation{
 		 if($jobs % $cpu_num ==0 || $jobs == $total){
 			#run paralle simulation
 			my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmds\n wait\n");
-			print "($stdout,$exit,$stderr)\n";
+			#print "($stdout,$exit,$stderr)\n";
 			if($exit || (length $stderr >4)){
 				add_colored_info($info, "Error in running simulation: $stderr \n",'red');
 				$simulate->object_add_attribute ($sample,"status","failed");	
