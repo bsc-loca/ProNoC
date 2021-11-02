@@ -350,7 +350,7 @@ module router_top
 //		end
 //		if (not_ideal) router_is_ideal =1'b0; // delay one clock cycle if the input req exist in last clock cycle bot not on the current one
 //	end
-//	register #(	.W(1)) no_ideal_register (.in(not_ideal_next), .reset (reset),  .clk(clk), .out (not_ideal));
+//	pronoc_register #(	.W(1)) no_ideal_register (.in(not_ideal_next), .reset (reset),  .clk(clk), .out (not_ideal));
 //`endif
 	
 	

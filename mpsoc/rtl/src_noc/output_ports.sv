@@ -138,9 +138,9 @@ module output_ports
     wire  [PV-1       :    0] ovc_is_assigned_all;
     
     
-    register #(.W(PV)) reg_1 ( .in(full_all_next), .reset(reset), .clk(clk), .out(full_all));
-    register #(.W(PV)) reg_2 ( .in(nearly_full_all_next), .reset(reset), .clk(clk), .out(nearly_full_all));
-    register #(.W(PV)) reg_3 ( .in(empty_all_next), .reset(reset), .clk(clk), .out(empty_all));
+    pronoc_register #(.W(PV)) reg_1 ( .in(full_all_next), .reset(reset), .clk(clk), .out(full_all));
+    pronoc_register #(.W(PV)) reg_2 ( .in(nearly_full_all_next), .reset(reset), .clk(clk), .out(nearly_full_all));
+    pronoc_register #(.W(PV)) reg_3 ( .in(empty_all_next), .reset(reset), .clk(clk), .out(empty_all));
     
     
     
@@ -176,7 +176,7 @@ module output_ports
                      end // for  
                 end//always
 
-                register #(.W(PV)) reg2 ( .in(full_adaptive_ovc_mask_next), .reset(reset), .clk(clk), .out(full_adaptive_ovc_mask));
+                pronoc_register #(.W(PV)) reg2 ( .in(full_adaptive_ovc_mask_next), .reset(reset), .clk(clk), .out(full_adaptive_ovc_mask));
          
                 assign ovc_avalable_all              = ~ovc_status & full_adaptive_ovc_mask;
             

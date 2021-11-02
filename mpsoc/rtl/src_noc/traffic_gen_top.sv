@@ -215,8 +215,8 @@ module  traffic_gen_top
 		logic [DELAYw-1 : 0] start_delay_counter,start_delay_counter_next;
 		logic  start_en_next , start_en;
 
-		register #(.W(1)) streg1 (.reset(reset),.clk(clk), .in(start_en_next), .out(start_en)	);
-		register #(.W(DELAYw)) streg2 (.reset(reset),.clk(clk), .in(start_delay_counter_next), .out(start_delay_counter)	);
+		pronoc_register #(.W(1)) streg1 (.reset(reset),.clk(clk), .in(start_en_next), .out(start_en)	);
+		pronoc_register #(.W(DELAYw)) streg2 (.reset(reset),.clk(clk), .in(start_delay_counter_next), .out(start_delay_counter)	);
 		
 		
 		

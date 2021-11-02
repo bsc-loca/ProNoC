@@ -346,7 +346,7 @@ module mesh_torus_port_presel_based_dst_routers_vc #(
  
    
    // assign port_pre_sel = conjestion_cmp;
-   register #(.W(PPSw)) reg1 (.in(conjestion_cmp ), .reset(reset), .clk(clk), .out(port_pre_sel));    
+   pronoc_register #(.W(PPSw)) reg1 (.in(conjestion_cmp ), .reset(reset), .clk(clk), .out(port_pre_sel));    
  
  
 endmodule

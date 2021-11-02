@@ -299,7 +299,7 @@ import pronoc_pkg::*;
    );   
      
      
-   register #(.W(PV)) credit_reg (.in(ivc_num_getting_sw_grant),.reset(reset),.clk(clk),.out(credit_out_all)); 
+   pronoc_register #(.W(PV)) credit_reg (.in(ivc_num_getting_sw_grant),.reset(reset),.clk(clk),.out(credit_out_all)); 
     
 	
     

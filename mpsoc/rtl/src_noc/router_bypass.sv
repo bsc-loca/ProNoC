@@ -20,12 +20,17 @@
  * lk-ahead routing, The packet can by-pass the next router once the bypassing condition are met
  ***************************/
 
-module register #(parameter W=1)( 
+module pronoc_register #(
+		parameter W=1,
+		parameter RESET_TO={W{1'b0}}
+		)( 
 		input [W-1:0] in,
 		input reset,	
 		input clk,		
 		output reg [W-1:0] out
 		);
+	
+	
 	
 	`ifdef SYNC_RESET_MODE 
 		always @ (posedge clk )begin 
@@ -33,7 +38,7 @@ module register #(parameter W=1)(
 			always @ (posedge clk or posedge reset)begin 
 			`endif  
 			if(reset) begin 	
-				out<={W{1'b0}};
+				out<=RESET_TO;
 			end else begin
 				out<=in;
 			end
@@ -295,7 +300,7 @@ module smart_forward_ivc_info
 			assign ovc_locally_requested_next[i][j]=|mask_gen[i][j];
 		end//V
 		
-		register #(.W(V)) reg1 (.in(ovc_locally_requested_next[i] ), .reset(reset), .clk(clk), .out(ovc_locally_requested[i]));
+		pronoc_register #(.W(V)) reg1 (.in(ovc_locally_requested_next[i] ), .reset(reset), .clk(clk), .out(ovc_locally_requested[i]));
 		
 		
 		
@@ -340,7 +345,7 @@ module smart_forward_ivc_info
 		assign smart_chanel_next[i].requests = (oport_info[i].any_ovc_granted)? {SMART_NUM{1'b1}}:{SMART_NUM{1'b0}} ;					
 		
 		if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
-			register #(
+			pronoc_register #(
 				.W      ( SMART_CHANEL_w     )
 				) register (
 				.in     (smart_chanel_next[i]   ), 
@@ -618,8 +623,8 @@ logic smart_req_valid;
 wire  smart_hdr_flit_req_next = smart_req_valid_next  & smart_hdr_flit;
 logic smart_hdr_flit_req;
 	
-register #(.W(1)) req1 (.in(smart_req_valid_next), .reset(reset), .clk(clk), .out(smart_req_valid));
-register #(.W(1)) req2 (.in(smart_hdr_flit_req_next), .reset(reset), .clk(clk), .out(smart_hdr_flit_req));
+pronoc_register #(.W(1)) req1 (.in(smart_req_valid_next), .reset(reset), .clk(clk), .out(smart_req_valid));
+pronoc_register #(.W(1)) req2 (.in(smart_hdr_flit_req_next), .reset(reset), .clk(clk), .out(smart_hdr_flit_req));
 
 
 
@@ -671,7 +676,7 @@ assign smart_ss_ovc_is_allocated_o = smart_ivc_num_getting_ovc_grant_o & ~smart_
 assign smart_mask_available_ss_ovc_o = smart_hdr_flit_req & ~ovc_locally_requested & condition2;
 	
 	
-register #(.W(1)) credit(.in(smart_buff_space_decreased_o), .reset(reset), .clk(clk), .out(smart_credit_o));
+pronoc_register #(.W(1)) credit(.in(smart_buff_space_decreased_o), .reset(reset), .clk(clk), .out(smart_credit_o));
 	
 endmodule
 	
@@ -777,7 +782,7 @@ module smart_allocator_per_iport
 		.destport        (destport)
 	); 
 	
-	register #(.W(DSTPw)) reg1 (.in(destport), .reset(reset), .clk(clk), .out(smart_destport_o));
+	pronoc_register #(.W(DSTPw)) reg1 (.in(destport), .reset(reset), .clk(clk), .out(smart_destport_o));
 	
 	check_straight_oport #(
 		.TOPOLOGY      ( TOPOLOGY     ),
@@ -811,7 +816,7 @@ module smart_allocator_per_iport
 			.destport        (lkdestport)
 		); 
 	
-	register #(.W(DSTPw)) reg2 (.in(lkdestport), .reset(reset), .clk(clk), .out(smart_lk_destport_o));
+	pronoc_register #(.W(DSTPw)) reg2 (.in(lkdestport), .reset(reset), .clk(clk), .out(smart_lk_destport_o));
 	
 	wire [V-1 : 0] ss_ovc_crossbar_wr;//If asserted, a flit will be injected to ovc at next clk cycle 
 	assign ss_ovc_crossbar_wr = (ss_smart_chanel_new.requests[0] ) ? ss_smart_chanel_new.ovc : {V{1'b0}};
@@ -869,7 +874,7 @@ module smart_allocator_per_iport
 	endgenerate	
 	
 	
-	register #(.W(1)) reg3 (.in(smart_chanel_i.hdr_flit), .reset(reset), .clk(clk), .out(smart_hdr_flit_req_o));
+	pronoc_register #(.W(1)) reg3 (.in(smart_chanel_i.hdr_flit), .reset(reset), .clk(clk), .out(smart_hdr_flit_req_o));
 	
 endmodule	
  
@@ -929,7 +934,7 @@ module smart_credit_manage_per_vc #(
 
  	assign credit_out = credit_in | 	smart_credit_in | (counter > 0);
 
- 	register #(.W(Bw+1)) reg1 (.in(counter_next), .reset(reset), .clk(clk), .out(counter));
+ 	pronoc_register #(.W(Bw+1)) reg1 (.in(counter_next), .reset(reset), .clk(clk), .out(counter));
  	
 
 endmodule

@@ -349,25 +349,25 @@ module input_queue_per_port
 	
 	
 	
-	register #(.W(V)) reg1(
+	pronoc_register #(.W(V)) reg1(
 			.in		(ovc_is_assigned_next), 
 			.reset  (reset ), 
 			.clk    (clk   ), 
 			.out    (ovc_is_assigned   ));
 		
-	register #(.W(VV)) reg2(
+	pronoc_register #(.W(VV)) reg2(
 			.in		(assigned_ovc_num_next), 
 			.reset  (reset ), 
 			.clk    (clk   ), 
 			.out    (assigned_ovc_num  ));
 	
-	register #(.W(V)) reg3(
+	pronoc_register #(.W(V)) reg3(
 			.in		(rd_hdr_fwft_fifo), 
 			.reset  (reset ), 
 			.clk    (clk   ), 
 			.out    (rd_hdr_fwft_fifo_delay ));
 	
-	register #(.W(V)) reg4(
+	pronoc_register #(.W(V)) reg4(
 			.in		(wr_hdr_fwft_fifo), 
 			.reset  (reset ), 
 			.clk    (clk   ), 
