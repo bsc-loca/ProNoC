@@ -5,8 +5,9 @@
 
 source "my_password.sh"
 
-remote_folder="kc07_mesh6"
-source_path="$PRONOC_WORK/MPSOC/kc07_mesh6"
+remote_folder="mor1k_test"
+#source_path="$PRONOC_WORK/MPSOC/kc07_mesh6"
+source_path="$PRONOC_WORK/SOC/mor1k_test"
 ProNoC_HOME="../../.."
 
 echo "$PRONOC_WORK"
@@ -22,10 +23,7 @@ function check_fpga_exist_on_server {
 
 my_array=("$source_path/src_verilog "
 	"$source_path/sw "
-	"$source_path/xilinx_compile "
-	"$source_path/xilinx_mem "
-	"$source_path/*.tcl "
-	"$source_path/*.xdc ")
+	"$source_path/Vivado")
 
 
 

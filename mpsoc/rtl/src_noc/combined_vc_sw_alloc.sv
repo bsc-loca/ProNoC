@@ -26,23 +26,15 @@
 *************************************/
 
 
-module combined_vc_sw_alloc #(
-    parameter V = 4,    //VC number per port
-    parameter P = 5, //port number
-    parameter COMBINATION_TYPE = "BASELINE",// "BASELINE", "COMB_SPEC1", "COMB_SPEC2", "COMB_NONSPEC"
-    parameter FIRST_ARBITER_EXT_P_EN = 1,
-    parameter DEBUG_EN = 1,
-    parameter SWA_ARBITER_TYPE = "RRA",//"RRA","WRRA". RRA: Round Robin Arbiter WRRA weighted Round Robin Arbiter 
-    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
-    parameter SELF_LOOP_EN= "NO"
+module combined_vc_sw_alloc 
+	import pronoc_pkg::*;
+#(
+    parameter P = 5 //port number
 )
 (
-
+    ivc_info,
     dest_port_all,
     masked_ovc_request_all,
-    ovc_is_assigned_all,
-    ivc_request_all,
-    assigned_ovc_not_full_all,
     ovc_allocated_all,
     granted_ovc_num_all,
     ivc_num_getting_ovc_grant,
@@ -57,7 +49,6 @@ module combined_vc_sw_alloc #(
     spec_ovc_num_all,
     vc_weight_is_consumed_all, 
     iport_weight_is_consumed_all, 
-    pck_is_single_flit_all,
     granted_dst_is_from_a_single_flit_pck,
     clk,
     reset
@@ -71,12 +62,14 @@ module combined_vc_sw_alloc #(
         P_1 = (SELF_LOOP_EN == "NO")? P-1 : P,
         PP_1 = P_1 * P,
         PVP_1 = PV * P_1;                    
-                    
+    
+        
+    input  ivc_info_t ivc_info [P-1 : 0][V-1 : 0];     
     input  [PVP_1-1 : 0] dest_port_all;
     input  [PVV-1 :  0] masked_ovc_request_all;    
-    input  [PV-1 : 0] ovc_is_assigned_all;
-    input  [PV-1 : 0] ivc_request_all;
-    input  [PV-1 : 0] assigned_ovc_not_full_all;    
+   
+   
+     
     output [PV-1 : 0] ovc_allocated_all;
     output [PVV-1 : 0] granted_ovc_num_all;
     output [PV-1 : 0] ivc_num_getting_ovc_grant;
@@ -92,12 +85,31 @@ module combined_vc_sw_alloc #(
   //  input  [PVP_1-1 :  0] lk_destination_all;
     input  [PV-1 :  0] vc_weight_is_consumed_all;
     input  [P-1 :  0] iport_weight_is_consumed_all;
-    input  [PV-1 : 0] pck_is_single_flit_all;
+  
     output [P-1 : 0] granted_dst_is_from_a_single_flit_pck;
     
     input clk,reset;
 
+    wire  [PV-1 : 0] ivc_request_all;
+    wire  [PV-1 : 0] assigned_ovc_not_full_all;  
+    wire  [PV-1 : 0] ovc_is_assigned_all;
+    wire  [PV-1 : 0] pck_is_single_flit_all;
+    
+    genvar i;
     generate
+   	for (i=0; i<PV; i=i+1) begin : vc_loop
+    
+    		localparam  C_PORT  = i/V;
+    	       
+    		assign ivc_request_all[i] = ivc_info[C_PORT][i%V].ivc_req;
+    		assign assigned_ovc_not_full_all[i] = ivc_info[C_PORT][i%V].assigned_ovc_not_full;
+    		assign ovc_is_assigned_all[i] = ivc_info[C_PORT][i%V].ovc_is_assigned;
+    		assign pck_is_single_flit_all[i] =ivc_info[C_PORT][i%V].single_flit_pck;
+    	
+    end//for	
+    	
+    	
+    	
     /* verilator lint_off WIDTH */
     if(COMBINATION_TYPE    ==    "BASELINE") begin : canonical_comb_gen
     /* verilator lint_on WIDTH */
@@ -247,20 +259,13 @@ module combined_vc_sw_alloc #(
         end else begin :cmb_v1
         
             comb_nonspec_allocator #(
-                .V(V),    
-                .P(P),
-                .FIRST_ARBITER_EXT_P_EN(FIRST_ARBITER_EXT_P_EN),
-                .SWA_ARBITER_TYPE (SWA_ARBITER_TYPE),
-                .MIN_PCK_SIZE(MIN_PCK_SIZE),
-                .SELF_LOOP_EN(SELF_LOOP_EN)
+               .P(P)
             )
             nonspec_comb
             (
-                .dest_port_all(dest_port_all), 
-                .masked_ovc_request_all(masked_ovc_request_all),
-                .ovc_is_assigned_all(ovc_is_assigned_all),
-                .ivc_request_all(ivc_request_all), 
-                .assigned_ovc_not_full_all(assigned_ovc_not_full_all),  
+            	.ivc_info(ivc_info),
+            	.dest_port_all(dest_port_all), 
+                .masked_ovc_request_all(masked_ovc_request_all),               
                 .ovc_allocated_all(ovc_allocated_all), 
                 .granted_ovc_num_all(granted_ovc_num_all), 
                 .ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant), 

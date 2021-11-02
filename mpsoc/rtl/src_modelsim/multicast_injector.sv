@@ -5,7 +5,7 @@
  * *************************/
 
 
-module packet_injector 
+module multicast_injector 
 		import pronoc_pkg::*; 
 	(
 		//general
@@ -48,7 +48,7 @@ module packet_injector
 	
 	
 	
-	
+	/*
 	conventional_routing #(
 		.TOPOLOGY(TOPOLOGY),
 		.ROUTE_NAME(ROUTE_NAME),
@@ -71,6 +71,11 @@ module packet_injector
 		.destport(destport)
 	);
 	
+*/
+
+assign destport = 7;
+
+
 	localparam 
 		HDR_BYTE_NUM =	HDR_MAX_DATw / 8, // = HDR_MAX_DATw / (8 - HDR_MAX_DATw %8)
 		HDR_DATA_w_tmp   =  HDR_BYTE_NUM * 8,
@@ -126,10 +131,10 @@ module packet_injector
 		LASTw=(LAST_TMP==0)? Fpay : LAST_TMP;
 	genvar i;
 	generate 
-		for(i=0; i<REMAIN_DAT_FLIT_I; i++) begin :rem
+		for(i=0; i<REMAIN_DAT_FLIT_I; i++) begin 
 			assign remain_dat [i] = pck_injct_in.data [Fpay*(i+1)+HDR_DATA_w-1   : (Fpay*i)+HDR_DATA_w];				
 		end
-		if(REMAIN_DAT_FLIT_F ) begin :flt
+		if(REMAIN_DAT_FLIT_F ) begin 
 
 			assign remain_dat [REMAIN_DAT_FLIT_I][LASTw-1 : 0] = pck_injct_in.data [PCK_INJ_Dw-1   : (Fpay*REMAIN_DAT_FLIT_I)+HDR_DATA_w];				
 		end

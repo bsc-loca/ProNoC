@@ -811,12 +811,12 @@ if($topology ne '"CUSTOM"' ){
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);
     
     #SMART
-    $label='Max Streight Bypass'; 
+    $label='Max Straight Bypass'; 
     $param='SMART_MAX';
     $default='0';
     $content="0,1,2,3,4,5,6,7,8,9";
     $type='Combo-box';
-    $info="If Max Streight Bypass (SMART_MAX) is defined as n>0 then packets are allowed to bypass Maximum of n routers in streight direction in single cycle."; 
+    $info="If Max Straight Bypass (SMART_MAX) is defined as n>0 then packets are allowed to bypass Maximum of n routers in Straight direction in single cycle."; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',undef);
    
     
@@ -989,7 +989,7 @@ arbiters external priority enable';
     $default='"NO"';
     $content='"NO","YES"';
     $type='Combo-box';
-    $info="If Self loop is enabled, it alows a router input port sends packet to the output port having identical index numebr. Enableing it allows a tile can sent packet to itself too."; 
+    $info="If the self loop is enabled, it allows a router input port sends packet to its own output port. Enabling it allows a tile to be able to sent packet to itself too."; 
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$adv_set,'noc_param',1);
     
     

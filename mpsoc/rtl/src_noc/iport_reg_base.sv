@@ -655,6 +655,7 @@ generate
             .reset(reset),
             .clk(clk),
             .ssa_rd(ssa_ivc_num_getting_sw_grant)
+           
         );  
   
     end       

@@ -138,7 +138,7 @@ module router_two_stage
 	wire  [PV-1 : 0] ivc_request_all;
 	wire  [PV-1 : 0] assigned_ovc_not_full_all;
 	wire  [PVV-1: 0] masked_ovc_request_all;
-	wire  [PV-1 : 0] pck_is_single_flit_all; 
+	
 	wire  [PV-1 : 0] vc_weight_is_consumed_all;
 	wire  [P-1  : 0] iport_weight_is_consumed_all;       
     wire  [PV-1 : 0] vsa_ovc_released_all;  
@@ -231,8 +231,7 @@ module router_two_stage
 			.flit_in_wr_all(flit_in_wr_all),
 			.credit_out_all(credit_out_all),
 			.credit_in_all(credit_in_all),
-			.masked_ovc_request_all(masked_ovc_request_all),
-			.pck_is_single_flit_all(pck_is_single_flit_all),
+			.masked_ovc_request_all(masked_ovc_request_all),			
 			.granted_dst_is_from_a_single_flit_pck(granted_dst_is_from_a_single_flit_pck),
 			.vsa_ovc_allocated_all(ovc_allocated_all), 
 			.granted_ovc_num_all(granted_ovc_num_all), 
@@ -276,23 +275,12 @@ module router_two_stage
 
 
 	combined_vc_sw_alloc #(
-			.V(V),    
-			.P(P), 
-			.COMBINATION_TYPE(COMBINATION_TYPE),
-			.FIRST_ARBITER_EXT_P_EN (FIRST_ARBITER_EXT_P_EN),
-			.SWA_ARBITER_TYPE (SWA_ARBITER_TYPE ), 
-			.DEBUG_EN(DEBUG_EN),
-			.MIN_PCK_SIZE(MIN_PCK_SIZE),
-			.SELF_LOOP_EN(SELF_LOOP_EN)
+			.P(P)			
 		)
 		vsa
 		(
 			.dest_port_all(dest_port_all), 
-			.masked_ovc_request_all(masked_ovc_request_all),
-			.ovc_is_assigned_all(ovc_is_assigned_all), 
-			.ivc_request_all(ivc_request_all), 
-			.assigned_ovc_not_full_all(assigned_ovc_not_full_all), 
-			.pck_is_single_flit_all(pck_is_single_flit_all),
+			.masked_ovc_request_all(masked_ovc_request_all),			
 			.granted_dst_is_from_a_single_flit_pck(granted_dst_is_from_a_single_flit_pck),
 			.ovc_allocated_all(ovc_allocated_all), 
 			.granted_ovc_num_all(granted_ovc_num_all), 
@@ -309,6 +297,7 @@ module router_two_stage
 			// .lk_destination_all(lk_destination_all),  
 			.vc_weight_is_consumed_all(vc_weight_is_consumed_all),  
 			.iport_weight_is_consumed_all(iport_weight_is_consumed_all),  
+			.ivc_info(ivc_info),
 			.clk(clk), 
 			.reset(reset)
 		);

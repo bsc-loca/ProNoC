@@ -178,7 +178,8 @@ localparam
 		logic flit_is_tail;
 		logic assigned_ovc_not_full;
 		logic [V-1  : 0] candidate_ovc;
-		logic [Cw-1 : 0] class_num;			
+		logic [Cw-1 : 0] class_num;
+		logic single_flit_pck;
 		
 	} ivc_info_t;
 	localparam  IVC_INFO_w = $bits( ivc_info_t);

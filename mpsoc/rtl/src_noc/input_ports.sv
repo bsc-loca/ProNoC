@@ -42,11 +42,9 @@ module input_ports
 			reset_ivc_all,
 			flit_is_tail_all,
 			ivc_request_all,
-			dest_port_encoded_all,
-			dest_port_all,
-			candidate_ovcs_all,
+			dest_port_all,			
 			flit_out_all,
-			assigned_ovc_num_all,
+		
 			assigned_ovc_not_full_all,
 			ovc_is_assigned_all,
 			sel,
@@ -54,7 +52,7 @@ module input_ports
 			swap_port_presel,
 			nonspec_first_arbiter_granted_ivc_all,
 			
-			destport_clear_all,
+			destport_clear,
 			vc_weight_is_consumed_all,
 			iport_weight_is_consumed_all,
 			iport_weight_all,
@@ -99,11 +97,10 @@ module input_ports
 	output  [PV-1 : 0] reset_ivc_all;
 	output  [PV-1 : 0] flit_is_tail_all;
 	output  [PV-1 : 0] ivc_request_all;
-	output  [PVDSTPw-1 : 0] dest_port_encoded_all;
+	
 	output  [PVP_1-1 : 0] dest_port_all;
-	output  [PVV-1 : 0] candidate_ovcs_all;
 	output  [PFw-1 : 0] flit_out_all;
-	output  [PVV-1 : 0] assigned_ovc_num_all;
+	
 	input   [PV-1  : 0] assigned_ovc_not_full_all;
 	output  [PV-1  : 0] ovc_is_assigned_all;
 	input   [PV-1 : 0] sel;
@@ -111,12 +108,15 @@ module input_ports
 	input   [PV-1  : 0]  swap_port_presel;
 	input   [PV-1 : 0] nonspec_first_arbiter_granted_ivc_all;
 	
-	input   [PVDSTPw-1 : 0] destport_clear_all;
+	
 	output  [WP-1 : 0] iport_weight_all;
 	output  [PV-1 : 0] vc_weight_is_consumed_all;
 	output  [P-1 : 0] iport_weight_is_consumed_all;
 	input   [PP_1-1 : 0] granted_dest_port_all;
 	output  [WPP-1 : 0] oports_weight_all;
+	
+	
+
 	output  ivc_info_t ivc_info [P-1 : 0][V-1 : 0]; 
 	input   vsa_ctrl_t  vsa_ctrl_in [P-1: 0];
 	input   ssa_ctrl_t  ssa_ctrl_in [P-1: 0];
@@ -125,10 +125,14 @@ module input_ports
 	
 	input refresh_w_counter;
     
+	input   [DSTPw-1 : 0] destport_clear [P-1 : 0][V-1 : 0];   
 
 	genvar i;
 	generate 
-		for(i=0;i<P;i=i+1)begin : Port_    
+		for(i=0;i<P;i=i+1)begin : Port_ 
+			
+			
+			
     
 			input_queue_per_port
 			// iport_reg_base
@@ -147,11 +151,8 @@ module input_ports
 					.reset_ivc(reset_ivc_all [(i+1)*V-1 : i*V]),
 					.flit_is_tail(flit_is_tail_all  [(i+1)*V-1 : i*V]),
 					.ivc_request(ivc_request_all [(i+1)*V-1 : i*V]),    
-					.dest_port_encoded(dest_port_encoded_all   [(i+1)*DSTPw*V-1 : i*DSTPw*V]),
 					.dest_port(dest_port_all [(i+1)*P_1*V-1 : i*P_1*V]),
-					.candidate_ovcs(candidate_ovcs_all [(i+1) * VV -1 : i*VV]),
 					.flit_out(flit_out_all [(i+1)*Fw-1 : i*Fw]),
-					.assigned_ovc_num(assigned_ovc_num_all [(i+1)*VV-1 : i*VV]),
 					.assigned_ovc_not_full(assigned_ovc_not_full_all [(i+1)*V-1 : i*V]), 
 					.ovc_is_assigned(ovc_is_assigned_all [(i+1)*V-1 : i*V]), 
 					.sel(sel [(i+1)*V-1 : i*V]),
@@ -161,7 +162,7 @@ module input_ports
 					.reset(reset),
 					.clk(clk),
 					
-					.destport_clear(destport_clear_all[(i+1)*DSTPw*V-1 : i*DSTPw*V]),
+					.destport_clear(destport_clear [i]),
 					.iport_weight(iport_weight_all[(i+1)*W-1 : i*W]),
 					.oports_weight(oports_weight_all[(i+1)*WP-1 : i*WP]),
 					.vc_weight_is_consumed(vc_weight_is_consumed_all [(i+1)*V-1 : i*V]),
@@ -203,11 +204,8 @@ module input_queue_per_port
 			reset_ivc,
 			flit_is_tail,
 			ivc_request,
-			dest_port_encoded,
 			dest_port,
-			candidate_ovcs,
-			flit_out,
-			assigned_ovc_num,
+			flit_out,			
 			assigned_ovc_not_full,
 			ovc_is_assigned,
 			sel,
@@ -281,17 +279,14 @@ module input_queue_per_port
 	output  [V-1 : 0] reset_ivc;
 	output  [V-1 : 0] flit_is_tail;
 	output  [V-1 : 0] ivc_request;
-	output  [VDSTPw-1 : 0] dest_port_encoded;
 	output  [VP_1-1 : 0] dest_port;
-	output  [VV-1 : 0] candidate_ovcs;
 	output  [Fw-1 : 0] flit_out;
-	output  [VV-1 : 0] assigned_ovc_num;
 	input   [V-1  : 0] assigned_ovc_not_full;
 	output  [V-1  : 0] ovc_is_assigned;
 	input   [V-1 : 0] sel;    
 	input   [V-1 : 0] nonspec_first_arbiter_granted_ivc;
 	   
-	input   [(DSTPw*V)-1 : 0] destport_clear;            
+	input   [DSTPw-1 : 0] destport_clear [V-1 : 0];            
 	output reg [WEIGHTw-1 : 0] iport_weight;
 	output  [V-1 : 0] vc_weight_is_consumed;
 	output  iport_weight_is_consumed;
@@ -307,6 +302,9 @@ module input_queue_per_port
 	input   ssa_ctrl_t  ssa_ctrl_in;
 	output  [CRDTw-1 : 0 ] credit_init_val_out [V-1 : 0];
     
+	wire  [DSTPw-1 : 0] dest_port_encoded [V-1 : 0];
+	wire  [VV-1 : 0] candidate_ovcs;
+	
 	wire [Cw-1 : 0] class_in;
 	wire [DSTPw-1 : 0] destport_in,destport_in_encoded;
 	wire [VDSTPw-1 : 0] lk_destination_encoded;
@@ -315,7 +313,7 @@ module input_queue_per_port
 	wire [EAw-1 : 0] src_e_addr_in;
 	wire [V-1 : 0] vc_num_in;
 	wire [V-1 : 0] hdr_flit_wr,flit_wr;
-	
+	wire [VV-1 : 0] assigned_ovc_num;
 	
 	wire [DSTPw-1 : 0] lk_destination_in_encoded;
 	wire [WEIGHTw-1  : 0] weight_in;   
@@ -338,11 +336,14 @@ module input_queue_per_port
 	wire [P-1 : 0] destport_one_hot [V-1 :0];		
 	wire [V-1 : 0] mux_out[V-1 : 0];
 	
+	wire [V-1 : 0] dstport_fifo_not_empty;
+
+	
 	assign smart_hdr_en  = (SMART_EN) ? smart_ctrl_in.ivc_num_getting_ovc_grant: {V{1'b0}};
 	assign reset_ivc  = smart_ctrl_in.ivc_reset | ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset;
 	assign ivc_num_getting_sw_grant = ssa_ctrl_in.ivc_num_getting_sw_grant | vsa_ctrl_in.ivc_num_getting_sw_grant;
 	assign flit_wr =(flit_in_wr )? vc_num_in : {V{1'b0}};
-	assign rd_hdr_fwft_fifo  = ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset | (smart_ctrl_in.ivc_reset  & ~ smart_ctrl_in.ivc_single_flit_pck);
+	assign rd_hdr_fwft_fifo  = (ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset | (smart_ctrl_in.ivc_reset  & ~ smart_ctrl_in.ivc_single_flit_pck));
 	assign wr_hdr_fwft_fifo  = hdr_flit_wr | (smart_hdr_en & ~ smart_ctrl_in.ivc_single_flit_pck);
 	assign ivc_request = ivc_not_empty;    
 	
@@ -484,7 +485,11 @@ module input_queue_per_port
 					.bin_code(ivc_info[i].assigned_ovc_bin)
 				);	
     	
-        
+        	assign ivc_info[i].single_flit_pck =
+        		/* verilator lint_off WIDTH */
+        		(PCK_TYPE == "SINGLE_FLIT")? 1'b1  :
+        		/* verilator lint_on WIDTH */
+        		(MIN_PCK_SIZE == 1)? flit_is_tail[i] & ~ovc_is_assigned[i] :  1'b0; 
 			assign ivc_info[i].ivc_req = ivc_request[i];
 			assign ivc_info[i].class_num = class_out[i];
 			assign ivc_info[i].flit_is_tail = flit_is_tail[i];
@@ -492,7 +497,7 @@ module input_queue_per_port
 			assign ivc_info[i].candidate_ovc=   candidate_ovcs [(i+1)*V-1 : i*V];
 			assign ivc_info[i].ovc_is_assigned = ovc_is_assigned[i];
 			assign ivc_info[i].assigned_ovc_num= assigned_ovc_num[(i+1)*V-1 : i*V];
-			assign ivc_info[i].dest_port_encoded=dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw];
+			assign ivc_info[i].dest_port_encoded=dest_port_encoded[i];
 			//assign ivc_info[i].getting_swa_first_arbiter_grant=nonspec_first_arbiter_granted_ivc[i];
 			//assign ivc_info[i].getting_swa_grant=ivc_num_getting_sw_grant[i];
 			if(P==MAX_P) begin :max_
@@ -676,11 +681,11 @@ module input_queue_per_port
 					.clk (clk)
              
 				);
-        
+			//localparam CAST_TYPE = "UNICAST"; // multicast is not yet supported
 			/* verilator lint_off WIDTH */    
-			if( ROUTE_TYPE=="DETERMINISTIC") begin : dtrmn_dest
-				/* verilator lint_on WIDTH */
-				//destport_fifo
+			if(CAST_TYPE!= "UNICAST") begin : muticast
+			/* verilator lint_on WIDTH */
+				
 				fwft_fifo #(
 						.DATA_WIDTH(DSTPw),
 						.MAX_DEPTH (MAX_PCK),
@@ -691,7 +696,7 @@ module input_queue_per_port
 						.din(destport_in_encoded),
 						.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
 						.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
-						.dout(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),    // Data out
+						.dout(dest_port_encoded[i]),    // Data out
 						.full(),
 						.nearly_full(),
 						.recieve_more_than_0(),
@@ -699,32 +704,62 @@ module input_queue_per_port
 						.reset(reset),
 						.clk(clk) 
 					);               
-                         
-			end else begin : adptv_dest   
-
-				fwft_fifo_with_output_clear #(
-						.DATA_WIDTH(DSTPw),
-						.MAX_DEPTH (MAX_PCK),
-						.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
-					)
-					dest_fifo
-					(
-						.din(destport_in_encoded),
-						.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
-						.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
-						.dout(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),    // Data out
-						.full(),
-						.nearly_full(),
-						.recieve_more_than_0(),
-						.recieve_more_than_1(),
-						.reset(reset),
-						.clk(clk),
-						.clear(destport_clear[(i+1)*DSTPw-1 : i*DSTPw])   // clear other destination ports once one of them is selected
-					);                  
-    
-                
-			end        	
-        
+				
+				
+				
+				
+			
+		end	else begin : unicast
+			
+				
+				/* verilator lint_off WIDTH */    
+				if( ROUTE_TYPE=="DETERMINISTIC") begin : dtrmn_dest
+				/* verilator lint_on WIDTH */
+					//destport_fifo
+					fwft_fifo #(
+							.DATA_WIDTH(DSTPw),
+							.MAX_DEPTH (MAX_PCK),
+							.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
+						)
+						dest_fifo
+						(
+							.din(destport_in_encoded),
+							.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
+							.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
+							.dout(dest_port_encoded[i]),    // Data out
+							.full(),
+							.nearly_full(),
+							.recieve_more_than_0(),
+							.recieve_more_than_1(),
+							.reset(reset),
+							.clk(clk) 
+						);               
+	                         
+				end else begin : adptv_dest   
+	
+					fwft_fifo_with_output_clear #(
+							.DATA_WIDTH(DSTPw),
+							.MAX_DEPTH (MAX_PCK),
+							.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
+						)
+						dest_fifo
+						(
+							.din(destport_in_encoded),
+							.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
+							.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
+							.dout(dest_port_encoded[i]),    // Data out
+							.full(),
+							.nearly_full(),
+							.recieve_more_than_0(),
+							.recieve_more_than_1(),
+							.reset(reset),
+							.clk(clk),
+							.clear(destport_clear[i])   // clear other destination ports once one of them is selected
+						);                  
+	    
+	                
+				end        	
+		end//unicast
                      
                      
 			destp_generator #(
@@ -738,12 +773,13 @@ module input_queue_per_port
 					.PLw(PLw),
 					.PPSw(PPSw),
 					.SELF_LOOP_EN (SELF_LOOP_EN),
-					.SW_LOC(SW_LOC)
+					.SW_LOC(SW_LOC),
+					.CAST_TYPE(CAST_TYPE)
 				)
 				decoder
 				(
 					.destport_one_hot (destport_one_hot[i]),
-					.dest_port_encoded(dest_port_encoded[(i+1)*DSTPw-1 : i*DSTPw]),             
+					.dest_port_encoded(dest_port_encoded[i]),             
 					.dest_port_out(dest_port[(i+1)*P_1-1 : i*P_1]),   
 					.endp_localp_num(endp_localp_num[(i+1)*PLw-1 : i*PLw]),
 					.swap_port_presel(swap_port_presel[i]),
@@ -893,7 +929,7 @@ module input_queue_per_port
 					.vc_not_empty(ivc_not_empty),
 					.reset(reset),
 					.clk(clk),
-					.ssa_rd(ssa_ctrl_in.ivc_num_getting_sw_grant)
+					.ssa_rd(ssa_ctrl_in.ivc_num_getting_sw_grant)					
 				);
    
 		end else begin :spec//not nonspec comb
@@ -910,8 +946,8 @@ module input_queue_per_port
 				the_flit_buffer
 				(
 					.din(flit_in),     // Data in
-					.vc_num_wr(vc_num_in),//write vertual chanel   
-					.vc_num_rd(ivc_num_getting_sw_grant),//read vertual chanel     
+					.vc_num_wr(vc_num_in),//write virtual channel   
+					.vc_num_rd(ivc_num_getting_sw_grant),//read virtual channel     
 					.wr_en(flit_in_wr),   // Write enable
 					.rd_en(any_ivc_sw_request_granted),     // Read the next word
 					.dout(buffer_out),    // Data out
@@ -919,6 +955,7 @@ module input_queue_per_port
 					.reset(reset),
 					.clk(clk),
 					.ssa_rd(ssa_ctrl_in.ivc_num_getting_sw_grant)
+				
 				);  
   
 		end       
@@ -1074,7 +1111,8 @@ module destp_generator #(
 	parameter PLw=1,
 	parameter PPSw=4,
 	parameter SW_LOC=0,
-	parameter SELF_LOOP_EN="NO"
+	parameter SELF_LOOP_EN="NO",
+	parameter CAST_TYPE = "UNICAST"
 
 )
 (
@@ -1097,9 +1135,16 @@ module destp_generator #(
 	input odd_column;
     
 	generate
-		/* verilator lint_off WIDTH */
-			if(TOPOLOGY == "FATTREE" ) begin : fat
-			/* verilator lint_on WIDTH */
+		
+	/* verilator lint_off WIDTH */    
+	if(CAST_TYPE!= "UNICAST") begin : muticast
+	/* verilator lint_on WIDTH */
+		// destination port is not coded for multicast/broadcast
+		assign dest_port_out =dest_port_encoded[P_1-1 : 0];
+			
+	/* verilator lint_off WIDTH */
+	end else if(TOPOLOGY == "FATTREE" ) begin : fat
+	/* verilator lint_on WIDTH */
 			fattree_destp_generator #(
 				.K(T1),
 				.P(P),
@@ -1112,9 +1157,9 @@ module destp_generator #(
 				.dest_port_in_encoded(dest_port_encoded),
 				.dest_port_out(dest_port_out)
 			);
-		/* verilator lint_off WIDTH */ 
+	/* verilator lint_off WIDTH */ 
 	end else  if (TOPOLOGY == "TREE") begin :tree
-		/* verilator lint_on WIDTH */
+	/* verilator lint_on WIDTH */
 		tree_destp_generator #(
 			.K(T1),
 			.P(P),

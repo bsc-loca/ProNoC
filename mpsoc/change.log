@@ -1,4 +1,22 @@
 All notable changes to this project will be documented in this file.
+##[2.0.0] -15-10-2020
+## added
+- SMART, single cycle multi hop bypass
+- Selfloop suport
+- gui for UART terminal
+- gui for runtime memory controler
+- Suport Xilinx FPFAs
+- Software Auto-generation using CAL language (CAL2C)
+- Suport multitreading in Verilator-based NoC simulator
+- Intigrated netrace to NoC simulator 
+- add new topologies: Fmesh 
+- gui for custom noc topology generation
+- GTK3 support
+
+## changed
+- NoC codes are changing to systemVerilog. Now it uses struct for router connection interface.
+
+
 
 ##[1.9.1] -24-07-2019
 ## changed
