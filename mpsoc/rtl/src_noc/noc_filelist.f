@@ -9,14 +9,14 @@
 ./noc_top.sv
 ./fattree_noc_top.sv
 ./fattree_route.v
-./comb_nonspec.v
+./comb_nonspec.sv
 ./inout_ports.sv
 ./wrra.v
 ./input_ports.sv
 ./tree_noc_top.sv
 ./tree_route.v
 ./comb-spec1.v
-./combined_vc_sw_alloc.v
+./combined_vc_sw_alloc.sv
 ./mesh_torus_routting.v
 ./baseline.v
 ./comb_spec2.v

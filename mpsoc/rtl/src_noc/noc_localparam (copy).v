@@ -33,11 +33,11 @@
 	
 
 //NoC parameters
-	localparam TOPOLOGY="STAR";
-	localparam T1=5;
+	localparam TOPOLOGY="MESH";
+	localparam T1=8;
 	localparam T2=8;
 	localparam T3=1;
-	localparam V=1;
+	localparam V=2;
 	localparam B=4;
 	localparam LB=4;
 	localparam Fpay=32;
@@ -45,10 +45,10 @@
 	localparam PCK_TYPE="MULTI_FLIT";
 	localparam MIN_PCK_SIZE=2;
 	localparam BYTE_EN=0;
-	localparam SSA_EN="NO";
+	localparam SSA_EN="YES";
 	localparam SMART_MAX=0;
 	localparam CONGESTION_INDEX=3;
-	localparam ESCAP_VC_MASK=1;
+	localparam ESCAP_VC_MASK=2'b01;
 	localparam VC_REALLOCATION_TYPE="NONATOMIC";
 	localparam COMBINATION_TYPE="COMB_NONSPEC";
 	localparam MUX_TYPE="BINARY";
@@ -62,7 +62,7 @@
 	localparam AVC_ATOMIC_EN=0;
 	localparam CVw=(C==0)? V : C * V;
 	localparam CLASS_SETTING={CVw{1'b1}};
-    localparam CAST_TYPE = "MULTICAST";//"MULTICAST"; not yest supported
+    localparam CAST_TYPE = "UNICAST";//"MULTICAST"; not yest supported
 	
 	
 	//simulation parameter	

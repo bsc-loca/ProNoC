@@ -215,8 +215,18 @@ localparam
     /* verilator lint_off WIDTH */ 
     localparam
         PPSw = PPSw_MESH_TORI,    
+        // maximum number of port in a router in the topology
+        MAX_P =
+            (TOPOLOGY == "FATTREE")? MAX_P_FATTREE:
+            (TOPOLOGY == "TREE")?  MAX_P_TREE:
+            (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? MAX_P_MESH_TORI:
+            (TOPOLOGY == "FMESH")? MAX_P_MESH_TORI:
+            (TOPOLOGY == "STAR") ? MAX_P_STAR:
+            MAX_P_CUSTOM, 
+        
         // destination port width in header flit           
         DSTPw =
+            (CAST_TYPE!= "UNICAST")? MAX_P: // Each asserted bit indicats that the flit should be sent to that port
             (TOPOLOGY == "FATTREE")? DSTPw_FATTREE:
             (TOPOLOGY == "TREE")?  DSTPw_TREE:
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? DSTPw_MESH_TORI:
@@ -262,15 +272,8 @@ localparam
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? ROUTE_TYPE_MESH_TORI:
             (TOPOLOGY == "FMESH")? ROUTE_TYPE_MESH_TORI:
             (TOPOLOGY == "STAR") ? ROUTE_TYPE_STAR:
-            ROUTE_TYPE_CUSTOM,
-        // maximum number of port in a router in the topology
-        MAX_P =
-            (TOPOLOGY == "FATTREE")? MAX_P_FATTREE:
-            (TOPOLOGY == "TREE")?  MAX_P_TREE:
-            (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? MAX_P_MESH_TORI:
-            (TOPOLOGY == "FMESH")? MAX_P_MESH_TORI:
-            (TOPOLOGY == "STAR") ? MAX_P_STAR:
-            MAX_P_CUSTOM; 
+            ROUTE_TYPE_CUSTOM;
+        
     /* verilator lint_on WIDTH */         
  
  

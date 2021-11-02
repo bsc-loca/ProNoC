@@ -33,8 +33,7 @@ module output_ports
 )(
     vsa_ovc_allocated_all,
     flit_is_tail_all,
-    assigned_ovc_num_all,
-    ovc_is_assigned_all,
+   
     dest_port_all,
     nonspec_granted_dest_port_all,
     credit_in_all,
@@ -53,7 +52,8 @@ module output_ports
     vsa_ovc_released_all,
     crossbar_flit_out_wr_all,
     oport_info,
-    ovc_info,    
+    ovc_info,  
+    ivc_info,
     vsa_ctrl_in,
     ssa_ctrl_in,
     smart_ctrl_in,
@@ -87,9 +87,7 @@ module output_ports
     localparam  CONG_ALw=   CONGw * P;   //  congestion width per router;             
                     
     input  [PV-1       :    0] vsa_ovc_allocated_all;
-    input  [PV-1       :    0] flit_is_tail_all;
-    input  [PVV-1      :    0] assigned_ovc_num_all;
-    input  [PV-1       :    0] ovc_is_assigned_all;
+    input  [PV-1       :    0] flit_is_tail_all;   
     input  [PVP_1-1    :    0] dest_port_all;
     input  [PP_1-1     :    0] nonspec_granted_dest_port_all;
     input  [PV-1       :    0] credit_in_all;
@@ -107,9 +105,10 @@ module output_ports
     output [PV-1    :    0]  vsa_ovc_released_all;
     output [PV-1    :    0]  vsa_credit_decreased_all;
     output oport_info_t oport_info [P-1:0];
-    output ovc_info_t   ovc_info   [P-1 : 0][V-1 : 0];    
-    input   vsa_ctrl_t  vsa_ctrl_in [P-1: 0];
-    input   ssa_ctrl_t  ssa_ctrl_in [P-1: 0];
+    output ovc_info_t   ovc_info   [P-1 : 0][V-1 : 0];
+    input   ivc_info_t ivc_info [P-1 : 0][V-1 : 0]; 
+    input   vsa_ctrl_t vsa_ctrl_in [P-1: 0];
+    input   ssa_ctrl_t ssa_ctrl_in [P-1: 0];
     input   smart_ctrl_t  smart_ctrl_in [P-1: 0];
     input   [CRDTw-1 : 0 ] credit_init_val_in  [P-1 : 0][V-1 : 0];
     
@@ -134,6 +133,9 @@ module output_ports
     wire [PV-1  :   0] ovc_released_all;
     wire [PV-1  :   0] ovc_allocated_all;
     wire [CREDITw-1   :    0] credit_counter [PV-1  :   0]; 
+    
+    wire  [PVV-1      :    0] assigned_ovc_num_all;
+    wire  [PV-1       :    0] ovc_is_assigned_all;
     
     
     register #(.W(PV)) reg_1 ( .in(full_all_next), .reset(reset), .clk(clk), .out(full_all));
@@ -283,6 +285,11 @@ module output_ports
     
     for(i=0; i<PV; i=i+1) begin :PV_loop2
         
+    	assign assigned_ovc_num_all[(i+1)*V-1 : i*V] = ivc_info[i/V][i%V].assigned_ovc_num;
+    	assign ovc_is_assigned_all[i]=ivc_info[i/V][i%V].ovc_is_assigned;
+    	    	
+    
+    	
     	credit_monitor_per_ovc	#( 
     			.SW_LOC(i/V)
     		)
@@ -418,6 +425,11 @@ if(DEBUG_EN) begin: debug
        end
     end//always
     
+
+    /* verilator lint_off WIDTH */    
+    if(CAST_TYPE== "UNICAST") begin : unicast
+    /* verilator lint_on WIDTH */
+
     localparam NUM_WIDTH = log2(PV+1);
     wire [NUM_WIDTH-1        :    0] num1,num2;
     parallel_counter #(
@@ -442,7 +454,7 @@ if(DEBUG_EN) begin: debug
         	$finish;
         end
     end
-    
+    end //unicast
     check_ovc #(
         .V(V) , // vc_num_per_port
         .P(P), // router port num

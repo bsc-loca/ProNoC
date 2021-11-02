@@ -29,19 +29,15 @@
 ***********************************************************************/    
 
     
-module comb_nonspec_allocator #(
-    parameter  V = 4,
-    parameter  P = 5,
-    parameter  FIRST_ARBITER_EXT_P_EN = 1,
-   // parameter  VC_ARBITER_TYPE = "RRA", // "RRA", "FIX_PR"
-    parameter  SWA_ARBITER_TYPE = "WRRA",// "RRA", "WRRA"
-    parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1. 
-    parameter SELF_LOOP_EN= "NO"
-)(
+module comb_nonspec_allocator 
+   import pronoc_pkg::*;
+#(
+    parameter P = 5 //port number
+)
+(
     //VC allocator
     //input 
     dest_port_all,         // from input port
-    ovc_is_assigned_all,    // 
     masked_ovc_request_all,
     pck_is_single_flit_all,
     
@@ -52,8 +48,7 @@ module comb_nonspec_allocator #(
     ivc_num_getting_ovc_grant,
     
     //switch_alloc
-    ivc_request_all,
-    assigned_ovc_not_full_all,
+    ivc_info,   
     vc_weight_is_consumed_all,
     iport_weight_is_consumed_all,
     
@@ -80,16 +75,18 @@ module comb_nonspec_allocator #(
         PVV = PV * V,
         PVP_1 = PV * P_1;            
 
-                    
+    
+    input  ivc_info_t ivc_info [P-1 : 0][V-1 : 0]; 
+        
     input  [PVV-1 : 0] masked_ovc_request_all;
     input  [PVP_1-1 : 0] dest_port_all;
-    input  [PV-1 : 0] ovc_is_assigned_all;
+   
     input  [PV-1 : 0] pck_is_single_flit_all;
     output [PV-1 : 0] ovc_allocated_all;
     output [PVV-1 : 0] granted_ovc_num_all;
     output [PV-1 : 0] ivc_num_getting_ovc_grant;
-    input  [PV-1 : 0] ivc_request_all;
-    input  [PV-1 : 0] assigned_ovc_not_full_all;
+    
+    
     output [PP_1-1 : 0] granted_dest_port_all;
     output [PV-1 : 0] ivc_num_getting_sw_grant;
     output [P-1 : 0] any_ivc_sw_request_granted_all;
@@ -107,6 +104,12 @@ module comb_nonspec_allocator #(
     wire   [PV-1 : 0] first_arbiter_granted_ivc_all;
     wire   [PV-1 : 0] ivc_request_masked_all;
     wire   [P-1 : 0] any_cand_ovc_exsit;
+    
+    
+    wire  [PV-1 : 0] ivc_request_all;
+    wire  [PV-1 : 0] ovc_is_assigned_all;
+    wire  [PV-1 : 0] assigned_ovc_not_full_all;
+    
     
     assign nonspec_first_arbiter_granted_ivc_all = first_arbiter_granted_ivc_all;
     
@@ -164,9 +167,11 @@ module comb_nonspec_allocator #(
     
     generate 
     // IVC loop
-    for(i=0;i< PV;i=i+1) begin :total_vc_loop
-                        
-        // mask unavailable ovc from requests
+    for(i=0;i< PV;i=i+1) begin :total_vc_loop   
+    
+    
+    	
+    	// mask unavailable ovc from requests
         assign masked_non_assigned_request    [i]  =    masked_ovc_request_all [(i+1)*V-1 : i*V ];
         assign masked_assigned_request        [i]  =    assigned_ovc_not_full_all [i] & assigned_ovc_request_all [i]; 
         
@@ -220,10 +225,17 @@ module comb_nonspec_allocator #(
     
     end//for
     
-    
+    wire [P-1 : 0] ovc_assigned_local;
+    	
     for(i=0;i< P;i=i+1) begin :port_loop3
             for(j=0;j< V;j=j+1) begin :vc_loop
                 //merge masked_candidate_ovc in each port
+            	
+            	assign ivc_request_all[i*V+j] = ivc_info[i][j].ivc_req;
+            	assign ovc_is_assigned_all[i*V+j] = ivc_info[i][j].ovc_is_assigned;  
+            	assign assigned_ovc_not_full_all[i*V+j] =ivc_info[i][j].assigned_ovc_not_full;
+            	
+            	
                 assign masked_candidate_ovc_per_port[i][(j+1)*V-1 : j*V] =    first_arbiter_ovc_granted    [i*V+j];
             end//for j
             
@@ -238,13 +250,28 @@ module comb_nonspec_allocator #(
         )
         multiplexer2
         (
-            .in            (masked_candidate_ovc_per_port    [i]),
-            .out            (candidate_ovc_local_num    [i]),
+        	.in            (masked_candidate_ovc_per_port    [i]),
+        	.out            (candidate_ovc_local_num    [i]),
             .sel                (first_arbiter_granted_ivc_per_port        [i])
 
         );
         
-        assign any_cand_ovc_exsit[i] = | candidate_ovc_local_num    [i];
+        
+        
+        onehot_mux_1D #(
+        		.W (1),
+        		.N (V)
+        	)
+        	multiplexer2_1
+        	(
+        		.in  (ovc_is_assigned_all[(i+1)*V-1 : i*V]),
+        		.out (ovc_assigned_local[i]),
+        		.sel (first_arbiter_granted_ivc_per_port [i])
+
+        	);
+        
+        
+     //   assign any_cand_ovc_exsit[i] = | candidate_ovc_local_num    [i];
     
         
         //demultiplexer        
@@ -260,7 +287,7 @@ module comb_nonspec_allocator #(
         );
     
         assign granted_ovc_local_num_per_port    [i]=(any_ivc_sw_request_granted_all[i] )?  candidate_ovc_local_num[i] : {V{1'b0}};
-        assign ivc_local_num_getting_ovc_grant    [i]= (any_ivc_sw_request_granted_all[i] & any_cand_ovc_exsit[i])?     first_arbiter_granted_ivc_per_port [i] : {V{1'b0}};
+        assign ivc_local_num_getting_ovc_grant    [i]= (any_ivc_sw_request_granted_all[i] & ~ovc_assigned_local[i])?     first_arbiter_granted_ivc_per_port [i] : {V{1'b0}};
         assign ivc_num_getting_ovc_grant   [(i+1)*V-1 : i*V] = ivc_local_num_getting_ovc_grant[i];
         for(j=0;j<V;    j=j+1)begin: assign_loop3
             assign granted_ovc_num_all[(i*VV)+((j+1)*V)-1 : (i*VV)+(j*V)]=granted_ovc_local_num_per_port[i];

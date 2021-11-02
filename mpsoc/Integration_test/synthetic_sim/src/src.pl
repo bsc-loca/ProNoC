@@ -5,17 +5,17 @@ use File::Path qw( rmtree );
 
 my $script_path = dirname(__FILE__);
 my $dirname = "$script_path/..";
-
+my $root = "$dirname/../..";
 
 my $rtl_dir = "$ENV{PRONOC_WORK}/verify/rtl";
 my $work    = "$ENV{PRONOC_WORK}/verify/work";
-my $src_verilator = "$dirname/../src_verilator";
-my $src_c = "$dirname/../src_c";
+my $src_verilator = "$root/src_verilator";
+my $src_c = "$root/src_c";
 my $src = "$script_path";
 my $report = "$dirname/report";
 
-require "$dirname/../perl_gui/lib/perl/common.pl";
-require "$dirname/../perl_gui/lib/perl/topology.pl";
+require "$root/perl_gui/lib/perl/common.pl";
+require "$root/perl_gui/lib/perl/topology.pl";
 
 use strict;
 use warnings;
@@ -200,11 +200,11 @@ sub copy_src_files{
 			exit;
 	}
 	
-	dircopy("$dirname/../rtl/src_noc"    , "$rtl_dir/src_noc"    ) or die("$!\n") unless (-d "$rtl_dir/src_noc"    );
-    dircopy("$dirname/../rtl/src_topolgy", "$rtl_dir/src_topolgy") or die("$!\n") unless (-d "$rtl_dir/src_topolgy");
+	dircopy("$root/rtl/src_noc"    , "$rtl_dir/src_noc"    ) or die("$!\n") unless (-d "$rtl_dir/src_noc"    );
+    dircopy("$root/rtl/src_topolgy", "$rtl_dir/src_topolgy") or die("$!\n") unless (-d "$rtl_dir/src_topolgy");
 
     unlink "$rtl_dir/src_noc/noc_localparam.v";
-    for my $file (glob "$dirname/../rtl/*.v") {
+    for my $file (glob "$root/rtl/*.v") {
    		 copy $file, "$rtl_dir" or die $! ; 
 	}
 

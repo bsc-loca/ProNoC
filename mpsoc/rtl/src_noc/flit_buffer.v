@@ -47,6 +47,7 @@ module flit_buffer #(
         reset,
         clk,
         ssa_rd
+       
     );
 
    
@@ -73,6 +74,8 @@ module flit_buffer #(
     input                   reset;
     input                   clk;
     input  [V-1        :0]  ssa_rd;
+   
+    
     
     localparam BVw              =   log2(BV),
                Bw               =   (B==1)? 1 : log2(B),
@@ -99,7 +102,7 @@ module flit_buffer #(
   
     assign  wr  =   (wr_en)?  vc_num_wr : {V{1'b0}};
     assign  rd  =   (rd_en)?  vc_num_rd : ssa_rd;
-    
+  
 
 genvar i;
 
@@ -150,51 +153,45 @@ generate
     
     
     onehot_mux_1D #(
-        .W       (Bw),
-        .N      (V) 
+        .W(Bw),
+        .N(V) 
     )
     wr_ptr_mux
     (
-        .in        (wr_ptr_array),
-        .out       (vc_wr_addr),
-        .sel       (vc_num_wr)
+        .in(wr_ptr_array),
+        .out(vc_wr_addr),
+        .sel(vc_num_wr)
     );
     
         
     
     onehot_mux_1D #(
-        .W       (Bw),
-        .N      (V) 
+        .W(Bw),
+        .N(V) 
     )
     rd_ptr_mux
     (
-        .in         (rd_ptr_array),
-        .out            (vc_rd_addr),
-        .sel                (vc_num_rd)
-    );
-    
-    
+        .in(rd_ptr_array),
+        .out(vc_rd_addr),
+        .sel(vc_num_rd)
+    );    
     
     one_hot_to_bin #(
-    .ONE_HOT_WIDTH  (V)
-    
+        .ONE_HOT_WIDTH(V)    
     )
     wr_vc_start_addr
     (
-    .one_hot_code   (vc_num_wr),
-    .bin_code       (wr_select_addr)
-
+        .one_hot_code(vc_num_wr),
+        .bin_code(wr_select_addr)
     );
     
     one_hot_to_bin #(
-    .ONE_HOT_WIDTH  (V)
-    
+        .ONE_HOT_WIDTH(V)    
     )
     rd_vc_start_addr
     (
-    .one_hot_code   (vc_num_rd),
-    .bin_code       (rd_select_addr)
-
+        .one_hot_code(vc_num_rd),
+        .bin_code(rd_select_addr)
     );
 
     fifo_ram    #(
@@ -204,13 +201,13 @@ generate
     )
     the_queue
     (
-        .wr_data        (fifo_ram_din), 
-        .wr_addr        (wr_addr[BVw-1  :   0]),
-        .rd_addr        (rd_addr[BVw-1  :   0]),
-        .wr_en          (wr_en),
-        .rd_en          (rd_en),
-        .clk            (clk),
-        .rd_data        (fifo_ram_dout)
+        .wr_data(fifo_ram_din), 
+        .wr_addr(wr_addr[BVw-1  :   0]),
+        .rd_addr(rd_addr[BVw-1  :   0]),
+        .wr_en(wr_en),
+        .rd_en(rd_en),
+        .clk(clk),
+        .rd_data(fifo_ram_dout)
     );  
 
     for(i=0;i<V;i=i+1) begin :loop0
@@ -233,7 +230,7 @@ generate
             end
             else begin
                 if (wr[i] ) wr_ptr[i] <= wr_ptr [i]+ 1'h1;
-                if (rd[i] ) rd_ptr [i]<= rd_ptr [i]+ 1'h1;
+                if (rd[i]  ) rd_ptr [i]<= rd_ptr [i]+ 1'h1;
                 if (wr[i] & ~rd[i]) depth [i]<= depth[i] + 1'h1;
                 else if (~wr[i] & rd[i]) depth [i]<= depth[i] - 1'h1;
             end//else
