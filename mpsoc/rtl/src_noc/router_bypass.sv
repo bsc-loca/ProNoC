@@ -20,30 +20,13 @@
  * lk-ahead routing, The packet can by-pass the next router once the bypassing condition are met
  ***************************/
 
-module pronoc_register #(
-		parameter W=1,
-		parameter RESET_TO={W{1'b0}}
-		)( 
-		input [W-1:0] in,
-		input reset,	
-		input clk,		
-		output reg [W-1:0] out
-		);
-	
-	
-	
-	`ifdef SYNC_RESET_MODE 
-		always @ (posedge clk )begin 
-		`else 
-			always @ (posedge clk or posedge reset)begin 
-			`endif  
-			if(reset) begin 	
-				out<=RESET_TO;
-			end else begin
-				out<=in;
-			end
-		end
-endmodule
+`include "pronoc_def.v"
+
+
+
+
+
+
 
 	
 module reduction_or #(
@@ -358,12 +341,8 @@ module smart_forward_ivc_info
 		end
 		/*
 		
-		`ifdef SYNC_RESET_MODE 
-			always @ (posedge clk )begin 
-		`else 
-			always @ (posedge clk or posedge reset)begin 
-		`endif  
-				if(reset) begin 	
+			always @ (`pronoc_clk_reset_edge )begin 
+				if(`pronoc_reset) begin 	
 					smart_chanel[i].dest_e_addr<= {EAw{1'b0}};	
 					smart_chanel[i].ovc<= {V{1'b0}};
 					smart_chanel[i].hdr_flit<=1'b0;

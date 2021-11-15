@@ -287,7 +287,7 @@ module input_queue_per_port
 	input   [V-1 : 0] nonspec_first_arbiter_granted_ivc;
 	   
 	input   [DSTPw-1 : 0] destport_clear [V-1 : 0];            
-	output reg [WEIGHTw-1 : 0] iport_weight;
+	output  [WEIGHTw-1 : 0] iport_weight;
 	output  [V-1 : 0] vc_weight_is_consumed;
 	output  iport_weight_is_consumed;
 	input   refresh_w_counter;
@@ -338,6 +338,7 @@ module input_queue_per_port
 	
 	wire [V-1 : 0] dstport_fifo_not_empty;
 
+	logic  [WEIGHTw-1 : 0] iport_weight_next;
 	
 	assign smart_hdr_en  = (SMART_EN) ? smart_ctrl_in.ivc_num_getting_ovc_grant: {V{1'b0}};
 	assign reset_ivc  = smart_ctrl_in.ivc_reset | ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset;
@@ -373,18 +374,17 @@ module input_queue_per_port
 			.clk    (clk   ), 
 			.out    (wr_hdr_fwft_fifo_delay ));
 	
+	pronoc_register #(.W(WEIGHTw), .RESET_TO(1)) reg5(
+			.in		(iport_weight_next ), 
+			.reset  (reset ), 
+			.clk    (clk   ), 
+			.out    (iport_weight  ));
 	
-	`ifdef SYNC_RESET_MODE 
-		always @ (posedge clk )begin 
-		`else 
-			always @ (posedge clk or posedge reset)begin 
-			`endif   
-			if(reset) begin 
-				iport_weight <= 1;
-			end else begin 
-				if(hdr_flit_wr != {V{1'b0}})  iport_weight <= (weight_in=={WEIGHTw{1'b0}})? 1 : weight_in; // the minimum weight is 1
-			end
-		end
+	
+	always @ (*)begin 
+		iport_weight_next = iport_weight;
+		if(hdr_flit_wr != {V{1'b0}})  iport_weight_next = (weight_in=={WEIGHTw{1'b0}})? 1 : weight_in; // the minimum weight is 1
+	end
 
 	
 	//extract header flit info
@@ -1196,7 +1196,9 @@ module destp_generator #(
 			.port_pre_sel(port_pre_sel),
 			.odd_column(odd_column)// only needed for odd even routing
 		);
+		/* verilator lint_off WIDTH */
 	end else if (TOPOLOGY == "FMESH") begin :fmesh
+		/* verilator lint_on WIDTH */
 		fmesh_destp_generator  #(
 			.ROUTE_NAME(ROUTE_NAME),
 			.ROUTE_TYPE(ROUTE_TYPE),

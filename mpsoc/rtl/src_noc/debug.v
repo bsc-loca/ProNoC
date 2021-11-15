@@ -32,7 +32,8 @@ module check_flit_chanel_type_is_in_order #(
     
 
     wire [V-1 : 0] vc_num_hdr_wr, vc_num_tail_wr,vc_num_bdy_wr ;
-    reg  [V-1 : 0] hdr_passed, hdr_passed_next;
+    wire [V-1 : 0] hdr_passed;
+    reg  [V-1 : 0] hdr_passed_next;
     wire [V-1 : 0] single_flit_pck;
     
     assign  vc_num_hdr_wr =(hdr_flg_in & flit_in_wr) ?    vc_num_in : 0;
@@ -44,13 +45,19 @@ module check_flit_chanel_type_is_in_order #(
     end
     
     // synthesis translate_off
-    always @ (posedge clk or posedge reset) begin 
-        if(reset)  begin 
-            hdr_passed <= 0;
-            
-        end else begin 
-           
-            hdr_passed     <= hdr_passed_next;
+    
+    pronoc_register #(
+           .W(V)          
+      ) reg2 ( 
+           .in(hdr_passed_next),
+           .reset(reset),    
+           .clk(clk),      
+           .out(hdr_passed)
+      );    
+    
+    
+    
+    always @ (posedge clk ) begin 
             if(( hdr_passed & vc_num_hdr_wr)>0  )begin 
                 $display("%t ERROR: a header flit is received in  an active IVC %m",$time);               
                 $finish;
@@ -73,9 +80,8 @@ module check_flit_chanel_type_is_in_order #(
                 $display("%t ERROR: A single flit packet is injected while the minimum packet size is set to %d.  %m",$time,MIN_PCK_SIZE);
                 $finish;
             end
-            //TODO check that the injected packet size meets the MIN_PCK_SIZE
-            
-        end//else
+            //TODO check that the injected packet size meets the MIN_PCK_SIZE            
+       
     end//always
     // synthesis translate_on
 endmodule
@@ -217,29 +223,40 @@ if(ROUTE_TYPE == "DETERMINISTIC")begin :dtrmn
 if(ROUTE_TYPE == "FULL_ADAPTIVE")begin :full_adpt
 /* verilator lint_on WIDTH */    
       
-        reg [V-1 : 0] not_empty;
-        always@( posedge clk or posedge reset) begin
-            if(reset) begin
-               not_empty <=0;
-            end else begin 
-               if(hdr_flg_in & flit_in_wr) begin
-                    not_empty <= not_empty | vc_num_in;
-                    if( ((AVC_ATOMIC_EN==1)&& (SW_LOC!= LOCAL)) || (SW_LOC== NORTH) || (SW_LOC== SOUTH) )begin   
-                        if((vc_num_in  & ~ESCAP_VC_MASK)>0) begin // adaptive VCs
-                            if( (not_empty & vc_num_in)>0) $display("%t  :Error AVC allocated nonatomicly in %d port %m",$time,SW_LOC);
-                        end
-                    end//( AVC_ATOMIC_EN || SW_LOC== NORTH || SW_LOC== SOUTH )
-                    
-                        if((vc_num_in  & ESCAP_VC_MASK)>0 && (SW_LOC== SOUTH || SW_LOC== NORTH) )  begin // escape vc
-                            // if (a & b) $display("%t  :Error EVC allocation violate subfunction routing rules %m",$time);
-                            if ((current_x - x_dst_in) !=0 && (current_y- y_dst_in) !=0) $display("%t  :Error EVC allocation violate subfunction routing rules src_x=%d src_y=%d dst_x%d   dst_y=%d %m",$time,x_src_in, y_src_in, x_dst_in,y_dst_in);
-                        end
-                     
-                end//hdr_wr_in
-                if((flit_is_tail & ivc_num_getting_sw_grant)>0)begin
-                    not_empty <= not_empty & ~ivc_num_getting_sw_grant;
-                end//tail wr out
-            end//reset
+    wire [V-1 : 0] not_empty;
+    reg  [V-1 : 0] not_empty_next;
+        
+    pronoc_register #(
+           .W(V)          
+      ) reg2 ( 
+           .in(not_empty_next),
+           .reset(reset),    
+           .clk(clk),      
+           .out(not_empty)
+      );
+
+     always@(*) begin
+        not_empty_next = not_empty;
+        if(hdr_flg_in & flit_in_wr) begin
+            not_empty_next = not_empty | vc_num_in;
+        end//hdr_wr_in
+        if((flit_is_tail & ivc_num_getting_sw_grant)>0)begin
+            not_empty_next = not_empty & ~ivc_num_getting_sw_grant;
+        end//tail wr out
+     end//always
+        
+    always@( posedge clk ) begin
+        if(hdr_flg_in & flit_in_wr) begin
+            if( ((AVC_ATOMIC_EN==1)&& (SW_LOC!= LOCAL)) || (SW_LOC== NORTH) || (SW_LOC== SOUTH) )begin   
+                if((vc_num_in  & ~ESCAP_VC_MASK)>0) begin // adaptive VCs
+                    if( (not_empty & vc_num_in)>0) $display("%t  :Error AVC allocated nonatomicly in %d port %m",$time,SW_LOC);
+                end
+             end//( AVC_ATOMIC_EN || SW_LOC== NORTH || SW_LOC== SOUTH )
+             if((vc_num_in  & ESCAP_VC_MASK)>0 && (SW_LOC== SOUTH || SW_LOC== NORTH) )  begin // escape vc
+                       // if (a & b) $display("%t  :Error EVC allocation violate subfunction routing rules %m",$time);
+                    if ((current_x - x_dst_in) !=0 && (current_y- y_dst_in) !=0) $display("%t  :Error EVC allocation violate subfunction routing rules src_x=%d src_y=%d dst_x%d   dst_y=%d %m",$time,x_src_in, y_src_in, x_dst_in,y_dst_in);
+             end                     
+         end//hdr_wr_in            
         end//always
     end //SW_LOC
 

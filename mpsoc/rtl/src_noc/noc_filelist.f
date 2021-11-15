@@ -1,4 +1,5 @@
 +incdir+./
++incdir+./../
 ./pronoc_pkg.sv
 ./../main_comp.v
 ./../arbiter.v

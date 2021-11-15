@@ -16,13 +16,15 @@ module router_top
 	# (
 		parameter P = 5     // router port num         
 		)(
-			current_r_addr,// connected to constant parameter 
+			current_r_addr,
 					
 			chan_in,
 			chan_out,
         
 			clk,
 			reset
+			
+			
 			
 		);
 	
@@ -35,6 +37,9 @@ module router_top
 	
 	input   smartflit_chanel_t chan_in [P-1 : 0];
 	output  smartflit_chanel_t chan_out [P-1 : 0];
+	
+	
+	
 	
 	input   clk,reset;	
 	

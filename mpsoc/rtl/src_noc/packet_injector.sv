@@ -3,7 +3,7 @@
  * This module can inject and eject packets from the NoC.
  * It can be used in simulation for injecting real application traces to the NoC 
  * *************************/
-
+`include "pronoc_def.v"
 
 module packet_injector 
 		import pronoc_pkg::*; 
@@ -105,13 +105,13 @@ module packet_injector
 		MIN_PCK_SIZ = REMAIN_DAT_FLIT +1;
 		
 	
-	reg [PCK_SIZw-1             :   0]  counter, counter_next;
-	reg [CNTw-1                 :   0]  counter2,counter2_next;
+	logic [PCK_SIZw-1             :   0]  counter, counter_next;
+	logic [CNTw-1                 :   0]  counter2,counter2_next;
 	reg tail,head;	
 		
 	wire [Fpay -1 : 0]  remain_dat [REMAIN_DAT_FLIT -1 : 0];
 	wire [Fpay-1 : 0] dataIn =  remain_dat[counter2];
-	enum {HEADER, BODY,TAIL} flit_type,flit_type_next;
+	enum  bit [2:0] {HEADER, BODY,TAIL} flit_type,flit_type_next;
 		
 	
 	
@@ -188,25 +188,26 @@ module packet_injector
 						flit_wr=1;
 						tail=1'b1;
 					end
+					default: begin
+						
+					end	
 				endcase
 				
 			end
 		end
-		reg [V-1 : 0] credit_o;
 		
-		always @ (posedge clk) begin 
-			if(reset) begin 
-				flit_type<=HEADER;
-				counter<=0;
-				counter2<=0;
-				credit_o<={V{1'b0}};				
-			end else begin 
-				flit_type<=flit_type_next;
-				counter<=counter_next;
-				counter2<=counter2_next;
-				if (chan_in.flit_chanel.flit_wr) credit_o<=  chan_in.flit_chanel.flit.vc;
-				else credit_o<={V{1'b0}};		
-			end
+		logic [V-1 : 0] credit_o, credit_o_next;
+		
+		pronoc_register #(.W(3),.RESET_TO(HEADER) ) reg1 (.in(flit_type_next ), .out(flit_type), .reset(reset), .clk(clk));
+		pronoc_register #(.W(PCK_SIZw)) reg2 (.in(counter_next ), .out(counter), .reset(reset), .clk(clk));
+		pronoc_register #(.W(CNTw))     reg3 (.in(counter2_next ), .out(counter2), .reset(reset), .clk(clk));
+		pronoc_register #(.W(V))     reg4 (.in(credit_o_next ), .out(credit_o), .reset(reset), .clk(clk));
+		
+		
+		always @ (*) begin 
+				credit_o_next = credit_o;				
+				if (chan_in.flit_chanel.flit_wr) credit_o_next =  chan_in.flit_chanel.flit.vc;
+				else credit_o_next = {V{1'b0}};		
 		end	
 		
 		
@@ -280,8 +281,8 @@ module packet_injector
 			
 			
 			
-			always_ff @(posedge clk or posedge reset) begin
-				if (reset)  begin
+			always @ (`pronoc_clk_reset_edge )begin 
+				if(`pronoc_reset)  begin
 					rsv_counter[i]<= {PCK_SIZw{1'b0}};
 					h2t_counter[i]<= 16'd0;
 					sender_endp_addr_reg [i]<= {EAw{1'b0}};
@@ -308,8 +309,8 @@ module packet_injector
 
 			for (k=0;k< REMAIN_DAT_FLIT+1;k++)begin : K_
 			
-				always_ff @(posedge clk or posedge reset) begin
-					if (reset)  begin
+				always @ (`pronoc_clk_reset_edge )begin 
+					if(`pronoc_reset)  begin
 						pck_data_o_gen [i][k] <= {Fpay{1'b0}};
 						
 					end else begin
@@ -325,7 +326,7 @@ module packet_injector
 					end //else
 				end// always
 					
-                                        if   (k == 0 ) assign pck_data_o [i][HDR_DATA_w-1 : 0] = pck_data_o_gen [i][0][HDR_DATA_w-1 : 0];
+                    if   (k == 0 ) assign pck_data_o [i][HDR_DATA_w-1 : 0] = pck_data_o_gen [i][0][HDR_DATA_w-1 : 0];
 					else if (k == REMAIN_DAT_FLIT) assign pck_data_o [i][PCK_INJ_Dw-1 :    (k-1)*Fpay+ HDR_DATA_w] = pck_data_o_gen [i][k][LASTw-1: 0];	
 					else assign pck_data_o [i][(k)*Fpay+HDR_DATA_w -1 : (k-1)*Fpay+ HDR_DATA_w] = pck_data_o_gen [i][k];	
 					
@@ -495,12 +496,8 @@ module injector_ovc_status #(
 	genvar i;
 	generate
 		for(i=0;i<V;i=i+1) begin : vc_loop
-			`ifdef SYNC_RESET_MODE 
-				always @ (posedge clk )begin 
-				`else 
-					always @ (posedge clk or posedge reset)begin 
-					`endif  
-					if(reset)begin
+				always @ (`pronoc_clk_reset_edge )begin 
+					if(`pronoc_reset) begin
 						credit[i]<= credit_init_val_in[i][DEPTH_WIDTH-1:0];
 					end else begin
 						if(  wr_in[i]  && ~credit_in[i])   credit[i] <= credit[i]-1'b1;

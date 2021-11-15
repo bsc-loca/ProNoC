@@ -780,6 +780,22 @@ if($topology ne '"CUSTOM"' ){
     $type="Combo-box";
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param');
     
+    
+    
+    #CAST_TYPE
+    $label='Castting Type';
+    $param='CAST_TYPE';
+    $default= '"UNICAST"';
+    $info=''; 
+    $content='"UNICAST","MULTICAST"';
+    $type="Combo-box";
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param');
+    
+   
+    
+    
+    
+    
     if($show_noc == 1){    
         $b1= def_image_button("icons/up.png","NoC Parameters");
         $table->attach  ( $b1 , 0, 2, $row,$row+1,'fill','shrink',2,2);

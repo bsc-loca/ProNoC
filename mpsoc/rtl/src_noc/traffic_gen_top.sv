@@ -1,4 +1,5 @@
 `timescale  1ns/1ps
+`include "pronoc_def.v"
 
 module  traffic_gen_top
 		import pronoc_pkg::*; 
@@ -132,7 +133,7 @@ module  traffic_gen_top
 		
 	reg                                 inject_en,cand_wr_vc_en,pck_rd;
 	reg    [PCK_SIZw-1              :0] pck_size, pck_size_next;    
-	reg    [EAw-1                    :0] dest_e_addr_reg;
+	logic    [EAw-1                    :0] dest_e_addr_reg;
 		
 	// synopsys  translate_off
 	// synthesis translate_off
@@ -167,18 +168,9 @@ module  traffic_gen_top
    
 	wire [HDR_Dw-1 : 0] hdr_data_in,rd_hdr_data_out;
    
-    
-	`ifdef SYNC_RESET_MODE 
-		always @ (posedge clk )begin 
-		`else 
-			always @ (posedge clk or posedge reset)begin 
-			`endif   
-			if(reset) begin 
-				dest_e_addr_reg<={EAw{1'b0}};           
-			end else begin 
-				dest_e_addr_reg<=dest_e_addr;       
-			end
-		end
+	pronoc_register #(.W(EAw)) reg2 (.in(dest_e_addr ), .out(dest_e_addr_reg), .reset(reset), .clk(clk));
+	  
+	
    
 		wire    [DSTPw-1                :   0] destport;   
 		wire    [V-1                    :   0] ovc_wr_in;
@@ -574,12 +566,8 @@ module  traffic_gen_top
 		if((tail_flit & flit_out_wr ) || not_yet_sent_aflit) pck_size_next  = pck_size_in;
 	end
     
-	`ifdef SYNC_RESET_MODE 
-		always @ (posedge clk )begin 
-		`else 
-			always @ (posedge clk or posedge reset)begin 
-			`endif   
-			if(reset) begin 
+		always @ (`pronoc_clk_reset_edge )begin 
+			if(`pronoc_reset) begin 
 				inject_en       <= 1'b0;
 				ps              <= IDEAL;
 				wr_vc           <=1; 
@@ -704,18 +692,15 @@ module  traffic_gen_top
     
     
 				integer ii;
-			`ifdef SYNC_RESET_MODE 
-				always @ (posedge clk )begin 
-				`else 
-					always @ (posedge clk or posedge reset)begin 
-					`endif  
-					if(reset) begin
+				
+				always @ (`pronoc_clk_reset_edge )begin 
+					if(`pronoc_reset) begin
 						for(ii=0;ii<V;ii=ii+1'b1)begin
 							old_flit_counter[ii]<=0;            
 						end        
 					end else begin
 						if(flit_in_wr)begin
-							if      ( flit_in[Fw-1:Fw-2]==2'b10)  begin
+							if ( flit_in[Fw-1:Fw-2]==2'b10)  begin
 								old_pck_number[rd_vc_bin]<=0;
 								old_flit_counter[rd_vc_bin]<=0;
 							end else if ( flit_in[Fw-1:Fw-2]==2'b00)begin 
@@ -723,10 +708,10 @@ module  traffic_gen_top
 								old_flit_counter[rd_vc_bin]<=rsv_flit_counter;
 							end                    
                 
-						end       
+						end //flit_in_wr      
         
-					end    
-				end
+					end    //reset
+				end//always
     
     
 				always @(posedge clk) begin     
@@ -854,12 +839,8 @@ module injection_ratio_ctrl #
 	
 	
 	
-	`ifdef SYNC_RESET_MODE 
-		always @ (posedge clk )begin 
-		`else 
-			always @ (posedge clk or posedge reset)begin 
-			`endif  
-			if( reset) begin            
+	always @ (`pronoc_clk_reset_edge )begin 
+		if(`pronoc_reset) begin             
 				state       <=  STATE_INIT;
 				inject      <=  1'b0; 
 				sent        <=  1'b1; 
@@ -1031,14 +1012,9 @@ module packet_gen #(
     );
 				 */ 
     
-	`ifdef SYNC_RESET_MODE 
-		always @ (posedge clk )begin 
-		`else 
-			always @ (posedge clk or posedge reset)begin 
-			`endif   
-			if(reset) begin 
-				packet_counter <= {PCK_CNTw{1'b0}};
-	
+	always @ (`pronoc_clk_reset_edge )begin 
+		if(`pronoc_reset) begin 
+				packet_counter <= {PCK_CNTw{1'b0}};	
 			end else begin 
 				if(pck_rd) begin 
 					packet_counter <= packet_counter+1'b1;

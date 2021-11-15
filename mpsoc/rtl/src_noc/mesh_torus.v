@@ -531,7 +531,7 @@ module   mesh_torus_swap_port_presel_gen #(
     input    non_assigned_ovc_request,sel;
     input    clk,reset;
     output   swap_port_presel;
-    reg      swap_reg;
+    wire     swap_reg;
     
     wire swap_port_presel_next;
 
@@ -569,29 +569,11 @@ module   mesh_torus_swap_port_presel_gen #(
        
        assign  evc_forbiden = (sel)? y_evc_forbiden : x_evc_forbiden;
        assign  swap_port_presel_next= non_assigned_ovc_request & evc_forbiden & avc_unavailable;
-    
-`ifdef SYNC_RESET_MODE 
-        always @ (posedge clk )begin 
-`else 
-        always @ (posedge clk or posedge reset)begin 
-`endif   
-            if(reset)begin 
-                swap_reg<=1'b0;        
-            end else begin 
-                swap_reg<=swap_port_presel_next;
-            end
-        end
-        assign swap_port_presel = swap_reg;
-       
-    //end //else
-    
-   
-    
-    //endgenerate
-
-
-
-endmodule
+       assign swap_port_presel = swap_reg;
+          
+       pronoc_register #(.W(1)) reg2 (.in(swap_port_presel_next ), .out(swap_reg), .reset(reset), .clk(clk));
+ 
+ endmodule
 
 
 

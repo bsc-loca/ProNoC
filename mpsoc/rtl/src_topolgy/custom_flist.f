@@ -8,3 +8,13 @@
 ./custom1/custom1_noc_genvar.sv
 ./custom1/Tcustom1Rcustom_conventional_routing.v
 ./custom1/Tcustom1Rcustom_conventional_routing_genvar.v
+./mesh4x4/Tmesh4x4Rcustom_conventional_routing_genvar.v
+./mesh4x4/Tmesh4x4Rcustom_conventional_routing.v
+./mesh4x4/Tmesh4x4Rm4_conventional_routing.v
+./mesh4x4/Tmesh4x4Rm4_conventional_routing_genvar.v
+./mesh4x4/mesh4x4_noc_genvar.sv
+./mesh4x4/Tmesh4x4Rm4_look_ahead_routing_genvar.v
+./mesh4x4/Tmesh4x4Rcustom_look_ahead_routing.v
+./mesh4x4/mesh4x4_noc.sv
+./mesh4x4/Tmesh4x4Rm4_look_ahead_routing.v
+./mesh4x4/Tmesh4x4Rcustom_look_ahead_routing_genvar.v

@@ -270,7 +270,7 @@ for (my $i=0;$i<$Pnum; $i++){
 			
 	}else {
 			$router_v = $router_v."//Connect $instance port $i to  ground
-\t	assign  ${instance}_chan_in [$i]= {CHANEL_w{1'b0}};\n";
+\t	assign  ${instance}_chan_in [$i]= {SMARTFLIT_CHANEL_w{1'b0}};\n";
 			
 			foreach my $p (@ports){	
 				my $w=$p->{pwidth};
@@ -669,8 +669,8 @@ for (my $i=0;$i<$Pnum; $i++){
 		
 			$assign = $assign."//Connect $instance port $i to  ground\n";
 			$ass_h.="//Connect $instance port $i to  ground\n";
-			$assign=  $assign."\t\tassign  router_chan_in  \[$pos\]\[$i\] ={CHANEL_w{1'b0}};\n	" if($reverse==0);
-			$assign=  $assign."\t\tassign  router_chan_out \[$pos\]\[$i\] ={CHANEL_w{1'b0}};\n	" if($reverse==1);	
+			$assign=  $assign."\t\tassign  router_chan_in  \[$pos\]\[$i\] ={SMARTFLIT_CHANEL_w{1'b0}};\n	" if($reverse==0);
+			$assign=  $assign."\t\tassign  router_chan_out \[$pos\]\[$i\] ={SMARTFLIT_CHANEL_w{1'b0}};\n	" if($reverse==1);	
 			$ass_h.=  "\tconnect_r2gnd($TNUM_pos,$RNUM_pos,$i);\n" if (defined $TNUM_pos);			
 	}		
 			
@@ -865,6 +865,8 @@ my $localparam="";
 
 
  print $fd "
+ 
+ `include \"pronoc_def.v\"
 /*******************
 *  ${Vname}_look_ahead_routing
 *******************/  
@@ -891,8 +893,8 @@ module ${Vname}_look_ahead_routing  #(
 	reg [EAw-1   :0] dest_e_addr_delay;
 	reg [EAw-1   :0] src_e_addr_delay;
 
-	always @(posedge clk)begin 
-		if(reset)begin 
+	always @ (`pronoc_clk_reset_edge )begin 
+        if(`pronoc_reset)begin 
 			dest_e_addr_delay<={EAw{1'b0}};
 			src_e_addr_delay<={EAw{1'b0}};			
 		end else begin 
@@ -1107,6 +1109,8 @@ foreach my $router (@routers){
 
 
  print $fd "
+ `include \"pronoc_def.v\"
+ 
 /*****************************
 *	${Vname}_look_ahead_routing_genvar
 ******************************/ 
@@ -1132,8 +1136,8 @@ module ${Vname}_look_ahead_routing_genvar  #(
 	reg [EAw-1   :0] dest_e_addr_delay;
 	reg [EAw-1   :0] src_e_addr_delay;
 
-	always @(posedge clk)begin 
-		if(reset)begin 
+	 always @ (`pronoc_clk_reset_edge )begin 
+        if(`pronoc_reset) begin 
 			dest_e_addr_delay<={EAw{1'b0}};
 			src_e_addr_delay<={EAw{1'b0}};			
 		end else begin 
@@ -1634,6 +1638,7 @@ $ports
 		    .chan_in_all(chan_in_all),
 		    .chan_out_all(chan_out_all)  
 		);
+    end
     
     endgenerate
 	

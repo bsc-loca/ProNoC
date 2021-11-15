@@ -27,9 +27,57 @@
 **	different types of multiplexors, converters and counters ...
 **
 **************************************************************/
+`include "pronoc_def.v"
+
+module pronoc_register 
+       #(
+        parameter W=1,
+        parameter  RESET_TO={W{1'b0}}
+        
+        )( 
+            input [W-1:0] in,
+            input reset,    
+            input clk,      
+            output [W-1:0] out
+        );
+
+    pronoc_register_reset_init #(
+        .W(W)           
+    )reg1( 
+        .in(in),
+        .reset(reset),  
+        .clk(clk),      
+        .out(out),
+        .reset_to(RESET_TO[W-1 : 0])
+    );
+    
+    
+
+endmodule
 
 
 
+module pronoc_register_reset_init 
+        #(
+        parameter W=1       
+        )( 
+        input [W-1:0] in,
+        input reset,    
+        input clk,      
+        output reg [W-1:0] out,
+        input [W-1 : 0] reset_to
+        );
+    
+    
+        always @ (`pronoc_clk_reset_edge )begin 
+            if(`pronoc_reset)   out<=reset_to;
+            else        out<=in;
+        end
+        
+    
+    
+        
+endmodule
 
 
 
@@ -924,8 +972,8 @@ endgenerate
    
     reg [2:0] counter;
     assign cnt_increase=(counter==3'd0);
-    always @(posedge clk or posedge reset) begin 
-        if(reset) begin             
+    always @ (`pronoc_clk_reset_edge )begin 
+        if(`pronoc_reset)  begin             
             start_o_reg <= {NC{1'b0}};
             start_i_reg <= 1'b0;
             counter <= 3'd0;

@@ -99,7 +99,7 @@ import pronoc_pkg::*;
     wire   [PV-1      :   0] ivc_reset_all;
     wire   [PV-1      :   0] single_flit_pck_all,ovc_single_flit_pck_all;
     wire   [PV-1      :   0] decreased_credit_in_ss_ovc_all;
-    reg    [P-1       :   0] ssa_flit_wr_all;
+    wire   [P-1       :   0] ssa_flit_wr_all;
   
    
     wire [PV-1   :   0] any_ovc_granted_in_ss_port;
@@ -197,19 +197,16 @@ import pronoc_pkg::*;
     end// vc_loop
     
     
-    for(i=0;i<P;i=i+1)begin: P_                  
-`ifdef SYNC_RESET_MODE 
-        always @ (posedge clk )begin 
-`else 
-        always @ (posedge clk or posedge reset)begin 
-`endif  
-            if(reset)begin
-                    ssa_flit_wr_all[i]<=1'b0;
-            end else begin
-                    ssa_flit_wr_all[i]<= |ivc_num_getting_sw_grantin_SS_all[(i+1)*V-1    :   i*V];                
-            end //reset
-        end// always
-   
+    for(i=0;i<P;i=i+1)begin: P_     
+    	
+    	
+    	pronoc_register #(.W(1)) reg1 (
+    			.in(|ivc_num_getting_sw_grantin_SS_all[(i+1)*V-1    :   i*V] ),
+    			.out(ssa_flit_wr_all[i]),
+    			.reset(reset),
+    			.clk(clk));
+    	
+
     
        
             assign ssa_ctrl_o[i].ovc_is_allocated =ovc_allocated_all [(i+1)*V-1  : i*V];

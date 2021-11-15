@@ -38,7 +38,7 @@
 	localparam T2=8;
 	localparam T3=1;
 	localparam V=1;
-	localparam B=4;
+	localparam B=5;
 	localparam LB=4;
 	localparam Fpay=32;
 	localparam ROUTE_NAME="XY";
@@ -62,7 +62,7 @@
 	localparam AVC_ATOMIC_EN=0;
 	localparam CVw=(C==0)? V : C * V;
 	localparam CLASS_SETTING={CVw{1'b1}};
-    localparam CAST_TYPE = "MULTICAST";//"MULTICAST"; not yest supported
+    localparam CAST_TYPE = "UNICAST";//"MULTICAST"; not yest supported
 	
 	
 	//simulation parameter	

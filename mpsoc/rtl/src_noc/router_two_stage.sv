@@ -147,7 +147,7 @@ module router_two_stage
 	// to/from the crossbar
 	wire  [PFw-1 : 0] iport_flit_out_all;
 	wire  [P-1 : 0] ssa_flit_wr_all;
-	reg   [PP_1-1 : 0] granted_dest_port_all_delayed;
+	logic [PP_1-1 : 0] granted_dest_port_all_delayed;
 	wire  [PFw-1 :  0]  crossbar_flit_out_all;
 	wire  [P-1   :  0]  crossbar_flit_out_wr_all;
 	wire  [PFw-1 :  0]  link_flit_out_all;
@@ -177,10 +177,13 @@ module router_two_stage
 			assign  congestion_in_all [(i+1)*CONGw-1:  i*CONGw] = chan_in[i].congestion; 
 			
 			assign  ctrl_out[i].neighbors_r_addr = current_r_addr;
+			assign  ctrl_out[i].statistic_addr = {ST_Aw{1'b0}};
+			
 			assign  chan_out[i].flit=          flit_out_all       [(i+1)*Fw-1:  i*Fw];       
 			assign  chan_out[i].flit_wr=       flit_out_wr_all    [i];                       
 			assign  chan_out[i].credit=        credit_out_all     [(i+1)*V-1:  i*V];         
 			assign  chan_out[i].congestion=    congestion_out_all [(i+1)*CONGw-1:  i*CONGw];
+			
 			
 			assign  iport_info[i].swa_first_level_grant =nonspec_first_arbiter_granted_ivc_all[(i+1)*V-1:  i*V]; 
 			assign  iport_info[i].swa_grant = ivc_num_getting_sw_grant[(i+1)*V-1:  i*V]; 			
@@ -302,22 +305,9 @@ module router_two_stage
 			.reset(reset)
 		);
         
-		
+	pronoc_register #(.W(PP_1)) reg2 (.in(granted_dest_port_all ), .out(granted_dest_port_all_delayed), .reset(reset), .clk(clk));
 	
-	
-   
-	`ifdef SYNC_RESET_MODE 
-		always @ (posedge clk )begin 
-		`else 
-			always @ (posedge clk or posedge reset)begin 
-			`endif  
-			if(reset) begin 
-				granted_dest_port_all_delayed<= {PP_1{1'b0}};            
-			end else begin
-				granted_dest_port_all_delayed<= granted_dest_port_all;            
-			end    
-		end//always
-    
+	    
 		crossbar #(
 				
 				.TOPOLOGY(TOPOLOGY),
@@ -347,20 +337,10 @@ module router_two_stage
                 
 			reg [PFw-1 : 0] flit_out_all_pipe;
 			reg [P-1 : 0] flit_out_wr_all_pipe;
-            
-			`ifdef SYNC_RESET_MODE 
-				always @ (posedge clk )begin 
-			`else 
-				always @ (posedge clk or posedge reset)begin 
-			`endif  
-				if(reset)begin
-					flit_out_all_pipe    <=  {PFw{1'b0}};
-					flit_out_wr_all_pipe <=  {P{1'b0}};
-				end else begin
-					flit_out_all_pipe     <=  crossbar_flit_out_all;
-					flit_out_wr_all_pipe  <=  crossbar_flit_out_wr_all;               
-				end
-			end        
+			
+			pronoc_register #(.W(PFw)) reg1 (.in(crossbar_flit_out_all    ), .out(flit_out_all_pipe), .reset(reset), .clk(clk));
+			pronoc_register #(.W(P)  ) reg2 (.in(crossbar_flit_out_wr_all ), .out(flit_out_wr_all_pipe), .reset(reset), .clk(clk));
+					
             
 			assign link_flit_out_all    = flit_out_all_pipe;
 			assign link_flit_out_wr_all = flit_out_wr_all_pipe;       
@@ -507,8 +487,8 @@ module router_two_stage
     reg [10 :  0]  counter;
     reg [31 :  0]  flit_counter;
     
-    always @(posedge clk or posedge reset) begin
-        if(reset) begin 
+    always @ (`pronoc_clk_reset_edge )begin 
+		if(`pronoc_reset) begin 
             flit_counter <=0;
             counter <= 0;
         end else begin 

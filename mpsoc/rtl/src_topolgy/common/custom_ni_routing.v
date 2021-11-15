@@ -43,7 +43,47 @@ module custom_ni_routing  #(
     
     end	
     
+     
+	//do not modify this line ===Tmesh4x4Rcustom===
+    if(TOPOLOGY == "mesh4x4" && ROUTE_NAME== "custom" ) begin : Tmesh4x4Rcustom
+    
+        Tmesh4x4Rcustom_conventional_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_conventional_routing
+        (
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport)        
+        );    
+    
+    end	
+    
+     
+	//do not modify this line ===Tmesh4x4Rm4===
+    if(TOPOLOGY == "mesh4x4" && ROUTE_NAME== "m4" ) begin : Tmesh4x4Rm4
+    
+        Tmesh4x4Rm4_conventional_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_conventional_routing
+        (
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport)        
+        );    
+    
+    end	
+    
     endgenerate
+    	
+ 
+    	
+ 
     	
  
     	

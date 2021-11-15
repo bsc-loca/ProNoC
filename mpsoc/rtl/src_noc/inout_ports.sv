@@ -395,7 +395,7 @@ endmodule
  	output  [V-1 :0] nearly_full_vc;
  	output  [V-1 : 0] full_vc;
  	output  [V-1 :0] empty_vc;
- 	output reg [V-1 :0] cand_vc;
+ 	output  [V-1 :0] cand_vc;
  	input   cand_wr_vc_en;
  	input   clk;
  	input   reset;
@@ -414,7 +414,8 @@ endmodule
     localparam  DEPTH_WIDTH =   log2(B+1);
  
     
-    reg  [DEPTH_WIDTH-1 : 0] credit    [V-1 : 0];
+    logic  [DEPTH_WIDTH-1 : 0] credit    [V-1 : 0];
+    logic  [DEPTH_WIDTH-1 : 0] credit_next    [V-1 : 0];
     wire  [V-1 : 0] cand_vc_next;
    
     wire  [V-1 :0] request;
@@ -422,17 +423,26 @@ endmodule
     genvar i;
     generate
         for(i=0;i<V;i=i+1) begin : vc_loop
-`ifdef SYNC_RESET_MODE 
-            always @ (posedge clk )begin 
-`else 
-            always @ (posedge clk or posedge reset)begin 
-`endif  
-                    if(reset)begin
-                        credit[i]<= credit_init_val_in[i][DEPTH_WIDTH-1:0];
-                    end else begin
-                        if(  wr_in[i]  && ~credit_in[i])   credit[i] <= credit[i]-1'b1;
-                        if( ~wr_in[i]  &&  credit_in[i])   credit[i] <= credit[i]+1'b1;
-                    end //reset
+        	
+        	
+        	      	
+        	
+        	pronoc_register_reset_init #(
+        			.W(DEPTH_WIDTH)			
+        		)reg1( 
+        			.in(credit_next[i]),
+        			.reset(reset),	
+        			.clk(clk),		
+        			.out(credit[i]),
+        			.reset_to(credit_init_val_in[i][DEPTH_WIDTH-1:0])
+        		);
+        		
+      
+
+            always @ ( * )begin 
+                  credit_next[i] = credit [i];
+                  if(  wr_in[i]  && ~credit_in[i])   credit_next[i] = credit[i]-1'b1;
+                  if( ~wr_in[i]  &&  credit_in[i])   credit_next[i] = credit[i]+1'b1;                 
             end//always
 
             assign  full_vc[i]   = (credit[i] == {DEPTH_WIDTH{1'b0}});
@@ -457,21 +467,13 @@ endmodule
                     .any_grant       ()
                 );
 
-       
-
-`ifdef SYNC_RESET_MODE 
-        always @ (posedge clk )begin 
-`else 
-        always @ (posedge clk or posedge reset)begin 
-`endif  
-            if          (reset)          cand_vc    <= {V{1'b0}};
-            else    if(cand_wr_vc_en)    cand_vc    <=  cand_vc_next;
-        end
-
-   
-
-
-
+    logic [V-1 : 0] cand_vc_ld_next;  
+	pronoc_register #(.W(V)) reg2 (.in(cand_vc_ld_next ), .out(cand_vc), .reset(reset), .clk(clk));
+            
+	always  @ ( *) begin 
+		cand_vc_ld_next = cand_vc;
+		if(cand_wr_vc_en)    cand_vc_ld_next  =  cand_vc_next;
+    end
 
 endmodule
 

@@ -11,10 +11,8 @@ package pronoc_pkg;
 
 `define  INCLUDE_TOPOLOGY_LOCALPARAM
 `include "topology_localparam.v"
-	
-	
 
-	
+
 
 localparam
 	Vw=  log2(V),
@@ -198,7 +196,23 @@ localparam
 	localparam  OVC_INFO_w = $bits( ovc_info_t);
 	
 	
+/**********
+* Router Statistic 
+ ********/
+
+	localparam STATISTIC_EN=1; 	
 	
+	enum{
+		FLIT_IN__COUNT,
+		PCK_IN_COUNT,
+		FLIT_OUT__COUNT,
+		PCK_OUT_COUNT
+	} statistic;	
+	
+	localparam 
+		ST_NUM = (STATISTIC_EN>0) ? statistic.num() : 0,
+		ST_Aw  = log2(ST_NUM),
+		ST_Dw  = (STATISTIC_EN>0) ? 1 : 32;	
     
 	
 /*********************
@@ -254,7 +268,9 @@ localparam
 	localparam CRDTw = (B>LB) ? log2(B+1) : log2(LB+1);
 	typedef struct packed {
 		logic [RAw-1:   0]  neighbors_r_addr;
-		logic [V-1  :0] [CRDTw-1: 0] credit_init_val; // the connected port initial credit value. It is taken at reset time		
+		logic [V-1  :0] [CRDTw-1: 0] credit_init_val; // the connected port initial credit value. It is taken at reset time	
+		logic [ST_Aw-1 : 0] statistic_addr;
+		logic [ST_Dw-1 : 0] statistic_val;
 	} ctrl_chanel_t; 
 	localparam CTRL_CHANEL_w = $bits(ctrl_chanel_t);
 	

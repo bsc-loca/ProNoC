@@ -35,7 +35,27 @@ module   custom_noc_top
 		);
     
 	end
+     
+	
+    
+     
+	//do not modify this line ===mesh4x4===
+    if(TOPOLOGY == "mesh4x4" ) begin : Tmesh4x4
+    
+		mesh4x4_noc_genvar the_noc			
+		(	
+		    .reset(reset),
+		    .clk(clk),    
+		    .chan_in_all(chan_in_all),
+		    .chan_out_all(chan_out_all)  
+		);
+    end
+    
     endgenerate
+	
+	 
+	
+	 
 	
 
 

@@ -3,7 +3,7 @@ my_passwd="amonemi@epi1423"
 
 server1="amonemi@epi01.bsc.es"
 server2="amonemi@epi02.bsc.es"
-server3="amonemi@epi03.bsc.es"
+server3="amonemi@epi02.bsc.es"
 
 servers=( $server1 $server2 $server3 )
 

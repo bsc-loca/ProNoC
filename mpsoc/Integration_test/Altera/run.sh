@@ -119,6 +119,8 @@ compile () {
 }
 
 
+compile
+
 wait;
 
 perl ${SCRPT_DIR_PATH}/src/extract.prl "$PRONOC_WORK/verify/quartus_pronoc" "pronoc" > report 
