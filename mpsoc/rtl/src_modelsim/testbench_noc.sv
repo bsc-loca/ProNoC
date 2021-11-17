@@ -267,7 +267,8 @@ module testbench_noc;
 			        
 			    
 			traffic_gen_top #(
-				.MAX_RATIO(100)          
+				.MAX_RATIO(100),
+				.ENDP_ID(i)
 			)
 			the_traffic_gen
 			(

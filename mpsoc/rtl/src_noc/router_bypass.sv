@@ -472,7 +472,7 @@ module check_straight_oport #(
 		
 	generate 
 	/* verilator lint_off WIDTH */ 
-		if(TOPOLOGY == "MESH" || TOPOLOGY == "TORUS"  ) begin :twoD		
+		if(TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY =="FMESH" ) begin :twoD		
 			/* verilator lint_on WIDTH */ 
 			if (SS_PORT_LOC == 0 || SS_PORT_LOC > 4) begin : local_ports
 				assign goes_straight_o = 1'b0; // There is not a next router in this case at all	
@@ -737,7 +737,7 @@ module smart_allocator_per_iport
 	/* verilator lint_off WIDTH */ 
 	localparam  LOCATED_IN_NI=  
 		(TOPOLOGY=="RING" || TOPOLOGY=="LINE") ? (SW_LOC == 0 || SW_LOC>2) :
-		(TOPOLOGY =="MESH" || TOPOLOGY=="TORUS")? (SW_LOC == 0 || SW_LOC>4) : 0;
+		(TOPOLOGY =="MESH" || TOPOLOGY=="TORUS" || TOPOLOGY == "FMESH")? (SW_LOC == 0 || SW_LOC>4) : 0;
 	/* verilator lint_on WIDTH */ 
 	
 	// does the route computation for the current router

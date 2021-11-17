@@ -112,7 +112,7 @@ module  traffic_gen_top
 	assign 	chan_out.flit_chanel.flit = flit_out; 
 	assign  chan_out.flit_chanel.flit_wr = flit_out_wr;
 	assign  chan_out.flit_chanel.credit = credit_out;
-		
+	assign  chan_out.smart_chanel = {SMART_CHANEL_w {1'b0}};	
 		
 	assign flit_in   =  chan_in.flit_chanel.flit;   
 	assign flit_in_wr=  chan_in.flit_chanel.flit_wr; 
