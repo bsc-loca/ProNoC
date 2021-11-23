@@ -51,6 +51,7 @@ module input_ports
 			port_pre_sel,
 			swap_port_presel,
 			nonspec_first_arbiter_granted_ivc_all,
+			credit_out_all,
 			
 			destport_clear,
 			vc_weight_is_consumed_all,
@@ -97,6 +98,7 @@ module input_ports
 	output  [PV-1 : 0] reset_ivc_all;
 	output  [PV-1 : 0] flit_is_tail_all;
 	output  [PV-1 : 0] ivc_request_all;
+	output  [PV-1 : 0] credit_out_all;
 	
 	output  [PVP_1-1 : 0] dest_port_all;
 	output  [PFw-1 : 0] flit_out_all;
@@ -142,6 +144,7 @@ module input_ports
 				)
 				the_input_queue_per_port
 				(
+					.credit_out(credit_out_all [(i+1)*V-1 : i*V]),
 					.current_r_addr(current_r_addr),    
 					.neighbors_r_addr(neighbors_r_addr),
 					.ivc_num_getting_sw_grant(ivc_num_getting_sw_grant  [(i+1)*V-1 : i*V]),// for non spec ivc_num_getting_first_sw_grant,
@@ -196,6 +199,7 @@ module input_queue_per_port
 		parameter SW_LOC = 0
 		)(
 			current_r_addr,
+			credit_out,
 			neighbors_r_addr,
 			ivc_num_getting_sw_grant,// for non spec ivc_num_getting_first_sw_grant,
 			any_ivc_sw_request_granted,
@@ -240,7 +244,9 @@ module input_queue_per_port
 	endfunction // log2 
    
 	
-	localparam PORT_B = port_buffer_size(SW_LOC);	
+	localparam 
+		PORT_B = port_buffer_size(SW_LOC),
+		PORT_Bw= log2(PORT_B);	
 		 
 	
     
@@ -270,6 +276,7 @@ module input_queue_per_port
    
  
 	input reset, clk;
+	output  [V-1 : 0] credit_out;
 	input   [RAw-1 : 0] current_r_addr;
 	input   [PRAw-1:  0]  neighbors_r_addr;
 	output  [V-1 : 0] ivc_num_getting_sw_grant;
@@ -303,6 +310,11 @@ module input_queue_per_port
 	output  [CRDTw-1 : 0 ] credit_init_val_out [V-1 : 0];
     
 	wire  [DSTPw-1 : 0] dest_port_encoded [V-1 : 0];
+	//for multicast
+	wire  [DSTPw-1 : 0] dest_port_multi   [V-1 : 0];
+	wire  [V-1 : 0] multiple_dest,dst_onhot0;
+	wire   [DSTPw-1 : 0] clear_dspt_mulicast  [V-1 : 0];
+	
 	wire  [VV-1 : 0] candidate_ovcs;
 	
 	wire [Cw-1 : 0] class_in;
@@ -344,10 +356,12 @@ module input_queue_per_port
 	assign reset_ivc  = smart_ctrl_in.ivc_reset | ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset;
 	assign ivc_num_getting_sw_grant = ssa_ctrl_in.ivc_num_getting_sw_grant | vsa_ctrl_in.ivc_num_getting_sw_grant;
 	assign flit_wr =(flit_in_wr )? vc_num_in : {V{1'b0}};
-	assign rd_hdr_fwft_fifo  = (ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset | (smart_ctrl_in.ivc_reset  & ~ smart_ctrl_in.ivc_single_flit_pck));
+	assign rd_hdr_fwft_fifo  = (ssa_ctrl_in.ivc_reset | vsa_ctrl_in.ivc_reset | (smart_ctrl_in.ivc_reset  & ~ smart_ctrl_in.ivc_single_flit_pck)) & ~ multiple_dest;
 	assign wr_hdr_fwft_fifo  = hdr_flit_wr | (smart_hdr_en & ~ smart_ctrl_in.ivc_single_flit_pck);
 	assign ivc_request = ivc_not_empty;    
 	
+	
+	wire  [V-1 : 0] flit_is_tail2;
 	
 	
 	pronoc_register #(.W(V)) reg1(
@@ -379,6 +393,15 @@ module input_queue_per_port
 			.reset  (reset ), 
 			.clk    (clk   ), 
 			.out    (iport_weight  ));
+	
+	
+	pronoc_register #(.W(V)) credit_reg (
+			.in     (ivc_num_getting_sw_grant & ~ multiple_dest),
+			.reset  (reset),
+			.clk    (clk),
+			.out    (credit_out)); 
+    
+    
 	
 	
 	always @ (*)begin 
@@ -517,6 +540,10 @@ module input_queue_per_port
 			end	
 			//synthesis translate_on
 			
+			
+			
+			
+			
 			class_ovc_table #(
 					.CVw(CVw),
 					.CLASS_SETTING(CLASS_SETTING),   
@@ -529,7 +556,7 @@ module input_queue_per_port
 					.candidate_ovcs(candidate_ovcs [(i+1)*V-1 : i*V])
 				);    
         
-			if(PCK_TYPE == "MULTI_FLIT") begin : multi 
+			if(PCK_TYPE == "MULTI_FLIT") begin : multi_flit 
 				
 				always @ (*) begin
 					ovc_is_assigned_next[i] = ovc_is_assigned[i];		
@@ -564,7 +591,7 @@ module input_queue_per_port
 					);
 					
 				
-				
+				/*
 				//tail fifo
 				fwft_fifo #(
 					.DATA_WIDTH(1),
@@ -584,8 +611,10 @@ module input_queue_per_port
 					.reset (reset),
 					.clk (clk)            
 				);
-			end else begin :single
-				assign flit_is_tail[i]=1'b1;
+				*/
+				
+			end else begin :single_flit
+				//assign flit_is_tail[i]=1'b1;
 				assign ovc_is_assigned_next[i] = 1'b0;
 				
 				always @(*) begin
@@ -686,31 +715,52 @@ module input_queue_per_port
 			if(CAST_TYPE!= "UNICAST") begin : muticast
 			/* verilator lint_on WIDTH */
 				
-				fwft_fifo #(
-						.DATA_WIDTH(DSTPw),
-						.MAX_DEPTH (MAX_PCK),
-						.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
-					)
-					dest_fifo
-					(
-						.din(destport_in_encoded),
-						.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
-						.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
-						.dout(dest_port_encoded[i]),    // Data out
-						.full(),
-						.nearly_full(),
-						.recieve_more_than_0(),
-						.recieve_more_than_1(),
-						.reset(reset),
-						.clk(clk) 
-					);               
+				// for multicast we send one packet to each direction in order. The priority is according to DoR routing dimentions 
 				
+				fwft_fifo_with_output_clear #(
+					.DATA_WIDTH(DSTPw),
+					.MAX_DEPTH (MAX_PCK),
+					.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
+				)
+				dest_fifo
+				(
+					.din(destport_in_encoded),
+					.wr_en(wr_hdr_fwft_fifo[i]),   // Write enable
+					.rd_en(rd_hdr_fwft_fifo[i]),   // Read the next word
+					.dout(dest_port_multi[i]),    // Data out
+					.full(),
+					.nearly_full(),
+					.recieve_more_than_0(),
+					.recieve_more_than_1(),
+					.reset(reset),
+					.clk(clk),
+					.clear(clear_dspt_mulicast [i])   // clear the  destination port once it got  the entire packet
+				);               
 				
+				//TODO remove multiple_dest[i] to see if it works?
 				
+				assign clear_dspt_mulicast [i] = (reset_ivc[i] & multiple_dest[i]) ? dest_port_encoded[i] : {DSTPw{1'b0}}; 
+				
+				// a fix priority arbiter. 
+				multicast_dst_sel  sel(
+					.destport_in(dest_port_multi[i]),
+					.destport_out(dest_port_encoded[i])						
+				);
+				
+				//check if we have multiple port to send a packet to 
+				is_onehot0 #(
+					.IN_WIDTH(DSTPw)
+    			)
+    			one_h
+				(
+					.in(dest_port_multi[i]),
+					.result(dst_onhot0[i])
+    			);
+				assign multiple_dest[i]=~dst_onhot0[i];
 				
 			
 		end	else begin : unicast
-			
+			assign multiple_dest[i] = 1'b0;
 				
 				/* verilator lint_off WIDTH */    
 				if( ROUTE_TYPE=="DETERMINISTIC") begin : dtrmn_dest
@@ -908,13 +958,21 @@ module input_queue_per_port
 		/* verilator lint_off WIDTH */
 		if(COMBINATION_TYPE == "COMB_NONSPEC") begin  : nonspec  
 			/* verilator lint_on WIDTH */ 
+			
+			
+			
+			/*
+			
+			always @(posedge clk) 
+				if ((ivc_not_empty & flit_is_tail2) != (ivc_not_empty & flit_is_tail))begin 
+					$display("ERROR:    %b !=%b",flit_is_tail2 , flit_is_tail ) ;
+					$finish;
+				end
+			*/
+			
            
 			flit_buffer #(
-					.V(V),
 					.B(PORT_B),   // buffer space :flit per VC 
-					.PCK_TYPE(PCK_TYPE),
-					.Fw(Fw),
-					.DEBUG_EN(DEBUG_EN),
 					.SSA_EN(SSA_EN)
 				)
 				the_flit_buffer
@@ -929,18 +987,17 @@ module input_queue_per_port
 					.vc_not_empty(ivc_not_empty),
 					.reset(reset),
 					.clk(clk),
-					.ssa_rd(ssa_ctrl_in.ivc_num_getting_sw_grant)					
+					.ssa_rd(ssa_ctrl_in.ivc_num_getting_sw_grant),
+					.multiple_dest( multiple_dest ),
+					.sub_rd_ptr_ld(reset_ivc) ,
+					.flit_is_tail(flit_is_tail)
 				);
    
 		end else begin :spec//not nonspec comb
  
 
 			flit_buffer #(
-					.V(V),
 					.B(PORT_B),   // buffer space :flit per VC 
-					.PCK_TYPE(PCK_TYPE),
-					.Fw(Fw),
-					.DEBUG_EN(DEBUG_EN),
 					.SSA_EN(SSA_EN)
 				)
 				the_flit_buffer
@@ -954,7 +1011,10 @@ module input_queue_per_port
 					.vc_not_empty(ivc_not_empty),
 					.reset(reset),
 					.clk(clk),
-					.ssa_rd(ssa_ctrl_in.ivc_num_getting_sw_grant)
+					.ssa_rd(ssa_ctrl_in.ivc_num_getting_sw_grant),
+					.multiple_dest(  multiple_dest ),
+					.sub_rd_ptr_ld(reset_ivc) ,
+					.flit_is_tail(flit_is_tail)  
 				
 				);  
   

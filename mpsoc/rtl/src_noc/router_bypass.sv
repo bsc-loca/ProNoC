@@ -7,7 +7,7 @@
 *
 * Description: 
 *   This file contains HDL modules that can be added
-*   to a 3-stage NoC router and provide router bypassing
+*   to a 2-stage NoC router and provides router bypassing
 ***************************************/
 
 /**************************
@@ -21,12 +21,6 @@
  ***************************/
 
 `include "pronoc_def.v"
-
-
-
-
-
-
 
 	
 module reduction_or #(
@@ -102,6 +96,43 @@ endgenerate
     
 endmodule	
 	
+
+module onehot_mux_1D_reverse #(
+		parameter W = 5,//out width  p
+		parameter N = 4 //sel width  v
+		)(
+		input  [W*N-1 : 0] in,
+		input  [N-1 : 0] sel,
+		output [W-1 : 0] out	
+		);
+
+	wire  [N-1 : 0] in_array [W-1 : 0];
+	wire  [W-1 : 0] in_array2[N-1 : 0];
+
+	genvar i,j;
+	generate
+		for (i=0;i<W;i++)begin :sep 
+			assign in_array[i] = in[(i+1)*N-1 : i*N];
+			for (j=0;j<N;j++)begin :sep
+				assign in_array2[j][i] = in_array[i][j];
+			end
+		end
+	endgenerate
+	
+
+	onehot_mux_2D #(
+			.W    (N   ), 
+			.N    (W   )
+		) onehot_mux_2D (
+			.in   (in_array2  ), 
+			.sel  (sel ), 
+			.out  (out ));
+	
+    
+endmodule	
+
+
+
 
 
 

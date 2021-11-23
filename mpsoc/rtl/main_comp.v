@@ -528,7 +528,7 @@ endmodule
 *******************************/
 
 
-module check_single_bit_assertation #(
+module is_onehot0 #(
     parameter IN_WIDTH =2
     
     )
@@ -553,6 +553,20 @@ module check_single_bit_assertation #(
     
     wire [OUT_WIDTH-1   :   0]  sum;
     
+    
+    accumulator #(
+        .INw(IN_WIDTH),
+        .OUTw(OUT_WIDTH),
+        .NUM(IN_WIDTH)
+    )
+    accum
+    (
+        .in_all(in),
+        .out(sum)         
+    );
+    
+    
+    /*
     parallel_counter #(
         .IN_WIDTH (IN_WIDTH)
     )counter
@@ -560,7 +574,8 @@ module check_single_bit_assertation #(
         .in(in),
         .out(sum)
     );
-
+    */
+    
     assign result = (sum <=1)? 1'b1: 1'b0;
     
     

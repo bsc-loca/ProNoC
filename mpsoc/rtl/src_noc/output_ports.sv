@@ -309,7 +309,7 @@ module output_ports
     	
     	
     	
-    	sw_mask_gen #(
+    	full_ovc_predictor #(
          	.OVC_ALLOC_MODE(OVC_ALLOC_MODE),
          	.PCK_TYPE(PCK_TYPE),
          	.V (V), // vc_num_per_port
@@ -626,11 +626,11 @@ endmodule
 
 /**********************************
 
-    sw_mask_gen
+    full_ovc_predictor
 
 *********************************/
 
-module sw_mask_gen #(
+module full_ovc_predictor #(
     parameter PCK_TYPE = "MULTI_FLIT",    
 	parameter V = 4, // vc_num_per_port
     parameter P = 5, // router port num

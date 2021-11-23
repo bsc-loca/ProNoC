@@ -203,6 +203,7 @@ import pronoc_pkg::*;
 		.sel (sel),
 		.port_pre_sel(port_pre_sel),
 		.swap_port_presel(swap_port_presel),
+		.credit_out_all(credit_out_all),
 		// .lk_destination_encoded_all (lk_destination_encoded_all),
 		.nonspec_first_arbiter_granted_ivc_all(nonspec_first_arbiter_granted_ivc_all),       
 		.destport_clear (destport_clear),
@@ -299,9 +300,7 @@ import pronoc_pkg::*;
    );   
      
      
-   pronoc_register #(.W(PV)) credit_reg (.in(ivc_num_getting_sw_grant),.reset(reset),.clk(clk),.out(credit_out_all)); 
-    
-	
+  
     
     
   

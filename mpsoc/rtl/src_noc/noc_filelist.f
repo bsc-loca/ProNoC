@@ -31,14 +31,15 @@
 ./router_two_stage.sv
 ./crossbar.v
 ./iport_reg_base.sv
-./flit_buffer.v
-./mesh_torus.v
+./flit_buffer.sv
+./mesh_torus.sv
 ./debug.v
 ./router_top.sv
 ./mesh_torus_noc_top.sv
 ./star_noc.sv
 ./fmesh.sv
 ./packet_injector.sv
+./multicast.sv
 
 
 

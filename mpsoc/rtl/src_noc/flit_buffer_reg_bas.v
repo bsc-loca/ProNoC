@@ -133,11 +133,7 @@ module  flit_buffer_reg_base #(
     
 
     flit_buffer #(
-        .V(V),
         .B(B),
-        .PCK_TYPE(PCK_TYPE),
-        .Fw(Fw),
-        .DEBUG_EN(DEBUG_EN),
         .SSA_EN("NO")// should be "NO" even if SSA is enabled
     )
     flit_buffer
@@ -153,7 +149,12 @@ module  flit_buffer_reg_base #(
         .vc_not_empty(bram_not_empty),
         .reset(reset),
         .clk(clk),
-        .ssa_rd({V{1'b0}})
+        .ssa_rd({V{1'b0}}),
+        .multiple_dest(),
+        .sub_rd_ptr_ld(),
+        .flit_is_tail()
+        
+       
     );
 
 

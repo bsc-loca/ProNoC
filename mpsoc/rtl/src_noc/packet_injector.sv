@@ -319,7 +319,7 @@ module packet_injector
 								if ( k ==0 ) pck_data_o_gen [i][k][HDR_DATA_w-1 : 0] <= hdr_data_o;														
 							end
 							else begin 
-								if (rsv_counter[i] == k ) pck_data_o_gen [i][k] <= chan_in.flit_chanel.flit.payload;
+								if (rsv_counter[i] == k ) pck_data_o_gen [i][k] <= chan_in.flit_chanel.flit.payload[Fpay-1 : 0];
 								
 							end // else
 						end //if
@@ -380,8 +380,17 @@ module packet_injector
 	assign chan_out.flit_chanel.flit.tail_flag=tail;
 	assign chan_out.flit_chanel.flit.vc=pck_injct_in.vc;
 	assign chan_out.flit_chanel.flit_wr=flit_wr;
-
-	assign chan_out.flit_chanel.flit.payload = (flit_type==	HEADER)? hdr_flit_out[Fpay-1 : 0] : dataIn;
+    
+	generate 
+	/* verilator lint_off WIDTH */
+    if(PCK_TYPE == "SINGLE_FLIT" ) begin : single_f
+    /* verilator lint_on WIDTH */
+    	assign chan_out.flit_chanel.flit.payload = hdr_flit_out[FPAYw-1 : 0];
+    end else begin	
+    	assign chan_out.flit_chanel.flit.payload = (flit_type==	HEADER)? hdr_flit_out[Fpay-1 : 0] : dataIn;
+	end
+	endgenerate
+	
 	assign chan_out.smart_chanel = {SMART_CHANEL_w{1'b0}};
 	assign chan_out.flit_chanel.congestion = {CONGw{1'b0}};
 	assign chan_out.flit_chanel.credit= credit_o;	

@@ -109,6 +109,10 @@ module  traffic_gen_top
 	wire  [RAw-1                   :0] current_r_addr;    
 		
 		
+	/* verilator lint_off WIDTH */
+	wire [PCK_SIZw-1 : 0] pck_size_tmp= (PCK_TYPE == "SINGLE_FLIT" )?   1 : pck_size_in;
+	/* verilator lint_on WIDTH */
+	
 	assign 	chan_out.flit_chanel.flit = flit_out; 
 	assign  chan_out.flit_chanel.flit_wr = flit_out_wr;
 	assign  chan_out.flit_chanel.credit = credit_out;
@@ -257,7 +261,7 @@ module  traffic_gen_top
 			pck_inject_ratio_ctrl
 			(
 				.en(inject_en),
-				.pck_size_in(pck_size_in),
+				.pck_size_in(pck_size_tmp),
 				.clk(clk),
 				.reset(reset),
 				.freez(buffer_full),
@@ -321,7 +325,7 @@ module  traffic_gen_top
 				.pck_ready(pck_ready),
 				.valid_dst(valid_dst),
 				.destport(destport),
-				.pck_size_in(pck_size_in),
+				.pck_size_in(pck_size_tmp),
 				.pck_size_o(pck_size)
 			);
 
@@ -563,7 +567,7 @@ module  traffic_gen_top
  
 	always @ (*)begin 
 		pck_size_next    = pck_size;
-		if((tail_flit & flit_out_wr ) || not_yet_sent_aflit) pck_size_next  = pck_size_in;
+		if((tail_flit & flit_out_wr ) || not_yet_sent_aflit) pck_size_next  = pck_size_tmp;
 	end
     
 		always @ (`pronoc_clk_reset_edge )begin 

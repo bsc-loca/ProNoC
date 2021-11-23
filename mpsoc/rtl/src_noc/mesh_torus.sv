@@ -1858,5 +1858,94 @@ endmodule
 
 
 
+module mesh_torus_multicast_dst_sel 
+    import pronoc_pkg::*;   
+(
 
+    destport_in,
+    destport_out    
+);
+
+    input  [DSTPw-1 : 0] destport_in;
+    output reg [DSTPw-1 : 0] destport_out; 
+
+
+    reg  [DSTPw-1 : 0] arb_in;
+    
+    always @(*)begin
+    	arb_in    = destport_in;
+    	arb_in[0] = destport_in[EAST];
+    	arb_in[1] = destport_in[WEST];
+    	arb_in[2] = destport_in[NORTH];
+    	arb_in[3] = destport_in[SOUTH];
+   	 	arb_in[4] = destport_in[LOCAL];
+    end
+    
+    wire  [DSTPw-1 : 0] arb_out;
+    
+    fixed_priority_arbiter #(
+    	.ARBITER_WIDTH     (DSTPw), 
+    	.HIGH_PRORITY_BIT  ("LSB")
+    ) fixed_priority_arbiter (
+    	.request           (arb_in), 
+    	.grant             (arb_out), 
+    	.any_grant         (   )
+    );
+    
+    
+    always @(*) begin 
+    	destport_out = arb_out;
+    	destport_out[EAST]  = arb_out[0];
+    	destport_out[WEST]  = arb_out[1];
+    	destport_out[NORTH] = arb_out[2];
+    	destport_out[SOUTH] = arb_out[3];
+    	destport_out[LOCAL] = arb_out[4];
+    end
+    
+    
+endmodule
+
+
+
+module ring_line_multicast_dst_sel 
+		import pronoc_pkg::*;   
+(
+    destport_in,
+    destport_out    
+);
+
+    input  [DSTPw-1 : 0] destport_in;
+    output reg [DSTPw-1 : 0] destport_out; 
+
+    reg  [DSTPw-1 : 0] arb_in;
+    
+    always @(*)begin
+    	arb_in    = destport_in;
+    	arb_in[0] = destport_in[FORWARD];
+    	arb_in[1] = destport_in[BACKWARD];    	
+    	arb_in[4] = destport_in[LOCAL];
+    end
+    
+    wire  [DSTPw-1 : 0] arb_out;
+    
+    fixed_priority_arbiter #(
+    		.ARBITER_WIDTH     (DSTPw), 
+    		.HIGH_PRORITY_BIT  ("LSB")
+    	) fixed_priority_arbiter (
+    		.request           (arb_in), 
+    		.grant             (arb_out), 
+    		.any_grant         (   )
+    	);
+    
+    
+    always @(*) begin 
+    	destport_out = arb_out;
+    	destport_out[FORWARD ] = arb_out[0];
+    	destport_out[BACKWARD] = arb_out[1];
+    	destport_out[LOCAL   ] = arb_out[2];
+    	
+    end
+
+endmodule
+    
 

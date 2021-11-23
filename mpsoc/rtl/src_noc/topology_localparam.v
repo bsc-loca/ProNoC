@@ -226,9 +226,10 @@ localparam
         
         // destination port width in header flit           
         DSTPw =
-            (CAST_TYPE!= "UNICAST")? MAX_P: // Each asserted bit indicats that the flit should be sent to that port
+           // Each asserted bit indicats that the flit should be sent to that port
             (TOPOLOGY == "FATTREE")? DSTPw_FATTREE:
             (TOPOLOGY == "TREE")?  DSTPw_TREE:
+            (CAST_TYPE!= "UNICAST")? MAX_P: 
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? DSTPw_MESH_TORI:
             (TOPOLOGY == "FMESH")? DSTPw_MESH_TORI:
             (TOPOLOGY == "STAR") ? DSTPw_STAR:

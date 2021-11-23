@@ -547,11 +547,7 @@ generate
     /* verilator lint_on WIDTH */ 
            
         flit_buffer #(
-            .V(V),
             .B(B),   // buffer space :flit per VC 
-            .PCK_TYPE(PCK_TYPE),
-            .Fw(Fw),
-            .DEBUG_EN(DEBUG_EN),
             .SSA_EN(SSA_EN)
         )
         the_flit_buffer
@@ -565,7 +561,10 @@ generate
             .vc_not_empty(ivc_not_empty),
             .reset(reset),
             .clk(clk),
-            .ssa_rd(ssa_ivc_num_getting_sw_grant)
+            .ssa_rd(ssa_ivc_num_getting_sw_grant),
+            .multiple_dest(),
+            .sub_rd_ptr_ld(),
+            .flit_is_tail()
         );
         
         
@@ -632,11 +631,7 @@ generate
  
 
         flit_buffer #(
-            .V(V),
             .B(B),   // buffer space :flit per VC 
-            .PCK_TYPE(PCK_TYPE),
-            .Fw(Fw),
-            .DEBUG_EN(DEBUG_EN),
             .SSA_EN(SSA_EN)
         )
         the_flit_buffer
@@ -650,7 +645,10 @@ generate
             .vc_not_empty(ivc_not_empty),
             .reset(reset),
             .clk(clk),
-            .ssa_rd(ssa_ivc_num_getting_sw_grant)
+            .ssa_rd(ssa_ivc_num_getting_sw_grant),
+            .multiple_dest(),
+            .sub_rd_ptr_ld(),
+            .flit_is_tail()  
            
         );  
   
