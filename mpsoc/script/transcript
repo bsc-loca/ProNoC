@@ -28,7 +28,7 @@
 # 
 # vlog  +acc=rn  -F $::env(LM_FILE_LIST)
 # QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
-# Start time: 18:07:08 on Nov 23,2021
+# Start time: 11:56:54 on Nov 25,2021
 # vlog -reportprogress 300 "+acc=rn" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/modelsim_filelist.f 
 # -- Compiling package pronoc_pkg
 # -- Compiling module pronoc_register
@@ -303,12 +303,12 @@
 # 	pck_size_gen
 # 	pck_injector_test
 # 	multicast_test
-# End time: 18:07:08 on Nov 23,2021, Elapsed time: 0:00:00
+# End time: 11:56:54 on Nov 25,2021, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 2
 # 
 # vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  $top
 # vsim -t 1ps -L /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work -L work -voptargs=""+acc"" multicast_test 
-# Start time: 18:07:08 on Nov 23,2021
+# Start time: 11:56:54 on Nov 25,2021
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-143) Recognized 1 FSM in module "multicast_injector(fast)".
 # Loading sv_std.std
@@ -415,11 +415,23 @@
 # view signals
 # .main_pane.objects.interior.cs.body.tree
 # run -all
+#               290000: ERROR: packet destination address 0 does not match reciver endp address 2. multicast_test.endpoints[2].pck_inj.V_[0]
+# ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv(302)
+#    Time: 290 ns  Iteration: 1  Region: /multicast_test/endpoints[2]/pck_inj/V_[0]
+# 1
+# Break in Module multicast_injector at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
+run -all
 #               290000: ERROR: packet destination address 0 does not match reciver endp address 3. multicast_test.endpoints[3].pck_inj.V_[0]
 # ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv(302)
 #    Time: 290 ns  Iteration: 1  Region: /multicast_test/endpoints[3]/pck_inj/V_[0]
 # 1
-# Break in Module multicast_injector at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
+# Break in VlGenerateBlock V_[0] at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
+run -all
+#               350000: ERROR: packet destination address 0 does not match reciver endp address 1. multicast_test.endpoints[1].pck_inj.V_[0]
+# ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv(302)
+#    Time: 350 ns  Iteration: 1  Region: /multicast_test/endpoints[1]/pck_inj/V_[0]
+# 1
+# Break in VlGenerateBlock V_[0] at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
 run -all
 #               350000: ERROR: packet destination address 0 does not match reciver endp address 2. multicast_test.endpoints[2].pck_inj.V_[0]
 # ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv(302)
@@ -427,9 +439,39 @@ run -all
 # 1
 # Break in VlGenerateBlock V_[0] at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
 run -all
+#               350000: ERROR: packet destination address 0 does not match reciver endp address 3. multicast_test.endpoints[3].pck_inj.V_[0]
+# ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv(302)
+#    Time: 350 ns  Iteration: 1  Region: /multicast_test/endpoints[3]/pck_inj/V_[0]
+# 1
+# Break in VlGenerateBlock V_[0] at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
+run -all
+#               350000:pck_inj(          2) got a packet: source=3, size=    3, data=efedcba987654321
 #               350000:pck_inj(          3) got a packet: source=1, size=    3, data=efedcba987654321
-#               410000:pck_inj(          2) got a packet: source=1, size=    3, data=efedcba987654321
-#               470000:pck_inj(          0) got a packet: source=1, size=    3, data=efedcba987654321
-# ** Note: $stop    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_test.sv(89)
-#    Time: 8290 ns  Iteration: 1  Region: /multicast_test/endpoints[1]
-# Break in VlGenerateBlock endpoints[2] at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_test.sv line 89
+#               410000: ERROR: packet destination address 0 does not match reciver endp address 1. multicast_test.endpoints[1].pck_inj.V_[0]
+# ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv(302)
+#    Time: 410 ns  Iteration: 1  Region: /multicast_test/endpoints[1]/pck_inj/V_[0]
+# 1
+# Break in VlGenerateBlock V_[0] at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
+run -all
+#               410000: ERROR: packet destination address 0 does not match reciver endp address 2. multicast_test.endpoints[2].pck_inj.V_[0]
+# ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv(302)
+#    Time: 410 ns  Iteration: 1  Region: /multicast_test/endpoints[2]/pck_inj/V_[0]
+# 1
+# Break in VlGenerateBlock V_[0] at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
+run -all
+#               410000: ERROR: packet destination address 0 does not match reciver endp address 3. multicast_test.endpoints[3].pck_inj.V_[0]
+# ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv(302)
+#    Time: 410 ns  Iteration: 1  Region: /multicast_test/endpoints[3]/pck_inj/V_[0]
+# 1
+# Break in VlGenerateBlock V_[0] at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
+run -all
+#               410000:pck_inj(          1) got a packet: source=3, size=    3, data=efedcba987654321
+#               410000:pck_inj(          2) got a packet: source=4, size=    3, data=efedcba987654321
+#               410000:pck_inj(          3) got a packet: source=2, size=    3, data=efedcba987654321
+#               470000: ERROR: packet destination address 0 does not match reciver endp address 1. multicast_test.endpoints[1].pck_inj.V_[0]
+# ** Note: $finish    : /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv(302)
+#    Time: 470 ns  Iteration: 1  Region: /multicast_test/endpoints[1]/pck_inj/V_[0]
+# 1
+# Break in VlGenerateBlock V_[0] at /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_modelsim/./multicast_injector.sv line 302
+# End time: 11:57:38 on Nov 25,2021, Elapsed time: 0:00:44
+# Errors: 0, Warnings: 0

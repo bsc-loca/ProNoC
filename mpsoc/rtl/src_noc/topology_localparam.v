@@ -210,6 +210,7 @@ localparam
     RAw_CUSTOM = log2(NR_CUSTOM),
     MAX_P_CUSTOM = T3,
     DSTPw_CUSTOM = log2(MAX_P_CUSTOM);
+    
  
  
     /* verilator lint_off WIDTH */ 
@@ -249,7 +250,7 @@ localparam
             (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? EAw_MESH_TORI:
             (TOPOLOGY == "FMESH")? EAw_FMESH:
             (TOPOLOGY == "STAR") ? EAw_STAR:
-            EAw_CUSTOM,
+            EAw_CUSTOM,           
         // total number of endpoints         
         NE =
             (TOPOLOGY == "FATTREE")? NE_FATTREE:
@@ -258,6 +259,18 @@ localparam
             (TOPOLOGY == "FMESH")? NE_FMESH: 
             (TOPOLOGY == "STAR")? NE_STAR:
             NE_CUSTOM,
+            
+       //Destination endpoint(s) address width
+        MCAST_OFFSET =  
+            (MULTICAST_REGION_NUM == 0)? 0 :
+            ((NE % MULTICAST_REGION_NUM) == 0)? 0:1,            
+        DAw =  
+            (CAST_TYPE == "UNICAST") ?   EAw:
+            (CAST_TYPE == "BROADCAST")?  EAw + 1 :
+            //MULTICAST
+            (MULTICAST_REGION_NUM == 0)? NE :
+            (NE/MULTICAST_REGION_NUM) + MCAST_OFFSET + MULTICAST_REGION_NUM,     
+            
         //total number of routers        
         NR =
             (TOPOLOGY == "FATTREE")? NR_FATTREE:

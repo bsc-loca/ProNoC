@@ -5,6 +5,7 @@
 
 package pronoc_pkg; 
   
+	localparam MULTICAST_REGION_NUM=4; 		
   
 `define NOC_LOCAL_PARAM
 `include "noc_localparam.v"
@@ -200,7 +201,7 @@ localparam
 * Router Statistic 
  ********/
 
-	localparam STATISTIC_EN=1; 	
+	localparam STATISTIC_EN=0; 	
 	
 	enum{
 		FLIT_IN__COUNT,
@@ -215,6 +216,9 @@ localparam
 		ST_Dw  = (STATISTIC_EN>0) ? 1 : 32;	
     
 	
+		
+	
+		
 /*********************
 * router_chanels 
 *********************/

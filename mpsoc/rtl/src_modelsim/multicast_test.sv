@@ -71,7 +71,7 @@ module multicast_test;
 			reset=1'b0;
 			#100
 			@(posedge clk) #1;
-			if(i==1) begin 
+			//if(i==1) begin 
 			//	repeat(10) begin 
 					while (pck_injct_out[i].ready[0] == 1'b0) @(posedge clk)   #1;
 						
@@ -88,7 +88,7 @@ module multicast_test;
 				#8000
 			@(posedge clk) $stop;
 
-			end
+			//end
 			
 			
 			

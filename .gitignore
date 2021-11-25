@@ -1,6 +1,10 @@
 */my_password.sh
 *.bak
 
+*/transcript
+*/vsim.wlf
+
+
 mpsoc/script/server/kc07/Readme
 mpsoc/perl_gui/lib/mpsoc/*.MPSOC
 !mpsoc/perl_gui/lib/mpsoc/mor1k_mpsoc.MPSOC

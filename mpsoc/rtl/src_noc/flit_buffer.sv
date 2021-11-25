@@ -63,8 +63,21 @@ import pronoc_pkg::*;
     endfunction // log2 
     
     localparam      
-    	Bw               =   (B==1)? 1 : log2(B),
-    	BV      =   B   *   V;
+    	Bw      =   (B==1)? 1 : log2(B),
+    	BV      =   B   *   V,
+    	BVw              =   log2(BV),              
+    	Vw               =  (V==1)? 1 : log2(V),
+    	DEPTHw           =   log2(B+1),
+    	BwV              =   Bw * V,
+    	BVwV             =   BVw * V,               
+    	RESTw = Fw -2-V , 
+    	PTRw = ((2**Bw)==B)? Bw : BVw, // if B is power of 2 PTRw is Bw else is BVw
+    	ARRAYw = PTRw * V,
+    	/* verilator lint_off WIDTH */ 
+    	RAM_DATA_WIDTH   = (PCK_TYPE == "MULTI_FLIT")? Fw - V :  Fw - V -2;
+    	/* verilator lint_on WIDTH */ 
+    	
+    	
     
     
     input  [Fw-1      :0]   din;     // Data in
@@ -76,511 +89,302 @@ import pronoc_pkg::*;
     output [V-1        :0]  vc_not_empty;
     input                   reset;
     input                   clk;
-    input  [V-1        :0]  ssa_rd;
-   
+    input  [V-1        :0]  ssa_rd;   
     input  [V-1        :0]  multiple_dest;
     input  [V-1        :0]  sub_rd_ptr_ld;       
     output [V-1 : 0]        flit_is_tail; 				    
+       
     
-    
-    
-    localparam BVw              =   log2(BV),              
-               Vw               =  (V==1)? 1 : log2(V),
-               DEPTHw           =   log2(B+1),
-               BwV              =   Bw * V,
-               BVwV             =   BVw * V,               
-               RESTw = Fw -2-V , 
-               /* verilator lint_off WIDTH */ 
-               RAM_DATA_WIDTH   = (PCK_TYPE == "MULTI_FLIT")? Fw - V :  Fw - V -2;
-               /* verilator lint_on WIDTH */ 
-     
+    //pointers
+    wire [PTRw- 1     :   0] rd_ptr [V-1          :0];
+    wire [PTRw- 1     :   0] wr_ptr [V-1          :0];    
+    reg  [PTRw- 1     :   0] rd_ptr_next [V-1          :0];
+    reg  [PTRw- 1     :   0] wr_ptr_next [V-1          :0];
+    reg  [PTRw- 1     :   0] sub_rd_ptr_next [V-1          :0];
+    wire [PTRw- 1     :   0] sub_rd_ptr [V-1          :0];    	
+    wire [PTRw-1      :   0] ptr_tmp  [V-1 : 0];
+    wire [ARRAYw-1    :   0] rd_ptr_array;
+    wire [ARRAYw-1    :   0] wr_ptr_array;    
    
                
     wire  [RAM_DATA_WIDTH-1     :   0] fifo_ram_din;
     wire  [RAM_DATA_WIDTH-1     :   0] fifo_ram_dout;
     wire  [V-1                  :   0] wr;
-    wire  [V-1                  :   0] rd;
-  
+    wire  [V-1                  :   0] rd;  
     wire  [DEPTHw-1             :   0] depth      [V-1            :0];
     reg   [DEPTHw-1             :   0] depth_next [V-1            :0];
     
-    wire [1  : 0] flgs_in, flgs_out;
-    wire [V-1: 0] vc_in;
-    wire [RESTw-1 :0      ] flit_rest_in,flit_rest_out;
     
-  
+    
+    reg   [B-1 : 0] tail_fifo [V-1 : 0];    
+    wire  [1  : 0] flgs_in, flgs_out;
+    wire  [V-1: 0] vc_in;
+    wire  [RESTw-1 :0      ] flit_rest_in,flit_rest_out;
+    wire  [V-1       :   0] sub_rd;
+    wire  [V-1       :   0] sub_restore;
+    
     assign  wr  =   (wr_en)?  vc_num_wr : {V{1'b0}};
    
   
 
-genvar i;
+    genvar i;
 
-generate 
- /* verilator lint_off WIDTH */ 
+    generate 
+	/* verilator lint_off WIDTH */ 
+	if (CAST_TYPE != "UNICAST") begin 
+	/* verilator lint_on WIDTH */ 
+		assign  sub_rd  =  (rd_en)?  vc_num_rd  : ssa_rd; 
+		assign  sub_restore = sub_rd_ptr_ld; 
+		assign  rd  =   (rd_en)?  vc_num_rd & ~multiple_dest : ssa_rd & ~multiple_dest;		    	
+	end else begin : unicast
+		assign  rd  =   (rd_en)?  vc_num_rd : ssa_rd;    	
+	end
+	
+	 /* verilator lint_off WIDTH */ 
     if (PCK_TYPE == "MULTI_FLIT") begin :multi
-  /* verilator lint_on WIDTH */    
-      assign {flgs_in,vc_in,flit_rest_in}=din;    
-      assign fifo_ram_din = {flgs_in,flit_rest_in};
-      assign {flgs_out,flit_rest_out} = fifo_ram_dout;
-      assign dout = {flgs_out,{V{1'bX}},flit_rest_out};    
-    
+  	/* verilator lint_on WIDTH */    
+    	assign {flgs_in,vc_in,flit_rest_in}=din;    
+		assign fifo_ram_din = {flgs_in,flit_rest_in};
+		assign {flgs_out,flit_rest_out} = fifo_ram_dout;
+		assign dout = {flgs_out,{V{1'bX}},flit_rest_out};    
     end else begin : single
-    
         assign fifo_ram_din = din[RAM_DATA_WIDTH-1     :   0];
         assign dout = {2'b11,{V{1'bX}},fifo_ram_dout};    
-    
     end
-
-
-    reg   [B-1 : 0] tail_fifo [V-1 : 0];
+    	
+    	
+    for(i=0;i<V;i=i+1) begin :V_
+    	assign  wr_ptr_array[(i+1)*PTRw- 1        :   i*PTRw]   =       wr_ptr[i];  
+    	assign  vc_not_empty    [i] =   (depth[i] > 0);
+    	/* verilator lint_off WIDTH */ 
+    	if (CAST_TYPE != "UNICAST") begin 
+    	/* verilator lint_on WIDTH */ 
+    		assign  rd_ptr_array[(i+1)*PTRw- 1 :   i*PTRw]   =       sub_rd_ptr[i];   
+    		pronoc_register #(.W(PTRw)) reg4 (.in(sub_rd_ptr_next[i]), .out(sub_rd_ptr[i]), .reset(reset), .clk(clk));
+    	end else begin : unicast
+    		assign  rd_ptr_array[(i+1)*PTRw- 1 :   i*PTRw]   =       rd_ptr[i];    			
+    	end    	
+    end//for
+      	
+ 	   	
+    
 
     if((2**Bw)==B)begin :pow2
         /*****************      
           Buffer width is power of 2
         ******************/
-    wire [Bw- 1      :   0] rd_ptr [V-1          :0];
-    wire [Bw- 1      :   0] wr_ptr [V-1          :0];
-    
-    wire  [V-1       :   0] sub_rd;
-    wire  [V-1       :   0] sub_restore;
-    
-   
-    
 	
+	    wire [Bw-1     :    0]  vc_wr_addr;
+	    wire [Bw-1     :    0]  vc_rd_addr; 
+	    wire [Vw-1     :    0]  wr_select_addr;
+	    wire [Vw-1     :    0]  rd_select_addr; 
+	    wire [Bw+Vw-1  :    0]  wr_addr;
+	    wire [Bw+Vw-1  :    0]  rd_addr;	    
     
-    
-    
-    /* verilator lint_off WIDTH */ 
-    if (CAST_TYPE != "UNICAST") begin 
-    /* verilator lint_on WIDTH */ 
-    	reg  [Bw- 1      :   0] sub_rd_ptr_next [V-1          :0];
-    	wire [Bw- 1      :   0] sub_rd_ptr [V-1          :0]; 
-    	
-    	assign  sub_rd  =  (rd_en)?  vc_num_rd  : ssa_rd; 
-    	assign  sub_restore = sub_rd_ptr_ld; 
-    	assign  rd  =   (rd_en)?  vc_num_rd & ~multiple_dest : ssa_rd & ~multiple_dest; 
-    	
-    end else begin     	
-    	assign  rd  =   (rd_en)?  vc_num_rd : ssa_rd;    	
-    end
-    
-    reg [Bw- 1      :   0] rd_ptr_next [V-1          :0];
-    reg [Bw- 1      :   0] wr_ptr_next [V-1          :0];
-    
-    
-    
-    wire [BwV-1    :    0]  rd_ptr_array;
-    wire [BwV-1    :    0]  wr_ptr_array;
-    wire [Bw-1     :    0]  vc_wr_addr;
-    wire [Bw-1     :    0]  vc_rd_addr; 
-    wire [Vw-1     :    0]  wr_select_addr;
-    wire [Vw-1     :    0]  rd_select_addr; 
-    wire [Bw+Vw-1  :    0]  wr_addr;
-    wire [Bw+Vw-1  :    0]  rd_addr;
-    
-    
-    
-    
-    assign  wr_addr =   {wr_select_addr,vc_wr_addr};
-    assign  rd_addr =   {rd_select_addr,vc_rd_addr};
-    
-    
-    
-    onehot_mux_1D #(
-        .W(Bw),
-        .N(V) 
-    )
-    wr_ptr_mux
-    (
-        .in(wr_ptr_array),
-        .out(vc_wr_addr),
-        .sel(vc_num_wr)
-    );
+        assign  wr_addr =   {wr_select_addr,vc_wr_addr};
+    	assign  rd_addr =   {rd_select_addr,vc_rd_addr};
     
         
-    
-    onehot_mux_1D #(
-        .W(Bw),
-        .N(V) 
-    )
-    rd_ptr_mux
-    (
-        .in(rd_ptr_array),
-        .out(vc_rd_addr),
-        .sel(vc_num_rd)
-    );    
-    
-    one_hot_to_bin #(
-        .ONE_HOT_WIDTH(V)    
-    )
-    wr_vc_start_addr
-    (
-        .one_hot_code(vc_num_wr),
-        .bin_code(wr_select_addr)
-    );
-    
-    one_hot_to_bin #(
-        .ONE_HOT_WIDTH(V)    
-    )
-    rd_vc_start_addr
-    (
-        .one_hot_code(vc_num_rd),
-        .bin_code(rd_select_addr)
-    );
+	    onehot_mux_1D #(
+	        .W(Bw),
+	        .N(V) 
+	    )
+	    wr_ptr_mux
+	    (
+	        .in(wr_ptr_array),
+	        .out(vc_wr_addr),
+	        .sel(vc_num_wr)
+	    );   
+	        
+	    
+	    onehot_mux_1D #(
+	        .W(Bw),
+	        .N(V) 
+	    )
+	    rd_ptr_mux
+	    (
+	        .in(rd_ptr_array),
+	        .out(vc_rd_addr),
+	        .sel(vc_num_rd)
+	    );    
+	    
+	    one_hot_to_bin #(
+	        .ONE_HOT_WIDTH(V)    
+	    )
+	    wr_vc_start_addr
+	    (
+	        .one_hot_code(vc_num_wr),
+	        .bin_code(wr_select_addr)
+	    );
+	    
+	    one_hot_to_bin #(
+	        .ONE_HOT_WIDTH(V)    
+	    )
+	    rd_vc_start_addr
+	    (
+	        .one_hot_code(vc_num_rd),
+	        .bin_code(rd_select_addr)
+	    );
+	
+	    fifo_ram    #(
+	        .DATA_WIDTH (RAM_DATA_WIDTH),
+	        .ADDR_WIDTH (BVw ),
+	        .SSA_EN(SSA_EN)       
+	    )
+	    the_queue
+	    (
+	        .wr_data(fifo_ram_din), 
+	        .wr_addr(wr_addr[BVw-1  :   0]),
+	        .rd_addr(rd_addr[BVw-1  :   0]),
+	        .wr_en(wr_en),
+	        .rd_en(rd_en),
+	        .clk(clk),
+	        .rd_data(fifo_ram_dout)
+	    );  
 
-    fifo_ram    #(
-        .DATA_WIDTH (RAM_DATA_WIDTH),
-        .ADDR_WIDTH (BVw ),
-        .SSA_EN(SSA_EN)       
-    )
-    the_queue
-    (
-        .wr_data(fifo_ram_din), 
-        .wr_addr(wr_addr[BVw-1  :   0]),
-        .rd_addr(rd_addr[BVw-1  :   0]),
-        .wr_en(wr_en),
-        .rd_en(rd_en),
-        .clk(clk),
-        .rd_data(fifo_ram_dout)
-    );  
-
-    for(i=0;i<V;i=i+1) begin :loop0
+		for(i=0;i<V;i=i+1) begin :loop0
     	
-    	always @(posedge clk) begin
-    		if(wr[i]) tail_fifo[i][wr_ptr[i]] <= din[Fw-2];
-    	end    	
-    	
-    	
-        
-        assign  wr_ptr_array[(i+1)*Bw- 1        :   i*Bw]   =       wr_ptr[i];
-        
-        //assign    vc_nearly_full[i] = (depth[i] >= B-1);
-        assign  vc_not_empty    [i] =   (depth[i] > 0);
-    
-   
-        pronoc_register #(.W(Bw    )) reg1 (.in(rd_ptr_next[i]), .out(rd_ptr[i]), .reset(reset), .clk(clk));
-        pronoc_register #(.W(Bw    )) reg2 (.in(wr_ptr_next[i]), .out(wr_ptr[i]), .reset(reset), .clk(clk));
-        pronoc_register #(.W(DEPTHw)) reg3 (.in(depth_next[i] ), .out(depth [i]), .reset(reset), .clk(clk));
+	    	always @(posedge clk) begin
+	    		if(wr[i]) tail_fifo[i][wr_ptr[i]] <= din[Fw-2];
+	    	end     	
           
+	        pronoc_register #(.W(Bw    )) reg1 (.in(rd_ptr_next[i]), .out(rd_ptr[i]), .reset(reset), .clk(clk));
+	        pronoc_register #(.W(Bw    )) reg2 (.in(wr_ptr_next[i]), .out(wr_ptr[i]), .reset(reset), .clk(clk));
+	        pronoc_register #(.W(DEPTHw)) reg3 (.in(depth_next[i] ), .out(depth [i]), .reset(reset), .clk(clk));
+	          
 
-        always @ (*)begin 
-            rd_ptr_next [i] = rd_ptr  [i];
-            wr_ptr_next [i] = wr_ptr  [i];
-            depth_next  [i] = depth   [i];
-        
-            if (wr[i]  ) wr_ptr_next [i] = wr_ptr [i]+ 1'h1;
-            if (rd[i]  ) rd_ptr_next [i] = rd_ptr [i]+ 1'h1;
-            if (wr[i] & ~rd[i]) depth_next [i] = depth[i] + 1'h1;
-            else if (~wr[i] & rd[i]) depth_next [i] = depth[i] - 1'h1;
-    
-        end//always
+	        always @ (*)begin 
+	            rd_ptr_next [i] = rd_ptr  [i];
+	            wr_ptr_next [i] = wr_ptr  [i];
+	            depth_next  [i] = depth   [i];
+	        
+	            if (wr[i]  ) wr_ptr_next [i] = wr_ptr [i]+ 1'h1;
+	            if (rd[i]  ) rd_ptr_next [i] = rd_ptr [i]+ 1'h1;
+	            if (wr[i] & ~rd[i]) depth_next [i] = depth[i] + 1'h1;
+	            else if (~wr[i] & rd[i]) depth_next [i] = depth[i] - 1'h1;
+	    
+	        end//always
 
-        /* verilator lint_off WIDTH */ 
-        if (CAST_TYPE != "UNICAST") begin :multicast
-        /* verilator lint_on WIDTH */ 
-        	reg  [Bw- 1      :   0] sub_rd_ptr_next [V-1          :0];
-        	wire [Bw- 1      :   0] sub_rd_ptr [V-1          :0]; 
-        	pronoc_register #(.W(Bw    )) reg4 (.in(sub_rd_ptr_next[i]), .out(sub_rd_ptr[i]), .reset(reset), .clk(clk));
-      
-        	always @ (*)begin 
-        		sub_rd_ptr_next[i] = sub_rd_ptr[i];
-        		if (sub_restore[i]) sub_rd_ptr_next[i] = rd_ptr [i];
-        		else if(sub_rd[i])  sub_rd_ptr_next[i] = sub_rd_ptr[i]+ 1'h1;        		
-        	end
+	        /* verilator lint_off WIDTH */ 
+	        if (CAST_TYPE != "UNICAST") begin :multicast
+	        /* verilator lint_on WIDTH */ 	      
+	        	always @ (*)begin 
+	        		sub_rd_ptr_next[i] = sub_rd_ptr[i];
+	        		if (sub_restore[i]) sub_rd_ptr_next[i] = rd_ptr [i];
+	        		else if(sub_rd[i])  sub_rd_ptr_next[i] = sub_rd_ptr[i]+ 1'h1;        		
+	        	end	        	
+	        	
+	        	/* verilator lint_off WIDTH */
+	        	assign  flit_is_tail[i] = (PCK_TYPE == "MULTI_FLIT")? tail_fifo[i][sub_rd_ptr[i]]  : 1'b1;
+	        	/* verilator lint_on WIDTH */
+	        	
         	
-        	assign  rd_ptr_array[(i+1)*Bw- 1        :   i*Bw]   =       sub_rd_ptr[i];
-        	/* verilator lint_off WIDTH */
-        	assign  flit_is_tail[i] = (PCK_TYPE == "MULTI_FLIT")? tail_fifo[i][sub_rd_ptr[i]]  : 1'b1;
-        	/* verilator lint_on WIDTH */
-        	
-        	//synthesis translate_off
-        	//synopsys  translate_off
-        	wire  [DEPTHw-1             :   0] sub_depth      [V-1            :0];  
-        	reg   [DEPTHw-1             :   0] sub_depth_next      [V-1            :0];   
-        	pronoc_register #(.W(DEPTHw)) reg5 (.in(sub_depth_next[i] ), .out(sub_depth [i]), .reset(reset), .clk(clk));
-        	always @ (*)begin 
-        		sub_depth_next  [i] = sub_depth   [i];
-        		if(sub_restore[i]) sub_depth_next  [i]= depth_next[i];
-        		else if (wr[i] & ~sub_rd[i]) sub_depth_next [i] = sub_depth[i] + 1'h1;
-        		else if (~wr[i] & sub_rd[i]) sub_depth_next [i] = sub_depth[i] - 1'h1;    
-        	end//always
-        	always @(posedge clk) begin          
-        		if (wr[i] && (sub_depth[i] == B [DEPTHw-1 : 0]) && !sub_rd[i]) begin
-        			$display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
-        			$finish;
-        		end            		
-        		if (sub_rd[i] && (sub_depth[i] == {DEPTHw{1'b0}} &&  SSA_EN !="YES"  ))begin 
-        			$display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-        			$finish;
-        		end    
-        		if (sub_rd[i] && !wr[i] && (sub_depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" ))begin 
-        			$display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-        			$finish;
-        		end  
-        	end//always
-        	//synopsys  translate_on
-        	//synthesis translate_on
-        	
-        end else begin : unicast
-        	assign  rd_ptr_array[(i+1)*Bw- 1        :   i*Bw]   =       rd_ptr[i];   
-        	/* verilator lint_off WIDTH */
-        	assign  flit_is_tail[i] = (PCK_TYPE == "MULTI_FLIT")?  tail_fifo[i][rd_ptr[i]] : 1'b1;
-        	/* verilator lint_on WIDTH */
-        end
-        
-        
-        
-        
-        
-//synthesis translate_off
-//synopsys  translate_off    
-        always @(posedge clk) begin
-          
-                if (wr[i] && (depth[i] == B [DEPTHw-1 : 0]) && !rd[i])begin
-                    $display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
-                    $finish;
-                end    
-                /* verilator lint_off WIDTH */
-                if (rd[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN !="YES"  ))begin 
-                    $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-                    $finish;
-                end    
-                if (rd[i] && !wr[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" ))begin 
-                    $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-                    $finish;
-                end
-               
-                
-        //if (wr_en)       $display($time, " %h is written on fifo ",din);
-        end//always
-//synopsys  translate_on
-//synthesis translate_on
+	        end else begin : unicast
+	        	
+	        	/* verilator lint_off WIDTH */
+	        	assign  flit_is_tail[i] = (PCK_TYPE == "MULTI_FLIT")?  tail_fifo[i][rd_ptr[i]] : 1'b1;
+	        	/* verilator lint_on WIDTH */
+	        end
     end//for
     
     
     
-    end  else begin :no_pow2    //pow2
-
-
-
-
-
-    /*****************      
-        Buffer width is not power of 2
-     ******************/
-
-
-
-
+    end  else begin :no_pow2    
+    	/*****************      
+    	Buffer width is not power of 2
+     	******************/
+    	// memory address
+   		wire [BVw- 1    :   0]  wr_addr;
+   		wire [BVw- 1    :   0]  rd_addr;
+   		for(i=0;i<V;i=i+1) begin :V_   
     
-    //pointers
-    wire [BVw- 1     :   0] rd_ptr [V-1          :0];
-    wire [BVw- 1     :   0] wr_ptr [V-1          :0];
+	        pronoc_register #(.W(BVw),.RESET_TO(B*i)) reg1 (.in(rd_ptr_next[i]), .out(rd_ptr[i]), .reset(reset), .clk(clk));
+	        pronoc_register #(.W(BVw),.RESET_TO(B*i)) reg2 (.in(wr_ptr_next[i]), .out(wr_ptr[i]), .reset(reset), .clk(clk));
+	        pronoc_register #(.W(DEPTHw)            ) reg3 (.in(depth_next[i] ), .out(depth [i]), .reset(reset), .clk(clk));         
     
-    reg [BVw- 1     :   0] rd_ptr_next [V-1          :0];
-    reg [BVw- 1     :   0] wr_ptr_next [V-1          :0];
-    
-    wire  [V-1       :   0] sub_rd;
-    wire  [V-1       :   0] sub_restore;
-    
-
-    
-    /* verilator lint_off WIDTH */ 
-    if (CAST_TYPE != "UNICAST") begin :multicast
-    /* verilator lint_on WIDTH */ 
-    	reg  [BVw- 1      :   0] sub_rd_ptr_next [V-1          :0];
-    	wire [BVw- 1      :   0] sub_rd_ptr [V-1          :0]; 
-    
-    	assign  sub_rd      = (rd_en)?  vc_num_rd : ssa_rd; 
-    	assign  sub_restore = sub_rd_ptr_ld;  
-    	assign  rd  =   (rd_en)?  vc_num_rd & ~multiple_dest : ssa_rd & ~multiple_dest; 
-    end else begin : unicast
-    	assign  rd  =   (rd_en)?  vc_num_rd : ssa_rd; 
-    end
-    
-    
-    // memory address
-    wire [BVw- 1    :   0]  wr_addr;
-    wire [BVw- 1    :   0]  rd_addr;
-    
-    //pointer array      
-    wire [BVwV- 1   :   0]  wr_addr_all;
-    wire [BVwV- 1   :   0]  rd_addr_all;
-    
-    for(i=0;i<V;i=i+1) begin :loop0
+     		/* verilator lint_off WIDTH */         
+	        always @(posedge clk) begin
+	        	if(wr[i]) tail_fifo[i][wr_ptr[i]-(B*i)] <= din[Fw-2];
+	        end    
         
-        assign  wr_addr_all[(i+1)*BVw- 1        :   i*BVw]   =       wr_ptr[i];           
-        assign  vc_not_empty    [i] =   (depth[i] > 0);
-    
-    
-        pronoc_register #(.W(BVw),.RESET_TO(B*i)) reg1 (.in(rd_ptr_next[i]), .out(rd_ptr[i]), .reset(reset), .clk(clk));
-        pronoc_register #(.W(BVw),.RESET_TO(B*i)) reg2 (.in(wr_ptr_next[i]), .out(wr_ptr[i]), .reset(reset), .clk(clk));
-        pronoc_register #(.W(DEPTHw)            ) reg3 (.in(depth_next[i] ), .out(depth [i]), .reset(reset), .clk(clk));
-          
-        
-        
-    
-     /* verilator lint_off WIDTH */ 
-        
-        always @(posedge clk) begin
-        	if(wr[i]) tail_fifo[i][wr_ptr[i]-(B*i)] <= din[Fw-2];
-        end    	
-
-        always @ (* )begin 
-            rd_ptr_next [i] = rd_ptr  [i];
-            wr_ptr_next [i] = wr_ptr  [i];
-            depth_next  [i] = depth   [i];
+	        always @ (*) begin 
+            	rd_ptr_next [i] = rd_ptr  [i];
+            	wr_ptr_next [i] = wr_ptr  [i];
+            	depth_next  [i] = depth   [i];
 
                 if (wr[i] ) wr_ptr_next[i] =(wr_ptr[i]==(B*(i+1))-1)? (B*i) : wr_ptr [i]+ 1'h1;
                 if (rd[i] ) rd_ptr_next[i] =(rd_ptr[i]==(B*(i+1))-1)? (B*i) : rd_ptr [i]+ 1'h1;
                 if (wr[i] & ~rd[i]) depth_next [i] = depth[i] + 1'h1;
                 else if (~wr[i] & rd[i]) depth_next [i] = depth[i] - 1'h1;
-
-        end//always  
-         /* verilator lint_on WIDTH */ 
+            end//always  
+         	/* verilator lint_on WIDTH */ 
         
         
-        /* verilator lint_off WIDTH */ 
-        if (CAST_TYPE != "UNICAST") begin :multicast
+			 /* verilator lint_off WIDTH */ 
+			if (CAST_TYPE != "UNICAST") begin :multicast
         	/* verilator lint_on WIDTH */ 
         	
-        	
-        	
-        	reg  [BVw- 1      :   0] sub_rd_ptr_next [V-1          :0];
-        	wire [BVw- 1      :   0] sub_rd_ptr [V-1          :0]; 
-		wire [BVw-1       :   0] ptr_tmp  [V-1 : 0];
-        	pronoc_register #(.W(BVw    )) reg4 (.in(sub_rd_ptr_next[i]), .out(sub_rd_ptr[i]), .reset(reset), .clk(clk));
       
-        	always @ (*)begin 
-        		sub_rd_ptr_next[i] = sub_rd_ptr[i];
-        		if (sub_restore[i]) sub_rd_ptr_next[i] = rd_ptr [i];
-        		/* verilator lint_off WIDTH */ 
-        		else if(sub_rd[i])  sub_rd_ptr_next[i] = (sub_rd_ptr[i]==(B*(i+1))-1)? (B*i) : sub_rd_ptr [i]+ 1'h1; 
-        		/* verilator lint_on WIDTH */ 
-        	end
+	        	always @ (*)begin 
+	        		sub_rd_ptr_next[i] = sub_rd_ptr[i];
+	        		if (sub_restore[i]) sub_rd_ptr_next[i] = rd_ptr [i];
+	        		/* verilator lint_off WIDTH */ 
+	        		else if(sub_rd[i])  sub_rd_ptr_next[i] = (sub_rd_ptr[i]==(B*(i+1))-1)? (B*i) : sub_rd_ptr [i]+ 1'h1; 
+	        		/* verilator lint_on WIDTH */ 
+	        	end        	
         	
-        	assign  rd_addr_all[(i+1)*BVw- 1        :   i*BVw]   =       sub_rd_ptr[i];
-        	/* verilator lint_off WIDTH */ 
-		assign  ptr_tmp [i] = sub_rd_ptr[i]-(B*i);
-        	assign  flit_is_tail[i] = (PCK_TYPE == "MULTI_FLIT")?  tail_fifo[i][ptr_tmp [i]] :1'b1;
-        	/* verilator lint_on WIDTH */ 
+	        	/* verilator lint_off WIDTH */ 
+				assign  ptr_tmp [i] = sub_rd_ptr[i]-(B*i);
+	        	assign  flit_is_tail[i] = (PCK_TYPE == "MULTI_FLIT")?  tail_fifo[i][ptr_tmp [i]] :1'b1;
+	        	/* verilator lint_on WIDTH */ 
+        	      	
         	
-        	//synthesis translate_off
-        	//synopsys  translate_off
-        	wire  [DEPTHw-1             :   0] sub_depth      [V-1            :0];   
-        	reg   [DEPTHw-1             :   0] sub_depth_next [V-1            :0];   
-        	pronoc_register #(.W(DEPTHw)) reg3 (.in(depth_next[i] ), .out(depth [i]), .reset(reset), .clk(clk));
-        	always @ (*)begin 
-        		sub_depth_next  [i] = sub_depth   [i];
-        		if(sub_restore[i]) sub_depth_next  [i]= depth[i];
-        		if (wr[i] & ~sub_rd[i]) sub_depth_next [i] = sub_depth[i] + 1'h1;
-        		else if (~wr[i] & sub_rd[i]) sub_depth_next [i] = sub_depth[i] - 1'h1;    
-        	end//always
-        	always @(posedge clk) begin          
-        		if (wr[i] && (sub_depth[i] == B [DEPTHw-1 : 0]) && !sub_rd[i]) begin
-        			$display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
-        			$finish;
-        		end  
-        		/* verilator lint_off WIDTH */
-        		if (sub_rd[i] && (sub_depth[i] == {DEPTHw{1'b0}} &&  SSA_EN !="YES"  ))begin 
-        			$display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-        			$finish;
-        		end    
-        		if (sub_rd[i] && !wr[i] && (sub_depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" ))begin 
-        			$display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-        			$finish;
-        		end 
-        		/* verilator lint_on WIDTH */
-        	end
-        	//synopsys  translate_on
-        	//synthesis translate_on
-        	
-       	end else begin : unicast
-        		assign  rd_addr_all[(i+1)*BVw- 1        :   i*BVw]   =       rd_ptr[i]; 
+       		end else begin : unicast
         		/* verilator lint_off WIDTH */ 
         		assign  flit_is_tail[i] = (PCK_TYPE == "MULTI_FLIT")?  tail_fifo[i][rd_ptr[i]-(B*i)] : 1'b1;
         		/* verilator lint_on WIDTH */ 
-        end
-        
-                
-        
-        
-//synthesis translate_off
-//synopsys  translate_off
-    
-        always @(posedge clk) begin
-          
-                if (wr[i] && (depth[i] == B[DEPTHw-1 : 0]) && !rd[i]) begin 
-                   $display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
-                   $finish;
-                end
-                /* verilator lint_off WIDTH */
-                if (rd[i] && (depth[i] == {DEPTHw{1'b0}}  &&  SSA_EN !="YES"  )) begin 
-                   $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-                   $finish; 
-                end    
-                if (rd[i] && !wr[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" )) begin 
-                    $display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
-                    $finish;
-                end
-                /* verilator lint_on WIDTH */
-                
-        //if (wr_en)       $display($time, " %h is written on fifo ",din);
-            
-        end//always
-    
-//synopsys  translate_on
-//synthesis translate_on
-        
-              
-    
-    end//FOR
+        	end
+        end//FOR
     
     
-    onehot_mux_1D #(
-        .W(BVw),
-        .N(V)        
-    )
-    wr_mux
-    (
-        .in(wr_addr_all),
-        .out(wr_addr),
-        .sel(vc_num_wr)
-    );
-    
-    onehot_mux_1D #(
-        .W(BVw),
-        .N(V)        
-    )
-    rd_mux
-    (
-        .in(rd_addr_all),
-        .out(rd_addr),
-        .sel(vc_num_rd)
-    );
-    
-    fifo_ram_mem_size #(
-       .DATA_WIDTH (RAM_DATA_WIDTH),
-       .MEM_SIZE (BV ),
-       .SSA_EN(SSA_EN)       
-    )
-    the_queue
-    (
-        .wr_data        (fifo_ram_din), 
-        .wr_addr        (wr_addr),
-        .rd_addr        (rd_addr),
-        .wr_en          (wr_en),
-        .rd_en          (rd_en),
-        .clk            (clk),
-        .rd_data        (fifo_ram_dout)
-    );  
-    
-    
-    
-    
-    
-    
-    end
+	    onehot_mux_1D #(
+	        .W(BVw),
+	        .N(V)        
+	    )
+	    wr_mux
+	    (
+	        .in(wr_ptr_array),
+	        .out(wr_addr),
+	        .sel(vc_num_wr)
+	    );
+	    
+	    onehot_mux_1D #(
+	        .W(BVw),
+	        .N(V)        
+	    )
+	    rd_mux
+	    (
+	        .in(rd_ptr_array),
+	        .out(rd_addr),
+	        .sel(vc_num_rd)
+	    );
+	    
+	    fifo_ram_mem_size #(
+	       .DATA_WIDTH (RAM_DATA_WIDTH),
+	       .MEM_SIZE (BV ),
+	       .SSA_EN(SSA_EN)       
+	    )
+	    the_queue
+	    (
+	        .wr_data        (fifo_ram_din), 
+	        .wr_addr        (wr_addr),
+	        .rd_addr        (rd_addr),
+	        .wr_en          (wr_en),
+	        .rd_en          (rd_en),
+	        .clk            (clk),
+	        .rd_data        (fifo_ram_dout)
+	    );  
+     end
     endgenerate
     
     
@@ -590,23 +394,100 @@ generate
 
 //synthesis translate_off
 //synopsys  translate_off
-generate
-if(DEBUG_EN) begin :dbg 
-    always @(posedge clk) begin
-       
-            if(wr_en && vc_num_wr == {V{1'b0}})begin 
-                    $display("%t: ERROR: Attempt to write when no wr VC is asserted: %m",$time);
-                    $finish;
-            end
-            if(rd_en && vc_num_rd == {V{1'b0}})begin
-                    $display("%t: ERROR: Attempt to read when no rd VC is asserted: %m",$time);
-                    $finish;
-            end
-        end    
-end 
-endgenerate 
+    
+    wire  [DEPTHw-1             :   0] sub_depth       [V-1            :0];  
+    reg   [DEPTHw-1             :   0] sub_depth_next  [V-1            :0];  
+    
+	generate
+	if(DEBUG_EN) begin :dbg 
+	    always @(posedge clk) begin	       
+	            if(wr_en && vc_num_wr == {V{1'b0}})begin 
+	                    $display("%t: ERROR: Attempt to write when no wr VC is asserted: %m",$time);
+	                    $finish;
+	            end
+	            if(rd_en && vc_num_rd == {V{1'b0}})begin
+	                    $display("%t: ERROR: Attempt to read when no rd VC is asserted: %m",$time);
+	                    $finish;
+	            end
+	        end    
+	end 
+	
+	
+	for(i=0;i<V;i=i+1) begin :loop0
+	
+		/* verilator lint_off WIDTH */ 
+		if (CAST_TYPE != "UNICAST") begin :multicast
+		/* verilator lint_on WIDTH */ 
+	 
+	
+			pronoc_register #(.W(DEPTHw)) sub_depth_reg (.in(sub_depth_next[i] ), .out(sub_depth [i]), .reset(reset), .clk(clk));
+			always @ (*)begin 
+				sub_depth_next  [i] = sub_depth   [i];
+				if(sub_restore[i]) sub_depth_next  [i]= depth_next[i];
+				else if (wr[i] & ~sub_rd[i]) sub_depth_next [i] = sub_depth[i] + 1'h1;
+				else if (~wr[i] & sub_rd[i]) sub_depth_next [i] = sub_depth[i] - 1'h1;    
+			end//always
+			
+			always @(posedge clk) begin          
+				if (wr[i] && (sub_depth[i] == B [DEPTHw-1 : 0]) && !sub_rd[i]) begin
+					$display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
+					$finish;
+				end   
+				/* verilator lint_off WIDTH */
+				if (sub_rd[i] && (sub_depth[i] == {DEPTHw{1'b0}} &&  SSA_EN !="YES"  ))begin 
+				/* verilator lint_on WIDTH */
+					$display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
+					$finish;
+				end  
+				/* verilator lint_off WIDTH */
+				if (sub_rd[i] && !wr[i] && (sub_depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" ))begin 
+				/* verilator lint_on WIDTH */
+					$display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
+					$finish;
+				end  
+			end//always	
+		end	//multicast
+	
+	
+		always @(posedge clk) begin
+	          
+			if (wr[i] && (depth[i] == B [DEPTHw-1 : 0]) && !rd[i])begin
+				$display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,B);
+				$finish;
+			end    
+			/* verilator lint_off WIDTH */
+			if (rd[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN !="YES"  ))begin
+			/* verilator lint_on WIDTH */
+				$display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
+				$finish;
+			end   
+			/* verilator lint_off WIDTH */
+			if (rd[i] && !wr[i] && (depth[i] == {DEPTHw{1'b0}} &&  SSA_EN =="YES" ))begin 
+			/* verilator lint_on WIDTH */	
+				$display("%t: ERROR: Attempt to read an empty FIFO: %m",$time);
+				$finish;
+			end
+	               
+	                
+			//if (wr_en)       $display($time, " %h is written on fifo ",din);
+		end//always
+	end//for	
+	endgenerate 
 //synopsys  translate_on
-//synthesis translate_on    
+//synthesis translate_on	
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 endmodule 
 
