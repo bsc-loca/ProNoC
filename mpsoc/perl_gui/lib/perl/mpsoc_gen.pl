@@ -783,17 +783,56 @@ if($topology ne '"CUSTOM"' ){
     
     
     #CAST_TYPE
-    $label='Castting Type';
+    $label='Casting Type';
     $param='CAST_TYPE';
     $default= '"UNICAST"';
     $info=''; 
     $content='"UNICAST","MULTICAST"';
     $type="Combo-box";
-    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param');
+    ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
     
    
+    my $cast_type=$mpsoc->object_get_attribute('noc_param','CAST_TYPE');  
+    my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($mpsoc);
     
+    my $cast = $mpsoc->object_get_attribute('noc_param',"MULTICAST_ENDP_LIST");	
+    if(!defined $cast){
+	    my $h=0;
+	    my $n="";
+	    for (my $i=0; $i<$NE; $i++){
+			$h+= (1<<$i%4); 	
+			if(($i+1) % 4==0){
+				$n="$h".$n if($h<10);
+				$n=chr($h-10+97).$n if($h>9);
+				$h=0;
+			}
+		}	
+		$n="$h".$n if($h!=0);
+		$n="'h".$n;  
+		$mpsoc->object_add_attribute('noc_param',"MULTICAST_ENDP_LIST",$n);
+		$mpsoc->object_add_attribute_order('noc_param',"MULTICAST_ENDP_LIST");
+		$cast=$n;
+    }
     
+    if($cast_type eq '"MULTICAST"') {
+    	$table->attach  ( gen_label_in_left("Muticast Node list"),0 , 1, $row,$row+1,'fill','shrink',2,2);
+ 	
+ 
+    
+    	my $b1= def_image_button("icons/setting.png","Set");
+    	my$bb=def_pack_hbox(FALSE,0,gen_label_in_left("$cast"),$b1);
+        $table->attach  ( $bb , 2, 3, $row,$row+1,'fill','shrink',2,2);
+        $row++;  
+        
+         $b1->signal_connect("clicked" => sub{ 
+      		set_multicast_list($mpsoc);
+   		
+   		 });
+        
+          
+    	
+    	
+    }
     
     
     if($show_noc == 1){    
@@ -1061,6 +1100,134 @@ arbiters external priority enable';
 }
 
 
+
+
+sub set_multicast_list{
+	my($mpsoc)=@_;	
+	my $window = def_popwin_size(50,40,"Select nodes invlove in multicasting ",'percent');
+	my $table= def_table(10,10,FALSE);
+	my $row=0;
+	my $col=0;
+	
+	my $init = $mpsoc->object_get_attribute('noc_param',"MULTICAST_ENDP_LIST");
+	$init =~ s/'h//g;
+	my @arr= reverse split (//, $init);
+		
+	
+	my $label = "Multicast Node list (hex fromat)";    
+    my ($Ebox,$entry) = def_h_labeled_entry ($label);	
+	$entry->set_sensitive (FALSE);
+		
+	my @sel_options= ("Select","All","None","2n","3n","4n","2n+1","3n+1","3n+2","4n+1","4n+2","4n+3");
+	my $combo= gen_combo(\@sel_options, 0);
+	$table->attach ($combo , 0, 1, $row,$row+1,'fill','shrink',2,2);
+	#get the number of endpoints
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($mpsoc);
+	my @check;
+	
+	
+	
+	my $sel_val="Init";
+	for (my $i=0; $i<$NE; $i++){
+		if($i%10 == 0){	$row++;$col=0;}		
+		my $box;
+		my $l=$NE -$i-1;
+		
+		my $char = $arr[$l/4];
+		$char=0 if (!defined $char);
+		my $hex = hex($char);		
+		my $bit = ($hex >> ($l%4)) & 1;
+		($box,$check[$l])=def_h_labeled_checkbutton("$l");
+		$table->attach ($box , $col, $col+1, $row,$row+1,'fill','shrink',2,2);
+		$col++;	
+		
+		if($bit==1){
+			$check[$l]->set_active(TRUE);
+		}
+		
+		$check[$l]-> signal_connect("toggled" => sub{						
+			get_multicast_val ($mpsoc,$entry,$NE,@check)if($sel_val eq "Select");
+		});	
+	}	
+	$row++;
+	$col=0;
+	
+	$sel_val="Select";
+	get_multicast_val ($mpsoc,$entry,$NE,@check);
+	
+	$combo-> signal_connect("changed" => sub{
+		$sel_val=$combo->get_active_text();		
+		my $n=1;
+		my $r=0;
+		return if ($sel_val eq "Select");		
+		if ($sel_val eq "None"){		
+			for (my $i=0; $i<$NE; $i++){$check[$i]->set_active(FALSE)};
+			get_multicast_val ($mpsoc,$entry,$NE,@check);
+			$combo->set_active(0);
+			return;
+		}
+		($n,$r)=sscanf("%dn+%d",$sel_val);
+		if(!defined $r){
+			($n,$r)=sscanf("%dn",$sel_val);
+			$r=0;
+			$n=1 if(!defined $n);
+		}
+		
+		for (my $i=0; $i<$NE; $i++){
+			if($i % $n == $r){  $check[$i]->set_active(TRUE);}
+		}
+		$combo->set_active(0);
+		get_multicast_val ($mpsoc,$entry,$NE,@check);
+		
+	 });
+	
+	
+	
+	$table->attach ($Ebox , 0, 10, $row,$row+1,'fill','shrink',2,2);$row++;
+	
+	my $main_table=def_table(10,10,FALSE);
+	  
+	my $ok = def_image_button('icons/select.png','OK');	
+	$main_table->attach_defaults ($table  , 0, 12, 0,11);
+    $main_table->attach ($ok,5, 6, 11,12,'shrink','shrink',0,0);
+	
+	$ok->signal_connect('clicked', sub {
+		get_multicast_val ($mpsoc,$entry,$NE,@check);
+		my $n=$entry->get_text( );
+		$mpsoc->object_add_attribute('noc_param',"MULTICAST_ENDP_LIST",$n);	
+		set_gui_status($mpsoc,"ref",1);	
+		$window->destroy;
+	});
+	
+	
+	
+	
+	my $scrolled_win = gen_scr_win_with_adjst($mpsoc,'gen_multicast');
+	add_widget_to_scrolled_win($main_table,$scrolled_win);
+	$window->add($scrolled_win);
+	$window->show_all();
+}
+
+sub get_multicast_val {
+	my ($mpsoc,$entry,$NE,@check)=@_;
+	my $n="";
+	my $h=0;
+	
+	for (my $i=0; $i<$NE; $i++){
+		$h+= (1<<$i%4) 	if($check[$i]->get_active());
+		if(($i+1) % 4==0){
+			$n="$h".$n if($h<10);
+			$n=chr($h-10+97).$n if($h>9);
+			$h=0;
+		}
+	}
+	
+	$n="$h".$n if($NE%4!=0);
+	$n="'h".$n;
+	$entry->set_text("$n");
+
+	
+}
 #############
 # config_custom_topology_gui
 ############
