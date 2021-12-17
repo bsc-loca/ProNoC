@@ -269,7 +269,7 @@ assign destport = 7;
 	wire [NEw-1 : 0] current_id; 
 	wire [NEw-1 : 0] sendor_id; 
 	endp_addr_decoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode1 ( .id(current_id), .code(current_e_addr));
-	endp_addr_decoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode2 ( .id(sendor_id), .code(pck_injct_out.endp_addr));
+	endp_addr_decoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode2 ( .id(sendor_id), .code(pck_injct_out.endp_addr[EAw-1 : 0]));
 	//synthesis translate_on
 	
 	
@@ -390,7 +390,7 @@ assign destport = 7;
 	assign chan_out.flit_chanel.congestion = {CONGw{1'b0}};
 	assign chan_out.flit_chanel.credit= credit_o;	
 	assign chan_out.ctrl_chanel.credit_init_val= LB;	
-	
+	assign chan_out.ctrl_chanel.endp_port =1'b1;
 	
 	
 	distance_gen #(

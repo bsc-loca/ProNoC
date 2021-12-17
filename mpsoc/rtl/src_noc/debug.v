@@ -103,7 +103,8 @@ module debug_mesh_tori_route_ckeck #(
     parameter TOPOLOGY="MESH",
     parameter DSTPw=4,
     parameter RAw=4,
-    parameter EAw=4    
+    parameter EAw=4,
+    parameter DAw=EAw
 )(
     reset,
     clk,
@@ -132,7 +133,8 @@ module debug_mesh_tori_route_ckeck #(
     input hdr_flg_in , flit_in_wr;
     input [V-1 : 0] vc_num_in, flit_is_tail,  ivc_num_getting_sw_grant;
     input [RAw-1 : 0] current_r_addr;
-    input [EAw-1 : 0] dest_e_addr_in,src_e_addr_in;
+    input [DAw-1 : 0] dest_e_addr_in;
+    input [EAw-1 : 0] src_e_addr_in;
     input [DSTPw-1 : 0]  destport_in; 
     
     localparam
@@ -372,14 +374,18 @@ endmodule
     parameter T3=2,
     parameter T4=2,
     parameter EAw=2,
-    parameter SELF_LOOP_EN="NO"
+    parameter DAw=2,
+    parameter SELF_LOOP_EN="NO",
+    parameter CAST_TYPE = "UNICAST",
+    parameter NE=8
  )(
      dest_is_valid,
      dest_e_addr,
      current_e_addr    
  );
  
-    input [EAw-1 : 0]  dest_e_addr,current_e_addr;
+    input [DAw-1 : 0]  dest_e_addr;
+    input [EAw-1 : 0]  current_e_addr;
     output dest_is_valid;
  
     // general rules
@@ -388,6 +394,20 @@ endmodule
     /* verilator lint_on WIDTH */
     wire valid;
     generate
+    if(CAST_TYPE != "UNICAST") begin     
+           
+            wire [NE-1 : 0] dest_mcast_all_endp;            
+            
+            mcast_dest_list_decode decode (
+                .dest_e_addr(dest_e_addr),
+                .dest_o(dest_mcast_all_endp),
+                .row_has_any_dest( )
+            );
+        wire valid_dst_multi  = (SELF_LOOP_EN   == "NO") ? ~(dest_mcast_all_endp[current_e_addr] == 1'b1) : 1'b1;
+       
+        
+        assign  dest_is_valid = valid_dst_multi;  
+    end else     
     /* verilator lint_off WIDTH */ 
     if(TOPOLOGY=="MESH" || TOPOLOGY == "TORUS" || TOPOLOGY=="RING" || TOPOLOGY == "LINE") begin : mesh        
    /* verilator lint_on WIDTH */ 

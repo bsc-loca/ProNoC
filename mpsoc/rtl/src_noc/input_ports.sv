@@ -28,6 +28,9 @@
  **
  **************************************************************/
 
+
+
+
 module input_ports 
 	import pronoc_pkg::*; 	
 #(
@@ -234,14 +237,7 @@ module input_queue_per_port
 		);
 
  
-	function integer log2;
-		input integer number; begin   
-			log2=(number <=1) ? 1: 0;    
-			while(2**log2<number) begin    
-				log2=log2+1;    
-			end 	   
-		end   
-	endfunction // log2 
+	
    
 	
 	localparam 
@@ -321,7 +317,7 @@ module input_queue_per_port
 	wire [DSTPw-1 : 0] destport_in,destport_in_encoded;
 	wire [VDSTPw-1 : 0] lk_destination_encoded;
 	
-	wire [EAw-1 : 0] dest_e_addr_in;
+	wire [DAw-1 : 0] dest_e_addr_in;
 	wire [EAw-1 : 0] src_e_addr_in;
 	wire [V-1 : 0] vc_num_in;
 	wire [V-1 : 0] hdr_flit_wr,flit_wr;
@@ -690,26 +686,7 @@ module input_queue_per_port
 				assign class_out[i] = 1'b0;
 			end
        
-			//lk_dst_fifo
-			fwft_fifo #(
-					.DATA_WIDTH(DSTPw),
-					.MAX_DEPTH (MAX_PCK),
-					.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
-				)
-				lk_dest_fifo
-				(
-					.din (lk_destination_in_encoded),
-					.wr_en (wr_hdr_fwft_fifo_delay [i]),   // Write enable
-					.rd_en (rd_hdr_fwft_fifo_delay [i]),   // Read the next word
-					.dout (lk_destination_encoded  [(i+1)*DSTPw-1 : i*DSTPw]),    // Data out
-					.full (),
-					.nearly_full (),
-					.recieve_more_than_0 (),
-					.recieve_more_than_1 (),
-					.reset (reset),
-					.clk (clk)
-             
-				);
+			
 			//localparam CAST_TYPE = "UNICAST"; // multicast is not yet supported
 			/* verilator lint_off WIDTH */    
 			if(CAST_TYPE!= "UNICAST") begin : muticast
@@ -761,6 +738,30 @@ module input_queue_per_port
 			
 		end	else begin : unicast
 			assign multiple_dest[i] = 1'b0;
+			
+			
+			//lk_dst_fifo
+			fwft_fifo #(
+					.DATA_WIDTH(DSTPw),
+					.MAX_DEPTH (MAX_PCK),
+					.IGNORE_SAME_LOC_RD_WR_WARNING(IGNORE_SAME_LOC_RD_WR_WARNING)
+				)
+				lk_dest_fifo
+				(
+					.din (lk_destination_in_encoded),
+					.wr_en (wr_hdr_fwft_fifo_delay [i]),   // Write enable
+					.rd_en (rd_hdr_fwft_fifo_delay [i]),   // Read the next word
+					.dout (lk_destination_encoded  [(i+1)*DSTPw-1 : i*DSTPw]),    // Data out
+					.full (),
+					.nearly_full (),
+					.recieve_more_than_0 (),
+					.recieve_more_than_1 (),
+					.reset (reset),
+					.clk (clk)
+             
+				);
+			
+			
 				
 				/* verilator lint_off WIDTH */    
 				if( ROUTE_TYPE=="DETERMINISTIC") begin : dtrmn_dest
@@ -1018,34 +1019,45 @@ module input_queue_per_port
 				
 				);  
   
-		end       
+		end  
+
+			
+		/* verilator lint_off WIDTH */    
+		if(CAST_TYPE== "UNICAST") begin : unicast
+		/* verilator lint_on WIDTH */
+			look_ahead_routing #(
+				.T1(T1),
+				.T2(T2),
+				.T3(T3),
+				.T4(T4), 
+				.P(P),       
+				.RAw(RAw),  
+				.EAw(EAw), 
+				.DAw(DAw),
+				.DSTPw(DSTPw),
+				.SW_LOC(SW_LOC),
+				.TOPOLOGY(TOPOLOGY),
+				.ROUTE_NAME(ROUTE_NAME),
+				.ROUTE_TYPE(ROUTE_TYPE)
+			)
+			lk_routing
+			(
+				.current_r_addr(current_r_addr),
+				.neighbors_r_addr(neighbors_r_addr),
+				.dest_e_addr(dest_e_addr_in),
+				.src_e_addr(src_e_addr_in),
+				.destport_encoded(destport_in_encoded),
+				.lkdestport_encoded(lk_destination_in_encoded),
+				.reset(reset),
+				.clk(clk)
+			);
+		end // unicast	
+			
+			
+			
 	endgenerate    
 
-	look_ahead_routing #(
-		.T1(T1),
-		.T2(T2),
-		.T3(T3),
-		.T4(T4), 
-		.P(P),       
-		.RAw(RAw),  
-		.EAw(EAw), 
-		.DSTPw(DSTPw),
-		.SW_LOC(SW_LOC),
-		.TOPOLOGY(TOPOLOGY),
-		.ROUTE_NAME(ROUTE_NAME),
-		.ROUTE_TYPE(ROUTE_TYPE)
-	)
-	lk_routing
-	(
-		.current_r_addr(current_r_addr),
-		.neighbors_r_addr(neighbors_r_addr),
-		.dest_e_addr(dest_e_addr_in),
-		.src_e_addr(src_e_addr_in),
-		.destport_encoded(destport_in_encoded),
-		.lkdestport_encoded(lk_destination_in_encoded),
-		.reset(reset),
-		.clk(clk)
-	);
+	
 
 	header_flit_update_lk_route_ovc #(
 		.P(P)    
@@ -1091,10 +1103,19 @@ module input_queue_per_port
 				$finish;
 			end		
 		end//always
-		end
+		
+		
+		
+		always @(posedge clk) begin
+			if((dest_port [(i+1)*P_1-1 : i*P_1] == {P_1{1'b0}})  && (ivc_request[i]==1'b1)) begin 
+				$display ("%t: ERROR: The destination port is not set for an active IVC request: %m \n",$time);
+				$finish;
+			end
+		end		
+		end//for
 		
 		/* verilator lint_off WIDTH */  
-		if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")) begin : mesh_based
+		if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && CAST_TYPE== "UNICAST") begin : mesh_based
 		/* verilator lint_on WIDTH */  
 
 				debug_mesh_tori_route_ckeck #(
@@ -1200,8 +1221,19 @@ module destp_generator #(
 	if(CAST_TYPE!= "UNICAST") begin : muticast
 	/* verilator lint_on WIDTH */
 		// destination port is not coded for multicast/broadcast
-		assign dest_port_out =dest_port_encoded[P_1-1 : 0];
-			
+		if( SELF_LOOP_EN=="NO") begin : nslp
+			remove_sw_loc_one_hot #(
+					.P(P),
+					.SW_LOC(SW_LOC)
+				)
+				remove_sw_loc
+				(
+					.destport_in(dest_port_encoded),
+					.destport_out(dest_port_out)
+				);
+		end else begin : slp		
+			assign dest_port_out = dest_port_encoded;
+		end
 	/* verilator lint_off WIDTH */
 	end else if(TOPOLOGY == "FATTREE" ) begin : fat
 	/* verilator lint_on WIDTH */

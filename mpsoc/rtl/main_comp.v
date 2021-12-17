@@ -50,9 +50,6 @@ module pronoc_register
         .out(out),
         .reset_to(RESET_TO[W-1 : 0])
     );
-    
-    
-
 endmodule
 
 
@@ -72,13 +69,54 @@ module pronoc_register_reset_init
         always @ (`pronoc_clk_reset_edge )begin 
             if(`pronoc_reset)   out<=reset_to;
             else        out<=in;
-        end
-        
-    
-    
+        end   
         
 endmodule
 
+
+module pronoc_register_reset_init_ld_en 
+        #(
+        parameter W=1       
+        )( 
+        input [W-1:0] in,
+        input reset,    
+        input clk, 
+        input ld,
+        output reg [W-1:0] out,
+        input [W-1 : 0] reset_to
+        );    
+    
+        always @ (`pronoc_clk_reset_edge )begin 
+            if(`pronoc_reset)   out<=reset_to;
+            else  if(ld)      out<=in;
+        end        
+endmodule
+
+
+module pronoc_register_ld_en 
+       #(
+        parameter W=1,
+        parameter  RESET_TO={W{1'b0}}
+        
+        )( 
+            input [W-1:0] in,
+            input reset,    
+            input clk,  
+            input ld,
+            output [W-1:0] out 
+        );
+
+    pronoc_register_reset_init_ld_en  #(
+        .W(W)           
+    )reg1( 
+        .in(in),
+        .reset(reset),  
+        .clk(clk),  
+        .ld(ld),
+        .out(out),
+        .reset_to(RESET_TO[W-1 : 0])
+    );
+endmodule
 
 
 

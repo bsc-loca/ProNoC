@@ -33,9 +33,9 @@
 	
 
 //NoC parameters
-	localparam TOPOLOGY="STAR";
-	localparam T1=5;
-	localparam T2=8;
+	localparam TOPOLOGY="MESH";
+	localparam T1=4;
+	localparam T2=4;
 	localparam T3=1;
 	localparam V=1;
 	localparam B=4;
@@ -62,8 +62,9 @@
 	localparam AVC_ATOMIC_EN=0;
 	localparam CVw=(C==0)? V : C * V;
 	localparam CLASS_SETTING={CVw{1'b1}};
-    localparam CAST_TYPE = "MULTICAST";//"MULTICAST"; not yest supported
-	
+    localparam CAST_TYPE = "MULTICAST";
+	localparam MULTICAST_ENDP_LIST = 'b11110011;	
+	localparam MCASTw=6;
 	
 	//simulation parameter	
 	//localparam MAX_RATIO = 1000;

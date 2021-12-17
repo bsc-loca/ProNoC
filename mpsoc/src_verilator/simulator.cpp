@@ -308,10 +308,18 @@ int parse_string ( char * str, int * array)
 
 
 
-unsigned int pck_dst_gen ( 	unsigned int core_num) {
-	if(TRAFFIC_TYPE==TASK)	return  	pck_dst_gen_task_graph ( core_num);
-	if((strcmp (TOPOLOGY,"MESH")==0)||(strcmp (TOPOLOGY,"TORUS")==0))	return  pck_dst_gen_2D (core_num);
-	return pck_dst_gen_1D (core_num);
+unsigned int pck_dst_gen_unicast ( 	unsigned int core_num, unsigned char * inject_en) {
+	if(TRAFFIC_TYPE==TASK)	return  	pck_dst_gen_task_graph ( core_num, inject_en);
+	if((strcmp (TOPOLOGY,"MESH")==0)||(strcmp (TOPOLOGY,"TORUS")==0))	return  pck_dst_gen_2D (core_num, inject_en);
+	return pck_dst_gen_1D (core_num, inject_en);
+}
+
+
+unsigned int pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
+	unsigned int dest = pck_dst_gen_unicast (core_num, inject_en);
+	if(strcmp (CAST_TYPE,"UNICAST")==0) return  dest;
+	else if (*inject_en==0) return  dest;
+	return (0x1<<dest);
 }
 
 
@@ -529,14 +537,15 @@ void traffic_gen_init( void ){
 	int i;
 	unsigned int dest_e_addr;
 	for (i=0;i<NE;i++){
+			unsigned char inject_en;
 	    	random_var[i] = 100;
 	    	traffic[i]->current_e_addr		= endp_addr_encoder(i);
 	    	traffic[i]->start=0;
 	    	traffic[i]->pck_class_in=  pck_class_in_gen( i);
 	    	traffic[i]->pck_size_in=get_new_pck_size();
-	    	dest_e_addr=pck_dst_gen (i);
+	    	dest_e_addr=pck_dst_gen (i, &inject_en);
 	    	traffic[i]->dest_e_addr= dest_e_addr;
-	    	if(dest_e_addr == INJECT_OFF) traffic[i]->stop=1;
+	    	if(inject_en == 0) traffic[i]->stop=1;
 	    	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
 	    	if(inject_done) traffic[i]->stop=1;
 	    	traffic[i]->start_delay=rnd_between(1,4*NE-2);
@@ -761,6 +770,7 @@ void traffic_clk_negedge_event(void){
 void traffic_clk_posedge_event(void) {
 	int i;
 	unsigned int dest_e_addr;
+	unsigned char inject_en;
 	clk = 1;       // Toggle clock
 	if(count_en) clk_counter++;
 	inject_done= ((total_sent_pck_num >= end_sim_pck_num) || (clk_counter>= sim_end_clk_num) || total_active_routers == 0);
@@ -777,9 +787,9 @@ void traffic_clk_posedge_event(void) {
 			sent_core_total_pck_num[i]++;
 			traffic[i]->pck_size_in=get_new_pck_size();
 			if(!FIXED_SRC_DST_PAIR){
-				dest_e_addr=pck_dst_gen (i);
+				dest_e_addr=pck_dst_gen (i, &inject_en);
 				traffic[i]->dest_e_addr= dest_e_addr;
-				if(dest_e_addr == INJECT_OFF) traffic[i]->stop=1;
+				if(inject_en == 0) traffic[i]->stop=1;
 				//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
 			}
 		}
@@ -1323,22 +1333,24 @@ void update_injct_var(unsigned int src,  unsigned int injct_var){
 	//printf("after=%u\n",random_var[src]);
 }
 
-unsigned int pck_dst_gen_task_graph ( unsigned int src){
+unsigned int pck_dst_gen_task_graph ( unsigned int src, unsigned char * inject_en){
 	 task_t  task;
 	float f,v;
-
+	*inject_en=1;
 	int index = task_graph_abstract[src].active_index;
 
 	if(index == DISABLE){
 		traffic[src]->ratio=0;
 		traffic[src]->stop=1;
-		 return INJECT_OFF; //disable sending
+		*inject_en=0;
+		return INJECT_OFF; //disable sending
 	}
 
 	if(	read(task_graph_data[src],index,&task)==0){
 		traffic[src]->ratio=0;
 		traffic[src]->stop=1;
-		 return INJECT_OFF; //disable sending
+		*inject_en=0;
+		return INJECT_OFF; //disable sending
 
 	}
 
@@ -1383,6 +1395,7 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src){
 					traffic[src]->ratio=0;
 					traffic[src]->stop=1;
 					if(total_active_routers!=0) total_active_routers--;
+					*inject_en=0;
 					return INJECT_OFF;
 				}
 				if(task_graph_abstract[src].active_index>=task_graph_abstract[src].total_index) task_graph_abstract[src].active_index=0;

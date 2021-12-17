@@ -160,7 +160,7 @@ module testbench_noc;
     
    
 	wire [NE-1      :   0]  hdr_flit_sent;
-	wire [EAw-1     :   0]  dest_e_addr             [NE-1           :0];  
+	wire [DAw-1     :   0]  dest_e_addr             [NE-1           :0];  
 	wire [EAw-1     :   0]  src_e_addr				[NE-1           :0]; 
 	wire [Cw-1      :   0]  pck_class_in            [NE-1           :0]; 
 	wire [Cw-1      :   0]  flit_out_class          [NE-1           :0]; 

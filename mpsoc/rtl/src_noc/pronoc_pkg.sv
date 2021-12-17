@@ -5,10 +5,15 @@
 
 package pronoc_pkg; 
   
-	localparam MULTICAST_REGION_NUM=4; 		
+	
+		
+	
   
 `define NOC_LOCAL_PARAM
 `include "noc_localparam.v"
+		
+		
+		
 
 `define  INCLUDE_TOPOLOGY_LOCALPARAM
 `include "topology_localparam.v"
@@ -25,8 +30,8 @@ localparam
 	SMART_NUM= (SMART_EN) ? SMART_MAX : 1,	
 	NEV  = NE * V,
 	T4 = 0,
-	BEw = (BYTE_EN)? log2(Fpay/8) : 1,
-	DELAYw = EAw+2; //Injector start delay counter width
+	BEw = (BYTE_EN)? log2(Fpay/8) : 1;
+	
 
 
  localparam CONGw= (CONGESTION_INDEX==3)?  3:
@@ -39,7 +44,7 @@ localparam
 
  localparam 
  	E_SRC_LSB =0,                   E_SRC_MSB = E_SRC_LSB + EAw-1,
- 	E_DST_LSB = E_SRC_MSB +1,       E_DST_MSB = E_DST_LSB + EAw-1,  
+ 	E_DST_LSB = E_SRC_MSB +1,       E_DST_MSB = E_DST_LSB + DAw-1,  
  	DST_P_LSB = E_DST_MSB + 1,      DST_P_MSB = DST_P_LSB + DSTPw-1, 
  	CLASS_LSB = DST_P_MSB + 1,      CLASS_MSB = CLASS_LSB + Cw -1, 
  	MSB_CLASS = (C>1)? CLASS_MSB : DST_P_MSB,
@@ -225,7 +230,7 @@ localparam
 	
 	typedef struct packed {	
 		logic [EAw-1 	: 0] src_e_addr;
-		logic [EAw-1 	: 0] dest_e_addr;
+		logic [DAw-1 	: 0] dest_e_addr;
 		logic [DSTPw-1	: 0] destport;    
 		logic [Cw-1		: 0] message_class;
 		logic [WEIGHTw-1: 0] weight;
@@ -249,8 +254,6 @@ localparam
 		Fw = FLIT_w,
 		NEFw = NE *Fw;	
 	
-	
-	
 	typedef struct packed {	
 		logic  flit_wr;
 		logic  [V-1 :  0]  credit;
@@ -271,6 +274,7 @@ localparam
 
 	localparam CRDTw = (B>LB) ? log2(B+1) : log2(LB+1);
 	typedef struct packed {
+		bit    endp_port;  // if it is one, it means the corresponding port is connected o an endpoint
 		logic [RAw-1:   0]  neighbors_r_addr;
 		logic [V-1  :0] [CRDTw-1: 0] credit_init_val; // the connected port initial credit value. It is taken at reset time	
 		logic [ST_Aw-1 : 0] statistic_addr;
@@ -291,6 +295,9 @@ localparam
 /***********
  * simulation
  * **********/
+	
+	localparam DELAYw = EAw+2; //Injector start delay counter width
+	
  	typedef struct packed {
  		integer   ip_num;
 		bit send_enable;
@@ -311,7 +318,7 @@ localparam
  	typedef struct packed {
  		logic [PCK_INJ_Dw-1 : 0] data;
  		logic [PCK_SIZw-1 : 0] size;
- 		logic [EAw-1 : 0] endp_addr; 
+ 		logic [DAw-1 : 0] endp_addr; 
  		logic [Cw-1  : 0] class_num; 
  		logic [WEIGHTw-1   : 0] init_weight;
  		logic [V-1   : 0] vc;

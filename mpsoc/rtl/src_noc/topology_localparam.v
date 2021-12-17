@@ -19,9 +19,8 @@
     //LINE RING Topology p=3           
     localparam  FORWARD =  1,
                 BACKWARD=  2;
- 
- 
- 
+                
+     
      function automatic integer log2;
       input integer number; begin   
          log2=(number <=1) ? 1: 0;    
@@ -109,10 +108,15 @@
         end
     endfunction
   
-
+    
+       
+    
+    
 /*******************
 *   "RING"  "LINE"  "MESH" TORUS" "FMESH"
 ******************/
+
+
 
 
 /* verilator lint_off WIDTH */
@@ -137,7 +141,8 @@ localparam
     NR_MESH_TORI = (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? NX : NX*NY,
     NE_MESH_TORI = NR_MESH_TORI * NL,
     MAX_P_MESH_TORI = R2R_CHANELS_MESH_TORI + R2E_CHANELS_MESH_TORI,
-    DSTPw_MESH_TORI =   R2R_CHANELS_MESH_TORI; // P-1
+    DSTPw_MESH_TORI = R2R_CHANELS_MESH_TORI, // P-1
+    DAw_MCAST_TORI =  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? MCASTw : MCASTw + NX; 
     /* verilator lint_on WIDTH */    
      
 /****************
@@ -147,12 +152,9 @@ localparam
     NE_FMESH = NE_MESH_TORI + 2 * (NX+NY),
     NR_FMESH = NR_MESH_TORI,
     MAX_P_FMESH = 4 + NL, 
-    EAw_FMESH = RAw_MESH_TORI + log2(MAX_P_FMESH);
-                              
-    
-      
-          
-       
+    EAw_FMESH = RAw_MESH_TORI + log2(MAX_P_FMESH),
+    DAw_MCAST_FMESH = MCASTw + NX +1;  
+ 
         
  
  /******************
@@ -170,7 +172,8 @@ localparam
     NR_FATTREE = L * powi( K , L - 1 ),  // total number of routers  
     ROUTE_TYPE_FATTREE = "DETERMINISTIC",
     DSTPw_FATTREE = K+1,
-    MAX_P_FATTREE = 2*K;
+    MAX_P_FATTREE = 2*K,
+    DAw_MCAST_FATTREE= powi( K,L); 
         
    
         
@@ -184,7 +187,8 @@ localparam
     RAw_TREE =  LKw + Lw,
     EAw_TREE  =  LKw,
     DSTPw_TREE = log2(K+1),
-    MAX_P_TREE = K+1;
+    MAX_P_TREE = K+1,
+    DAw_MCAST_TREE= DAw_MCAST_FATTREE; 
 
               
 /*********************
@@ -197,7 +201,8 @@ localparam
     RAw_STAR = 1,
     EAw_STAR  =  log2(NE_STAR),
     DSTPw_STAR = EAw_STAR,
-    MAX_P_STAR = NE_STAR;            
+    MAX_P_STAR = NE_STAR,
+    DAw_MCAST_STAR= NE_STAR;            
  
  /************************
   *  CUSTOM - made by netmaker
@@ -261,15 +266,18 @@ localparam
             NE_CUSTOM,
             
        //Destination endpoint(s) address width
-        MCAST_OFFSET =  
-            (MULTICAST_REGION_NUM == 0)? 0 :
-            ((NE % MULTICAST_REGION_NUM) == 0)? 0:1,            
+              
         DAw =  
             (CAST_TYPE == "UNICAST") ?   EAw:
             (CAST_TYPE == "BROADCAST")?  EAw + 1 :
-            //MULTICAST
-            (MULTICAST_REGION_NUM == 0)? NE :
-            (NE/MULTICAST_REGION_NUM) + MCAST_OFFSET + MULTICAST_REGION_NUM,     
+            //MULTICAST            
+            (TOPOLOGY == "FATTREE")? DAw_MCAST_FATTREE:
+            (TOPOLOGY == "TREE")?  DAw_MCAST_TREE:
+            (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? DAw_MCAST_TORI:
+            (TOPOLOGY == "FMESH")? DAw_MCAST_FMESH: 
+            (TOPOLOGY == "STAR")? DAw_MCAST_STAR : NE,
+            
+                  
             
         //total number of routers        
         NR =
@@ -291,8 +299,39 @@ localparam
     /* verilator lint_on WIDTH */         
  
  
+          
+     
+    
+    
+    function automatic integer mcast_id_to_endp_id;
+        input integer  mcast_id;
+        reg [NE-1 : 0] mcast_list;
+        integer  k;
+        begin
+        mcast_list =MULTICAST_ENDP_LIST;
+        mcast_id_to_endp_id=0;
+        k=0;
+        while( k!=mcast_id+1) begin              
+            if( mcast_list[mcast_id_to_endp_id]==1'b1) begin 
+               k=k+1;            
+            end
+            mcast_id_to_endp_id++;       
+        end        
+        end
+    endfunction
       
-            
+   function automatic integer endp_id_to_mcast_id;
+        input integer  endp_id;
+        reg [NE-1 : 0] mcast_list;
+        integer i=0;       
+        begin
+        mcast_list =MULTICAST_ENDP_LIST;
+        endp_id_to_mcast_id=0;
+        for (i=0;i<endp_id;i++) begin 
+            if( mcast_list[i]==1'b1) endp_id_to_mcast_id=endp_id_to_mcast_id+1;
+        end
+        end
+    endfunction         
    
  `endif
 

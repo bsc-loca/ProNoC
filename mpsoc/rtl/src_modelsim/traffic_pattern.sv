@@ -73,9 +73,99 @@ endmodule
         pck_dst_gen
 
 *********************************/
+module  pck_dst_gen
+	import pronoc_pkg::*; 	
+	#(
+    parameter NE=4,
+    parameter TRAFFIC =   "RANDOM",
+    parameter MAX_PCK_NUM = 10000,
+    parameter HOTSPOT_NODE_NUM =  4
+)(
+    en,
+    current_e_addr,
+    core_num,
+    pck_number,
+    dest_e_addr, 
+    clk,
+    reset,
+    valid_dst,
+    hotspot_info,
+	custom_traffic_t,
+	custom_traffic_en
+); 
  
  
-module  pck_dst_gen  
+    localparam      ADDR_DIMENSION =   (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS") ? 2 : 1;  // "RING" and FULLY_CONNECT 
+ 
+ 
+ 
+     
+    localparam  NEw= log2(NE),
+                PCK_CNTw = log2(MAX_PCK_NUM+1),
+                HOTSPOT_NUM= (TRAFFIC=="HOTSPOT")? HOTSPOT_NODE_NUM : 1;
+    
+    input                       reset,clk,en;
+    input   [NEw-1      :   0]  core_num;
+    input   [PCK_CNTw-1 :   0]  pck_number; 
+    input   [EAw-1      :   0]  current_e_addr; 
+    output  [DAw-1      :   0]  dest_e_addr; 
+    output                      valid_dst; 
+	input  [NEw-1 : 0] custom_traffic_t;
+	input  custom_traffic_en;
+    
+    input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
+
+
+	wire [EAw-1      :   0] unicast_dest_e_addr; 
+
+
+	pck_dst_gen_unicast #(
+		.NE(NE),
+		.TRAFFIC(TRAFFIC),
+		.MAX_PCK_NUM(MAX_PCK_NUM),
+		.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
+	)
+	unicast
+	(
+		.en               (en              ),
+		.current_e_addr   (current_e_addr  ),
+		.core_num         (core_num        ),
+		.pck_number       (pck_number      ),
+		.dest_e_addr      (unicast_dest_e_addr),
+		.clk              (clk             ),
+		.reset            (reset           ),
+		.valid_dst        (valid_dst       ),
+		.hotspot_info     (hotspot_info    ),
+		.custom_traffic_t (custom_traffic_t),
+		.custom_traffic_en(custom_traffic_en)
+	); 
+
+	generate
+	if(CAST_TYPE == "UNICAST") begin 
+		assign dest_e_addr =	unicast_dest_e_addr;		
+	end else begin 
+		//first test only one dst in multihop
+		assign dest_e_addr = 1<<unicast_dest_e_addr;
+
+	end endgenerate
+
+endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+module  pck_dst_gen_unicast  
 	import pronoc_pkg::*; 	
 	#(
     parameter NE=4,

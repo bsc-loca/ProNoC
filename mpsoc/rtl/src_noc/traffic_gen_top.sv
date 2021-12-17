@@ -79,7 +79,7 @@ module  traffic_gen_top
 	// the current endpoint address
 	input  [EAw-1                   :0] current_e_addr;    
 	// the destination endpoint address
-	input  [EAw-1                   :0] dest_e_addr;  
+	input  [DAw-1                   :0] dest_e_addr;  
     
 	output [PCK_CNTw-1              :0] pck_number;
 	input  [PCK_SIZw-1              :0] pck_size_in;
@@ -129,7 +129,9 @@ module  traffic_gen_top
 		assign chan_out.ctrl_chanel.credit_init_val[i]= PORT_B;
 	end
 	endgenerate
-		
+	
+	assign chan_out.ctrl_chanel.endp_port =1'b1;
+	
 	//old traffic.v file
 		
 	reg [2:0]   ps,ns;
@@ -137,7 +139,7 @@ module  traffic_gen_top
 		
 	reg                                 inject_en,cand_wr_vc_en,pck_rd;
 	reg    [PCK_SIZw-1              :0] pck_size, pck_size_next;    
-	logic    [EAw-1                    :0] dest_e_addr_reg;
+	logic    [DAw-1                    :0] dest_e_addr_reg;
 		
 	// synopsys  translate_off
 	// synthesis translate_off
@@ -172,7 +174,7 @@ module  traffic_gen_top
    
 	wire [HDR_Dw-1 : 0] hdr_data_in,rd_hdr_data_out;
    
-	pronoc_register #(.W(EAw)) reg2 (.in(dest_e_addr ), .out(dest_e_addr_reg), .reset(reset), .clk(clk));
+	pronoc_register #(.W(DAw)) reg2 (.in(dest_e_addr ), .out(dest_e_addr_reg), .reset(reset), .clk(clk));
 	  
 	
    
@@ -190,7 +192,9 @@ module  traffic_gen_top
 		wire                                   rd_hdr_flg,rd_tail_flg;
 		wire    [Cw-1   :   0] rd_class_hdr;
 		//  wire    [P_1-1      :   0] rd_destport_hdr;
-		wire    [EAw-1      :   0] rd_des_e_addr, rd_src_e_addr;  
+		wire    [DAw-1      :   0] rd_des_e_addr;
+		wire    [EAw-1      :   0] rd_src_e_addr;  
+		
 		reg     [CLK_CNTw-1             :   0] rsv_counter;
 		reg     [CLK_CNTw-1             :   0] clk_counter;
 		wire    [Vw-1                   :   0] rd_vc_bin;//,wr_vc_bin;
@@ -241,7 +245,10 @@ module  traffic_gen_top
 				.T2(T2),
 				.T3(T3),   
 				.EAw(EAw),
-				.SELF_LOOP_EN(SELF_LOOP_EN)
+				.SELF_LOOP_EN(SELF_LOOP_EN),
+				.DAw(DAw),
+				.CAST_TYPE(CAST_TYPE),
+				.NE(NE)
 			)
 			check_destination_addr(
 				.dest_e_addr(dest_e_addr),
@@ -290,24 +297,16 @@ module  traffic_gen_top
 				.reset                      (reset)
 			);
     
-       
+		
     
 		packet_gen #(
-				.P(MAX_P),
-				.T1(T1),
-				.T2(T2),
-				.T3(T3),
-				.RAw(RAw),  
-				.EAw(EAw),  
-				.TOPOLOGY(TOPOLOGY),
-				.DSTPw(DSTPw),
-				.ROUTE_NAME(ROUTE_NAME),
+				.P(MAX_P),			
 				.ROUTE_TYPE(ROUTE_TYPE),
 				.MAX_PCK_NUM(MAX_PCK_NUM),
 				.MAX_SIM_CLKs(MAX_SIM_CLKs),
 				.TIMSTMP_FIFO_NUM(TIMSTMP_FIFO_NUM),
 				.MIN_PCK_SIZE(MIN_PCK_SIZE),
-				.MAX_PCK_SIZ(MAX_PCK_SIZ)
+				.MAX_PCK_SIZ(MAX_PCK_SIZ)			
 			)
 			packet_buffer
 			(
@@ -638,22 +637,54 @@ module  traffic_gen_top
 		wire [NEw-1: 0]  src_id,dst_id,current_id;
     
 		endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod1 ( .id(current_id), .code(current_e_addr));
-		endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod2 ( .id(dst_id), .code(rd_des_e_addr));
+		endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod2 ( .id(dst_id), .code(rd_des_e_addr[EAw-1 : 0]));// only for unicast
 		endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod3 ( .id(src_id), .code(rd_src_e_addr));
     
-    
-    
+		wire [NE-1 :0] dest_mcast_all_endp1,dest_mcast_all_endp2;	
+		generate 
+		if(CAST_TYPE != "UNICAST") begin
+			mcast_dest_list_decode decode1 (
+				.dest_e_addr(dest_e_addr_reg),
+				.dest_o(dest_mcast_all_endp1),
+				.row_has_any_dest()
+			);
+			
+			mcast_dest_list_decode decode2 (
+				.dest_e_addr(rd_des_e_addr),
+				.dest_o(dest_mcast_all_endp2),
+				.row_has_any_dest()
+			);
+			
+		
+			
+		end
+		endgenerate
     
 		always @(posedge clk) begin     
-			if(flit_out_wr && hdr_flit && dest_e_addr_reg  == current_e_addr && SELF_LOOP_EN == "NO") begin 
-				$display("%t: ERROR: The self-loop is not enabled in the router while a packet is injected to the NoC with identical source and destination address in endpoint (%h).: %m",$time, dest_e_addr );
-				$finish;
-			end
-			if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr  != current_e_addr )) begin 
-				$display("%t: ERROR: packet with destination %d (code %h) which is sent by source %d (code %h) has been recieved in wrong destination %d (code %h).  %m",$time,dst_id,rd_des_e_addr, src_id,rd_src_e_addr, current_id,current_e_addr);
-				$finish;
-			end
+			
+			if(CAST_TYPE == "UNICAST") begin
 				
+				if(flit_out_wr && hdr_flit && dest_e_addr_reg [EAw-1 : 0]  == current_e_addr  && SELF_LOOP_EN == "NO") begin 
+					$display("%t: ERROR: The self-loop is not enabled in the router while a packet is injected to the NoC with identical source and destination address in endpoint (%h).: %m",$time, dest_e_addr_reg );
+					$finish;
+				end				
+				if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr[EAw-1 : 0]  != current_e_addr )) begin 
+					$display("%t: ERROR: packet with destination %d (code %h) which is sent by source %d (code %h) has been recieved in wrong destination %d (code %h).  %m",$time,dst_id,rd_des_e_addr, src_id,rd_src_e_addr, current_id,current_e_addr);
+					$finish;
+				end
+				
+			end else begin 
+				
+				if(flit_out_wr && hdr_flit && dest_mcast_all_endp1[current_id]  == 1'b1  && SELF_LOOP_EN == "NO") begin 
+					$display("%t: ERROR: The self-loop is not enabled in the router while a packet is injected to the NoC with identical source and destination address in endpoint (%h).: %m",$time, dest_mcast_all_endp1 );
+					$finish;
+				end				
+				if(flit_in_wr && rd_hdr_flg && (dest_mcast_all_endp2[current_id] !=1'b1 )) begin 
+					$display("%t: ERROR: packet with destination %b  which is sent by source %d (code %h) has been recieved in wrong destination %d (code %h).  %m",$time, dest_mcast_all_endp2, src_id,rd_src_e_addr, current_id,current_e_addr);
+					$finish;
+				end
+				
+			end
 			if(update) begin
 				if (hdr_flit_timestamp<= rd_timestamp) begin 
 					$display("%t: ERROR: In destination %d packt which is sent by source %d, the time when header flit is recived (%d) should be larger than the packet timestamp %d.  %m",$time, current_id ,src_e_addr, hdr_flit_timestamp, rd_timestamp);
@@ -878,23 +909,16 @@ endmodule
 **************************************/
 
  
-module packet_gen #(   
-	parameter P = 5,    
-	parameter T1= 4,    
-	parameter T2= 4,
-	parameter T3= 4,
-	parameter RAw = 3,  
-	parameter EAw = 3, 
-	parameter TOPOLOGY  = "MESH",
-	parameter DSTPw = 4,
-	parameter ROUTE_NAME = "XY",
+module packet_gen 
+	import pronoc_pkg::*; 		
+	#(   
+	parameter P = 5,	
 	parameter ROUTE_TYPE = "DETERMINISTIC",
 	parameter MAX_PCK_NUM   = 10000,
 	parameter MAX_SIM_CLKs  = 100000,
 	parameter TIMSTMP_FIFO_NUM=16,
 	parameter MIN_PCK_SIZE=2,
 	parameter MAX_PCK_SIZ=100
-
 )(
 	clk_counter,
 	pck_wr,
@@ -934,7 +958,7 @@ module packet_gen #(
 	input  [EAw-1 : 0] current_e_addr;
 	input  [CLK_CNTw-1 :0] clk_counter;	
 	input  [PCK_SIZw-1 :0] pck_size_in;
-	input  [EAw-1  :0] dest_e_addr;
+	input  [DAw-1  :0] dest_e_addr;
 	input  valid_dst; 
 	
 	output [PCK_CNTw-1 :0] pck_number;
@@ -948,7 +972,7 @@ module packet_gen #(
 	
 	assign pck_ready = ~buffer_empty & valid_dst;
     
-  
+	generate if(CAST_TYPE == "UNICAST") begin : uni 
 	conventional_routing #(
 		.TOPOLOGY(TOPOLOGY),
 		.ROUTE_NAME(ROUTE_NAME),
@@ -970,7 +994,8 @@ module packet_gen #(
 		.src_e_addr(current_e_addr),
 		.destport(destport)
 	);
-
+	end endgenerate
+	
 	wire timestamp_fifo_nearly_full , timestamp_fifo_full;
 	assign buffer_full = (MIN_PCK_SIZE==1) ? timestamp_fifo_nearly_full : timestamp_fifo_full;
 	

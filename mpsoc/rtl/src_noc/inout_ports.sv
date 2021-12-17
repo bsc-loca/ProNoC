@@ -562,7 +562,8 @@ import pronoc_pkg::*;
         vc_alloc_request_gen_determinstic #(
         	.P(P),
         	.V(V),
-        	.SELF_LOOP_EN(SELF_LOOP_EN)
+        	.SELF_LOOP_EN(SELF_LOOP_EN),
+        	.CAST_TYPE(CAST_TYPE)
         )
         vc_request_gen
         (
@@ -665,7 +666,8 @@ endmodule
 module  vc_alloc_request_gen_determinstic #(    
     parameter P = 5,
     parameter V = 4,
-    parameter SELF_LOOP_EN="NO"
+    parameter SELF_LOOP_EN="NO",
+    parameter CAST_TYPE = "UNICAST" 
     
 )(
     ovc_avalable_all,
@@ -702,14 +704,14 @@ module  vc_alloc_request_gen_determinstic #(
   genvar i;
 
 generate
-	if(SELF_LOOP_EN == "NO") begin
+	if(SELF_LOOP_EN == "NO" ) begin :nslp
 		//remove available ovc of receiver port 
 		for(i=0;i< P;i=i+1) begin :port_loop
 	        if(i==0) begin : first assign ovc_avalable_perport[i]=ovc_avalable_all [PV-1              :   V]; end
 	        else if(i==(P-1)) begin : last assign ovc_avalable_perport[i]=ovc_avalable_all [PV-V-1               :   0]; end
 	        else  begin : midle  assign ovc_avalable_perport[i]={ovc_avalable_all [PV-1  :   (i+1)*V],ovc_avalable_all [(i*V)-1  :   0]}; end
 	    end
-    end else begin 
+    end else begin :slp
     	for(i=0;i< P;i=i+1) begin :port_loop
     		 assign ovc_avalable_perport[i]=ovc_avalable_all;
 	    end

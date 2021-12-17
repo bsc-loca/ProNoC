@@ -168,7 +168,7 @@ sub generate_sim_bin_file {
 	my $param_h=gen_noc_param_h($simulate);
 	my $text = gen_sim_parameter_h($param_h,$includ_h,$ne,$nr,$router_p,$fifow);	
 	
-	$param_h =~ s/\d\'b/ /g;
+	
 	open(FILE,  ">$obj_dir/parameter.h") || die "Can not open: $!";
 	print FILE  "$text";
 	

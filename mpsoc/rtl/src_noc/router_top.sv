@@ -106,6 +106,7 @@ module router_top
 		for (i=0; i<P; i=i+1) begin :Pt_		
 			assign  ctrl_in [i] = chan_in[i].ctrl_chanel;
 			assign  chan_out[i].ctrl_chanel= ctrl_out [i];	
+			
 		end
 	endgenerate 
 	

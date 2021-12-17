@@ -55,12 +55,12 @@ unsigned int get_rnd_ip (unsigned int core_num){
 
 #if (defined (IS_MESH) || defined (IS_TORUS) || defined (IS_LINE) || defined (IS_RING) )
 
-unsigned int pck_dst_gen_2D (unsigned int core_num){
+unsigned int pck_dst_gen_2D (unsigned int core_num, unsigned char * inject_en){
 	//for mesh-tori
 	unsigned int current_l,current_x, current_y;
 	unsigned int dest_l,dest_x,dest_y;
 	mesh_tori_addrencod_sep(core_num,&current_x,&current_y,&current_l);
-
+	* inject_en=1;
 	unsigned int rnd=0;
 	unsigned int rnd100=0;
 	unsigned int max_percent=100/HOTSPOT_NUM;
@@ -80,6 +80,7 @@ unsigned int pck_dst_gen_2D (unsigned int core_num){
 			if ( hotspots[i].send_enable == 0 && core_num ==hotspots[i].ip_num){
 				//rnd = core_num; // turn off the core
 				//return endp_addr_encoder(rnd);
+				*inject_en=0;
 				return INJECT_OFF;
 			}
 		}
@@ -150,12 +151,16 @@ unsigned int pck_dst_gen_2D (unsigned int core_num){
      }    
      
      if(( strcmp(TRAFFIC ,"CUSTOM") == 0)|| (strcmp (TRAFFIC,"custom")==0)){
-    	 if (custom_traffic_table[core_num]== INJECT_OFF) return INJECT_OFF;
+    	 if (custom_traffic_table[core_num]== INJECT_OFF){
+    		 *inject_en=0;
+    		 return INJECT_OFF;
+    	 }
 		 return endp_addr_encoder(custom_traffic_table[core_num]);
 
      }  
 
          fprintf (stderr,"ERROR: traffic %s is an unsupported traffic pattern\n",TRAFFIC);
+         *inject_en=0;
          return INJECT_OFF;
 
 }
@@ -169,14 +174,14 @@ unsigned int pck_dst_gen_2D (unsigned int core_num){
 #endif
 
 
-unsigned int pck_dst_gen_1D (unsigned int core_num){
+unsigned int pck_dst_gen_1D (unsigned int core_num, unsigned char  *inject_en){
 
 	unsigned int rnd=0;
 	unsigned int rnd100=0;
 	unsigned int max_percent=100/HOTSPOT_NUM;
 	int i;
 	
-	
+	*inject_en=1;
 	if((strcmp (TRAFFIC,"RANDOM")==0) || (strcmp (TRAFFIC,"random")==0)){
 		 return endp_addr_encoder(get_rnd_ip(core_num));
 	}
@@ -188,7 +193,7 @@ unsigned int pck_dst_gen_1D (unsigned int core_num){
 		rnd1000=rand()%1000; // generate a random number between 0 & 1000
 		for (i=0;i<HOTSPOT_NUM; i++){
 			if ( hotspots[i].send_enable == 0 && core_num ==hotspots[i].ip_num){
-
+				*inject_en=0;
 				return INJECT_OFF;
 			}
 		}
@@ -248,12 +253,16 @@ unsigned int pck_dst_gen_1D (unsigned int core_num){
 	 }
      
      if(( strcmp(TRAFFIC ,"CUSTOM") == 0)|| (strcmp (TRAFFIC,"custom")==0)){
-    	 if (custom_traffic_table[core_num]== INJECT_OFF) return INJECT_OFF;
+    	 if (custom_traffic_table[core_num]== INJECT_OFF){
+    		 *inject_en=0;
+    		 return INJECT_OFF;
+    	 }
      	 return endp_addr_encoder(custom_traffic_table[core_num]);
 
      }
 
      fprintf (stderr,"ERROR: traffic %s is an unsupported traffic pattern\n",TRAFFIC);
+     *inject_en=0;
 	 return  INJECT_OFF;
 }
 

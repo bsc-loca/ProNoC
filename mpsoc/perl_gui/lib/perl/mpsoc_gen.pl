@@ -781,6 +781,8 @@ if($topology ne '"CUSTOM"' ){
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param');
     
     
+  
+    
     
     #CAST_TYPE
     $label='Casting Type';
@@ -811,6 +813,8 @@ if($topology ne '"CUSTOM"' ){
 		$n="'h".$n;  
 		$mpsoc->object_add_attribute('noc_param',"MULTICAST_ENDP_LIST",$n);
 		$mpsoc->object_add_attribute_order('noc_param',"MULTICAST_ENDP_LIST");
+		$mpsoc->object_add_attribute('noc_param',"MCASTw",$NE);
+		$mpsoc->object_add_attribute_order('noc_param',"MCASTw");
 		$cast=$n;
     }
     
@@ -1192,9 +1196,10 @@ sub set_multicast_list{
     $main_table->attach ($ok,5, 6, 11,12,'shrink','shrink',0,0);
 	
 	$ok->signal_connect('clicked', sub {
-		get_multicast_val ($mpsoc,$entry,$NE,@check);
+		my $s=get_multicast_val ($mpsoc,$entry,$NE,@check);
 		my $n=$entry->get_text( );
 		$mpsoc->object_add_attribute('noc_param',"MULTICAST_ENDP_LIST",$n);	
+		$mpsoc->object_add_attribute('noc_param',"MCASTw",$s);
 		set_gui_status($mpsoc,"ref",1);	
 		$window->destroy;
 	});
@@ -1212,9 +1217,9 @@ sub get_multicast_val {
 	my ($mpsoc,$entry,$NE,@check)=@_;
 	my $n="";
 	my $h=0;
-	
+	my $s=0;
 	for (my $i=0; $i<$NE; $i++){
-		$h+= (1<<$i%4) 	if($check[$i]->get_active());
+			if($check[$i]->get_active()){$h+= (1<<$i%4);$s++;} 
 		if(($i+1) % 4==0){
 			$n="$h".$n if($h<10);
 			$n=chr($h-10+97).$n if($h>9);
@@ -1225,7 +1230,7 @@ sub get_multicast_val {
 	$n="$h".$n if($NE%4!=0);
 	$n="'h".$n;
 	$entry->set_text("$n");
-
+	return $s;
 	
 }
 #############

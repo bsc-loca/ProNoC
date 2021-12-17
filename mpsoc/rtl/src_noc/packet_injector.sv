@@ -47,7 +47,7 @@ module packet_injector
 	assign current_r_addr = chan_in.ctrl_chanel.neighbors_r_addr;
 	
 	
-	
+	generate if(CAST_TYPE == "UNICAST") begin : uni 
 	
 	conventional_routing #(
 		.TOPOLOGY(TOPOLOGY),
@@ -70,6 +70,8 @@ module packet_injector
 		.src_e_addr(current_e_addr),
 		.destport(destport)
 	);
+	end endgenerate
+	
 	
 	localparam 
 		HDR_BYTE_NUM =	HDR_MAX_DATw / 8, // = HDR_MAX_DATw / (8 - HDR_MAX_DATw %8)
@@ -265,11 +267,23 @@ module packet_injector
 	wire [NEw-1 : 0] current_id; 
 	wire [NEw-1 : 0] sendor_id; 
 	endp_addr_decoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode1 ( .id(current_id), .code(current_e_addr));
-	endp_addr_decoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode2 ( .id(sendor_id), .code(pck_injct_out.endp_addr));
+	endp_addr_decoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode2 ( .id(sendor_id), .code(pck_injct_out.endp_addr[EAw-1 : 0]));
 	//synthesis translate_on
+	
+	wire [NE-1 :0] dest_mcast_all_endp;
+	
+	
 	
 	
 	generate 
+		if(CAST_TYPE != "UNICAST") begin
+			mcast_dest_list_decode decode (
+				.dest_e_addr(hdr_flit_i.dest_e_addr),
+				.dest_o(dest_mcast_all_endp),
+				.row_has_any_dest()
+			);
+		end
+		
 		for(i=0; i<V; i++) begin: V_ 
 			always@(*) begin
 				h2t_counter_next[i]=h2t_counter[i]+1'b1;
@@ -293,9 +307,16 @@ module packet_injector
 							rsv_counter[i]<= {{(PCK_SIZw-1){1'b0}}, 1'b1};
 							sender_endp_addr_reg [i]<= hdr_flit_i.src_e_addr; 
 							//synthesis translate_off
-							if(hdr_flit_i.dest_e_addr != current_e_addr) begin 
-								$display("%t: ERROR: packet destination address %d does not match reciver endp address %d. %m",$time,hdr_flit_i.dest_e_addr , current_e_addr );
-								$finish;
+							if(CAST_TYPE == "UNICAST") begin
+								if(hdr_flit_i.dest_e_addr[EAw-1:0] != current_e_addr) begin 
+									$display("%t: ERROR: packet destination address %d does not match reciver endp address %d. %m",$time,hdr_flit_i.dest_e_addr , current_e_addr );
+									$finish;
+								end//if hdr_flit_i
+							end else begin 
+								if(dest_mcast_all_endp[current_id] !=1'b1 ) begin 
+									$display("%t: ERROR: packet destination address %b does not match reciver endp address %d. %m",$time,hdr_flit_i.dest_e_addr , current_e_addr ,current_id );
+									$finish;
+								end
 							end//if hdr_flit_i
 							//synthesis translate_on	
 						end //if hdr_flag
@@ -372,7 +393,7 @@ module packet_injector
 	assign pck_injct_out.size  =  rsv_counter[vc_bin];
 	assign pck_injct_out.h2t_delay = h2t_counter[vc_bin];
 	assign pck_injct_out.ready = (flit_type == HEADER)?  ~vc_fifo_full : {V{1'b0}};	
-	assign pck_injct_out.endp_addr =  sender_endp_addr_reg[vc_bin];
+	assign pck_injct_out.endp_addr[EAw-1 : 0] =  sender_endp_addr_reg[vc_bin];
 	assign pck_injct_out.vc = vc_reg;
 	assign pck_injct_out.pck_wr = tail_flag_reg;  	
 	
@@ -580,7 +601,7 @@ output  smartflit_chanel_t 	chan_out;
 	
  input [PCK_INJ_Dw-1 : 0] pck_injct_in_data;
  input [PCK_SIZw-1   : 0] pck_injct_in_size;
- input [EAw-1        : 0] pck_injct_in_endp_addr; 
+ input [DAw-1        : 0] pck_injct_in_endp_addr; 
  input [Cw-1         : 0] pck_injct_in_class_num; 
  input [WEIGHTw-1    : 0] pck_injct_in_init_weight;
  input [V-1          : 0] pck_injct_in_vc;
@@ -589,7 +610,7 @@ output  smartflit_chanel_t 	chan_out;
 
  output [PCK_INJ_Dw-1 : 0] pck_injct_out_data;             
  output [PCK_SIZw-1   : 0] pck_injct_out_size;             
- output [EAw-1        : 0] pck_injct_out_endp_addr;        
+ output [DAw-1        : 0] pck_injct_out_endp_addr;        
  output [Cw-1         : 0] pck_injct_out_class_num;        
  output [WEIGHTw-1    : 0] pck_injct_out_init_weight;      
  output [V-1          : 0] pck_injct_out_vc;               

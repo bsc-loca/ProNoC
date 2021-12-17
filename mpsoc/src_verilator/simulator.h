@@ -165,7 +165,7 @@ typedef struct  avg_st_struct {
 void update_statistic_at_ejection (	int	, 	unsigned int, unsigned int, unsigned int,  unsigned int, unsigned int );
 void update_noc_statistic (	int);
 unsigned char pck_class_in_gen(unsigned int);
-unsigned int pck_dst_gen_task_graph ( unsigned int);
+unsigned int pck_dst_gen_task_graph ( unsigned int, unsigned char *);
 void print_statistic (void);
 void print_parameter();
 void reset_all_register();

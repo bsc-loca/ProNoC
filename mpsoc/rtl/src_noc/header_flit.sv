@@ -78,7 +78,7 @@ import pronoc_pkg::*;
     
     output   [Fw-1  :   0] flit_out; 
     input    [Cw-1  :   0] class_in;    
-    input    [EAw-1 :   0] dest_e_addr_in;
+    input    [DAw-1 :   0] dest_e_addr_in;
     input    [EAw-1 :   0] src_e_addr_in;
     input    [V-1   :   0] vc_num_in;
     input    [WEIGHTw-1 :   0] weight_in;
@@ -192,7 +192,7 @@ module extract_header_flit_info
     input flit_in_wr;
     
     output [EAw-1 : 0] src_e_addr_o;
-    output [EAw-1 : 0] dest_e_addr_o;
+    output [DAw-1 : 0] dest_e_addr_o;
     output [DSTPw-1 : 0] destport_o;    
     output [Cw-1 : 0] class_o;
     output [W-1  : 0] weight_o;
@@ -290,11 +290,7 @@ module header_flit_update_lk_route_ovc
         VDSTPw = V * DSTPw,
         VV = V * V;
                  
-    
-     localparam 
-        E_SRC_LSB =0,                   E_SRC_MSB = E_SRC_LSB + EAw-1,
-        E_DST_LSB = E_SRC_MSB +1,       E_DST_MSB = E_DST_LSB + EAw-1,  
-        DST_P_LSB = E_DST_MSB + 1,      DST_P_MSB = DST_P_LSB + DSTPw-1;
+        
      
 
     input [Fw-1 : 0]  flit_in;

@@ -97,7 +97,7 @@ module router_two_stage
 		PRAw= P * RAw;     
 	
 	
-	
+	flit_chanel_t chan_in_tmp  [P-1 : 0];
 	
     
 
@@ -168,15 +168,36 @@ module router_two_stage
 	
 	
 	
+	
+	
+	
 	genvar i,j;
-	generate for (i=0; i<P; i=i+1 ) begin :p_
+	generate 		
+		for (i=0; i<P; i=i+1 ) begin :p_
+			
+			if(CAST_TYPE == "UNICAST") begin : uni 
+				assign chan_in_tmp[i] = chan_in[i];			
+			end else begin : multi
+				multicast_chan_in_process #(
+					.P(P), 
+					.SW_LOC  (i)
+				) multicast_process (
+					.current_r_addr  (current_r_addr ), 
+					.chan_in         (chan_in[i]     ), 
+					.chan_out        (chan_in_tmp[i] )
+				);
+			
+			end	
+			
+			
 			assign  neighbors_r_addr  [(i+1)*RAw-1:  i*RAw] = ctrl_in[i].neighbors_r_addr;			
-			assign  flit_in_all       [(i+1)*Fw-1:  i*Fw] = chan_in[i].flit;
-			assign  flit_in_wr_all    [i] = chan_in[i].flit_wr;   
-			assign  credit_in_all     [(i+1)*V-1:  i*V] = chan_in[i].credit;
-			assign  congestion_in_all [(i+1)*CONGw-1:  i*CONGw] = chan_in[i].congestion; 
+			assign  flit_in_all       [(i+1)*Fw-1:  i*Fw] = chan_in_tmp[i].flit;
+			assign  flit_in_wr_all    [i] = chan_in_tmp[i].flit_wr;   
+			assign  credit_in_all     [(i+1)*V-1:  i*V] = chan_in_tmp[i].credit;
+			assign  congestion_in_all [(i+1)*CONGw-1:  i*CONGw] = chan_in_tmp[i].congestion; 
 			
 			assign  ctrl_out[i].neighbors_r_addr = current_r_addr;
+			assign  ctrl_out[i].endp_port =1'b0;
 			assign  ctrl_out[i].statistic_addr = {ST_Aw{1'b0}};
 			
 			assign  chan_out[i].flit=          flit_out_all       [(i+1)*Fw-1:  i*Fw];       
@@ -215,6 +236,8 @@ module router_two_stage
 				assign credit_init_val_in[i][j]      = ctrl_in[i].credit_init_val[j];
 				assign ctrl_out[i].credit_init_val[j] = credit_init_val_out [i][j];				
 			end
+			
+			
 			
 		end		
 	endgenerate
@@ -462,14 +485,16 @@ module router_two_stage
 						t1[i]<=1'b0;
 						t2[i]<=1'b0;             
 					end else begin 
-						if(flit_in_wr_all[i]>0 && t1[i]==0)begin 
-							$display("%t :In router (addr=%h, port=%d), flitin=%h",$time,current_r_addr,i,flit_in_all[(i+1)*Fw-1 : i*Fw]);
-							t1[i]<=1;
-						end
 						if(flit_out_wr_all[i]>0 && t2[i]==0)begin 
 							$display("%t :Out router (addr=%h, port=%d), flitout=%h",$time,current_r_addr,i,flit_out_all[(i+1)*Fw-1 : i*Fw]);
 							t2[i]<=1;
 						end
+						
+						if(flit_in_wr_all[i]>0 && t1[i]==0)begin 
+							$display("%t :In router (addr=%h, port=%d), flitin=%h",$time,current_r_addr,i,flit_in_all[(i+1)*Fw-1 : i*Fw]);
+							t1[i]<=1;
+						end
+						
             
             
 					end

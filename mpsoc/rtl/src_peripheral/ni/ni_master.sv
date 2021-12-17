@@ -577,7 +577,7 @@ end
     
       
     
-    
+    assign chan_out.ctrl_chanel.endp_port =1'b1;
     
     
     

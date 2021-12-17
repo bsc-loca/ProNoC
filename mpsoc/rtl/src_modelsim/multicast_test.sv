@@ -52,7 +52,7 @@ module multicast_test;
 		);			
 	
 
-		endp_addr_encoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode2 ( .id(dest_id[i]), .code(pck_injct_in[i].endp_addr));
+		endp_addr_encoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode2 ( .id(dest_id[i]), .code(pck_injct_in[i].endp_addr[EAw-1 : 0]));
 		
 		
 	   reg [31:0]k;
@@ -85,7 +85,7 @@ module multicast_test;
 
 			//	end
 
-				#8000
+				#10000
 			@(posedge clk) $stop;
 
 			//end
