@@ -22,7 +22,7 @@ typedef struct HOTSPOT_NODE {
 
 hotspot_st * hotspots;
 	
-unsigned int pck_dst_gen_1D (unsigned int);
+unsigned int pck_dst_gen_1D (unsigned int, unsigned char *);
 
 // number, b:bit location  W: number width log2(num)
 int getBit(int num, int b, int W)
@@ -167,8 +167,8 @@ unsigned int pck_dst_gen_2D (unsigned int core_num, unsigned char * inject_en){
 
 #else
 
-	unsigned int pck_dst_gen_2D (unsigned int core_num){
-		return pck_dst_gen_1D (core_num);
+	unsigned int pck_dst_gen_2D (unsigned int core_num, unsigned char * inject_en){
+		return pck_dst_gen_1D (core_num,inject_en );
 	}
 
 #endif

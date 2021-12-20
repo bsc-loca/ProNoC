@@ -789,7 +789,7 @@ if($topology ne '"CUSTOM"' ){
     $param='CAST_TYPE';
     $default= '"UNICAST"';
     $info=''; 
-    $content='"UNICAST","MULTICAST"';
+    $content='"UNICAST","MULTICAST_PARTIAL","MULTICAST_FULL","BROADCAST"';
     $type="Combo-box";
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
     
@@ -813,12 +813,12 @@ if($topology ne '"CUSTOM"' ){
 		$n="'h".$n;  
 		$mpsoc->object_add_attribute('noc_param',"MULTICAST_ENDP_LIST",$n);
 		$mpsoc->object_add_attribute_order('noc_param',"MULTICAST_ENDP_LIST");
-		$mpsoc->object_add_attribute('noc_param',"MCASTw",$NE);
-		$mpsoc->object_add_attribute_order('noc_param',"MCASTw");
+		$mpsoc->object_add_attribute('noc_param',"MCAST_PRTLw",$NE);
+		$mpsoc->object_add_attribute_order('noc_param',"MCAST_PRTLw");
 		$cast=$n;
     }
     
-    if($cast_type eq '"MULTICAST"') {
+    if($cast_type eq '"MULTICAST-PARTIAL"') {
     	$table->attach  ( gen_label_in_left("Muticast Node list"),0 , 1, $row,$row+1,'fill','shrink',2,2);
  	
  
@@ -1199,7 +1199,7 @@ sub set_multicast_list{
 		my $s=get_multicast_val ($mpsoc,$entry,$NE,@check);
 		my $n=$entry->get_text( );
 		$mpsoc->object_add_attribute('noc_param',"MULTICAST_ENDP_LIST",$n);	
-		$mpsoc->object_add_attribute('noc_param',"MCASTw",$s);
+		$mpsoc->object_add_attribute('noc_param',"MCAST_PRTLw",$s);
 		set_gui_status($mpsoc,"ref",1);	
 		$window->destroy;
 	});

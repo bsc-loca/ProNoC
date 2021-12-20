@@ -466,10 +466,25 @@ sub get_simulator_noc_configuration{
 			$exe_files="$exe_files,$name";
 		}		
 	}
-		
+	my $model_obj = gen_combobox_object ($self,$sample, "sof_file", $exe_files, undef,'ref_set_win',1);	
 	attach_widget_to_table ($table,$row,gen_label_in_left(" Verilated Model:"),gen_button_message ("Select the verilator simulation file. Different NoC simulators can be generated using Generate NoC configuration tab.","icons/help.png"), 
-	gen_combobox_object ($self,$sample, "sof_file", $exe_files, undef,'ref_set_win',1)); $row++;
-                            
+	$model_obj); $row++;
+      
+    my $cast_type=  '"UNICAST"';
+      
+    #get simulation parameters here                        
+  	my $s=$self->object_get_attribute($sample,"sof_file");
+  	if (defined $s){
+  		my ($infobox,$info)= create_txview();
+  		my $sof=get_sim_bin_path($self,$sample,$info);  		
+  		my ($name,$path,$suffix) = fileparse("$sof",qr"\..[^.]*$");
+		my $sof_info= "$path$name.inf";
+  		
+  		my $pp= do $sof_info ;
+		my $p=$pp->{'noc_param'};
+  		$cast_type = $p->{'CAST_TYPE'};  
+  		$cast_type=  '"UNICAST"' if (!defined $cast_type);
+  	}
    
    
     my $coltmp=0;
@@ -606,6 +621,16 @@ sub get_simulator_noc_configuration{
 			$table->attach  ($htable , 0, 3,  $row,$row+1,'shrink','shrink',2,2); $row++;
 				
 		}
+		
+		
+		if ($cast_type ne '"UNICAST"'){
+			my $s = ($cast_type eq '"BROADCAST"')? "Broadcast" :  "Milticast";
+			($row,$coltmp)=add_param_widget  ($self, "$s Node Select"  , "MCAST_TRAFFIC_TYPE" , "Random",  'Combo-box', "Random", undef, $table,$row,undef,1, $sample);
+			($row,$coltmp)=add_param_widget  ($self, "$s Traffic Ratio", "MCAST_TRAFFIC_RATIO", 5 , 'Spin-button',  "0,100,1"  , undef, $table,$row,undef,1, $sample);
+			print "********\n";			
+		}
+		
+		
 		
 		
 		my $d= { label=>'number of message class:', param_name=>'MESSAGE_CLASS', type=>'Spin-button', default_val=>0,  content=>"0,256,1", info=>"Number of packet message classes. Each message class can be configured to use specefic subset of avilable VCs",			  param_parent=>$sample, ref_delay=> 1, new_status=>'ref_set_win'};

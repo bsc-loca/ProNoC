@@ -234,9 +234,13 @@ module mcast_dest_list_decode
 		
 	genvar i;
 	generate
-	for(i=0; i< NE; i=i+1) begin : endpoints
-		localparam MCAST_ID = endp_id_to_mcast_id(i);
-		assign dest_o [i] = (MULTICAST_ENDP_LIST[i]==1'b1)? mcast_dst_coded[MCAST_ID] : 1'b0;				
+	if(CAST_TYPE == "MULTICAST_FULL") begin : full
+		assign dest_o = mcast_dst_coded;		
+	end else begin : partial
+		for(i=0; i< NE; i=i+1) begin : endpoints
+			localparam MCAST_ID = endp_id_to_mcast_id(i);
+			assign dest_o [i] = (MULTICAST_ENDP_LIST[i]==1'b1)? mcast_dst_coded[MCAST_ID] : 1'b0;				
+		end
 	end
 	endgenerate		
 	
@@ -266,7 +270,7 @@ module multicast_chan_in_process
 	
 	wire  [MCASTw-1   :   0]  mcast_dst_coded;
 	wire  [NE-1 : 0] dest_mcast_all_endp;
-	
+	wire [NX-1 : 0] row_has_any_dest,row_has_any_dest_in;	
 	
 	hdr_flit_t hdr_flit;
 	header_flit_info extract(
@@ -275,8 +279,16 @@ module multicast_chan_in_process
 			.data_o()
 		);
 	
+	mcast_dest_list_decode decoder
+	(
+		.dest_e_addr(hdr_flit.dest_e_addr),
+		.dest_o(dest_mcast_all_endp),
+		.row_has_any_dest(row_has_any_dest_in)
+	);
+	
+	
 	assign mcast_dst_coded = hdr_flit.dest_e_addr[MCASTw-1:0];
-	wire [NX-1 : 0] row_has_any_dest;	
+	
 	
 	genvar i;
 	generate 
@@ -293,7 +305,6 @@ module multicast_chan_in_process
 					XX = ((i/NL) % NX ), 
 					LL = (i % NL),
 					PP = YY*NL + LL;
-				assign dest_mcast_all_endp [i] = (MULTICAST_ENDP_LIST[i]==1'b1)? mcast_dst_coded[MCAST_ID] : 1'b0;	
 				assign endp_mask [XX] [PP] = dest_mcast_all_endp [i];			
 			end
 				
@@ -301,7 +312,7 @@ module multicast_chan_in_process
 				assign row_has_any_dest[i] =| endp_mask[i];			
 			end		
 		end else begin : no_endp
-			assign  row_has_any_dest = 	 hdr_flit.dest_e_addr  [DAw-1 : MCASTw];		
+			assign  row_has_any_dest = 	 row_has_any_dest_in;		
 		end
 			
 			

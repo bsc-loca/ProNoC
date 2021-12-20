@@ -141,8 +141,8 @@ localparam
     NR_MESH_TORI = (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? NX : NX*NY,
     NE_MESH_TORI = NR_MESH_TORI * NL,
     MAX_P_MESH_TORI = R2R_CHANELS_MESH_TORI + R2E_CHANELS_MESH_TORI,
-    DSTPw_MESH_TORI = R2R_CHANELS_MESH_TORI, // P-1
-    DAw_MCAST_TORI =  (TOPOLOGY=="RING" || TOPOLOGY=="LINE")? MCASTw : MCASTw + NX; 
+    DSTPw_MESH_TORI = R2R_CHANELS_MESH_TORI; // P-1
+   
     /* verilator lint_on WIDTH */    
      
 /****************
@@ -152,9 +152,7 @@ localparam
     NE_FMESH = NE_MESH_TORI + 2 * (NX+NY),
     NR_FMESH = NR_MESH_TORI,
     MAX_P_FMESH = 4 + NL, 
-    EAw_FMESH = RAw_MESH_TORI + log2(MAX_P_FMESH),
-    DAw_MCAST_FMESH = MCASTw + NX +1;  
- 
+    EAw_FMESH = RAw_MESH_TORI + log2(MAX_P_FMESH);
         
  
  /******************
@@ -266,16 +264,18 @@ localparam
             NE_CUSTOM,
             
        //Destination endpoint(s) address width
+      
+              
+        DAw_OFFSETw  =  (TOPOLOGY=="MESH" || TOPOLOGY=="TORUS")?  NX : 0,  
+        MCASTw = (CAST_TYPE == "MULTICAST_FULL")? NE : MCAST_PRTLw,
               
         DAw =  
             (CAST_TYPE == "UNICAST") ?   EAw:
-            (CAST_TYPE == "BROADCAST")?  EAw + 1 :
-            //MULTICAST            
-            (TOPOLOGY == "FATTREE")? DAw_MCAST_FATTREE:
-            (TOPOLOGY == "TREE")?  DAw_MCAST_TREE:
-            (TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS")? DAw_MCAST_TORI:
-            (TOPOLOGY == "FMESH")? DAw_MCAST_FMESH: 
-            (TOPOLOGY == "STAR")? DAw_MCAST_STAR : NE,
+            (CAST_TYPE == "BROADCAST")?  EAw + 1:
+            (CAST_TYPE == "MULTICAST_FULL")? MCASTw + DAw_OFFSETw   :
+            MCASTw + 1 + DAw_OFFSETw,  //MULTICAST_PARTIAL         
+              
+          
             
                   
             
@@ -311,12 +311,15 @@ localparam
         mcast_list =MULTICAST_ENDP_LIST;
         mcast_id_to_endp_id=0;
         k=0;
-        while( k!=mcast_id+1) begin              
-            if( mcast_list[mcast_id_to_endp_id]==1'b1) begin 
-               k=k+1;            
+        if (CAST_TYPE == "MULTICAST_FULL") mcast_id_to_endp_id =mcast_id;
+        else begin
+            while( k!=mcast_id+1) begin              
+                if( mcast_list[mcast_id_to_endp_id]==1'b1) begin 
+                   k=k+1;            
+                end
+                mcast_id_to_endp_id++;       
             end
-            mcast_id_to_endp_id++;       
-        end        
+        end
         end
     endfunction
       
@@ -325,11 +328,14 @@ localparam
         reg [NE-1 : 0] mcast_list;
         integer i=0;       
         begin
-        mcast_list =MULTICAST_ENDP_LIST;
-        endp_id_to_mcast_id=0;
-        for (i=0;i<endp_id;i++) begin 
-            if( mcast_list[i]==1'b1) endp_id_to_mcast_id=endp_id_to_mcast_id+1;
-        end
+        if (CAST_TYPE == "MULTICAST_FULL") endp_id_to_mcast_id = endp_id;
+        else begin
+            mcast_list =MULTICAST_ENDP_LIST;
+            endp_id_to_mcast_id=0;
+            for (i=0;i<endp_id;i++) begin 
+                if( mcast_list[i]==1'b1) endp_id_to_mcast_id=endp_id_to_mcast_id+1;
+            end
+            end
         end
     endfunction         
    

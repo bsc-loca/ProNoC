@@ -1537,9 +1537,7 @@ sub gen_combobox_object {
 		$object->object_add_attribute($attribute1,$attribute2,$new_param_value);
 		set_gui_status($object,$status,$timeout) if (defined $status);
 	 });
-	return $widget;		 
-	
-
+	return $widget;
 }
 
 

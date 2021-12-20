@@ -290,8 +290,25 @@ make sim
 	
 }
 
+sub get_model_names {
+	my ($mref) = @_;
+	my @models = @{$mref};
+	my @m;
+	if(scalar @models == 0){
+		@m = glob("$dirname/models/*");
+		return @m;
+	}
+	foreach my $p (@models) {
+		push (@m,"$dirname/models/$p");
+	}
+	return @m;
+}
+
+
 sub gen_models {
-	my @models = glob("$dirname/models/*");
+	my ($mref) = @_;
+	my @models = get_model_names($mref);
+
     mkdir("$work", 0700);
 	foreach my $m (@models){
 		print "$m\n";
@@ -350,9 +367,12 @@ sub gen_models {
 
 
 sub compile_models{
-	my($self,$inref)=@_;
+	my($self,$inref,$mref)=@_;
     my ($paralel_run,$MIN,$MAX,$STEP) = @{$inref};
-	my @models = glob("$dirname/models/*");
+	
+
+	my @models = get_model_names($mref);
+	
 	#generate compile command
 	my $i=0;
 	my $cmd;
@@ -394,8 +414,10 @@ sub check_compilation_log {
 
 
 sub check_compilation {
-	my ($self,$ref1,$ref2)=@_;
-	my @models = glob("$dirname/models/*");
+	my ($self,$ref1,$ref2,$mref)=@_;
+	
+	my @models = get_model_names($mref);
+
 	foreach my $m (@models){
 		my ($name,$fpath,$fsuffix) = fileparse("$m",qr"\..[^.]*$");
 		append_text_to_file($report,"****************************$name : Compile *******************************:\n");
@@ -414,9 +436,9 @@ sub check_compilation {
 
 
 sub run_all_models {
-	my ($self,$inref) =@_;
+	my ($self,$inref,$mref) =@_;
     my ($paralel_run,$MIN,$MAX,$STEP) = @{$inref};
-	my @models = glob("$dirname/models/*");
+	my @models = get_model_names($mref);	
     foreach my $m (@models){
 		run_traffic ($self,$m,'random',$inref);
 	}

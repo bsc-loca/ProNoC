@@ -25,6 +25,8 @@ Verification Results:
 	 model is generated successfully.
 ****************************mesh_8x8_sbp6_xy : Compile *******************************:
 	 model is generated successfully.
+****************************mesh_8x8_single_flit : Compile *******************************:
+	 model is generated successfully.
 ****************************mesh_8x8_ssa_xy : Compile *******************************:
 	 model is generated successfully.
 ****************************torus_8x8_2cycle_xy : Compile *******************************:
@@ -55,6 +57,8 @@ Verification Results:
 	 Passed:   zero load (2,22.3767) saturation (30,188.136)
 ****************************mesh_8x8_sbp6_xy	: random traffic *******************************:
 	 Passed:   zero load (2,10.9141) saturation (34,82.2115)
+****************************mesh_8x8_single_flit	: random traffic *******************************:
+	 Passed:   zero load (2,12.7535) saturation (62,66.4613)
 ****************************mesh_8x8_ssa_xy	: random traffic *******************************:
 	 Passed:   zero load (2,14.461) saturation (34,98.62)
 ****************************torus_8x8_2cycle_xy	: random traffic *******************************:
@@ -85,6 +89,8 @@ Verification Results:
 	 Passed:   zero load (2,23.8014) saturation (18,119.631)
 ****************************mesh_8x8_sbp6_xy	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,11.4453) saturation (18,121.72)
+****************************mesh_8x8_single_flit	: transposed 1 traffic *******************************:
+	 Passed:   zero load (2,14.0609) saturation (26,74.8844)
 ****************************mesh_8x8_ssa_xy	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,15.635) saturation (18,121.085)
 ****************************torus_8x8_2cycle_xy	: transposed 1 traffic *******************************:
