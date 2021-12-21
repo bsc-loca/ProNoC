@@ -789,7 +789,7 @@ if($topology ne '"CUSTOM"' ){
     $param='CAST_TYPE';
     $default= '"UNICAST"';
     $info=''; 
-    $content='"UNICAST","MULTICAST_PARTIAL","MULTICAST_FULL","BROADCAST"';
+    $content='"UNICAST","MULTICAST_PARTIAL","MULTICAST_FULL","BROADCAST_PARTIAL","BROADCAST_FULL"';
     $type="Combo-box";
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
     

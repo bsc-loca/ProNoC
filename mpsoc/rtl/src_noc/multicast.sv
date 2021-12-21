@@ -200,13 +200,23 @@ module multicast_routing
 						destport[SOUTH+K]=goto_local[k];
 					end
 				end
-				destport [NORTH] = goto_north;
-				destport [SOUTH] = goto_south;
-				if(SW_LOC == WEST) destport [EAST] = goto_east;
-				else if(SW_LOC == EAST) destport [WEST] = goto_west;
-				else begin 
-					destport [EAST] = goto_east;
-					destport [WEST] = goto_west;
+				if     (SW_LOC == SOUTH) destport [NORTH] = goto_north;
+				else if(SW_LOC == NORTH) destport [SOUTH] = goto_south;
+				else if(SW_LOC == WEST)begin 
+					destport [NORTH] = goto_north;
+					destport [SOUTH] = goto_south;
+					destport [EAST ] = goto_east;					
+				end
+				else if(SW_LOC == EAST) begin 
+					destport [NORTH] = goto_north;
+					destport [SOUTH] = goto_south;
+					destport [WEST ] = goto_west;					
+				end
+				else if(SW_LOC == LOCAL) begin
+					destport [NORTH] = goto_north;
+					destport [SOUTH] = goto_south;
+					destport [EAST]  = goto_east;
+					destport [WEST]  = goto_west;
 				end							
 			end
 

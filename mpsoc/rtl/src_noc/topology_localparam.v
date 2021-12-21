@@ -271,7 +271,7 @@ localparam
               
         DAw =  
             (CAST_TYPE == "UNICAST") ?   EAw:
-            (CAST_TYPE == "BROADCAST")?  EAw + 1:
+            (CAST_TYPE == "BROADCAST_FULL" || CAST_TYPE == "BROADCAST_PARTIAL")?  EAw + 1:
             (CAST_TYPE == "MULTICAST_FULL")? MCASTw + DAw_OFFSETw   :
             MCASTw + 1 + DAw_OFFSETw,  //MULTICAST_PARTIAL         
               

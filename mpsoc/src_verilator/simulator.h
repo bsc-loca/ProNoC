@@ -244,7 +244,7 @@ int  * discrete_size;
 int  * discrete_prob;
 int verbosity=1;
 int thread_num =1;
-
+int mcast_ratio=50;
 
 
 

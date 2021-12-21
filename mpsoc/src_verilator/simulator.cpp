@@ -124,6 +124,7 @@ void  usage(char * bin_name){
 "  -H <custom traffic pattern> custom traffic pattern: represented in a string with following format:\n"
 "                              \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n"
 "  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
+"  -u <Multi/Broad-cast ratio> The percentage of multicast/broadcast pakets in percentage. Valid only when the NoC is configured with Multicast/Broadcast feature.                                                                                    \n "
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
 "                              to speed up simulation time"	
 "\nTrace options:\n"
@@ -214,7 +215,7 @@ void synthetic_task_processArgs (int argc, char **argv )
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage(argv[0]);
-   while ((c = getopt (argc, argv, "t:m:n:c:i:p:h:H:f:T:Q")) != -1)
+   while ((c = getopt (argc, argv, "t:m:n:c:i:p:h:H:f:T:u:Q")) != -1)
       {
 	 switch (c)
 	    {
@@ -274,6 +275,9 @@ void synthetic_task_processArgs (int argc, char **argv )
 			usage(argv[0]);
 			exit(1);
 			break;
+		case 'u':
+			mcast_ratio = atoi(optarg);
+			break;
 	    case '?':
 	       if (isprint (optopt))
 		  fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -319,7 +323,16 @@ unsigned int pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
 	unsigned int dest = pck_dst_gen_unicast (core_num, inject_en);
 	if(strcmp (CAST_TYPE,"UNICAST")==0) return  dest;
 	else if (*inject_en==0) return  dest;
-	return (0x1<<dest);
+	//multicast
+	unsigned int rnd = rand() % 100; // 0~99
+	if(rnd >= mcast_ratio){
+		//unicast packet
+		return (0x1<<dest);// for mcast-full
+	}
+	 for(;;)  {
+		    rnd = rand() & ~(0x1<<core_num);
+			if(rnd!=0) return rnd;
+	}
 }
 
 
@@ -1150,6 +1163,11 @@ void print_statistic (void){
 }
 
 
+#define xstr(s) str(s)
+#define str(s) #s
+
+
+
 void print_parameter (){
 		printf ("NoC parameters:---------------- \n");
 		printf ("\tTopology: %s\n",TOPOLOGY);
@@ -1184,6 +1202,8 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 	    printf ("\tMinimum supported packet size:%d flit(s) \n",MIN_PCK_SIZE);
 	    printf ("\tLoop back is enabled:%s",SELF_LOOP_EN);
 	    printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
+	    printf ("\tCastying type:%s.\n",CAST_TYPE);
+if (strcmp (CAST_TYPE,"MULTICAST_PARTIAL")==0){ printf ("\tCAST LIST:" str (MULTICAST_ENDP_LIST) "\n");}
 	printf ("NoC parameters:---------------- \n");
 	printf ("\nSimulation parameters-------------\n");
 #if(DEBUG_EN)

@@ -106,7 +106,8 @@ module flit_buffer
 	wire  [V-1                  :   0] rd;  
 	wire  [DEPTHw-1             :   0] depth      [V-1            :0];
 	reg   [DEPTHw-1             :   0] depth_next [V-1            :0];
-    
+	wire  [DEPTHw-1             :   0] sub_depth       [V-1            :0];  
+	reg   [DEPTHw-1             :   0] sub_depth_next  [V-1            :0];  
     
     
 	reg   [B-1 : 0] tail_fifo [V-1 : 0];    
@@ -148,14 +149,30 @@ module flit_buffer
     	
 		for(i=0;i<V;i=i+1) begin :V_
 			assign  wr_ptr_array[(i+1)*PTRw- 1        :   i*PTRw]   =       wr_ptr[i];  
-			assign  vc_not_empty    [i] =   (depth[i] > 0);
+			
 			/* verilator lint_off WIDTH */ 
 			if (CAST_TYPE != "UNICAST") begin 
 				/* verilator lint_on WIDTH */ 
 				assign  rd_ptr_array[(i+1)*PTRw- 1 :   i*PTRw]   =       sub_rd_ptr[i];   
 				pronoc_register #(.W(PTRw)) reg4 (.in(sub_rd_ptr_next[i]), .out(sub_rd_ptr[i]), .reset(reset), .clk(clk));
+				
+				
+				pronoc_register #(.W(DEPTHw)) sub_depth_reg (.in(sub_depth_next[i] ), .out(sub_depth [i]), .reset(reset), .clk(clk));
+				always @ (*)begin 
+					sub_depth_next  [i] = sub_depth   [i];
+					if(sub_restore[i]) sub_depth_next  [i]= depth_next[i];
+					else if (wr[i] & ~sub_rd[i]) sub_depth_next [i] = sub_depth[i] + 1'h1;
+					else if (~wr[i] & sub_rd[i]) sub_depth_next [i] = sub_depth[i] - 1'h1;    
+				end//always
+				
+				assign  vc_not_empty    [i] =   (sub_depth[i] > 0);
+				
+				
+				
+				
 			end else begin : unicast
-				assign  rd_ptr_array[(i+1)*PTRw- 1 :   i*PTRw]   =       rd_ptr[i];    			
+				assign  rd_ptr_array[(i+1)*PTRw- 1 :   i*PTRw]   =       rd_ptr[i];   
+				assign  vc_not_empty    [i] =   (depth[i] > 0);
 			end    	
 		end//for
       	
@@ -318,8 +335,10 @@ module flit_buffer
         
 				/* verilator lint_off WIDTH */ 
 				if (CAST_TYPE != "UNICAST") begin :multicast
-					/* verilator lint_on WIDTH */ 
+				/* verilator lint_on WIDTH */ 
         	
+					
+					
       
 					always @ (*)begin 
 						sub_rd_ptr_next[i] = sub_rd_ptr[i];
@@ -391,8 +410,7 @@ module flit_buffer
 	//synthesis translate_off
 	//synopsys  translate_off
     
-	wire  [DEPTHw-1             :   0] sub_depth       [V-1            :0];  
-	reg   [DEPTHw-1             :   0] sub_depth_next  [V-1            :0];  
+	
     
 	generate
 		
@@ -414,16 +432,9 @@ module flit_buffer
 	
 			/* verilator lint_off WIDTH */ 
 			if (CAST_TYPE != "UNICAST") begin :multicast
-				/* verilator lint_on WIDTH */ 
-	 
+				/* verilator lint_on WIDTH */ 	 
 	
-				pronoc_register #(.W(DEPTHw)) sub_depth_reg (.in(sub_depth_next[i] ), .out(sub_depth [i]), .reset(reset), .clk(clk));
-				always @ (*)begin 
-					sub_depth_next  [i] = sub_depth   [i];
-					if(sub_restore[i]) sub_depth_next  [i]= depth_next[i];
-					else if (wr[i] & ~sub_rd[i]) sub_depth_next [i] = sub_depth[i] + 1'h1;
-					else if (~wr[i] & sub_rd[i]) sub_depth_next [i] = sub_depth[i] - 1'h1;    
-				end//always
+				
 			
 				always @(posedge clk) begin          
 					if (wr[i] && (sub_depth[i] == B [DEPTHw-1 : 0]) && !sub_rd[i]) begin

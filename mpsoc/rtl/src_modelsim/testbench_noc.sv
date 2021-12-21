@@ -339,7 +339,8 @@ module testbench_noc;
 				.NE(NE),
 				.MAX_PCK_NUM(MAX_PCK_NUM),
 				.TRAFFIC(TRAFFIC),
-				.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
+				.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM),
+				.MCAST_TRAFFIC_RATIO(MCAST_TRAFFIC_RATIO)				
 			)
 			the_pck_dst_gen
 			(

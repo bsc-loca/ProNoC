@@ -79,7 +79,9 @@ module  pck_dst_gen
     parameter NE=4,
     parameter TRAFFIC =   "RANDOM",
     parameter MAX_PCK_NUM = 10000,
-    parameter HOTSPOT_NODE_NUM =  4
+    parameter HOTSPOT_NODE_NUM =  4,
+	parameter MCAST_TRAFFIC_RATIO =50
+	
 )(
     en,
     current_e_addr,
@@ -141,11 +143,29 @@ module  pck_dst_gen
 	); 
 
 	generate
-	if(CAST_TYPE == "UNICAST") begin 
+	if(CAST_TYPE == "UNICAST") begin :uni
 		assign dest_e_addr =	unicast_dest_e_addr;		
-	end else begin 
-		//first test only one dst in multihop
-		assign dest_e_addr = 1<<unicast_dest_e_addr;
+	end else begin :multi
+		reg [DAw-1      :   0] multicast_dest_e_addr; 
+		reg [6: 0] rnd_reg;
+		
+		always @(posedge clk ) begin 
+			if(en | reset) begin 
+				rnd_reg <=     $urandom_range(99,0);
+			end
+		end		
+		
+		always @( * ) begin 
+			multicast_dest_e_addr = {DAw{1'b0}};
+			if(rnd_reg >= MCAST_TRAFFIC_RATIO) multicast_dest_e_addr[unicast_dest_e_addr]=1'b1;
+			else begin 
+				multicast_dest_e_addr =  'b1000 ;//# =$urandom();
+			end
+			if(SELF_LOOP_EN	== "NO") multicast_dest_e_addr[core_num]=1'b0;
+		end
+		
+		assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? unicast_dest_e_addr : multicast_dest_e_addr ;
+		
 
 	end endgenerate
 

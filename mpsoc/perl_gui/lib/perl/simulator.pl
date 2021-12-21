@@ -623,11 +623,12 @@ sub get_simulator_noc_configuration{
 		}
 		
 		
-		if ($cast_type ne '"UNICAST"'){
-			my $s = ($cast_type eq '"BROADCAST"')? "Broadcast" :  "Milticast";
-			($row,$coltmp)=add_param_widget  ($self, "$s Node Select"  , "MCAST_TRAFFIC_TYPE" , "Random",  'Combo-box', "Random", undef, $table,$row,undef,1, $sample);
-			($row,$coltmp)=add_param_widget  ($self, "$s Traffic Ratio", "MCAST_TRAFFIC_RATIO", 5 , 'Spin-button',  "0,100,1"  , undef, $table,$row,undef,1, $sample);
-			print "********\n";			
+		if ($cast_type ne '"UNICAST"'){			
+			my $s = ($cast_type eq '"BROADCAST_FULL"' || $cast_type eq '"BROADCAST_PARTIAL"')? "Broadcast" :  "Milticast";
+			my $info1= "Define the percentage ratio of $s traffic towards Unicast traffic";
+			my $info2= "Define how destinations is selected in Multicast packets";
+			($row,$coltmp)=add_param_widget  ($self, "$s Node Select"  , "MCAST_TRAFFIC_TYPE" , "Uniform-Random",  'Combo-box', "Uniform-Random", $info1, $table,$row,undef,1, $sample);
+			($row,$coltmp)=add_param_widget  ($self, "$s Traffic Ratio", "MCAST_TRAFFIC_RATIO", 5 , 'Spin-button',  "0,100,1"  , $info2, $table,$row,undef,1, $sample);				
 		}
 		
 		
@@ -904,6 +905,21 @@ sub run_synthetic_simulation {
 		$custom_sv.="localparam CUSTOM_NODE_NUM=0;\n\twire [NEw-1 : 0] custom_traffic_t   [NE-1 : 0];\n\twire [NE-1 : 0] custom_traffic_en;
 		";		
 	}
+	#multicast
+	my $mcast="";
+	my $mcast_sv="";
+	my $p= $simulate->object_get_attribute ($sample,"noc_info");    
+    my $cast_type=$p->{"CAST_TYPE"};
+	if ($cast_type ne '"UNICAST"'){	
+		#$self->object_get_attribute ($sample,  "MCAST_TRAFFIC_TYPE");
+		my $mr = $simulate->object_get_attribute  ($sample,  "MCAST_TRAFFIC_RATIO");
+		$mcast = "-u $mr ";
+		$mcast_sv= "localparam	MCAST_TRAFFIC_RATIO =	$mr;\n";	
+	}
+	
+	
+	
+	
 	
 	my $classes;
 	my $num=$simulate->object_get_attribute($sample,"MESSAGE_CLASS");
@@ -1010,6 +1026,8 @@ sub run_synthetic_simulation {
 		
 	$custom_sv
 	
+	$mcast_sv
+	
 $discrete_sv
 		
 		parameter INJRATIO=90; 
@@ -1079,16 +1097,16 @@ quit
 	    	if ($simulator eq 'Modelsim'){
 	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
 	    		my $out="$out_path/modelsim/work$c";
-	    		$cmd="	xterm -e bash -c '	cd $out; sed -i \"s/ INJRATIO=\[\[:digit:\]\]\\+/ INJRATIO=$ratio_in/\" $out/sim_param.sv;  rm -Rf rtl_work; $vsim -c -do $out/model.tcl -l $out_path/sim_out$ratio_in;' &\n	";			
+	    		$cmd="	xterm -e bash -c '	cd $out; sed -i \"s/ INJRATIO=\[\[:digit:\]\]\\+/ INJRATIO=$ratio_in/\" $out/sim_param.sv; rm -Rf rtl_work; $vsim -c -do $out/model.tcl -l $out_path/sim_out$ratio_in;' &\n	";			
 	    	
 	    	}elsif ($simulator eq 'Modelsim gui'){
 	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
 	    		my $out="$out_path/modelsim/work$c";
-	    		$cmd="cd $out; sed -i \"s/ INJRATIO=\[\[:digit:\]\]\\+/ INJRATIO=$ratio_in/\" $out/sim_param.sv;  rm -Rf rtl_work; $vsim  -do $out/model.tcl -l $out_path/sim_out$ratio_in;	";			
+	    		$cmd="cd $out; sed -i \"s/ INJRATIO=\[\[:digit:\]\]\\+/ INJRATIO=$ratio_in/\" $out/sim_param.sv;  rm -Rf rtl_work; $vsim -do $out/model.tcl -l $out_path/sim_out$ratio_in;	";			
 	    	
 	    	}else{	
 	    		add_info($info, "Run $bin with  injection ratio of $ratio_in \% \n");
-		    	$cmd="$bin -t \"$patern\"   $pck_size -T $thread_num  -n  $PCK_NUM_LIMIT  -c	$SIM_CLOCK_LIMIT   -i $ratio_in $classes  $hotspot $custom > $out_path/sim_out$ratio_in & ";
+		    	$cmd="$bin -t \"$patern\" $pck_size -T $thread_num -n $PCK_NUM_LIMIT -c $SIM_CLOCK_LIMIT -i $ratio_in $classes $hotspot $custom $mcast > $out_path/sim_out$ratio_in & ";
 							
 	    	}
 	    	$cmds .=$cmd;	
