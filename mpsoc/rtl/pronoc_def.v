@@ -1,6 +1,8 @@
 `ifndef PRONOC_DEF
 `define PRONOC_DEF
 
+    `timescale      1ns/1ps
+
 	//`define SYNC_RESET_MODE    	/* Reset is asynchronous by default. Uncomment this line for having synchronous reset*/
 	//`define ACTIVE_LOW_RESET_MODE /* Reset is active high by deafult. Uncomment this line for having active low reset*/
 
@@ -27,6 +29,9 @@
 
 
 
+    `ifdef USE_LIB
+         `uselib lib=`USE_LIB    
+    `endif
 
 
 

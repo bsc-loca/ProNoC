@@ -1,4 +1,5 @@
-`timescale  1ns/1ps
+`include "pronoc_def.v"
+
 /****************************
  * This module can inject and eject packets from the NoC.
  * It can be used in simulation for injecting real application traces to the NoC 

@@ -31,25 +31,7 @@ module custom_lkh_routing  #(
 	
     
      
-	//do not modify this line ===Tcustom1Rcustom===
-    if(TOPOLOGY == "custom1" && ROUTE_NAME== "custom" ) begin : Tcustom1Rcustom
-     
-	   Tcustom1Rcustom_look_ahead_routing  #(
-            .RAw(RAw),  
-            .EAw(EAw),   
-            .DSTPw(DSTPw)  
-        )
-        the_lkh_routing
-        (
-            .current_r_addr(current_r_addr),
-            .dest_e_addr(dest_e_addr),
-            .src_e_addr(src_e_addr),
-            .destport(destport),
-            .reset(reset),
-            .clk(clk)        
-        );    
-    
-    end	
+	
     
      
 	//do not modify this line ===Tmesh4x4Rcustom===
@@ -93,7 +75,30 @@ module custom_lkh_routing  #(
     
     end	
     
+     
+	//do not modify this line ===Tcustom1Rcustom===
+    if(TOPOLOGY == "custom1" && ROUTE_NAME== "custom" ) begin : Tcustom1Rcustom
+     
+	   Tcustom1Rcustom_look_ahead_routing  #(
+            .RAw(RAw),  
+            .EAw(EAw),   
+            .DSTPw(DSTPw)  
+        )
+        the_lkh_routing
+        (
+            .current_r_addr(current_r_addr),
+            .dest_e_addr(dest_e_addr),
+            .src_e_addr(src_e_addr),
+            .destport(destport),
+            .reset(reset),
+            .clk(clk)        
+        );    
+    
+    end	
+    
     endgenerate
+    	
+ 
     	
  
     	

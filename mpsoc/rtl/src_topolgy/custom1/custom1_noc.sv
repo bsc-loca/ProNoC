@@ -26,6 +26,8 @@
 ** 	License along with ProNoC. If not, see <http:**www.gnu.org/licenses/>.
 ******************************************************************************/ 
 
+`include "pronoc_def.v"
+
 module   custom1_noc
 	import pronoc_pkg::*; 
 	(

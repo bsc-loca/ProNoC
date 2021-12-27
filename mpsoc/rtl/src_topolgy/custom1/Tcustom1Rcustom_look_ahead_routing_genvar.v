@@ -26,6 +26,8 @@
 ** 	License along with ProNoC. If not, see <http:**www.gnu.org/licenses/>.
 ******************************************************************************/ 
 
+ `include "pronoc_def.v"
+ 
 /*****************************
 *	Tcustom1Rcustom_look_ahead_routing_genvar
 ******************************/ 
@@ -51,8 +53,8 @@ module Tcustom1Rcustom_look_ahead_routing_genvar  #(
 	reg [EAw-1   :0] dest_e_addr_delay;
 	reg [EAw-1   :0] src_e_addr_delay;
 
-	always @(posedge clk)begin 
-		if(reset)begin 
+	 always @ (`pronoc_clk_reset_edge )begin 
+        if(`pronoc_reset) begin 
 			dest_e_addr_delay<={EAw{1'b0}};
 			src_e_addr_delay<={EAw{1'b0}};			
 		end else begin 

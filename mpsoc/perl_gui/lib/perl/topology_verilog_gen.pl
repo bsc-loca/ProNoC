@@ -23,7 +23,9 @@ sub generate_topology_top_v {
     } 
     print $fd autogen_warning();
     print $fd get_license_header($top);   
-
+	print $fd '
+`include "pronoc_def.v"
+';
    
     my $param_str ="\tparameter TOPOLOGY = \"$name\",
 \tparameter ROUTE_NAME = \"${name}_DETERMINISTIC\"";
@@ -309,7 +311,9 @@ sub generate_topology_top_genvar_v{
     } 
     print $fd autogen_warning();
     print $fd get_license_header($top);   
-
+	print $fd '
+`include "pronoc_def.v"
+';
    
     my $param_str ="\tparameter TOPOLOGY = \"$name\",
 \tparameter ROUTE_NAME = \"${name}_DETERMINISTIC\"";
@@ -1218,7 +1222,9 @@ sub generate_connection_v{
     } 
     print $fd autogen_warning();
     print $fd get_license_header($top);   
-
+print $fd '
+`include "pronoc_def.v"
+';
 
 
 

@@ -1,7 +1,4 @@
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
+`include "pronoc_def.v"
 /**************************************
 * Module: fattree
 * Date:2019-01-01  

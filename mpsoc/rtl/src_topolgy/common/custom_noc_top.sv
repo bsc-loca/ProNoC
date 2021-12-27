@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`include "pronoc_def.v"
 
 module   custom_noc_top 
     	import pronoc_pkg::*; 
@@ -23,18 +23,7 @@ module   custom_noc_top
 	             
 
  
-	//do not modify this line ===custom1===
-    if(TOPOLOGY == "custom1" ) begin : Tcustom1
-    
-		custom1_noc_genvar the_noc			
-		(	
-		    .reset(reset),
-		    .clk(clk),    
-		    .chan_in_all(chan_in_all),
-		    .chan_out_all(chan_out_all)  
-		);
-    
-	end
+	
      
 	
     
@@ -51,7 +40,22 @@ module   custom_noc_top
 		);
     end
     
+     
+	//do not modify this line ===custom1===
+    if(TOPOLOGY == "custom1" ) begin : Tcustom1
+    
+		custom1_noc_genvar the_noc			
+		(	
+		    .reset(reset),
+		    .clk(clk),    
+		    .chan_in_all(chan_in_all),
+		    .chan_out_all(chan_out_all)  
+		);
+    end
+    
     endgenerate
+	
+	 
 	
 	 
 	

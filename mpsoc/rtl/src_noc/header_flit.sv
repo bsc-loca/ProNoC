@@ -1,5 +1,4 @@
-`timescale 1ns / 1ps
-
+`include "pronoc_def.v"
 /**********************************************************************
 **  File:  header_flit.sv
 **  Date:2017-07-11   

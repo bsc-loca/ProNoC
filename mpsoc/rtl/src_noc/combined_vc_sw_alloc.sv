@@ -1,4 +1,4 @@
-`timescale     1ns/1ps
+`include "pronoc_def.v"
 /**********************************************************************
 **	File: combined_vc_sw_alloc.v
 **    

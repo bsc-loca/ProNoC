@@ -1,8 +1,4 @@
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-
+`include "pronoc_def.v"
 /**********************************************************************
 **    File:  noc_top.sv
 **    
