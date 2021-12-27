@@ -4,7 +4,7 @@
  * This module can inject and eject packets from the NoC.
  * It can be used in simulation for injecting real application traces to the NoC 
  * *************************/
-`include "pronoc_def.v"
+
 
 module packet_injector 
 		import pronoc_pkg::*; 
@@ -77,7 +77,9 @@ module packet_injector
 	localparam 
 		HDR_BYTE_NUM =	HDR_MAX_DATw / 8, // = HDR_MAX_DATw / (8 - HDR_MAX_DATw %8)
 		HDR_DATA_w_tmp   =  HDR_BYTE_NUM * 8,
-		HDR_DATA_w = (PCK_INJ_Dw < HDR_DATA_w_tmp)? PCK_INJ_Dw : HDR_DATA_w_tmp;
+		HDR_DATA_w = 
+			(PCK_INJ_Dw < HDR_DATA_w_tmp)? PCK_INJ_Dw :
+			(HDR_DATA_w_tmp==0)? 1: HDR_DATA_w_tmp;
 
 	wire [HDR_DATA_w-1 : 0]	hdr_data_in = pck_injct_in.data [HDR_DATA_w-1 : 0];
 	wire [Fw-1 : 0] hdr_flit_out;
@@ -657,7 +659,9 @@ output  smartflit_chanel_t 	chan_out;
  localparam 
  	HDR_BYTE_NUM =	HDR_MAX_DATw / 8, // = HDR_MAX_DATw / (8 - HDR_MAX_DATw %8)
  	HDR_DATA_w_tmp   =  HDR_BYTE_NUM * 8,
- 	HDR_DATA_w = (PCK_INJ_Dw < HDR_DATA_w_tmp)? PCK_INJ_Dw : HDR_DATA_w_tmp,
+ 	HDR_DATA_w = 
+	 	(PCK_INJ_Dw < HDR_DATA_w_tmp)? PCK_INJ_Dw :
+	 	(HDR_DATA_w_tmp==0)? 1: HDR_DATA_w_tmp,
  	REMAIN_DATw =  PCK_INJ_Dw - HDR_DATA_w,
  	REMAIN_DAT_FLIT_I = (REMAIN_DATw / Fpay),
  	REMAIN_DAT_FLIT_F = (REMAIN_DATw % Fpay == 0)? 0 : 1,
