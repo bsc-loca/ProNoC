@@ -1203,7 +1203,7 @@ else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
 	    printf ("\tLoop back is enabled:%s",SELF_LOOP_EN);
 	    printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
 	    printf ("\tCastying type:%s.\n",CAST_TYPE);
-if (strcmp (CAST_TYPE,"MULTICAST_PARTIAL")==0){ printf ("\tCAST LIST:" str (MULTICAST_ENDP_LIST) "\n");}
+if (strcmp (CAST_TYPE,"MULTICAST_PARTIAL")==0){ printf ("\tCAST LIST:" str (MCAST_ENDP_LIST) "\n");}
 	printf ("NoC parameters:---------------- \n");
 	printf ("\nSimulation parameters-------------\n");
 #if(DEBUG_EN)

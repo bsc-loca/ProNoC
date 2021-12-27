@@ -797,7 +797,7 @@ if($topology ne '"CUSTOM"' ){
     my $cast_type=$mpsoc->object_get_attribute('noc_param','CAST_TYPE');  
     my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($mpsoc);
     
-    my $cast = $mpsoc->object_get_attribute('noc_param',"MULTICAST_ENDP_LIST");	
+    my $cast = $mpsoc->object_get_attribute('noc_param',"MCAST_ENDP_LIST");	
     if(!defined $cast){
 	    my $h=0;
 	    my $n="";
@@ -811,8 +811,8 @@ if($topology ne '"CUSTOM"' ){
 		}	
 		$n="$h".$n if($h!=0);
 		$n="'h".$n;  
-		$mpsoc->object_add_attribute('noc_param',"MULTICAST_ENDP_LIST",$n);
-		$mpsoc->object_add_attribute_order('noc_param',"MULTICAST_ENDP_LIST");
+		$mpsoc->object_add_attribute('noc_param',"MCAST_ENDP_LIST",$n);
+		$mpsoc->object_add_attribute_order('noc_param',"MCAST_ENDP_LIST");
 		$mpsoc->object_add_attribute('noc_param',"MCAST_PRTLw",$NE);
 		$mpsoc->object_add_attribute_order('noc_param',"MCAST_PRTLw");
 		$cast=$n;
@@ -1113,7 +1113,7 @@ sub set_multicast_list{
 	my $row=0;
 	my $col=0;
 	
-	my $init = $mpsoc->object_get_attribute('noc_param',"MULTICAST_ENDP_LIST");
+	my $init = $mpsoc->object_get_attribute('noc_param',"MCAST_ENDP_LIST");
 	$init =~ s/'h//g;
 	my @arr= reverse split (//, $init);
 		
@@ -1198,7 +1198,7 @@ sub set_multicast_list{
 	$ok->signal_connect('clicked', sub {
 		my $s=get_multicast_val ($mpsoc,$entry,$NE,@check);
 		my $n=$entry->get_text( );
-		$mpsoc->object_add_attribute('noc_param',"MULTICAST_ENDP_LIST",$n);	
+		$mpsoc->object_add_attribute('noc_param',"MCAST_ENDP_LIST",$n);	
 		$mpsoc->object_add_attribute('noc_param',"MCAST_PRTLw",$s);
 		set_gui_status($mpsoc,"ref",1);	
 		$window->destroy;

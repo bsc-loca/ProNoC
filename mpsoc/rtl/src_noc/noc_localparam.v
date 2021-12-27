@@ -63,7 +63,7 @@
 	localparam CVw=(C==0)? V : C * V;
 	localparam CLASS_SETTING={CVw{1'b1}};
     localparam CAST_TYPE = "MULTICAST_FULL";
-	localparam MULTICAST_ENDP_LIST = 'b11110011;	
+	localparam MCAST_ENDP_LIST = 'b11110011;	
 	localparam MCAST_PRTLw=6;
 	
 	//simulation parameter	

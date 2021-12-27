@@ -308,11 +308,14 @@ localparam
         reg [NE-1 : 0] mcast_list;
         integer  k;
         begin
-        mcast_list =MULTICAST_ENDP_LIST;
+        mcast_list =MCAST_ENDP_LIST;
         mcast_id_to_endp_id=0;
         k=0;
-        if (CAST_TYPE == "MULTICAST_FULL") mcast_id_to_endp_id =mcast_id;
-        else begin
+        /* verilator lint_off WIDTH */ 
+        if (CAST_TYPE == "MULTICAST_FULL")begin 
+        /* verilator lint_on WIDTH */ 
+            mcast_id_to_endp_id =mcast_id;
+        end else begin
             while( k!=mcast_id+1) begin              
                 if( mcast_list[mcast_id_to_endp_id]==1'b1) begin 
                    k=k+1;            
@@ -328,9 +331,12 @@ localparam
         reg [NE-1 : 0] mcast_list;
         integer i=0;       
         begin
-        if (CAST_TYPE == "MULTICAST_FULL") endp_id_to_mcast_id = endp_id;
-        else begin
-            mcast_list =MULTICAST_ENDP_LIST;
+         /* verilator lint_off WIDTH */ 
+        if (CAST_TYPE == "MULTICAST_FULL") begin
+         /* verilator lint_on WIDTH */ 
+            endp_id_to_mcast_id = endp_id;
+        end else begin
+            mcast_list =MCAST_ENDP_LIST;
             endp_id_to_mcast_id=0;
             for (i=0;i<endp_id;i++) begin 
                 if( mcast_list[i]==1'b1) endp_id_to_mcast_id=endp_id_to_mcast_id+1;

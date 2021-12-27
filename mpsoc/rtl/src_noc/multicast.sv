@@ -167,7 +167,7 @@ module multicast_routing
 					/* verilator lint_off UNSIGNED */
 					assign y_min[i]   = (current_rx	==	XX) && (current_ry <  YY);
 					/* verilator lint_on UNSIGNED */
-					for(j=0;j<NL;j++)begin
+					for(j=0;j<NL;j++)begin : lp
 						assign local_p[j][i] = (current_rx	==	XX) && (current_ry == YY) && (LL == j);
 					end						
 			end
@@ -249,7 +249,7 @@ module mcast_dest_list_decode
 	end else begin : partial
 		for(i=0; i< NE; i=i+1) begin : endpoints
 			localparam MCAST_ID = endp_id_to_mcast_id(i);
-			assign dest_o [i] = (MULTICAST_ENDP_LIST[i]==1'b1)? mcast_dst_coded[MCAST_ID] : 1'b0;				
+			assign dest_o [i] = (MCAST_ENDP_LIST[i]==1'b1)? mcast_dst_coded[MCAST_ID] : 1'b0;				
 		end
 	end
 	endgenerate		
