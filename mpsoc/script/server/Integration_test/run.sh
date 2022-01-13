@@ -95,5 +95,5 @@ sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  "cd ${SERVE
 rm "$SCRPT_DIR_PATH/report"
 sshpass -p $my_passwd scp  -o "StrictHostKeyChecking no" -r   "$my_server:${SERVER_ROOT_DIR}/mpsoc/Integration_test/synthetic_sim/report"  "$SCRPT_DIR_PATH/report"
 wait
-gedit "$SCRPT_DIR_PATH/report"
+meld "$SCRPT_DIR_PATH/report" "$SCRPT_DIR_PATH/report_old"
 

@@ -915,6 +915,8 @@ sub run_synthetic_simulation {
 		my $mr = $simulate->object_get_attribute  ($sample,  "MCAST_TRAFFIC_RATIO");
 		$mcast = "-u $mr ";
 		$mcast_sv= "localparam	MCAST_TRAFFIC_RATIO =	$mr;\n";	
+	}else {
+		$mcast_sv= "localparam	MCAST_TRAFFIC_RATIO =	0;\n";	
 	}
 	
 	
@@ -1021,6 +1023,7 @@ sub run_synthetic_simulation {
 		MAX_PACKET_SIZE=$MAX_PCK_SIZE,
 		STOP_PCK_NUM=$PCK_NUM_LIMIT,
 		STOP_SIM_CLK=$SIM_CLOCK_LIMIT;
+	
 	    		
 	$hotspot_sv	
 		

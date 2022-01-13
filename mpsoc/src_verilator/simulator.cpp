@@ -54,6 +54,7 @@ int main(int argc, char** argv) {
 	reset=1;
 	reset_all_register();
 	start_i=0;
+
 	topology_init();
 	if( TRAFFIC_TYPE == NETRACE) pck_inj_init();
 	else 	traffic_gen_init();
@@ -124,7 +125,12 @@ void  usage(char * bin_name){
 "  -H <custom traffic pattern> custom traffic pattern: represented in a string with following format:\n"
 "                              \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n"
 "  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
-"  -u <Multi/Broad-cast ratio> The percentage of multicast/broadcast pakets in percentage. Valid only when the NoC is configured with Multicast/Broadcast feature.                                                                                    \n "
+"  -u <Multi/Broadcast format> represented in a string with following format:\n"
+"							   \"ratio,min_pck_size,max_pck_size\"					"
+"							   ratio:The percentage of multicast/broadcast pakets in percentage against total injected"
+"							   traffic.The multicast/Broadcast packet size is randomly selected between min_pck_size"
+"                              and max_pck_size. The max_pck_size must be smaller or equal with router buffer width"
+"							   Valid only when the NoC is configured with Multicast/Broadcast feature.                                                                                    \n "
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
 "                              to speed up simulation time"	
 "\nTrace options:\n"
@@ -276,7 +282,7 @@ void synthetic_task_processArgs (int argc, char **argv )
 			exit(1);
 			break;
 		case 'u':
-			mcast_ratio = atoi(optarg);
+			update_mcast_traffic(optarg);
 			break;
 	    case '?':
 	       if (isprint (optopt))
@@ -325,10 +331,11 @@ unsigned int pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
 	else if (*inject_en==0) return  dest;
 	//multicast
 	unsigned int rnd = rand() % 100; // 0~99
-	if(rnd >= mcast_ratio){
+	if(rnd >= mcast.ratio){
 		//unicast packet
 		return (0x1<<dest);// for mcast-full
 	}
+	traffic[core_num]->pck_size_in=rnd_between(mcast.min,mcast.max);
 	 for(;;)  {
 		    rnd = rand() & ~(0x1<<core_num);
 			if(rnd!=0) return rnd;
@@ -369,6 +376,23 @@ void update_hotspot(char * str){
 		 	printf("Warning: The hotspot traffic summation %f exceed than 100 percent.  \n", (float) acuum /10);   	   
 	 } 	
 	 hotspots=new_node;
+}
+
+void  update_mcast_traffic(char * str){
+	int i;
+	int array[10];
+	int p;
+	int max_valid =(B > LB)? LB : B;
+	p= parse_string (str, array);
+	if(p>0)	mcast.ratio =array[0];
+	if(p>1)	mcast.min =array[1];
+	if(p>2)	mcast.max =array[2];
+
+	if (mcast.ratio > 100)       { printf("ERROR: The given multicast traffic ratio (%d) is larger than 100\n",mcast.ratio); 	exit(1);}
+	if (mcast.min < MIN_PCK_SIZE){ printf("ERROR: The given multicast minimum packet size (%d) is larger than %d minimum packet size supported by the NoC\n",mcast.min, MIN_PCK_SIZE); 	exit(1);}
+	if (mcast.max > max_valid)   { printf("ERROR: The given multicast maximum packet size (%d) is larger than %d maximum router buffer size\n",mcast.max, max_valid); 	exit(1);};
+
+
 }
 
 void update_custom_traffic (char * str){
@@ -488,6 +512,11 @@ void task_traffic_init (char * str) {
 
 void processArgs (int argc, char **argv ){
 	int i;
+
+	mcast.ratio=50;
+	mcast.min= MIN_PCK_SIZE;
+	mcast.max= (B > LB)? LB : B;
+
 	for( i = 1; i < argc; ++i ) {
 		if( strcmp(argv[i], "-t") == 0 ) {
 			synthetic_task_processArgs ( argc, argv );
@@ -571,11 +600,17 @@ void traffic_gen_init( void ){
 }
 
 void pck_inj_init (void){
-	int i;
+	int i,tmp;
 	for (i=0;i<NE;i++){
 	   	pck_inj[i]->current_e_addr		= endp_addr_encoder(i);
-	   //TODO mapping should be done according to number of NE and should be set by the user larer
-	   	netrace_to_pronoc_map[i]=(int)((i* NE)/header->num_nodes);
+	   //TODO mapping should be done according to number of NE and should be set by the user later
+	   	if(NE<=64){
+	   		tmp = ((i* NE)/(int)header->num_nodes);
+	   		netrace_to_pronoc_map[i]=tmp;
+	   	} else {
+	   		if(i<64) netrace_to_pronoc_map[i]=i;
+	   	}
+
 	   	pck_inj[i]->pck_injct_in_ready= (0x1<<V)-1;
 	   	pck_inj[i]->pck_injct_in_pck_wr=0;
 		//pronoc_to_netrace_map[i]=i;
@@ -797,7 +832,6 @@ void traffic_clk_posedge_event(void) {
 		// the header flit has been sent out
 		if(traffic[i]->hdr_flit_sent ){
 			traffic[i]->pck_class_in=  pck_class_in_gen( i);
-			sent_core_total_pck_num[i]++;
 			traffic[i]->pck_size_in=get_new_pck_size();
 			if(!FIXED_SRC_DST_PAIR){
 				dest_e_addr=pck_dst_gen (i, &inject_en);
@@ -809,6 +843,15 @@ void traffic_clk_posedge_event(void) {
 
 			if(traffic[i]->flit_out_wr==1){
 				total_sent_flit_number++;
+				if (strcmp (CAST_TYPE,"UNICAST")){
+					total_expect_rsv_flit_num+=traffic[i]->mcast_dst_num_o;
+
+				}else{
+					total_expect_rsv_flit_num++;
+				}
+
+
+
 				#if (C>1)
 					sent_stat [i][traffic[i]->flit_out_class].flit_num++;
 				#else
@@ -838,13 +881,13 @@ void traffic_clk_posedge_event(void) {
 			if(inject_done){
 				if(total_rsv_flit_number_old == total_rsv_flit_number){
 						ideal_rsv_cnt++;
-						if(ideal_rsv_cnt >= 100){
-							print_statistic( );
-							fprintf(stderr,"ERROR: The number of sent (%u) & received flits (%u) were not equal at the end of simulation\n",total_sent_flit_number, total_rsv_flit_number);
+						if(ideal_rsv_cnt >= NE*5){
+							traffic_gen_final_report( );
+							fprintf(stderr,"ERROR: The number of expected (%u) & received flits (%u) were not equal at the end of simulation\n",total_expect_rsv_flit_num, total_rsv_flit_number);
 							exit(1);
 						}
 				}
-				if(total_sent_flit_number == total_rsv_flit_number ) simulation_done=1;
+				if(total_expect_rsv_flit_num == total_rsv_flit_number ) simulation_done=1;
 			}
 	connect_clk_reset_start_all();
 	sim_eval_all();
@@ -872,31 +915,10 @@ void update_statistic_at_ejection (
 	total_rsv_pck_num+=1;
 
 	if( TRAFFIC_TYPE != NETRACE){
-
-	//old st
-	if((total_rsv_pck_num & 0Xffff )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
-	sum_clk_h2h+=clk_num_h2h;
-	sum_clk_h2t+=clk_num_h2t;
-#if (STND_DEV_EN)
-	sum_clk_pow2+=(double)clk_num_h2h * (double) clk_num_h2h;
-	sum_clk_pow2_per_class[class_num]+=(double)clk_num_h2h * (double) clk_num_h2h;
-#endif			        		
-	sum_clk_per_hop+= ((double)clk_num_h2h/(double)distance);
-	//printf("sum_clk_per_hop(%f)+= clk_num_h2h(%u)/distance(%u)\n",sum_clk_per_hop,clk_num_h2h,distance);
-	total_rsv_pck_num_per_class[class_num]+=1;
-	sum_clk_h2h_per_class[class_num]+=clk_num_h2h ;
-	sum_clk_h2t_per_class[class_num]+=clk_num_h2t ;
-	sum_clk_per_hop_per_class[class_num]+= ((double)clk_num_h2h/(double)distance);
-	rsvd_core_total_pck_num[core_num]=rsvd_core_total_pck_num[core_num]+1;
-
-		if (rsvd_core_worst_delay[core_num] < clk_num_h2t) rsvd_core_worst_delay[core_num] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
-		if (sent_core_worst_delay[src] < clk_num_h2t) sent_core_worst_delay[src] = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)?  clk_num_h2t :  clk_num_h2h;
-
 		if( traffic[core_num]->pck_size_o >= MIN_PACKET_SIZE && traffic[core_num]->pck_size_o <=MAX_PACKET_SIZE){
-		  if(rsv_size_array!=NULL) 	rsv_size_array[traffic[core_num]->pck_size_o-MIN_PACKET_SIZE]++;
+			  if(rsv_size_array!=NULL) 	rsv_size_array[traffic[core_num]->pck_size_o-MIN_PACKET_SIZE]++;
 		}
 	}
-    //new one TODO remove old st
 
 	if(verbosity==0 &&  TRAFFIC_TYPE == NETRACE) if((total_rsv_pck_num & 0X1FFFF )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
     unsigned int latency = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)? clk_num_h2t :  clk_num_h2h;
@@ -1105,112 +1127,59 @@ void print_statistic_new (unsigned long int total_clk){
 
 
 
-void print_statistic (void){
-	double avg_latency_per_hop,  avg_latency_flit, avg_latency_pck, avg_throughput,min_avg_latency_per_class;
-	int i;
-#if (STND_DEV_EN)
-	double	std_dev;
-#endif
-
-	avg_throughput= ((double)(total_sent_flit_number*100)/total_active_endp )/clk_counter;
-	printf(" Total active Endpoint: %d \n",total_active_endp);
-	printf(" Avg throughput is: %f (flits/clk/Total active Endpoint %%)\n",    avg_throughput);
-	avg_latency_flit   = (double)sum_clk_h2h/total_rsv_pck_num;
-	avg_latency_pck	   = (double)sum_clk_h2t/total_rsv_pck_num;
-	if(ratio==RATIO_INIT) first_avg_latency_flit=avg_latency_flit;
-#if (STND_DEV_EN)
-	std_dev= standard_dev( sum_clk_pow2,total_rsv_pck_num, avg_latency_flit);
-	printf(" standard_dev = %f\n",std_dev);
-#endif
-    avg_latency_per_hop    = (double)sum_clk_per_hop/total_rsv_pck_num;
-    printf("\nall : \n");
-  	printf(" Total number of packet = %d \n average latency per hop = %f \n",total_rsv_pck_num,avg_latency_per_hop);
-  	printf(" average packet latency = %f \n average flit latency = %f \n",avg_latency_pck, avg_latency_flit);
-    min_avg_latency_per_class=1000000;
-    printf(" Total injected packet in different size:\n");
-    for (i=0;i<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);i++){
-    	if(rsv_size_array[i]>0) printf("\t %u flit_sized pck = %u\n",i+ MIN_PACKET_SIZE, rsv_size_array[i]);
-    }
-    printf("\n");
-
-    for(i=0;i<C;i++){
-           	avg_throughput		 = (total_rsv_pck_num_per_class[i]>0)? ((double)(total_rsv_pck_num_per_class[i]*AVG_PACKET_SIZE*100)/total_active_endp )/clk_counter:0;
-			avg_latency_flit 	 = (total_rsv_pck_num_per_class[i]>0)? (double)sum_clk_h2h_per_class[i]/total_rsv_pck_num_per_class[i]:0;
-			avg_latency_pck	   	 = (total_rsv_pck_num_per_class[i]>0)? (double)sum_clk_h2t_per_class[i]/total_rsv_pck_num_per_class[i]:0;
-			avg_latency_per_hop  = (total_rsv_pck_num_per_class[i]>0)? (double)sum_clk_per_hop_per_class[i]/total_rsv_pck_num_per_class[i]:0;
-			printf ("\nclass : %d  \n",i);
-	        printf (" Total number of packet = %d \n avg_throughput = %f \n average latency per hop = %f \n ",total_rsv_pck_num_per_class[i],avg_throughput,avg_latency_per_hop);
-            printf (" average packet latency = %f \n average flit latency = %f \n",avg_latency_pck,avg_latency_flit);
-            if(min_avg_latency_per_class > avg_latency_flit) min_avg_latency_per_class=avg_latency_flit;
-
-#if (STND_DEV_EN)
-            std_dev= (total_rsv_pck_num_per_class[i]>0)?  standard_dev( sum_clk_pow2_per_class[i],total_rsv_pck_num_per_class[i], avg_latency_flit):0;
-            printf(" standard_dev = %f\n",std_dev);
-#endif
-	}//for
-	current_avg_latency_flit=min_avg_latency_per_class;
-	for (i=0;i<NE;i++) {
-		printf	 ("\n\nEnd_point %d\n",i);
-		printf	 ("\n\ttotal number of received packets: %u\n",rsvd_core_total_pck_num[i]);
-		printf	 ("\n\tworst-case-delay of received packets (clks): %u\n",rsvd_core_worst_delay[i] );
-		printf	 ("\n\ttotal number of sent packets: %u\n",traffic[i]->pck_number);
-		printf	 ("\n\tworst-case-delay of sent packets (clks): %u\n",sent_core_worst_delay[i] );
-	}
-
-	print_statistic_new (clk_counter);
-
-
-}
-
-
 #define xstr(s) str(s)
 #define str(s) #s
 
 
 
 void print_parameter (){
-		printf ("NoC parameters:---------------- \n");
-		printf ("\tTopology: %s\n",TOPOLOGY);
-		printf ("\tRouting algorithm: %s\n",ROUTE_NAME);
-	 	printf ("\tVC_per port: %d\n", V);
-	 	printf ("\tNon-local port buffer_width per VC: %d\n", B);
-	 	printf ("\tLocal port buffer_width per VC: %d\n", LB);
-if((strcmp (TOPOLOGY,"MESH")==0)||(strcmp (TOPOLOGY,"TORUS")==0)){
+	printf ("NoC parameters:---------------- \n");
+	printf ("\tTopology: %s\n",TOPOLOGY);
+	printf ("\tRouting algorithm: %s\n",ROUTE_NAME);
+	printf ("\tVC_per port: %d\n", V);
+	printf ("\tNon-local port buffer_width per VC: %d\n", B);
+	printf ("\tLocal port buffer_width per VC: %d\n", LB);
+
+	#if defined (IS_MESH) || defined (IS_FMESH) || defined (IS_TORUS)
 	    printf ("\tRouter num in row: %d \n",T1);
 	    printf ("\tRouter num in column: %d \n",T2);
 	    printf ("\tEndpoint num per router: %d\n",T3);
-}else if ((strcmp (TOPOLOGY,"RING")==0)||(strcmp (TOPOLOGY,"LINE")==0)){
-		printf ("\tTotal Router num: %d \n",T1);
-		printf ("\tEndpoint num per router: %d\n",T3);
-}
-else if ((strcmp (TOPOLOGY,"TREE")==0)||(strcmp (TOPOLOGY,"FATTREE")==0)){
-		printf ("\tK: %d \n",T1);
-		printf ("\tL: %d \n",T2);
-} else{ //CUSTOM
+	#elif defined (IS_LINE) || defined (IS_RING )
+	    printf ("\tTotal Router num: %d \n",T1);
+	    printf ("\tEndpoint num per router: %d\n",T3);
+	#elif defined (IS_FATTREE) || defined (IS_TREE)
+	    printf ("\tK: %d \n",T1);
+	    printf ("\tL: %d \n",T2);
+	#elif defined (IS_STAR)
+	    printf ("\tTotal Endpoints number: %d \n",T1);
+	#else//CUSTOM
 	    printf ("\tTotal Endpoints number: %d \n",T1);
 		printf ("\tTotal Routers number: %d \n",T2);
-}
-	    printf ("\tNumber of Class: %d\n", C);
-	    printf ("\tFlit data width: %d \n", Fpay);
-	    printf ("\tVC reallocation mechanism: %s \n",  VC_REALLOCATION_TYPE);
-	    printf ("\tVC/sw combination mechanism: %s \n", COMBINATION_TYPE);
-	    printf ("\tAVC_ATOMIC_EN:%d \n", AVC_ATOMIC_EN);
-	    printf ("\tCongestion Index:%d \n",CONGESTION_INDEX);
-	    printf ("\tADD_PIPREG_AFTER_CROSSBAR:%d\n",ADD_PIPREG_AFTER_CROSSBAR);
-	    printf ("\tSSA_EN enabled:%s \n",SSA_EN);
-	    printf ("\tSwitch allocator arbitration type:%s \n",SWA_ARBITER_TYPE);
-	    printf ("\tMinimum supported packet size:%d flit(s) \n",MIN_PCK_SIZE);
-	    printf ("\tLoop back is enabled:%s",SELF_LOOP_EN);
-	    printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
-	    printf ("\tCastying type:%s.\n",CAST_TYPE);
-if (strcmp (CAST_TYPE,"MULTICAST_PARTIAL")==0){ printf ("\tCAST LIST:" str (MCAST_ENDP_LIST) "\n");}
+    #endif
+
+	printf ("\tNumber of Class: %d\n", C);
+	printf ("\tFlit data width: %d \n", Fpay);
+	printf ("\tVC reallocation mechanism: %s \n",  VC_REALLOCATION_TYPE);
+	printf ("\tVC/sw combination mechanism: %s \n", COMBINATION_TYPE);
+	printf ("\tAVC_ATOMIC_EN:%d \n", AVC_ATOMIC_EN);
+	printf ("\tCongestion Index:%d \n",CONGESTION_INDEX);
+	printf ("\tADD_PIPREG_AFTER_CROSSBAR:%d\n",ADD_PIPREG_AFTER_CROSSBAR);
+	printf ("\tSSA_EN enabled:%s \n",SSA_EN);
+	printf ("\tSwitch allocator arbitration type:%s \n",SWA_ARBITER_TYPE);
+	printf ("\tMinimum supported packet size:%d flit(s) \n",MIN_PCK_SIZE);
+	printf ("\tLoop back is enabled:%s \n",SELF_LOOP_EN);
+	printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
+	printf ("\tCastying type:%s.\n",CAST_TYPE);
+	if (strcmp (CAST_TYPE,"MULTICAST_PARTIAL")==0){
+		printf ("\tCAST LIST:" str (MCAST_ENDP_LIST) "\n");
+	}
 	printf ("NoC parameters:---------------- \n");
 	printf ("\nSimulation parameters-------------\n");
-#if(DEBUG_EN)
-    printf ("\tDebuging is enabled\n");
-#else
-    printf ("\tDebuging is disabled\n");
-#endif
+	#if(DEBUG_EN)
+		printf ("\tDebuging is enabled\n");
+	#else
+		printf ("\tDebuging is disabled\n");
+	#endif
 	//if(strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)printf ("\tOutput is the average latency on sending the packet header until receiving tail\n");
 	//else printf ("\tOutput is the average latency on sending the packet header until receiving header flit at destination node\n");
 	printf ("\tTraffic pattern:%s\n",TRAFFIC);
@@ -1221,17 +1190,21 @@ if (strcmp (CAST_TYPE,"MULTICAST_PARTIAL")==0){ printf ("\tCAST LIST:" str (MCAS
 	if(strcmp (TRAFFIC,"HOTSPOT")==0){
 		//printf ("\tHot spot percentage: %u\n", HOTSPOT_PERCENTAGE);
 	    printf ("\tNumber of hot spot cores: %d\n", HOTSPOT_NUM);
-
 	}
-	    //printf ("\tTotal packets sent by one router: %u\n", TOTAL_PKT_PER_ROUTER);
-		if(sim_end_clk_num!=0) printf ("\tSimulation timeout =%d\n", sim_end_clk_num);
-		if(end_sim_pck_num!=0) printf ("\tSimulation ends on total packet num of =%d\n", end_sim_pck_num);
-		if(TRAFFIC_TYPE!=NETRACE){
-			printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
-			printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
-		}
-		if( TRAFFIC_TYPE == SYNTHETIC) printf("\tFlit injection ratio per router is =%f (flits/clk/Total Endpoint %%)\n",(float)ratio*100/MAX_RATIO);
-		printf ("Simulation parameters-------------\n");
+	if (strcmp (CAST_TYPE,"UNICAST")){
+		printf ("\tMULTICAST traffic ratio: %d(%%), min: %d, max: %d\n", mcast.ratio,mcast.min,mcast.max);
+	}
+
+
+	//printf ("\tTotal packets sent by one router: %u\n", TOTAL_PKT_PER_ROUTER);
+	if(sim_end_clk_num!=0) printf ("\tSimulation timeout =%d\n", sim_end_clk_num);
+	if(end_sim_pck_num!=0) printf ("\tSimulation ends on total packet num of =%d\n", end_sim_pck_num);
+	if(TRAFFIC_TYPE!=NETRACE){
+		printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
+		printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
+	}
+	if( TRAFFIC_TYPE == SYNTHETIC) printf("\tFlit injection ratio per router is =%f (flits/clk/Total Endpoint %%)\n",(float)ratio*100/MAX_RATIO);
+	printf ("Simulation parameters-------------\n");
 }
 
 
@@ -1273,6 +1246,7 @@ void reset_all_register (void){
 
 	 }  //for
 	 total_sent_flit_number=0;
+	 total_expect_rsv_flit_num=0;
 
 
 }
@@ -1374,7 +1348,7 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src, unsigned char * inject_e
 
 	}
 
-	if(sent_core_total_pck_num[src] & 0xFF){//sent 255 packets
+	if(sent_stat[src].pck_num & 0xFF){//sent 255 packets
 			//printf("uu=%u\n",task.jnjct_var);
 			update_injct_var(src, task.jnjct_var);
 

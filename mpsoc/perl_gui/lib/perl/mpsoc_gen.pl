@@ -818,11 +818,8 @@ if($topology ne '"CUSTOM"' ){
 		$cast=$n;
     }
     
-    if($cast_type eq '"MULTICAST-PARTIAL"') {
-    	$table->attach  ( gen_label_in_left("Muticast Node list"),0 , 1, $row,$row+1,'fill','shrink',2,2);
- 	
- 
-    
+    if($cast_type eq '"MULTICAST_PARTIAL"' || $cast_type eq '"BROADCAST_PARTIAL"') {
+    	$table->attach  ( gen_label_in_left("Muticast Node list"),0 , 1, $row,$row+1,'fill','shrink',2,2);    
     	my $b1= def_image_button("icons/setting.png","Set");
     	my$bb=def_pack_hbox(FALSE,0,gen_label_in_left("$cast"),$b1);
         $table->attach  ( $bb , 2, 3, $row,$row+1,'fill','shrink',2,2);
@@ -831,11 +828,7 @@ if($topology ne '"CUSTOM"' ){
          $b1->signal_connect("clicked" => sub{ 
       		set_multicast_list($mpsoc);
    		
-   		 });
-        
-          
-    	
-    	
+   		 });    	
     }
     
     

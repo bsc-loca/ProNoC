@@ -40,6 +40,7 @@ module  traffic_gen_top
 		time_stamp_h2h,
 		time_stamp_h2t,
 		pck_size_o,
+		mcast_dst_num_o,
 		
 		reset,
 		clk
@@ -94,6 +95,7 @@ module  traffic_gen_top
 	// the received packet source endpoint address
 	output [EAw-1        :   0]    src_e_addr;
 	output [PCK_SIZw-1   :   0]    pck_size_o;	
+	output [NEw-1 : 0] mcast_dst_num_o;
 	
 		
 	logic  [Fw-1                   :0] flit_out;     
@@ -138,8 +140,8 @@ module  traffic_gen_top
 	localparam IDEAL =3'b001, SENT =3'b010, WAIT=3'b100;
 		
 	reg                                 inject_en,cand_wr_vc_en,pck_rd;
-	reg    [PCK_SIZw-1              :0] pck_size, pck_size_next;    
-	logic    [DAw-1                    :0] dest_e_addr_reg;
+	reg    [PCK_SIZw-1              :0] pck_size;    
+	logic  [DAw-1                   :0] dest_e_addr_reg,dest_e_addr_o;
 		
 	// synopsys  translate_off
 	// synthesis translate_off
@@ -298,9 +300,11 @@ module  traffic_gen_top
 			);
     
 		
+		
     
 		packet_gen #(
-				.P(MAX_P),			
+				.P(MAX_P),	
+				.PCK_TYPE(PCK_TYPE),
 				.ROUTE_TYPE(ROUTE_TYPE),
 				.MAX_PCK_NUM(MAX_PCK_NUM),
 				.MAX_SIM_CLKs(MAX_SIM_CLKs),
@@ -318,7 +322,8 @@ module  traffic_gen_top
 				.current_e_addr(current_e_addr),
 				.clk_counter(clk_counter+1'b1),//in case of zero load latency, the flit will be injected in the next clock cycle
 				.pck_number(pck_number),
-				.dest_e_addr(dest_e_addr_reg),        
+				.dest_e_addr_in(dest_e_addr_reg),  
+				.dest_e_addr_o(dest_e_addr_o),     
 				.pck_timestamp(pck_timestamp),
 				.buffer_full(buffer_full),
 				.pck_ready(pck_ready),
@@ -327,6 +332,9 @@ module  traffic_gen_top
 				.pck_size_in(pck_size_tmp),
 				.pck_size_o(pck_size)
 			);
+		
+		
+		
 
     
 		assign wr_timestamp    =pck_timestamp; 
@@ -361,7 +369,7 @@ module  traffic_gen_top
 				.flit_out(hdr_flit_out),
 				.vc_num_in(wr_vc),
 				.class_in(pck_class_in),
-				.dest_e_addr_in(dest_e_addr_reg),
+				.dest_e_addr_in(dest_e_addr_o),
 				.src_e_addr_in(current_e_addr),
 				.weight_in(init_weight),
 				.destport_in(destport),
@@ -564,11 +572,7 @@ module  traffic_gen_top
 		end else credit_out_next = {V{1'd0}};
 	end
  
-	always @ (*)begin 
-		pck_size_next    = pck_size;
-		if((tail_flit & flit_out_wr ) || not_yet_sent_aflit) pck_size_next  = pck_size_tmp;
-	end
-    
+	
 		always @ (`pronoc_clk_reset_edge )begin 
 			if(`pronoc_reset) begin 
 				inject_en       <= 1'b0;
@@ -578,7 +582,6 @@ module  traffic_gen_top
 				credit_out      <= {V{1'd0}};
 				rsv_counter     <= 0;
 				clk_counter     <=  0;
-				//pck_size        <= 0;
 				not_yet_sent_aflit<=1'b1;          
         
 			end else begin 
@@ -591,7 +594,7 @@ module  traffic_gen_top
 				if (flit_cnt_rst)      flit_counter    <= {PCK_SIZw{1'b0}};
 				else if(flit_cnt_inc)   flit_counter    <= flit_counter + 1'b1;     
 				credit_out      <= credit_out_next;
-				//pck_size  <= pck_size_next;
+			
            
 				//sink
 				if(flit_in_wr) begin 
@@ -632,8 +635,7 @@ module  traffic_gen_top
 		
 		// synopsys  translate_off
 		// synthesis translate_off			
-			
-		localparam NEw=log2(NE);
+				
 		wire [NEw-1: 0]  src_id,dst_id,current_id;
     
 		endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod1 ( .id(current_id), .code(current_e_addr));
@@ -644,7 +646,7 @@ module  traffic_gen_top
 		generate 
 		if(CAST_TYPE != "UNICAST") begin
 			mcast_dest_list_decode decode1 (
-				.dest_e_addr(dest_e_addr_reg),
+				.dest_e_addr(dest_e_addr_o),
 				.dest_o(dest_mcast_all_endp1),
 				.row_has_any_dest()
 			);
@@ -659,13 +661,29 @@ module  traffic_gen_top
 			
 		end
 		endgenerate
+		
+		
+		
+		
+		accumulator #(
+			.INw(NE),
+			.OUTw(NEw),
+			.NUM(NE)
+		)
+		accum
+		(
+			.in_all(dest_mcast_all_endp1),
+			.out(mcast_dst_num_o)         
+		);
+		
+		
     
 		always @(posedge clk) begin     
 			
 			if(CAST_TYPE == "UNICAST") begin
 				
-				if(flit_out_wr && hdr_flit && dest_e_addr_reg [EAw-1 : 0]  == current_e_addr  && SELF_LOOP_EN == "NO") begin 
-					$display("%t: ERROR: The self-loop is not enabled in the router while a packet is injected to the NoC with identical source and destination address in endpoint (%h).: %m",$time, dest_e_addr_reg );
+				if(flit_out_wr && hdr_flit && dest_e_addr_o [EAw-1 : 0]  == current_e_addr  && SELF_LOOP_EN == "NO") begin 
+					$display("%t: ERROR: The self-loop is not enabled in the router while a packet is injected to the NoC with identical source and destination address in endpoint (%h).: %m",$time, dest_e_addr_o );
 					$finish;
 				end				
 				if(flit_in_wr && rd_hdr_flg && (rd_des_e_addr[EAw-1 : 0]  != current_e_addr )) begin 
@@ -681,6 +699,12 @@ module  traffic_gen_top
 				end				
 				if(flit_in_wr && rd_hdr_flg && (dest_mcast_all_endp2[current_id] !=1'b1 )) begin 
 					$display("%t: ERROR: packet with destination %b  which is sent by source %d (code %h) has been recieved in wrong destination %d (code %h).  %m",$time, dest_mcast_all_endp2, src_id,rd_src_e_addr, current_id,current_e_addr);
+					$finish;
+				end
+				
+				//check multicast packet size to be smaller than B & LB
+				if(flit_out_wr & hdr_flit & (mcast_dst_num_o>1) & (pck_size >B || pck_size> LB))begin 
+					$display("%t: ERROR: A multicast packat is injected to the NoC which has larger size (%d) than router buffer width.  %m",$time, pck_size);
 					$finish;
 				end
 				
@@ -912,7 +936,8 @@ endmodule
 module packet_gen 
 	import pronoc_pkg::*; 		
 	#(   
-	parameter P = 5,	
+	parameter P = 5,
+	parameter PCK_TYPE = "SINGLE_FLIT",
 	parameter ROUTE_TYPE = "DETERMINISTIC",
 	parameter MAX_PCK_NUM   = 10000,
 	parameter MAX_SIM_CLKs  = 100000,
@@ -926,7 +951,8 @@ module packet_gen
 	current_r_addr,
 	current_e_addr,
 	pck_number,
-	dest_e_addr,
+	dest_e_addr_in,
+	dest_e_addr_o,
 	pck_timestamp,
 	destport,
 	buffer_full,
@@ -958,7 +984,8 @@ module packet_gen
 	input  [EAw-1 : 0] current_e_addr;
 	input  [CLK_CNTw-1 :0] clk_counter;	
 	input  [PCK_SIZw-1 :0] pck_size_in;
-	input  [DAw-1  :0] dest_e_addr;
+	input  [DAw-1  :0] dest_e_addr_in;
+	output [DAw-1  :0] dest_e_addr_o;
 	input  valid_dst; 
 	
 	output [PCK_CNTw-1 :0] pck_number;
@@ -990,7 +1017,7 @@ module packet_gen
 		.reset(reset),
 		.clk(clk),
 		.current_r_addr(current_r_addr),
-		.dest_e_addr(dest_e_addr),
+		.dest_e_addr(dest_e_addr_o),
 		.src_e_addr(current_e_addr),
 		.destport(destport)
 	);
@@ -999,18 +1026,20 @@ module packet_gen
 	wire timestamp_fifo_nearly_full , timestamp_fifo_full;
 	assign buffer_full = (MIN_PCK_SIZE==1) ? timestamp_fifo_nearly_full : timestamp_fifo_full;
 	
+	wire  [DAw-1  :0] tmp1;
+	wire  [PCK_SIZw-1 : 0] tmp2;
 	
 	wire recieve_more_than_0;
 	fwft_fifo_bram #(
-		.DATA_WIDTH(CLK_CNTw+PCK_SIZw),
+		.DATA_WIDTH(CLK_CNTw+PCK_SIZw+DAw),
 		.MAX_DEPTH(TIMSTMP_FIFO_NUM)        
 	)
 	timestamp_fifo
 	(
-		.din({pck_size_in,clk_counter}),
+		.din({dest_e_addr_in,pck_size_in,clk_counter}),
 		.wr_en(pck_wr),
 		.rd_en(pck_rd),
-		.dout({pck_size_o,pck_timestamp}),
+		.dout({tmp1,tmp2,pck_timestamp}),
 		.full(timestamp_fifo_full),
 		.nearly_full(timestamp_fifo_nearly_full),       
 		.recieve_more_than_0(recieve_more_than_0),
@@ -1019,6 +1048,12 @@ module packet_gen
 		.clk(clk)
 	);
 	
+	//assign dest_e_addr_o = dest_e_addr_in;
+		
+	assign dest_e_addr_o =tmp1;
+	/* verilator lint_off WIDTH */
+	assign pck_size_o = (PCK_TYPE == "SINGLE_FLIT" )?   1 : tmp2;
+	/* verilator lint_on WIDTH */
 	assign buffer_empty = ~recieve_more_than_0;
     
 				/*

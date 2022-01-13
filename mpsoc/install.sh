@@ -80,8 +80,9 @@ else
 	cpanm $PERL_GTK3
 fi
 
-
-
+#install icon
+cp $SCRPT_DIR_PATH/perl_gui/icons/ProNoC.png  /usr/local/share/icons/hicolor/128x128/apps/
+cp $SCRPT_DIR_PATH/perl_gui/icons/ProNoC.svg  /usr/local/share/icons/hicolor/scalable/apps/
 
 #install python
 echo "install python" 

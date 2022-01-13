@@ -536,6 +536,7 @@ module  traffic_gen_ram
          //noc
          .chan_in(chan_in),
 		 .chan_out(chan_out),  
+		 .mcast_dst_num_o()
 			
                
     );

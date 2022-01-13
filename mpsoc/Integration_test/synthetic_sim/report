@@ -1,7 +1,7 @@
 Verification Results:
-****************************fmesh_1x1_openpiton : Compile *******************************:
+****************************fmesh_8x8_2cycle_xy : Compile *******************************:
 	 model is generated successfully.
-****************************fmesh_1x1_openpiton	: random traffic *******************************:
-	 Passed:   zero load (5,7.24773) saturation (80,99.9061)
-****************************fmesh_1x1_openpiton	: transposed 1 traffic *******************************:
-	 Passed:   zero load (55,7.00437) saturation (100,-)
+****************************fmesh_8x8_2cycle_xy	: random traffic *******************************:
+	 Passed:   zero load (26,358.73) saturation (100,-)
+****************************fmesh_8x8_2cycle_xy	: transposed 1 traffic *******************************:
+	 Passed:   zero load (26,341.318) saturation (100,-)

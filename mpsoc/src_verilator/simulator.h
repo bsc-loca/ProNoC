@@ -116,12 +116,7 @@ int AVG_PACKET_SIZE=5;
 int MIN_PACKET_SIZE=5;
 int MAX_PACKET_SIZE=5;
 
-unsigned int rsvd_core_total_pck_num[NE]= {0};
-unsigned int rsvd_core_total_flit_num[NE]= {0};
-unsigned int rsvd_core_worst_delay[NE] =  {0};
-unsigned int sent_core_total_pck_num[NE]= {0};
-unsigned int sent_core_total_flit_num[NE]= {0};
-unsigned int sent_core_worst_delay[NE] =  {0};
+
 unsigned int random_var[NE] = {100};
 
 
@@ -161,6 +156,12 @@ typedef struct  avg_st_struct {
 #endif
 
 
+typedef struct mcast_struct {
+	int ratio;
+	int min;
+	int max;
+}mcast_t;
+
 
 void update_statistic_at_ejection (	int	, 	unsigned int, unsigned int, unsigned int,  unsigned int, unsigned int );
 void update_noc_statistic (	int);
@@ -184,6 +185,7 @@ int parse_string ( char *, int *);
 void update_pck_size(char *);
 void update_custom_traffic (char *);
 void update_hotspot(char * );
+void update_mcast_traffic(char * str);
 void initial_threads (void);
 void print_statistic_new (unsigned long int);
 
@@ -232,6 +234,7 @@ unsigned int total_active_endp;
 char all_done=0;
 unsigned int total_sent_flit_number =0;
 unsigned int total_rsv_flit_number =0;
+unsigned int total_expect_rsv_flit_num =0;
 unsigned int total_rsv_flit_number_old=0;
 int ratio=RATIO_INIT;
 double first_avg_latency_flit,current_avg_latency_flit;
@@ -244,9 +247,9 @@ int  * discrete_size;
 int  * discrete_prob;
 int verbosity=1;
 int thread_num =1;
-int mcast_ratio=50;
 
 
+mcast_t mcast;
 
 
 

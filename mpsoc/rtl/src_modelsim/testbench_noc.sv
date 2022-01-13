@@ -298,7 +298,8 @@ module testbench_noc;
 				.start_delay(start_delay[i]),
                 .flit_out_class(flit_out_class[i]),
 				.flit_out_wr(),
-				.flit_in_wr()
+				.flit_in_wr(),
+				.mcast_dst_num_o()
           
 			);
 			
@@ -711,7 +712,7 @@ module testbench_noc;
 		$display ("\tVC_per port: %0d", V);
 		$display ("\tNon-local port buffer_width per VC: %0d", B);
 		$display ("\tLocal port buffer_width per VC: %0d", LB);
-		if(TOPOLOGY=="MESH" || TOPOLOGY=="TORUS")begin
+		if(TOPOLOGY=="MESH" || TOPOLOGY=="TORUS" || TOPOLOGY == "FMESH")begin
 			$display ("\tRouter num in row: %0d",T1);
 			$display ("\tRouter num in column: %0d",T2);
 			$display ("\tEndpoint num per router: %0d",T3);
@@ -737,6 +738,10 @@ module testbench_noc;
 		$display ("\tMinimum supported packet size:%0d flit(s)",MIN_PCK_SIZE);
 		$display ("\tLoop back is enabled:%s",SELF_LOOP_EN);
 		$display ("\tNumber of multihop bypass (SMART max):%0d",SMART_MAX);
+		$display ("\tCastying type:%s.",CAST_TYPE);
+		if (CAST_TYPE == "MULTICAST_PARTIAL" || CAST_TYPE == "BROADCAST_PARTIAL")begin
+			$display ("\tCAST LIST:%s", MCAST_ENDP_LIST);
+		end	
 		$display ("NoC parameters:----------------");		
 		$display ("Simulation parameters-------------");
 		if(DEBUG_EN)

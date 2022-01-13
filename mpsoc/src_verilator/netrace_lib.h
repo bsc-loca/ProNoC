@@ -375,18 +375,8 @@ void netrace_final_report(){
 	,nt_cycle,total_clock,pronoc_total_clock);
 
 
-
 	print_statistic_new (pronoc_total_clock);
-/*
-	printf("\t total , %u , %u, %u, %u  \n",total_sent_pck_num,	total_rsv_pck_num,total_sent_flit_number,total_rsv_flit_number);
-	printf("\nper node\n");
-	for(i=0;i<NE;i++){
-		printf("\t %u  , %u , %u , %u , %u \n",	i,sent_core_total_pck_num[i],rsvd_core_total_pck_num[i], sent_core_total_flit_num[i],rsv_core_total_flit_num[i]
-		sent_core_worst_delay[i], rsvd_core_worst_delay[i]
 
-		);
-	}
-	*/
 }
 
 
