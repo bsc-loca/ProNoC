@@ -168,7 +168,7 @@ module testbench_noc;
     
 	wire [PCK_SIZw-1:   0] pck_size_in [NE-1        :0]; 
 	wire [PCK_SIZw-1:   0] pck_size_o  [NE-1        :0];   
-    
+        wire [NEw-1 : 0] mcast_dst_num [NE-1        :0];   
     
 	//   wire    [NE-1           :0] report;
 	reg     [CLK_CNTw-1             :0] clk_counter;
@@ -299,7 +299,7 @@ module testbench_noc;
                 .flit_out_class(flit_out_class[i]),
 				.flit_out_wr(),
 				.flit_in_wr(),
-				.mcast_dst_num_o()
+				.mcast_dst_num_o(mcast_dst_num[i])
           
 			);
 			
@@ -341,7 +341,14 @@ module testbench_noc;
 				.MAX_PCK_NUM(MAX_PCK_NUM),
 				.TRAFFIC(TRAFFIC),
 				.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM),
-				.MCAST_TRAFFIC_RATIO(MCAST_TRAFFIC_RATIO)				
+				.MCAST_TRAFFIC_RATIO(MCAST_TRAFFIC_RATIO),
+				.MCAST_PCK_SIZ_MIN(MCAST_PCK_SIZ_MIN),
+				.MCAST_PCK_SIZ_MAX(MCAST_PCK_SIZ_MAX),
+				.PCK_SIZw(PCK_SIZw),
+				.MIN_PACKET_SIZE(MIN_PACKET_SIZE),
+				.MAX_PACKET_SIZE(MAX_PACKET_SIZE),
+				.PCK_SIZ_SEL(PCK_SIZ_SEL),
+				.DISCRETE_PCK_SIZ_NUM(DISCRETE_PCK_SIZ_NUM)				
 			)
 			the_pck_dst_gen
 			(
@@ -354,25 +361,13 @@ module testbench_noc;
 				.dest_e_addr(dest_e_addr[i]),
 				.valid_dst(valid_dst[i]),
 				.hotspot_info(hotspot_info),
+				.pck_size_o( pck_size_in[i]) ,
+				.rnd_discrete(rnd_discrete),
 				.custom_traffic_t(custom_traffic_t[i]),  // defined in sim_param.sv
 				.custom_traffic_en(custom_traffic_en[i])  // defined in sim_param.sv
 			);
        
-			pck_size_gen #(
-				.PCK_SIZw(PCK_SIZw),
-				.MIN(MIN_PACKET_SIZE),
-				.MAX(MAX_PACKET_SIZE),
-				.PCK_SIZ_SEL(PCK_SIZ_SEL),
-				.DISCRETE_PCK_SIZ_NUM(DISCRETE_PCK_SIZ_NUM)
-			)
-			the_pck_siz_gen
-			(
-				.reset(reset),
-				.clk(clk),
-				.en(hdr_flit_sent[i]),
-				.pck_size( pck_size_in[i]) ,
-				.rnd_discrete(rnd_discrete)
-			);
+			
   
 	end
 	endgenerate
@@ -397,7 +392,7 @@ module testbench_noc;
 	integer             sent_core_worst_delay           [NE-1   :   0];
 	integer				total_active_endp;
 	integer             total_rsv_pck_num,total_rsv_flit_number;
-	integer				total_sent_pck_num,total_sent_flit_number;
+	integer				total_sent_pck_num,total_sent_flit_number,total_expect_rsv_flit_num;
 	
 	integer core_num,k;
 	always @(posedge clk or posedge reset)begin
@@ -410,6 +405,7 @@ module testbench_noc;
 			sum_clk_per_hop=0;
 			total_sent_flit_number=0;
 			total_rsv_flit_number=0;
+			total_expect_rsv_flit_num=0;
 			for (k=0;k<C;k=k+1) begin 
 					sum_clk_pow2_per_class[k]=0;
 					total_rsv_pck_num_per_class[k]=0;
@@ -430,6 +426,10 @@ module testbench_noc;
 		for (core_num=0; core_num<NE; core_num=core_num+1)begin 
 			if(chan_in_all[core_num].flit_chanel.flit_wr)begin 
 				total_sent_flit_number+=1;
+				if (CAST_TYPE != "UNICAST") total_expect_rsv_flit_num+=mcast_dst_num[core_num];
+				else   total_expect_rsv_flit_num++;
+				
+				
 				if (C>1) sent_stat [core_num][flit_out_class[core_num]].flit_num++;
 				else  	 sent_stat [core_num][0].flit_num++;
 				if(chan_in_all[core_num].flit_chanel.flit[Fw-1])begin
@@ -531,11 +531,11 @@ module testbench_noc;
 			if(all_done_in) begin //All injectors stopped injecting packets 
 				if(total_rsv_flit_number_old==total_rsv_flit_number) rsv_ideal_cnt<=rsv_ideal_cnt+1;//count the number of cycle when no flit is received by any injector  
 				else rsv_ideal_cnt=0;
-				if(total_sent_flit_number == total_rsv_flit_number) begin // All injected packets are consumed
+				if(total_expect_rsv_flit_num == total_rsv_flit_number) begin // All injected packets are consumed
 					done<=1'b1;
 				end
 				if(rsv_ideal_cnt >= 100) begin //  Injectors stopped sending packets, number of received and sent flits are not equal yet and for 100 cycles no flit is consumed. 
-					$display ("ERROR: The number of sent (%d) & received flits (%d) were not equal at the end of simulation",total_sent_flit_number ,total_rsv_flit_number);
+					$display ("ERROR: The number of expected (%d) & received flits (%d) were not equal at the end of simulation",total_expect_rsv_flit_num ,total_rsv_flit_number);
 					
 					$stop;
 				end
@@ -582,12 +582,12 @@ module testbench_noc;
 		$display(" average packet latency = %f \n average flit latency = %f ",avg_latency_pck, avg_latency_flit);
 */		
 		$display("\n\tTotal injected packet in different size:");
-		for (m=0;m<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);m++) begin
-			$write("\tflit_size,");
+		$write("\tflit_size,");
+		for (m=0;m<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);m++) begin			
 			if(rsv_size_array[m]>0)$write("%0d,",m+ MIN_PACKET_SIZE);
 		end
-		for (m=0;m<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);m++) begin
-			$write("\n\t#pck,");
+		$write("\n\t#pck,");
+		for (m=0;m<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);m++) begin			
 			if(rsv_size_array[m]>0)$write("%0d,",rsv_size_array[m]);
 		end
 		
@@ -760,6 +760,12 @@ module testbench_noc;
 			//$display ("\tHot spot percentage: %u\n", HOTSPOT_PERCENTAGE);
 			$display ("\tNumber of hot spot cores: %0d", HOTSPOT_NODE_NUM);
 		end
+		if (CAST_TYPE != "UNICAST")begin
+			$display ("\tMULTICAST traffic ratio: %d(%%), min: %d, max: %d\n", MCAST_TRAFFIC_RATIO,MCAST_PCK_SIZ_MIN,MCAST_PCK_SIZ_MAX);
+		end 
+
+		
+		
 		//$display ("\tTotal packets sent by one router: %u\n", TOTAL_PKT_PER_ROUTER);
 		$display ("\tSimulation timeout =%0d", STOP_SIM_CLK);
 		$display ("\tSimulation ends on total packet num of =%0d", STOP_PCK_NUM);

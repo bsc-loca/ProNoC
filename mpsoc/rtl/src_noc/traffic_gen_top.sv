@@ -322,7 +322,7 @@ module  traffic_gen_top
 				.current_e_addr(current_e_addr),
 				.clk_counter(clk_counter+1'b1),//in case of zero load latency, the flit will be injected in the next clock cycle
 				.pck_number(pck_number),
-				.dest_e_addr_in(dest_e_addr_reg),  
+				.dest_e_addr_in(dest_e_addr),  
 				.dest_e_addr_o(dest_e_addr_o),     
 				.pck_timestamp(pck_timestamp),
 				.buffer_full(buffer_full),

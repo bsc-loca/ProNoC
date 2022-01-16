@@ -881,12 +881,12 @@ void traffic_clk_posedge_event(void) {
 			if(inject_done){
 				if(total_rsv_flit_number_old == total_rsv_flit_number){
 						ideal_rsv_cnt++;
-						if(ideal_rsv_cnt >= NE*5){
+						if(ideal_rsv_cnt >= NE*10){
 							traffic_gen_final_report( );
 							fprintf(stderr,"ERROR: The number of expected (%u) & received flits (%u) were not equal at the end of simulation\n",total_expect_rsv_flit_num, total_rsv_flit_number);
 							exit(1);
 						}
-				}
+				}else ideal_rsv_cnt=0; 
 				if(total_expect_rsv_flit_num == total_rsv_flit_number ) simulation_done=1;
 			}
 	connect_clk_reset_start_all();

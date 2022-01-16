@@ -393,7 +393,8 @@ sub get_simulator_noc_configuration{
 	my $table=def_table(10,2,FALSE);	
 	my $row=0;
 	
-	my $scrolled_win = add_widget_to_scrolled_win ($table);
+	
+	my $scrolled_win = add_widget_to_scrolled_win ($table,gen_scr_win_with_adjst($self,'noc_conf_scr_win'));
 		
 	my $ok = def_image_button('icons/select.png','_OK',FALSE,1);
 	my $import   = def_image_button('icons/import.png','I_mport',FALSE,1);
@@ -623,12 +624,26 @@ sub get_simulator_noc_configuration{
 		}
 		
 		
-		if ($cast_type ne '"UNICAST"'){			
+		if ($cast_type ne '"UNICAST"'){	
+			my $min=$self->object_get_attribute($sample,'MCAST_PCK_SIZ_MIN');
+			my $max=$self->object_get_attribute($sample,'MCAST_PCK_SIZ_MAX');
+			$min=5 if(!defined $min);
+			$max=5 if(!defined $max);
+			$max= $min if($max< $min);
+		
+				
 			my $s = ($cast_type eq '"BROADCAST_FULL"' || $cast_type eq '"BROADCAST_PARTIAL"')? "Broadcast" :  "Milticast";
 			my $info1= "Define the percentage ratio of $s traffic towards Unicast traffic";
 			my $info2= "Define how destinations is selected in Multicast packets";
 			($row,$coltmp)=add_param_widget  ($self, "$s Node Select"  , "MCAST_TRAFFIC_TYPE" , "Uniform-Random",  'Combo-box', "Uniform-Random", $info1, $table,$row,undef,1, $sample);
-			($row,$coltmp)=add_param_widget  ($self, "$s Traffic Ratio", "MCAST_TRAFFIC_RATIO", 5 , 'Spin-button',  "0,100,1"  , $info2, $table,$row,undef,1, $sample);				
+			($row,$coltmp)=add_param_widget  ($self, "$s Traffic Ratio", "MCAST_TRAFFIC_RATIO", 5 , 'Spin-button',  "0,100,1"  , $info2, $table,$row,undef,1, $sample);	
+			
+			($row,$coltmp)=add_param_widget  ($self, "$s min pck size", "MCAST_PCK_SIZ_MIN", 5 , 'Spin-button',  "1,$max,1"  , $info2, $table,$row,undef,1, $sample,1,'ref_set_win');	
+			
+			($row,$coltmp)=add_param_widget  ($self, "$s max pck size", "MCAST_PCK_SIZ_MAX", 5 , 'Spin-button',  "$min,100,1"  , $info2, $table,$row,undef,1, $sample,1,'ref_set_win');	
+			
+			
+						
 		}
 		
 		
@@ -912,11 +927,18 @@ sub run_synthetic_simulation {
     my $cast_type=$p->{"CAST_TYPE"};
 	if ($cast_type ne '"UNICAST"'){	
 		#$self->object_get_attribute ($sample,  "MCAST_TRAFFIC_TYPE");
-		my $mr = $simulate->object_get_attribute  ($sample,  "MCAST_TRAFFIC_RATIO");
-		$mcast = "-u $mr ";
-		$mcast_sv= "localparam	MCAST_TRAFFIC_RATIO =	$mr;\n";	
+		my $mr   = $simulate->object_get_attribute  ($sample,  "MCAST_TRAFFIC_RATIO");
+		my $mmax = $simulate->object_get_attribute  ($sample,  "MCAST_PCK_SIZ_MAX");
+		my $mmin = $simulate->object_get_attribute  ($sample,  "MCAST_PCK_SIZ_MIN");
+		
+		$mcast = "-u \"$mr,$mmin,$mmax\"";
+		$mcast_sv.= "localparam	MCAST_TRAFFIC_RATIO =	$mr;\n";
+		$mcast_sv.= "localparam	MCAST_PCK_SIZ_MAX =	$mmax;\n";
+		$mcast_sv.= "localparam	MCAST_PCK_SIZ_MIN =	$mmin;\n";	
 	}else {
-		$mcast_sv= "localparam	MCAST_TRAFFIC_RATIO =	0;\n";	
+		$mcast_sv.= "localparam	MCAST_TRAFFIC_RATIO =	0;\n";	
+		$mcast_sv.= "localparam	MCAST_PCK_SIZ_MAX =	0;\n";
+		$mcast_sv.= "localparam	MCAST_PCK_SIZ_MIN =	0;\n";	
 	}
 	
 	
