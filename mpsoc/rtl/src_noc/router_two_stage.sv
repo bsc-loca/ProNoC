@@ -184,7 +184,8 @@ module router_two_stage
 				) multicast_process (
 					.current_r_addr  (current_r_addr ), 
 					.chan_in         (chan_in[i]     ), 
-					.chan_out        (chan_in_tmp[i] )
+					.chan_out        (chan_in_tmp[i] ),
+					.clk			 (clk)
 				);
 			
 			end	

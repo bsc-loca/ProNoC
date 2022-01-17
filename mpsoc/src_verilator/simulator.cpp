@@ -55,6 +55,10 @@ int main(int argc, char** argv) {
 	reset_all_register();
 	start_i=0;
 
+	mcast_init();
+
+
+
 	topology_init();
 	if( TRAFFIC_TYPE == NETRACE) pck_inj_init();
 	else 	traffic_gen_init();
@@ -325,21 +329,60 @@ unsigned int pck_dst_gen_unicast ( 	unsigned int core_num, unsigned char * injec
 }
 
 
+unsigned int mcast_full_rnd (unsigned int core_num){
+	unsigned int rnd;
+	for(;;)  {
+		rnd = rand() & ~(0x1<<core_num);
+		if(rnd!=0) return rnd;
+	}
+}
+
+
+
+
+
+unsigned int mcast_partial_rnd (unsigned int core_num){
+	unsigned int rnd;
+	unsigned int MCASTw = (NEw >= MCAST_PRTLw) ? NEw +1 : MCAST_PRTLw +1 ;
+
+	if(mcast_list_array[core_num] == 1){ // the current node is loacted in multicast partial list
+		unsigned int self_node_addr = endp_id_to_mcast_id(core_num);//current node location in multicast list
+		for(;;){
+			rnd = rand() & ~(0x1<<self_node_addr) & ~(0x1 << (MCASTw-1)); // generate a random multicast destination. remove the current node flag and unicast_flag from destination list
+			if(rnd!=0) return rnd;
+		}
+	}else{
+		for(;;){
+			rnd = rand()& ~(0x1 << (MCASTw-1));
+			if(rnd!=0) return rnd;
+
+		}
+	}
+//this function should not come here
+
+}
+
+
+
+
 unsigned int pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
 	unsigned int dest = pck_dst_gen_unicast (core_num, inject_en);
-	if(strcmp (CAST_TYPE,"UNICAST")==0) return  dest;
+	if(IS_UNICAST) return  dest;
 	else if (*inject_en==0) return  dest;
 	//multicast
 	unsigned int rnd = rand() % 100; // 0~99
 	if(rnd >= mcast.ratio){
-		//unicast packet
-		return (0x1<<dest);// for mcast-full
+		//send a unicast packet
+		if(IS_MCAST_FULL)  return (0x1<<dest);// for mcast-full
+		unsigned int MCASTw = (NEw >= MCAST_PRTLw) ? NEw +1 : MCAST_PRTLw +1 ;
+		return dest | (0x1 << (MCASTw-1)); // mcast partial | unicast_flag
 	}
 	traffic[core_num]->pck_size_in=rnd_between(mcast.min,mcast.max);
-	 for(;;)  {
-		    rnd = rand() & ~(0x1<<core_num);
-			if(rnd!=0) return rnd;
-	}
+
+	if (IS_MCAST_FULL) return  mcast_full_rnd (core_num);
+	return mcast_partial_rnd(core_num);
+
+
 }
 
 
@@ -500,7 +543,7 @@ void task_traffic_init (char * str) {
 	rsv_size_array = (unsigned int*) calloc ( p , sizeof(int));
 	if (rsv_size_array==NULL){
 		fprintf(stderr,"ERROR: cannot allocate (%d x int) memory for rsv_size_array. \n",p);
-		 exit(1);
+		exit(1);
 	}
 }
 
@@ -557,7 +600,7 @@ void traffic_gen_final_report(){
 	for (i=0;i<NE;i++) if(traffic[i]->pck_number>0) total_active_endp   	= 	total_active_endp +1;
 	printf("\nsimulation results-------------------\n");
 	printf("\tSimulation clock cycles:%d\n",clk_counter);
-	printf("\n\tTotal injected packet in different size:\n");
+	printf("\n\tTotal received packet in different size:\n");
 	printf("\tflit_size,");
 	for (i=0;i<=(MAX_PACKET_SIZE - MIN_PACKET_SIZE);i++){
 		if(rsv_size_array[i]>0) printf("%u,",i+ MIN_PACKET_SIZE);
@@ -590,7 +633,7 @@ void traffic_gen_init( void ){
 	    	if(inject_en == 0) traffic[i]->stop=1;
 	    	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
 	    	if(inject_done) traffic[i]->stop=1;
-	    	traffic[i]->start_delay=rnd_between(1,4*NE-2);
+	    	traffic[i]->start_delay=rnd_between(11,4*NE-12);
 	    	if(TRAFFIC_TYPE==SYNTHETIC){
 	    		//traffic[i]->avg_pck_size_in=AVG_PACKET_SIZE;
 	    		traffic[i]->ratio=ratio;
@@ -1127,8 +1170,7 @@ void print_statistic_new (unsigned long int total_clk){
 
 
 
-#define xstr(s) str(s)
-#define str(s) #s
+
 
 
 
@@ -1170,7 +1212,7 @@ void print_parameter (){
 	printf ("\tLoop back is enabled:%s \n",SELF_LOOP_EN);
 	printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
 	printf ("\tCastying type:%s.\n",CAST_TYPE);
-	if (strcmp (CAST_TYPE,"MULTICAST_PARTIAL")==0){
+	if (IS_MCAST_PARTIAL){
 		printf ("\tCAST LIST:" str (MCAST_ENDP_LIST) "\n");
 	}
 	printf ("NoC parameters:---------------- \n");

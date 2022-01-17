@@ -79,7 +79,9 @@ sub gen_noc_param_h{
 	#add_text_to_string (\$param_h," \tlocalparam  CVw=(C==0)? V : C * V;\n");
 	#add_text_to_string (\$pass_param,".CVw(CVw)\n");
 	
-	
+	#remove 'b and 'h
+	$param_h =~ s/\d\'b/ /g;
+	$param_h =~ s/\'h/ /g;
 	
 	
 	return  $param_h;	

@@ -276,9 +276,66 @@ unsigned int rnd_between (unsigned int a, unsigned int b){
 	return rnd;
 }
 
+char mcast_list[1024];
+
+void reverse(char str1[], int index, int size)
+{
+    char temp;
+
+    temp = str1[index];
+    str1[index] = str1[size - index];
+    str1[size - index] = temp;
+
+    if (index == size / 2)
+    {
+        return;
+    }
+    reverse(str1, index + 1, size);
+}
+
+char * mcast_list_array;
+
+void mcast_init(){
+	char * temp_str;
+	temp_str = (char *) malloc( strlen(str (MCAST_ENDP_LIST)) * sizeof(char));
+	sscanf(xstr(MCAST_ENDP_LIST),"%s",temp_str );
+	int size = strlen(temp_str);
+	reverse(temp_str, 0, size - 1);
+	mcast_list_array = (char *) malloc(NE * sizeof(char));
+	int i=0;
+    char u [2];
+    u [1] =0;
+    if (IS_MCAST_FULL){
+    	for(i=0; i< NE; i++) {
+    		mcast_list_array[i]=1;
+    	}
+    	return;
+    }
+    //partial
+	for(i=0; i< size; i++) {
+		unsigned int ch ;
+		u[0] = temp_str[i];
+		sscanf(u , "%x", &ch);
+		ch&=0xf;
+	   	mcast_list_array[i*4  ] = (ch & 0x1);
+		mcast_list_array[i*4+1] = (ch & 0x2)>>1;
+		mcast_list_array[i*4+2] = (ch & 0x4)>>2;
+		mcast_list_array[i*4+3] = (ch & 0x8)>>3;
+	}
+
+}
 
 
+unsigned int  endp_id_to_mcast_id (unsigned int  endp_id){
 
+        int i=0;
+        if (IS_MCAST_FULL) return endp_id;
+        int  id=0;
+        for (i=0;i<endp_id;i++) {
+                if( mcast_list_array[i]==1) id++;
+        }
+        return id;
+}
 
 
 #endif

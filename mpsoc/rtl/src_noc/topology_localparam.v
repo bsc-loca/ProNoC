@@ -266,8 +266,13 @@ localparam
        //Destination endpoint(s) address width
       
               
-        DAw_OFFSETw  =  (TOPOLOGY=="MESH" || TOPOLOGY=="TORUS")?  NX : 0,  
-        MCASTw = (CAST_TYPE == "MULTICAST_FULL")? NE : MCAST_PRTLw,
+        DAw_OFFSETw  =  (TOPOLOGY=="MESH" || TOPOLOGY=="TORUS")?  NX : 0, 
+        
+        MCASTw =
+            (CAST_TYPE == "MULTICAST_FULL") ? NE :
+            (CAST_TYPE == "MULTICAST_PARTIAL" && EAw >= MCAST_PRTLw) ? EAw +1 : 
+            (CAST_TYPE == "MULTICAST_PARTIAL" && EAw <  MCAST_PRTLw) ? MCAST_PRTLw +1 :
+            EAw,
               
         DAw =  
             (CAST_TYPE == "UNICAST") ?   EAw:

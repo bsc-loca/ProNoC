@@ -212,21 +212,51 @@ module  pck_dst_gen
 			end
 		end		
 		
-		always @( * ) begin 
-			multicast_dest_e_addr = {DAw{1'b0}};
-			pck_siz_tmp= pck_size_uni;
-			if(rnd_reg >= MCAST_TRAFFIC_RATIO) begin 
-				multicast_dest_e_addr[unicast_dest_e_addr]=1'b1;				
-			end
-			else begin 
-				multicast_dest_e_addr =  $urandom();
-				pck_siz_tmp=pck_size_mcast;
-			end
-			if(SELF_LOOP_EN	== "NO") multicast_dest_e_addr[core_num]=1'b0;
-		end
+		if(CAST_TYPE == "MULTICAST_FULL") begin :mful
 		
-		assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? unicast_dest_e_addr : multicast_dest_e_addr ;
-		assign pck_size_o = pck_siz_tmp;
+			always @( * ) begin 
+				multicast_dest_e_addr = {DAw{1'b0}};
+				pck_siz_tmp= pck_size_uni;
+				if(rnd_reg >= MCAST_TRAFFIC_RATIO) begin 
+					multicast_dest_e_addr[unicast_dest_e_addr]=1'b1;				
+				end
+				else begin 
+					multicast_dest_e_addr =  $urandom();
+					pck_siz_tmp=pck_size_mcast;
+				end
+				if(SELF_LOOP_EN	== "NO") multicast_dest_e_addr[core_num]=1'b0;
+			end
+			
+			
+			
+			assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? unicast_dest_e_addr : multicast_dest_e_addr ;
+			assign pck_size_o = pck_siz_tmp;
+			
+		end else begin :partial
+			
+			always @( * ) begin 
+				multicast_dest_e_addr = {DAw{1'b0}};
+				pck_siz_tmp= pck_size_uni;
+				if(rnd_reg >= MCAST_TRAFFIC_RATIO) begin 
+					multicast_dest_e_addr = unicast_dest_e_addr;
+					multicast_dest_e_addr[MCASTw-1]=1'b1;
+				end
+				else begin 
+					multicast_dest_e_addr =  $urandom();
+					pck_siz_tmp=pck_size_mcast;
+					if(SELF_LOOP_EN	== "NO") begin 
+						multicast_dest_e_addr[core_num]=1'b0;
+						if(MCAST_ENDP_LIST[core_num]==1'b1) multicast_dest_e_addr[endp_id_to_mcast_id(core_num)]=1'b0;
+					end
+				end
+			end
+			
+			assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? unicast_dest_e_addr : multicast_dest_e_addr ;
+			assign pck_size_o = pck_siz_tmp;
+			
+			
+			
+		end
 
 	end endgenerate
 

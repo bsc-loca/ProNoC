@@ -238,7 +238,7 @@ module mcast_dest_list_decode
 	input  [DAw-1 :0]  dest_e_addr;
 	output [NE-1 : 0]  dest_o;
 	output [NX-1 : 0] row_has_any_dest;
-	wire [MCASTw-1 : 0] mcast_dst_coded;
+	wire   [MCASTw-1 : 0] mcast_dst_coded;
 	
 	assign {row_has_any_dest,mcast_dst_coded}=dest_e_addr;
 		
@@ -246,11 +246,23 @@ module mcast_dest_list_decode
 	generate
 	if(CAST_TYPE == "MULTICAST_FULL") begin : full
 		assign dest_o = mcast_dst_coded;		
-	end else begin : partial
+	end else if (CAST_TYPE == "MULTICAST_PARTIAL") begin : partial
+		wire not_in_cast_list = mcast_dst_coded [MCASTw-1];
+		wire [EAw-1 : 0] unicast_num =  mcast_dst_coded [EAw-1];
+		wire [NE-1 : 0]  dest_o_multi;
+		reg  [NE-1 : 0]  dest_o_uni;
+		always @(*)begin 
+			dest_o_uni = {NE{1'b0}};
+			dest_o_uni[unicast_num]=1'b1;
+		end
+		
 		for(i=0; i< NE; i=i+1) begin : endpoints
 			localparam MCAST_ID = endp_id_to_mcast_id(i);
-			assign dest_o [i] = (MCAST_ENDP_LIST[i]==1'b1)? mcast_dst_coded[MCAST_ID] : 1'b0;				
+			assign dest_o_multi [i] = (MCAST_ENDP_LIST[i]==1'b1)? mcast_dst_coded[MCAST_ID] : 1'b0;				
 		end
+		
+		assign dest_o = (not_in_cast_list)? dest_o_uni : dest_o_multi;
+		
 	end
 	endgenerate		
 	
@@ -270,11 +282,13 @@ module multicast_chan_in_process
 	(
 		current_r_addr,
 		chan_in,
-		chan_out
+		chan_out,
+		clk
 	);
 	
 	input   [RAw-1   :   0]  current_r_addr;
 	input   flit_chanel_t chan_in;
+	input   clk;
 	output  flit_chanel_t chan_out;
 	
 	
@@ -350,8 +364,23 @@ module multicast_chan_in_process
 				chan_out.flit [DST_P_MSB : DST_P_LSB] = destport;		
 			end
 		end	
+			
 		
 	end
+	
+	
+	
+	//synthesis translate_off	
+	if(DEBUG_EN) begin :debg
+		always @(posedge clk) begin 
+			if(chan_in.flit_wr  == 1'b1 && chan_in.flit.hdr_flag == 1'b1 && mcast_dst_coded == {MCASTw{1'b0}}) begin 
+				$display ("%t: ERROR: A multicast packet is injected to the NoC with zero mcast_dst_coded filed %m ",$time);
+				$finish;
+			end
+		end
+	end//debug
+	//synthesis translate_on
+		
 	endgenerate
 endmodule
 
