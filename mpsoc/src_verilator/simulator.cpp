@@ -333,6 +333,7 @@ unsigned int mcast_full_rnd (unsigned int core_num){
 	unsigned int rnd;
 	for(;;)  {
 		rnd = rand() & ~(0x1<<core_num);
+		rnd &= ((1<<NE) -1);
 		if(rnd!=0) return rnd;
 	}
 }
@@ -343,19 +344,21 @@ unsigned int mcast_full_rnd (unsigned int core_num){
 
 unsigned int mcast_partial_rnd (unsigned int core_num){
 	unsigned int rnd;
-	unsigned int MCASTw = (NEw >= MCAST_PRTLw) ? NEw +1 : MCAST_PRTLw +1 ;
-
-	if(mcast_list_array[core_num] == 1){ // the current node is loacted in multicast partial list
+	//printf("m[%d]=%d\n",core_num,mcast_list_array[core_num]);
+	if(mcast_list_array[core_num] == 1){ // the current node is located in multicast partial list
 		unsigned int self_node_addr = endp_id_to_mcast_id(core_num);//current node location in multicast list
+
 		for(;;){
-			rnd = rand() & ~(0x1<<self_node_addr) & ~(0x1 << (MCASTw-1)); // generate a random multicast destination. remove the current node flag and unicast_flag from destination list
+			rnd = rand() & ~((0x1<<(self_node_addr+1))|0x1); // generate a random multicast destination. remove the current node flag and unicast_flag from destination list
+			rnd &= ((1<< (MCAST_PRTLw+1)) -1);
+			//printf("rnd=%d\n",rnd);
 			if(rnd!=0) return rnd;
 		}
 	}else{
 		for(;;){
-			rnd = rand()& ~(0x1 << (MCASTw-1));
+			rnd = rand() & ~0x1;// deassert the unicast flag
+			rnd &= ((1<<(MCAST_PRTLw+1)) -1);
 			if(rnd!=0) return rnd;
-
 		}
 	}
 //this function should not come here
@@ -373,9 +376,9 @@ unsigned int pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
 	unsigned int rnd = rand() % 100; // 0~99
 	if(rnd >= mcast.ratio){
 		//send a unicast packet
-		if(IS_MCAST_FULL)  return (0x1<<dest);// for mcast-full
-		unsigned int MCASTw = (NEw >= MCAST_PRTLw) ? NEw +1 : MCAST_PRTLw +1 ;
-		return dest | (0x1 << (MCASTw-1)); // mcast partial | unicast_flag
+		unsigned int dest_id = endp_addr_decoder (dest);
+		if(IS_MCAST_FULL)  return (0x1<<dest_id);// for mcast-full
+		return (dest << 1) | 0x1; // {dest_coded,unicast_flag}
 	}
 	traffic[core_num]->pck_size_in=rnd_between(mcast.min,mcast.max);
 
@@ -876,7 +879,7 @@ void traffic_clk_posedge_event(void) {
 		if(traffic[i]->hdr_flit_sent ){
 			traffic[i]->pck_class_in=  pck_class_in_gen( i);
 			traffic[i]->pck_size_in=get_new_pck_size();
-			if(!FIXED_SRC_DST_PAIR){
+			if((!FIXED_SRC_DST_PAIR)| (!IS_UNICAST)){
 				dest_e_addr=pck_dst_gen (i, &inject_en);
 				traffic[i]->dest_e_addr= dest_e_addr;
 				if(inject_en == 0) traffic[i]->stop=1;
@@ -886,7 +889,7 @@ void traffic_clk_posedge_event(void) {
 
 			if(traffic[i]->flit_out_wr==1){
 				total_sent_flit_number++;
-				if (strcmp (CAST_TYPE,"UNICAST")){
+				if (!IS_UNICAST){
 					total_expect_rsv_flit_num+=traffic[i]->mcast_dst_num_o;
 
 				}else{

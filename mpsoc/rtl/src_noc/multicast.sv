@@ -247,18 +247,35 @@ module mcast_dest_list_decode
 	if(CAST_TYPE == "MULTICAST_FULL") begin : full
 		assign dest_o = mcast_dst_coded;		
 	end else if (CAST_TYPE == "MULTICAST_PARTIAL") begin : partial
-		wire not_in_cast_list = mcast_dst_coded [MCASTw-1];
-		wire [EAw-1 : 0] unicast_num =  mcast_dst_coded [EAw-1];
+		wire not_in_cast_list ;
+		wire [EAw-1 : 0] unicast_code;
+		assign {unicast_code,not_in_cast_list} = mcast_dst_coded;
 		wire [NE-1 : 0]  dest_o_multi;
 		reg  [NE-1 : 0]  dest_o_uni;
+		wire [NEw-1 : 0] unicast_id;
+		
+		endp_addr_decoder  #(
+			.TOPOLOGY (TOPOLOGY),
+			.T1(T1),
+			.T2(T2),
+			.T3(T3),
+			.EAw(EAw),
+			.NE(NE)
+			)
+			decoder
+			(
+				.code(unicast_code),
+				.id(unicast_id)				
+			);    		
+		
 		always @(*)begin 
 			dest_o_uni = {NE{1'b0}};
-			dest_o_uni[unicast_num]=1'b1;
+			dest_o_uni[unicast_id]=1'b1;
 		end
 		
 		for(i=0; i< NE; i=i+1) begin : endpoints
 			localparam MCAST_ID = endp_id_to_mcast_id(i);
-			assign dest_o_multi [i] = (MCAST_ENDP_LIST[i]==1'b1)? mcast_dst_coded[MCAST_ID] : 1'b0;				
+			assign dest_o_multi [i] = (MCAST_ENDP_LIST[i]==1'b1)? mcast_dst_coded[MCAST_ID+1] : 1'b0;				
 		end
 		
 		assign dest_o = (not_in_cast_list)? dest_o_uni : dest_o_multi;

@@ -183,10 +183,27 @@ module  pck_dst_gen
 		assign dest_e_addr =	unicast_dest_e_addr;
 		assign pck_size_o  =   pck_size_uni;		
 	end else begin :multi
-		reg [DAw-1      :   0] multicast_dest_e_addr; 
+		reg [DAw-1      :   0] multicast_dest_e_addr,temp; 
 		reg [6: 0] rnd_reg;
 		wire [PCK_SIZw-1 : 0] pck_size_mcast;
-		reg   [PCK_SIZw-1 : 0] pck_siz_tmp;
+		reg  [PCK_SIZw-1 : 0] pck_siz_tmp;
+		wire [NEw-1 : 0] unicast_id_num;  
+			
+			
+		endp_addr_decoder  #(
+				.T1(T1),
+				.T2(T2),
+				.T3(T3),
+				.NE(NE),
+				.EAw(EAw),
+				.TOPOLOGY(TOPOLOGY)
+			)enc
+			(
+				.code(unicast_dest_e_addr),
+				.id(unicast_id_num)
+			);    
+		
+		
 		pck_size_gen #(
 			.PCK_SIZw(PCK_SIZw),
 			.MIN(MCAST_PCK_SIZ_MIN),
@@ -216,9 +233,11 @@ module  pck_dst_gen
 		
 			always @( * ) begin 
 				multicast_dest_e_addr = {DAw{1'b0}};
+				temp={DAw{1'b0}};
+				temp[unicast_id_num]=1'b1;
 				pck_siz_tmp= pck_size_uni;
 				if(rnd_reg >= MCAST_TRAFFIC_RATIO) begin 
-					multicast_dest_e_addr[unicast_dest_e_addr]=1'b1;				
+					multicast_dest_e_addr[unicast_id_num]=1'b1;				
 				end
 				else begin 
 					multicast_dest_e_addr =  $urandom();
@@ -229,29 +248,29 @@ module  pck_dst_gen
 			
 			
 			
-			assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? unicast_dest_e_addr : multicast_dest_e_addr ;
+			assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? temp : multicast_dest_e_addr ;
 			assign pck_size_o = pck_siz_tmp;
 			
 		end else begin :partial
 			
 			always @( * ) begin 
 				multicast_dest_e_addr = {DAw{1'b0}};
+				temp={unicast_dest_e_addr,1'b1};
 				pck_siz_tmp= pck_size_uni;
 				if(rnd_reg >= MCAST_TRAFFIC_RATIO) begin 
-					multicast_dest_e_addr = unicast_dest_e_addr;
-					multicast_dest_e_addr[MCASTw-1]=1'b1;
+					multicast_dest_e_addr = {unicast_dest_e_addr,1'b1};
 				end
 				else begin 
 					multicast_dest_e_addr =  $urandom();
+					multicast_dest_e_addr[0] =1'b0;
 					pck_siz_tmp=pck_size_mcast;
-					if(SELF_LOOP_EN	== "NO") begin 
-						multicast_dest_e_addr[core_num]=1'b0;
-						if(MCAST_ENDP_LIST[core_num]==1'b1) multicast_dest_e_addr[endp_id_to_mcast_id(core_num)]=1'b0;
+					if(SELF_LOOP_EN	== "NO") begin						
+						if(MCAST_ENDP_LIST[core_num]==1'b1) multicast_dest_e_addr[endp_id_to_mcast_id(core_num)+1]=1'b0;
 					end
 				end
 			end
 			
-			assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? unicast_dest_e_addr : multicast_dest_e_addr ;
+			assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? temp : multicast_dest_e_addr ;
 			assign pck_size_o = pck_siz_tmp;
 			
 			

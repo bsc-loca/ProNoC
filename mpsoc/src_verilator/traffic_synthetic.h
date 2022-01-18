@@ -323,6 +323,8 @@ void mcast_init(){
 		mcast_list_array[i*4+3] = (ch & 0x8)>>3;
 	}
 
+	//for (i=0;i<NE;i++) printf("a[%d]=%d\n",i,mcast_list_array[i]);
+
 }
 
 
