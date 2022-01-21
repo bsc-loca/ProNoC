@@ -22,6 +22,20 @@ sub get_topology_info {
 }	
 
 
+sub get_topology_info_from_parameters {
+	my ($ref) =@_;
+	my %noc_info;
+	my %param= %$ref if(defined $ref );			
+	my $topology=$param{'TOPOLOGY'};
+	my $T1  =$param{'T1'};
+	my $T2  =$param{'T2'};
+	my $T3  =$param{'T3'};
+	my $V   =$param{'V'};
+	my $Fpay=$param{'Fpay'};	
+	return get_topology_info_sub($topology, $T1, $T2, $T3,$V, $Fpay);	
+}
+
+
 
 sub get_topology_info_sub {
 

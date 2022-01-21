@@ -97,12 +97,12 @@ int get_router_num (int , int );
 
 
 
-#define IS_SELF_LOOP_EN  (strcmp(SELF_LOOP_EN ,"YES")==0)
-#define IS_UNICAST       (strcmp(CAST_TYPE,"UNICAST")==0)
-#define IS_MCAST_FULL    (strcmp(CAST_TYPE,"MULTICAST_FULL")==0)
-#define IS_MCAST_PARTIAL (strcmp(CAST_TYPE,"MULTICAST_PARTIAL")==0)
-
-
+#define IS_SELF_LOOP_EN   (strcmp(SELF_LOOP_EN ,"YES")==0)
+#define IS_UNICAST        (strcmp(CAST_TYPE,"UNICAST")==0)
+#define IS_MCAST_FULL     (strcmp(CAST_TYPE,"MULTICAST_FULL")==0)
+#define IS_MCAST_PARTIAL  (strcmp(CAST_TYPE,"MULTICAST_PARTIAL")==0)
+#define IS_BCAST_FULL     (strcmp(CAST_TYPE,"BROADCAST_FULL")==0)
+#define IS_BCAST_PARTIAL  (strcmp(CAST_TYPE,"BROADCAST_PARTIAL")==0)
 
 #include "parameter.h"
 //alignas(64) int router_is_active [NR]={1};

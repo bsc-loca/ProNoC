@@ -401,12 +401,13 @@ endmodule
             mcast_dest_list_decode decode (
                 .dest_e_addr(dest_e_addr),
                 .dest_o(dest_mcast_all_endp),
-                .row_has_any_dest( )
+                .row_has_any_dest( ),
+                .is_unicast()
             );
-        wire valid_dst_multi_r1  = (SELF_LOOP_EN   == "NO") ? ~(dest_mcast_all_endp[current_e_addr] == 1'b1) : 1'b1;
+        //wire valid_dst_multi_r1  = (SELF_LOOP_EN   == "NO") ? ~(dest_mcast_all_endp[current_e_addr] == 1'b1) : 1'b1;
         wire valid_dst_multi_r2  = ~(dest_mcast_all_endp == {NE{1'b0}}); // there should be atleast one asserted destination
         
-        assign  dest_is_valid = valid_dst_multi_r1 & valid_dst_multi_r2;  
+        assign  dest_is_valid =  valid_dst_multi_r2;// & valid_dst_multi_r1 ;  
     end else     
     /* verilator lint_off WIDTH */ 
     if(TOPOLOGY=="MESH" || TOPOLOGY == "TORUS" || TOPOLOGY=="RING" || TOPOLOGY == "LINE") begin : mesh        

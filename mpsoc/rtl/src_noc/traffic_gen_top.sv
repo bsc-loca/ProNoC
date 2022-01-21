@@ -633,8 +633,71 @@ module  traffic_gen_top
 		end//always
 		
 		
-		// synopsys  translate_off
-		// synthesis translate_off			
+		
+		
+		
+		
+		wire [NE-1 :0] dest_mcast_all_endp1;	
+		
+		
+		generate 
+			/* verilator lint_off WIDTH */
+			if(CAST_TYPE != "UNICAST") begin :mb_cast
+			/* verilator lint_on WIDTH */
+				
+				wire [NEw-1 : 0] sum_temp;
+				wire is_unicast;
+				
+				mcast_dest_list_decode decode1 (
+						.dest_e_addr(dest_e_addr_o),
+						.dest_o(dest_mcast_all_endp1),
+						.row_has_any_dest(),
+						.is_unicast(is_unicast)
+					);
+				
+				/* verilator lint_off WIDTH */
+				if (CAST_TYPE == "BROADCAST_FULL") begin :bcastf				
+					assign mcast_dst_num_o = (is_unicast) ? 1 : (SELF_LOOP_EN == "NO")? NE-1 : NE;				
+				end else  if ( CAST_TYPE == "BROADCAST_PARTIAL" )  begin :bcastp 
+				
+					if (SELF_LOOP_EN == "NO") begin 
+						//check if injector node is included in partial list
+						wire [NEw-1: 0]  current_enp_id;
+						endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod1 ( .id(current_enp_id), .code(current_e_addr));
+						assign mcast_dst_num_o = (is_unicast) ? 1 : (MCAST_ENDP_LIST[current_enp_id]== 1'b1)?  MCAST_PRTLw-1 :  MCAST_PRTLw;
+						
+					end else begin 
+						assign mcast_dst_num_o = (is_unicast)? 1 :  MCAST_PRTLw;
+					end			
+				/* verilator lint_on WIDTH */
+				end else begin : mcast
+					accumulator #(
+							.INw(NE),
+							.OUTw(NEw),
+							.NUM(NE)
+						)accum
+						(
+							.in_all(dest_mcast_all_endp1),
+							.out(sum_temp)         
+						);				
+					assign mcast_dst_num_o = sum_temp;
+				end			
+			end
+		endgenerate
+		
+		
+		
+		
+		
+/***************************************************************
+ * 			simulation code
+ * ************************************************************/		
+		
+		
+		
+		
+		
+// synthesis translate_off			
 				
 		wire [NEw-1: 0]  src_id,dst_id,current_id;
     
@@ -642,46 +705,27 @@ module  traffic_gen_top
 		endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod2 ( .id(dst_id), .code(rd_des_e_addr[EAw-1 : 0]));// only for unicast
 		endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod3 ( .id(src_id), .code(rd_src_e_addr));
     
-		wire [NE-1 :0] dest_mcast_all_endp1,dest_mcast_all_endp2;	
+    
+		
+		
+		
+		wire [NE-1 :0] dest_mcast_all_endp2;	
 		generate 
-		if(CAST_TYPE != "UNICAST") begin
-			mcast_dest_list_decode decode1 (
-				.dest_e_addr(dest_e_addr_o),
-				.dest_o(dest_mcast_all_endp1),
-				.row_has_any_dest()
-			);
-			
+		if(CAST_TYPE != "UNICAST") begin :no_unicast		
 			mcast_dest_list_decode decode2 (
-				.dest_e_addr(rd_des_e_addr),
-				.dest_o(dest_mcast_all_endp2),
-				.row_has_any_dest()
-			);
-			
-		
-			
-		end
-		endgenerate
-		
-		
-		
-		
-		accumulator #(
-			.INw(NE),
-			.OUTw(NEw),
-			.NUM(NE)
-		)
-		accum
-		(
-			.in_all(dest_mcast_all_endp1),
-			.out(mcast_dst_num_o)         
-		);
+					.dest_e_addr(rd_des_e_addr),
+					.dest_o(dest_mcast_all_endp2),
+					.row_has_any_dest(),
+					.is_unicast()
+				);
+		end endgenerate
 		
 		
     
 		always @(posedge clk) begin     
-			
+			/* verilator lint_off WIDTH */
 			if(CAST_TYPE == "UNICAST") begin
-				
+				/* verilator lint_on WIDTH */	
 				if(flit_out_wr && hdr_flit && dest_e_addr_o [EAw-1 : 0]  == current_e_addr  && SELF_LOOP_EN == "NO") begin 
 					$display("%t: ERROR: The self-loop is not enabled in the router while a packet is injected to the NoC with identical source and destination address in endpoint (%h).: %m",$time, dest_e_addr_o );
 					$finish;
@@ -692,11 +736,15 @@ module  traffic_gen_top
 				end
 				
 			end else begin 
-				
-				if(flit_out_wr && hdr_flit && dest_mcast_all_endp1[current_id]  == 1'b1  && SELF_LOOP_EN == "NO") begin 
-					$display("%t: ERROR: The self-loop is not enabled in the router while a packet is injected to the NoC with identical source and destination address in endpoint (%h).: %m",$time, dest_mcast_all_endp1 );
-					$finish;
-				end				
+				/* verilator lint_off WIDTH */
+				if((CAST_TYPE == "MULTICAST_FULL") || (CAST_TYPE == "MULTICAST_PARTIAL")) begin
+				/* verilator lint_on WIDTH */
+					
+					if(flit_out_wr && hdr_flit && dest_mcast_all_endp1[current_id]  == 1'b1  && SELF_LOOP_EN == "NO") begin 
+						$display("%t: ERROR: The self-loop is not enabled in the router while a packet is injected to the NoC with identical source and destination address in endpoint (%h).: %m",$time, dest_mcast_all_endp1 );
+						$finish;
+					end				
+				end			
 				if(flit_in_wr && rd_hdr_flg && (dest_mcast_all_endp2[current_id] !=1'b1 )) begin 
 					$display("%t: ERROR: packet with destination %b  which is sent by source %d (code %h) has been recieved in wrong destination %d (code %h).  %m",$time, dest_mcast_all_endp2, src_id,rd_src_e_addr, current_id,current_e_addr);
 					$finish;
@@ -727,13 +775,10 @@ module  traffic_gen_top
 			end				
 				
 		end
-		// synthesis translate_on
-		// synopsys  translate_on
-    
+	
     
 		`ifdef CHECK_PCKS_CONTENT
-			// synopsys  translate_off
-			// synthesis translate_off
+		
     
 			wire     [PCK_SIZw-1             :   0] rsv_flit_counter; 
 			reg      [PCK_SIZw-1             :   0] old_flit_counter    [V-1   :   0];
@@ -781,11 +826,16 @@ module  traffic_gen_top
 					end
    
 				end
-				// synthesis translate_on
-				// synopsys  translate_on
+				
     
 			`endif
     
+// synthesis translate_on
+
+		
+		
+		
+		
 //				`ifdef VERILATOR
 //					logic  endp_is_active   /*verilator public_flat_rd*/ ;
 //			

@@ -350,7 +350,7 @@ unsigned int mcast_partial_rnd (unsigned int core_num){
 
 		for(;;){
 			rnd = rand() & ~((0x1<<(self_node_addr+1))|0x1); // generate a random multicast destination. remove the current node flag and unicast_flag from destination list
-			rnd &= ((1<< (MCAST_PRTLw+1)) -1);
+			rnd &= ((1<<(MCAST_PRTLw+1)) -1);
 			//printf("rnd=%d\n",rnd);
 			if(rnd!=0) return rnd;
 		}
@@ -373,19 +373,22 @@ unsigned int pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
 	if(IS_UNICAST) return  dest;
 	else if (*inject_en==0) return  dest;
 	//multicast
+	unsigned int dest_id = endp_addr_decoder (dest);
+	*inject_en = dest_id !=core_num;
+
 	unsigned int rnd = rand() % 100; // 0~99
 	if(rnd >= mcast.ratio){
 		//send a unicast packet
-		unsigned int dest_id = endp_addr_decoder (dest);
+
 		if(IS_MCAST_FULL)  return (0x1<<dest_id);// for mcast-full
+		// IS_MCAST_PARTIAL | IS_BCAST_FULL | IS_BCAST_PARTIAL
 		return (dest << 1) | 0x1; // {dest_coded,unicast_flag}
 	}
 	traffic[core_num]->pck_size_in=rnd_between(mcast.min,mcast.max);
 
 	if (IS_MCAST_FULL) return  mcast_full_rnd (core_num);
-	return mcast_partial_rnd(core_num);
-
-
+	if (IS_MCAST_PARTIAL) return mcast_partial_rnd(core_num);
+	return 0; //IS_BCAST_FULL | IS_BCAST_PARTIAL
 }
 
 

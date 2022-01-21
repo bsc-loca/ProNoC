@@ -535,7 +535,8 @@ module testbench_noc;
 					done<=1'b1;
 				end
 				if(rsv_ideal_cnt >= 100) begin //  Injectors stopped sending packets, number of received and sent flits are not equal yet and for 100 cycles no flit is consumed. 
-					$display ("ERROR: The number of expected (%d) & received flits (%d) were not equal at the end of simulation",total_expect_rsv_flit_num ,total_rsv_flit_number);
+					done<=1'b1;
+					#100 $display ("ERROR: The number of expected (%d) & received flits (%d) were not equal at the end of simulation",total_expect_rsv_flit_num ,total_rsv_flit_number);
 					
 					$stop;
 				end

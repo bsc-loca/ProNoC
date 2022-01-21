@@ -129,7 +129,8 @@ module multicast_routing
 			mcast_dest_list_decode decode (
 				.dest_e_addr(dest_e_addr),
 				.dest_o(dest_mcast_all_endp),
-				.row_has_any_dest(row_has_any_dest)
+				.row_has_any_dest(row_has_any_dest),
+				.is_unicast()
 			);
 			
 					
@@ -231,21 +232,29 @@ module mcast_dest_list_decode
 		(
 		dest_e_addr,
 		dest_o,
-		row_has_any_dest
+		row_has_any_dest,
+		is_unicast
 		);
 	
 	
 	input  [DAw-1 :0]  dest_e_addr;
 	output [NE-1 : 0]  dest_o;
 	output [NX-1 : 0] row_has_any_dest;
+	output is_unicast;
+	
 	wire   [MCASTw-1 : 0] mcast_dst_coded;
+	
+	
 	
 	assign {row_has_any_dest,mcast_dst_coded}=dest_e_addr;
 		
+	
+	
 	genvar i;
 	generate
 	if(CAST_TYPE == "MULTICAST_FULL") begin : full
-		assign dest_o = mcast_dst_coded;		
+		assign dest_o = mcast_dst_coded;
+		assign is_unicast = 1'b0;
 	end else if (CAST_TYPE == "MULTICAST_PARTIAL") begin : partial
 		wire not_in_cast_list ;
 		wire [EAw-1 : 0] unicast_code;
@@ -253,6 +262,7 @@ module mcast_dest_list_decode
 		wire [NE-1 : 0]  dest_o_multi;
 		reg  [NE-1 : 0]  dest_o_uni;
 		wire [NEw-1 : 0] unicast_id;
+		assign is_unicast = not_in_cast_list;
 		
 		endp_addr_decoder  #(
 			.TOPOLOGY (TOPOLOGY),
@@ -280,7 +290,70 @@ module mcast_dest_list_decode
 		
 		assign dest_o = (not_in_cast_list)? dest_o_uni : dest_o_multi;
 		
+	end else if (CAST_TYPE == "BROADCAST_FULL") begin : bcast_full
+		wire not_broad_casted;
+		wire [EAw-1 : 0] unicast_code;
+		assign {unicast_code,not_broad_casted} = mcast_dst_coded;
+		assign is_unicast =not_broad_casted;
+		wire [NE-1 : 0]  dest_o_multi;
+		reg  [NE-1 : 0]  dest_o_uni;
+		wire [NEw-1 : 0] unicast_id;		
+		
+		endp_addr_decoder  #(
+				.TOPOLOGY (TOPOLOGY),
+				.T1(T1),
+				.T2(T2),
+				.T3(T3),
+				.EAw(EAw),
+				.NE(NE)
+			)
+			decoder
+			(
+				.code(unicast_code),
+				.id(unicast_id)				
+			);    		
+		
+		always @(*)begin 
+			dest_o_uni = {NE{1'b0}};
+			dest_o_uni[unicast_id]=1'b1;
+		end
+		
+		assign dest_o = (not_broad_casted)? dest_o_uni : {NE{1'b1}};
+		
+	end else begin //BCAST_PARTIAL
+		wire not_broad_casted;
+		wire [EAw-1 : 0] unicast_code;
+		assign {unicast_code,not_broad_casted} = mcast_dst_coded;
+		assign is_unicast =not_broad_casted;
+		wire [NE-1 : 0]  dest_o_multi;
+		reg  [NE-1 : 0]  dest_o_uni;
+		wire [NEw-1 : 0] unicast_id;
+		
+		endp_addr_decoder  #(
+				.TOPOLOGY (TOPOLOGY),
+				.T1(T1),
+				.T2(T2),
+				.T3(T3),
+				.EAw(EAw),
+				.NE(NE)
+			)
+			decoder
+			(
+				.code(unicast_code),
+				.id(unicast_id)				
+			);    		
+		
+		always @(*)begin 
+			dest_o_uni = {NE{1'b0}};
+			dest_o_uni[unicast_id]=1'b1;
+		end
+				
+		assign dest_o = (not_broad_casted)? dest_o_uni : MCAST_ENDP_LIST;
+		
+		
+		
 	end
+		
 	endgenerate		
 	
 	
@@ -312,6 +385,9 @@ module multicast_chan_in_process
 	wire  [MCASTw-1   :   0]  mcast_dst_coded;
 	wire  [NE-1 : 0] dest_mcast_all_endp;
 	wire [NX-1 : 0] row_has_any_dest,row_has_any_dest_in;	
+	wire  [DSTPw-1  :   0] destport,destport_o;
+	
+	
 	
 	hdr_flit_t hdr_flit;
 	header_flit_info extract(
@@ -324,7 +400,8 @@ module multicast_chan_in_process
 	(
 		.dest_e_addr(hdr_flit.dest_e_addr),
 		.dest_o(dest_mcast_all_endp),
-		.row_has_any_dest(row_has_any_dest_in)
+		.row_has_any_dest(row_has_any_dest_in),
+		.is_unicast()
 	);
 	
 	
@@ -351,15 +428,24 @@ module multicast_chan_in_process
 				
 			for(i=0;i<NX; i++) begin : X_
 				assign row_has_any_dest[i] =| endp_mask[i];			
-			end		
+			end	
+			
+			reg   [DSTPw-1  :   0] destport_tmp;
+			always @(*) begin 
+				destport_tmp = destport;
+				if(SELF_LOOP_EN   == "NO") destport_tmp [ SW_LOC ] = 1'b0; 
+			end
+			assign destport_o = destport_tmp;
+			
 		end else begin : no_endp
-			assign  row_has_any_dest = 	 row_has_any_dest_in;		
+			assign  row_has_any_dest = 	 row_has_any_dest_in;
+			assign  destport_o = destport;
 		end
 			
 			
 		
 		wire [DAw-1 : 0] dest_e_addr = {row_has_any_dest,mcast_dst_coded};
-		wire  [DSTPw-1  :   0] destport;
+		
 		
 		multicast_routing
 		#(
@@ -374,11 +460,13 @@ module multicast_chan_in_process
 		);
 		
 		
+		
+		
 		always @(*) begin 
 			chan_out=chan_in;
 			if(chan_in.flit.hdr_flag == 1'b1) begin
 				chan_out.flit [E_DST_MSB : E_DST_LSB] = dest_e_addr;
-				chan_out.flit [DST_P_MSB : DST_P_LSB] = destport;		
+				chan_out.flit [DST_P_MSB : DST_P_LSB] = destport_o;				
 			end
 		end	
 			
@@ -392,6 +480,11 @@ module multicast_chan_in_process
 		always @(posedge clk) begin 
 			if(chan_in.flit_wr  == 1'b1 && chan_in.flit.hdr_flag == 1'b1 && mcast_dst_coded == {MCASTw{1'b0}}) begin 
 				$display ("%t: ERROR: A multicast packet is injected to the NoC with zero mcast_dst_coded filed %m ",$time);
+				$finish;
+			end
+			
+			if(chan_in.flit_wr  == 1'b1 && chan_in.flit.hdr_flag == 1'b1 && dest_mcast_all_endp == {NE{1'b0}}) begin 
+				$display ("%t: ERROR: A multicast packet is injected to the NoC without any set destination %m ",$time);
 				$finish;
 			end
 		end

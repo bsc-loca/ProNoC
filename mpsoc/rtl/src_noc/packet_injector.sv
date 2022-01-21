@@ -283,7 +283,8 @@ module packet_injector
 			mcast_dest_list_decode decode (
 				.dest_e_addr(hdr_flit_i.dest_e_addr),
 				.dest_o(dest_mcast_all_endp),
-				.row_has_any_dest()
+				.row_has_any_dest(),
+				.is_unicast()
 			);
 		end
 		

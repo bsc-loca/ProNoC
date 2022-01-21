@@ -251,7 +251,7 @@ module  pck_dst_gen
 			assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? temp : multicast_dest_e_addr ;
 			assign pck_size_o = pck_siz_tmp;
 			
-		end else begin :partial
+		end else if(CAST_TYPE == "MULTICAST_PARTIAL") begin :mpar
 			
 			always @( * ) begin 
 				multicast_dest_e_addr = {DAw{1'b0}};
@@ -273,6 +273,22 @@ module  pck_dst_gen
 			assign dest_e_addr = (multicast_dest_e_addr=={DAw{1'b0}} )? temp : multicast_dest_e_addr ;
 			assign pck_size_o = pck_siz_tmp;
 			
+			
+			
+		end else begin //Broadcast
+			
+			always @( * ) begin 
+				multicast_dest_e_addr = {DAw{1'b0}};				
+				pck_siz_tmp = pck_size_uni;
+				if(rnd_reg >= MCAST_TRAFFIC_RATIO) begin 
+					multicast_dest_e_addr = {unicast_dest_e_addr,1'b1};
+				end
+				else begin							
+					pck_siz_tmp=pck_size_mcast;					
+				end
+			end
+			assign dest_e_addr =  multicast_dest_e_addr ;
+			assign pck_size_o = pck_siz_tmp;
 			
 			
 		end

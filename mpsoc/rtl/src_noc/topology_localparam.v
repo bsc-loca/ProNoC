@@ -272,14 +272,11 @@ localparam
             (CAST_TYPE == "MULTICAST_FULL") ? NE :
             (CAST_TYPE == "MULTICAST_PARTIAL" && EAw >= MCAST_PRTLw) ? EAw +1 : 
             (CAST_TYPE == "MULTICAST_PARTIAL" && EAw <  MCAST_PRTLw) ? MCAST_PRTLw +1 :
-            EAw,
+            EAw +1,
               
         DAw =  
             (CAST_TYPE == "UNICAST") ?   EAw:
-            (CAST_TYPE == "BROADCAST_FULL" || CAST_TYPE == "BROADCAST_PARTIAL")?  EAw + 1:
-            (CAST_TYPE == "MULTICAST_FULL")? MCASTw + DAw_OFFSETw   :
-            MCASTw + 1 + DAw_OFFSETw,  //MULTICAST_PARTIAL         
-              
+            MCASTw +  DAw_OFFSETw,            
           
             
                   
