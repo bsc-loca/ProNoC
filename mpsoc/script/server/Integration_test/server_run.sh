@@ -17,7 +17,8 @@ source "/eda/env.sh"
 home=$(eval echo ~$USER)
 source "$home/.bash_profile"
 
-$localperl ./verify.perl -p 20 -u 80 -l 2 -s 4
+
+$localperl ./verify.perl $@
 
 
 

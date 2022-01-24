@@ -83,7 +83,7 @@ module multicast_routing
 	
 	input   [RAw-1   :   0]  current_r_addr;
 	input   [DAw-1   :   0]  dest_e_addr;
-	output  reg [DSTPw-1  :   0] destport;
+	output  [DSTPw-1  :   0] destport;
 
     
 	genvar i,j;
@@ -190,35 +190,34 @@ module multicast_routing
 			
 			
 			
-			integer k;
+			reg [4  :   0] destport_tmp;
 			
 			always @(*) begin 
-				destport = {DSTPw{1'b0}};
-				for(k=0;k<NL;k++) begin
-					if(k==LOCAL )begin 
-						destport[LOCAL]=goto_local[LOCAL];
-					end else begin 
-						destport[SOUTH+K]=goto_local[k];
-					end
-				end
-				if     (SW_LOC == SOUTH) destport [NORTH] = goto_north;
-				else if(SW_LOC == NORTH) destport [SOUTH] = goto_south;
+				destport_tmp = {DSTPw{1'b0}};
+				destport_tmp[LOCAL]=goto_local[LOCAL];				
+				if     (SW_LOC == SOUTH) destport_tmp [NORTH] = goto_north;
+				else if(SW_LOC == NORTH) destport_tmp [SOUTH] = goto_south;
 				else if(SW_LOC == WEST)begin 
-					destport [NORTH] = goto_north;
-					destport [SOUTH] = goto_south;
-					destport [EAST ] = goto_east;					
+					destport_tmp [NORTH] = goto_north;
+					destport_tmp [SOUTH] = goto_south;
+					destport_tmp [EAST ] = goto_east;					
 				end
 				else if(SW_LOC == EAST) begin 
-					destport [NORTH] = goto_north;
-					destport [SOUTH] = goto_south;
-					destport [WEST ] = goto_west;					
+					destport_tmp [NORTH] = goto_north;
+					destport_tmp [SOUTH] = goto_south;
+					destport_tmp [WEST ] = goto_west;					
 				end
-				else if(SW_LOC == LOCAL) begin
-					destport [NORTH] = goto_north;
-					destport [SOUTH] = goto_south;
-					destport [EAST]  = goto_east;
-					destport [WEST]  = goto_west;
+				else if(SW_LOC == LOCAL || SW_LOC > SOUTH) begin
+					destport_tmp [NORTH] = goto_north;
+					destport_tmp [SOUTH] = goto_south;
+					destport_tmp [EAST]  = goto_east;
+					destport_tmp [WEST]  = goto_west;
 				end							
+			end
+			
+			assign destport [SOUTH : 0] =destport_tmp;
+			for(i=1;i<NL;i++) begin :other_local
+				assign destport[SOUTH+i]=goto_local[i];			
 			end
 
 	end

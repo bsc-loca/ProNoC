@@ -64,7 +64,7 @@
 	localparam CLASS_SETTING={CVw{1'b1}};
     localparam CAST_TYPE = "MULTICAST_FULL";
 	localparam MCAST_ENDP_LIST = 'b11110011;	
-	localparam MCAST_PRTLw=6;
+//	localparam MCAST_PRTLw=6;
 	
 	//simulation parameter	
 	//localparam MAX_RATIO = 1000;

@@ -29,7 +29,7 @@ use base 'Class::Accessor::Fast';
 
 # declare the perl command line flags/options we want to allow
 my %options=();
-getopts("hp:u:l:s:m:", \%options);
+getopts("hp:u:l:s:m:d:", \%options);
 
 # test for the existence of the options on the command line.
 # in a normal program you'd do more than just print these.
@@ -53,8 +53,10 @@ print " Usage: perl verify.pl [options]
       -l <int number>  : Enter the minimum injection ratio in %. Default is 5
       -s <int number>  : Enter the injection step increase ratio in %. 
                          Default value is 25.
+      -d <dir name>    : The dir name where the simulation models configuration
+      					 files are located in. The default dir is \"models\"
       -m <simulation model name1,simulation model name2,...> : Enter the 
-                         simulation model name. If the simulation model name
+                         simulation model name in simulation dir. If the simulation model name
                          is not provided, it runs the simulation for all 
                          existing models.
 ";
@@ -64,6 +66,8 @@ exit;
 my $paralel_run= 4;
 #defne minimum , maximum and increasing step of injection ratio
 my ($MIN,$MAX,$STEP)= (5,80,25);
+my $model_dir="models";
+
 my @models;
 
 
@@ -72,6 +76,7 @@ $paralel_run=$options{p} if defined $options{p};
 $MAX = $options{u} if defined $options{u};
 $MIN = $options{l} if defined $options{l};
 $STEP = $options{s} if defined $options{s};
+$model_dir = $options{d} if defined $options{d};
 
 if (defined $options{m}){
 	@models = split(",",$options{m});
@@ -96,13 +101,14 @@ my $dirname = dirname(__FILE__);
 require "$dirname/src/src.pl";
 
 
-my @inputs =($paralel_run,$MIN,$MAX,$STEP);
+my @inputs =($paralel_run,$MIN,$MAX,$STEP,$model_dir);
 
 
 print "Maximum number of parallel simulation is $paralel_run.\n The injection ratio is set as MIN=$MIN,MAX=$MAX,STEP=$STEP.\n";
-
-
-
+print "\t The simulation models are taken from $model_dir\n";
+if (defined $options{m}){
+	foreach my $p (@models ){ print "\t\t$p\n";}
+}
 
 my @log_report_match =("Error","Warning" ); 
 
@@ -113,7 +119,7 @@ save_file ("$dirname/report","Verification Results:\n");
 
 copy_src_files();
 
-gen_models(\@models);
+gen_models(\@models,\@inputs);
 
 compile_models($app,\@inputs,\@models);
 

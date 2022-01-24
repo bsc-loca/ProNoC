@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #the max server load that is permited for runing the parallel test
-max_allowed_server_load=35
+max_allowed_server_load=26
 source "my_password.sh" # define servers and passwords
 
 SCRPT_FULL_PATH=$(realpath ${BASH_SOURCE[0]})
@@ -25,7 +25,53 @@ my_srcs=( "rtl"
 	"/perl_gui/lib/perl" )
 
 
-rm "$SCRPT_DIR_PATH/report"
+
+# A POSIX variable
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+# Initialize our own variables:
+paralel_run=20
+MIN=2
+MAX=80
+STEP=4
+dir="models"
+
+
+
+
+while getopts "h?p:u:l:s:d:" opt; do
+  case "$opt" in
+    h|\?)
+      echo "./run [-d models_dir name]"
+      exit 0
+      ;;
+    p) paralel_run=$OPTARG
+      ;; 
+    u) MAX=$OPTARG
+      ;;  
+    l) MIN=$OPTARG
+      ;; 
+    s) STEP=$OPTARG
+      ;;  
+    d) dir=$OPTARG
+      ;;            
+  esac
+done
+
+shift $((OPTIND-1))
+
+[ "${1:-}" = "--" ] && shift
+
+echo "paralel_run=$paralel_run, MAX=$MAX, MIN=$MIN, STEP=$STEP, dir=$dir Leftovers: $@"
+
+args="-p $paralel_run -u $MAX -l $MIN -s $STEP -d $dir"
+
+
+
+report="${SCRPT_DIR_PATH}/reports/${dir}_report"
+
+
+rm $report
 
 
 
@@ -35,7 +81,7 @@ rm "$SCRPT_DIR_PATH/report"
 
 #step one login in tje server and read the load 
 function get_server_avg_load {
-	out=$(sshpass -p $my_passwd ssh -t -o "StrictHostKeyChecking no" $1  "uptime")
+	out=$(ssh -t -o "StrictHostKeyChecking no" $1  "uptime")
 	load_avg=$(grep -oP '(?<=load average: )[0-9]+' <<< $out)		
 }
 
@@ -63,21 +109,21 @@ function select_a_server {
 
 
 function copy_sources {
-	sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  rm -rf  ${SERVER_ROOT_DIR}
-	sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  mkdir -p "${SERVER_ROOT_DIR}/mpsoc/perl_gui/lib/"
-    sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  mkdir -p "${SERVER_ROOT_DIR}/mpsoc/src_c/"
-	sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  mkdir -p "${SERVER_ROOT_DIR}/mpsoc_work"
+	ssh  -o "StrictHostKeyChecking no" $my_server  rm -rf  ${SERVER_ROOT_DIR}
+	ssh  -o "StrictHostKeyChecking no" $my_server  mkdir -p "${SERVER_ROOT_DIR}/mpsoc/perl_gui/lib/"
+    ssh  -o "StrictHostKeyChecking no" $my_server  mkdir -p "${SERVER_ROOT_DIR}/mpsoc/src_c/"
+	ssh  -o "StrictHostKeyChecking no" $my_server  mkdir -p "${SERVER_ROOT_DIR}/mpsoc_work"
 	for i in "${my_srcs[@]}"; do	
 		echo "Copy $i  on the server"        
-		sshpass -p $my_passwd scp  -o "StrictHostKeyChecking no" -r "$ProNoC/$i"  "$my_server:${SERVER_ROOT_DIR}/mpsoc/$i"
+		scp  -o "StrictHostKeyChecking no" -r "$ProNoC/$i"  "$my_server:${SERVER_ROOT_DIR}/mpsoc/$i"
 	done
-	sshpass -p $my_passwd scp  -o "StrictHostKeyChecking no" -r "$SCRPT_DIR_PATH/server_run.sh"  "$my_server:${SERVER_ROOT_DIR}/mpsoc/Integration_test/synthetic_sim/server_run.sh"	
+	scp  -o "StrictHostKeyChecking no" -r "$SCRPT_DIR_PATH/server_run.sh"  "$my_server:${SERVER_ROOT_DIR}/mpsoc/Integration_test/synthetic_sim/server_run.sh"	
 }
 
 
 function run_test {
 	cmd="export PRONOC_WORK=${SERVER_ROOT_DIR}/mpsoc_work;" 
-	sshpass -p $my_passwd ssh -t -o "StrictHostKeyChecking no" $my_server $cmd
+	ssh -t -o "StrictHostKeyChecking no" $my_server $cmd
 
 }
 
@@ -89,11 +135,11 @@ select_a_server
 copy_sources
 #3 run the test
 
-sshpass -p $my_passwd ssh  -o "StrictHostKeyChecking no" $my_server  "cd ${SERVER_ROOT_DIR}/mpsoc/Integration_test/synthetic_sim;  source \"/etc/profile\";  bash   server_run.sh;"
+ssh  -o "StrictHostKeyChecking no" $my_server  "cd ${SERVER_ROOT_DIR}/mpsoc/Integration_test/synthetic_sim;  source \"/etc/profile\";  bash   server_run.sh $args;"
 
 #collect the report
-rm "$SCRPT_DIR_PATH/report"
-sshpass -p $my_passwd scp  -o "StrictHostKeyChecking no" -r   "$my_server:${SERVER_ROOT_DIR}/mpsoc/Integration_test/synthetic_sim/report"  "$SCRPT_DIR_PATH/report"
+rm "$report"
+scp  -o "StrictHostKeyChecking no" -r   "$my_server:${SERVER_ROOT_DIR}/mpsoc/Integration_test/synthetic_sim/report"  "$report"
 wait
-meld "$SCRPT_DIR_PATH/report" "$SCRPT_DIR_PATH/report_old" &
+meld "$report" "${report}_old" &
 

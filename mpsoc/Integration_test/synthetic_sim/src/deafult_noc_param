@@ -36,7 +36,6 @@ $model = bless( {
 "CVw"=> "(C==0)? V : C * V",
 "CAST_TYPE" => "\"UNICAST\"",
 "MCAST_ENDP_LIST" => "'b1111",	
-"MCAST_PRTLw" => "4"
 
 
                                  },
@@ -79,8 +78,8 @@ $model = bless( {
 "TIMSTMP_FIFO_NUM ", 
 "CVw",
 "CAST_TYPE",
-"MCAST_ENDP_LIST",	
-"MCAST_PRTLw"                                                  ],
+"MCAST_ENDP_LIST"	
+                                                  ],
 
 }
                   

@@ -432,7 +432,7 @@ module input_queue_per_port
 	genvar i;
 	generate
 		/* verilator lint_off WIDTH */  
-		if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1)) begin : multi_local
+		if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1) && CAST_TYPE== "UNICAST") begin : multi_local
 		/* verilator lint_on WIDTH */  
 		
 				
@@ -840,7 +840,7 @@ module input_queue_per_port
          
          
 			/* verilator lint_off WIDTH */  
-			if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1)) begin : multi_local
+			if (( TOPOLOGY == "RING" || TOPOLOGY == "LINE" || TOPOLOGY == "MESH" || TOPOLOGY == "TORUS") && (T3>1) && (CAST_TYPE== "UNICAST")) begin : multi_local
 				/* verilator lint_on WIDTH */  
 				// the router has multiple local ports. Save the destination local port 
                 

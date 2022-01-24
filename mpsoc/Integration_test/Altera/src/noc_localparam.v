@@ -36,7 +36,7 @@
     localparam SELF_LOOP_EN="YES";
     localparam CAST_TYPE = "UNICAST";
 	localparam MCAST_ENDP_LIST = 'b11110011;	
-	localparam MCAST_PRTLw=6;
+	//localparam MCAST_PRTLw=6;
 	
 	
 	

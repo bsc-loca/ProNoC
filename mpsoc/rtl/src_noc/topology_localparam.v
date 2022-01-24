@@ -266,7 +266,9 @@ localparam
        //Destination endpoint(s) address width
       
               
-        DAw_OFFSETw  =  (TOPOLOGY=="MESH" || TOPOLOGY=="TORUS")?  NX : 0, 
+        DAw_OFFSETw  =  (TOPOLOGY=="MESH" || TOPOLOGY=="TORUS" ||  TOPOLOGY=="FMESH")?  NX : 0, 
+        
+        MCAST_PRTLw = mcast_partial_width(),
         
         MCASTw =
             (CAST_TYPE == "MULTICAST_FULL") ? NE :
@@ -345,7 +347,20 @@ localparam
             end
             end
         end
-    endfunction         
+    endfunction  
+    
+    function automatic integer mcast_partial_width;
+        integer i=0;
+        integer size = $bits(MCAST_ENDP_LIST);
+        begin 
+            mcast_partial_width=0;
+            for (i=0;i<size;i++) begin
+                if (MCAST_ENDP_LIST [i]==1'b1) mcast_partial_width++;
+            end
+        end   
+    endfunction
+    
+    
    
  `endif
 

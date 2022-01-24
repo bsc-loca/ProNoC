@@ -2,6 +2,6 @@ Verification Results:
 ****************************mesh_4x4_2cycle_mcast_f : Compile *******************************:
 	 model is generated successfully.
 ****************************mesh_4x4_2cycle_mcast_f	: random traffic *******************************:
-	 Passed:   zero load (5,15.2151) saturation (30,357.163)
+	 Passed:   zero load (2,14.7167) saturation (22,242.263)
 ****************************mesh_4x4_2cycle_mcast_f	: transposed 1 traffic *******************************:
-	 Passed:   zero load (5,15.1289) saturation (30,228.516)
+	 Passed:   zero load (2,14.7712) saturation (26,190.714)

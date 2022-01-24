@@ -294,6 +294,7 @@ void reverse(char str1[], int index, int size)
 }
 
 char * mcast_list_array;
+unsigned int MCAST_PRTLw=0;
 
 void mcast_init(){
 	char * temp_str;
@@ -323,7 +324,7 @@ void mcast_init(){
 		mcast_list_array[i*4+3] = (ch & 0x8)>>3;
 	}
 
-	//for (i=0;i<NE;i++) printf("a[%d]=%d\n",i,mcast_list_array[i]);
+	for (i=0;i<NE;i++) if(mcast_list_array[i] ==1) MCAST_PRTLw++;
 
 }
 

@@ -813,8 +813,8 @@ if($topology ne '"CUSTOM"' ){
 		$n="'h".$n;  
 		$mpsoc->object_add_attribute('noc_param',"MCAST_ENDP_LIST",$n);
 		$mpsoc->object_add_attribute_order('noc_param',"MCAST_ENDP_LIST");
-		$mpsoc->object_add_attribute('noc_param',"MCAST_PRTLw",$NE);
-		$mpsoc->object_add_attribute_order('noc_param',"MCAST_PRTLw");
+	#	$mpsoc->object_add_attribute('noc_param',"MCAST_PRTLw",$NE);
+	#	$mpsoc->object_add_attribute_order('noc_param',"MCAST_PRTLw");
 		$cast=$n;
     }
     
@@ -1192,7 +1192,7 @@ sub set_multicast_list{
 		my $s=get_multicast_val ($mpsoc,$entry,$NE,@check);
 		my $n=$entry->get_text( );
 		$mpsoc->object_add_attribute('noc_param',"MCAST_ENDP_LIST",$n);	
-		$mpsoc->object_add_attribute('noc_param',"MCAST_PRTLw",$s);
+	#	$mpsoc->object_add_attribute('noc_param',"MCAST_PRTLw",$s);
 		set_gui_status($mpsoc,"ref",1);	
 		$window->destroy;
 	});

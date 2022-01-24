@@ -741,7 +741,8 @@ module testbench_noc;
 		$display ("\tNumber of multihop bypass (SMART max):%0d",SMART_MAX);
 		$display ("\tCastying type:%s.",CAST_TYPE);
 		if (CAST_TYPE == "MULTICAST_PARTIAL" || CAST_TYPE == "BROADCAST_PARTIAL")begin
-			$display ("\tCAST LIST:%s", MCAST_ENDP_LIST);
+			$display ("\tNumber of nodes in Cast list:%d",   MCAST_PRTLw);
+			$display ("\tCAST LIST:%b", MCAST_ENDP_LIST);
 		end	
 		$display ("NoC parameters:----------------");		
 		$display ("Simulation parameters-------------");

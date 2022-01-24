@@ -1,0 +1,25 @@
+Verification Results:
+****************************mesh_2x2_openpiton_mcast_f : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_4x4_2cycle_mcast_f : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_4x4_selflp_mcast_f : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_4x4x2_mcast_p : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_2x2_openpiton_mcast_f	: random traffic *******************************:
+	 Passed:   zero load (2,9.68421) saturation (100,-)
+****************************mesh_4x4_2cycle_mcast_f	: random traffic *******************************:
+	 Passed:   zero load (2,14.7167) saturation (22,242.263)
+****************************mesh_4x4_selflp_mcast_f	: random traffic *******************************:
+	 Passed:   zero load (2,14.3215) saturation (46,85.2641)
+****************************mesh_4x4x2_mcast_p	: random traffic *******************************:
+	 Passed:   zero load (2,12.1418) saturation (10,340.847)
+****************************mesh_2x2_openpiton_mcast_f	: transposed 1 traffic *******************************:
+	 Passed:   zero load (18,9.24931) saturation (74,79.051)
+****************************mesh_4x4_2cycle_mcast_f	: transposed 1 traffic *******************************:
+	 Passed:   zero load (2,14.7712) saturation (26,190.714)
+****************************mesh_4x4_selflp_mcast_f	: transposed 1 traffic *******************************:
+	 Passed:   zero load (2,14.7687) saturation (26,187.048)
+****************************mesh_4x4x2_mcast_p	: transposed 1 traffic *******************************:
+	 Passed:   zero load (2,12.1953) saturation (10,249.837)

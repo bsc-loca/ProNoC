@@ -293,23 +293,31 @@ make sim
 }
 
 sub get_model_names {
-	my ($mref) = @_;
+	my ($mref,$inref) = @_;
 	my @models = @{$mref};
+	my ($paralel_run,$MIN,$MAX,$STEP,$model_dir)=@{$inref};
+	my $full_path;
+	$full_path = "$model_dir" if (-d "$model_dir");
+	$full_path = "$dirname/$model_dir" if (-d "$dirname/$model_dir");
+	if (!defined  $full_path){
+		 die "Error the model directory  $model_dir or $dirname/$model_dir is not found\n";	
+	}
 	my @m;
 	if(scalar @models == 0){
-		@m = glob("$dirname/models/*");
+		@m = glob("$full_path/*");
 		return @m;
 	}
 	foreach my $p (@models) {
-		push (@m,"$dirname/models/$p");
+		push (@m,"$full_path/$p");
 	}
 	return @m;
 }
 
 
 sub gen_models {
-	my ($mref) = @_;
-	my @models = get_model_names($mref);
+	my ($mref, $inref) = @_;
+	my @models = get_model_names(@_);
+	
 
     mkdir("$work", 0700);
 	foreach my $m (@models){
@@ -373,7 +381,7 @@ sub compile_models{
     my ($paralel_run,$MIN,$MAX,$STEP) = @{$inref};
 	
 
-	my @models = get_model_names($mref);
+	my @models = get_model_names($mref,$inref);
 	
 	#generate compile command
 	my $i=0;
@@ -416,9 +424,9 @@ sub check_compilation_log {
 
 
 sub check_compilation {
-	my ($self,$ref1,$ref2,$mref)=@_;
+	my ($self,$ref1,$inref,$mref)=@_;
 	
-	my @models = get_model_names($mref);
+	my @models = get_model_names($mref,$inref);
 
 	foreach my $m (@models){
 		my ($name,$fpath,$fsuffix) = fileparse("$m",qr"\..[^.]*$");
@@ -426,11 +434,11 @@ sub check_compilation {
 		#check if testbench is generated successfully	
 		if(-f "$work/$name/obj_dir/testbench"){
 			append_text_to_file($report,"\t model is generated successfully.\n"); 
-			check_compilation_log($name,$ref1,$ref2);
+			check_compilation_log($name,$ref1,$inref);
 
 		}else{
 			append_text_to_file($report,"\t model generation is FAILED.\n"); 
-			check_compilation_log($name,$ref1,$ref2);
+			check_compilation_log($name,$ref1,$inref);
 		}
 
 	}
@@ -440,7 +448,7 @@ sub check_compilation {
 sub run_all_models {
 	my ($self,$inref,$mref) =@_;
     my ($paralel_run,$MIN,$MAX,$STEP) = @{$inref};
-	my @models = get_model_names($mref);	
+	my @models = get_model_names($mref,$inref);	
     foreach my $m (@models){
 		run_traffic ($self,$m,'random',$inref);
 	}

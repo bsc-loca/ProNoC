@@ -82,7 +82,7 @@ Verification Results:
 ****************************mesh_2x2_openpiton	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,8.56164) saturation (100,-)
 ****************************mesh_4x4_2cycle_mcast_f	: transposed 1 traffic *******************************:
-	 Passed:   zero load (2,14.85) saturation (26,155.544)
+	 Passed:   zero load (2,14.7712) saturation (26,190.714)
 ****************************mesh_4x4x3_2cycle_xy	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,12.9047) saturation (14,131.745)
 ****************************mesh_8x8_2cycle_adaptive	: transposed 1 traffic *******************************:

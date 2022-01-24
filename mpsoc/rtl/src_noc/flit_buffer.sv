@@ -953,7 +953,7 @@ module fwft_fifo_with_output_clear #(
 			assign recieve_more_than_1  = ~( depth == {DEPTH_DATA_WIDTH{1'b0}} ||  depth== 1 );
 			assign out_sel  = (recieve_more_than_1)  ? 1'b1 : 1'b0;
 			assign out_ld = (depth !=0 )?  rd_en : wr_en;
-			assign depth_2 = depth-2'd2;       
+			assign depth_2 = depth-'d2;       
 			assign mux_sel = depth_2[MUX_SEL_WIDTH-1   :   0]  ;   
    
 		end else if  ( MAX_DEPTH == 2) begin :mw2   
