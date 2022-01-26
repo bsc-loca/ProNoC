@@ -26,7 +26,7 @@ extern "C" void connection_init (
     
 }
 
-extern "C" void c_epi_interface ( 
+extern "C" void c_dpi_interface ( 
         svLogic startCom, svLogic getData, svLogic ejectReq, svLogic *endCom, svLogic *newReq, 
         svBitVec32 source_all[RN], svBitVec32 destination_all[RN], 
         svBitVec32 address_all[RN], svBitVec32 opcode_all[RN], 

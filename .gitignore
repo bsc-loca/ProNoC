@@ -1,6 +1,7 @@
 */my_password.sh
 *.bak
 *.swp
+*.vstf
 
 */transcript
 */vsim.wlf
@@ -18,3 +19,5 @@ mpsoc/remove_cycle/test/*
 mpsoc/script/synfull/*.o
 mpsoc/script/synfull/*.so
 mpsoc/mpsoc_work/
+
+mpsoc/script/synfull/tgen

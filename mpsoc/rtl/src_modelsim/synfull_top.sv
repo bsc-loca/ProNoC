@@ -19,7 +19,9 @@ module synfull_top;
 	
 	pck_injct_t pck_injct_in [NE-1 : 0];
 	pck_injct_t pck_injct_out[NE-1 : 0];
-	
+
+    logic [NE-1 : 0] init_socket     ;
+    logic [NE-1 : 0] wakeup_synfull  ;
 	
 	noc_top 	the_noc
 	(
@@ -28,6 +30,17 @@ module synfull_top;
 		.chan_in_all(chan_in_all),
 		.chan_out_all(chan_out_all)  
 	);
+
+
+    top_dpi_interface synfull (
+        .clk_i         (clk), 
+        .rst_i         (reset),
+        .init_i        (init_socket[0]),
+        .startCom_i    (wakeup_synfull[0]),
+        .endCom_o      ()  
+    );
+
+
 		
 	reg [NEw-1 : 0] dest_id [NE-1 : 0];
 	wire [NEw-1: 0] current_e_addr [NE-1 : 0];
@@ -61,6 +74,8 @@ module synfull_top;
 			reset = 1'b1;
 			k=0;
 			pck_injct_in[i].data =0;
+			init_socket[i] = 1'b0;
+			wakeup_synfull[i] = 1'b0;
 			#10
 			pck_injct_in[i].class_num=0; 
 			pck_injct_in[i].init_weight=1;
@@ -69,6 +84,13 @@ module synfull_top;
 			#100
 			@(posedge clk) #1;
 			reset=1'b0;
+            #100
+			init_socket[i] = 1'b1;
+			#20
+			init_socket[i] = 1'b0;
+			#100
+			wakeup_synfull[i] = 1'b1;
+            /*
 			#100
 			@(posedge clk) #1;
 			if(i==1) begin 
@@ -87,15 +109,12 @@ module synfull_top;
 
 				#8000
 			@(posedge clk) $stop;
-
 			end
+		*/	
 			
-			
-			
-			
-			
-			
-		end
+	    #8000
+		@(posedge clk) $stop;	
+    end
 		
 		always @(posedge clk) begin
 			if(pck_injct_out[i].pck_wr) begin 

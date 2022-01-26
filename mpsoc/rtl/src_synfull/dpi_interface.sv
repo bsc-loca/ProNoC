@@ -19,7 +19,7 @@
 
 localparam NE = 4*4*2 ;
 localparam NUM_OF_RNs = 16; //TODO: tmp
-module top_epi_interface (
+module top_dpi_interface (
     input   logic  clk_i, rst_i  ,
     input   logic                                  init_i                          ,
     input   logic                                  startCom_i                      ,
