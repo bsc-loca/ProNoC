@@ -1,5 +1,6 @@
 */my_password.sh
 *.bak
+*.swp
 
 */transcript
 */vsim.wlf
@@ -13,3 +14,7 @@ mpsoc/perl_gui/lib/soc/*.SOC
 mpsoc/src_c/netrace-1.0/*.o
 mpsoc/remove_cycle/test/*
 
+
+mpsoc/script/synfull/*.o
+mpsoc/script/synfull/*.so
+mpsoc/mpsoc_work/
