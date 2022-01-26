@@ -203,7 +203,7 @@ module packet_injector
 		
 		logic [V-1 : 0] credit_o, credit_o_next;
 		
-		pronoc_register #(.W(3),.RESET_TO(HEADER) ) reg1 (.in(flit_type_next ), .out(flit_type), .reset(reset), .clk(clk));
+		//pronoc_register #(.W(3),.RESET_TO(HEADER) ) reg1 (.in(flit_type_next ), .out(flit_type), .reset(reset), .clk(clk));
 		pronoc_register #(.W(PCK_SIZw)) reg2 (.in(counter_next ), .out(counter), .reset(reset), .clk(clk));
 		pronoc_register #(.W(CNTw))     reg3 (.in(counter2_next ), .out(counter2), .reset(reset), .clk(clk));
 		pronoc_register #(.W(V))     reg4 (.in(credit_o_next ), .out(credit_o), .reset(reset), .clk(clk));
@@ -215,7 +215,10 @@ module packet_injector
 				else credit_o_next = {V{1'b0}};		
 		end	
 		
-		
+		always @(`pronoc_clk_reset_edge)begin 
+			if(`pronoc_reset) flit_type<=HEADER;
+			else flit_type <= flit_type_next;			
+		end
 	
 	
 		

@@ -12,8 +12,9 @@ if { [info exists $::env(LM_FILE_LIST)] } {
   exit(1)
 }
 
-set top pck_injector_test
+#set top pck_injector_test
 #set top multicast_test
+set top synfull_top
 
 set rtl_work $::env(LM_WORK_PLACE)/rtl_work
 
