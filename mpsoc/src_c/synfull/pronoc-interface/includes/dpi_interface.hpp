@@ -6,7 +6,7 @@
 #include "socketstream.h"
 #include "messages.h"
 
-#define NE 48
+#define NE 4*4*2
 #define RN 16
 
 //***************************************************************************

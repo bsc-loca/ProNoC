@@ -19,5 +19,6 @@ mpsoc/remove_cycle/test/*
 mpsoc/script/synfull/*.o
 mpsoc/script/synfull/*.so
 mpsoc/mpsoc_work/
-
 mpsoc/script/synfull/tgen
+mpsoc/script/synfull/vsim.wlf
+mpsoc/script/synfull/wave.do

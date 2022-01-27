@@ -99,10 +99,12 @@ extern "C" void c_dpi_interface (
     if (startCom == 1 && getData == 1) 
     {
         //cout << "\n*** new clock *** " << endl;
+        
         while ( process_more )
         {
             // read message
             _connection_manager->readMsg();
+            
 
             switch(_msg->type)
             { 
@@ -122,86 +124,18 @@ extern "C" void c_dpi_interface (
                         cout << "\n*** INJECT_REQ *** " << endl;
                         _req = (InjectReqMsg*) _msg;
                         _connection_manager->sendAckReqMsg(); 
-                        msgDone =(_req->coType == 1 || _req->coType == 2 || _req->coType == 5);
                         noreq = 0;
 
-                        if((_req->coType==1 && _req->msgType==1)  || 
-                                (_req->coType == 2 && _req->msgType==2) ||
-                                (_req->coType == 5 && _req->msgType==2)) //only read for the moment
-                        {    
-                            node_dst =_connection_manager->getPronocEndPoint(_req->dest);
-                            node_src =_connection_manager->getPronocEndPoint(_req->source);
-                             
-                            //cout << "id:" << _req->id << " src:" 
-                            //    << _req->source << " dst:" << _req->dest 
-                            //    << " mt:" << _req->msgType << " ct:" << _req->coType << " addr:" << _req->address  
-                            //    << " p.src:" << node_src << " p.dst:" << node_dst << endl;
-                            cout << "id:" << _req->id << " mt:" << _req->msgType << " ct:" << _req->coType 
-                                << " node src:" << node_src << " node dst:" << node_dst << endl;
+                        address_all[_req->source]     = _req->address     ;
+                        destination_all[_req->source] = _req->dest        ;
+                        source_all[_req->source]      = _req->source      ;
+                        opcode_all[_req->source]      = _req->coType      ;
+                        id_all[_req->source]          = _req->id          ;
+                        valid_all[_req->source]       = 1                 ;
 
-                            toDataPort=(_req->coType == 2 && _req->msgType == 2);
-                            toRspPort=(_req->coType == 5 && _req->msgType == 2);
+                        cout << "id:" << _req->id << " mt:" << _req->msgType << " ct:" << _req->coType 
+                            << " src:" << _req->source << " dst:" << _req->dest << endl;
 
-                            if( node_src >= 16 || node_dst >= 16 )
-                            {
-                                cout << "Error: node out of range"<< endl;
-                            }
-
-                            if( _req->source%2 )
-                            {
-                                if ( _req->coType == 2 && _req->msgType == 2)
-                                {
-                                    //cout << "Main Memory response"<< endl;
-                                }
-                                else
-                                {
-                                    //cout << "It's a directory request"<< endl;
-                                    //if(_req->id==16){cout << "ID === 16 (1)" <<  endl;}
-                                    hn_source_all[node_src]      = node_src       ;
-                                    hn_opcode_all[node_src]      = _connection_manager->getChiOpc(_req->coType,_req->msgType)   ;
-                                    hn_destination_all[node_src] = node_dst       ;
-                                    hn_address_all[node_src]     = _req->address  ;
-                                    hn_pkgid_all[node_src]       = _req->id       ;
-                                    hn_valid_all[node_src]       = msgDone        ;      
-                                }
-                            }
-                            else 
-                            {
-                                if (toDataPort)
-                                {
-                                    //cout << "It's a data response"<< endl;
-                                    datrn_address_all[node_src]     = _req->address     ;
-                                    datrn_destination_all[node_src] = node_dst          ;
-                                    datrn_source_all[node_src]      = node_src          ;
-                                    datrn_opcode_all[node_src]      = _connection_manager->getChiOpc(_req->coType,_req->msgType) ;
-                                    datrn_pkgid_all[node_src]       = _req->id          ;
-                                    datrn_valid_all[node_src]       = msgDone           ;
-                                }
-                                else if (toRspPort)
-                                {
-                                    //cout << "It's a Ack response"<< endl;
-                                    rsp_address_all[node_src]     = _req->address     ;
-                                    rsp_destination_all[node_src] = node_dst          ;
-                                    rsp_source_all[node_src]      = node_src          ;
-                                    rsp_opcode_all[node_src]      = _connection_manager->getChiOpc(_req->coType,_req->msgType) ;
-                                    rsp_pkgid_all[node_src]       = _req->id          ;
-                                    rsp_valid_all[node_src]       = msgDone           ;
-                                }
-                                else
-                                {
-                                    address_all[node_src]     = _req->address     ;
-                                    destination_all[node_src] = node_dst          ;
-                                    source_all[node_src]      = node_src          ;
-                                    opcode_all[node_src]      = _connection_manager->getChiOpc(_req->coType,_req->msgType) ;
-                                    id_all[node_src]          = _req->id          ;
-                                    valid_all[node_src]       = msgDone           ;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            cout << "---------- NO INJECTED ---------"<< endl;
-                        }
 
                         break;
                     }
@@ -218,32 +152,7 @@ extern "C" void c_dpi_interface (
                                     _eject_buffer.push(_res);
                                     rtrn_valid_all_[k] = 0;
                                 }
-                            } 
-                            for(int k=0; k<NE; k++)
-                            {
-                                if (rtrndat_valid_all_[k] == 1){
-                                    _res.id =  rtrndat_pkgid_all[k];
-                                    _eject_buffer.push(_res);
-                                    rtrndat_valid_all_[k] = 0;
-                                }
-                            } 
-                            for(int k=0; k<NE; k++)
-                            {
-                                if (rtrnrsp_valid_all_[k] == 1){
-                                    _res.id =  rtrnrsp_pkgid_all[k];
-                                    _eject_buffer.push(_res);
-                                    rtrnrsp_valid_all_[k] = 0;
-                                }
-                            } 
-                            //fwd request - request to same RN node
-                            for(int k=0; k<RN; k++)
-                            {
-                                if (fwd_idv_all_[k] == 1){
-                                    _res.id = fwd_id_all[k];
-                                    _eject_buffer.push(_res);
-                                    fwd_idv_all_[k] = 0;
-                                }
-                            } 
+                            }
                         }
                         else
                         {
@@ -264,8 +173,19 @@ extern "C" void c_dpi_interface (
                         
                         break;
                     }
+                case QUIT_REQ:
+                    {
+                        // acknowledge quit
+                        QuitResMsg res;
+                        *_channel << res;
+
+                        *endCom = '1'; // signal that we're done
+
+                        break;
+                    }
                 default:
                     {
+                        cout << "<ERROR:> Unknown message type: " << _msg->type << endl;
                         break;
                     }
             

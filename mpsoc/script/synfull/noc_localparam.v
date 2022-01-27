@@ -58,7 +58,7 @@
 	localparam FIRST_ARBITER_EXT_P_EN=1;
 	localparam SWA_ARBITER_TYPE="RRA";
 	localparam WEIGHTw=4;
-	localparam SELF_LOOP_EN="NO";
+	localparam SELF_LOOP_EN="YES";
 	localparam AVC_ATOMIC_EN=0;
 	localparam CVw=(C==0)? V : C * V;
 	localparam CLASS_SETTING={CVw{1'b1}};
