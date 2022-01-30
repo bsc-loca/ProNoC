@@ -141,6 +141,7 @@ extern "C" void c_dpi_interface (
                         if(ejectReq == 1)
                         {
                             //cout << "\n*** EJECT_REQ *** " << endl;
+                            //*endCom = '1'; // signal that we're done
 
                             for(int k=0; k<NE; k++)
                             {
@@ -176,9 +177,7 @@ extern "C" void c_dpi_interface (
                         QuitResMsg res;
                         *_channel << res;
                         
-                        cout << "<quit>" << endl;
-
-                        *endCom = '1'; // signal that we're done
+                        *endCom = '1'; 
                         
                         process_more = false;
 
@@ -199,6 +198,7 @@ extern "C" void c_dpi_interface (
         StreamMessage::destroy(_msg);
         
     }
+
 }
 
 //*****************************************************************

@@ -7,12 +7,12 @@ localparam NE = 4*4*2 ;
 localparam NUM_OF_RNs = 16; //TODO: tmp
 
 module top_dpi_interface (
-    input   logic  clk_i, rst_i  ,
-    input   logic                                  init_i                          ,
-    input   logic                                  startCom_i                      ,
-    input   deliver_t [NE-1:0]                     pronoc_synfull_del_all_i        ,
-    output  req_t [NE-1:0]                         synfull_pronoc_req_all_o        ,
-    output  logic                                  endCom_o                             
+    input   logic               clk_i, rst_i  ,
+    input   logic               init_i                          ,
+    input   logic               startCom_i                      ,
+    input   deliver_t [NE-1:0]  pronoc_synfull_del_all_i        ,
+    output  req_t     [NE-1:0]  synfull_pronoc_req_all_o        ,
+    output  logic               endCom_o                             
 );
 
 
@@ -137,6 +137,7 @@ logic newReq              ;
 logic isldst              ;
 logic ready_connection    ;
 logic eject_req           ;
+logic endCom              ;
 
 logic [NE-1:0] valid_check ;
 
@@ -218,8 +219,6 @@ end
 endgenerate
 
 assign eject_req = !(valid_check=='0);
-
-
 
 
 endmodule
