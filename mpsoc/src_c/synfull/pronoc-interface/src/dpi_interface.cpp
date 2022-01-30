@@ -110,7 +110,6 @@ extern "C" void c_dpi_interface (
             { 
                 case STEP_REQ: //2
                     {
-                    //cout << "\n*** STEP *** " << endl;
                         StepResMsg res;
                         *_channel << res;
 
@@ -121,7 +120,6 @@ extern "C" void c_dpi_interface (
                     }
                 case INJECT_REQ: //4
                     {
-                        cout << "\n*** INJECT_REQ *** " << endl;
                         _req = (InjectReqMsg*) _msg;
                         _connection_manager->sendAckReqMsg(); 
                         noreq = 0;
@@ -133,9 +131,8 @@ extern "C" void c_dpi_interface (
                         id_all[_req->source]          = _req->id          ;
                         valid_all[_req->source]       = 1                 ;
 
-                        cout << "id:" << _req->id << " mt:" << _req->msgType << " ct:" << _req->coType 
-                            << " src:" << _req->source << " dst:" << _req->dest << endl;
-
+                        //cout << "<inject> id:" << _req->id << " mt:" << _req->msgType << " ct:" << _req->coType 
+                        //    << " src:" << _req->source << " dst:" << _req->dest << endl;
 
                         break;
                     }
@@ -143,7 +140,7 @@ extern "C" void c_dpi_interface (
                     {
                         if(ejectReq == 1)
                         {
-                            cout << "\n*** EJECT_REQ *** " << endl;
+                            //cout << "\n*** EJECT_REQ *** " << endl;
 
                             for(int k=0; k<NE; k++)
                             {
@@ -164,13 +161,13 @@ extern "C" void c_dpi_interface (
                                 _eject_buffer.pop();
                                 _res.remainingRequests = _eject_buffer.size();
                                 _connection_manager->sendResMsg();
-                                cout << "id:" << _res.id << endl;
+                                //cout << "<eject> id:" << _res.id << endl;
                         }
                         else
                         {
                             _connection_manager->sendResMsg();
                         }
-                        
+                         
                         break;
                     }
                 case QUIT_REQ:
@@ -178,8 +175,12 @@ extern "C" void c_dpi_interface (
                         // acknowledge quit
                         QuitResMsg res;
                         *_channel << res;
+                        
+                        cout << "<quit>" << endl;
 
                         *endCom = '1'; // signal that we're done
+                        
+                        process_more = false;
 
                         break;
                     }

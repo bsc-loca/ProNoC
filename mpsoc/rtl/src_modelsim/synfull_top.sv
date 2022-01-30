@@ -24,6 +24,7 @@ module synfull_top;
 
     logic [NE-1 : 0] init_socket     ;
     logic [NE-1 : 0] wakeup_synfull  ;
+    logic [NE-1 : 0] end_injection   ;
 
     req_t     [NE-1 : 0] synfull_pronoc_req_all  ;
     deliver_t [NE-1 : 0] pronoc_synfull_del_all  ;
@@ -44,7 +45,7 @@ module synfull_top;
         .startCom_i    (wakeup_synfull[0]),
         .pronoc_synfull_del_all_i(pronoc_synfull_del_all),  
         .synfull_pronoc_req_all_o(synfull_pronoc_req_all),
-        .endCom_o      ()  
+        .endCom_o      (end_injection[0])  
     );
 
 
@@ -135,8 +136,10 @@ module synfull_top;
             end
         */  
             
-        #800000
-        @(posedge clk) $stop;   
+            //#800000
+            while (end_injection[0]==1'b0) @(posedge clk)   #1;
+
+            @(posedge clk) $stop;   
     end
         
         always @(posedge clk) begin
@@ -147,21 +150,16 @@ module synfull_top;
             
         end
         
+        always @(posedge clk) begin
+            if(end_injection[0]) begin 
+                $display ("*** END ***");
+            end     
+        end
     
       
     end//for
     endgenerate
-       
-    
-
-
-
-    
-    
-
-    
-    
-
+   
 endmodule
 // synthesis translate_on
 

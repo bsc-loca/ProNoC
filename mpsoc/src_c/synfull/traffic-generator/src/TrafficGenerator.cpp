@@ -124,16 +124,10 @@ void sendPacket(InjectReqMsg& req) {
         inTransitTransactions[req.address].dest = req.dest;
         inTransitTransactions[req.address].invs_sent = 0;
         inTransitTransactions[req.address].acks_received = 0;
-    
-    //cout << "synfull injects starter packet id: " << req.id << " src:"<< req.source 
-    // << " dst:" << req.dest << " addr:" << req.address << " " << cycle  << endl;
-    
     }
     messageId++;
     
-    //cout << "synfull injects packet id: " << req.id << " src:"<< req.source 
-    // << " dst:" << req.dest << " addr:" << req.address << " " << cycle  << endl; 
-    cout << "synfull injects packet id: " << req.id << " " << cycle  << endl;
+    //cout << "synfull injects packet id: " << req.id << " " << cycle  << endl;
 
     inTransitPackets[req.id] = req;
     //printPacket(req);
@@ -286,10 +280,7 @@ void react(EjectResMsg ePacket) {
     InjectReqMsg response;
     inTransitPackets.erase(it);
 
-    //cout << "synfull received packet id: " << request.id << " src:"<< request.source 
-    //    << " dst:" << request.dest << " ct:" << request.coType << " mt:" << request.msgType 
-    //    << " addr:" << request.address << " " << cycle  << endl;
-    cout << "synfull received packet id: " << request.id << " " << cycle  << endl;
+    //cout << "synfull received packet id: " << request.id << " " << cycle  << endl;
 
     map<int, transaction_t>::iterator trans = inTransitTransactions.find(request.address);
 
@@ -308,13 +299,6 @@ void react(EjectResMsg ePacket) {
                     cerr << "Error: Invalid destination for forwarded request." << endl;
                     exit();
                 }
-                
-                //if(request.id==48)
-                //{
-                //    cout << "synfull packet debug  id: " << request.id << " src:"<< request.dest 
-                //        << " dst:" << destination << 
-                //           " addr:" << request.address << " " << cycle  << endl;
-                //}
 
                 QueuePacket(request.dest, destination, REQUEST, request.coType,
                         CONTROL_SIZE, cycle + 1, request.address);

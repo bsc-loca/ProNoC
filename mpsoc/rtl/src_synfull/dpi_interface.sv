@@ -270,7 +270,6 @@ endgenerate
 assign eject_req = !(valid_check=='0);
 
 
-
 //genvar k;
 //generate     
 //for(k=0;k<NUM_OF_RNs;k=k+1)begin
