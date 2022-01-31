@@ -27,47 +27,11 @@ extern "C" void connection_init (
 }
 
 extern "C" void c_dpi_interface ( 
-        svLogic startCom, svLogic getData, svLogic ejectReq, svLogic *endCom, svLogic *newReq, 
-        svBitVec32 source_all[RN], svBitVec32 destination_all[RN], 
-        svBitVec32 address_all[RN], svBitVec32 opcode_all[RN], 
-        svBitVec32 id_all[RN], svBitVec32 valid_all[RN],
-        svBitVec32 rtrn_source_all[NE]          ,
-        svBitVec32 rtrn_opcode_all[NE]          ,
-        svBitVec32 rtrn_destination_all[NE]     ,
-        svBitVec32 rtrn_address_all[NE]         ,
-        svBitVec32 rtrn_pkgid_all[NE]           ,
-        svBitVec32 rtrn_valid_all[NE]           ,       
-        svBitVec32 rtrndat_source_all[NE]       ,
-        svBitVec32 rtrndat_opcode_all[NE]       ,
-        svBitVec32 rtrndat_destination_all[NE]  ,
-        svBitVec32 rtrndat_pkgid_all[NE]        ,
-        svBitVec32 rtrndat_valid_all[NE]        ,       
-        svBitVec32 rtrnrsp_source_all[NE]       ,
-        svBitVec32 rtrnrsp_opcode_all[NE]       ,
-        svBitVec32 rtrnrsp_destination_all[NE]  ,
-        svBitVec32 rtrnrsp_pkgid_all[NE]        ,
-        svBitVec32 rtrnrsp_valid_all[NE]        ,       
-        svBitVec32 hn_source_all[RN]            ,
-        svBitVec32 hn_opcode_all[RN]            ,
-        svBitVec32 hn_destination_all[RN]       ,
-        svBitVec32 hn_address_all[RN]           ,
-        svBitVec32 hn_pkgid_all[RN]             ,
-        svBitVec32 hn_valid_all[RN]             ,       
-        svBitVec32 datrn_source_all[RN]         ,
-        svBitVec32 datrn_opcode_all[RN]         ,
-        svBitVec32 datrn_destination_all[RN]    ,
-        svBitVec32 datrn_address_all[RN]        ,
-        svBitVec32 datrn_pkgid_all[RN]          ,
-        svBitVec32 datrn_valid_all[RN]          ,       
-        svBitVec32 rsp_source_all[RN]           ,
-        svBitVec32 rsp_opcode_all[RN]           ,
-        svBitVec32 rsp_destination_all[RN]      ,
-        svBitVec32 rsp_address_all[RN]          ,
-        svBitVec32 rsp_pkgid_all[RN]            ,
-        svBitVec32 rsp_valid_all[RN]            ,  
-        svBitVec32 fwd_id_all[RN]               ,
-        svBitVec32 fwd_idv_all[RN]              ,  
-        svBitVec32 NEready_all[RN]              
+        svLogic startCom, svLogic getData, svLogic ejectReq, svLogic *endCom, 
+        svLogic *newReq, svBitVec32 source_all[RN], svBitVec32 destination_all[RN], 
+        svBitVec32 address_all[RN], svBitVec32 opcode_all[RN], svBitVec32 id_all[RN], 
+        svBitVec32 valid_all[RN], svBitVec32 rtrn_pkgid_all[NE], 
+        svBitVec32 rtrn_valid_all[NE], svBitVec32 NEready_all[RN]              
         )
 {
 
@@ -82,25 +46,17 @@ extern "C" void c_dpi_interface (
     int toRspPort=0;
 
     int rtrn_valid_all_[NE];    
-    int rtrndat_valid_all_[NE];
-    int rtrnrsp_valid_all_[NE];
-    int fwd_idv_all_[RN];
 
 
-    for(int i=0; i<NE; i++) {valid_all[i] = 0;}
-    for(int i=0; i<RN; i++) {fwd_idv_all_[i] = fwd_idv_all[i];}
-
-    for(int i=0; i<NE; i++) 
-    {
-        rtrn_valid_all_[i]    = rtrn_valid_all[i];
-        rtrndat_valid_all_[i] = rtrndat_valid_all[i];    
-        rtrnrsp_valid_all_[i] = rtrnrsp_valid_all[i];
+    for(int i=0; i<NE; i++) {
+        valid_all[i] = 0;
+        rtrn_valid_all_[i] = rtrn_valid_all[i];
     }
+
 
     if (startCom == 1 && getData == 1) 
     {
-        //cout << "\n*** new clock *** " << endl;
-        
+        //cout << "\n*** new clock *** " << endl; 
         while ( process_more )
         {
             // read message

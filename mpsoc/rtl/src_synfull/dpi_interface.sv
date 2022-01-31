@@ -4,7 +4,6 @@ import dpi_int_pkg::*;
 
 
 localparam NE = 4*4*2 ;
-localparam NUM_OF_RNs = 16; //TODO: tmp
 
 module top_dpi_interface (
     input   logic               clk_i, rst_i  ,
@@ -29,42 +28,8 @@ import "DPI-C" function void c_dpi_interface (
     output  int    opcode_all[NE]                    ,
     output  int    id_all[NE]                        ,
     output  int    valid_all[NE]                     ,
-    input   int    rtrn_source_all[NE]               ,
-    input   int    rtrn_opcode_all[NE]               ,
-    input   int    rtrn_destination_all[NE]          ,
-    input   int    rtrn_address_all[NE]              ,
     input   int    rtrn_pkgid_all[NE]                ,
     input   int    rtrn_valid_all[NE]                ,       
-    input   int    rtrn_dat_source_all[NE]           ,
-    input   int    rtrn_dat_opcode_all[NE]           ,
-    input   int    rtrn_dat_destination_all[NE]      ,
-    input   int    rtrn_dat_pkgid_all[NE]            ,
-    input   int    rtrn_dat_valid_all[NE]            ,       
-    input   int    rtrn_rsp_source_all[NE]           ,
-    input   int    rtrn_rsp_opcode_all[NE]           ,
-    input   int    rtrn_rsp_destination_all[NE]      ,
-    input   int    rtrn_rsp_pkgid_all[NE]            ,
-    input   int    rtrn_rsp_valid_all[NE]            ,       
-    output  int    snp_source_all[NUM_OF_RNs]        ,
-    output  int    snp_opcode_all[NUM_OF_RNs]        ,
-    output  int    snp_destination_all[NUM_OF_RNs]   ,
-    output  int    snp_address_all[NUM_OF_RNs]       ,
-    output  int    snp_pkgid_all[NUM_OF_RNs]         ,
-    output  int    snp_valid_all[NUM_OF_RNs]         ,       
-    output  int    datrn_source_all[NUM_OF_RNs]      ,
-    output  int    datrn_opcode_all[NUM_OF_RNs]      ,
-    output  int    datrn_destination_all[NUM_OF_RNs] ,
-    output  int    datrn_address_all[NUM_OF_RNs]     ,
-    output  int    datrn_pkgid_all[NUM_OF_RNs]       ,
-    output  int    datrn_valid_all[NUM_OF_RNs]       ,        
-    output  int    rsp_source_all[NUM_OF_RNs]        ,
-    output  int    rsp_opcode_all[NUM_OF_RNs]        ,
-    output  int    rsp_destination_all[NUM_OF_RNs]   ,
-    output  int    rsp_address_all[NUM_OF_RNs]       ,
-    output  int    rsp_pkgid_all[NUM_OF_RNs]         ,
-    output  int    rsp_valid_all[NUM_OF_RNs]         ,       
-    input   int    fwd_id_all[NUM_OF_RNs]            ,
-    input   int    fwd_idv_all[NUM_OF_RNs]           ,         
     input   int    NEready_all[NE]                                     
 );
 
@@ -88,57 +53,11 @@ int syn_address_all[NE]         ;
 int syn_pkgid_all[NE]           ;
 int syn_valid_all[NE]           ;
 
-int chi_req_source_all[NE]      ;
-int chi_req_opcode_all[NE]      ;
-int chi_req_destination_all[NE] ;
-int chi_req_address_all[NE]     ;
 int chi_req_pkgid_all[NE]       ;
 int chi_req_valid_all[NE]       ;
 
-int chi_dat_source_all[NE]      ;
-int chi_dat_opcode_all[NE]      ;
-int chi_dat_destination_all[NE] ;
-//int chi_dat_address_all[NE]     ;
-int chi_dat_pkgid_all[NE]       ;
-int chi_dat_valid_all[NE]       ;
-
-int syn_hn_source_all[16]       ;
-int syn_hn_opcode_all[16]       ;
-int syn_hn_destination_all[16]  ;
-int syn_hn_address_all[16]      ;
-int syn_hn_pkgid_all[16]        ;
-int syn_hn_valid_all[16]        ;
-
-int syn_drn_source_all[16]      ;
-int syn_drn_opcode_all[16]      ;
-int syn_drn_destination_all[16] ;
-int syn_drn_address_all[16]     ;
-int syn_drn_pkgid_all[16]       ;
-int syn_drn_valid_all[16]       ;
-
-int syn_rsp_source_all[16]      ;
-int syn_rsp_opcode_all[16]      ;
-int syn_rsp_destination_all[16] ;
-int syn_rsp_address_all[16]     ;
-int syn_rsp_pkgid_all[16]       ;
-int syn_rsp_valid_all[16]       ;
-
-int fwd_id_all_d[16]       ;
-int fwd_idv_all_d[16]      ;
-int fwd_id_all_q[16]       ;
-int fwd_idv_all_q[16]      ;
-logic[15:0] fwd_bit_idv_all_q      ;
-logic[15:0] fwd_bit_idv_all_d      ;
-
-int chi_rsp_source_all[NE]      ;
-int chi_rsp_opcode_all[NE]      ;
-int chi_rsp_destination_all[NE] ;
-int chi_rsp_pkgid_all[NE]       ;
-int chi_rsp_valid_all[NE]       ;
-
 logic newData             ;
 logic newReq              ;
-logic isldst              ;
 logic ready_connection    ;
 logic eject_req           ;
 logic endCom              ;
@@ -166,42 +85,8 @@ always_ff @(posedge clk_i) begin
         syn_opcode_all              , 
         syn_pkgid_all               , 
         syn_valid_all               ,
-        chi_req_source_all          ,  
-        chi_req_opcode_all          ,  
-        chi_req_destination_all     ,  
-        chi_req_address_all         ,  
         chi_req_pkgid_all           ,  
         chi_req_valid_all           ,           
-        chi_dat_source_all          ,  
-        chi_dat_opcode_all          ,  
-        chi_dat_destination_all     ,  
-        chi_dat_pkgid_all           ,  
-        chi_dat_valid_all           ,           
-        chi_rsp_source_all          ,
-        chi_rsp_opcode_all          ,
-        chi_rsp_destination_all     ,
-        chi_rsp_pkgid_all           ,
-        chi_rsp_valid_all           ,
-        syn_hn_source_all           ,  
-        syn_hn_opcode_all           ,  
-        syn_hn_destination_all      ,  
-        syn_hn_address_all          ,  
-        syn_hn_pkgid_all            ,  
-        syn_hn_valid_all            ,                     
-        syn_drn_source_all          ,  
-        syn_drn_opcode_all          ,  
-        syn_drn_destination_all     ,  
-        syn_drn_address_all         ,  
-        syn_drn_pkgid_all           ,  
-        syn_drn_valid_all           ,          
-        syn_rsp_source_all          ,  
-        syn_rsp_opcode_all          ,  
-        syn_rsp_destination_all     ,  
-        syn_rsp_address_all         ,  
-        syn_rsp_pkgid_all           ,  
-        syn_rsp_valid_all           ,
-        fwd_id_all_q                ,
-        fwd_idv_all_q               ,
         NEready_all                     
     );
 end
