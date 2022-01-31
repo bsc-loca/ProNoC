@@ -30,7 +30,7 @@
 # 
 # vlog  +acc=rn  -F $::env(LM_FILE_LIST)
 # QuestaSim-64 vlog 2020.4 Compiler 2020.10 Oct 13 2020
-# Start time: 13:22:44 on Jan 28,2022
+# Start time: 11:58:11 on Jan 31,2022
 # vlog -reportprogress 300 "+acc=rn" -F /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/script/synfull/modelsim_filelist.f 
 # -- Compiling package pronoc_pkg
 # -- Compiling module pronoc_register
@@ -284,38 +284,16 @@
 # -- Compiling module pck_injector_test
 # -- Compiling module synfull_top
 # -- Importing package dpi_int_pkg
-# ** Warning: ../../rtl/src_synfull/dpi_interface.sv(31): (vlog-13314) Defaulting port 'pronoc_synfull_del_all_i' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: ../../rtl/src_synfull/dpi_interface.sv(14): (vlog-13314) Defaulting port 'pronoc_synfull_del_all_i' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
 # -- Compiling package dpi_interface_sv_unit
 # -- Compiling module top_dpi_interface
-# ** Warning: ../../rtl/src_synfull/dpi_interface.sv(31): (vlog-13314) Defaulting port 'pronoc_synfull_del_all_i' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-# 
-# Top level modules:
-# 	pronoc_register_ld_en
-# 	outport_sum
-# 	set_bits_counter
-# 	fast_minimum_number
-# 	start_delay_gen
-# 	my_one_hot_arbiter_ext_priority
-# 	arbiter_ext_priority
-# 	vc_priority_based_dest_port
-# 	noc_top_v
-# 	wrra
-# 	rra_priority_lock
-# 	mesh_torus_next_router_inport_predictor
-# 	remove_receive_port_one_hot
-# 	onehot_mux_1D_reverse
-# 	traffic_gen_top
-# 	deadlock_detector
-# 	iport_reg_base
-# 	mesh_torus_dtrmn_dest_encoder
-# 	router_top_v
-# 	packet_injector_verilator
-# 	pck_class_in_gen
-# 	pck_dst_gen
-# 	pck_injector_test
-# 	synfull_top
-# End time: 13:22:45 on Jan 28,2022, Elapsed time: 0:00:01
-# Errors: 0, Warnings: 4
-# 
-# vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  $top -sv_lib $DPI_LIB
-# Errors: 0, Warnings: 0
+# ** Warning: ../../rtl/src_synfull/dpi_interface.sv(14): (vlog-13314) Defaulting port 'pronoc_synfull_del_all_i' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Error: ../../rtl/src_synfull/dpi_interface.sv(156): Number of actuals and formals does not match in function call.
+# ** Error: ../../rtl/src_synfull/dpi_interface.sv(156): Number of actuals and formals does not match in function call.
+# End time: 11:58:11 on Jan 31,2022, Elapsed time: 0:00:00
+# Errors: 2, Warnings: 4
+# ** Error: /opt/questasim/questasim/linux_x86_64/vlog failed.
+# Error in macro ./model.tcl line 33
+# /opt/questasim/questasim/linux_x86_64/vlog failed.
+#     while executing
+# "vlog  +acc=rn  -F $::env(LM_FILE_LIST)"

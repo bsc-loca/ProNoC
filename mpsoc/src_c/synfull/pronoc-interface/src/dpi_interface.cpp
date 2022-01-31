@@ -66,7 +66,8 @@ extern "C" void c_dpi_interface (
         svBitVec32 rsp_pkgid_all[RN]            ,
         svBitVec32 rsp_valid_all[RN]            ,  
         svBitVec32 fwd_id_all[RN]               ,
-        svBitVec32 fwd_idv_all[RN]              
+        svBitVec32 fwd_idv_all[RN]              ,  
+        svBitVec32 NEready_all[RN]              
         )
 {
 
@@ -124,6 +125,9 @@ extern "C" void c_dpi_interface (
                         _connection_manager->sendAckReqMsg(); 
                         noreq = 0;
 
+
+                        //queue
+
                         address_all[_req->source]     = _req->address     ;
                         destination_all[_req->source] = _req->dest        ;
                         source_all[_req->source]      = _req->source      ;
@@ -141,8 +145,6 @@ extern "C" void c_dpi_interface (
                         if(ejectReq == 1)
                         {
                             //cout << "\n*** EJECT_REQ *** " << endl;
-                            //*endCom = '1'; // signal that we're done
-
                             for(int k=0; k<NE; k++)
                             {
                                 if (rtrn_valid_all_[k] == 1){

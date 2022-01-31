@@ -54,7 +54,8 @@ extern "C" void c_epi_interface (
         svBitVec32 rsp_pkgid_all[RN]       ,
         svBitVec32 rsp_valid_all[RN]       ,       
         svBitVec32 fwd_id_all[RN]          ,
-        svBitVec32 fwd_idv_all[RN]              
+        svBitVec32 fwd_idv_all[RN]         ,     
+        svBitVec32 NEready_all[RN]              
         );
 
 extern "C" void connection_init ( 

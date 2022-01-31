@@ -22,6 +22,7 @@ module synfull_top;
     pck_injct_t _pck_injct_in [NE-1 : 0];
     pck_injct_t pck_injct_out[NE-1 : 0];
 
+    logic [NE-1 : 0] NE_ready_all    ;
     logic [NE-1 : 0] init_socket     ;
     logic [NE-1 : 0] wakeup_synfull  ;
     logic [NE-1 : 0] end_injection   ;
@@ -40,13 +41,13 @@ module synfull_top;
 
 
     top_dpi_interface synfull (
-        .clk_i         (clk), 
-        .rst_i         (reset),
-        .init_i        (init_socket[0]),
-        .startCom_i    (wakeup_synfull[0]),
-        .pronoc_synfull_del_all_i(pronoc_synfull_del_all),  
-        .synfull_pronoc_req_all_o(synfull_pronoc_req_all),
-        .endCom_o      (end_injection[0])  
+        .clk_i(clk), .rst_i(reset),
+        .init_i                     (init_socket[0]         ),
+        .startCom_i                 (wakeup_synfull[0]      ),
+        .pronoc_synfull_del_all_i   (pronoc_synfull_del_all ),  
+        .synfull_pronoc_req_all_o   (synfull_pronoc_req_all ),
+        .NE_ready_all_i             (NE_ready_all           ),
+        .endCom_o                   (end_injection[0]       )  
     );
 
         
@@ -58,12 +59,13 @@ module synfull_top;
     for(i=0; i< NE; i=i+1) begin : endpoints
         //from synfull 
         assign pck_injct_in[i].data = synfull_pronoc_req_all[i].id;
-        assign pck_injct_in[i].size = 1;
+        assign pck_injct_in[i].size = 10;
         assign pck_injct_in[i].pck_wr = synfull_pronoc_req_all[i].valid;    
         assign dest_id[i] = synfull_pronoc_req_all[i].dest;             
         //to synfull
         assign pronoc_synfull_del_all[i].id    = pck_injct_out[i].data   ; 
-        assign pronoc_synfull_del_all[i].valid = pck_injct_out[i].pck_wr ; 
+        assign pronoc_synfull_del_all[i].valid = pck_injct_out[i].pck_wr ;
+        assign NE_ready_all[i] = pck_injct_out[i].ready;
         
         assign pck_injct_in[i].class_num = _pck_injct_in[i].class_num; 
         assign pck_injct_in[i].init_weight = _pck_injct_in[i].init_weight;

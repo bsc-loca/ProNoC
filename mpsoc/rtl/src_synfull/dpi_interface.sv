@@ -10,6 +10,7 @@ module top_dpi_interface (
     input   logic               clk_i, rst_i  ,
     input   logic               init_i                          ,
     input   logic               startCom_i                      ,
+    input   logic     [NE-1:0]  NE_ready_all_i                  ,
     input   deliver_t [NE-1:0]  pronoc_synfull_del_all_i        ,
     output  req_t     [NE-1:0]  synfull_pronoc_req_all_o        ,
     output  logic               endCom_o                             
@@ -63,7 +64,8 @@ import "DPI-C" function void c_dpi_interface (
     output  int    rsp_pkgid_all[NUM_OF_RNs]         ,
     output  int    rsp_valid_all[NUM_OF_RNs]         ,       
     input   int    fwd_id_all[NUM_OF_RNs]            ,
-    input   int    fwd_idv_all[NUM_OF_RNs]                   
+    input   int    fwd_idv_all[NUM_OF_RNs]           ,         
+    input   int    NEready_all[NE]                                     
 );
 
 import "DPI-C" function void connection_init( 
@@ -76,6 +78,8 @@ int opcode      ;
 int source      ;
 int addr        ;
 int pkgid       ;
+
+int NEready_all[NE]             ;
 
 int syn_source_all[NE]          ;
 int syn_opcode_all[NE]          ;
@@ -197,7 +201,8 @@ always_ff @(posedge clk_i) begin
         syn_rsp_pkgid_all           ,  
         syn_rsp_valid_all           ,
         fwd_id_all_q                ,
-        fwd_idv_all_q                   
+        fwd_idv_all_q               ,
+        NEready_all                     
     );
 end
 
@@ -213,6 +218,7 @@ for(k=0;k<NE;k=k+1)begin
     //from pronoc
     assign chi_req_pkgid_all[k]       = pronoc_synfull_del_all_i[k].id       ;
     assign chi_req_valid_all[k]       = pronoc_synfull_del_all_i[k].valid    ;
+    assign NEready_all[k]             = NE_ready_all_i[k]                    ;
 
     assign valid_check[k] = pronoc_synfull_del_all_i[k].valid;
 end
