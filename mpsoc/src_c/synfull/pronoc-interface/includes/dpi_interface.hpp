@@ -13,14 +13,14 @@
 //***************************************************************************
 
 extern "C" void c_epi_interface ( 
-        svLogic startCom, svLogic getData, svLogic ejectReq, 
+        svLogic startCom, svLogic getData, svLogic ejectReq,  svLogic queueReq,
         svLogic *endCom, svLogic *newReq, 
         svBitVec32 source_all[NE], svBitVec32 destination_all[NE], 
         svBitVec32 address_all[NE], svBitVec32 opcode_all[NE], 
         svBitVec32 id_all[NE], svBitVec32 valid_all[NE],
         svBitVec32 rtrn_pkgid_all[NE]       ,
         svBitVec32 rtrn_valid_all[NE]       ,       
-        svBitVec32 NEready_all[NE]              
+        svBitVec32 NEready_all[NE], svBitVec32 size_all[NE]            
         );
 
 extern "C" void connection_init ( 
@@ -92,6 +92,7 @@ connection_manager *_connection_manager ;
 //socket communication
 StreamMessage *_msg ;
 InjectReqMsg  *_req ;
+InjectReqMsg  *_req_tmp ;
 
 EjectResMsg  _res    ;
 StepResMsg   _ackRes ;

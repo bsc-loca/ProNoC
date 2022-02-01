@@ -59,7 +59,7 @@ module synfull_top;
     for(i=0; i< NE; i=i+1) begin : endpoints
         //from synfull 
         assign pck_injct_in[i].data = synfull_pronoc_req_all[i].id;
-        assign pck_injct_in[i].size = 80;
+        assign pck_injct_in[i].size = synfull_pronoc_req_all[i].size;
         assign pck_injct_in[i].pck_wr = synfull_pronoc_req_all[i].valid;    
         assign dest_id[i] = synfull_pronoc_req_all[i].dest;             
         //to synfull
@@ -116,13 +116,13 @@ module synfull_top;
             $finish;
         end
         
-        //always @(posedge clk) begin
-        //    if(pck_injct_out[i].pck_wr) begin 
-        //        $display ("%t:pck_inj(%d) got a packet: source=%d, size=%d, data=%h",$time,i,
-        //                pck_injct_out[i].endp_addr,pck_injct_out[i].size,pck_injct_out[i].data);
-        //    end     
-        //    
-        //end
+        always @(posedge clk) begin
+			if(pck_injct_out[i].pck_wr) begin 
+				$display ("%t:pck_inj(%d) got a packet: source=%d, size=%d, data=%h",$time,i,
+						pck_injct_out[i].endp_addr,pck_injct_out[i].size,pck_injct_out[i].data);
+            end     
+
+        end
     
       
     end//for

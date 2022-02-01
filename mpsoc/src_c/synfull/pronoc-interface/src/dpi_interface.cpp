@@ -27,11 +27,17 @@ extern "C" void connection_init (
 }
 
 extern "C" void c_dpi_interface ( 
-        svLogic startCom, svLogic getData, svLogic ejectReq, svLogic *endCom, 
+        svLogic startCom, svLogic getData, svLogic ejectReq,  svLogic queueReq, svLogic *endCom, 
         svLogic *newReq, svBitVec32 source_all[NE], svBitVec32 destination_all[NE], 
         svBitVec32 address_all[NE], svBitVec32 opcode_all[NE], svBitVec32 id_all[NE], 
         svBitVec32 valid_all[NE], svBitVec32 rtrn_pkgid_all[NE], 
-        svBitVec32 rtrn_valid_all[NE], svBitVec32 NEready_all[NE]              
+        svBitVec32 rtrn_valid_all[NE], svBitVec32 NEready_all[NE], 
+        svBitVec32 size_all[NE] ,
+        svBitVec32 enqueue_valid[NE]   ,
+        svBitVec32 enqueue_src[NE]     ,
+        svBitVec32 enqueue_dst[NE]     ,
+        svBitVec32 enqueue_id[NE]      ,
+        svBitVec32 enqueue_size[NE]                      
         )
 {
 
@@ -44,19 +50,23 @@ extern "C" void c_dpi_interface (
     int node_src;
     int toDataPort=0;
     int toRspPort=0;
+    int id_cnt=0;
 
     int rtrn_valid_all_[NE];    
-
+    int _enqueue_valid[NE] ;
 
     for(int i=0; i<NE; i++) {
         valid_all[i] = 0;
         rtrn_valid_all_[i] = rtrn_valid_all[i];
+        _enqueue_valid[i] = enqueue_valid[i];
     }
 
 
     if (startCom == 1 && getData == 1) 
     {
-        //cout << "\n*** new clock *** " << endl; 
+        //cout << "\n*** new clock *** " << endl
+        
+        
         while ( process_more )
         {
             // read message
@@ -69,6 +79,44 @@ extern "C" void c_dpi_interface (
                     {
                         StepResMsg res;
                         *_channel << res;
+                        
+                        if (queueReq == 1)
+                        {
+                            // enqueue packets from pronoc
+                            for(int k=0; k<NE; k++)
+                            {
+                                if (_enqueue_valid[k] == 1){
+                                    _req->size    = enqueue_size[k];
+                                    _req->dest    = enqueue_dst[k];
+                                    _req->source  = enqueue_src[k];
+                                    _req->id      = enqueue_id[k];
+
+                                    if (_inject_buffer.empty()) 
+                                    {
+                                        _inject_buffer.push(_req);
+                                        //cout << "<enqueue> id: " << _req->id << endl;
+                                    }
+                                    else
+                                    {
+                                        int quesize = _inject_buffer.size();
+                                        for(int i=0;i<quesize;i++)
+                                        {
+                                            _req_tmp = _inject_buffer.front();
+                                            _inject_buffer.pop();
+                                            if ( _req->id == _req_tmp->id ) id_cnt++;
+                                            _inject_buffer.push(_req_tmp);
+                                        }
+                                        if(id_cnt == 0)
+                                        {
+                                            _inject_buffer.push(_req);
+                                            //cout << "<enqueue> id: " << _req->id << endl;
+                                        }
+                                        id_cnt=0;
+                                    }
+                                    _enqueue_valid[k] = 0;
+                                }
+                            }
+                        }
     
                         //dequeue packets to send to pronoc
                         if (!_inject_buffer.empty()) {
@@ -78,20 +126,21 @@ extern "C" void c_dpi_interface (
                                 _req = _inject_buffer.front();
                                 _inject_buffer.pop();
 
-                                if(NEready_all[_req->source] & !(valid_all[_req->source]))
+                                if(NEready_all[_req->source] == 1 & valid_all[_req->source] == 0)
                                 {
                                     address_all[_req->source]     = _req->address     ;
+                                    size_all[_req->source]        = _req->packetSize  ;
                                     destination_all[_req->source] = _req->dest        ;
                                     source_all[_req->source]      = _req->source      ;
                                     opcode_all[_req->source]      = _req->coType      ;
                                     id_all[_req->source]          = _req->id          ;
                                     valid_all[_req->source]       = 1                 ;
-                                    cout << "<inject> id: " << _req->id << " src: " << _req->source << " dst: " << _req->dest << endl;
+                                    //cout << "<inject> id: " << _req->id << " src: " << _req->source << " dst: " << _req->dest << " size: " << _req->size << endl;
                                 }
                                 else
                                 {
                                     _inject_buffer.push(_req);
-                                    cout << "<wait> id: " << _req->id << endl;
+                                    //cout << "<wait> id: " << _req->id << endl;
                                 }
 
                             }
@@ -119,12 +168,12 @@ extern "C" void c_dpi_interface (
                     }
                 case EJECT_REQ:  //6
                     {
-                        if(ejectReq)
+                        if(ejectReq == 1)
                         {
                             //cout << "\n*** EJECT_REQ *** " << endl;
                             for(int k=0; k<NE; k++)
                             {
-                                if (rtrn_valid_all_[k]){
+                                if (rtrn_valid_all_[k] == 1){
                                     _res.id =  rtrn_pkgid_all[k];
                                     _eject_buffer.push(_res);
                                     rtrn_valid_all_[k] = 0;
