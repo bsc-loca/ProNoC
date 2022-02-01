@@ -59,7 +59,7 @@ module synfull_top;
     for(i=0; i< NE; i=i+1) begin : endpoints
         //from synfull 
         assign pck_injct_in[i].data = synfull_pronoc_req_all[i].id;
-        assign pck_injct_in[i].size = 10;
+        assign pck_injct_in[i].size = 80;
         assign pck_injct_in[i].pck_wr = synfull_pronoc_req_all[i].valid;    
         assign dest_id[i] = synfull_pronoc_req_all[i].dest;             
         //to synfull

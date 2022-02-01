@@ -28,10 +28,10 @@ extern "C" void connection_init (
 
 extern "C" void c_dpi_interface ( 
         svLogic startCom, svLogic getData, svLogic ejectReq, svLogic *endCom, 
-        svLogic *newReq, svBitVec32 source_all[RN], svBitVec32 destination_all[RN], 
-        svBitVec32 address_all[RN], svBitVec32 opcode_all[RN], svBitVec32 id_all[RN], 
-        svBitVec32 valid_all[RN], svBitVec32 rtrn_pkgid_all[NE], 
-        svBitVec32 rtrn_valid_all[NE], svBitVec32 NEready_all[RN]              
+        svLogic *newReq, svBitVec32 source_all[NE], svBitVec32 destination_all[NE], 
+        svBitVec32 address_all[NE], svBitVec32 opcode_all[NE], svBitVec32 id_all[NE], 
+        svBitVec32 valid_all[NE], svBitVec32 rtrn_pkgid_all[NE], 
+        svBitVec32 rtrn_valid_all[NE], svBitVec32 NEready_all[NE]              
         )
 {
 
@@ -69,6 +69,34 @@ extern "C" void c_dpi_interface (
                     {
                         StepResMsg res;
                         *_channel << res;
+    
+                        //dequeue packets to send to pronoc
+                        if (!_inject_buffer.empty()) {
+                            int quesize = _inject_buffer.size();
+                            
+                            for(int i=0;i<quesize;i++){
+                                _req = _inject_buffer.front();
+                                _inject_buffer.pop();
+
+                                if(NEready_all[_req->source] & !(valid_all[_req->source]))
+                                {
+                                    address_all[_req->source]     = _req->address     ;
+                                    destination_all[_req->source] = _req->dest        ;
+                                    source_all[_req->source]      = _req->source      ;
+                                    opcode_all[_req->source]      = _req->coType      ;
+                                    id_all[_req->source]          = _req->id          ;
+                                    valid_all[_req->source]       = 1                 ;
+                                    cout << "<inject> id: " << _req->id << " src: " << _req->source << " dst: " << _req->dest << endl;
+                                }
+                                else
+                                {
+                                    _inject_buffer.push(_req);
+                                    cout << "<wait> id: " << _req->id << endl;
+                                }
+
+                            }
+                        }
+                        //cout << "<end cycle>" << endl;
 
                         // fall-through and increment your network one cycle
                         process_more = false;
@@ -81,15 +109,8 @@ extern "C" void c_dpi_interface (
                         _connection_manager->sendAckReqMsg(); 
                         noreq = 0;
 
-
-                        //queue
-
-                        address_all[_req->source]     = _req->address     ;
-                        destination_all[_req->source] = _req->dest        ;
-                        source_all[_req->source]      = _req->source      ;
-                        opcode_all[_req->source]      = _req->coType      ;
-                        id_all[_req->source]          = _req->id          ;
-                        valid_all[_req->source]       = 1                 ;
+                            //enqueue packets from synfull
+                            _inject_buffer.push(_req);
 
                         //cout << "<inject> id:" << _req->id << " mt:" << _req->msgType << " ct:" << _req->coType 
                         //    << " src:" << _req->source << " dst:" << _req->dest << endl;
@@ -98,12 +119,12 @@ extern "C" void c_dpi_interface (
                     }
                 case EJECT_REQ:  //6
                     {
-                        if(ejectReq == 1)
+                        if(ejectReq)
                         {
                             //cout << "\n*** EJECT_REQ *** " << endl;
                             for(int k=0; k<NE; k++)
                             {
-                                if (rtrn_valid_all_[k] == 1){
+                                if (rtrn_valid_all_[k]){
                                     _res.id =  rtrn_pkgid_all[k];
                                     _eject_buffer.push(_res);
                                     rtrn_valid_all_[k] = 0;

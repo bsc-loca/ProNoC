@@ -7,7 +7,6 @@
 #include "messages.h"
 
 #define NE 4*4*2
-#define RN 16
 
 //***************************************************************************
 // DPI-C interface
@@ -16,12 +15,12 @@
 extern "C" void c_epi_interface ( 
         svLogic startCom, svLogic getData, svLogic ejectReq, 
         svLogic *endCom, svLogic *newReq, 
-        svBitVec32 source_all[RN], svBitVec32 destination_all[RN], 
-        svBitVec32 address_all[RN], svBitVec32 opcode_all[RN], 
-        svBitVec32 id_all[RN], svBitVec32 valid_all[RN],
+        svBitVec32 source_all[NE], svBitVec32 destination_all[NE], 
+        svBitVec32 address_all[NE], svBitVec32 opcode_all[NE], 
+        svBitVec32 id_all[NE], svBitVec32 valid_all[NE],
         svBitVec32 rtrn_pkgid_all[NE]       ,
         svBitVec32 rtrn_valid_all[NE]       ,       
-        svBitVec32 NEready_all[RN]              
+        svBitVec32 NEready_all[NE]              
         );
 
 extern "C" void connection_init ( 
@@ -99,6 +98,7 @@ StepResMsg   _ackRes ;
 InjectResMsg _ackReq ; 
 
 queue<EjectResMsg> _eject_buffer;
+queue<InjectReqMsg*> _inject_buffer;
 
 //tmp
 RequestPacket *rp;

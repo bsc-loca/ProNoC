@@ -43,23 +43,26 @@ int opcode      ;
 int source      ;
 int addr        ;
 int pkgid       ;
-
 int NEready_all[NE]             ;
-
 int syn_source_all[NE]          ;
 int syn_opcode_all[NE]          ;
 int syn_destination_all[NE]     ;
 int syn_address_all[NE]         ;
 int syn_pkgid_all[NE]           ;
 int syn_valid_all[NE]           ;
-
 int chi_req_pkgid_all[NE]       ;
 int chi_req_valid_all[NE]       ;
+
+int enque_dst_all[NE]      ;
+int enque_src_all[NE]      ;
+int enque_id_all[NE]       ; 
+int enque_req_valid[NE]    ; 
 
 logic newData             ;
 logic newReq              ;
 logic ready_connection    ;
 logic eject_req           ;
+logic enque_req           ;
 logic endCom              ;
 
 logic [NE-1:0] valid_check ;
@@ -72,7 +75,8 @@ always_ff @(posedge clk_i) begin
 end
 
 // trace injection
-always_ff @(posedge clk_i) begin 
+//always_ff @(posedge clk_i) begin 
+always @* begin 
     c_dpi_interface(
         startCom_i&ready_connection ,
         clk_i                       ,
@@ -87,7 +91,7 @@ always_ff @(posedge clk_i) begin
         syn_valid_all               ,
         chi_req_pkgid_all           ,  
         chi_req_valid_all           ,           
-        NEready_all                     
+        NEready_all                    
     );
 end
 
@@ -95,7 +99,7 @@ genvar k;
 generate     
 for(k=0;k<NE;k=k+1)begin
     //to pronoc
-    assign synfull_pronoc_req_all_o[k].dest  =  syn_destination_all[k];
+    assign synfull_pronoc_req_all_o[k].dest  = syn_destination_all[k];
     assign synfull_pronoc_req_all_o[k].src   = syn_source_all[k];
     assign synfull_pronoc_req_all_o[k].id    = syn_pkgid_all[k];
     assign synfull_pronoc_req_all_o[k].valid = syn_valid_all[k][0];
@@ -106,10 +110,15 @@ for(k=0;k<NE;k=k+1)begin
     assign NEready_all[k]             = NE_ready_all_i[k]                    ;
 
     assign valid_check[k] = pronoc_synfull_del_all_i[k].valid;
+
+     always @* begin
+         if(syn_valid_all[k][0] & !NE_ready_all_i[k]) begin 
+             $display ("not injected because the router injector is not ready: %d", syn_pkgid_all[k]);
+         end      
+     end
 end
 endgenerate
 
 assign eject_req = !(valid_check=='0);
-
 
 endmodule
