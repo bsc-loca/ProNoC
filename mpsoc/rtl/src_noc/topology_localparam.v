@@ -342,7 +342,7 @@ localparam
         end else begin
             mcast_list =MCAST_ENDP_LIST;
             endp_id_to_mcast_id=0;
-            for (i=0;i<endp_id;i++) begin 
+            for (i=0;i<endp_id;i=i+1) begin 
                 if( mcast_list[i]==1'b1) endp_id_to_mcast_id=endp_id_to_mcast_id+1;
             end
             end
@@ -354,8 +354,8 @@ localparam
         integer size = $bits(MCAST_ENDP_LIST);
         begin 
             mcast_partial_width=0;
-            for (i=0;i<size;i++) begin
-                if (MCAST_ENDP_LIST [i]==1'b1) mcast_partial_width++;
+            for (i=0;i<size;i=i+1) begin
+                if (MCAST_ENDP_LIST [i]==1'b1) mcast_partial_width=mcast_partial_width+1;
             end
         end   
     endfunction
