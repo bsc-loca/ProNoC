@@ -1396,7 +1396,12 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src, unsigned char * inject_e
 
 	}
 
+#if (C>1)
+	if(sent_stat[src][traffic[src]->flit_out_class].pck_num & 0xFF){//sent 255 packets
+#else
 	if(sent_stat[src].pck_num & 0xFF){//sent 255 packets
+#endif
+
 			//printf("uu=%u\n",task.jnjct_var);
 			update_injct_var(src, task.jnjct_var);
 

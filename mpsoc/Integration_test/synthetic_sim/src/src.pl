@@ -53,22 +53,7 @@ sub gen_noc_param_h{
 		#print "$p:$val\n";
 		
 	}
-	my $class=$mpsoc->object_get_attribute('noc_param',"C");
-	my $str;
-	if( $class > 1){
-		for (my $i=0; $i<=$class-1; $i++){
-			my $n="Cn_$i";
-			my $val=$mpsoc->object_get_attribute('class_param',$n);
-			$param_h=$param_h."\t#define $n\t$val\n";
-		}
-		$str="CLASS_SETTING  {";
-		for (my $i=$class-1; $i>=0;$i--){
-			$str=($i==0)?  "${str}Cn_0};\n " : "${str}Cn_$i,";
-		}
-	}else {
-		$str="CLASS_SETTING={V{1\'b1}}\n";
-	}	
-	#add_text_to_string (\$param_h,"\t#define $str");
+	
 	 
 	my $v=$mpsoc->object_get_attribute('noc_param',"V")-1;
 	my $escape=$mpsoc->object_get_attribute('noc_param',"ESCAP_VC_MASK");

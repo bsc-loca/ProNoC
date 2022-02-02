@@ -324,7 +324,7 @@ localparam
                 if( mcast_list[mcast_id_to_endp_id]==1'b1) begin 
                    k=k+1;            
                 end
-                mcast_id_to_endp_id++;       
+                mcast_id_to_endp_id= mcast_id_to_endp_id+1;       
             end
         end
         end
