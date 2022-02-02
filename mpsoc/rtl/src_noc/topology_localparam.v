@@ -268,7 +268,7 @@ localparam
               
         DAw_OFFSETw  =  (TOPOLOGY=="MESH" || TOPOLOGY=="TORUS" ||  TOPOLOGY=="FMESH")?  NX : 0, 
         
-        MCAST_PRTLw = mcast_partial_width(),
+        MCAST_PRTLw = mcast_partial_width( MCAST_ENDP_LIST),
         
         MCASTw =
             (CAST_TYPE == "MULTICAST_FULL") ? NE :
@@ -349,13 +349,16 @@ localparam
         end
     endfunction  
     
+  
+    
     function automatic integer mcast_partial_width;
-        integer i=0;
-        integer size = $bits(MCAST_ENDP_LIST);
+        input [NE-1 : 0] p;
+        integer i;      
         begin 
+            
             mcast_partial_width=0;
-            for (i=0;i<size;i=i+1) begin
-                if (MCAST_ENDP_LIST [i]==1'b1) mcast_partial_width=mcast_partial_width+1;
+            for (i=0;i<NE;i=i+1) begin
+                if (p [i]==1'b1) mcast_partial_width=mcast_partial_width+1;
             end
         end   
     endfunction

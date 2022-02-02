@@ -218,7 +218,7 @@ localparam
 	localparam 
 		ST_NUM = (STATISTIC_EN>0) ? statistic.num() : 0,
 		ST_Aw  = log2(ST_NUM),
-		ST_Dw  = (STATISTIC_EN>0) ? 1 : 32;	
+		ST_Dw  = (STATISTIC_EN>0) ? 32 : 1;	
     
 	
 		
