@@ -53,10 +53,17 @@ module synfull_top;
         
     reg [NEw-1 : 0] dest_id [NE-1 : 0];
     wire [NEw-1: 0] current_e_addr [NE-1 : 0];
+    
+    reg [63 : 0]  total_sent_pck_count;
+    reg [63 : 0]  total_sent_flit_count;
+    reg [63 : 0]  total_rsv_pck_count;
+    reg [63 : 0]  total_rsv_flit_count;
+    reg [63 : 0]  clk_count;
+    
         
     genvar i;
     generate 
-    for(i=0; i< NE; i=i+1) begin : endpoints
+    for(i=0; i< NE; i=i+1) begin 
         //from synfull 
         assign pck_injct_in[i].data = synfull_pronoc_req_all[i].id;
         assign pck_injct_in[i].size = synfull_pronoc_req_all[i].size;
@@ -92,12 +99,17 @@ module synfull_top;
         
         
        reg [31:0]k;
+       
+      
+       
 
         initial begin 
             reset = 1'b1;
             k=0;
             init_socket[i] = 1'b0;
             wakeup_synfull[i] = 1'b0;
+           
+            
             @(posedge clk) #1;
             _pck_injct_in[i].class_num=0; 
             _pck_injct_in[i].init_weight=1;
@@ -113,20 +125,57 @@ module synfull_top;
             wakeup_synfull[i] = 1'b1;
             @(posedge clk) #1;
             while (!end_injection[0]) @(posedge clk) #1;
+            
+            $display ( "Statistics:");
+            $display ( "\t simulation clk count = %d",   clk_count);
+            $display ( "\t Total sent packets = %d", total_sent_pck_count);
+			$display ( "\t Total sent flits = %d", 	 total_sent_flit_count);  
+			$display ( "\t Total received packets = %d", total_rsv_pck_count);
+			$display ( "\t Total received flits = %d", 	 total_rsv_flit_count);  
+            
+            
             $finish;
         end
         
         always @(posedge clk) begin
 			if(pck_injct_out[i].pck_wr) begin 
 				$display ("%t:pck_inj(%d) got a packet: source=%d, size=%d, data=%h",$time,i,
-						pck_injct_out[i].endp_addr,pck_injct_out[i].size,pck_injct_out[i].data);
-            end     
-
+				pck_injct_out[i].endp_addr,pck_injct_out[i].size,pck_injct_out[i].data);
+									
+			end		
         end
     
       
     end//for
     endgenerate
+    
+    integer k;
+     
+    always @(posedge clk) begin
+    	if(reset) begin 
+    		clk_count =0;
+    		total_sent_pck_count =0;
+    		total_sent_flit_count=0;
+    		total_rsv_pck_count  =0;
+    		total_rsv_flit_count =0;        		
+    	end else begin          	
+    		clk_count++;
+    		for(k=0; k< NE; k=k+1) begin : endpoints    		
+	    		if(pck_injct_out[k].pck_wr) begin 
+	    			total_rsv_pck_count++;
+	    			total_rsv_flit_count+=pck_injct_out[k].size;				
+	    		end 
+	    		if(pck_injct_in[k].pck_wr) begin 
+	    			total_sent_pck_count++;
+	    			total_sent_flit_count+=pck_injct_in[k].size;				
+	    		end 
+	    		
+    		end	
+	    end
+
+    end
+    
+    
    
 endmodule
 // synthesis translate_on

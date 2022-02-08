@@ -46,7 +46,7 @@
 	localparam MIN_PCK_SIZE=1;
 	localparam BYTE_EN=0;
 	localparam SSA_EN="NO";
-	localparam SMART_MAX=0;
+	localparam SMART_MAX=1;
 	localparam CONGESTION_INDEX=3;
 	localparam ESCAP_VC_MASK=1;
 	localparam VC_REALLOCATION_TYPE="NONATOMIC";

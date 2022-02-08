@@ -1,7 +1,7 @@
 # //  Questa Sim-64
-# //  Version 2020.4 linux_x86_64 Oct 13 2020
+# //  Version 10.7c linux_x86_64 Aug 17 2018
 # //
-# //  Copyright 1991-2020 Mentor Graphics Corporation
+# //  Copyright 1991-2018 Mentor Graphics Corporation
 # //  All Rights Reserved.
 # //
 # //  QuestaSim and its associated documentation contain trade
@@ -14,24 +14,24 @@
 # //
 # do model.tcl
 # /mtitcl/vsim
-# /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/script/synfull
-# /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/script/synfull/dpi_interface
+# /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/synfull
+# /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/synfull/dpi_interface
 # synfull_top
-# /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/mpsoc_work/simulation/rtl_work
+# /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work
 # if {[file exists $rtl_work]} {
 # 	vdel -lib $rtl_work -all
 # }
 # vlib $rtl_work
 # vmap work $rtl_work
-# QuestaSim-64 vmap 2020.4 Lib Mapping Utility 2020.10 Oct 13 2020
-# vmap work /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/mpsoc_work/simulation/rtl_work 
+# QuestaSim-64 vmap 10.7c Lib Mapping Utility 2018.08 Aug 17 2018
+# vmap work /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work 
 # Modifying modelsim.ini
 # 
 # 
 # vlog  +acc=rn  -F $::env(LM_FILE_LIST)
-# QuestaSim-64 vlog 2020.4 Compiler 2020.10 Oct 13 2020
-# Start time: 13:29:09 on Feb 01,2022
-# vlog -reportprogress 300 "+acc=rn" -F /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/script/synfull/modelsim_filelist.f 
+# QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
+# Start time: 17:46:38 on Feb 08,2022
+# vlog -reportprogress 300 "+acc=rn" -F /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/synfull/modelsim_filelist.f 
 # -- Compiling package pronoc_pkg
 # -- Compiling module pronoc_register
 # -- Compiling module pronoc_register_reset_init
@@ -245,7 +245,12 @@
 # -- Compiling module line_ring_destp_decoder
 # -- Compiling module mesh_torus_dynamic_portsel_control
 # -- Compiling module mesh_torus_multicast_dst_sel
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./mesh_torus.sv(1879): (vlog-2576) [BSOB] - Bit-select into 'destport_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./mesh_torus.sv(1880): (vlog-2576) [BSOB] - Bit-select into 'arb_in' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./mesh_torus.sv(1900): (vlog-2576) [BSOB] - Bit-select into 'destport_out' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./mesh_torus.sv(1901): (vlog-2576) [BSOB] - Bit-select into 'arb_out' is out of bounds.
 # -- Compiling module ring_line_multicast_dst_sel
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./mesh_torus.sv(1925): (vlog-2576) [BSOB] - Bit-select into 'arb_in' is out of bounds.
 # -- Compiling module check_flit_chanel_type_is_in_order
 # -- Compiling module debug_mesh_tori_route_ckeck
 # -- Compiling module debug_mesh_edges
@@ -264,15 +269,16 @@
 # -- Compiling module fmesh_destp_decoder
 # -- Compiling module fmesh_distance_gen
 # -- Compiling module packet_injector
-# ** Warning: /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/rtl/src_noc/./packet_injector.sv(139): (vlog-2697) LSB 32 of part-select into 'data' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./packet_injector.sv(139): (vlog-2697) LSB of part-select into 'data' is out of bounds.
 # -- Compiling module injector_ovc_status
 # -- Compiling module packet_injector_verilator
 # -- Compiling module multicast_dst_sel
 # -- Compiling module multicast_routing
 # -- Compiling module mcast_dest_list_decode
 # -- Compiling module multicast_chan_in_process
-# ** Warning: /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/rtl/src_noc/./multicast.sv(407): (vlog-2697) MSB 5 of part-select into 'dest_e_addr' is out of bounds.
+# ** Warning: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_noc/./multicast.sv(407): (vlog-2697) MSB of part-select into 'dest_e_addr' is out of bounds.
 # -- Compiling package dpi_int_pkg_sv_unit
+# -- Importing package pronoc_pkg
 # -- Compiling package dpi_int_pkg
 # -- Compiling module pck_class_in_gen
 # -- Compiling module pck_dst_gen
@@ -286,6 +292,8 @@
 # -- Importing package dpi_int_pkg
 # ** Warning: ../../rtl/src_synfull/dpi_interface.sv(13): (vlog-13314) Defaulting port 'pronoc_synfull_del_all_i' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
 # -- Compiling package dpi_interface_sv_unit
+# -- Importing package pronoc_pkg
+# -- Importing package dpi_int_pkg
 # -- Compiling module top_dpi_interface
 # ** Warning: ../../rtl/src_synfull/dpi_interface.sv(13): (vlog-13314) Defaulting port 'pronoc_synfull_del_all_i' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
 # 
@@ -314,16 +322,15 @@
 # 	pck_dst_gen
 # 	pck_injector_test
 # 	synfull_top
-# End time: 13:29:10 on Feb 01,2022, Elapsed time: 0:00:01
-# Errors: 0, Warnings: 4
+# End time: 17:46:38 on Feb 08,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 9
 # 
 # vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  $top -sv_lib $DPI_LIB
-# vsim -t 1ps -L /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/mpsoc_work/simulation/rtl_work -L work -voptargs=""+acc"" synfull_top -sv_lib /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/script/synfull/dpi_interface 
-# Start time: 13:29:10 on Feb 01,2022
+# vsim -t 1ps -L /home/alireza/work/git/hca_git/mpsoc_work/simulation/rtl_work -L work -voptargs=""+acc"" synfull_top -sv_lib /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/synfull/dpi_interface 
+# Start time: 17:46:38 on Feb 08,2022
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Warning: ../../rtl/src_synfull/dpi_interface.sv(13): (vopt-13314) Defaulting port 'pronoc_synfull_del_all_i' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
 # ** Note: (vopt-143) Recognized 1 FSM in module "packet_injector(fast)".
-# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=1.
 # Loading sv_std.std
 # Loading work.pronoc_pkg(fast)
 # Loading work.dpi_int_pkg(fast)
@@ -345,8 +352,8 @@
 # Loading work.mesh_tori_endp_addr_decode(fast)
 # Loading work.one_hot_to_bin(fast)
 # Loading work.class_ovc_table(fast)
-# Loading work.onehot_mux_1D(fast)
-# Loading work.onehot_mux_2D(fast)
+# Loading work.onehot_mux_1D(fast__2)
+# Loading work.onehot_mux_2D(fast__2)
 # Loading work.fwft_fifo(fast)
 # Loading work.pronoc_register(fast__2)
 # Loading work.pronoc_register_reset_init(fast__2)
@@ -361,8 +368,8 @@
 # Loading work.add_sw_loc_one_hot_val(fast)
 # Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast)
 # Loading work.flit_buffer(fast)
-# Loading work.onehot_mux_1D(fast__1)
-# Loading work.onehot_mux_2D(fast__1)
+# Loading work.onehot_mux_1D(fast__3)
+# Loading work.onehot_mux_2D(fast__3)
 # Loading work.fifo_ram(fast)
 # Loading work.pronoc_register(fast__4)
 # Loading work.pronoc_register_reset_init(fast__3)
@@ -376,68 +383,45 @@
 # Loading work.xy_mesh_routing(fast)
 # Loading work.mesh_tori_encode_dstport(fast)
 # Loading work.header_flit_update_lk_route_ovc(fast)
-# Loading work.onehot_mux_1D(fast__2)
-# Loading work.onehot_mux_2D(fast__2)
-# Loading work.onehot_mux_1D(fast__3)
-# Loading work.onehot_mux_2D(fast__3)
+# Loading work.onehot_mux_1D(fast)
+# Loading work.onehot_mux_2D(fast)
+# Loading work.onehot_mux_1D(fast__1)
+# Loading work.onehot_mux_2D(fast__1)
 # Loading work.debug_mesh_tori_route_ckeck(fast)
 # Loading work.input_queue_per_port(fast__1)
 # Loading work.destp_generator(fast__1)
 # Loading work.mesh_torus_destp_generator(fast__1)
-# Loading work.mesh_torus_destp_decoder(fast__1)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__1)
 # Loading work.remove_sw_loc_one_hot(fast__1)
-# Loading work.add_sw_loc_one_hot_val(fast__1)
 # Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__1)
-# Loading work.look_ahead_routing(fast__1)
-# Loading work.mesh_torus_look_ahead_routing(fast__1)
-# Loading work.mesh_torus_deterministic_look_ahead_routing(fast__1)
 # Loading work.debug_mesh_tori_route_ckeck(fast__1)
 # Loading work.input_queue_per_port(fast__2)
 # Loading work.destp_generator(fast__2)
 # Loading work.mesh_torus_destp_generator(fast__2)
-# Loading work.mesh_torus_destp_decoder(fast__2)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__2)
 # Loading work.remove_sw_loc_one_hot(fast__2)
-# Loading work.add_sw_loc_one_hot_val(fast__2)
 # Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__2)
-# Loading work.look_ahead_routing(fast__2)
-# Loading work.mesh_torus_look_ahead_routing(fast__2)
-# Loading work.mesh_torus_deterministic_look_ahead_routing(fast__2)
 # Loading work.debug_mesh_tori_route_ckeck(fast__2)
 # Loading work.input_queue_per_port(fast__3)
 # Loading work.destp_generator(fast__3)
 # Loading work.mesh_torus_destp_generator(fast__3)
-# Loading work.mesh_torus_destp_decoder(fast__3)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__3)
 # Loading work.remove_sw_loc_one_hot(fast__3)
-# Loading work.add_sw_loc_one_hot_val(fast__3)
 # Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__3)
-# Loading work.look_ahead_routing(fast__3)
-# Loading work.mesh_torus_look_ahead_routing(fast__3)
-# Loading work.mesh_torus_deterministic_look_ahead_routing(fast__3)
 # Loading work.debug_mesh_tori_route_ckeck(fast__3)
 # Loading work.input_queue_per_port(fast__4)
 # Loading work.destp_generator(fast__4)
 # Loading work.mesh_torus_destp_generator(fast__4)
-# Loading work.mesh_torus_destp_decoder(fast__4)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__4)
 # Loading work.remove_sw_loc_one_hot(fast__4)
-# Loading work.add_sw_loc_one_hot_val(fast__4)
 # Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__4)
-# Loading work.look_ahead_routing(fast__4)
-# Loading work.mesh_torus_look_ahead_routing(fast__4)
-# Loading work.mesh_torus_deterministic_look_ahead_routing(fast__4)
 # Loading work.debug_mesh_tori_route_ckeck(fast__4)
 # Loading work.input_queue_per_port(fast__5)
 # Loading work.destp_generator(fast__5)
 # Loading work.mesh_torus_destp_generator(fast__5)
-# Loading work.mesh_torus_destp_decoder(fast__5)
 # Loading work.mesh_torus_mask_non_assignable_destport(fast__5)
 # Loading work.remove_sw_loc_one_hot(fast__5)
-# Loading work.add_sw_loc_one_hot_val(fast__5)
 # Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__5)
-# Loading work.look_ahead_routing(fast__5)
 # Loading work.debug_mesh_tori_route_ckeck(fast__5)
 # Loading work.output_ports(fast)
 # Loading work.pronoc_register(fast__5)
@@ -500,7 +484,7 @@
 # Loading work.mesh_tori_addr_coder(fast)
 # Loading work.distance_gen(fast)
 # Loading work.mesh_torus_distance_gen(fast)
-# Loading /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/script/synfull/dpi_interface.so
+# Loading /home/alireza/work/git/hca_git/ProNoC/mpsoc/script/synfull/dpi_interface.so
 # 
 # add wave *
 # view structure
@@ -508,481 +492,3 @@
 # view signals
 # .main_pane.objects.interior.cs.body.tree
 # run -all
-# Listening on socket
-# Connected... 
-# <inject> id: 0 src: 20 dst: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <inject> id: 2 src: 4 dst: 5
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <inject> id: 1 src: 20 dst: 5
-# <inject> id: 3 src: 16 dst: 21
-#            173790000:pck_inj(          1) got a packet: source=10, size=   56, data=00000000
-# <inject> id: 4 src: 1 dst: 4
-# <inject> id: 5 src: 14 dst: 21
-#            174230000:pck_inj(          5) got a packet: source= 2, size=   56, data=00000002
-# <inject> id: 6 src: 5 dst: 8
-# <inject> id: 7 src: 30 dst: 5
-# <inject> id: 8 src: 18 dst: 1
-#            174910000:pck_inj(         21) got a packet: source= 8, size=   56, data=00000003
-# <inject> id: 9 src: 21 dst: 8
-# <inject> id: 10 src: 16 dst: 1
-#            175070000:pck_inj(          4) got a packet: source=16, size=   56, data=00000004
-# <inject> id: 11 src: 4 dst: 20
-#            175350000:pck_inj(          5) got a packet: source=10, size=   56, data=00000001
-# <wait> id: 12
-# <inject> id: 12 src: 5 dst: 8
-# <inject> id: 13 src: 0 dst: 23
-#            175550000:pck_inj(          8) got a packet: source=18, size=   56, data=00000006
-# <inject> id: 14 src: 8 dst: 4
-#            175590000:pck_inj(          1) got a packet: source= 9, size=   56, data=00000008
-# <inject> id: 15 src: 1 dst: 24
-# <inject> id: 16 src: 10 dst: 1
-#            176030000:pck_inj(         21) got a packet: source= 7, size=   56, data=00000005
-# <inject> id: 17 src: 6 dst: 1
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <inject> id: 21 src: 18 dst: 1
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <inject> id: 22 src: 30 dst: 1
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-#            176470000:pck_inj(          5) got a packet: source=15, size=   56, data=00000007
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 23
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 23
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <inject> id: 23 src: 5 dst: 8
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <inject> id: 19 src: 16 dst: 23
-# <wait> id: 20
-# <wait> id: 18
-# <inject> id: 20 src: 16 dst: 1
-# not injected because the router injector is not ready:          20
-# <wait> id: 18
-#            176610000: ERROR: a packet injection request is recived in core(16), vc (          0) while packet injectore was not ready. synfull_top.endpoints[16].pck_inj.V_[0]
-# ** Note: $finish    : /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/rtl/src_noc/./packet_injector.sv(368)
-#    Time: 176610 ns  Iteration: 1  Region: /synfull_top/endpoints[16]/pck_inj/V_[0]
-# 1
-# Break in Module packet_injector at /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/rtl/src_noc/./packet_injector.sv line 368
-add wave -position insertpoint  \
-sim:/synfull_top/pck_injct_in \
-sim:/synfull_top/pck_injct_out
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-8009) Loading existing optimized design _opt
-# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=1.
-# Loading work.pronoc_pkg(fast)
-# Loading work.dpi_int_pkg(fast)
-# Loading work.synfull_top(fast)
-# Loading work.noc_top(fast)
-# Loading work.mesh_torus_noc_top(fast)
-# Loading work.router_top(fast)
-# Loading work.header_flit_info(fast)
-# Loading work.check_flit_chanel_type_is_in_order(fast)
-# Loading work.pronoc_register(fast)
-# Loading work.pronoc_register_reset_init(fast)
-# Loading work.router_two_stage(fast)
-# Loading work.inout_ports(fast)
-# Loading work.input_ports(fast)
-# Loading work.input_queue_per_port(fast)
-# Loading work.pronoc_register(fast__1)
-# Loading work.pronoc_register_reset_init(fast__1)
-# Loading work.extract_header_flit_info(fast)
-# Loading work.mesh_tori_endp_addr_decode(fast)
-# Loading work.one_hot_to_bin(fast)
-# Loading work.class_ovc_table(fast)
-# Loading work.onehot_mux_1D(fast)
-# Loading work.onehot_mux_2D(fast)
-# Loading work.fwft_fifo(fast)
-# Loading work.pronoc_register(fast__2)
-# Loading work.pronoc_register_reset_init(fast__2)
-# Loading work.fwft_fifo(fast__1)
-# Loading work.pronoc_register(fast__3)
-# Loading work.destp_generator(fast)
-# Loading work.mesh_torus_destp_generator(fast)
-# Loading work.mesh_torus_destp_decoder(fast)
-# Loading work.bin_to_one_hot(fast)
-# Loading work.mesh_torus_mask_non_assignable_destport(fast)
-# Loading work.remove_sw_loc_one_hot(fast)
-# Loading work.add_sw_loc_one_hot_val(fast)
-# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast)
-# Loading work.flit_buffer(fast)
-# Loading work.onehot_mux_1D(fast__1)
-# Loading work.onehot_mux_2D(fast__1)
-# Loading work.fifo_ram(fast)
-# Loading work.pronoc_register(fast__4)
-# Loading work.pronoc_register_reset_init(fast__3)
-# Loading work.look_ahead_routing(fast)
-# Loading work.mesh_tori_router_addr_decode(fast)
-# Loading work.mesh_torus_look_ahead_routing(fast)
-# Loading work.mesh_torus_deterministic_look_ahead_routing(fast)
-# Loading work.mesh_tori_decode_dstport(fast)
-# Loading work.mesh_torus_next_router_addr_predictor(fast)
-# Loading work.mesh_torus_conventional_routing(fast)
-# Loading work.xy_mesh_routing(fast)
-# Loading work.mesh_tori_encode_dstport(fast)
-# Loading work.header_flit_update_lk_route_ovc(fast)
-# Loading work.onehot_mux_1D(fast__2)
-# Loading work.onehot_mux_2D(fast__2)
-# Loading work.onehot_mux_1D(fast__3)
-# Loading work.onehot_mux_2D(fast__3)
-# Loading work.debug_mesh_tori_route_ckeck(fast)
-# Loading work.input_queue_per_port(fast__1)
-# Loading work.destp_generator(fast__1)
-# Loading work.mesh_torus_destp_generator(fast__1)
-# Loading work.mesh_torus_destp_decoder(fast__1)
-# Loading work.mesh_torus_mask_non_assignable_destport(fast__1)
-# Loading work.remove_sw_loc_one_hot(fast__1)
-# Loading work.add_sw_loc_one_hot_val(fast__1)
-# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__1)
-# Loading work.look_ahead_routing(fast__1)
-# Loading work.mesh_torus_look_ahead_routing(fast__1)
-# Loading work.mesh_torus_deterministic_look_ahead_routing(fast__1)
-# Loading work.debug_mesh_tori_route_ckeck(fast__1)
-# Loading work.input_queue_per_port(fast__2)
-# Loading work.destp_generator(fast__2)
-# Loading work.mesh_torus_destp_generator(fast__2)
-# Loading work.mesh_torus_destp_decoder(fast__2)
-# Loading work.mesh_torus_mask_non_assignable_destport(fast__2)
-# Loading work.remove_sw_loc_one_hot(fast__2)
-# Loading work.add_sw_loc_one_hot_val(fast__2)
-# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__2)
-# Loading work.look_ahead_routing(fast__2)
-# Loading work.mesh_torus_look_ahead_routing(fast__2)
-# Loading work.mesh_torus_deterministic_look_ahead_routing(fast__2)
-# Loading work.debug_mesh_tori_route_ckeck(fast__2)
-# Loading work.input_queue_per_port(fast__3)
-# Loading work.destp_generator(fast__3)
-# Loading work.mesh_torus_destp_generator(fast__3)
-# Loading work.mesh_torus_destp_decoder(fast__3)
-# Loading work.mesh_torus_mask_non_assignable_destport(fast__3)
-# Loading work.remove_sw_loc_one_hot(fast__3)
-# Loading work.add_sw_loc_one_hot_val(fast__3)
-# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__3)
-# Loading work.look_ahead_routing(fast__3)
-# Loading work.mesh_torus_look_ahead_routing(fast__3)
-# Loading work.mesh_torus_deterministic_look_ahead_routing(fast__3)
-# Loading work.debug_mesh_tori_route_ckeck(fast__3)
-# Loading work.input_queue_per_port(fast__4)
-# Loading work.destp_generator(fast__4)
-# Loading work.mesh_torus_destp_generator(fast__4)
-# Loading work.mesh_torus_destp_decoder(fast__4)
-# Loading work.mesh_torus_mask_non_assignable_destport(fast__4)
-# Loading work.remove_sw_loc_one_hot(fast__4)
-# Loading work.add_sw_loc_one_hot_val(fast__4)
-# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__4)
-# Loading work.look_ahead_routing(fast__4)
-# Loading work.mesh_torus_look_ahead_routing(fast__4)
-# Loading work.mesh_torus_deterministic_look_ahead_routing(fast__4)
-# Loading work.debug_mesh_tori_route_ckeck(fast__4)
-# Loading work.input_queue_per_port(fast__5)
-# Loading work.destp_generator(fast__5)
-# Loading work.mesh_torus_destp_generator(fast__5)
-# Loading work.mesh_torus_destp_decoder(fast__5)
-# Loading work.mesh_torus_mask_non_assignable_destport(fast__5)
-# Loading work.remove_sw_loc_one_hot(fast__5)
-# Loading work.add_sw_loc_one_hot_val(fast__5)
-# Loading work.mesh_torus_mask_non_assignable_destport_no_self_loop(fast__5)
-# Loading work.look_ahead_routing(fast__5)
-# Loading work.debug_mesh_tori_route_ckeck(fast__5)
-# Loading work.output_ports(fast)
-# Loading work.pronoc_register(fast__5)
-# Loading work.pronoc_register_reset_init(fast__4)
-# Loading work.oport_ovc_sig_gen(fast)
-# Loading work.one_hot_demux(fast)
-# Loading work.credit_monitor_per_ovc(fast)
-# Loading work.full_ovc_predictor(fast)
-# Loading work.onehot_mux_1D(fast__4)
-# Loading work.onehot_mux_2D(fast__4)
-# Loading work.credit_monitor_per_ovc(fast__1)
-# Loading work.credit_monitor_per_ovc(fast__2)
-# Loading work.credit_monitor_per_ovc(fast__3)
-# Loading work.credit_monitor_per_ovc(fast__4)
-# Loading work.credit_monitor_per_ovc(fast__5)
-# Loading work.port_pre_sel_gen(fast)
-# Loading work.parallel_counter(fast)
-# Loading work.PC_7_3(fast)
-# Loading work.CS_GEN(fast)
-# Loading work.check_ovc(fast)
-# Loading work.vc_alloc_request_gen(fast)
-# Loading work.vc_alloc_request_gen_determinstic(fast)
-# Loading work.congestion_out_gen(fast)
-# Loading work.pronoc_register(fast__6)
-# Loading work.pronoc_register_reset_init(fast__5)
-# Loading work.combined_vc_sw_alloc(fast)
-# Loading work.comb_nonspec_allocator(fast)
-# Loading work.nonspec_sw_alloc(fast)
-# Loading work.swa_input_port_arbiter(fast)
-# Loading work.arbiter_priority_en(fast)
-# Loading work.onehot_mux_1D(fast__5)
-# Loading work.onehot_mux_2D(fast__5)
-# Loading work.swa_output_port_arbiter(fast)
-# Loading work.arbiter(fast)
-# Loading work.thermo_arbiter(fast)
-# Loading work.thermo_gen(fast)
-# Loading work.custom_or(fast)
-# Loading work.arbiter(fast__1)
-# Loading work.pronoc_register(fast__7)
-# Loading work.pronoc_register_reset_init(fast__6)
-# Loading work.crossbar(fast)
-# Loading work.one_hot_to_bin(fast__1)
-# Loading work.one_hot_mux(fast)
-# Loading work.binary_mux(fast)
-# Loading work.debug_mesh_edges(fast)
-# Loading work.dpi_interface_sv_unit(fast)
-# Loading work.top_dpi_interface(fast)
-# Loading work.endp_addr_encoder(fast)
-# Loading work.mesh_tori_addr_encoder(fast)
-# Loading work.packet_injector(fast)
-# Loading work.conventional_routing(fast)
-# Loading work.mesh_torus_conventional_routing(fast__1)
-# Loading work.header_flit_generator(fast)
-# Loading work.one_hot_mux(fast__1)
-# Loading work.pronoc_register(fast__8)
-# Loading work.pronoc_register_reset_init(fast__7)
-# Loading work.injector_ovc_status(fast)
-# Loading work.header_flit_info(fast__1)
-# Loading work.endp_addr_decoder(fast)
-# Loading work.mesh_tori_addr_coder(fast)
-# Loading work.distance_gen(fast)
-# Loading work.mesh_torus_distance_gen(fast)
-# Loading /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/script/synfull/dpi_interface.so
-run -all
-# Listening on socket
-# Connected... 
-# <inject> id: 0 src: 20 dst: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <inject> id: 2 src: 4 dst: 5
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <wait> id: 1
-# <inject> id: 1 src: 20 dst: 5
-# <inject> id: 3 src: 16 dst: 21
-#            173790000:pck_inj(          1) got a packet: source=10, size=   56, data=00000000
-# <inject> id: 4 src: 1 dst: 4
-# <inject> id: 5 src: 14 dst: 21
-#            174230000:pck_inj(          5) got a packet: source= 2, size=   56, data=00000002
-# <inject> id: 6 src: 5 dst: 8
-# <inject> id: 7 src: 30 dst: 5
-# <inject> id: 8 src: 18 dst: 1
-#            174910000:pck_inj(         21) got a packet: source= 8, size=   56, data=00000003
-# <inject> id: 9 src: 21 dst: 8
-# <inject> id: 10 src: 16 dst: 1
-#            175070000:pck_inj(          4) got a packet: source=16, size=   56, data=00000004
-# <inject> id: 11 src: 4 dst: 20
-#            175350000:pck_inj(          5) got a packet: source=10, size=   56, data=00000001
-# <wait> id: 12
-# <inject> id: 12 src: 5 dst: 8
-# <inject> id: 13 src: 0 dst: 23
-#            175550000:pck_inj(          8) got a packet: source=18, size=   56, data=00000006
-# <inject> id: 14 src: 8 dst: 4
-#            175590000:pck_inj(          1) got a packet: source= 9, size=   56, data=00000008
-# <inject> id: 15 src: 1 dst: 24
-# <inject> id: 16 src: 10 dst: 1
-#            176030000:pck_inj(         21) got a packet: source= 7, size=   56, data=00000005
-# <inject> id: 17 src: 6 dst: 1
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <inject> id: 21 src: 18 dst: 1
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <inject> id: 22 src: 30 dst: 1
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-#            176470000:pck_inj(          5) got a packet: source=15, size=   56, data=00000007
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 23
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 23
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <inject> id: 23 src: 5 dst: 8
-# <wait> id: 18
-# <wait> id: 19
-# <wait> id: 20
-# <wait> id: 18
-# <inject> id: 19 src: 16 dst: 23
-# <wait> id: 20
-# <wait> id: 18
-# <inject> id: 20 src: 16 dst: 1
-# not injected because the router injector is not ready:          20
-# <wait> id: 18
-#            176610000: ERROR: a packet injection request is recived in core(16), vc (          0) while packet injectore was not ready. synfull_top.endpoints[16].pck_inj.V_[0]
-# ** Note: $finish    : /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/rtl/src_noc/./packet_injector.sv(368)
-#    Time: 176610 ns  Iteration: 1  Region: /synfull_top/endpoints[16]/pck_inj/V_[0]
-# 1
-# Break in Module packet_injector at /home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc/mpsoc/rtl/src_noc/./packet_injector.sv line 368
-# End time: 13:34:44 on Feb 01,2022, Elapsed time: 0:05:34
-# Errors: 0, Warnings: 1
