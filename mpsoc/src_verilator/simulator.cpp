@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 	for(i=0;i<NE;i++)   custom_traffic_table[i]=INJECT_OFF; //off
 	Verilated::commandArgs(argc, argv);   // Remember args
 	processArgs ( argc,  argv );
-
+	allocate_rsv_pck_counters();
 	if (class_percentage==NULL) {
 			class_percentage =   (int *) malloc(sizeof(int));
 			class_percentage[0]=100;
@@ -529,13 +529,17 @@ void update_pck_size(char *str){
 		fprintf(stderr,"ERROR: Wrong Packet size format %s. It should start with one of \"D\" or \"R\" letter\n",str);
 		exit(1);
 	}
-	p=(MAX_PACKET_SIZE-MIN_PACKET_SIZE)+1;
+
+
+}
+
+void allocate_rsv_pck_counters (void) {
+	int p=(MAX_PACKET_SIZE-MIN_PACKET_SIZE)+1;
 	rsv_size_array = (unsigned int*) calloc ( p , sizeof(int));
 	if (rsv_size_array==NULL){
 		 fprintf(stderr,"ERROR: cannot allocate memory for rsv_size_array\n");
 		 exit(1);
 	}
-
 }
 
 

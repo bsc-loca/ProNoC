@@ -196,7 +196,7 @@ void update_hotspot(char * );
 void update_mcast_traffic(char * str);
 void initial_threads (void);
 void print_statistic_new (unsigned long int);
-
+void allocate_rsv_pck_counters (void);
 
 
 #include "topology_top.h"

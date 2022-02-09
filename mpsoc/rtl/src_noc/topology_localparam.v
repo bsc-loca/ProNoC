@@ -333,7 +333,7 @@ localparam
    function automatic integer endp_id_to_mcast_id;
         input integer  endp_id;
         reg [NE-1 : 0] mcast_list;
-        integer i=0;       
+        integer i;       
         begin
          /* verilator lint_off WIDTH */ 
         if (CAST_TYPE == "MULTICAST_FULL") begin
