@@ -115,22 +115,59 @@ module synfull_top;
 
     
     
-    
-    
+	wire [31:0] fifo_id [NE-1 : 0];
+	wire [PCK_SIZw-1 : 0]  fifo_size [NE-1 :0];
+    wire [NEw-1 : 0] fifo_dest [NE-1 : 0];
+    wire [NE-1 : 0] fifo_wr,fifo_rd ,fifo_full,fifo_not_empty;
         
     genvar i;
     generate 
     for(i=0; i< NE; i=i+1) begin 
+    	
+    	assign fifo_wr[i] = 
+    		(pck_injct_out[i].ready == 1'b0 &&  synfull_pronoc_req_all[i].valid==1'b1) ||  
+    		(fifo_not_empty[i]==1'b1  &&  synfull_pronoc_req_all[i].valid==1'b1);
+    	    
+    	
+    	assign fifo_rd[i] = 
+    		(pck_injct_out[i].ready == 1'b1 && fifo_not_empty[i]==1'b1 );
+    	
+    	
+    	    fwft_fifo_bram #(
+    			.DATA_WIDTH(32+PCK_SIZw+NEw),
+    			.MAX_DEPTH(1000000),
+    			.IGNORE_SAME_LOC_RD_WR_WARNING("NO") 
+    		)
+    		fifo
+    		(
+    			.din({synfull_pronoc_req_all[i].id,synfull_pronoc_req_all[i].size,synfull_pronoc_req_all[i].dest}),     // Data in
+    			.wr_en(fifo_wr[i]),   // Write enable
+    			.rd_en(fifo_rd[i]),   // Read the next word
+    			.dout({fifo_id[i],fifo_size[i],fifo_dest[i]}),    // Data out
+    			.full( fifo_full[i]),
+    			.nearly_full(),
+    			.recieve_more_than_0(fifo_not_empty[i]),
+    			.recieve_more_than_1(),
+    			.reset(reset),
+    			.clk (clk)
+    
+    		);
+    	
+    	
+    	
+    	
+    	
         //from synfull 
-        assign pck_injct_in[i].data = synfull_pronoc_req_all[i].id;
-        assign pck_injct_in[i].size = synfull_pronoc_req_all[i].size;
-        assign pck_injct_in[i].pck_wr = synfull_pronoc_req_all[i].valid;  
+        assign pck_injct_in[i].data = (fifo_not_empty[i])?  fifo_id[i] : synfull_pronoc_req_all[i].id;
+        assign pck_injct_in[i].size = (fifo_not_empty[i])?  fifo_size[i] : synfull_pronoc_req_all[i].size;
+        assign pck_injct_in[i].pck_wr =  (fifo_not_empty[i])?   fifo_rd[i] :  (  synfull_pronoc_req_all[i].valid & pck_injct_out[i].ready == 1'b1);  
         assign pck_injct_in[i].ready = 1'b1;
-        assign dest_id[i] = synfull_pronoc_req_all[i].dest;             
+        assign dest_id[i] =(fifo_not_empty[i])? fifo_dest[i] : synfull_pronoc_req_all[i].dest;             
+       
         //to synfull
         assign pronoc_synfull_del_all[i].id    = pck_injct_out[i].data   ; 
         assign pronoc_synfull_del_all[i].valid = pck_injct_out[i].pck_wr ;
-        assign NE_ready_all[i] = pck_injct_out[i].ready;
+        assign NE_ready_all[i] = 1'b1 ; //pck_injct_out[i].ready;
         
         assign pck_injct_in[i].class_num = _pck_injct_in[i].class_num; 
         assign pck_injct_in[i].init_weight = _pck_injct_in[i].init_weight;
@@ -183,10 +220,9 @@ module synfull_top;
             wakeup_synfull[i] = 1'b1;
             @(posedge clk) #1;
             while (!end_injection[0]) @(posedge clk) #1;
-            if(i==0) $display ( "All packet are sent. We wait for NoC to be ideal now");
-            while (total_sent_pck_count != total_rsv_pck_count) @(posedge clk) #1;
-            
-            
+            // if(i==0) $display ( "All packet are sent. We wait for NoC to be ideal now");
+            // while (total_sent_pck_count != total_rsv_pck_count) @(posedge clk) #1;
+                       
             $display ( "Statistics:");
             $display ( "\t simulation clk count = %d",   clk_count);
             $display ( "\t Total sent packets = %d", total_sent_pck_count);
