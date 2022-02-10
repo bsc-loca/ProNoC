@@ -15,6 +15,7 @@ VSIM_BIN="vsim"
 export LM_LICENSE_FILE=${LM_LICENSE}
 export LM_WORK_PLACE=${PRONOC_WORK}/simulation
 export LM_FILE_LIST="$SCRPT_DIR_PATH/modelsim_filelist.f"
+export PATH=$PATH:$MODELSIM_BIN
 
 #"$SCRPT_DIR_PATH/../rtl/src_noc/noc_filelist.f $SCRPT_DIR_PATH/../rtl/src_modelsim/filelist.f"
 

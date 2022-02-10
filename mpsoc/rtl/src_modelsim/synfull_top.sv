@@ -60,6 +60,63 @@ module synfull_top;
     reg [63 : 0]  total_rsv_flit_count;
     reg [63 : 0]  clk_count;
     
+    
+    
+    initial begin
+
+		//print_parameter 
+		$display ("NoC parameters:----------------");
+		$display ("\tTopology: %s",TOPOLOGY);
+		$display ("\tRouting algorithm: %s",ROUTE_NAME);
+		$display ("\tVC_per port: %0d", V);
+		$display ("\tNon-local port buffer_width per VC: %0d", B);
+		$display ("\tLocal port buffer_width per VC: %0d", LB);
+		if(TOPOLOGY=="MESH" || TOPOLOGY=="TORUS" || TOPOLOGY == "FMESH")begin
+			$display ("\tRouter num in row: %0d",T1);
+			$display ("\tRouter num in column: %0d",T2);
+			$display ("\tEndpoint num per router: %0d",T3);
+		end else if (TOPOLOGY=="RING" || TOPOLOGY == "LINE") begin
+			$display ("\tTotal Router num: %0d",T1);
+			$display ("\tEndpoint num per router: %0d",T3);
+		end else if (TOPOLOGY == "TREE" ||  TOPOLOGY == "FATTREE")begin
+			$display ("\tK: %0d",T1);
+			$display ("\tL: %0d",T2);
+		end else begin //CUSTOM
+			$display ("\tTotal Endpoints number: %0d",T1);
+			$display ("\tTotal Routers number: %0d",T2);
+		end
+		$display ("\tNumber of Class: %0d", C);
+		$display ("\tFlit data width: %0d", Fpay);
+		$display ("\tVC reallocation mechanism: %s",  VC_REALLOCATION_TYPE);
+		$display ("\tVC/sw combination mechanism: %s", COMBINATION_TYPE);
+		$display ("\tAVC_ATOMIC_EN:%0d", AVC_ATOMIC_EN);
+		$display ("\tCongestion Index:%0d",CONGESTION_INDEX);
+		$display ("\tADD_PIPREG_AFTER_CROSSBAR:%0d",ADD_PIPREG_AFTER_CROSSBAR);
+		$display ("\tSSA_EN enabled:%s",SSA_EN);
+		$display ("\tSwitch allocator arbitration type:%s",SWA_ARBITER_TYPE);
+		$display ("\tMinimum supported packet size:%0d flit(s)",MIN_PCK_SIZE);
+		$display ("\tLoop back is enabled:%s",SELF_LOOP_EN);
+		$display ("\tNumber of multihop bypass (SMART max):%0d",SMART_MAX);
+		$display ("\tCastying type:%s.",CAST_TYPE);
+		if (CAST_TYPE == "MULTICAST_PARTIAL" || CAST_TYPE == "BROADCAST_PARTIAL")begin
+			$display ("\tNumber of nodes in Cast list:%d",   MCAST_PRTLw);
+			$display ("\tCAST LIST:%b", MCAST_ENDP_LIST);
+		end	
+		$display ("NoC parameters:----------------");		
+		$display ("Simulation parameters-------------");
+		if(DEBUG_EN)
+			$display ("\tDebuging is enabled");
+		else
+			$display ("\tDebuging is disabled");
+
+	
+
+	end//initial
+
+    
+    
+    
+    
         
     genvar i;
     generate 
@@ -67,7 +124,8 @@ module synfull_top;
         //from synfull 
         assign pck_injct_in[i].data = synfull_pronoc_req_all[i].id;
         assign pck_injct_in[i].size = synfull_pronoc_req_all[i].size;
-        assign pck_injct_in[i].pck_wr = synfull_pronoc_req_all[i].valid;    
+        assign pck_injct_in[i].pck_wr = synfull_pronoc_req_all[i].valid;  
+        assign pck_injct_in[i].ready = 1'b1;
         assign dest_id[i] = synfull_pronoc_req_all[i].dest;             
         //to synfull
         assign pronoc_synfull_del_all[i].id    = pck_injct_out[i].data   ; 
@@ -125,6 +183,9 @@ module synfull_top;
             wakeup_synfull[i] = 1'b1;
             @(posedge clk) #1;
             while (!end_injection[0]) @(posedge clk) #1;
+            if(i==0) $display ( "All packet are sent. We wait for NoC to be ideal now");
+            while (total_sent_pck_count != total_rsv_pck_count) @(posedge clk) #1;
+            
             
             $display ( "Statistics:");
             $display ( "\t simulation clk count = %d",   clk_count);

@@ -278,7 +278,7 @@ localparam
 		logic [RAw-1:   0]  neighbors_r_addr;
 		logic [V-1  :0] [CRDTw-1: 0] credit_init_val; // the connected port initial credit value. It is taken at reset time	
 		logic [ST_Aw-1 : 0] statistic_addr;
-		logic [ST_Dw-1 : 0] statistic_val;
+		logic [ST_Dw-1 : 0] statistic_val;		
 	} ctrl_chanel_t; 
 	localparam CTRL_CHANEL_w = $bits(ctrl_chanel_t);
 	

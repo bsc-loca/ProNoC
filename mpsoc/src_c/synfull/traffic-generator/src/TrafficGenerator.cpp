@@ -44,6 +44,8 @@ static unsigned long long next_hinterval;
 
 static unsigned long long cycle;
 
+static unsigned long int total_pck_queud=0;
+
 int state = 1;
 int lastState = 1;
 int lastHState = 1;
@@ -107,6 +109,7 @@ void connect() {
 }
 
 void exit() {
+	cout << "Total packet sent to queue: " << total_pck_queud << endl;
 #if CONNECT
     // Notify network we are quitting
     QuitReqMsg req;
@@ -178,6 +181,8 @@ bool InHSteadyState(int numCycles) {
     return false;
 }
 
+
+
 void QueuePacket(int source, int destination, int msgType, int coType,
         int packetSize, int time, int address) {
     InjectReqMsg packet;
@@ -191,6 +196,7 @@ void QueuePacket(int source, int destination, int msgType, int coType,
     packet.address = address;
 
     packet_queue.Enqueue(packet, time);
+    total_pck_queud++;
 }
 
 void UniformInject(int writes, int reads, int ccrs, int dcrs) {

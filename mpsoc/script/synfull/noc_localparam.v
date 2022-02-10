@@ -46,7 +46,7 @@
 	localparam MIN_PCK_SIZE=1;
 	localparam BYTE_EN=0;
 	localparam SSA_EN="NO";
-	localparam SMART_MAX=1;
+	localparam SMART_MAX=0;
 	localparam CONGESTION_INDEX=3;
 	localparam ESCAP_VC_MASK=1;
 	localparam VC_REALLOCATION_TYPE="NONATOMIC";
@@ -54,7 +54,7 @@
 	localparam MUX_TYPE="BINARY";
 	localparam C=2;
 	localparam DEBUG_EN=1;
-	localparam ADD_PIPREG_AFTER_CROSSBAR=1'b0;
+	localparam ADD_PIPREG_AFTER_CROSSBAR=1'b1;
 	localparam FIRST_ARBITER_EXT_P_EN=1;
 	localparam SWA_ARBITER_TYPE="RRA";
 	localparam WEIGHTw=4;
