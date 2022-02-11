@@ -58,6 +58,7 @@ module synfull_top;
     reg [63 : 0]  total_sent_flit_count;
     reg [63 : 0]  total_rsv_pck_count;
     reg [63 : 0]  total_rsv_flit_count;
+    reg [63 : 0]  total_queued_pck_count;
     reg [63 : 0]  clk_count;
     
     
@@ -225,6 +226,7 @@ module synfull_top;
                        
             $display ( "Statistics:");
             $display ( "\t simulation clk count = %d",   clk_count);
+            $display ( "\t Total queued packets = %d",total_queued_pck_count);
             $display ( "\t Total sent packets = %d", total_sent_pck_count);
 			$display ( "\t Total sent flits = %d", 	 total_sent_flit_count);  
 			$display ( "\t Total received packets = %d", total_rsv_pck_count);
@@ -254,7 +256,8 @@ module synfull_top;
     		total_sent_pck_count =0;
     		total_sent_flit_count=0;
     		total_rsv_pck_count  =0;
-    		total_rsv_flit_count =0;        		
+    		total_rsv_flit_count =0;  
+    		total_queued_pck_count = 0;
     	end else begin          	
     		clk_count++;
     		for(k=0; k< NE; k=k+1) begin : endpoints    		
@@ -266,7 +269,9 @@ module synfull_top;
 	    			total_sent_pck_count++;
 	    			total_sent_flit_count+=pck_injct_in[k].size;				
 	    		end 
-	    		
+	    		if(synfull_pronoc_req_all[k].valid) begin
+	    			total_queued_pck_count++;
+	    		end    		
     		end	
 	    end
 
