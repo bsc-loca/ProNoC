@@ -22,3 +22,5 @@ mpsoc/mpsoc_work/
 mpsoc/script/synfull/tgen
 mpsoc/script/synfull/vsim.wlf
 mpsoc/script/synfull/wave.do
+mpsoc/script/synfull/transcript
+mpsoc/script/synfull/modelsim.ini
