@@ -28,9 +28,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 
 int main(int argc, char **argv) {
-	if(argc != 4) {
-		cerr << "Need 3 parameters: model file, number of cycles, exit at "
-				"steady state" << endl;
+	if(argc != 5) {
+		cerr << "Need 4 parameters: model file, number of cycles, exit at "
+				"steady state, number of packets" << endl;
 		return -1;
 	}
 
@@ -53,8 +53,11 @@ int main(int argc, char **argv) {
 	//state is reached
 	bool ssExit = ((int) strtoul(argv[3], NULL, 0)) == 1;
 
-	//Run the traffic generator
-	Run(numCycles, ssExit);
+	//The number of packets to be injected
+	unsigned int numPackets = (int) strtoul(argv[4], NULL, 0);
+	
+    //Run the traffic generator
+	Run(numCycles, ssExit, numPackets);
 
 	return 0;
 }

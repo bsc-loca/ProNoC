@@ -52,6 +52,8 @@ int lastHState = 1;
 
 int messageId = 0;
 
+int allPacketsEjected=0;
+
 //Steady state
 map<int, map<int, int> > steadyState;
 map<int, int> hSteadyState;
@@ -129,11 +131,8 @@ void sendPacket(InjectReqMsg& req) {
         inTransitTransactions[req.address].acks_received = 0;
     }
     messageId++;
-    
-    //cout << "synfull injects packet id: " << req.id << " " << cycle  << endl;
 
     inTransitPackets[req.id] = req;
-    //printPacket(req);
 
 #if CONNECT
     InjectResMsg res;
@@ -261,6 +260,7 @@ void InitiateMessages() {
     int ccrs = g_ccrs[g_hierClass][state].Generate();
     int dcrs = g_dcrs[g_hierClass][state].Generate();
 
+    //cout << "synfull: writes " << writes << " reads " << reads << " ccrs " << ccrs << " dcrs " << dcrs  << endl;
     UniformInject(writes, reads, ccrs, dcrs);
 }
 
@@ -287,6 +287,7 @@ void react(EjectResMsg ePacket) {
     inTransitPackets.erase(it);
 
     //cout << "synfull received packet id: " << request.id << " " << cycle  << endl;
+
 
     map<int, transaction_t>::iterator trans = inTransitTransactions.find(request.address);
 
@@ -389,7 +390,9 @@ void react(EjectResMsg ePacket) {
     }
 }
 
-void Eject() {
+unsigned long long int cntPackets = 0;
+
+void Eject(unsigned int numPackets) {
 #if CONNECT
     EjectReqMsg req; //The request to the network
     EjectResMsg res; //The response from the network
@@ -402,12 +405,19 @@ void Eject() {
         if(res.id >= 0) {
             //Add responses to list
             if(res.id > -1) {
+                cntPackets++;
                 react(res);
             }
         }
         //Check if there are more messages from the network
         hasRequests = res.remainingRequests;
+        
     }
+
+        if (cntPackets == numPackets) 
+        {
+            allPacketsEjected=1;
+        }
 #endif
 }
 
@@ -419,7 +429,7 @@ void reset_ss() {
     state = 1;
 }
 
-void Run(unsigned int numCycles, bool ssExit) {
+void Run(unsigned int numCycles, bool ssExit, unsigned int numPackets) {
     next_interval = 0;
     next_hinterval = 0;
 
@@ -434,56 +444,60 @@ void Run(unsigned int numCycles, bool ssExit) {
     //Connect to network simulator
     connect();
 
-    //Iterate through each cycle and inject packets
-    for(cycle = 0; cycle < numCycles; ++cycle) {
-        if(cycle >= next_hinterval) {
-            next_hinterval += g_timeSpan;
+        //Iterate through each cycle and inject packets
+        for(cycle = 0; cycle < numCycles; ++cycle) {
+            if(cycle >= next_hinterval) {
+                next_hinterval += g_timeSpan;
 
-            hSteadyState[g_hierClass]++;
+                hSteadyState[g_hierClass]++;
 
-            if(cycle != 0) {
-                lastHState = g_hierClass;
-                g_hierClass = g_hierState[g_hierClass].Generate() + 1;
-                reset_ss();
+                if(cycle != 0) {
+                    lastHState = g_hierClass;
+                    g_hierClass = g_hierState[g_hierClass].Generate() + 1;
+                    reset_ss();
+                }
+
+                if(InHSteadyState(numCycles) && ssExit) {
+                    cout << "Ending simulation at steady state: " << cycle << endl;
+                    break;
+                }
+
+                cout << "Current hierarchical state: " << g_hierClass << endl;
             }
 
-            if(InHSteadyState(numCycles) && ssExit) {
-                cout << "Ending simulation at steady state: " << cycle << endl;
-                break;
+            if(cycle >= next_interval) {
+                next_interval += g_resolution;
+
+                //Track state history for markovian steady state
+                steadyState[g_hierClass][state]++;
+
+                if(cycle != 0) {
+                    //Update state
+                    lastState = state;
+                    state = g_states1[g_hierClass][state].Generate() + 1;
+                }
+
+                //Queue up initiating messages for injection
+                InitiateMessages();
             }
 
-            cout << "Current hierarchical state: " << g_hierClass << endl;
-        }
+            //Inject all of this cycles' messages into the network
+            Inject();
 
-        if(cycle >= next_interval) {
-            next_interval += g_resolution;
-
-            //Track state history for markovian steady state
-            steadyState[g_hierClass][state]++;
-
-            if(cycle != 0) {
-                //Update state
-                lastState = state;
-                state = g_states1[g_hierClass][state].Generate() + 1;
+            //Eject from network
+            Eject(numPackets);
+                
+            if (allPacketsEjected) 
+            {
+                cycle = numCycles; 
             }
-
-            //Queue up initiating messages for injection
-            InitiateMessages();
-        }
-
-        //Inject all of this cycles' messages into the network
-        Inject();
-
-        //Eject from network
-        Eject();
-
-        //Step the network
+            //Step the network
 #if CONNECT
-        StepReqMsg req;
-        StepResMsg res;
-        m_channel << req >> res;
+            StepReqMsg req;
+            StepResMsg res;
+            m_channel << req >> res;
 #endif
-    }
+        }
 
     //Close the connection
     exit();

@@ -20,6 +20,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef TRAFFICGENERATOR_H_
 #define TRAFFICGENERATOR_H_
 
-void Run(unsigned int numCycles, bool ssExit);
+void Run(unsigned int numCycles, bool ssExit, unsigned int numPackets);
 
 #endif /* TRAFFICGENERATOR_H_ */
