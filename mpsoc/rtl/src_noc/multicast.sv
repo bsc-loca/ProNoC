@@ -258,9 +258,11 @@ module multicast_routing_mesh
 				end							
 			end
 			
-			assign destport [SOUTH : 0] =destport_tmp;
+			localparam MSB_DSTP = (DSTPw-1 < SOUTH)? DSTPw-1: SOUTH;
+				
+			assign destport [MSB_DSTP : 0] =destport_tmp;
 			for(i=1;i<NL;i++) begin :other_local
-				assign destport[SOUTH+i]=goto_local[i];			
+				assign destport[MSB_DSTP+i]=goto_local[i];			
 			end	
 	endgenerate
 	
@@ -416,10 +418,14 @@ module multicast_routing_fmesh
 			end							
 		end
 			
-		assign destport [SOUTH : 0] =destport_tmp;
+		localparam MSB_DSTP = (DSTPw-1 < SOUTH)? DSTPw-1: SOUTH;
+			
+		assign destport [MSB_DSTP : 0] =destport_tmp;
 		for(i=1;i<NL;i++) begin :other_local
-			assign destport[SOUTH+i]=goto_local[SOUTH+i];			
+			assign destport[MSB_DSTP+i]=goto_local[i];			
 		end		
+					
+		
 		
 	endgenerate	
 		
