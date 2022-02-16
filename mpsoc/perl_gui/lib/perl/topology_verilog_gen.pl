@@ -213,6 +213,7 @@ sub get_router_instance_v {
 	(	
 		.clk(${instance}_clk), 
 		.reset(${instance}_reset),
+		.current_r_id($current_r),
 		.current_r_addr  (${instance}_current_r_addr), 
 		.chan_in   (${instance}_chan_in), 
 		.chan_out  (${instance}_chan_out)
@@ -457,6 +458,7 @@ sub generate_topology_top_genvar_v{
 	(	
 		.clk(clk), 
 		.reset(reset),
+		.current_r_id($router_pos),
 		.current_r_addr($router_pos),	
 		.chan_in  (router_chan_in\[$router_pos\]), 
 		.chan_out (router_chan_out\[$router_pos\])		
@@ -582,6 +584,7 @@ sub get_router_genvar_instance_v{
 		.clk(clk), 
 		.reset(reset),
 		.current_r_addr($router_pos),
+		.current_r_id($router_pos),
 		.chan_in (router_chan_in\[$router_pos\]), 
 		.chan_out(router_chan_out\[$router_pos\])		
 	);

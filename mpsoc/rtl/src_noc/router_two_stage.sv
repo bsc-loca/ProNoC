@@ -36,6 +36,7 @@ module router_two_stage
 		# (
 			parameter P = 6     // router port num		   
 		)(
+		current_r_id,
 		current_r_addr,// connected to constant parameter  
 		
 		chan_in,
@@ -64,6 +65,7 @@ module router_two_stage
 	// compilation time. Note that they wont be implemented as  input ports in the final synthesized code. 
 
 	input [RAw-1 :  0]  current_r_addr;
+	input [31:0] current_r_id;
 	
 	input   flit_chanel_t chan_in  [P-1 : 0];
 	output  flit_chanel_t chan_out [P-1 : 0];
@@ -182,6 +184,7 @@ module router_two_stage
 					.P(P), 
 					.SW_LOC  (i)
 				) multicast_process (
+					.endp_port       (ctrl_in[i].endp_port),
 					.current_r_addr  (current_r_addr ), 
 					.chan_in         (chan_in[i]     ), 
 					.chan_out        (chan_in_tmp[i] ),
@@ -487,12 +490,12 @@ module router_two_stage
 						t2[i]<=1'b0;             
 					end else begin 
 						if(flit_out_wr_all[i]>0 && t2[i]==0)begin 
-							$display("%t :Out router (addr=%h, port=%d), flitout=%h",$time,current_r_addr,i,flit_out_all[(i+1)*Fw-1 : i*Fw]);
+							$display("%t :Out router (id=%d, addr=%h, port=%d), flitout=%h",$time,current_r_id,current_r_addr,i,flit_out_all[(i+1)*Fw-1 : i*Fw]);
 							t2[i]<=1;
 						end
 						
 						if(flit_in_wr_all[i]>0 && t1[i]==0)begin 
-							$display("%t :In router (addr=%h, port=%d), flitin=%h",$time,current_r_addr,i,flit_in_all[(i+1)*Fw-1 : i*Fw]);
+							$display("%t :In router (id=%d, addr=%h, port=%d), flitin=%h",$time,current_r_id,current_r_addr,i,flit_in_all[(i+1)*Fw-1 : i*Fw]);
 							t1[i]<=1;
 						end
 						

@@ -8,9 +8,9 @@
 /**********************************************************************
 **	File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_topolgy/custom1/custom1_noc_genvar.sv
 **    
-**	Copyright (C) 2014-2019  Alireza Monemi
+**	Copyright (C) 2014-2021  Alireza Monemi
 **    
-**	This file is part of ProNoC 1.9.1 
+**	This file is part of ProNoC 2.0.0 
 **
 **	ProNoC ( stands for Prototype Network-on-chip)  is free software: 
 **	you can redistribute it and/or modify it under the terms of the GNU
@@ -86,6 +86,7 @@ module   custom1_noc_genvar
 	(	
 		.clk(clk), 
 		.reset(reset),
+		.current_r_id(i),
 		.current_r_addr(i),	
 		.chan_in  (router_chan_in[i]), 
 		.chan_out (router_chan_out[i])		
@@ -104,6 +105,7 @@ module   custom1_noc_genvar
 	(	
 		.clk(clk), 
 		.reset(reset),
+		.current_r_id(i+4),
 		.current_r_addr(i+4),	
 		.chan_in  (router_chan_in[i+4]), 
 		.chan_out (router_chan_out[i+4])		
@@ -122,6 +124,7 @@ module   custom1_noc_genvar
 	(	
 		.clk(clk), 
 		.reset(reset),
+		.current_r_id(i+12),
 		.current_r_addr(i+12),	
 		.chan_in  (router_chan_in[i+12]), 
 		.chan_out (router_chan_out[i+12])		

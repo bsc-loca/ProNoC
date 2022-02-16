@@ -85,7 +85,8 @@ for( pos=0; pos<NRL; pos=pos+1) begin : root
       )
       the_router
       (              
-        	.current_r_addr  (current_r_addr [pos]), 
+      		.current_r_id    (pos),
+      		.current_r_addr  (current_r_addr [pos]), 
            	.chan_in         (router_chan_in [pos][K-1 : 0]), 
            	.chan_out        (router_chan_out[pos][K-1 : 0]), 
            	.clk             (clk            ), 
@@ -99,12 +100,14 @@ end
 
 for( level=1; level<L; level=level+1) begin :level_lp
    for( pos=0; pos<NRL; pos=pos+1) begin : pos_lp 
-      
+    
+   	   	
    	router_top # (
    			.P(2*K)         
    		)
    		the_router
    		(              
+   			.current_r_id    (NRL*level+pos),
    			.current_r_addr  (current_r_addr [NRL*level+pos]), 
    			.chan_in         (router_chan_in [NRL*level+pos]), 
    			.chan_out        (router_chan_out[NRL*level+pos]), 

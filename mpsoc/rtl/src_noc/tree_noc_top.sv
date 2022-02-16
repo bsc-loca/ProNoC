@@ -86,6 +86,7 @@ module  tree_noc_top
 		)
 		root_router
 		(              
+			.current_r_id    (ROOT_ID),
 			.current_r_addr  (current_r_addr [ROOT_ID]), 
 			.chan_in         (router_chan_in [ROOT_ID][K-1:0]), 
 			.chan_out        (router_chan_out[ROOT_ID][K-1:0]), 
@@ -109,6 +110,7 @@ module  tree_noc_top
 					)
 					the_router
 					(                                  
+						.current_r_id    (NRATTOP1+pos),
 						.current_r_addr  (current_r_addr [NRATTOP1+pos]), 
 						.chan_in         (router_chan_in [NRATTOP1+pos]), 
 						.chan_out        (router_chan_out[NRATTOP1+pos]), 

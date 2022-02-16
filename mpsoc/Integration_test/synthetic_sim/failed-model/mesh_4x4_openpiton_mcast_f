@@ -1,8 +1,8 @@
 $model = bless( {
 		'compile' => "verilate_mesh.sh",
         'noc_param'=> {
-						"T1" => "2",
-						"T2" => "2",
+						"T1" => "4",
+						"T2" => "4",
 						"V" => "1",	
 						"ESCAP_VC_MASK" => "1'b1",
 						"B" => "4",

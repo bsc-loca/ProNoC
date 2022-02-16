@@ -274,7 +274,7 @@ localparam
             (CAST_TYPE == "MULTICAST_FULL") ? NE :
             (CAST_TYPE == "MULTICAST_PARTIAL" && EAw >= MCAST_PRTLw) ? EAw +1 : 
             (CAST_TYPE == "MULTICAST_PARTIAL" && EAw <  MCAST_PRTLw) ? MCAST_PRTLw +1 :
-            EAw +1,
+            EAw +1, //broadcast
               
         DAw =  
             (CAST_TYPE == "UNICAST") ?   EAw:
@@ -362,6 +362,44 @@ localparam
             end
         end   
     endfunction
+    
+    
+    
+    
+    function automatic  integer fmesh_addrencode; 
+        input integer in;
+        integer  y, x, l,p, diff,mul;begin
+                        
+            mul  = NX*NY*NL;            
+            if(in < mul) begin 
+                y = ((in/NL) / NX ); 
+                x = ((in/NL) % NX ); 
+                l = (in % NL); 
+                p = (l==0)? LOCAL : 4+l;            
+            end else begin      
+                diff = in -  mul ;
+                if( diff <  NX) begin //top mesh edge 
+                    y = 0;
+                    x = diff;
+                    p = NORTH;
+                end else if  ( diff < 2* NX) begin //bottom mesh edge 
+                    y = NY-1;
+                    x = diff-NX;
+                    p = SOUTH;
+                end else if  ( diff < (2* NX)+NY ) begin //left mesh edge 
+                    y = diff - (2* NX);
+                    x = 0;
+                    p = WEST;
+                end else begin //right mesh edge 
+                    y = diff - (2* NX) -NY;
+                    x = NX-1;
+                    p = EAST; 
+                end
+            end//else 
+            fmesh_addrencode = ( p<<(NXw+NYw) | (y<<NXw) | x);      
+        end   
+    endfunction // addrencode    
+    
     
     
    

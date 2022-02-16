@@ -8,9 +8,9 @@
 /**********************************************************************
 **	File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_topolgy/mesh4x4/mesh4x4_noc_genvar.sv
 **    
-**	Copyright (C) 2014-2019  Alireza Monemi
+**	Copyright (C) 2014-2021  Alireza Monemi
 **    
-**	This file is part of ProNoC 1.9.1 
+**	This file is part of ProNoC 2.0.0 
 **
 **	ProNoC ( stands for Prototype Network-on-chip)  is free software: 
 **	you can redistribute it and/or modify it under the terms of the GNU
@@ -25,6 +25,8 @@
 ** 	You should have received a copy of the GNU Lesser General Public
 ** 	License along with ProNoC. If not, see <http:**www.gnu.org/licenses/>.
 ******************************************************************************/ 
+
+`include "pronoc_def.v"
 
 module   mesh4x4_noc_genvar 
    import pronoc_pkg::*; 
@@ -84,6 +86,7 @@ module   mesh4x4_noc_genvar
 	(	
 		.clk(clk), 
 		.reset(reset),
+		.current_r_id(i),
 		.current_r_addr(i),	
 		.chan_in  (router_chan_in[i]), 
 		.chan_out (router_chan_out[i])		

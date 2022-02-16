@@ -80,6 +80,7 @@ module mesh_torus_noc_top
 				router_top #(
 					.P               (MAX_P          )
 					) the_router (
+					.current_r_id    (x),
 					.current_r_addr  (current_r_addr [x]), 
 					.chan_in         (router_chan_in [x]), 
 					.chan_out        (router_chan_out[x]), 
@@ -129,7 +130,8 @@ module mesh_torus_noc_top
              	
 					router_top #(
 						.P               (MAX_P          )
-					) the_router (
+					) the_router (					
+						.current_r_id    (ROUTER_NUM),
 						.current_r_addr  (current_r_addr [ROUTER_NUM]),    
 						.chan_in         (router_chan_in [ROUTER_NUM]), 
 						.chan_out        (router_chan_out[ROUTER_NUM]), 

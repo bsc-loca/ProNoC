@@ -8,9 +8,9 @@
 /**********************************************************************
 **	File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_topolgy/custom1/custom1_noc.sv
 **    
-**	Copyright (C) 2014-2019  Alireza Monemi
+**	Copyright (C) 2014-2021  Alireza Monemi
 **    
-**	This file is part of ProNoC 1.9.1 
+**	This file is part of ProNoC 2.0.0 
 **
 **	ProNoC ( stands for Prototype Network-on-chip)  is free software: 
 **	you can redistribute it and/or modify it under the terms of the GNU
@@ -403,6 +403,7 @@ module   custom1_noc
 	(	
 		.clk(R0_clk), 
 		.reset(R0_reset),
+		.current_r_id(0),
 		.current_r_addr  (R0_current_r_addr), 
 		.chan_in   (R0_chan_in), 
 		.chan_out  (R0_chan_out)
@@ -429,6 +430,7 @@ module   custom1_noc
 	(	
 		.clk(R1_clk), 
 		.reset(R1_reset),
+		.current_r_id(1),
 		.current_r_addr  (R1_current_r_addr), 
 		.chan_in   (R1_chan_in), 
 		.chan_out  (R1_chan_out)
@@ -455,6 +457,7 @@ module   custom1_noc
 	(	
 		.clk(R2_clk), 
 		.reset(R2_reset),
+		.current_r_id(2),
 		.current_r_addr  (R2_current_r_addr), 
 		.chan_in   (R2_chan_in), 
 		.chan_out  (R2_chan_out)
@@ -481,6 +484,7 @@ module   custom1_noc
 	(	
 		.clk(R3_clk), 
 		.reset(R3_reset),
+		.current_r_id(3),
 		.current_r_addr  (R3_current_r_addr), 
 		.chan_in   (R3_chan_in), 
 		.chan_out  (R3_chan_out)
@@ -507,6 +511,7 @@ module   custom1_noc
 	(	
 		.clk(R4_clk), 
 		.reset(R4_reset),
+		.current_r_id(4),
 		.current_r_addr  (R4_current_r_addr), 
 		.chan_in   (R4_chan_in), 
 		.chan_out  (R4_chan_out)
@@ -535,6 +540,7 @@ module   custom1_noc
 	(	
 		.clk(R5_clk), 
 		.reset(R5_reset),
+		.current_r_id(5),
 		.current_r_addr  (R5_current_r_addr), 
 		.chan_in   (R5_chan_in), 
 		.chan_out  (R5_chan_out)
@@ -563,6 +569,7 @@ module   custom1_noc
 	(	
 		.clk(R6_clk), 
 		.reset(R6_reset),
+		.current_r_id(6),
 		.current_r_addr  (R6_current_r_addr), 
 		.chan_in   (R6_chan_in), 
 		.chan_out  (R6_chan_out)
@@ -591,6 +598,7 @@ module   custom1_noc
 	(	
 		.clk(R7_clk), 
 		.reset(R7_reset),
+		.current_r_id(7),
 		.current_r_addr  (R7_current_r_addr), 
 		.chan_in   (R7_chan_in), 
 		.chan_out  (R7_chan_out)
@@ -619,6 +627,7 @@ module   custom1_noc
 	(	
 		.clk(R12_clk), 
 		.reset(R12_reset),
+		.current_r_id(8),
 		.current_r_addr  (R12_current_r_addr), 
 		.chan_in   (R12_chan_in), 
 		.chan_out  (R12_chan_out)
@@ -647,6 +656,7 @@ module   custom1_noc
 	(	
 		.clk(R13_clk), 
 		.reset(R13_reset),
+		.current_r_id(9),
 		.current_r_addr  (R13_current_r_addr), 
 		.chan_in   (R13_chan_in), 
 		.chan_out  (R13_chan_out)
@@ -675,6 +685,7 @@ module   custom1_noc
 	(	
 		.clk(R14_clk), 
 		.reset(R14_reset),
+		.current_r_id(10),
 		.current_r_addr  (R14_current_r_addr), 
 		.chan_in   (R14_chan_in), 
 		.chan_out  (R14_chan_out)
@@ -703,6 +714,7 @@ module   custom1_noc
 	(	
 		.clk(R15_clk), 
 		.reset(R15_reset),
+		.current_r_id(11),
 		.current_r_addr  (R15_current_r_addr), 
 		.chan_in   (R15_chan_in), 
 		.chan_out  (R15_chan_out)
@@ -731,6 +743,7 @@ module   custom1_noc
 	(	
 		.clk(R8_clk), 
 		.reset(R8_reset),
+		.current_r_id(12),
 		.current_r_addr  (R8_current_r_addr), 
 		.chan_in   (R8_chan_in), 
 		.chan_out  (R8_chan_out)
@@ -761,6 +774,7 @@ module   custom1_noc
 	(	
 		.clk(R9_clk), 
 		.reset(R9_reset),
+		.current_r_id(13),
 		.current_r_addr  (R9_current_r_addr), 
 		.chan_in   (R9_chan_in), 
 		.chan_out  (R9_chan_out)
@@ -791,6 +805,7 @@ module   custom1_noc
 	(	
 		.clk(R10_clk), 
 		.reset(R10_reset),
+		.current_r_id(14),
 		.current_r_addr  (R10_current_r_addr), 
 		.chan_in   (R10_chan_in), 
 		.chan_out  (R10_chan_out)
@@ -821,6 +836,7 @@ module   custom1_noc
 	(	
 		.clk(R11_clk), 
 		.reset(R11_reset),
+		.current_r_id(15),
 		.current_r_addr  (R11_current_r_addr), 
 		.chan_in   (R11_chan_in), 
 		.chan_out  (R11_chan_out)

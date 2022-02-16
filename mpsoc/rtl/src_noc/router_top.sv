@@ -16,6 +16,7 @@ module router_top
 	# (
 		parameter P = 5     // router port num         
 		)(
+			current_r_id,
 			current_r_addr,
 					
 			chan_in,
@@ -32,7 +33,7 @@ module router_top
 	localparam DISABLED =P;
 
 	input [RAw-1 :  0]  current_r_addr;
-	
+	input [31 : 0] current_r_id;
 	
 	
 	input   smartflit_chanel_t chan_in [P-1 : 0];
@@ -172,6 +173,7 @@ module router_top
 			.oport_info (oport_info),
 			.smart_ctrl_in (smart_ctrl),
 			.current_r_addr(current_r_addr),
+			.current_r_id(current_r_id),
 			.chan_in  (r2_chan_in), 
 			.chan_out (r2_chan_out), 
 			.ctrl_in  (ctrl_in),
@@ -372,6 +374,7 @@ module router_top_v //to be used as top module in veralator
 		parameter P = 5     // router port num         
 		)(
 			current_r_addr,
+			current_r_id,
         
 			chan_in,
 			chan_out,
@@ -384,6 +387,7 @@ module router_top_v //to be used as top module in veralator
 	
 
 	input  [RAw-1 : 0] current_r_addr;
+	input [31:0] current_r_id;
     
 	input   smartflit_chanel_t chan_in [P-1 : 0];
 	output  smartflit_chanel_t chan_out [P-1 : 0];
@@ -394,6 +398,7 @@ module router_top_v //to be used as top module in veralator
 		)
 		router
 		(
+			.current_r_id(current_r_id),
 			.current_r_addr(current_r_addr),
 			.chan_in (chan_in),
 			.chan_out(chan_out),       

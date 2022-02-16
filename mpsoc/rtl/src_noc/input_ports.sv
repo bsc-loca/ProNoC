@@ -454,7 +454,7 @@ module input_queue_per_port
 				);
 		end
 		/* verilator lint_off WIDTH */  
-		if ( TOPOLOGY == "FMESH") begin : fmesh
+		if ( TOPOLOGY == "FMESH" && CAST_TYPE== "UNICAST" ) begin : fmesh
 		/* verilator lint_on WIDTH */  
 				
 			
@@ -865,7 +865,7 @@ module input_queue_per_port
 						.clk(clk) 
 					);       
 			/* verilator lint_off WIDTH */  
-			end else if ( TOPOLOGY == "FMESH") begin : fmesh
+			end else if ( TOPOLOGY == "FMESH" && CAST_TYPE== "UNICAST") begin : fmesh
 			/* verilator lint_on WIDTH */  
 				
 				fwft_fifo #(

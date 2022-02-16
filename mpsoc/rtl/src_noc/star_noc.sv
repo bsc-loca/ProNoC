@@ -34,6 +34,7 @@ module  star_noc_top
 		)
 		the_router
 		(              
+			.current_r_id    (0),
 			.current_r_addr  (1'b0), 
 			.chan_in         (chan_in_all), 
 			.chan_out        (chan_out_all), 
