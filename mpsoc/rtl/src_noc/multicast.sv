@@ -11,50 +11,6 @@
  ***************************************/
  
 
-module multicast_dst_sel 
-		import pronoc_pkg::*;
-(
-	destport_in,
-	destport_out	
-);
-
-    input  [DSTPw-1 : 0] destport_in;
-    output [DSTPw-1 : 0] destport_out; 
-    
-    generate 
-    /* verilator lint_off WIDTH */ 
-    if(TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "FMESH"  ) begin : mesh
-    /* verilator lint_on WIDTH */ 
-    	mesh_torus_multicast_dst_sel sel    			
-    	(
-    		.destport_in(destport_in),
-    		.destport_out(destport_out)    
-    	);
-    /* verilator lint_off WIDTH */ 
-    end else if(TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin : ring
-    /* verilator lint_on WIDTH */ 		
-    	ring_line_multicast_dst_sel sel
-    	(
-    		.destport_in(destport_in),
-    		.destport_out(destport_out)    
-    	);
-  
-    end else begin : other 
-    	
-    	fattree_multicast_dst_sel #(
-    		.DSTPw(DSTPw)
-    	)
-    	sel
-    	(
-    		.destport_in(destport_in),
-    		.destport_out(destport_out)    
-    	);   	
-    	
-    	
-    end
-    endgenerate
-    
-endmodule
 
 
 
@@ -768,6 +724,82 @@ module multicast_chan_in_process
 	//synthesis translate_on
 		
 	endgenerate
+endmodule
+
+
+
+
+
+module multicast_dst_sel 
+		import pronoc_pkg::*;   
+	(
+
+		destport_in,
+		destport_out    
+	);
+
+	input  [DSTPw-1 : 0] destport_in;
+	output [DSTPw-1 : 0] destport_out; 
+
+
+	wire  [DSTPw-1 : 0] arb_in, arb_out;
+    
+	function integer mesh_tori_pririty_order;
+		input integer x;
+		begin
+			case(x)
+				0 : mesh_tori_pririty_order = EAST;
+				1 : mesh_tori_pririty_order = WEST;
+				2 : mesh_tori_pririty_order = NORTH;
+				3 : mesh_tori_pririty_order = SOUTH;
+				4 : mesh_tori_pririty_order = LOCAL;	
+				default : mesh_tori_pririty_order =x;
+			endcase
+		end
+	endfunction // pririty_order
+	
+	function integer ring_lin_pririty_order;
+		input integer x;
+		begin
+			case(x)
+				0 : ring_lin_pririty_order = FORWARD;
+				1 : ring_lin_pririty_order = BACKWARD;
+				2 : ring_lin_pririty_order = LOCAL;				
+				default : ring_lin_pririty_order =x;
+			endcase
+		end
+	endfunction // pririty_order
+	
+	
+	
+    	
+    	
+	genvar i;
+	generate 
+		for (i=0; i<DSTPw;i++) begin : lp
+			localparam PR = 
+				/* verilator lint_off WIDTH */ 
+				(TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "FMESH"  )?  mesh_tori_pririty_order(i):
+				(TOPOLOGY == "RING" || TOPOLOGY == "LINE") ? ring_lin_pririty_order(i) : i;
+				/* verilator lint_on WIDTH */								
+			assign arb_in[i] = destport_in[PR];
+			assign destport_out [PR] = arb_out[i];
+		end
+	endgenerate
+      
+    
+	fixed_priority_arbiter #(
+			.ARBITER_WIDTH     (DSTPw), 
+			.HIGH_PRORITY_BIT  ("LSB")
+		) fixed_priority_arbiter (
+			.request           (arb_in), 
+			.grant             (arb_out), 
+			.any_grant         (   )
+		);
+    
+       
+   
+    
 endmodule
 
 
