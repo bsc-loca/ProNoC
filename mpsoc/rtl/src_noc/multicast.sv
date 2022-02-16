@@ -616,8 +616,9 @@ module multicast_chan_in_process
 		.is_unicast()
 	);
 	
-	
-	assign mcast_dst_coded = hdr_flit.dest_e_addr[MCASTw-1:0];
+	localparam MCASTw_= (MCASTw < DAw ) ? MCASTw : DAw;
+		
+	assign mcast_dst_coded = hdr_flit.dest_e_addr[MCASTw_-1:0];
 	
 	
 	genvar i;
