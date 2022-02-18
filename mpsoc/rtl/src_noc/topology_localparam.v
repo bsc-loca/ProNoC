@@ -399,6 +399,57 @@ localparam
             fmesh_addrencode = ( p<<(NXw+NYw) | (y<<NXw) | x);      
         end   
     endfunction // addrencode    
+     
+    
+    
+    // synthesis translate_off
+    /* verilator lint_off WIDTH */
+   task display_noc_parameters;  
+   begin
+      //print_parameter 
+        $display ("NoC parameters:----------------");
+        $display ("\tTopology: %s",TOPOLOGY);
+        $display ("\tRouting algorithm: %s",ROUTE_NAME);
+        $display ("\tVC_per port: %0d", V);
+        $display ("\tNon-local port buffer_width per VC: %0d", B);
+        $display ("\tLocal port buffer_width per VC: %0d", LB);
+        if(TOPOLOGY=="MESH" || TOPOLOGY=="TORUS" || TOPOLOGY == "FMESH")begin
+            $display ("\tRouter num in row: %0d",T1);
+            $display ("\tRouter num in column: %0d",T2);
+            $display ("\tEndpoint num per router: %0d",T3);
+        end else if (TOPOLOGY=="RING" || TOPOLOGY == "LINE") begin
+            $display ("\tTotal Router num: %0d",T1);
+            $display ("\tEndpoint num per router: %0d",T3);
+        end else if (TOPOLOGY == "TREE" ||  TOPOLOGY == "FATTREE")begin
+            $display ("\tK: %0d",T1);
+            $display ("\tL: %0d",T2);
+        end else begin //CUSTOM
+            $display ("\tTotal Endpoints number: %0d",T1);
+            $display ("\tTotal Routers number: %0d",T2);
+        end
+        $display ("\tNumber of Class: %0d", C);
+        $display ("\tFlit data width: %0d", Fpay);
+        $display ("\tVC reallocation mechanism: %s",  VC_REALLOCATION_TYPE);
+        $display ("\tVC/sw combination mechanism: %s", COMBINATION_TYPE);
+        $display ("\tAVC_ATOMIC_EN:%0d", AVC_ATOMIC_EN);
+        $display ("\tCongestion Index:%0d",CONGESTION_INDEX);
+        $display ("\tADD_PIPREG_AFTER_CROSSBAR:%0d",ADD_PIPREG_AFTER_CROSSBAR);
+        $display ("\tSSA_EN enabled:%s",SSA_EN);
+        $display ("\tSwitch allocator arbitration type:%s",SWA_ARBITER_TYPE);
+        $display ("\tMinimum supported packet size:%0d flit(s)",MIN_PCK_SIZE);
+        $display ("\tLoop back is enabled:%s",SELF_LOOP_EN);
+        $display ("\tNumber of multihop bypass (SMART max):%0d",SMART_MAX);
+        $display ("\tCastying type:%s.",CAST_TYPE);
+        if (CAST_TYPE == "MULTICAST_PARTIAL" || CAST_TYPE == "BROADCAST_PARTIAL")begin
+            $display ("\tNumber of nodes in Cast list:%d",   MCAST_PRTLw);
+            $display ("\tCAST LIST:%b", MCAST_ENDP_LIST);
+        end 
+        $display ("NoC parameters:----------------");
+      end
+      endtask
+      /* verilator lint_on WIDTH */
+      // synthesis translate_on
+    
     
     
     
