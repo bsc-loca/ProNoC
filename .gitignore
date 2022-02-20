@@ -12,4 +12,6 @@ mpsoc/perl_gui/lib/soc/*.SOC
 !mpsoc/perl_gui/lib/soc/mor1k_tile.SOC
 mpsoc/src_c/netrace-1.0/*.o
 mpsoc/remove_cycle/test/*
+mpsoc/perl_gui/ProNoC
+mpsoc/script/synfull/transcript
 
