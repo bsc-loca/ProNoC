@@ -27,15 +27,26 @@ module  star_noc_top
 	//local ports 
 	input   smartflit_chanel_t chan_in_all  [NE-1 : 0];
 	output  smartflit_chanel_t chan_out_all [NE-1 : 0];
-		  
+	
+	input  [STAT_Aw-1 : 0] stat_addr_i;
+	output [STAT_Dw-1 : 0] stat_val_o;
+	
+	
+	assign router_stat_in.current_r_id = 0;
+	assign router_stat_in.current_r_addr = 0;
+	assign router_stat_in.stat_addr_i =stat_addr_i;
+	assign stat_val_o = router_stat_o.stat_val_o;
+	
+	router_stat_in_t  router_stat_in;
+	router_stat_out_t router_stat_out;
  
 	    router_top # (
 			.P(NE)
 		)
 		the_router
 		(              
-			.current_r_id    (0),
-			.current_r_addr  (1'b0), 
+			.router_stat_in  (router_stat_in ),
+			.router_stat_out (router_stat_out),
 			.chan_in         (chan_in_all), 
 			.chan_out        (chan_out_all), 
 			.clk             (clk            ), 

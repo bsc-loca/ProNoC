@@ -19,7 +19,9 @@ module  tree_noc_top
 		reset,
 		clk,    
 		chan_in_all,
-		chan_out_all  
+		chan_out_all,
+		stat_addr_i,
+		stat_val_o
 	);
   
   
@@ -27,6 +29,10 @@ module  tree_noc_top
 	//local ports 
 	input   smartflit_chanel_t chan_in_all  [NE-1 : 0];
 	output  smartflit_chanel_t chan_out_all [NE-1 : 0];
+	
+	input  [STAT_Aw-1 : 0] stat_addr_i [NR-1 :0];
+	output [STAT_Dw-1 : 0] stat_val_o  [NR-1 :0];
+	
 	
 	//all routers port 
 	smartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
@@ -86,8 +92,8 @@ module  tree_noc_top
 		)
 		root_router
 		(              
-			.current_r_id    (ROOT_ID),
-			.current_r_addr  (current_r_addr [ROOT_ID]), 
+			.router_stat_in  (router_stat_in [ROOT_ID]),
+			.router_stat_out (router_stat_out[ROOT_ID]),
 			.chan_in         (router_chan_in [ROOT_ID][K-1:0]), 
 			.chan_out        (router_chan_out[ROOT_ID][K-1:0]), 
 			.clk             (clk            ), 
@@ -95,25 +101,41 @@ module  tree_noc_top
 		);
 	
 
+	
+	router_stat_in_t  router_stat_in    [NR-1 :0];
+	router_stat_out_t router_stat_out   [NR-1 :0];
+	
 	genvar pos,level;
 
 
-	//add leaves
+	
 	generate
+		
+		for( r=0; r<NR; r=r+1) begin : Rstat_ 	
+			assign router_stat_in[r].current_r_id = r;
+			assign router_stat_in[r].current_r_addr = current_r_addr[r];
+			assign router_stat_in[r].stat_addr_i =stat_addr_i[r];
+			assign stat_val_o[r] = router_stat_o[r].stat_val_o;
+		end	
+		
+		//add leaves
+		
 		for( level=1; level<L; level=level+1) begin :level_lp
 			localparam NPOS1 = powi(K,level); // number of routers in this level
 			localparam NRATTOP1 = sum_powi ( K,level); // number of routers at top levels : from root until last level
 			for( pos=0; pos<NPOS1; pos=pos+1) begin : pos_lp 
-                    
+                
+				localparam RID=NRATTOP1+pos;
+				
 				router_top # (
 						.P(K+1)// leaves have K+1 port number						
 					)
 					the_router
 					(                                  
-						.current_r_id    (NRATTOP1+pos),
-						.current_r_addr  (current_r_addr [NRATTOP1+pos]), 
-						.chan_in         (router_chan_in [NRATTOP1+pos]), 
-						.chan_out        (router_chan_out[NRATTOP1+pos]), 
+						.router_stat_in  (router_stat_in [RID]),
+						.router_stat_out (router_stat_out[RID]),						
+						.chan_in         (router_chan_in [RID]), 
+						.chan_out        (router_chan_out[RID]), 
 						.clk             (clk            ), 
 						.reset           (reset          )						
 					);  

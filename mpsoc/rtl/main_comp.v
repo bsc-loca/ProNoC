@@ -120,6 +120,23 @@ endmodule
 
 
 
+
+module pronoc_counter #(
+    parameter W=32    
+    )(   
+    input reset,    
+    input clk,      
+    input incr,
+    output reg [W-1:0] cout    
+); 
+    
+    always @ (`pronoc_clk_reset_edge )begin 
+        if(`pronoc_reset)   cout<={W{1'b0}};
+        else if (incr) if(cout!={W{1'b1}})      cout<=cout+1;
+    end   
+
+endmodule
+
 /*********************************
 
 

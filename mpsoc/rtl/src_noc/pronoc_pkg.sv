@@ -206,19 +206,23 @@ localparam
 * Router Statistic 
  ********/
 
-	localparam STATISTIC_EN=0; 	
+	localparam STAT_EN=1; 	
 	
 	enum{
-		FLIT_IN__COUNT,
-		PCK_IN_COUNT,
-		FLIT_OUT__COUNT,
-		PCK_OUT_COUNT
+		STAT_FLIT_IN_COUNT=0,
+		STAT_PCK_IN_COUNT=1,
+		STAT_FLIT_OUT_COUNT=2,
+		STAT_PCK_OUT_COUNT=3,
+		STAT_FLIT_BYPASSED=4,
+		STAT_FLIT_IN_SMART=5 //should be the last st		
 	} statistic;	
 	
 	localparam 
-		ST_NUM = (STATISTIC_EN>0) ? statistic.num() : 0,
-		ST_Aw  = log2(ST_NUM),
-		ST_Dw  = (STATISTIC_EN>0) ? 32 : 1;	
+		STAT_Dw  = (STAT_EN>0) ? 32 : 1,
+		STAT_NUM_PER_PORT = (STAT_EN>0) ? statistic.num()+SMART_MAX : 0,
+		STAT_Aw_PER_PORT  = log2(STAT_NUM_PER_PORT),
+		STAT_Aw = (STAT_EN>0) ? log2(MAX_P) + STAT_Aw_PER_PORT : 1; 
+		
     
 	
 		
@@ -277,8 +281,8 @@ localparam
 		bit    endp_port;  // if it is one, it means the corresponding port is connected o an endpoint
 		logic [RAw-1:   0]  neighbors_r_addr;
 		logic [V-1  :0] [CRDTw-1: 0] credit_init_val; // the connected port initial credit value. It is taken at reset time	
-		logic [ST_Aw-1 : 0] statistic_addr;
-		logic [ST_Dw-1 : 0] statistic_val;
+		logic [STAT_Aw-1 : 0] statistic_addr;
+		logic [STAT_Dw-1 : 0] statistic_val;
 	} ctrl_chanel_t; 
 	localparam CTRL_CHANEL_w = $bits(ctrl_chanel_t);
 	
@@ -290,7 +294,15 @@ localparam
 	localparam SMARTFLIT_CHANEL_w = $bits(smartflit_chanel_t); 
 	
 	
+	typedef struct packed {	
+		logic  [RAw-1 :  0]  current_r_addr;
+		logic  [31 : 0] current_r_id;
+		logic  [STAT_Aw-1 : 0] stat_addr_i;			
+	} router_stat_in_t;
 	
+	typedef struct packed {	
+		logic [STAT_Dw-1 : 0] stat_val_o;		
+	} router_stat_out_t;
 	
 /***********
  * simulation

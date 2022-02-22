@@ -11,38 +11,44 @@
  *  add optional bypass links to two stage router.
  */
 module router_top 
-		import pronoc_pkg::*;
+	import pronoc_pkg::*;        
+# (
+	parameter P = 5     // router port num         
+)(
+	router_stat_in,
+	router_stat_out,
+								
+	chan_in,
+	chan_out,
         
-	# (
-		parameter P = 5     // router port num         
-		)(
-			current_r_id,
-			current_r_addr,
-					
-			chan_in,
-			chan_out,
-        
-			clk,
-			reset
-			
-			
-			
-		);
+	clk,
+	reset			
+);
 	
 	
 	localparam DISABLED =P;
 
-	input [RAw-1 :  0]  current_r_addr;
-	input [31 : 0] current_r_id;
-	
+	input   router_stat_in_t  router_stat_in;
+	output 	router_stat_out_t router_stat_out;
 	
 	input   smartflit_chanel_t chan_in [P-1 : 0];
 	output  smartflit_chanel_t chan_out [P-1 : 0];
 	
-	
-	
-	
 	input   clk,reset;	
+	
+	
+	wire  [STAT_Aw-1 : 0] stat_addr_i;
+	wire  [STAT_Dw-1 : 0] stat_val_o;
+	
+	wire  [RAw-1 :  0]  current_r_addr;
+	wire  [31 : 0] current_r_id;
+	
+	assign stat_addr_i  = router_stat_in.stat_addr_i;
+	assign current_r_id = router_stat_in.current_r_id;
+	assign current_r_addr = router_stat_in.current_r_addr;	
+	assign router_stat_out.stat_val_o =  stat_val_o;
+	
+	
 	
 	genvar i,j;
 	
@@ -329,6 +335,45 @@ module router_top
 				assign smart_ctrl[i]={SMART_CTRL_w{1'b0}};
 			end//for
 		end
+			
+		
+			
+		if(STAT_EN) begin :stat
+			localparam Pw =log2(MAX_P);
+			wire [STAT_NUM_PER_PORT-1: 0] incr [P-1 : 0];
+			wire [STAT_Dw-1 : 0] stat_per_port [P-1 : 0];
+			wire [STAT_Aw_PER_PORT-1 : 0] stat_addr_in_port;
+			wire [Pw-1 : 0] stat_port;
+					
+			assign {stat_port,stat_addr_in_port} =  stat_addr_i ;
+			assign stat_val_o = stat_per_port [stat_port];
+			
+			for (i=0;i<P;i=i+1)begin : Port_	
+				assign incr[i][STAT_FLIT_IN_COUNT]  = r2_chan_in[i].flit_wr;
+				assign incr[i][STAT_PCK_IN_COUNT]   = r2_chan_in[i].flit_wr & r2_chan_in[i].flit.hdr_flag;				
+				assign incr[i][STAT_FLIT_OUT_COUNT] = r2_chan_out[i].flit_wr;
+				assign incr[i][STAT_PCK_OUT_COUNT]  = r2_chan_out[i].flit_wr & r2_chan_out[i].flit.hdr_flag;							
+				assign incr[i][STAT_FLIT_BYPASSED]  = ~r2_chan_in[i].flit_wr & chan_in[i].flit_chanel.flit_wr;
+				
+				router_iport_statistic	# (
+					.SW_LOC(i)
+				)stat(
+					.reset(reset),
+					.clk(clk),
+					.incr(incr[i]),
+					
+					.rd_addr(stat_addr_in_port),
+					.val_o(stat_per_port[i])		
+				);
+				
+				
+				
+				
+			
+			
+			end
+		end	
+			
 	endgenerate	
 
 	
@@ -367,15 +412,19 @@ endmodule
 
 
 
-module router_top_v //to be used as top module in veralator
+module router_top_v //to be used as top module in Verilator
 		import pronoc_pkg::*;
         
 	# (
 		parameter P = 5     // router port num         
 		)(
+						
 			current_r_addr,
 			current_r_id,
-        
+			
+			stat_addr_i,
+			stat_val_o,
+			
 			chan_in,
 			chan_out,
         
@@ -385,21 +434,36 @@ module router_top_v //to be used as top module in veralator
 		);
   
 	
-
-	input  [RAw-1 : 0] current_r_addr;
-	input [31:0] current_r_id;
-    
 	input   smartflit_chanel_t chan_in [P-1 : 0];
 	output  smartflit_chanel_t chan_out [P-1 : 0];
+	
+	input [RAw-1 :  0]  current_r_addr;
+	input [31 : 0] current_r_id;
+
+	input  [STAT_Aw-1 : 0] stat_addr_i;
+	output [STAT_Dw-1 : 0] stat_val_o;
+	
+	router_stat_in_t router_stat_in;
+	router_stat_out_t  router_stat_out;
+	
 	input reset,clk;
+	
+	
+	assign router_stat_in.stat_addr_i = stat_addr_i;
+	assign router_stat_in.current_r_id = current_r_id;
+	assign router_stat_in.current_r_addr =current_r_addr;	
+	assign stat_val_o = router_stat_out.stat_val_o; 
+	
 
 	router_top # (
 			.P(P)           
 		)
 		router
 		(
-			.current_r_id(current_r_id),
-			.current_r_addr(current_r_addr),
+					
+			.router_stat_in  (router_stat_in ),
+			.router_stat_out (router_stat_out),
+			
 			.chan_in (chan_in),
 			.chan_out(chan_out),       
 			.clk(clk),
@@ -409,4 +473,50 @@ module router_top_v //to be used as top module in veralator
 		
 endmodule
 
+
+
+
+module router_iport_statistic 
+	import pronoc_pkg::*;        
+	# (
+	parameter SW_LOC=0
+	)(
+	reset,
+	clk,
+	incr,
+	
+	//read-port
+	rd_addr,
+	val_o
+		
+	);
+	
+	input reset,clk;
+	input [STAT_NUM_PER_PORT-1: 0] incr;
+	input [STAT_Aw_PER_PORT-1 : 0] rd_addr;
+	output [STAT_Dw-1 : 0]	val_o;
+	
+	wire [STAT_Dw-1 : 0]  st_counter [STAT_NUM_PER_PORT-1 : 0];
+	
+	
+	assign val_o = st_counter [rd_addr];
+	
+	genvar i;
+	generate
+	for(i = 0; i< STAT_NUM_PER_PORT; i++) begin : st	
+		
+		pronoc_counter #(
+			.W(STAT_Dw)    
+		)counter(   
+			.reset(reset),    
+			.clk(clk),      
+			.incr(incr[i]),
+			.cout(st_counter[i])
+		);
+		
+	end	
+	endgenerate	
+	
+	
+endmodule	
 

@@ -33,7 +33,10 @@ module  noc_top
 	reset,
 	clk,    
 	chan_in_all,
-	chan_out_all  
+	chan_out_all,
+	stat_addr_i,
+	stat_val_o
+	
 );
   
   	
@@ -42,7 +45,8 @@ module  noc_top
 	input   smartflit_chanel_t chan_in_all  [NE-1 : 0];
 	output  smartflit_chanel_t chan_out_all [NE-1 : 0];
 
- 
+	input  [STAT_Aw-1 : 0] stat_addr_i [NR-1 :0];
+	output [STAT_Dw-1 : 0] stat_val_o  [NR-1 :0];
    
 
 
@@ -54,7 +58,9 @@ module  noc_top
 			.reset         (reset        ), 
 			.clk           (clk          ), 
 			.chan_in_all   (chan_in_all  ), 
-			.chan_out_all  (chan_out_all )
+			.chan_out_all  (chan_out_all ),
+			.stat_addr_i   (stat_addr_i  ),
+			.stat_val_o    (stat_val_o   )
 		);
 	
     
@@ -64,7 +70,9 @@ module  noc_top
         		.reset         (reset        ), 
         		.clk           (clk          ), 
         		.chan_in_all   (chan_in_all  ), 
-        		.chan_out_all  (chan_out_all )
+        		.chan_out_all  (chan_out_all ),
+        		.stat_addr_i   (stat_addr_i  ),
+        		.stat_val_o    (stat_val_o   )
         );
         
         
@@ -73,14 +81,18 @@ module  noc_top
         	.reset         (reset        ), 
         	.clk           (clk          ), 
         	.chan_in_all   (chan_in_all  ), 
-        	.chan_out_all  (chan_out_all )
+        	.chan_out_all  (chan_out_all ),
+        	.stat_addr_i   (stat_addr_i  ),
+        	.stat_val_o    (stat_val_o   )
         );
     end else if (TOPOLOGY == "STAR") begin : star_
     	star_noc_top  noc_top ( 
     			.reset         (reset        ), 
     			.clk           (clk          ), 
     			.chan_in_all   (chan_in_all  ), 
-    			.chan_out_all  (chan_out_all )
+    			.chan_out_all  (chan_out_all ),
+    			.stat_addr_i   (stat_addr_i  ),
+    			.stat_val_o    (stat_val_o   )
     		);
     	
     end else begin :custom_
@@ -89,7 +101,9 @@ module  noc_top
 			.reset         (reset        ), 
 			.clk           (clk          ), 
 			.chan_in_all   (chan_in_all  ), 
-			.chan_out_all  (chan_out_all )
+			.chan_out_all  (chan_out_all ),
+			.stat_addr_i   (stat_addr_i  ),
+			.stat_val_o    (stat_val_o   )
 		);
 
     end     
@@ -137,7 +151,9 @@ module  noc_top_v
 		.reset(reset),
 		.clk(clk),    
 		.chan_in_all(chan_in_all),
-		.chan_out_all(chan_out_all)  
+		.chan_out_all(chan_out_all),
+		.stat_addr_i(),
+		.stat_val_o()
 	);
 
 	

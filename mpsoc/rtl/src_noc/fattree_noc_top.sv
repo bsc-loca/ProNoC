@@ -25,7 +25,9 @@ module  fattree_noc_top
 		reset,
 		clk,    
 		chan_in_all,
-		chan_out_all  
+		chan_out_all,
+		stat_addr_i,
+		stat_val_o
 	);
   
   
@@ -33,6 +35,9 @@ module  fattree_noc_top
 	//local ports 
 	input   smartflit_chanel_t chan_in_all  [NE-1 : 0];
 	output  smartflit_chanel_t chan_out_all [NE-1 : 0];
+	
+	input  [STAT_Aw-1 : 0] stat_addr_i [NR-1 :0];
+	output [STAT_Dw-1 : 0] stat_val_o  [NR-1 :0];
 	
 	
 	//all routers port 
@@ -52,7 +57,7 @@ module  fattree_noc_top
 			PLw = MAX_P * Lw,       
 			PRAw = MAX_P * RAw; // {layer , Pos} width     
         
-  function integer addrencode;
+	function integer addrencode;
         input integer pos,k,n,kw;
         integer pow,i,tmp;begin
         addrencode=0;
@@ -67,26 +72,41 @@ module  fattree_noc_top
         end   
     endfunction 
         
-    wire [LKw-1 : 0] current_pos_addr [NR-1 :0];
+    wire [LKw-1 : 0] current_pos_addr   [NR-1 :0];
     wire [Lw-1  : 0] current_layer_addr [NR-1 :0];   
-    wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
+    wire [RAw-1 : 0] current_r_addr     [NR-1 :0];
+   
+    
+    router_stat_in_t  router_stat_in    [NR-1 :0];
+    router_stat_out_t router_stat_out   [NR-1 :0];
+    
     
 //add roots
 
-genvar pos,level,port;
+genvar r,pos,level,port;
 
 
 
 generate 
+for( r=0; r<NR; r=r+1) begin : Rstat_ 	
+	assign router_stat_in[r].current_r_id = r;
+	assign router_stat_in[r].current_r_addr = current_r_addr[r];
+	assign router_stat_in[r].stat_addr_i =stat_addr_i[r];
+	assign stat_val_o[r] = router_stat_o[r].stat_val_o;
+end	
+	
 for( pos=0; pos<NRL; pos=pos+1) begin : root 
-      
+     
+	
 	  router_top # (
                .P(K)               
       )
       the_router
       (              
-      		.current_r_id    (pos),
-      		.current_r_addr  (current_r_addr [pos]), 
+      		      		
+      		.router_stat_in  (router_stat_in [pos]),
+      		.router_stat_out (router_stat_out[pos]),
+      		
            	.chan_in         (router_chan_in [pos][K-1 : 0]), 
            	.chan_out        (router_chan_out[pos][K-1 : 0]), 
            	.clk             (clk            ), 
@@ -101,16 +121,18 @@ end
 for( level=1; level<L; level=level+1) begin :level_lp
    for( pos=0; pos<NRL; pos=pos+1) begin : pos_lp 
     
+   	localparam RID = NRL*level+pos; 
+   	assign current_r_id [RID] = pos [NRw-1 :0];
    	   	
    	router_top # (
    			.P(2*K)         
    		)
    		the_router
    		(              
-   			.current_r_id    (NRL*level+pos),
-   			.current_r_addr  (current_r_addr [NRL*level+pos]), 
-   			.chan_in         (router_chan_in [NRL*level+pos]), 
-   			.chan_out        (router_chan_out[NRL*level+pos]), 
+   			.router_stat_in  (router_stat_in [RID]),
+   			.router_stat_out (router_stat_out[RID]),
+   			.chan_in         (router_chan_in [RID]), 
+   			.chan_out        (router_chan_out[RID]), 
    			.clk             (clk            ), 
    			.reset           (reset          )
    		);           

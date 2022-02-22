@@ -197,6 +197,9 @@ sub get_router_instance_v {
 \tsmartflit_chanel_t    ${instance}_chan_in   [$Pnum-1 : 0];
 \tsmartflit_chanel_t    ${instance}_chan_out  [$Pnum-1 : 0]; 
 
+\trouter_stat_in_t ${instance}_router_stat_in;
+\trouter_stat_out_t ${instance}_router_stat_out;
+
 ";
 
 	
@@ -213,8 +216,8 @@ sub get_router_instance_v {
 	(	
 		.clk(${instance}_clk), 
 		.reset(${instance}_reset),
-		.current_r_id($current_r),
-		.current_r_addr  (${instance}_current_r_addr), 
+		.router_stat_in  (${instance}_router_stat_in),
+		.router_stat_out (${instance}_router_stat_out),		
 		.chan_in   (${instance}_chan_in), 
 		.chan_out  (${instance}_chan_out)
 	);
@@ -225,6 +228,12 @@ $router_v= $router_v."
 \t\tassign ${instance}_clk = clk;
 \t\tassign ${instance}_reset = reset;
 \t\tassign ${instance}_current_r_addr = $current_r;
+
+\t\tassign ${instance}_router_stat_in.current_r_id =$current_r;
+\t\tassign ${instance}_router_stat_in.current_r_addr = $current_r;
+\t\tassign ${instance}_router_stat_in.stat_addr_i =${instance}_stat_addr_i;
+\t\tassign ${instance}_stat_val_o = ${instance}_router_stat_o.stat_val_o;
+
 "; 
 
 
@@ -346,13 +355,18 @@ sub generate_topology_top_genvar_v{
 	my $ports="\treset,
 \tclk,
 \tchan_in_all,
-\tchan_out_all  
+\tchan_out_all,
+\tstat_addr_i,
+\tstat_val_o
+
 ";
     my $ports_def="
 \tinput  reset;
 \tinput  clk;
 \tinput  smartflit_chanel_t chan_in_all  [NE-1 : 0];
 \toutput smartflit_chanel_t chan_out_all [NE-1 : 0];
+\tinput  [STAT_Aw-1 : 0] stat_addr_i [NR-1 :0];
+\toutput [STAT_Dw-1 : 0] stat_val_o  [NR-1 :0];
 
 //all routers port 
 \tsmartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
@@ -458,13 +472,18 @@ sub generate_topology_top_genvar_v{
 	(	
 		.clk(clk), 
 		.reset(reset),
-		.current_r_id($router_pos),
-		.current_r_addr($router_pos),	
+		.router_stat_in  (router_stat_in\[$router_pos\]),
+		.router_stat_out (router_stat_out\[$router_pos\]),		
+	
 		.chan_in  (router_chan_in\[$router_pos\]), 
 		.chan_out (router_chan_out\[$router_pos\])		
 	);
     
     
+    assign router_stat_in\[$router_pos\].current_r_id = $router_pos;
+	assign router_stat_in\[$router_pos\].current_r_addr = $router_pos;
+	assign router_stat_in\[$router_pos\].stat_addr_i =stat_addr_i\[$router_pos\];
+	assign stat_val_o\[$router_pos\] = router_stat_o\[$router_pos\].stat_val_o;    	
     
 \tend    
 			";
@@ -583,12 +602,16 @@ sub get_router_genvar_instance_v{
 	(	
 		.clk(clk), 
 		.reset(reset),
-		.current_r_addr($router_pos),
-		.current_r_id($router_pos),
+		.router_stat_in  (router_stat_in\[$router_pos\]),
+		.router_stat_out (router_stat_out\[$router_pos\]),	
 		.chan_in (router_chan_in\[$router_pos\]), 
 		.chan_out(router_chan_out\[$router_pos\])		
 	);
 	
+	assign router_stat_in\[$router_pos\].current_r_id = $router_pos;
+	assign router_stat_in\[$router_pos\].current_r_addr = $router_pos;
+	assign router_stat_in\[$router_pos\].stat_addr_i =stat_addr_i\[$router_pos\];
+	assign stat_val_o\[$router_pos\] = router_stat_o\[$router_pos\].stat_val_o;    	
 	
 	
 ";

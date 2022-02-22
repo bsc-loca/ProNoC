@@ -40,7 +40,9 @@ module mesh_torus_noc_top
     reset,
     clk,    
     chan_in_all,
-    chan_out_all  
+    chan_out_all,
+    stat_addr_i,
+    stat_val_o
 );
 
     
@@ -52,6 +54,9 @@ module mesh_torus_noc_top
 	//all routers port 
 	smartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
 	smartflit_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+	
+	input  [STAT_Aw-1 : 0] stat_addr_i [NR-1 :0];
+	output [STAT_Dw-1 : 0] stat_val_o  [NR-1 :0];
 
 	wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
 
@@ -67,23 +72,41 @@ module mesh_torus_noc_top
 		BACKWARD=  2'd2;
 
 
-	genvar x,y,l;
+	router_stat_in_t  router_stat_in    [NR-1 :0];
+	router_stat_out_t router_stat_out   [NR-1 :0];	
+		
+		
+	genvar x,y,l,r;
 	generate 
+		
+	
+	for( r=0; r<NR; r=r+1) begin : Rstat_ 	
+		assign router_stat_in[r].current_r_id = r;
+		assign router_stat_in[r].current_r_addr = current_r_addr[r];
+		assign router_stat_in[r].stat_addr_i =stat_addr_i[r];
+		assign stat_val_o[r] = router_stat_o[r].stat_val_o;
+	end	
+		
+		
+		
+		
 	/* verilator lint_off WIDTH */ 
 		if( TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin : ring_line 
 			/* verilator lint_on WIDTH */ 
 			for  (x=0;   x<NX; x=x+1) begin :Router_
-             
+             	localparam RID= x;
                        
 				assign current_r_addr [x] = x[RAw-1: 0];   
 	
 				router_top #(
 					.P               (MAX_P          )
 					) the_router (
-					.current_r_id    (x),
-					.current_r_addr  (current_r_addr [x]), 
-					.chan_in         (router_chan_in [x]), 
-					.chan_out        (router_chan_out[x]), 
+										
+					.router_stat_in  (router_stat_in [RID]),
+					.router_stat_out (router_stat_out[RID]),
+					
+					.chan_in         (router_chan_in [RID]), 
+					.chan_out        (router_chan_out[RID]), 
 					.clk             (clk            ), 
 					.reset           (reset          ));
 	
@@ -125,16 +148,16 @@ module mesh_torus_noc_top
 			for (y=0;    y<NY;    y=y+1) begin: y_loop
 				for (x=0;    x<NX; x=x+1) begin :x_loop
 				localparam R_ADDR = (y<<NXw) + x;            
-				localparam ROUTER_NUM = (y * NX) +    x;					
-				assign current_r_addr [ROUTER_NUM] = R_ADDR[RAw-1 :0];
+				localparam RID = (y * NX) +    x;					
+				assign current_r_addr [RID] = R_ADDR[RAw-1 :0];
              	
 					router_top #(
 						.P               (MAX_P          )
 					) the_router (					
-						.current_r_id    (ROUTER_NUM),
-						.current_r_addr  (current_r_addr [ROUTER_NUM]),    
-						.chan_in         (router_chan_in [ROUTER_NUM]), 
-						.chan_out        (router_chan_out[ROUTER_NUM]), 
+						.router_stat_in  (router_stat_in [RID]),
+						.router_stat_out (router_stat_out[RID]),
+						.chan_in         (router_chan_in [RID]), 
+						.chan_out        (router_chan_out[RID]), 
 						.clk             (clk            ), 
 						.reset           (reset          ));
 					
