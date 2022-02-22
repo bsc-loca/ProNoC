@@ -202,7 +202,7 @@ module router_two_stage
 			
 			assign  ctrl_out[i].neighbors_r_addr = current_r_addr;
 			assign  ctrl_out[i].endp_port =1'b0;
-			assign  ctrl_out[i].statistic_addr = {ST_Aw{1'b0}};
+			
 			
 			assign  chan_out[i].flit=          flit_out_all       [(i+1)*Fw-1:  i*Fw];       
 			assign  chan_out[i].flit_wr=       flit_out_wr_all    [i];                       

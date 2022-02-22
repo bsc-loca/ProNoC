@@ -63,7 +63,10 @@ module router_top
 			$display("ERROR: The minimum packet size must be set as one for single-flit packet type NoC");
 			$finish;	
 		end
-	end
+	end	
+	/* verilator lint_on WIDTH */
+	
+	
 	
 	
 	
@@ -72,14 +75,20 @@ module router_top
 	generate 
 	for (i=0; i<P; i=i+1) begin :P_
 		for (j=0; j<V; j=j+1) begin :V_		
-		always @ (posedge report_active_ivcs) begin 
-			if(ivc_info[i][j].ivc_req) $display("%t : The IVC in router[%h] port[%d] VC [%d] is not empty",$time,current_r_addr,i,j);
-		end
-		end
+			always @ (posedge report_active_ivcs) begin 
+				if(ivc_info[i][j].ivc_req) $display("%t : The IVC in router[%h] port[%d] VC [%d] is not empty",$time,current_r_addr,i,j);
+			end
+		end		
 	end
 	endgenerate
 	
-	/* verilator lint_on WIDTH */
+	
+	
+	
+	
+	
+	
+	
 	//synopsys  translate_on
 	//synthesis translate_on 
 	
@@ -237,7 +246,7 @@ module router_top
 							.reset                     (reset                    ), 
 							.current_r_addr_i          (current_r_addr   ), 
 							.neighbors_r_addr_i        (neighbors_r_addr         ), 
-							.smart_chanel_i              (chan_in[i].smart_chanel    ), 
+							.smart_chanel_i            (chan_in[i].smart_chanel    ), 
 							.flit_chanel_i             (chan_in[i].flit_chanel   ), 
 							.ivc_info                  (ivc_info[i]              ), 
 							.ss_ovc_info               (ovc_info[SS_PORT]        ),
@@ -279,15 +288,19 @@ module router_top
 					// synthesis translate_on
 					
 					assign smart_chanel_in[i] =   chan_in[i].smart_chanel;
-					assign chan_out[i].smart_chanel = smart_chanel_out[i];
+					
 				
 					//r2 demux
 					// flit_in_wr demux 
 					always @(*) begin 
+						chan_out[i].smart_chanel = smart_chanel_out[i];
+						chan_out[i].smart_chanel.flit_in_bypassed =smart_ctrl[i].smart_en & chan_in[i].flit_chanel.flit_wr ;
+						
 						//mask only flit_wr if smart_en is asserted 
 						r2_chan_in[i]   =  chan_in[i].flit_chanel;
 						//can replace destport here and remove lk rout from internal router 
 						if (smart_ctrl[i].smart_en) r2_chan_in[i].flit_wr = 1'b0;
+						
 					
 						//send flit_in to straight out port. Replace lk destport in header flit
 						ss_flit_chanel[SS_PORT] = chan_in[i].flit_chanel;
@@ -380,7 +393,15 @@ module router_top_v //to be used as top module in veralator
 			chan_out,
         
 			clk,
-			reset
+			reset,
+			
+			//local variable defined as output for verilator simulation
+			Verilator_flit_wr_i,
+			Verilator_pck_wr_i,
+			Verilator_flit_wr_o,
+			Verilator_pck_wr_o,
+			Verilator_flit_in_bypassed
+			
 
 		);
   
@@ -391,7 +412,13 @@ module router_top_v //to be used as top module in veralator
     
 	input   smartflit_chanel_t chan_in [P-1 : 0];
 	output  smartflit_chanel_t chan_out [P-1 : 0];
-	input reset,clk;
+	input   reset,clk;
+	
+	output Verilator_flit_wr_i [P-1 : 0];
+	output Verilator_pck_wr_i  [P-1 : 0];
+	output Verilator_flit_wr_o [P-1 : 0];
+	output Verilator_pck_wr_o  [P-1 : 0];
+	output Verilator_flit_in_bypassed [P-1 : 0];
 
 	router_top # (
 			.P(P)           
@@ -405,6 +432,19 @@ module router_top_v //to be used as top module in veralator
 			.clk(clk),
 			.reset(reset)
 		);
+	
+	genvar i;
+	generate 
+	for (i=0; i<P; i=i+1) begin :P_
+		assign Verilator_flit_wr_i[i] = chan_in[i].flit_chanel.flit_wr;
+		assign Verilator_pck_wr_i[i]  = chan_in[i].flit_chanel.flit_wr & chan_in[i].flit_chanel.flit.hdr_flag;
+		assign Verilator_flit_wr_o[i] = chan_out[i].flit_chanel.flit_wr;
+		assign Verilator_pck_wr_o[i]  = chan_out[i].flit_chanel.flit_wr & chan_out[i].flit_chanel.flit.hdr_flag;
+		assign Verilator_flit_in_bypassed[i] = chan_out[i].smart_chanel.flit_in_bypassed;	
+			
+	end
+	endgenerate
+	
 	
 		
 endmodule

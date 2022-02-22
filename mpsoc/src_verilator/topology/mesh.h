@@ -145,7 +145,8 @@ void topology_connect_all_nodes (void){
 			#define R2R_CHANELS_MESH_TORI   2 
 			for  (x=0;   x<T1; x=x+1) {             
                        
-				router1[x]->current_r_addr = x;   
+				router1[x]->current_r_addr = x;
+				router1[x]->current_r_id   = x;
 				if(x    <   T1-1){// not_last_node 
 					//assign  router_chan_in[x][FORWARD] = router_chan_out [(x+1)][BACKWARD];
 					conect_r2r(1,x,FORWARD,1,(x+1),BACKWARD);
@@ -195,7 +196,7 @@ void topology_connect_all_nodes (void){
 				unsigned int ROUTER_NUM = (y * T1) +    x;					
 				//assign current_r_addr [ROUTER_NUM] = R_ADDR[RAw-1 :0];
              	router1[ROUTER_NUM]->current_r_addr = R_ADDR;  
-					      
+             	router1[ROUTER_NUM]->current_r_id   = ROUTER_NUM;
         
 				if(x    <    T1-1) {//: not_last_x
 					//assign router_chan_in[`router_id(x,y)][EAST]= router_chan_out [`router_id(x+1,y)][WEST];

@@ -520,13 +520,17 @@ sub get_noc_verilator_top_modules_info {
 	}
 	my $rns_num = $router_p+1;
 	$includ_h.="int router_NRs[$rns_num];\n";
-	for (my $p=1; $p<=$router_p ; $p++){
-		 $includ_h=$includ_h."#define NR${p} $nr_p{$p}\n";
-		 my $pnum= $nr_p{"p$p"};
-		 $includ_h=$includ_h."Vrouter${p}		*router${p}[ $nr_p{$p} ];   // Instantiation of router with $pnum  port number\n";
-		
-	}
 	
+	my $max_p=0;
+	for (my $p=1; $p<=$router_p ; $p++){
+		  my $pnum= $nr_p{"p$p"};
+		 $includ_h=$includ_h."#define NR${p} $nr_p{$p}\n";
+	 	 $includ_h=$includ_h."#define NR${p}_PNUM $pnum\n";
+		
+		 $includ_h=$includ_h."Vrouter${p}		*router${p}[ $nr_p{$p} ];   // Instantiation of router with $pnum  port number\n";
+		 $max_p = $pnum if($max_p < $pnum);
+	}
+	$includ_h.="#define MAX_P  $max_p //The maximum number of ports available in a router in this topology\n";
 	
 	my $st1='';
 	my $st2='';
@@ -534,6 +538,7 @@ sub get_noc_verilator_top_modules_info {
 	my $st4='';
 	my $st5='';
 	my $st6='';
+	my $st7='';
 	
 	my $i=1;
 	my $j=0;
@@ -574,6 +579,24 @@ $st6=$st6."
 	if (i<NR${i}){ router${i}[i]->eval(); return;}
 	i-=	NR${i};
 ";
+
+
+$st7.="
+	if (i<NR${i}){ 
+		update_router_st(
+			NR${i}_PNUM,
+			router${i}[i]->current_r_id,   
+			router${i}[i]->Verilator_flit_wr_i,
+			router${i}[i]->Verilator_pck_wr_i,
+			router${i}[i]->Verilator_flit_wr_o,
+			router${i}[i]->Verilator_pck_wr_o,
+			router${i}[i]->Verilator_flit_in_bypassed		
+		); 
+		return;
+	}
+	i-=	NR${i};
+";
+
 	$i++;
 	$j++;
 	$accum=$accum+$nr_p{$p};
@@ -611,7 +634,19 @@ void inline single_router_eval(int i){
 	$st6
 }
 
-
+extern void update_router_st (
+  unsigned int,
+  unsigned int, 
+  unsigned char *,
+  unsigned char *,
+  unsigned char *,
+  unsigned char *,
+  unsigned char *
+);
+ 
+void  single_router_st_update(int i){
+	$st7
+}
 	
 ";	
 

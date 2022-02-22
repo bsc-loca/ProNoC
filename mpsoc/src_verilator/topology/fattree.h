@@ -24,9 +24,16 @@ unsigned int CHAN_PER_LEVEL = 2*(K * powi( K , L-1 )); //up+down
 
 
 
-inline void fatree_local_addr (unsigned int t1, unsigned int r1, unsigned int addr){
-	if (t1==1 ) router1[r1]->current_r_addr = addr;
-	else router2[r1]->current_r_addr = addr;
+inline void fatree_local_addr (unsigned int t1, unsigned int r1, unsigned int addr, unsigned int id){
+	if (t1==1 ){
+		router1[r1]->current_r_addr = addr;
+		router1[r1]->current_r_id   = id;
+	}
+	else{
+		router2[r1]->current_r_addr = addr;
+		router2[r1]->current_r_id   = id;
+	}
+
 }
 
 
@@ -133,15 +140,15 @@ void topology_init (void){
 		       
 //printf( "[%u] = t1=%u, r1=%u, p1=%u, t2=%u, r2=%u, p2=%u \n",  num, r2r_cnt_all[num].t1, r2r_cnt_all[num].r1, r2r_cnt_all[num].p1, r2r_cnt_all[num].t2, r2r_cnt_all[num].r2, r2r_cnt_all[num].p2 );
 				 //assign current_r_addr [ID1] = {current_layer_addr [ID1],current_pos_addr[ID1]};
-				fatree_local_addr(Ti(ID1),Ri(ID1),  addr);
-                  
+				fatree_local_addr(Ti(ID1),Ri(ID1),  addr, ID1);
+
 
 				if(level==L-2){// 
 					current_layer_addr  =0;
 		        	current_pos_addr = POS_ADR_CODE2;
 					addr = (current_layer_addr << LKw)| current_pos_addr;           
 		        	 //assign current_r_addr [ID2] = {current_layer_addr [ID2],current_pos_addr[ID2]};
-					fatree_local_addr(Ti(ID2),Ri(ID2),  addr);
+					fatree_local_addr(Ti(ID2),Ri(ID2),  addr, ID2);
 				}//if
 		     num++;
 		     }

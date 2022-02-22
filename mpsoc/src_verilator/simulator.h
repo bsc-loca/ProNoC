@@ -155,6 +155,21 @@ typedef struct  avg_st_struct {
 
 } avg_st_t;
 
+
+
+typedef struct  router_st_struct {
+	unsigned int pck_num_in;
+	unsigned int flit_num_in;
+	unsigned int pck_num_out;
+	unsigned int flit_num_out;
+	unsigned int flit_num_in_bypassed;
+	unsigned int flit_num_in_buffered;
+} router_st_t;
+
+router_st_t router_stat [NR][MAX_P];
+router_st_t router_stat_accum [NR];
+
+
 #if (C>1)
 	statistic_t sent_stat [NE][C];
 	statistic_t rsvd_stat [NE][C];
@@ -197,7 +212,8 @@ void update_mcast_traffic(char * str);
 void initial_threads (void);
 void print_statistic_new (unsigned long int);
 void allocate_rsv_pck_counters (void);
-
+void update_all_router_stat(void);
+void print_router_st(void);
 
 #include "topology_top.h"
 #include "traffic_task_graph.h"

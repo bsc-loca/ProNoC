@@ -877,6 +877,8 @@ void traffic_clk_posedge_event(void) {
 	inject_done= ((total_sent_pck_num >= end_sim_pck_num) || (clk_counter>= sim_end_clk_num) || total_active_routers == 0);
 	//if(inject_done) printf("clk_counter=========%d\n",clk_counter);
 	total_rsv_flit_number_old=total_rsv_flit_number;
+	update_all_router_stat();
+
 	for (i=0;i<NE;i++){
 		// a packet has been received
 		if(traffic[i]->update & ~reset){
@@ -1100,6 +1102,10 @@ void merge_statistic (statistic_t * merge_stat, statistic_t stat_in){
 
 void print_statistic_new (unsigned long int total_clk){
 	int i;
+
+
+	print_router_st();
+
 	printf("\n\t#node,"
 			"sent_stat.pck_num,"
 			"rsvd_stat.pck_num,"
@@ -1176,6 +1182,11 @@ void print_statistic_new (unsigned long int total_clk){
     	printf("\t%u,",i);
     	print_st_single (total_clk, rsvd_stat_class[i],sent_stat_class[i] );
     }
+
+
+
+
+
 }
 
 
@@ -1456,7 +1467,73 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src, unsigned char * inject_e
 }
 
 
+void update_all_router_stat(void){
+	for (int i=0; i<NR; i++) single_router_st_update(i);
+}
+
+void update_router_st (
+		unsigned int Pnum,
+		unsigned int rid,
+		unsigned char * f_wr_i,
+		unsigned char * p_wr_i,
+		unsigned char * f_wr_o,
+		unsigned char * p_wr_o,
+		unsigned char * f_i_bypassed
+
+){
+	for (int p=0;p<Pnum;p++){
+		if(f_wr_i[p]) router_stat [rid][p].flit_num_in++;
+		if(p_wr_i[p]) router_stat [rid][p].pck_num_in++;
+		if(f_wr_o[p]) router_stat [rid][p].flit_num_out++;
+		if(p_wr_o[p]) router_stat [rid][p].pck_num_out++;
+		if(f_i_bypassed[p]) router_stat [rid][p].flit_num_in_bypassed++;
+		if(f_i_bypassed[p]==0 && f_wr_i[p]==1) router_stat [rid][p].flit_num_in_buffered++;
+	}
+}
 
 
+void print_router_st (void) {
 
+	//report router statistic
+	printf("\n\nrouters statistics\n");
+	printf("\n\t#RID, #Port,"
+	   	"flit_in,"
+	   	"pck_in,"
+	   	"flit_out,"
+		"pck_out,"
+		"flit_in_buffered,"
+		"flit_in_bypassed,"
+		"\n"
+	);
 
+	for (int i=0; i<NR; i++){
+
+	   	for (int p=0;p<MAX_P;p++){
+
+	   		printf("\t%u,%u,",i,p);
+	    		myout(
+	    		router_stat [i][p].flit_num_in,
+	    		router_stat [i][p].pck_num_in,
+				router_stat [i][p].flit_num_out,
+				router_stat [i][p].pck_num_out,
+				router_stat [i][p].flit_num_in_buffered,
+				router_stat [i][p].flit_num_in_bypassed
+	    		);
+	    	router_stat_accum [i].flit_num_in              += router_stat [i][p].flit_num_in;
+	    	router_stat_accum [i].pck_num_in               += router_stat [i][p].pck_num_in;
+	    	router_stat_accum [i].flit_num_out             += router_stat [i][p].flit_num_out;
+	    	router_stat_accum [i].pck_num_out              += router_stat [i][p].pck_num_out;
+	    	router_stat_accum [i].flit_num_in_buffered     += router_stat [i][p].flit_num_in_buffered;
+	    	router_stat_accum [i].flit_num_in_bypassed     += router_stat [i][p].flit_num_in_bypassed;
+	   	}
+	   	printf("\t%u,sum,",i);
+	   	myout(
+		router_stat_accum [i].flit_num_in,
+		router_stat_accum [i].pck_num_in,
+		router_stat_accum [i].flit_num_out,
+		router_stat_accum [i].pck_num_out,
+		router_stat_accum [i].flit_num_in_buffered,
+		router_stat_accum [i].flit_num_in_bypassed
+	   	);
+	  }
+}

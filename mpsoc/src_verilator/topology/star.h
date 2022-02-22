@@ -5,6 +5,7 @@
 
 void topology_connect_all_nodes (void){
 	router1[0]->current_r_addr = 0;
+	router1[0]->current_r_id   = 0;
 
 	unsigned int pos;
 	for ( pos = 0; pos <  NE; pos=pos+1 ) {// : endpoints   
