@@ -1106,7 +1106,8 @@ void print_statistic_new (unsigned long int total_clk){
 
 	print_router_st();
 
-	printf("\n\t#node,"
+	printf( "\n\tEndpoints Statistics:\n"
+			"\t#node,"
 			"sent_stat.pck_num,"
 			"rsvd_stat.pck_num,"
 			"sent_stat.flit_num,"
@@ -1474,20 +1475,17 @@ void update_all_router_stat(void){
 void update_router_st (
 		unsigned int Pnum,
 		unsigned int rid,
-		unsigned char * f_wr_i,
-		unsigned char * p_wr_i,
-		unsigned char * f_wr_o,
-		unsigned char * p_wr_o,
-		unsigned char * f_i_bypassed
+		unsigned char * event
 
 ){
+
 	for (int p=0;p<Pnum;p++){
-		if(f_wr_i[p]) router_stat [rid][p].flit_num_in++;
-		if(p_wr_i[p]) router_stat [rid][p].pck_num_in++;
-		if(f_wr_o[p]) router_stat [rid][p].flit_num_out++;
-		if(p_wr_o[p]) router_stat [rid][p].pck_num_out++;
-		if(f_i_bypassed[p]) router_stat [rid][p].flit_num_in_bypassed++;
-		if(f_i_bypassed[p]==0 && f_wr_i[p]==1) router_stat [rid][p].flit_num_in_buffered++;
+		if(event[p] & FLIT_IN_WR_FLG ) router_stat [rid][p].flit_num_in++;
+		if(event[p] & PCK_IN_WR_FLG  ) router_stat [rid][p].pck_num_in++;
+		if(event[p] & FLIT_OUT_WR_FLG) router_stat [rid][p].flit_num_out++;
+		if(event[p] & PCK_OUT_WR_FLG ) router_stat [rid][p].pck_num_out++;
+		if(event[p] & FLIT_IN_BYPASSED)router_stat [rid][p].flit_num_in_bypassed++;
+		else if( event[p] & FLIT_IN_WR_FLG) router_stat [rid][p].flit_num_in_buffered++;
 	}
 }
 
@@ -1495,8 +1493,8 @@ void update_router_st (
 void print_router_st (void) {
 
 	//report router statistic
-	printf("\n\nrouters statistics\n");
-	printf("\n\t#RID, #Port,"
+	printf("\n\n\tRouters' statistics\n");
+	printf("\t#RID, #Port,"
 	   	"flit_in,"
 	   	"pck_in,"
 	   	"flit_out,"
@@ -1526,7 +1524,7 @@ void print_router_st (void) {
 	    	router_stat_accum [i].flit_num_in_buffered     += router_stat [i][p].flit_num_in_buffered;
 	    	router_stat_accum [i].flit_num_in_bypassed     += router_stat [i][p].flit_num_in_bypassed;
 	   	}
-	   	printf("\t%u,sum,",i);
+	   	printf("\t%u,total,",i);
 	   	myout(
 		router_stat_accum [i].flit_num_in,
 		router_stat_accum [i].pck_num_in,

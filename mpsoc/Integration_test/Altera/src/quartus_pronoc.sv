@@ -39,7 +39,8 @@ module quartus_pronoc
 	.reset(noc_reset),
 	.clk(clk),    
 	.chan_in_all(chan_in_all),
-	.chan_out_all(chan_out_all)  
+	.chan_out_all(chan_out_all),
+	.router_event( )
 	);
 
 	

@@ -557,7 +557,7 @@ sub check_sim_results{
 			$self->{'name'}{"$name"}{'traffic'}{$traffic}{'message'}="@errors";
 			return;						
 		}
-		my @r = unix_grep($file,"total,");
+		my @r = unix_grep($file,"\ttotal,");
     	my $string = $r[0];
 		my @fileds=split(',',$string);
 		my $val=$fileds[11];

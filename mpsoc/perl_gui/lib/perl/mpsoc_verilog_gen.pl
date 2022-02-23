@@ -456,7 +456,8 @@ sub gen_noc_v{
 		.reset(noc_reset_in),
 		.clk(noc_clk_in),    
 		.chan_in_all(ni_chan_out),
-		.chan_out_all(ni_chan_in)  
+		.chan_out_all(ni_chan_in),
+		.router_event( )  
 	);
           
 	

@@ -156,6 +156,15 @@ typedef struct  avg_st_struct {
 } avg_st_t;
 
 
+#define FLIT_IN_WR_FLG    	(1<<4)
+#define PCK_IN_WR_FLG 		(1<<3)
+#define FLIT_OUT_WR_FLG 	(1<<2)
+#define PCK_OUT_WR_FLG		(1<<1)
+#define FLIT_IN_BYPASSED 	(1<<0)
+
+
+
+
 
 typedef struct  router_st_struct {
 	unsigned int pck_num_in;

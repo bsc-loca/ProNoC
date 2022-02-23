@@ -586,11 +586,7 @@ $st7.="
 		update_router_st(
 			NR${i}_PNUM,
 			router${i}[i]->current_r_id,   
-			router${i}[i]->Verilator_flit_wr_i,
-			router${i}[i]->Verilator_pck_wr_i,
-			router${i}[i]->Verilator_flit_wr_o,
-			router${i}[i]->Verilator_pck_wr_o,
-			router${i}[i]->Verilator_flit_in_bypassed		
+			router${i}[i]->router_event
 		); 
 		return;
 	}
@@ -637,11 +633,7 @@ void inline single_router_eval(int i){
 extern void update_router_st (
   unsigned int,
   unsigned int, 
-  unsigned char *,
-  unsigned char *,
-  unsigned char *,
-  unsigned char *,
-  unsigned char *
+  unsigned char *  
 );
  
 void  single_router_st_update(int i){

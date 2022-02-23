@@ -1,7 +1,7 @@
 Verification Results:
-****************************mesh_4x4x2_bcast_p : Compile *******************************:
+****************************bintree_k3_L3_st : Compile *******************************:
 	 model is generated successfully.
-****************************mesh_4x4x2_bcast_p	: random traffic *******************************:
-	 Passed:   zero load (5,44.765) saturation (30,1259.75)
-****************************mesh_4x4x2_bcast_p	: transposed 1 traffic *******************************:
-	 Passed:   zero load (5,35.1527) saturation (30,1097.4)
+****************************bintree_k3_L3_st	: random traffic *******************************:
+	 Passed:   zero load (5,16.0881) saturation (30,737.172)
+****************************bintree_k3_L3_st	: transposed 1 traffic *******************************:
+	 Passed:   zero load (5,15.6274) saturation (30,408.757)

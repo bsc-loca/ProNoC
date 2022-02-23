@@ -150,11 +150,11 @@ module testbench_noc;
 	
 
 
-    
+    reg print_router_st;
     
 	smartflit_chanel_t chan_in_all  [NE-1 : 0];
 	smartflit_chanel_t chan_out_all [NE-1 : 0];
-    
+	router_event_t router_event [NR-1 : 0] [MAX_P-1 : 0];
     
     
     
@@ -210,7 +210,8 @@ module testbench_noc;
 			.reset(reset),
 			.clk(clk),    
 			.chan_in_all(chan_in_all),
-			.chan_out_all(chan_out_all)  
+			.chan_out_all(chan_out_all),
+			.router_event(router_event)
 		);
           
       
@@ -479,11 +480,11 @@ module testbench_noc;
 					sum_clk_pow2+=time_stamp_h2h[core_num] * time_stamp_h2h[core_num];
 					sum_clk_pow2_per_class[pck_class_out[core_num]]+=time_stamp_h2h[core_num] * time_stamp_h2h[core_num];
 				`endif
-				sum_clk_per_hop+= $itor(time_stamp_h2h[core_num])/$itor(distance[core_num]);
+				if(distance[core_num] > 0) sum_clk_per_hop+= $itor(time_stamp_h2h[core_num])/$itor(distance[core_num]);
 				total_rsv_pck_num_per_class[pck_class_out[core_num]]+=1;
 				sum_clk_h2h_per_class[pck_class_out[core_num]]+=time_stamp_h2h[core_num] ;
 				sum_clk_h2t_per_class[pck_class_out[core_num]]+=time_stamp_h2t[core_num] ;
-				sum_clk_per_hop_per_class[pck_class_out[core_num]]+= $itor(time_stamp_h2h[core_num])/$itor(distance[core_num]);
+				if(distance[core_num]>0) sum_clk_per_hop_per_class[pck_class_out[core_num]]+= $itor(time_stamp_h2h[core_num])/$itor(distance[core_num]);
 				rsvd_core_total_rsv_pck_num[core_num]+=1;
 				if (rsvd_core_worst_delay[core_num] < time_stamp_h2t[core_num]) rsvd_core_worst_delay[core_num] = ( AVG_LATENCY_METRIC == "HEAD_2_TAIL")? time_stamp_h2t[core_num] : time_stamp_h2h[core_num];
 				if (sent_core_worst_delay[src_id[core_num]] < time_stamp_h2t[core_num]) sent_core_worst_delay[src_id[core_num]] = (AVG_LATENCY_METRIC == "HEAD_2_TAIL")?  time_stamp_h2t[core_num] : time_stamp_h2h[core_num];
@@ -555,11 +556,12 @@ module testbench_noc;
 	end
 	
 
-	
+	initial print_router_st=1'b0;
 	
 	//report 
 	always @( posedge done) begin
-	
+		
+		
 		for (core_num=0; core_num<NE; core_num=core_num+1) begin  
 			if(pck_counter[core_num]>0) total_active_endp   	= 	total_active_endp +1;
 		end
@@ -570,6 +572,10 @@ module testbench_noc;
 		avg_latency_per_hop    = sum_clk_per_hop/$itor(total_rsv_pck_num);
 		$display("simulation results-------------------");
 		$display("\tSimulation clock cycles:%0d",clk_counter);
+		
+		print_router_st=1'b1;
+		#1
+		
 /*
 		$display(" total sent/received packets:%d/%d",total_sent_pck_num,total_rsv_pck_num);
 		$display(" total sent/received flits:%d/%d",total_sent_flit_number,total_rsv_flit_number);
@@ -597,16 +603,12 @@ module testbench_noc;
 				//std_dev= standard_dev( sum_clk_pow2,total_rsv_pck_num, avg_latency_flit);
 				//$display(" standard_dev = %f",std_dev);
 		//`endif
-
-		$write("\n\n\t#node,sent_stat.pck_num,rsvd_stat.pck_num,sent_stat.flit_num,rsvd_stat.flit_num,sent_stat.worst_latency,rsvd_stat.worst_latency,sent_stat.min_latency,rsvd_stat.min_latency,avg_latency_per_hop,avg_latency_flit,avg_latency_pck,avg_throughput(%%),avg_pck_size,");
+		$display("\n\n\tEndpoints' statistics");
+		$write("\t#node,sent_stat.pck_num,rsvd_stat.pck_num,sent_stat.flit_num,rsvd_stat.flit_num,sent_stat.worst_latency,rsvd_stat.worst_latency,sent_stat.min_latency,rsvd_stat.min_latency,avg_latency_per_hop,avg_latency_flit,avg_latency_pck,avg_throughput(%%),avg_pck_size,");
 `ifdef STND_DEV_EN
 		$write("avg.std_dev");
 `endif
-		$write("\n");
-
-
-
-	
+		$write("\n");	
 		
 		for (m=0; m<NE;m++)begin
 			for (c=0; c<STAT_NUM;c++)begin
@@ -775,7 +777,7 @@ module testbench_noc;
 			rsvd_stat[core_num][0].pck_num ++;
 		    rsvd_stat[core_num][0].sum_clk_h2h +=clk_num_h2h;
 		    rsvd_stat[core_num][0].sum_clk_h2t +=clk_num_h2t;
-		    rsvd_stat[core_num][0].sum_clk_per_hop+= (clk_num_h2h/$itor(distance));
+		    if(distance>0) rsvd_stat[core_num][0].sum_clk_per_hop+= (clk_num_h2h/$itor(distance));
 		    if (rsvd_stat[core_num][0].worst_latency < latency ) rsvd_stat[core_num][0].worst_latency=latency;
 		    if (rsvd_stat[core_num][0].min_latency==0          ) rsvd_stat[core_num][0].min_latency  =latency;
 		    if (rsvd_stat[core_num][0].min_latency   > latency ) rsvd_stat[core_num][0].min_latency  =latency;
@@ -922,6 +924,14 @@ module testbench_noc;
 			.start_o(start_o)
 		);
 	 */
+	
+	
+	routers_statistic_collector router_stat( 
+		.reset(reset),
+		.clk(clk),		
+		.router_event(router_event),
+		.print(print_router_st)
+	);
 
 endmodule
 // synthesis translate_on

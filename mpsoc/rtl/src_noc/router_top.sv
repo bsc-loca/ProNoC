@@ -22,10 +22,10 @@ module router_top
 			chan_in,
 			chan_out,
         
+			router_event,
+			
 			clk,
-			reset
-			
-			
+			reset			
 			
 		);
 	
@@ -39,6 +39,7 @@ module router_top
 	input   smartflit_chanel_t chan_in [P-1 : 0];
 	output  smartflit_chanel_t chan_out [P-1 : 0];
 	
+	output router_event_t router_event [P-1 : 0];
 	
 	
 	
@@ -73,7 +74,7 @@ module router_top
 	logic report_active_ivcs = 0;
 	
 	generate 
-	for (i=0; i<P; i=i+1) begin :P_
+	for (i=0; i<P; i=i+1) begin :P1_
 		for (j=0; j<V; j=j+1) begin :V_		
 			always @ (posedge report_active_ivcs) begin 
 				if(ivc_info[i][j].ivc_req) $display("%t : The IVC in router[%h] port[%d] VC [%d] is not empty",$time,current_r_addr,i,j);
@@ -81,16 +82,22 @@ module router_top
 		end		
 	end
 	endgenerate
-	
-	
-	
-	
-	
-	
-	
-	
+		
 	//synopsys  translate_on
 	//synthesis translate_on 
+	
+	
+	
+	generate 
+	for (i=0; i<P; i=i+1) begin :P2_
+		assign router_event[i].flit_wr_i = chan_in[i].flit_chanel.flit_wr;
+		assign router_event[i].pck_wr_i  = chan_in[i].flit_chanel.flit_wr & chan_in[i].flit_chanel.flit.hdr_flag;
+		assign router_event[i].flit_wr_o = chan_out[i].flit_chanel.flit_wr;
+		assign router_event[i].pck_wr_o  = chan_out[i].flit_chanel.flit_wr & chan_out[i].flit_chanel.flit.hdr_flag;
+		assign router_event[i].flit_in_bypassed = chan_out[i].smart_chanel.flit_in_bypassed;	
+	end
+	endgenerate
+	
 	
 	
 	
@@ -392,16 +399,10 @@ module router_top_v //to be used as top module in veralator
 			chan_in,
 			chan_out,
         
+			router_event,
+			
 			clk,
-			reset,
-			
-			//local variable defined as output for verilator simulation
-			Verilator_flit_wr_i,
-			Verilator_pck_wr_i,
-			Verilator_flit_wr_o,
-			Verilator_pck_wr_o,
-			Verilator_flit_in_bypassed
-			
+			reset
 
 		);
   
@@ -414,12 +415,9 @@ module router_top_v //to be used as top module in veralator
 	output  smartflit_chanel_t chan_out [P-1 : 0];
 	input   reset,clk;
 	
-	output Verilator_flit_wr_i [P-1 : 0];
-	output Verilator_pck_wr_i  [P-1 : 0];
-	output Verilator_flit_wr_o [P-1 : 0];
-	output Verilator_pck_wr_o  [P-1 : 0];
-	output Verilator_flit_in_bypassed [P-1 : 0];
-
+	output router_event_t router_event [P-1 : 0];
+	
+	
 	router_top # (
 			.P(P)           
 		)
@@ -428,23 +426,11 @@ module router_top_v //to be used as top module in veralator
 			.current_r_id(current_r_id),
 			.current_r_addr(current_r_addr),
 			.chan_in (chan_in),
-			.chan_out(chan_out),       
+			.chan_out(chan_out), 
+			.router_event(router_event),
 			.clk(clk),
 			.reset(reset)
 		);
-	
-	genvar i;
-	generate 
-	for (i=0; i<P; i=i+1) begin :P_
-		assign Verilator_flit_wr_i[i] = chan_in[i].flit_chanel.flit_wr;
-		assign Verilator_pck_wr_i[i]  = chan_in[i].flit_chanel.flit_wr & chan_in[i].flit_chanel.flit.hdr_flag;
-		assign Verilator_flit_wr_o[i] = chan_out[i].flit_chanel.flit_wr;
-		assign Verilator_pck_wr_o[i]  = chan_out[i].flit_chanel.flit_wr & chan_out[i].flit_chanel.flit.hdr_flag;
-		assign Verilator_flit_in_bypassed[i] = chan_out[i].smart_chanel.flit_in_bypassed;	
-			
-	end
-	endgenerate
-	
 	
 		
 endmodule

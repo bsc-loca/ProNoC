@@ -309,7 +309,15 @@ localparam
     }	pck_injct_t;
     localparam PCK_INJCT_w = $bits(pck_injct_t); 
     
- 	
+    typedef struct packed {
+    	bit flit_wr_i;
+    	bit pck_wr_i;
+    	bit flit_wr_o;
+    	bit pck_wr_o;
+    	bit flit_in_bypassed;
+    } router_event_t;
+    localparam ROUTER_EVENT_w = $bits(router_event_t); 
+    
 	
 endpackage : pronoc_pkg
 

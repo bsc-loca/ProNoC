@@ -35,7 +35,8 @@ module   mesh4x4_noc_genvar
     reset,
     clk,    
     chan_in_all,
-    chan_out_all  
+    chan_out_all,
+    router_event  
 );
 
 	 function integer log2;
@@ -60,9 +61,13 @@ module   mesh4x4_noc_genvar
 	input  smartflit_chanel_t chan_in_all  [NE-1 : 0];
 	output smartflit_chanel_t chan_out_all [NE-1 : 0];
 
+//Events
+	output  router_event_t  router_event [NR-1 : 0][MAX_P-1 : 0];
+
 //all routers port 
 	smartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
 	smartflit_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+
 
 	wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
 
@@ -89,7 +94,8 @@ module   mesh4x4_noc_genvar
 		.current_r_id(i),
 		.current_r_addr(i),	
 		.chan_in  (router_chan_in[i]), 
-		.chan_out (router_chan_out[i])		
+		.chan_out (router_chan_out[i]),
+		.router_event(router_event[i])	
 	);
     
     
