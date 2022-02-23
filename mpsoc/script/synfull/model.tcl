@@ -12,8 +12,12 @@ if { [info exists $::env(LM_FILE_LIST)] } {
   exit(1)
 }
 
-set top pck_injector_test
+set path0	[pwd]
+set DPI_LIB $path0/dpi_interface
+
+#set top pck_injector_test
 #set top multicast_test
+set top synfull_top
 
 set rtl_work $::env(LM_WORK_PLACE)/rtl_work
 
@@ -28,7 +32,7 @@ vmap work $rtl_work
 
 vlog  +acc=rn  -F $::env(LM_FILE_LIST)
 
-vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  $top
+vsim -t 1ps  -L $rtl_work -L work -voptargs="+acc"  $top -sv_lib $DPI_LIB
 
 add wave *
 view structure
