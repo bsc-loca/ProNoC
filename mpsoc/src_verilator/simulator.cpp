@@ -38,11 +38,12 @@ int main(int argc, char** argv) {
 
 
 	Vrouter_new();
-	if( TRAFFIC_TYPE == NETRACE)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
+	if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE ==SYNFUL)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
 	else                            for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
-
-
 	if( TRAFFIC_TYPE == NETRACE) netrace_init(netrace_file);
+	else if(TRAFFIC_TYPE ==SYNFUL) synful_init(synful_file,synful_SSExit,synful_random_seed);
+
+
 
 	FIXED_SRC_DST_PAIR = strcmp (TRAFFIC,"RANDOM") &  strcmp(TRAFFIC,"HOTSPOT") & strcmp(TRAFFIC,"random") & strcmp(TRAFFIC,"hot spot") & strcmp(TRAFFIC,"TASK");
 
@@ -60,7 +61,8 @@ int main(int argc, char** argv) {
 
 
 	topology_init();
-	if( TRAFFIC_TYPE == NETRACE) pck_inj_init();
+	if( TRAFFIC_TYPE == NETRACE) pck_inj_init((int)header->num_nodes);
+	else if (TRAFFIC_TYPE ==SYNFUL) pck_inj_init(SYNFUL_ENDP_NUM);
 	else 	traffic_gen_init();
 	main_time=0;
 	print_parameter();
@@ -76,11 +78,13 @@ int main(int argc, char** argv) {
 		if(main_time == saved_time+23) start_i=0;
 
 		if(TRAFFIC_TYPE==NETRACE) netrace_posedge_event();
+		else if(TRAFFIC_TYPE ==SYNFUL) synful_posedge_event();
 		else traffic_clk_posedge_event();
 		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values
 		//between modules when the clock .
 		for (i=0;i<SMART_MAX+2;i++) {
-			if(TRAFFIC_TYPE==NETRACE) netrace_clk_negedge_event( );
+			if(TRAFFIC_TYPE==NETRACE) netrace_negedge_event();
+			else if(TRAFFIC_TYPE ==SYNFUL) synful_negedge_event();
 			else traffic_clk_negedge_event( );
 		}
 
@@ -107,7 +111,8 @@ void  usage(char * bin_name){
 	printf("Usage:\n"
 " %s -t <synthetic Traffic Pattern name> [synthetic Traffic options]\n"
 " %s -f <Task file> [Task options] or\n"
-" %s -F <netrace file> [Netrace options] \n\n"
+" %s -F <netrace file> [Netrace options] \n"
+" %s -S <synful model file> [synful options]\n\n"
 "synthetic Traffic options:\n"
 "  -t <Traffic Pattern>        \"HOTSPOT\", \"RANDOM\", \"BIT_COMPLEMENT\" , \"BIT_REVERSE\",\n "
 "                              \"TORNADO\", \"TRANSPOSE1\", \"TRANSPOSE2\", \"SHUFFEL\", \"CUSTOM\"\n"
@@ -155,8 +160,15 @@ void  usage(char * bin_name){
 "  -s <speed-up-num>		   the speed-up-num  is the ratio of netrace frequency to pronoc.The higher value\n"
 "                              results in higher injection ratio to the NoC. Default is one" 
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
-"                              to speed up simulation time"	,						   
-bin_name,bin_name,bin_name
+"                              to speed up simulation time"
+"\nsynful options:\n"
+"  -S <Netrace file>           path to the synful application model file\n"
+"  -r <seed value>             Seed value for random function "
+"  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
+"  -s                          exit at steady state\n"
+"  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the noc reaches this number\n"
+"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n",
+bin_name,bin_name,bin_name,bin_name
 );
 
 }
@@ -300,6 +312,48 @@ void synthetic_task_processArgs (int argc, char **argv )
       }
 }
 
+
+
+
+void synful_processArgs (int argc, char **argv)
+{
+   char c;
+   /* don't want getopt to moan - I can do that just fine thanks! */
+   opterr = 0;
+   if (argc < 2)  usage(argv[0]);
+   while ((c = getopt (argc, argv, "S:c:sn:T:r:")) != -1)
+   {
+	 switch (c)
+	 {
+	 	case 'S':
+	 		TRAFFIC_TYPE=SYNFUL;
+	 		TRAFFIC=(char *) "SYNFUL";
+	 		synful_file = optarg;
+	 		break;
+	 	case 'c':
+	 		sim_end_clk_num=atoi(optarg);
+	 		break;
+	 	case 's':
+	 		synful_SSExit =true;
+	 		break;
+	 	case 'n':
+	 		end_sim_pck_num=atoi(optarg);
+	 		break;
+	 	case 'T':
+	 		thread_num = atoi(optarg);
+	 		break;
+	 	case 'r':
+	 		synful_random_seed = atoi(optarg);
+	 		break;
+	 	case '?':
+	 		if (isprint (optopt)) fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+	 		else fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
+	 	default:
+	 	     usage(argv[0]);
+	 	     exit(1);
+	 }//switch
+   }//while
+}
 
 
 
@@ -581,6 +635,9 @@ void processArgs (int argc, char **argv ){
 		} else if( strcmp(argv[i], "-F") == 0 ) {
 			netrace_processArgs (argc, argv );
 			return;
+		} else if ( strcmp(argv[i], "-S") == 0 ) {
+			synful_processArgs (argc, argv );
+			return;
 		}
 	}
 	fprintf (stderr, "you should define one one of Synthetic,Task or nettrace based simulation. \n");
@@ -652,13 +709,13 @@ void traffic_gen_init( void ){
 	}
 }
 
-void pck_inj_init (void){
+void pck_inj_init (int model_node_num){
 	int i,tmp;
 	for (i=0;i<NE;i++){
 	   	pck_inj[i]->current_e_addr		= endp_addr_encoder(i);
 	   //TODO mapping should be done according to number of NE and should be set by the user later
 	   	if(NE<=64){
-	   		tmp = ((i* NE)/(int)header->num_nodes);
+	   		tmp = ((i* NE)/model_node_num);
 	   		netrace_to_pronoc_map[i]=tmp;
 	   	} else {
 	   		if(i<64) netrace_to_pronoc_map[i]=i;
@@ -745,7 +802,7 @@ class alignas(64) Vthread
 			for(i=0;i<ne_per_thread;i++){
 				node= (n * ne_per_thread)+i;
 				if (node >= NE) break;
-				if( TRAFFIC_TYPE == NETRACE)   pck_inj[node]->eval();
+				if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE == SYNFUL)   pck_inj[node]->eval();
 				else   traffic[node]->eval();
 			}	
 			
@@ -818,7 +875,7 @@ void sim_eval_all (void){
 			//if(router_is_active[i] | (Quick_sim_en==0)) 
 			single_router_eval(i);
 		}
-		if( TRAFFIC_TYPE == NETRACE) for(i=0;i<NE;i++) pck_inj[i]->eval();
+		if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE == SYNFUL) for(i=0;i<NE;i++) pck_inj[i]->eval();
 		else for(i=0;i<NE;i++) traffic[i]->eval();
 	}
 }	
@@ -826,7 +883,7 @@ void sim_eval_all (void){
 void sim_final_all (void){
 	int i;
 	routers_final();
-	if( TRAFFIC_TYPE == NETRACE) for(i=0;i<NE;i++) pck_inj[i]->final();
+	if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE == SYNFUL) for(i=0;i<NE;i++) pck_inj[i]->final();
 	else for(i=0;i<NE;i++) traffic[i]->final();
 	//noc->final(); 
 }	
@@ -835,7 +892,7 @@ void connect_clk_reset_start_all(void){
 	int i;
 	//noc-> clk = clk; 
 	//noc-> reset = reset;
-	if( TRAFFIC_TYPE == NETRACE) {
+	if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE == SYNFUL) {
 		for(i=0;i<NE;i++)	{
 			pck_inj[i]->reset= reset;
 			pck_inj[i]->clk	= clk;
@@ -969,13 +1026,13 @@ void update_statistic_at_ejection (
 
 	total_rsv_pck_num+=1;
 
-	if( TRAFFIC_TYPE != NETRACE){
+	if( TRAFFIC_TYPE != NETRACE && TRAFFIC_TYPE !=SYNFUL ){
 		if( traffic[core_num]->pck_size_o >= MIN_PACKET_SIZE && traffic[core_num]->pck_size_o <=MAX_PACKET_SIZE){
 			  if(rsv_size_array!=NULL) 	rsv_size_array[traffic[core_num]->pck_size_o-MIN_PACKET_SIZE]++;
 		}
 	}
 
-	if(verbosity==0 &&  TRAFFIC_TYPE == NETRACE) if((total_rsv_pck_num & 0X1FFFF )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
+	if(verbosity==0 && ( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE ==SYNFUL)) if((total_rsv_pck_num & 0X1FFFF )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
     unsigned int latency = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)? clk_num_h2t :  clk_num_h2h;
     #if(C>1)
 
@@ -1263,7 +1320,7 @@ void print_parameter (){
 	//printf ("\tTotal packets sent by one router: %u\n", TOTAL_PKT_PER_ROUTER);
 	if(sim_end_clk_num!=0) printf ("\tSimulation timeout =%d\n", sim_end_clk_num);
 	if(end_sim_pck_num!=0) printf ("\tSimulation ends on total packet num of =%d\n", end_sim_pck_num);
-	if(TRAFFIC_TYPE!=NETRACE){
+	if(TRAFFIC_TYPE!=NETRACE && TRAFFIC_TYPE!=SYNFUL){
 		printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
 		printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
 	}

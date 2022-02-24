@@ -104,7 +104,7 @@ sub generate_sim_bin_file {
 	}
 	copy_file_and_folders (\@files,$project_dir,$target_modelsim_dr);
 	
-		
+	
 		
 	
 	#check if we have a custom topology 
@@ -151,6 +151,13 @@ sub generate_sim_bin_file {
 		return;
 	}
 	
+	my $r;	
+	#copy nettrace synful
+	dircopy("$src_c/netrace-1.0","$obj_dir/netrace-1.0") or $r=$!;
+	dircopy("$src_c/synfull","$obj_dir/synful") or $r=$!;
+	add_colored_info($info_text,"ERROR: $r\n","red") if(defined $r ) ; 	
+	
+	
 	#copy simulation c header files
 	@files = File::Find::Rule->file()
                             ->name( '*.h')
@@ -159,10 +166,7 @@ sub generate_sim_bin_file {
 	copy_file_and_folders (\@files,$project_dir,$obj_dir);
 	copy($testbench_file,"$obj_dir/testbench.cpp"); 
 		
-	my $r;	
-	#copy nettrace
-	dircopy("$src_c/netrace-1.0","$obj_dir/netrace-1.0") or $r=$!;
-	add_colored_info($info_text,"ERROR: $r\n","red") if(defined $r ) ; 
+	
 		
 	#compile the testbench
 	my $param_h=gen_noc_param_h($simulate);

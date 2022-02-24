@@ -19,6 +19,9 @@ all: $(PROG)
 $(PROG): $(OBJS)
 	$(CPP) $^ -o $(PROGDIR)$@
 	cp ./tgen ../../../../script/synfull/tgen
+	ar -cr synful.a ./obj/*.o
+	cp synful.a ../../
+	cp synful.h ../../
 	 
 ${OBJDIR}/%.o: %.cpp
 	mkdir -p $(OBJDIR)/netstream

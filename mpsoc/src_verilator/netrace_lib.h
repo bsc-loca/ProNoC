@@ -349,13 +349,12 @@ void netrace_posedge_event(){
 }
 
 
-void netrace_clk_negedge_event( ){
+void netrace_negedge_event( ){
 	int i;
 	clk = 0;
 	topology_connect_all_nodes ();
 	connect_clk_reset_start_all();
 	sim_eval_all();
-
 }
 
 

@@ -58,6 +58,8 @@
 #define SYNTHETIC 0
 #define TASK      1
 #define NETRACE   2
+#define SYNFUL    3
+
 #define STND_DEV_EN 1
 
 
@@ -209,7 +211,7 @@ void traffic_clk_posedge_event(void);
 void connect_clk_reset_start_all(void);
 unsigned int rnd_between (unsigned int, unsigned int );
 void traffic_gen_init( void );
-void  pck_inj_init(void);
+void  pck_inj_init(int);
 void traffic_gen_final_report(void);
 void processArgs (int, char ** );
 void task_traffic_init (char * );
@@ -228,7 +230,7 @@ void print_router_st(void);
 #include "traffic_task_graph.h"
 #include "traffic_synthetic.h"
 #include "netrace_lib.h"
-
+#include "synful_wrapper.h"
 
 #define RATIO_INIT		2
 #define DISABLE -1
@@ -247,6 +249,7 @@ int HOTSPOT_NUM;
 int  * class_percentage;
 char * TRAFFIC;
 char * netrace_file;
+char * synful_file;
 unsigned char FIXED_SRC_DST_PAIR;
 unsigned char  NEw=0;
 unsigned long int main_time = 0;     // Current simulation time
