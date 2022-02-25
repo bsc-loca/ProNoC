@@ -38,8 +38,9 @@ int main(int argc, char** argv) {
 
 
 	Vrouter_new();
-	if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE ==SYNFUL)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
+	if (ENDP_TYPE == PCK_INJECTOR)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
 	else                            for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
+
 	if( TRAFFIC_TYPE == NETRACE) netrace_init(netrace_file);
 	else if(TRAFFIC_TYPE ==SYNFUL) synful_init(synful_file,synful_SSExit,synful_random_seed);
 
@@ -90,6 +91,7 @@ int main(int argc, char** argv) {
 
 		if(simulation_done){
 			if( TRAFFIC_TYPE == NETRACE) netrace_final_report();
+			else if(TRAFFIC_TYPE ==SYNFUL) synful_final_report();
 			else traffic_gen_final_report();
 			sim_final_all();
 			return 0;
@@ -167,7 +169,9 @@ void  usage(char * bin_name){
 "  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
 "  -s                          exit at steady state\n"
 "  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the noc reaches this number\n"
-"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n",
+"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
+"  -v <level>                  Verbosity level. 0: off, 1:display a live number of injected packet,\n"
+"                              3: print injected/ejected packets details, default is 1\n",
 bin_name,bin_name,bin_name,bin_name
 );
 
@@ -189,6 +193,7 @@ void netrace_processArgs (int argc, char **argv )
 	 	case 'F':
 	 		TRAFFIC_TYPE=NETRACE;
 	 		TRAFFIC=(char *) "NETRACE";
+	 		ENDP_TYPE = PCK_INJECTOR;
 	 		netrace_file = optarg;
 	 		break;
 	 	case 'd':
@@ -321,7 +326,7 @@ void synful_processArgs (int argc, char **argv)
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage(argv[0]);
-   while ((c = getopt (argc, argv, "S:c:sn:T:r:")) != -1)
+   while ((c = getopt (argc, argv, "S:c:sn:v:T:r:")) != -1)
    {
 	 switch (c)
 	 {
@@ -329,6 +334,7 @@ void synful_processArgs (int argc, char **argv)
 	 		TRAFFIC_TYPE=SYNFUL;
 	 		TRAFFIC=(char *) "SYNFUL";
 	 		synful_file = optarg;
+	 		ENDP_TYPE   =PCK_INJECTOR;
 	 		break;
 	 	case 'c':
 	 		sim_end_clk_num=atoi(optarg);
@@ -339,6 +345,9 @@ void synful_processArgs (int argc, char **argv)
 	 	case 'n':
 	 		end_sim_pck_num=atoi(optarg);
 	 		break;
+	 	case 'v':
+	 		 verbosity= atoi(optarg);
+	 		 break;
 	 	case 'T':
 	 		thread_num = atoi(optarg);
 	 		break;
@@ -802,7 +811,7 @@ class alignas(64) Vthread
 			for(i=0;i<ne_per_thread;i++){
 				node= (n * ne_per_thread)+i;
 				if (node >= NE) break;
-				if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE == SYNFUL)   pck_inj[node]->eval();
+				if(ENDP_TYPE == PCK_INJECTOR)   pck_inj[node]->eval();
 				else   traffic[node]->eval();
 			}	
 			
@@ -875,7 +884,7 @@ void sim_eval_all (void){
 			//if(router_is_active[i] | (Quick_sim_en==0)) 
 			single_router_eval(i);
 		}
-		if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE == SYNFUL) for(i=0;i<NE;i++) pck_inj[i]->eval();
+		if(ENDP_TYPE == PCK_INJECTOR) for(i=0;i<NE;i++) pck_inj[i]->eval();
 		else for(i=0;i<NE;i++) traffic[i]->eval();
 	}
 }	
@@ -883,7 +892,7 @@ void sim_eval_all (void){
 void sim_final_all (void){
 	int i;
 	routers_final();
-	if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE == SYNFUL) for(i=0;i<NE;i++) pck_inj[i]->final();
+	if(ENDP_TYPE == PCK_INJECTOR) for(i=0;i<NE;i++) pck_inj[i]->final();
 	else for(i=0;i<NE;i++) traffic[i]->final();
 	//noc->final(); 
 }	
@@ -892,7 +901,7 @@ void connect_clk_reset_start_all(void){
 	int i;
 	//noc-> clk = clk; 
 	//noc-> reset = reset;
-	if( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE == SYNFUL) {
+	if(ENDP_TYPE == PCK_INJECTOR) {
 		for(i=0;i<NE;i++)	{
 			pck_inj[i]->reset= reset;
 			pck_inj[i]->clk	= clk;
@@ -1026,7 +1035,7 @@ void update_statistic_at_ejection (
 
 	total_rsv_pck_num+=1;
 
-	if( TRAFFIC_TYPE != NETRACE && TRAFFIC_TYPE !=SYNFUL ){
+	if(ENDP_TYPE == TRFC_INJECTOR) {
 		if( traffic[core_num]->pck_size_o >= MIN_PACKET_SIZE && traffic[core_num]->pck_size_o <=MAX_PACKET_SIZE){
 			  if(rsv_size_array!=NULL) 	rsv_size_array[traffic[core_num]->pck_size_o-MIN_PACKET_SIZE]++;
 		}

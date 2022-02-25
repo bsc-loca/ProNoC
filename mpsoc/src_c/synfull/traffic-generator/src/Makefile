@@ -17,11 +17,12 @@ OBJS :=  \
 all: $(PROG)
  
 $(PROG): $(OBJS)
-	$(CPP) $^ -o $(PROGDIR)$@
-	cp ./tgen ../../../../script/synfull/tgen
+	$(CPP) $^ -o $(PROGDIR)$@	
 	ar -cr synful.a ./obj/*.o
 	cp synful.a ../../
 	cp synful.h ../../
+	cp ./tgen ../../../../script/synfull/tgen
+	rm -rf $(OBJDIR)
 	 
 ${OBJDIR}/%.o: %.cpp
 	mkdir -p $(OBJDIR)/netstream

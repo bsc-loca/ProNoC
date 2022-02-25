@@ -341,6 +341,7 @@ void netrace_eval(unsigned int eval_num){
 void netrace_posedge_event(){
 	unsigned int i;
 	clk = 1;       // Toggle clock
+	update_all_router_stat();
 	for(i=0;i<netrace_speed_up; i++)  netrace_eval(i);
 	connect_clk_reset_start_all();
 	sim_eval_all();

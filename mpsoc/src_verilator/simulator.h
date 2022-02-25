@@ -60,11 +60,15 @@
 #define NETRACE   2
 #define SYNFUL    3
 
+//injector type
+#define PCK_INJECTOR	0
+#define TRFC_INJECTOR 	1
+
 #define STND_DEV_EN 1
 
 
 int TRAFFIC_TYPE=SYNTHETIC;
-
+int ENDP_TYPE   =TRFC_INJECTOR;
 
 void * addr1;
 void * addr2;
@@ -88,11 +92,11 @@ int get_router_num (int , int );
 		memset(&router##T [r]->chan_in [p],0x00,CHAN_SIZE)
 
 	#define connect_r2e(T,r,p,e) \
-		addr1=(TRAFFIC_TYPE==NETRACE)? &pck_inj[e]->chan_out  : &traffic[e]->chan_out;\
-		addr2=(TRAFFIC_TYPE==NETRACE)? &pck_inj[e]->chan_in  : &traffic[e]->chan_in;\
+		addr1=(ENDP_TYPE == PCK_INJECTOR)? &pck_inj[e]->chan_out  : &traffic[e]->chan_out;\
+		addr2=(ENDP_TYPE == PCK_INJECTOR)? &pck_inj[e]->chan_in  : &traffic[e]->chan_in;\
 		memcpy(&router##T [r]->chan_in[p], addr1, CHAN_SIZE );\
 		memcpy(addr2, &router##T [r]->chan_out[p], CHAN_SIZE );
-//		router_is_active[get_router_num(T,r)] |= (TRAFFIC_TYPE==NETRACE)? \
+//		router_is_active[get_router_num(T,r)] |= (ENDP_TYPE == PCK_INJECTOR)? \
 			(( router##T [r]-> ideal_port!=0) |  (pck_inj[e]->pck_active_port==1)):\
 			(( router##T [r]-> ideal_port!=0) |  (traffic[e]->traffic_active_port==1))
 

@@ -15,3 +15,12 @@ mpsoc/remove_cycle/test/*
 mpsoc/perl_gui/ProNoC
 mpsoc/script/synfull/transcript
 
+mpsoc/script/synfull/tgen
+mpsoc/src_c/synfull/synful.a
+mpsoc/src_c/synfull/synful.h
+mpsoc/src_c/synfull/traffic-generator/src/synful.a
+mpsoc/src_c/synfull/traffic-generator/src/tgen
+mpsoc/src_c/synfull/traffic-generator/src/obj/*.o
+
+
+

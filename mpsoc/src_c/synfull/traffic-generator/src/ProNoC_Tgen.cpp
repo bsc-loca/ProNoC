@@ -58,6 +58,11 @@ struct queue {
 	node_t* tail;
 };
 
+
+
+
+
+
 queue_t* synful_queue_new() {
 	queue_t* to_return = (queue_t*) malloc( sizeof(queue_t) );
 	if( to_return == NULL ) {
@@ -221,6 +226,43 @@ void synful_printPacket(InjectReqMsg msg) {
     cout << endl;
 }
 
+#define SYNFUL_NUM_PACKET_TYPES  10
+
+const char* synful_packet_types[] = {
+"INITIALIZE_REQ"  ,
+"INITIALIZE_RES"  ,
+"STEP_REQ"        ,
+"STEP_RES"        ,
+"INJECT_REQ"      ,
+"INJECT_RES"      ,
+"EJECT_REQ"       ,
+"EJECT_RES"       ,
+"QUIT_REQ"        ,
+"QUIT_RES"        ,
+"INVALID"
+};
+
+const char* synful_packet_type_to_string( pronoc_pck_t* packet ) {
+	if( packet->msgType < SYNFUL_NUM_PACKET_TYPES ) {
+		return synful_packet_types[packet->msgType];
+	} else {
+		return synful_packet_types[SYNFUL_NUM_PACKET_TYPES];
+	}
+}
+
+
+
+void synful_print_packet( pronoc_pck_t* packet ) {
+	if( packet != NULL ) {
+		printf( "  ID:%u SRC:%u DST:%u SIZ:%u TYP:%s",
+				packet->id, packet->source,
+				packet->dest, packet->packetSize, synful_packet_type_to_string(packet) );
+
+		printf( "\n" );
+	} else {
+		printf( "WARNING: %s:%d: NULL packet printed!\n", __FILE__, __LINE__ );
+	}
+}
 
 
 
@@ -237,7 +279,13 @@ void synful_sendPacket(InjectReqMsg& req) {
     synful_messageId++;
 
     synful_inTransitPackets[req.id] = req;
-    InjectReqMsg* new_node = (InjectReqMsg*) synful_checked_malloc( sizeof(InjectReqMsg) );
+    pronoc_pck_t* new_node = (pronoc_pck_t*) synful_checked_malloc( sizeof(pronoc_pck_t) );
+    new_node->source = req.source;
+    new_node->dest= req.dest;
+    new_node->id= req.id;
+    new_node->packetSize= req.packetSize;
+    new_node->msgType=req.msgType;
+    new_node->cycle = synful_cycle;
     synful_queue_push( synful_inject[req.source], new_node, synful_cycle );
     
 	//TODO
@@ -500,18 +548,6 @@ void synful_react(EjectResMsg ePacket) {
 
 
 
-void synful_Eject (EjectResMsg res){
-	bool hasRequests = true; //Whether there are more requests from the network
-	if(res.id >= 0) {
-    //Add responses to list
-        if(res.id > -1) {
-             synful_cntPackets++;
-             synful_react(res);
-        }
-     }
-    //Check if there are more messages from the network
-    hasRequests = res.remainingRequests;
-}
 
 
 
@@ -529,19 +565,10 @@ void synful_reset_ss() {
 
 
 
-void synful_init(char * fname, bool ss_exit, int seed){
+void synful_model_init(char * fname, bool ss_exit, int seed){
     cout << "Initiating synful with: " << fname << "random seed:" << seed << endl;
 	synful_ssExit = ss_exit;
 	//TODO add random seed
- 	
- 	synful_inject   = (queue_t**) malloc( SYNFUL_ENDP_NUM * sizeof(queue_t*) );
- 	if(synful_inject == NULL ) {
-		printf( "ERROR: malloc fail queues\n" );
-		exit(0);
-	}
-	for(int i = 0; i <  SYNFUL_ENDP_NUM; ++i ) {
-		synful_inject[i]   = synful_queue_new();	
-	}
 
  	ifstream modelFile(fname);
 	if(!modelFile.good()) {
@@ -618,9 +645,37 @@ void synful_run_one_cycle (){
                 cout << "all pck injected" << endl;
                 synful_cycle = synful_numCycles; 
             }
-            synful_cycle++;
 
 }
+
+
+void synful_Eject (pronoc_pck_t * packet){
+
+	EjectResMsg res;
+
+	res.id = packet->id;
+	res.source = packet->source;
+	res.dest = packet->dest;
+	res.packetSize = packet->packetSize;
+	res.network = 0;
+	res.cl =0;
+	//res->miss_pred;
+	//res->remainingRequests;
+
+
+
+	//bool hasRequests = true; //Whether there are more requests from the network
+	if(res.id >= 0) {
+    //Add responses to list
+        if(res.id > -1) {
+             synful_cntPackets++;
+             synful_react(res);
+        }
+     }
+    //Check if there are more messages from the network
+   // hasRequests = res.remainingRequests;
+}
+
 
 
 
