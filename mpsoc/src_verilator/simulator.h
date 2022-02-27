@@ -58,11 +58,17 @@
 #define SYNTHETIC 0
 #define TASK      1
 #define NETRACE   2
+#define SYNFUL    3
+
+//injector type
+#define PCK_INJECTOR	0
+#define TRFC_INJECTOR 	1
+
 #define STND_DEV_EN 1
 
 
 int TRAFFIC_TYPE=SYNTHETIC;
-
+int ENDP_TYPE   =TRFC_INJECTOR;
 
 void * addr1;
 void * addr2;
@@ -86,11 +92,11 @@ int get_router_num (int , int );
 		memset(&router##T [r]->chan_in [p],0x00,CHAN_SIZE)
 
 	#define connect_r2e(T,r,p,e) \
-		addr1=(TRAFFIC_TYPE==NETRACE)? &pck_inj[e]->chan_out  : &traffic[e]->chan_out;\
-		addr2=(TRAFFIC_TYPE==NETRACE)? &pck_inj[e]->chan_in  : &traffic[e]->chan_in;\
+		addr1=(ENDP_TYPE == PCK_INJECTOR)? &pck_inj[e]->chan_out  : &traffic[e]->chan_out;\
+		addr2=(ENDP_TYPE == PCK_INJECTOR)? &pck_inj[e]->chan_in  : &traffic[e]->chan_in;\
 		memcpy(&router##T [r]->chan_in[p], addr1, CHAN_SIZE );\
 		memcpy(addr2, &router##T [r]->chan_out[p], CHAN_SIZE );
-//		router_is_active[get_router_num(T,r)] |= (TRAFFIC_TYPE==NETRACE)? \
+//		router_is_active[get_router_num(T,r)] |= (ENDP_TYPE == PCK_INJECTOR)? \
 			(( router##T [r]-> ideal_port!=0) |  (pck_inj[e]->pck_active_port==1)):\
 			(( router##T [r]-> ideal_port!=0) |  (traffic[e]->traffic_active_port==1))
 
@@ -155,6 +161,30 @@ typedef struct  avg_st_struct {
 
 } avg_st_t;
 
+
+#define FLIT_IN_WR_FLG    	(1<<4)
+#define PCK_IN_WR_FLG 		(1<<3)
+#define FLIT_OUT_WR_FLG 	(1<<2)
+#define PCK_OUT_WR_FLG		(1<<1)
+#define FLIT_IN_BYPASSED 	(1<<0)
+
+
+
+
+
+typedef struct  router_st_struct {
+	unsigned int pck_num_in;
+	unsigned int flit_num_in;
+	unsigned int pck_num_out;
+	unsigned int flit_num_out;
+	unsigned int flit_num_in_bypassed;
+	unsigned int flit_num_in_buffered;
+} router_st_t;
+
+router_st_t router_stat [NR][MAX_P];
+router_st_t router_stat_accum [NR];
+
+
 #if (C>1)
 	statistic_t sent_stat [NE][C];
 	statistic_t rsvd_stat [NE][C];
@@ -185,7 +215,7 @@ void traffic_clk_posedge_event(void);
 void connect_clk_reset_start_all(void);
 unsigned int rnd_between (unsigned int, unsigned int );
 void traffic_gen_init( void );
-void  pck_inj_init(void);
+void  pck_inj_init(int);
 void traffic_gen_final_report(void);
 void processArgs (int, char ** );
 void task_traffic_init (char * );
@@ -196,14 +226,15 @@ void update_hotspot(char * );
 void update_mcast_traffic(char * str);
 void initial_threads (void);
 void print_statistic_new (unsigned long int);
-
-
+void allocate_rsv_pck_counters (void);
+void update_all_router_stat(void);
+void print_router_st(void);
 
 #include "topology_top.h"
 #include "traffic_task_graph.h"
 #include "traffic_synthetic.h"
 #include "netrace_lib.h"
-
+#include "synful_wrapper.h"
 
 #define RATIO_INIT		2
 #define DISABLE -1
@@ -222,6 +253,7 @@ int HOTSPOT_NUM;
 int  * class_percentage;
 char * TRAFFIC;
 char * netrace_file;
+char * synful_file;
 unsigned char FIXED_SRC_DST_PAIR;
 unsigned char  NEw=0;
 unsigned long int main_time = 0;     // Current simulation time

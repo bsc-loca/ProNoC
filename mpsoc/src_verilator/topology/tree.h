@@ -83,6 +83,8 @@ void topology_init (void){
 	//assign current_pos_addr [ROOT_ID] = {LKw{1'b0}}; 
 	unsigned int addr = ROOT_L << LKw; 
 	router1[ROOT_ID]->current_r_addr = addr; 
+	router1[ROOT_ID]->current_r_id   = ROOT_ID;
+
 
 	unsigned int pos,level;
 	unsigned int num = 0;
@@ -120,6 +122,8 @@ void topology_init (void){
 			unsigned int addr = (current_layer_addr << LKw)| current_pos_addr;    
        		
 			router2[Ri(ID1)]->current_r_addr = addr;
+			router2[Ri(ID1)]->current_r_id   = ID1;
+
 			//printf( "[%u] =(addr=%x), t1=%u, r1=%u, p1=%u, t2=%u, r2=%u, p2=%u \n",  num,addr, r2r_cnt_all[num].t1, r2r_cnt_all[num].r1, r2r_cnt_all[num].p1, r2r_cnt_all[num].t2, r2r_cnt_all[num].r2, r2r_cnt_all[num].p2 );
 
 

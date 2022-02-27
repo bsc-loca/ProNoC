@@ -175,8 +175,7 @@ sub gen_verilator_makefile{
 		$all_lib=$all_lib." lib$lib_num";
 		$lib_num++;
 	}
-	
-	
+
 	my $make= "
 	
 default: sim
@@ -199,14 +198,21 @@ CPPFLAGS += -DVL_THREADED=1
 CPPFLAGS += -W -Werror -Wall
 endif
 
+SLIB = 
+HLIB = 
+ifneq (\$(wildcard synful/synful.a),) 
+SLIB += synful/synful.a
+HLIB += synful/synful.h
+endif 
+
 #######################################################################
 # Linking final exe -- presumes have a sim_main.cpp
 
 
-sim:	testbench.o \$(VK_GLOBAL_OBJS) $p
+sim:	testbench.o \$(VK_GLOBAL_OBJS) $p \$(SLIB)
 	\$(LINK) \$(LDFLAGS) -g \$^ \$(LOADLIBES) \$(LDLIBS) -o testbench \$(LIBS) -Wall -O3 -lpthread 2>&1 | c++filt
 
-testbench.o: testbench.cpp $h
+testbench.o: testbench.cpp $h  \$(HLIB)
 
 clean:
 	rm *.o *.a testbench	

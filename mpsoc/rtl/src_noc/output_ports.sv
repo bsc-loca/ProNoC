@@ -421,23 +421,33 @@ if(DEBUG_EN) begin: debug
     if(CAST_TYPE== "UNICAST") begin : unicast
     /* verilator lint_on WIDTH */
 
-    localparam NUM_WIDTH = log2(PV+1);
-    wire [NUM_WIDTH-1        :    0] num1,num2;
-    parallel_counter #(
-        .IN_WIDTH(PV)
-    )cnt1
-    (
-        .in        (ovc_status),
-        .out        (num1)
-    );
-
-    parallel_counter #(
-        .IN_WIDTH(PV)
-    )cnt2
-    (
-        .in        (ovc_is_assigned_all),
-        .out        (num2)
-    );
+	    localparam NUM_WIDTH = log2(PV+1);
+	    wire [NUM_WIDTH-1        :    0] num1,num2;
+    
+	    accumulator #(
+	    	.INw(PV),
+	    	.OUTw(NUM_WIDTH),
+	    	.NUM(PV) 
+	   	)
+	   	cnt1
+	   	(
+	   		.in_all(ovc_status),
+	    	.out(num1)         
+	    );
+    
+	    accumulator #(
+	    	.INw(PV),
+	    	.OUTw(NUM_WIDTH),
+	    	.NUM(PV) 
+	    )
+	    cnt2
+	    (
+	    	.in_all(ovc_is_assigned_all),
+	    	.out(num2)         
+	    );
+	    	
+     
+   
     
     always @(posedge clk) begin
         if(num1    != num2 )begin 

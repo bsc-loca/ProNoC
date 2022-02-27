@@ -73,7 +73,8 @@ sub generate_topology_top_v {
 		
 		$wires=$wires."\tinput  smartflit_chanel_t ${instance}_chan_in;\n";
 		$wires=$wires."\toutput smartflit_chanel_t ${instance}_chan_out;\n";
-		$ports=$ports.",\n\t${instance}_chan_in,\n\t${instance}_chan_out";
+		$wires=$wires."\toutput router_event_t ${instance}_router_event;\n";		
+		$ports=$ports.",\n\t${instance}_chan_in,\n\t${instance}_chan_out,\n\t${instance}_router_event";
 		
 		foreach my $d (@ports){		
 				my $range = ($d->{pwidth} eq 1)? " " :  " [$d->{pwidth}-1 : 0]";
@@ -196,6 +197,7 @@ sub get_router_instance_v {
 
 \tsmartflit_chanel_t    ${instance}_chan_in   [$Pnum-1 : 0];
 \tsmartflit_chanel_t    ${instance}_chan_out  [$Pnum-1 : 0]; 
+\trouter_event_t ${instance}_router_event [$Pnum-1 : 0]; 
 
 ";
 
@@ -213,9 +215,11 @@ sub get_router_instance_v {
 	(	
 		.clk(${instance}_clk), 
 		.reset(${instance}_reset),
+		.current_r_id($current_r),
 		.current_r_addr  (${instance}_current_r_addr), 
 		.chan_in   (${instance}_chan_in), 
-		.chan_out  (${instance}_chan_out)
+		.chan_out  (${instance}_chan_out),
+		.router_event (${instance}_router_event)
 	);
 ";
 
@@ -244,6 +248,8 @@ for (my $i=0;$i<$Pnum; $i++){
 		}else{
 			$router_v.=" \t\tassign ${instance}_chan_in [$i]  = ${cinstance}_chan_in;\n";
 			$router_v.=" \t\tassign ${cinstance}_chan_out = ${instance}_chan_out [$i];\n";
+			$router_v.=" \t\tassign ${cinstance}_router_event = ${instance}_router_event [$i];\n";
+			
 		}
 		my $cpplus=$cp+1;
 		    	
@@ -345,7 +351,8 @@ sub generate_topology_top_genvar_v{
 	my $ports="\treset,
 \tclk,
 \tchan_in_all,
-\tchan_out_all  
+\tchan_out_all,
+\trouter_event  
 ";
     my $ports_def="
 \tinput  reset;
@@ -353,9 +360,13 @@ sub generate_topology_top_genvar_v{
 \tinput  smartflit_chanel_t chan_in_all  [NE-1 : 0];
 \toutput smartflit_chanel_t chan_out_all [NE-1 : 0];
 
+//Events
+\toutput  router_event_t  router_event [NR-1 : 0][MAX_P-1 : 0];
+
 //all routers port 
 \tsmartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
 \tsmartflit_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
+
 
 \twire [RAw-1 : 0] current_r_addr [NR-1 : 0];
 
@@ -446,9 +457,11 @@ sub generate_topology_top_genvar_v{
 		if($n>0){	
 			my $router_pos= ($offset==0)? 'i' : "i+$offset";
 			#my $instant=get_router_genvar_instance_v($self,$i,$router_pos,$NE,$NR,$MAX_P);
-					
+			my $p = $i-1;		
 			$routers=$routers."
 \tfor( i=0; i<$n; i=i+1) begin : router_${i}_port_lp
+	localparam RID = $router_pos;
+	assign current_r_addr [RID] = RID[RAw-1: 0]; 
 
 	router_top #(
 		.P($i)
@@ -457,9 +470,11 @@ sub generate_topology_top_genvar_v{
 	(	
 		.clk(clk), 
 		.reset(reset),
-		.current_r_addr($router_pos),	
-		.chan_in  (router_chan_in\[$router_pos\]), 
-		.chan_out (router_chan_out\[$router_pos\])		
+		.current_r_id(RID),
+		.current_r_addr(current_r_addr\[RID\]),	
+		.chan_in  (router_chan_in \[RID\] \[$p : 0\]), 
+		.chan_out (router_chan_out\[RID\] \[$p : 0\]),
+		.router_event(router_event\[RID\] \[$p : 0\])	
 	);
     
     
@@ -496,7 +511,8 @@ module   ${name}_noc_genvar
     reset,
     clk,    
     chan_in_all,
-    chan_out_all  
+    chan_out_all,
+    router_event  
 );
 
 	 function integer log2;
@@ -582,8 +598,10 @@ sub get_router_genvar_instance_v{
 		.clk(clk), 
 		.reset(reset),
 		.current_r_addr($router_pos),
+		.current_r_id($router_pos),
 		.chan_in (router_chan_in\[$router_pos\]), 
-		.chan_out(router_chan_out\[$router_pos\])		
+		.chan_out(router_chan_out\[$router_pos\]),
+		.router_event(router_event\[$router_pos\])	
 	);
 	
 	
@@ -1642,7 +1660,8 @@ $ports
 		    .reset(reset),
 		    .clk(clk),    
 		    .chan_in_all(chan_in_all),
-		    .chan_out_all(chan_out_all)  
+		    .chan_out_all(chan_out_all),
+		    .router_event(router_event)  
 		);
     end
     

@@ -201,26 +201,7 @@ localparam
 	}ovc_info_t;
 	localparam  OVC_INFO_w = $bits( ovc_info_t);
 	
-	
-/**********
-* Router Statistic 
- ********/
 
-	localparam STATISTIC_EN=0; 	
-	
-	enum{
-		FLIT_IN__COUNT,
-		PCK_IN_COUNT,
-		FLIT_OUT__COUNT,
-		PCK_OUT_COUNT
-	} statistic;	
-	
-	localparam 
-		ST_NUM = (STATISTIC_EN>0) ? statistic.num() : 0,
-		ST_Aw  = log2(ST_NUM),
-		ST_Dw  = (STATISTIC_EN>0) ? 1 : 32;	
-    
-	
 		
 	
 		
@@ -268,6 +249,7 @@ localparam
 		logic [V-1   	: 0] ovc;		
 		logic [EAw-1 	: 0] dest_e_addr;
 		bit   hdr_flit;
+		bit   flit_in_bypassed; 
 	} smart_chanel_t;
 	localparam SMART_CHANEL_w = $bits(smart_chanel_t);
 	
@@ -329,7 +311,15 @@ localparam
     }	pck_injct_t;
     localparam PCK_INJCT_w = $bits(pck_injct_t); 
     
- 	
+    typedef struct packed {
+    	bit flit_wr_i;
+    	bit pck_wr_i;
+    	bit flit_wr_o;
+    	bit pck_wr_o;
+    	bit flit_in_bypassed;
+    } router_event_t;
+    localparam ROUTER_EVENT_w = $bits(router_event_t); 
+    
 	
 endpackage : pronoc_pkg
 

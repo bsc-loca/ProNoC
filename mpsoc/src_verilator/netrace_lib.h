@@ -341,6 +341,7 @@ void netrace_eval(unsigned int eval_num){
 void netrace_posedge_event(){
 	unsigned int i;
 	clk = 1;       // Toggle clock
+	update_all_router_stat();
 	for(i=0;i<netrace_speed_up; i++)  netrace_eval(i);
 	connect_clk_reset_start_all();
 	sim_eval_all();
@@ -349,13 +350,12 @@ void netrace_posedge_event(){
 }
 
 
-void netrace_clk_negedge_event( ){
+void netrace_negedge_event( ){
 	int i;
 	clk = 0;
 	topology_connect_all_nodes ();
 	connect_clk_reset_start_all();
 	sim_eval_all();
-
 }
 
 

@@ -16,15 +16,16 @@ module router_top
 	# (
 		parameter P = 5     // router port num         
 		)(
+			current_r_id,
 			current_r_addr,
 					
 			chan_in,
 			chan_out,
         
+			router_event,
+			
 			clk,
-			reset
-			
-			
+			reset			
 			
 		);
 	
@@ -32,12 +33,13 @@ module router_top
 	localparam DISABLED =P;
 
 	input [RAw-1 :  0]  current_r_addr;
-	
+	input [31 : 0] current_r_id;
 	
 	
 	input   smartflit_chanel_t chan_in [P-1 : 0];
 	output  smartflit_chanel_t chan_out [P-1 : 0];
 	
+	output router_event_t router_event [P-1 : 0];
 	
 	
 	
@@ -62,25 +64,40 @@ module router_top
 			$display("ERROR: The minimum packet size must be set as one for single-flit packet type NoC");
 			$finish;	
 		end
-	end
+	end	
+	/* verilator lint_on WIDTH */
+	
+	
 	
 	
 	
 	logic report_active_ivcs = 0;
 	
 	generate 
-	for (i=0; i<P; i=i+1) begin :P_
+	for (i=0; i<P; i=i+1) begin :P1_
 		for (j=0; j<V; j=j+1) begin :V_		
-		always @ (posedge report_active_ivcs) begin 
-			if(ivc_info[i][j].ivc_req) $display("%t : The IVC in router[%h] port[%d] VC [%d] is not empty",$time,current_r_addr,i,j);
-		end
-		end
+			always @ (posedge report_active_ivcs) begin 
+				if(ivc_info[i][j].ivc_req) $display("%t : The IVC in router[%h] port[%d] VC [%d] is not empty",$time,current_r_addr,i,j);
+			end
+		end		
+	end
+	endgenerate
+		
+	//synopsys  translate_on
+	//synthesis translate_on 
+	
+	
+	
+	generate 
+	for (i=0; i<P; i=i+1) begin :P2_
+		assign router_event[i].flit_wr_i = chan_in[i].flit_chanel.flit_wr;
+		assign router_event[i].pck_wr_i  = chan_in[i].flit_chanel.flit_wr & chan_in[i].flit_chanel.flit.hdr_flag;
+		assign router_event[i].flit_wr_o = chan_out[i].flit_chanel.flit_wr;
+		assign router_event[i].pck_wr_o  = chan_out[i].flit_chanel.flit_wr & chan_out[i].flit_chanel.flit.hdr_flag;
+		assign router_event[i].flit_in_bypassed = chan_out[i].smart_chanel.flit_in_bypassed;	
 	end
 	endgenerate
 	
-	/* verilator lint_on WIDTH */
-	//synopsys  translate_on
-	//synthesis translate_on 
 	
 	
 	
@@ -172,6 +189,7 @@ module router_top
 			.oport_info (oport_info),
 			.smart_ctrl_in (smart_ctrl),
 			.current_r_addr(current_r_addr),
+			.current_r_id(current_r_id),
 			.chan_in  (r2_chan_in), 
 			.chan_out (r2_chan_out), 
 			.ctrl_in  (ctrl_in),
@@ -235,7 +253,7 @@ module router_top
 							.reset                     (reset                    ), 
 							.current_r_addr_i          (current_r_addr   ), 
 							.neighbors_r_addr_i        (neighbors_r_addr         ), 
-							.smart_chanel_i              (chan_in[i].smart_chanel    ), 
+							.smart_chanel_i            (chan_in[i].smart_chanel    ), 
 							.flit_chanel_i             (chan_in[i].flit_chanel   ), 
 							.ivc_info                  (ivc_info[i]              ), 
 							.ss_ovc_info               (ovc_info[SS_PORT]        ),
@@ -277,15 +295,19 @@ module router_top
 					// synthesis translate_on
 					
 					assign smart_chanel_in[i] =   chan_in[i].smart_chanel;
-					assign chan_out[i].smart_chanel = smart_chanel_out[i];
+					
 				
 					//r2 demux
 					// flit_in_wr demux 
 					always @(*) begin 
+						chan_out[i].smart_chanel = smart_chanel_out[i];
+						chan_out[i].smart_chanel.flit_in_bypassed =smart_ctrl[i].smart_en & chan_in[i].flit_chanel.flit_wr ;
+						
 						//mask only flit_wr if smart_en is asserted 
 						r2_chan_in[i]   =  chan_in[i].flit_chanel;
 						//can replace destport here and remove lk rout from internal router 
 						if (smart_ctrl[i].smart_en) r2_chan_in[i].flit_wr = 1'b0;
+						
 					
 						//send flit_in to straight out port. Replace lk destport in header flit
 						ss_flit_chanel[SS_PORT] = chan_in[i].flit_chanel;
@@ -372,10 +394,13 @@ module router_top_v //to be used as top module in veralator
 		parameter P = 5     // router port num         
 		)(
 			current_r_addr,
+			current_r_id,
         
 			chan_in,
 			chan_out,
         
+			router_event,
+			
 			clk,
 			reset
 
@@ -384,19 +409,25 @@ module router_top_v //to be used as top module in veralator
 	
 
 	input  [RAw-1 : 0] current_r_addr;
+	input [31:0] current_r_id;
     
 	input   smartflit_chanel_t chan_in [P-1 : 0];
 	output  smartflit_chanel_t chan_out [P-1 : 0];
-	input reset,clk;
-
+	input   reset,clk;
+	
+	output router_event_t router_event [P-1 : 0];
+	
+	
 	router_top # (
 			.P(P)           
 		)
 		router
 		(
+			.current_r_id(current_r_id),
 			.current_r_addr(current_r_addr),
 			.chan_in (chan_in),
-			.chan_out(chan_out),       
+			.chan_out(chan_out), 
+			.router_event(router_event),
 			.clk(clk),
 			.reset(reset)
 		);

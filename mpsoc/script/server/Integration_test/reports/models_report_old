@@ -23,6 +23,8 @@ Verification Results:
 	 model is generated successfully.
 ****************************mesh_8x8_2cycle_xy : Compile *******************************:
 	 model is generated successfully.
+****************************mesh_8x8_4vc_4c : Compile *******************************:
+	 model is generated successfully.
 ****************************mesh_8x8_b2 : Compile *******************************:
 	 model is generated successfully.
 ****************************mesh_8x8_sbp6_xy : Compile *******************************:
@@ -57,6 +59,8 @@ Verification Results:
 	 Passed:   zero load (2,17.8475) saturation (34,157.301)
 ****************************mesh_8x8_2cycle_xy	: random traffic *******************************:
 	 Passed:   zero load (2,17.8494) saturation (34,124.359)
+****************************mesh_8x8_4vc_4c	: random traffic *******************************:
+	 Passed:   zero load (2,17.6845) saturation (26,154.089)
 ****************************mesh_8x8_b2	: random traffic *******************************:
 	 Passed:   zero load (2,22.0879) saturation (30,202.238)
 ****************************mesh_8x8_sbp6_xy	: random traffic *******************************:
@@ -91,6 +95,8 @@ Verification Results:
 	 Passed:   zero load (2,19.6108) saturation (22,103.116)
 ****************************mesh_8x8_2cycle_xy	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,19.5986) saturation (18,126.377)
+****************************mesh_8x8_4vc_4c	: transposed 1 traffic *******************************:
+	 Passed:   zero load (2,19.4251) saturation (18,117.107)
 ****************************mesh_8x8_b2	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,23.6323) saturation (18,119.581)
 ****************************mesh_8x8_sbp6_xy	: transposed 1 traffic *******************************:

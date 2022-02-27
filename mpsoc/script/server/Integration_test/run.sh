@@ -15,7 +15,7 @@ SCRPT_DIR_PATH=$(dirname $SCRPT_FULL_PATH)
 my_server="to be selected"
 SERVER_ROOT_DIR="~/pronoc_verify"
 
-ProNoC="../../.."
+ProNoC="$SCRPT_DIR_PATH/../../.."
 
 my_srcs=( "rtl"
     "Integration_test"
@@ -37,12 +37,49 @@ STEP=4
 dir="models"
 
 
+models_path=$(realpath $ProNoC/Integration_test/synthetic_sim)
+
+
 
 
 while getopts "h?p:u:l:s:d:" opt; do
   case "$opt" in
     h|\?)
-      echo "./run [-d models_dir name]"
+      echo "./run [options]
+      
+      [options]
+      -h show this help 
+      -p <int number>  : Enter the number of parallel simulations or
+                         compilations. The default value is 4.
+      -u <int number>  : Enter the maximum injection ratio in %. Default is 80
+      -l <int number>  : Enter the minimum injection ratio in %. Default is 5
+      -s <int number>  : Enter the injection step increase ratio in %. 
+                         Default value is 25.
+      -d <dir name>    : The dir name where the simulation models configuration
+                         files are located in. The default dir is \"models\"
+      -m <simulation model name1,simulation model name2,...> : Enter the 
+                         simulation model name in simulation dir. If the 
+                         simulation model name  is not provided, it runs the 
+                         simulation for all existing models in model dir.     
+      "
+          
+      	declare -a dirs
+		i=1
+		for d in $models_path/*/
+		do
+			m=$(basename "${d%/}")
+			if [ $m != "src" ]; then 
+			 	dirs[i++]="$m"
+			fi
+		done
+		echo "	For -d option, there are ${#dirs[@]} dir names available:"
+		for((i=1;i<=${#dirs[@]};i++))
+		do
+		 	echo "		$i ${dirs[i]}"
+		done
+      
+      
+      
       exit 0
       ;;
     p) paralel_run=$OPTARG

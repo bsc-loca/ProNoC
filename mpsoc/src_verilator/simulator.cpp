@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 	for(i=0;i<NE;i++)   custom_traffic_table[i]=INJECT_OFF; //off
 	Verilated::commandArgs(argc, argv);   // Remember args
 	processArgs ( argc,  argv );
-
+	allocate_rsv_pck_counters();
 	if (class_percentage==NULL) {
 			class_percentage =   (int *) malloc(sizeof(int));
 			class_percentage[0]=100;
@@ -38,11 +38,13 @@ int main(int argc, char** argv) {
 
 
 	Vrouter_new();
-	if( TRAFFIC_TYPE == NETRACE)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
+	if (ENDP_TYPE == PCK_INJECTOR)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
 	else                            for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
 
-
 	if( TRAFFIC_TYPE == NETRACE) netrace_init(netrace_file);
+	else if(TRAFFIC_TYPE ==SYNFUL) synful_init(synful_file,synful_SSExit,synful_random_seed);
+
+
 
 	FIXED_SRC_DST_PAIR = strcmp (TRAFFIC,"RANDOM") &  strcmp(TRAFFIC,"HOTSPOT") & strcmp(TRAFFIC,"random") & strcmp(TRAFFIC,"hot spot") & strcmp(TRAFFIC,"TASK");
 
@@ -60,7 +62,8 @@ int main(int argc, char** argv) {
 
 
 	topology_init();
-	if( TRAFFIC_TYPE == NETRACE) pck_inj_init();
+	if( TRAFFIC_TYPE == NETRACE) pck_inj_init((int)header->num_nodes);
+	else if (TRAFFIC_TYPE ==SYNFUL) pck_inj_init(SYNFUL_ENDP_NUM);
 	else 	traffic_gen_init();
 	main_time=0;
 	print_parameter();
@@ -76,16 +79,19 @@ int main(int argc, char** argv) {
 		if(main_time == saved_time+23) start_i=0;
 
 		if(TRAFFIC_TYPE==NETRACE) netrace_posedge_event();
+		else if(TRAFFIC_TYPE ==SYNFUL) synful_posedge_event();
 		else traffic_clk_posedge_event();
 		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values
 		//between modules when the clock .
 		for (i=0;i<SMART_MAX+2;i++) {
-			if(TRAFFIC_TYPE==NETRACE) netrace_clk_negedge_event( );
+			if(TRAFFIC_TYPE==NETRACE) netrace_negedge_event();
+			else if(TRAFFIC_TYPE ==SYNFUL) synful_negedge_event();
 			else traffic_clk_negedge_event( );
 		}
 
 		if(simulation_done){
 			if( TRAFFIC_TYPE == NETRACE) netrace_final_report();
+			else if(TRAFFIC_TYPE ==SYNFUL) synful_final_report();
 			else traffic_gen_final_report();
 			sim_final_all();
 			return 0;
@@ -107,7 +113,8 @@ void  usage(char * bin_name){
 	printf("Usage:\n"
 " %s -t <synthetic Traffic Pattern name> [synthetic Traffic options]\n"
 " %s -f <Task file> [Task options] or\n"
-" %s -F <netrace file> [Netrace options] \n\n"
+" %s -F <netrace file> [Netrace options] \n"
+" %s -S <synful model file> [synful options]\n\n"
 "synthetic Traffic options:\n"
 "  -t <Traffic Pattern>        \"HOTSPOT\", \"RANDOM\", \"BIT_COMPLEMENT\" , \"BIT_REVERSE\",\n "
 "                              \"TORNADO\", \"TRANSPOSE1\", \"TRANSPOSE2\", \"SHUFFEL\", \"CUSTOM\"\n"
@@ -155,8 +162,17 @@ void  usage(char * bin_name){
 "  -s <speed-up-num>		   the speed-up-num  is the ratio of netrace frequency to pronoc.The higher value\n"
 "                              results in higher injection ratio to the NoC. Default is one" 
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
-"                              to speed up simulation time"	,						   
-bin_name,bin_name,bin_name
+"                              to speed up simulation time"
+"\nsynful options:\n"
+"  -S <Netrace file>           path to the synful application model file\n"
+"  -r <seed value>             Seed value for random function "
+"  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
+"  -s                          exit at steady state\n"
+"  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the noc reaches this number\n"
+"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
+"  -v <level>                  Verbosity level. 0: off, 1:display a live number of injected packet,\n"
+"                              3: print injected/ejected packets details, default is 1\n",
+bin_name,bin_name,bin_name,bin_name
 );
 
 }
@@ -177,6 +193,7 @@ void netrace_processArgs (int argc, char **argv )
 	 	case 'F':
 	 		TRAFFIC_TYPE=NETRACE;
 	 		TRAFFIC=(char *) "NETRACE";
+	 		ENDP_TYPE = PCK_INJECTOR;
 	 		netrace_file = optarg;
 	 		break;
 	 	case 'd':
@@ -300,6 +317,52 @@ void synthetic_task_processArgs (int argc, char **argv )
       }
 }
 
+
+
+
+void synful_processArgs (int argc, char **argv)
+{
+   char c;
+   /* don't want getopt to moan - I can do that just fine thanks! */
+   opterr = 0;
+   if (argc < 2)  usage(argv[0]);
+   while ((c = getopt (argc, argv, "S:c:sn:v:T:r:")) != -1)
+   {
+	 switch (c)
+	 {
+	 	case 'S':
+	 		TRAFFIC_TYPE=SYNFUL;
+	 		TRAFFIC=(char *) "SYNFUL";
+	 		synful_file = optarg;
+	 		ENDP_TYPE   =PCK_INJECTOR;
+	 		break;
+	 	case 'c':
+	 		sim_end_clk_num=atoi(optarg);
+	 		break;
+	 	case 's':
+	 		synful_SSExit =true;
+	 		break;
+	 	case 'n':
+	 		end_sim_pck_num=atoi(optarg);
+	 		break;
+	 	case 'v':
+	 		 verbosity= atoi(optarg);
+	 		 break;
+	 	case 'T':
+	 		thread_num = atoi(optarg);
+	 		break;
+	 	case 'r':
+	 		synful_random_seed = atoi(optarg);
+	 		break;
+	 	case '?':
+	 		if (isprint (optopt)) fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+	 		else fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
+	 	default:
+	 	     usage(argv[0]);
+	 	     exit(1);
+	 }//switch
+   }//while
+}
 
 
 
@@ -529,13 +592,17 @@ void update_pck_size(char *str){
 		fprintf(stderr,"ERROR: Wrong Packet size format %s. It should start with one of \"D\" or \"R\" letter\n",str);
 		exit(1);
 	}
-	p=(MAX_PACKET_SIZE-MIN_PACKET_SIZE)+1;
+
+
+}
+
+void allocate_rsv_pck_counters (void) {
+	int p=(MAX_PACKET_SIZE-MIN_PACKET_SIZE)+1;
 	rsv_size_array = (unsigned int*) calloc ( p , sizeof(int));
 	if (rsv_size_array==NULL){
 		 fprintf(stderr,"ERROR: cannot allocate memory for rsv_size_array\n");
 		 exit(1);
 	}
-
 }
 
 
@@ -576,6 +643,9 @@ void processArgs (int argc, char **argv ){
 
 		} else if( strcmp(argv[i], "-F") == 0 ) {
 			netrace_processArgs (argc, argv );
+			return;
+		} else if ( strcmp(argv[i], "-S") == 0 ) {
+			synful_processArgs (argc, argv );
 			return;
 		}
 	}
@@ -648,13 +718,13 @@ void traffic_gen_init( void ){
 	}
 }
 
-void pck_inj_init (void){
+void pck_inj_init (int model_node_num){
 	int i,tmp;
 	for (i=0;i<NE;i++){
 	   	pck_inj[i]->current_e_addr		= endp_addr_encoder(i);
 	   //TODO mapping should be done according to number of NE and should be set by the user later
 	   	if(NE<=64){
-	   		tmp = ((i* NE)/(int)header->num_nodes);
+	   		tmp = ((i* NE)/model_node_num);
 	   		netrace_to_pronoc_map[i]=tmp;
 	   	} else {
 	   		if(i<64) netrace_to_pronoc_map[i]=i;
@@ -741,7 +811,7 @@ class alignas(64) Vthread
 			for(i=0;i<ne_per_thread;i++){
 				node= (n * ne_per_thread)+i;
 				if (node >= NE) break;
-				if( TRAFFIC_TYPE == NETRACE)   pck_inj[node]->eval();
+				if(ENDP_TYPE == PCK_INJECTOR)   pck_inj[node]->eval();
 				else   traffic[node]->eval();
 			}	
 			
@@ -814,7 +884,7 @@ void sim_eval_all (void){
 			//if(router_is_active[i] | (Quick_sim_en==0)) 
 			single_router_eval(i);
 		}
-		if( TRAFFIC_TYPE == NETRACE) for(i=0;i<NE;i++) pck_inj[i]->eval();
+		if(ENDP_TYPE == PCK_INJECTOR) for(i=0;i<NE;i++) pck_inj[i]->eval();
 		else for(i=0;i<NE;i++) traffic[i]->eval();
 	}
 }	
@@ -822,7 +892,7 @@ void sim_eval_all (void){
 void sim_final_all (void){
 	int i;
 	routers_final();
-	if( TRAFFIC_TYPE == NETRACE) for(i=0;i<NE;i++) pck_inj[i]->final();
+	if(ENDP_TYPE == PCK_INJECTOR) for(i=0;i<NE;i++) pck_inj[i]->final();
 	else for(i=0;i<NE;i++) traffic[i]->final();
 	//noc->final(); 
 }	
@@ -831,7 +901,7 @@ void connect_clk_reset_start_all(void){
 	int i;
 	//noc-> clk = clk; 
 	//noc-> reset = reset;
-	if( TRAFFIC_TYPE == NETRACE) {
+	if(ENDP_TYPE == PCK_INJECTOR) {
 		for(i=0;i<NE;i++)	{
 			pck_inj[i]->reset= reset;
 			pck_inj[i]->clk	= clk;
@@ -873,6 +943,8 @@ void traffic_clk_posedge_event(void) {
 	inject_done= ((total_sent_pck_num >= end_sim_pck_num) || (clk_counter>= sim_end_clk_num) || total_active_routers == 0);
 	//if(inject_done) printf("clk_counter=========%d\n",clk_counter);
 	total_rsv_flit_number_old=total_rsv_flit_number;
+	update_all_router_stat();
+
 	for (i=0;i<NE;i++){
 		// a packet has been received
 		if(traffic[i]->update & ~reset){
@@ -963,13 +1035,13 @@ void update_statistic_at_ejection (
 
 	total_rsv_pck_num+=1;
 
-	if( TRAFFIC_TYPE != NETRACE){
+	if(ENDP_TYPE == TRFC_INJECTOR) {
 		if( traffic[core_num]->pck_size_o >= MIN_PACKET_SIZE && traffic[core_num]->pck_size_o <=MAX_PACKET_SIZE){
 			  if(rsv_size_array!=NULL) 	rsv_size_array[traffic[core_num]->pck_size_o-MIN_PACKET_SIZE]++;
 		}
 	}
 
-	if(verbosity==0 &&  TRAFFIC_TYPE == NETRACE) if((total_rsv_pck_num & 0X1FFFF )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
+	if(verbosity==0 && ( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE ==SYNFUL)) if((total_rsv_pck_num & 0X1FFFF )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
     unsigned int latency = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)? clk_num_h2t :  clk_num_h2h;
     #if(C>1)
 
@@ -1096,7 +1168,12 @@ void merge_statistic (statistic_t * merge_stat, statistic_t stat_in){
 
 void print_statistic_new (unsigned long int total_clk){
 	int i;
-	printf("\n\t#node,"
+
+
+	print_router_st();
+
+	printf( "\n\tEndpoints Statistics:\n"
+			"\t#node,"
 			"sent_stat.pck_num,"
 			"rsvd_stat.pck_num,"
 			"sent_stat.flit_num,"
@@ -1172,6 +1249,11 @@ void print_statistic_new (unsigned long int total_clk){
     	printf("\t%u,",i);
     	print_st_single (total_clk, rsvd_stat_class[i],sent_stat_class[i] );
     }
+
+
+
+
+
 }
 
 
@@ -1247,7 +1329,7 @@ void print_parameter (){
 	//printf ("\tTotal packets sent by one router: %u\n", TOTAL_PKT_PER_ROUTER);
 	if(sim_end_clk_num!=0) printf ("\tSimulation timeout =%d\n", sim_end_clk_num);
 	if(end_sim_pck_num!=0) printf ("\tSimulation ends on total packet num of =%d\n", end_sim_pck_num);
-	if(TRAFFIC_TYPE!=NETRACE){
+	if(TRAFFIC_TYPE!=NETRACE && TRAFFIC_TYPE!=SYNFUL){
 		printf ("\tPacket size (min,max,average) in flits: (%u,%u,%u)\n",MIN_PACKET_SIZE,MAX_PACKET_SIZE,AVG_PACKET_SIZE);
 		printf ("\tPacket injector FIFO width in flit:%u \n",TIMSTMP_FIFO_NUM);
 	}
@@ -1396,7 +1478,12 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src, unsigned char * inject_e
 
 	}
 
+#if (C>1)
+	if(sent_stat[src][traffic[src]->flit_out_class].pck_num & 0xFF){//sent 255 packets
+#else
 	if(sent_stat[src].pck_num & 0xFF){//sent 255 packets
+#endif
+
 			//printf("uu=%u\n",task.jnjct_var);
 			update_injct_var(src, task.jnjct_var);
 
@@ -1447,7 +1534,70 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src, unsigned char * inject_e
 }
 
 
+void update_all_router_stat(void){
+	for (int i=0; i<NR; i++) single_router_st_update(i);
+}
+
+void update_router_st (
+		unsigned int Pnum,
+		unsigned int rid,
+		unsigned char * event
+
+){
+
+	for (int p=0;p<Pnum;p++){
+		if(event[p] & FLIT_IN_WR_FLG ) router_stat [rid][p].flit_num_in++;
+		if(event[p] & PCK_IN_WR_FLG  ) router_stat [rid][p].pck_num_in++;
+		if(event[p] & FLIT_OUT_WR_FLG) router_stat [rid][p].flit_num_out++;
+		if(event[p] & PCK_OUT_WR_FLG ) router_stat [rid][p].pck_num_out++;
+		if(event[p] & FLIT_IN_BYPASSED)router_stat [rid][p].flit_num_in_bypassed++;
+		else if( event[p] & FLIT_IN_WR_FLG) router_stat [rid][p].flit_num_in_buffered++;
+	}
+}
 
 
+void print_router_st (void) {
 
+	//report router statistic
+	printf("\n\n\tRouters' statistics\n");
+	printf("\t#RID, #Port,"
+	   	"flit_in,"
+	   	"pck_in,"
+	   	"flit_out,"
+		"pck_out,"
+		"flit_in_buffered,"
+		"flit_in_bypassed,"
+		"\n"
+	);
 
+	for (int i=0; i<NR; i++){
+
+	   	for (int p=0;p<MAX_P;p++){
+
+	   		printf("\t%u,%u,",i,p);
+	    		myout(
+	    		router_stat [i][p].flit_num_in,
+	    		router_stat [i][p].pck_num_in,
+				router_stat [i][p].flit_num_out,
+				router_stat [i][p].pck_num_out,
+				router_stat [i][p].flit_num_in_buffered,
+				router_stat [i][p].flit_num_in_bypassed
+	    		);
+	    	router_stat_accum [i].flit_num_in              += router_stat [i][p].flit_num_in;
+	    	router_stat_accum [i].pck_num_in               += router_stat [i][p].pck_num_in;
+	    	router_stat_accum [i].flit_num_out             += router_stat [i][p].flit_num_out;
+	    	router_stat_accum [i].pck_num_out              += router_stat [i][p].pck_num_out;
+	    	router_stat_accum [i].flit_num_in_buffered     += router_stat [i][p].flit_num_in_buffered;
+	    	router_stat_accum [i].flit_num_in_bypassed     += router_stat [i][p].flit_num_in_bypassed;
+	   	}
+	   	printf("\t%u,total,",i);
+	   	myout(
+		router_stat_accum [i].flit_num_in,
+		router_stat_accum [i].pck_num_in,
+		router_stat_accum [i].flit_num_out,
+		router_stat_accum [i].pck_num_out,
+		router_stat_accum [i].flit_num_in_buffered,
+		router_stat_accum [i].flit_num_in_bypassed
+	   	);
+	  }
+}

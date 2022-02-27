@@ -268,13 +268,13 @@ localparam
               
         DAw_OFFSETw  =  (TOPOLOGY=="MESH" || TOPOLOGY=="TORUS" ||  TOPOLOGY=="FMESH")?  NX : 0, 
         
-        MCAST_PRTLw = mcast_partial_width(),
+        MCAST_PRTLw = mcast_partial_width( MCAST_ENDP_LIST),
         
         MCASTw =
             (CAST_TYPE == "MULTICAST_FULL") ? NE :
             (CAST_TYPE == "MULTICAST_PARTIAL" && EAw >= MCAST_PRTLw) ? EAw +1 : 
             (CAST_TYPE == "MULTICAST_PARTIAL" && EAw <  MCAST_PRTLw) ? MCAST_PRTLw +1 :
-            EAw +1,
+            EAw +1, //broadcast
               
         DAw =  
             (CAST_TYPE == "UNICAST") ?   EAw:
@@ -324,7 +324,7 @@ localparam
                 if( mcast_list[mcast_id_to_endp_id]==1'b1) begin 
                    k=k+1;            
                 end
-                mcast_id_to_endp_id++;       
+                mcast_id_to_endp_id= mcast_id_to_endp_id+1;       
             end
         end
         end
@@ -333,7 +333,7 @@ localparam
    function automatic integer endp_id_to_mcast_id;
         input integer  endp_id;
         reg [NE-1 : 0] mcast_list;
-        integer i=0;       
+        integer i;       
         begin
          /* verilator lint_off WIDTH */ 
         if (CAST_TYPE == "MULTICAST_FULL") begin
@@ -342,23 +342,115 @@ localparam
         end else begin
             mcast_list =MCAST_ENDP_LIST;
             endp_id_to_mcast_id=0;
-            for (i=0;i<endp_id;i++) begin 
+            for (i=0;i<endp_id;i=i+1) begin 
                 if( mcast_list[i]==1'b1) endp_id_to_mcast_id=endp_id_to_mcast_id+1;
             end
             end
         end
     endfunction  
     
+  
+    
     function automatic integer mcast_partial_width;
-        integer i=0;
-        integer size = $bits(MCAST_ENDP_LIST);
+        input [NE-1 : 0] p;
+        integer i;      
         begin 
+            
             mcast_partial_width=0;
-            for (i=0;i<size;i++) begin
-                if (MCAST_ENDP_LIST [i]==1'b1) mcast_partial_width++;
+            for (i=0;i<NE;i=i+1) begin
+                if (p [i]==1'b1) mcast_partial_width=mcast_partial_width+1;
             end
         end   
     endfunction
+    
+    
+    
+    
+    function automatic  integer fmesh_addrencode; 
+        input integer in;
+        integer  y, x, l,p, diff,mul;begin
+                        
+            mul  = NX*NY*NL;            
+            if(in < mul) begin 
+                y = ((in/NL) / NX ); 
+                x = ((in/NL) % NX ); 
+                l = (in % NL); 
+                p = (l==0)? LOCAL : 4+l;            
+            end else begin      
+                diff = in -  mul ;
+                if( diff <  NX) begin //top mesh edge 
+                    y = 0;
+                    x = diff;
+                    p = NORTH;
+                end else if  ( diff < 2* NX) begin //bottom mesh edge 
+                    y = NY-1;
+                    x = diff-NX;
+                    p = SOUTH;
+                end else if  ( diff < (2* NX)+NY ) begin //left mesh edge 
+                    y = diff - (2* NX);
+                    x = 0;
+                    p = WEST;
+                end else begin //right mesh edge 
+                    y = diff - (2* NX) -NY;
+                    x = NX-1;
+                    p = EAST; 
+                end
+            end//else 
+            fmesh_addrencode = ( p<<(NXw+NYw) | (y<<NXw) | x);      
+        end   
+    endfunction // addrencode    
+     
+    
+    
+    // synthesis translate_off
+    /* verilator lint_off WIDTH */
+   task display_noc_parameters;  
+   begin
+      //print_parameter 
+        $display ("NoC parameters:----------------");
+        $display ("\tTopology: %s",TOPOLOGY);
+        $display ("\tRouting algorithm: %s",ROUTE_NAME);
+        $display ("\tVC_per port: %0d", V);
+        $display ("\tNon-local port buffer_width per VC: %0d", B);
+        $display ("\tLocal port buffer_width per VC: %0d", LB);
+        if(TOPOLOGY=="MESH" || TOPOLOGY=="TORUS" || TOPOLOGY == "FMESH")begin
+            $display ("\tRouter num in row: %0d",T1);
+            $display ("\tRouter num in column: %0d",T2);
+            $display ("\tEndpoint num per router: %0d",T3);
+        end else if (TOPOLOGY=="RING" || TOPOLOGY == "LINE") begin
+            $display ("\tTotal Router num: %0d",T1);
+            $display ("\tEndpoint num per router: %0d",T3);
+        end else if (TOPOLOGY == "TREE" ||  TOPOLOGY == "FATTREE")begin
+            $display ("\tK: %0d",T1);
+            $display ("\tL: %0d",T2);
+        end else begin //CUSTOM
+            $display ("\tTotal Endpoints number: %0d",T1);
+            $display ("\tTotal Routers number: %0d",T2);
+        end
+        $display ("\tNumber of Class: %0d", C);
+        $display ("\tFlit data width: %0d", Fpay);
+        $display ("\tVC reallocation mechanism: %s",  VC_REALLOCATION_TYPE);
+        $display ("\tVC/sw combination mechanism: %s", COMBINATION_TYPE);
+        $display ("\tAVC_ATOMIC_EN:%0d", AVC_ATOMIC_EN);
+        $display ("\tCongestion Index:%0d",CONGESTION_INDEX);
+        $display ("\tADD_PIPREG_AFTER_CROSSBAR:%0d",ADD_PIPREG_AFTER_CROSSBAR);
+        $display ("\tSSA_EN enabled:%s",SSA_EN);
+        $display ("\tSwitch allocator arbitration type:%s",SWA_ARBITER_TYPE);
+        $display ("\tMinimum supported packet size:%0d flit(s)",MIN_PCK_SIZE);
+        $display ("\tLoop back is enabled:%s",SELF_LOOP_EN);
+        $display ("\tNumber of multihop bypass (SMART max):%0d",SMART_MAX);
+        $display ("\tCastying type:%s.",CAST_TYPE);
+        if (CAST_TYPE == "MULTICAST_PARTIAL" || CAST_TYPE == "BROADCAST_PARTIAL")begin
+            $display ("\tNumber of nodes in Cast list:%d",   MCAST_PRTLw);
+            $display ("\tCAST LIST:%b", MCAST_ENDP_LIST);
+        end 
+        $display ("NoC parameters:----------------");
+      end
+      endtask
+      /* verilator lint_on WIDTH */
+      // synthesis translate_on
+    
+    
     
     
    

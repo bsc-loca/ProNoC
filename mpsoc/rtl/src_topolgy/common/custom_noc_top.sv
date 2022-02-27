@@ -7,7 +7,8 @@ module   custom_noc_top
     reset,
     clk,    
     chan_in_all,
-    chan_out_all  
+    chan_out_all,
+    router_event  
 );
 
     
@@ -16,6 +17,8 @@ module   custom_noc_top
 	input   smartflit_chanel_t chan_in_all  [NE-1 : 0];
 	output  smartflit_chanel_t chan_out_all [NE-1 : 0];
 	
+	//Events
+	output  router_event_t  router_event [NR-1 : 0][MAX_P-1 : 0];
 	   
 
     generate 
@@ -28,6 +31,9 @@ module   custom_noc_top
 	
     
      
+	
+    
+     
 	//do not modify this line ===mesh4x4===
     if(TOPOLOGY == "mesh4x4" ) begin : Tmesh4x4
     
@@ -36,7 +42,8 @@ module   custom_noc_top
 		    .reset(reset),
 		    .clk(clk),    
 		    .chan_in_all(chan_in_all),
-		    .chan_out_all(chan_out_all)  
+		    .chan_out_all(chan_out_all),
+		    .router_event(router_event)  
 		);
     end
     
@@ -49,11 +56,18 @@ module   custom_noc_top
 		    .reset(reset),
 		    .clk(clk),    
 		    .chan_in_all(chan_in_all),
-		    .chan_out_all(chan_out_all)  
+		    .chan_out_all(chan_out_all),
+		    .router_event(router_event)  
 		);
     end
     
     endgenerate
+	
+	 
+	
+	 
+	
+	 
 	
 	 
 	

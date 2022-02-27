@@ -1122,42 +1122,5 @@ module  fattree_destp_generator #(
  
  
  
-module fattree_multicast_dst_sel #(
-    parameter DSTPw =4
-)
-(
-    destport_in,
-    destport_out    
-);
 
-
-
-/******************
-        destport_encoded format in fat tree. K+1 bit
-        destport[K] 
-            1'b0  : go down 
-            1'b1  : go up
-        destport[K-1: 0]: 
-            asserted bit show the output port locatation     
-*******************/
-
-
-    input  [DSTPw-1 : 0] destport_in;
-    output [DSTPw-1 : 0] destport_out; 
- 
-    
-    fixed_priority_arbiter #(
-        .ARBITER_WIDTH     (DSTPw), 
-        .HIGH_PRORITY_BIT  ("MSB")// up port has high priority
-    ) fixed_priority_arbiter (
-        .request           (destport_in), 
-        .grant             (destport_out), 
-        .any_grant         (   )
-    );
-    
-     
-    
-    
-endmodule
- 
  

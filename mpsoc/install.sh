@@ -1,12 +1,26 @@
-#!/bin/sh
+#!/bin/bash
 
 # run the following line in terminal to install the necessary packages
-#    sudo sh install.sh 
+#    sudo bash install.sh 
 
+
+
+
+shel=$(ps -p $$);
+shel=${shel##* }
+
+if [ "$shel" !=  "bash" ] 
+then
+  echo "make sure that you source this script in a bash shell"
+  echo "The current shel is ($shel), aborting" 
+  exit
+fi
+if [ $SUDO_USER ]; then user=$SUDO_USER; else user=`whoami`; fi
 
 #the current script path
 	SCRPT_FULL_PATH=$(realpath ${BASH_SOURCE[0]})
 	SCRPT_DIR_PATH=$(dirname $SCRPT_FULL_PATH)
+
 
 
 
@@ -92,6 +106,13 @@ curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
 sudo python2 get-pip.py 
 pip install trueskill numpy "networkx<2.0"
 
+#make pronoc application/executable file
+cd $SCRPT_DIR_PATH/src_c/app_executable
+make
+mv ./ProNoC $SCRPT_DIR_PATH/perl_gui/
+chown -R $user $SCRPT_DIR_PATH/perl_gui/ProNoC 
+echo "pronoc application/executable file is generated!"
+cd $SCRPT_DIR_PATH
 
 
 
