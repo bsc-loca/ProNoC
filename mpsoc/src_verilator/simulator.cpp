@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 	else                            for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
 
 	if( TRAFFIC_TYPE == NETRACE) netrace_init(netrace_file);
-	else if(TRAFFIC_TYPE ==SYNFUL) synful_init(synful_file,synful_SSExit,synful_random_seed);
+	else if(TRAFFIC_TYPE ==SYNFUL) synful_init(synful_file,synful_SSExit,synful_random_seed,sim_end_clk_num,end_sim_pck_num);
 
 
 

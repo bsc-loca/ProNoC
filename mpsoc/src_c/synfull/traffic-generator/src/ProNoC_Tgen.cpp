@@ -80,9 +80,10 @@ queue_t* synful_queue_new() {
 
 
 bool synful_ssExit =false;
+int synful_injection_done=0;
 
-
-
+static  unsigned int  synful_max_pck;
+static  unsigned int  synful_max_clk;
 
 
 
@@ -145,6 +146,8 @@ unsigned long long synful_numCycles;
 
 
 queue_t** synful_inject;
+
+int synful_steady_exit_activated=0;
 
 
 static unsigned long long synful_next_interval;
@@ -288,11 +291,7 @@ void synful_sendPacket(InjectReqMsg& req) {
     new_node->cycle = synful_cycle;
     synful_queue_push( synful_inject[req.source], new_node, synful_cycle );
     
-	//TODO
-	//inject the packet in inject queue of ProNoC 
-	//queue_node_t* new_node = (queue_node_t*) nt_checked_malloc( sizeof(queue_node_t) );
-    // fill new node files 
-    //queue_push( inject[req.source], new_node, new_node->cycle );
+	
 
 }
 
@@ -339,7 +338,20 @@ bool synful_InHSteadyState(int synful_numCycles) {
 
 void synful_QueuePacket(int source, int destination, int msgType, int coType,
         int packetSize, int time, int address) {
-    InjectReqMsg packet;
+
+	 if((synful_total_pck_queud >  synful_max_pck) || (synful_cycle > synful_max_clk)    ||  (synful_steady_exit_activated==1)){
+	    	if(synful_injection_done!=1){
+	    		if (synful_total_pck_queud >  synful_max_pck)  cout << "Reaching max injected packet limit: " << synful_total_pck_queud << " Ending simulation: " << synful_cycle << endl;
+	    		if (synful_cycle > synful_max_clk)     		   cout << "Ending simulation at max simulation clk: " << synful_cycle << endl;
+	    		if (synful_steady_exit_activated==1)           cout << "Ending simulation at steady state: " << synful_cycle << endl;
+	    	}
+	    	synful_injection_done=1;
+	    	return;
+	 }
+
+
+
+	InjectReqMsg packet;
     packet.source = source;
     packet.dest = destination;
     packet.cl = 0;
@@ -359,6 +371,8 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
 
     int delta = 0;
     
+
+
     for(int i = 0; i < writes; i++) {
         delta = uni_dist.Generate() * 2;
         source = g_writeSpat[g_hierClass][synful_state].Generate();
@@ -565,7 +579,7 @@ void synful_reset_ss() {
 
 
 
-void synful_model_init(char * fname, bool ss_exit, int seed){
+void synful_model_init(char * fname, bool ss_exit, int seed,unsigned int max_clk, unsigned int max_pck){
     cout << "Initiating synful with: " << fname << "random seed:" << seed << endl;
 	synful_ssExit = ss_exit;
 	//TODO add random seed
@@ -593,7 +607,9 @@ void synful_model_init(char * fname, bool ss_exit, int seed){
     }
     synful_acceptable_hmse = synful_calculate_mse(predict, g_hierSState);
 
-
+    synful_max_pck =max_pck;
+    synful_max_clk =max_clk;
+    mt_rng.seed(seed);
 
 }
 
@@ -612,9 +628,10 @@ void synful_run_one_cycle (){
                 }
 
                 if(synful_InHSteadyState(synful_numCycles) && synful_ssExit) {
-                    cout << "Ending simulation at steady state: " << synful_cycle << endl;
-                    //TODO 
+                   
+
                     //end simulation
+                    synful_steady_exit_activated=1;
                 }
 
                 cout << "Current hierarchical state: " << g_hierClass << endl;

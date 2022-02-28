@@ -17,9 +17,9 @@ extern queue_t** synful_inject;
 
 
 
-void synful_init(char * fname, bool ss_exit, int seed){
+void synful_init(char * fname, bool ss_exit, int seed,unsigned int max_clk, unsigned int max_pck){
 	std::cout << "Initiating synful with: " << fname << "random seed:" << seed << std::endl;
-    synful_model_init(fname, ss_exit,seed);
+    synful_model_init(fname, ss_exit,seed,max_clk, max_pck);
 
  	synful_inject   = (queue_t**) malloc( SYNFUL_ENDP_NUM * sizeof(queue_t*) );
  	synful_traverse = (queue_t**) malloc( SYNFUL_ENDP_NUM * sizeof(queue_t*) );
@@ -52,7 +52,7 @@ void synful_eval( ){
 
 	if((reset==1) || (count_en==0))	return;
 
-	if((( synful_cycle > sim_end_clk_num) || (read_done==1 )) && synful_packets_left==0 )  simulation_done=1;
+	if((( synful_cycle > sim_end_clk_num) || (synful_injection_done==1)) && synful_packets_left==0 )  simulation_done=1;
 
 	// Reset packets remaining check
 	synful_packets_left = 0;
