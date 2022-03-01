@@ -19,7 +19,11 @@
 #include <cstdlib>
 #include <iostream>
 
+
 #include "simulator.h"
+
+
+
 
 int main(int argc, char** argv) {
 	char change_injection_ratio=0;
@@ -41,9 +45,6 @@ int main(int argc, char** argv) {
 	if (ENDP_TYPE == PCK_INJECTOR)	for(i=0;i<NE;i++)	pck_inj[i]  = new Vpck_inj;
 	else                            for(i=0;i<NE;i++)	traffic[i]  = new Vtraffic;
 
-	if( TRAFFIC_TYPE == NETRACE) netrace_init(netrace_file);
-	else if(TRAFFIC_TYPE ==SYNFUL) synful_init(synful_file,synful_SSExit,synful_random_seed,sim_end_clk_num,end_sim_pck_num);
-
 
 
 	FIXED_SRC_DST_PAIR = strcmp (TRAFFIC,"RANDOM") &  strcmp(TRAFFIC,"HOTSPOT") & strcmp(TRAFFIC,"random") & strcmp(TRAFFIC,"hot spot") & strcmp(TRAFFIC,"TASK");
@@ -62,9 +63,18 @@ int main(int argc, char** argv) {
 
 
 	topology_init();
-	if( TRAFFIC_TYPE == NETRACE) pck_inj_init((int)header->num_nodes);
-	else if (TRAFFIC_TYPE ==SYNFUL) pck_inj_init(SYNFUL_ENDP_NUM);
+	if( TRAFFIC_TYPE == NETRACE){
+		netrace_init(netrace_file); // should be called first to initiate header
+		pck_inj_init((int)header->num_nodes);
+	}
+	else if (TRAFFIC_TYPE ==SYNFUL) {
+		pck_inj_init(SYNFUL_ENDP_NUM); //should be called first to initiate node mapping needed by synful lib
+		synful_init(synful_file,synful_SSExit,synful_random_seed,sim_end_clk_num,end_sim_pck_num);
+	}
 	else 	traffic_gen_init();
+
+
+
 	main_time=0;
 	print_parameter();
 	if( thread_num>1) initial_threads();
@@ -81,6 +91,8 @@ int main(int argc, char** argv) {
 		if(TRAFFIC_TYPE==NETRACE) netrace_posedge_event();
 		else if(TRAFFIC_TYPE ==SYNFUL) synful_posedge_event();
 		else traffic_clk_posedge_event();
+
+
 		//The valus of all registers and input ports valuse change @ posedge of the clock. Once clk is deasserted,  as multiple modules are connected inside the testbench we need several eval for propogating combinational logic values
 		//between modules when the clock .
 		for (i=0;i<SMART_MAX+2;i++) {
@@ -90,6 +102,7 @@ int main(int argc, char** argv) {
 		}
 
 		if(simulation_done){
+
 			if( TRAFFIC_TYPE == NETRACE) netrace_final_report();
 			else if(TRAFFIC_TYPE ==SYNFUL) synful_final_report();
 			else traffic_gen_final_report();
@@ -722,20 +735,28 @@ void pck_inj_init (int model_node_num){
 	int i,tmp;
 	for (i=0;i<NE;i++){
 	   	pck_inj[i]->current_e_addr		= endp_addr_encoder(i);
-	   //TODO mapping should be done according to number of NE and should be set by the user later
-	   	if(NE<=64){
-	   		tmp = ((i* NE)/model_node_num);
-	   		netrace_to_pronoc_map[i]=tmp;
-	   	} else {
-	   		if(i<64) netrace_to_pronoc_map[i]=i;
-	   	}
-
 	   	pck_inj[i]->pck_injct_in_ready= (0x1<<V)-1;
 	   	pck_inj[i]->pck_injct_in_pck_wr=0;
-		//pronoc_to_netrace_map[i]=i;
+	}
+	std::cout << "Node mapping---------------------" << std::endl;
+	std::cout << "\tMapping " << model_node_num << " " << TRAFFIC  << " Nodes to " << NE << " ProNoC Nodes" << std::endl;
+	std::cout << "\t" << TRAFFIC  << "\tID \t<-> ProNoC ID "<< std::endl;
+	traffic_model_mapping = (int *) malloc( model_node_num * sizeof(int));
+	for (i=0;i<model_node_num;i++){
+	//TODO mapping should be done according to number of NE and should be set by the user later
+		   	if(NE<=model_node_num){
+		   		// we have less or equal number of injectors in traffic model thatn the number of modes in ProNoC
+		   		// So we need to map multiples injector nodes from the model to one packet injector
+		   		tmp = ((i* NE)/model_node_num);
+		   		traffic_model_mapping[i]=tmp;
+		   	} else {
+		   		// we have more endpoints that what is defined in the model
+		   		if(i<model_node_num) traffic_model_mapping[i]=i;
+		   	}
+		   	std::cout<< "\t\t" << i << "\t<->\t"  << tmp << std::endl;
 
 	}
-
+	std::cout << "Node mapping---------------------" << std::endl;
 }
 
 /*************

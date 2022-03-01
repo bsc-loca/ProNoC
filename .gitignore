@@ -1,8 +1,9 @@
-*/my_password.sh
+**/my_password.sh
 *.bak
 
-*/transcript
-*/vsim.wlf
+**/transcript
+**/vsim.wlf
+**/modelsim.ini
 
 
 mpsoc/script/server/kc07/Readme
@@ -22,6 +23,7 @@ mpsoc/src_c/synfull/synful.h
 mpsoc/src_c/synfull/traffic-generator/src/synful.a
 mpsoc/src_c/synfull/traffic-generator/src/tgen
 mpsoc/src_c/synfull/traffic-generator/src/obj/*.o
+
 
 mpsoc/src_c/bin2mem/bin2mem
 mpsoc/src_c/bin2mif/bin2mif

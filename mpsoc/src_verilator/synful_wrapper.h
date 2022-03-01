@@ -18,17 +18,17 @@ extern queue_t** synful_inject;
 
 
 void synful_init(char * fname, bool ss_exit, int seed,unsigned int max_clk, unsigned int max_pck){
-	std::cout << "Initiating synful with: " << fname << "random seed:" << seed << std::endl;
-    synful_model_init(fname, ss_exit,seed,max_clk, max_pck);
+	//std::cout << "Initiating synful with: " << fname << "random seed:" << seed << std::endl;
+    synful_model_init(fname, ss_exit,seed,max_clk, max_pck, traffic_model_mapping );
 
- 	synful_inject   = (queue_t**) malloc( SYNFUL_ENDP_NUM * sizeof(queue_t*) );
- 	synful_traverse = (queue_t**) malloc( SYNFUL_ENDP_NUM * sizeof(queue_t*) );
+ 	synful_inject   = (queue_t**) malloc( NE * sizeof(queue_t*) );
+ 	synful_traverse = (queue_t**) malloc( NE * sizeof(queue_t*) );
 
  	if(synful_inject == NULL || synful_traverse == NULL ) {
 		printf( "ERROR: malloc fail queues\n" );
 		exit(0);
 	}
-	for(int i = 0; i <  SYNFUL_ENDP_NUM; ++i ) {
+	for(int i = 0; i <  NE; ++i ) {
 		synful_inject[i]     = queue_new();
 		synful_traverse[i]   = queue_new();
 	}
@@ -49,6 +49,7 @@ void synful_final_report(){
 
 void synful_eval( ){
 	int i;
+	unsigned int pronoc_src_id,pronoc_dst_id;
 
 	if((reset==1) || (count_en==0))	return;
 
@@ -61,21 +62,20 @@ void synful_eval( ){
 
 
 	// Inject where possible (max one per node)
-	for( i = 0; i < SYNFUL_ENDP_NUM; ++i ) {
+	for( i = 0; i < NE; ++i ) {
 		synful_packets_left |= !queue_empty( synful_inject[i] );
-		//TODO define RRA if multiple netrace sources are mapped to one node. only one can sent packt at each cycle
-		int pronoc_src =  netrace_to_pronoc_map[i];
+
 		//TODO define sent vc policy
 		int sent_vc = 0;
 
-		if(pck_inj[pronoc_src]->pck_injct_in_pck_wr){
+		if(pck_inj[i]->pck_injct_in_pck_wr){
 			//the wr_pck should be asserted only for single cycle
-			pck_inj[pronoc_src]->pck_injct_in_pck_wr  	   = 0;
+			pck_inj[i]->pck_injct_in_pck_wr  	   = 0;
 			continue;
 		}
 
-		pck_inj[pronoc_src]->pck_injct_in_pck_wr  	   = 0;
-		if((pck_inj[pronoc_src]->pck_injct_out_ready & (0x1<<sent_vc)) == 0){
+		pck_inj[i]->pck_injct_in_pck_wr  	   = 0;
+		if((pck_inj[i]->pck_injct_out_ready & (0x1<<sent_vc)) == 0){
 			//This pck injector is not ready yet
 			continue;
 		}
@@ -87,12 +87,14 @@ void synful_eval( ){
 				synful_print_packet( temp_node );
 			}
 			temp_node = (pronoc_pck_t*) queue_pop_front( synful_inject[i] );
-			queue_push( synful_traverse[temp_node->dest], temp_node, synful_cycle );
+
+			pronoc_dst_id =  traffic_model_mapping[temp_node->dest];
+			queue_push( synful_traverse[pronoc_dst_id], temp_node, synful_cycle );
 			int flit_num = temp_node->packetSize; //TODO set according to Fpay size
-			int pronoc_dst =  netrace_to_pronoc_map[temp_node->dest];
-			if(flit_num< pck_inj[pronoc_src]->min_pck_size) flit_num = pck_inj[pronoc_src]->min_pck_size;
+
+			if(flit_num< pck_inj[i]->min_pck_size) flit_num = pck_inj[i]->min_pck_size;
 			if(IS_SELF_LOOP_EN ==0){
-				if(temp_node->dest == pronoc_src ){
+				if(pronoc_dst_id == i ){
 					 fprintf(stderr,"ERROR: ProNoC is not configured with self-loop enable and Netrace aims to inject\n a "
 							 "packet with identical source and destination address. Enable the SELF_LOOP parameter\n"
 							 "in ProNoC and rebuild the simulation model\n");
@@ -102,21 +104,21 @@ void synful_eval( ){
 
 			unsigned int sent_class =0;
 			long int ptr_addr = reinterpret_cast<long int> (temp_node);
-			pck_inj[pronoc_src]->pck_injct_in_data         = ptr_addr;
-			pck_inj[pronoc_src]->pck_injct_in_size         = temp_node->packetSize;
-			pck_inj[pronoc_src]->pck_injct_in_endp_addr    = endp_addr_encoder(pronoc_dst);
-			pck_inj[pronoc_src]->pck_injct_in_class_num    = sent_class;
-			pck_inj[pronoc_src]->pck_injct_in_init_weight  = 1;
-			pck_inj[pronoc_src]->pck_injct_in_vc           = 0x1<<sent_vc;
-			pck_inj[pronoc_src]->pck_injct_in_pck_wr  	   = 1;
+			pck_inj[i]->pck_injct_in_data         = ptr_addr;
+			pck_inj[i]->pck_injct_in_size         = flit_num;
+			pck_inj[i]->pck_injct_in_endp_addr    = endp_addr_encoder(pronoc_dst_id);
+			pck_inj[i]->pck_injct_in_class_num    = sent_class;
+			pck_inj[i]->pck_injct_in_init_weight  = 1;
+			pck_inj[i]->pck_injct_in_vc           = 0x1<<sent_vc;
+			pck_inj[i]->pck_injct_in_pck_wr  	   = 1;
 			total_sent_pck_num++;
 
 			#if (C>1)
-				sent_stat[pronoc_src][sent_class].pck_num ++;
-				sent_stat[pronoc_src][sent_class].flit_num +=flit_num;
+				sent_stat[i][sent_class].pck_num ++;
+				sent_stat[i][sent_class].flit_num +=flit_num;
 			#else
-				sent_stat[pronoc_src].pck_num ++;
-				sent_stat[pronoc_src].flit_num +=flit_num;
+				sent_stat[i].pck_num ++;
+				sent_stat[i].flit_num +=flit_num;
 			#endif
 		}//temp!=NULL
 	}//inject
@@ -152,13 +154,14 @@ void synful_eval( ){
 					exit(1);
 				}
 			*/
+			pronoc_src_id=traffic_model_mapping[temp_node->source];
 			update_statistic_at_ejection (
 					i,//	core_num
 					clk_num_h2h, // clk_num_h2h,
 					(unsigned int) clk_num_h2t, // clk_num_h2t,
 					pck_inj[i]->pck_injct_out_distance, //    distance,
 					pck_inj[i]->pck_injct_out_class_num,//  	class_num,
-					temp_node->source//		unsigned int 	src
+					pronoc_src_id //temp_node->source
 			);
 			#if(C>1)
 				rsvd_stat[i][pck_inj[i]->pck_injct_out_class_num].flit_num +=pck_inj[i]->pck_injct_out_size;

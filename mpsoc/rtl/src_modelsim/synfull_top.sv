@@ -8,6 +8,7 @@ module synfull_top;
     import dpi_int_pkg::*; 
     
     reg     reset ,clk;
+    reg print_router_st;
     
     initial begin 
         clk = 1'b0;
@@ -17,6 +18,7 @@ module synfull_top;
     
     smartflit_chanel_t chan_in_all  [NE-1 : 0];
     smartflit_chanel_t chan_out_all [NE-1 : 0];
+    router_event_t router_event [NR-1 : 0] [MAX_P-1 : 0];
     
     pck_injct_t pck_injct_in [NE-1 : 0];
     pck_injct_t _pck_injct_in [NE-1 : 0];
@@ -36,7 +38,8 @@ module synfull_top;
         .reset(reset),
         .clk(clk),    
         .chan_in_all(chan_in_all),
-        .chan_out_all(chan_out_all)  
+        .chan_out_all(chan_out_all),
+        .router_event(router_event)
     );
 
 
@@ -66,44 +69,7 @@ module synfull_top;
     initial begin
 
 		//print_parameter 
-		$display ("NoC parameters:----------------");
-		$display ("\tTopology: %s",TOPOLOGY);
-		$display ("\tRouting algorithm: %s",ROUTE_NAME);
-		$display ("\tVC_per port: %0d", V);
-		$display ("\tNon-local port buffer_width per VC: %0d", B);
-		$display ("\tLocal port buffer_width per VC: %0d", LB);
-		if(TOPOLOGY=="MESH" || TOPOLOGY=="TORUS" || TOPOLOGY == "FMESH")begin
-			$display ("\tRouter num in row: %0d",T1);
-			$display ("\tRouter num in column: %0d",T2);
-			$display ("\tEndpoint num per router: %0d",T3);
-		end else if (TOPOLOGY=="RING" || TOPOLOGY == "LINE") begin
-			$display ("\tTotal Router num: %0d",T1);
-			$display ("\tEndpoint num per router: %0d",T3);
-		end else if (TOPOLOGY == "TREE" ||  TOPOLOGY == "FATTREE")begin
-			$display ("\tK: %0d",T1);
-			$display ("\tL: %0d",T2);
-		end else begin //CUSTOM
-			$display ("\tTotal Endpoints number: %0d",T1);
-			$display ("\tTotal Routers number: %0d",T2);
-		end
-		$display ("\tNumber of Class: %0d", C);
-		$display ("\tFlit data width: %0d", Fpay);
-		$display ("\tVC reallocation mechanism: %s",  VC_REALLOCATION_TYPE);
-		$display ("\tVC/sw combination mechanism: %s", COMBINATION_TYPE);
-		$display ("\tAVC_ATOMIC_EN:%0d", AVC_ATOMIC_EN);
-		$display ("\tCongestion Index:%0d",CONGESTION_INDEX);
-		$display ("\tADD_PIPREG_AFTER_CROSSBAR:%0d",ADD_PIPREG_AFTER_CROSSBAR);
-		$display ("\tSSA_EN enabled:%s",SSA_EN);
-		$display ("\tSwitch allocator arbitration type:%s",SWA_ARBITER_TYPE);
-		$display ("\tMinimum supported packet size:%0d flit(s)",MIN_PCK_SIZE);
-		$display ("\tLoop back is enabled:%s",SELF_LOOP_EN);
-		$display ("\tNumber of multihop bypass (SMART max):%0d",SMART_MAX);
-		$display ("\tCastying type:%s.",CAST_TYPE);
-		if (CAST_TYPE == "MULTICAST_PARTIAL" || CAST_TYPE == "BROADCAST_PARTIAL")begin
-			$display ("\tNumber of nodes in Cast list:%d",   MCAST_PRTLw);
-			$display ("\tCAST LIST:%b", MCAST_ENDP_LIST);
-		end	
-		$display ("NoC parameters:----------------");		
+    	display_noc_parameters();	
 		$display ("Simulation parameters-------------");
 		if(DEBUG_EN)
 			$display ("\tDebuging is enabled");
@@ -204,7 +170,7 @@ module synfull_top;
             k=0;
             init_socket[i] = 1'b0;
             wakeup_synfull[i] = 1'b0;
-           
+            print_router_st=1'b0;
             
             @(posedge clk) #1;
             _pck_injct_in[i].class_num=0; 
@@ -223,7 +189,8 @@ module synfull_top;
             while (!end_injection[0]) @(posedge clk) #1;
             // if(i==0) $display ( "All packet are sent. We wait for NoC to be ideal now");
             // while (total_sent_pck_count != total_rsv_pck_count) @(posedge clk) #1;
-                       
+            print_router_st=1;
+            #1
             $display ( "Statistics:");
             $display ( "\t simulation clk count = %d",   clk_count);
             $display ( "\t Total queued packets = %d",total_queued_pck_count);
@@ -276,6 +243,14 @@ module synfull_top;
 	    end
 
     end
+    
+    
+    routers_statistic_collector router_stat( 
+    		.reset(reset),
+    		.clk(clk),		
+    		.router_event(router_event),
+    		.print(print_router_st)
+    	);
     
     
    

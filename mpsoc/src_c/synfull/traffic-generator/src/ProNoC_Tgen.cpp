@@ -60,7 +60,7 @@ struct queue {
 
 
 
-
+int * pronoc_mapping;
 
 
 queue_t* synful_queue_new() {
@@ -289,10 +289,8 @@ void synful_sendPacket(InjectReqMsg& req) {
     new_node->packetSize= req.packetSize;
     new_node->msgType=req.msgType;
     new_node->cycle = synful_cycle;
-    synful_queue_push( synful_inject[req.source], new_node, synful_cycle );
-    
-	
-
+    int pronoc_id = pronoc_mapping [req.source];
+    synful_queue_push( synful_inject[pronoc_id], new_node, synful_cycle );
 }
 
 double synful_calculate_mse(vector<double> predict, vector<double> actual) {
@@ -579,10 +577,10 @@ void synful_reset_ss() {
 
 
 
-void synful_model_init(char * fname, bool ss_exit, int seed,unsigned int max_clk, unsigned int max_pck){
+void synful_model_init(char * fname, bool ss_exit, int seed,unsigned int max_clk, unsigned int max_pck, int * mapping){
     cout << "Initiating synful with: " << fname << "random seed:" << seed << endl;
 	synful_ssExit = ss_exit;
-	//TODO add random seed
+
 
  	ifstream modelFile(fname);
 	if(!modelFile.good()) {
@@ -610,6 +608,8 @@ void synful_model_init(char * fname, bool ss_exit, int seed,unsigned int max_clk
     synful_max_pck =max_pck;
     synful_max_clk =max_clk;
     mt_rng.seed(seed);
+
+    pronoc_mapping=mapping;
 
 }
 
