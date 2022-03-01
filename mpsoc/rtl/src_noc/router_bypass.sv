@@ -356,7 +356,9 @@ module smart_forward_ivc_info
 		assign smart_chanel_next[i].dest_e_addr= smart_vc_info_o[i].dest_e_addr;	
 		assign smart_chanel_next[i].ovc= (smart_vc_info_o[i].ovc_is_assigned)? assigned_ovc[i] : oport_info[i].non_smart_ovc_is_allocated;
 		assign smart_chanel_next[i].hdr_flit=~smart_vc_info_o[i].ovc_is_assigned;
-		assign smart_chanel_next[i].requests = (oport_info[i].any_ovc_granted)? {SMART_NUM{1'b1}}:{SMART_NUM{1'b0}} ;					
+		assign smart_chanel_next[i].requests = (oport_info[i].any_ovc_granted)? {SMART_NUM{1'b1}}:{SMART_NUM{1'b0}} ;
+		assign smart_chanel_next[i].bypassed_num = {BYPASSw{1'b0}} ;
+		
 		
 		if( ADD_PIPREG_AFTER_CROSSBAR == 1 ) begin :link_reg
 			pronoc_register #(
@@ -463,6 +465,7 @@ module smart_bypass_chanels
 			always @(*) begin 
 				smart_chanel_shifted[i] = smart_chanel_in [i];
 				{smart_chanel_shifted[i].requests,rq[i]} =(smart_forwardable[i])? {1'b0,smart_chanel_in[i].requests}:{{SMART_NUM{1'b0}},smart_chanel_in[i].requests[0]};
+				smart_chanel_shifted[i].bypassed_num =   smart_chanel_in [i].bypassed_num +1'b1;
 			end
 			assign smart_req[i]=rq[i];
 			// mux out smart chanel

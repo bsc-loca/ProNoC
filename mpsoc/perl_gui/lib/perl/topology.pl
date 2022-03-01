@@ -630,10 +630,17 @@ void inline single_router_eval(int i){
 	$st6
 }
 
+#define SMART_NUM  ((SMART_MAX==0)? 1 : SMART_MAX)
+#if SMART_NUM > 8
+	typedef unsigned int EVENT;
+#else
+	typedef unsigned char EVENT;
+#endif
+
 extern void update_router_st (
   unsigned int,
   unsigned int, 
-  unsigned char *  
+  EVENT *  
 );
  
 void  single_router_st_update(int i){

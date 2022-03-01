@@ -91,10 +91,12 @@ module router_top
 	generate 
 	for (i=0; i<P; i=i+1) begin :P2_
 		assign router_event[i].flit_wr_i = chan_in[i].flit_chanel.flit_wr;
+		assign router_event[i].bypassed_num = chan_in[i].smart_chanel.bypassed_num;
 		assign router_event[i].pck_wr_i  = chan_in[i].flit_chanel.flit_wr & chan_in[i].flit_chanel.flit.hdr_flag;
 		assign router_event[i].flit_wr_o = chan_out[i].flit_chanel.flit_wr;
 		assign router_event[i].pck_wr_o  = chan_out[i].flit_chanel.flit_wr & chan_out[i].flit_chanel.flit.hdr_flag;
-		assign router_event[i].flit_in_bypassed = chan_out[i].smart_chanel.flit_in_bypassed;	
+		assign router_event[i].flit_in_bypassed = chan_out[i].smart_chanel.flit_in_bypassed;
+		
 	end
 	endgenerate
 	
@@ -302,6 +304,7 @@ module router_top
 					always @(*) begin 
 						chan_out[i].smart_chanel = smart_chanel_out[i];
 						chan_out[i].smart_chanel.flit_in_bypassed =smart_ctrl[i].smart_en & chan_in[i].flit_chanel.flit_wr ;
+						
 						
 						//mask only flit_wr if smart_en is asserted 
 						r2_chan_in[i]   =  chan_in[i].flit_chanel;

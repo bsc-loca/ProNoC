@@ -1562,12 +1562,16 @@ void update_all_router_stat(void){
 void update_router_st (
 		unsigned int Pnum,
 		unsigned int rid,
-		unsigned char * event
+		EVENT * event
 
 ){
 
 	for (int p=0;p<Pnum;p++){
-		if(event[p] & FLIT_IN_WR_FLG ) router_stat [rid][p].flit_num_in++;
+		if(event[p] & FLIT_IN_WR_FLG ){
+			router_stat [rid][p].flit_num_in++;
+			int bypassed_times = (event[p] >> BYPASS_LSB);
+			router_stat [rid][p].bypass_counter[bypassed_times]++;
+		}
 		if(event[p] & PCK_IN_WR_FLG  ) router_stat [rid][p].pck_num_in++;
 		if(event[p] & FLIT_OUT_WR_FLG) router_stat [rid][p].flit_num_out++;
 		if(event[p] & PCK_OUT_WR_FLG ) router_stat [rid][p].pck_num_out++;
@@ -1588,15 +1592,16 @@ void print_router_st (void) {
 		"pck_out,"
 		"flit_in_buffered,"
 		"flit_in_bypassed,"
-		"\n"
 	);
+	if(SMART_MAX>0) for (int k=0;k<SMART_MAX+1;k++) printf("bypsd_%0d_times,",k);
+	printf("\n");
 
 	for (int i=0; i<NR; i++){
 
 	   	for (int p=0;p<MAX_P;p++){
 
 	   		printf("\t%u,%u,",i,p);
-	    		myout(
+	   		printf("%d,%d,%d,%d,%d,%d,",
 	    		router_stat [i][p].flit_num_in,
 	    		router_stat [i][p].pck_num_in,
 				router_stat [i][p].flit_num_out,
@@ -1604,15 +1609,19 @@ void print_router_st (void) {
 				router_stat [i][p].flit_num_in_buffered,
 				router_stat [i][p].flit_num_in_bypassed
 	    		);
+	    	if(SMART_MAX>0) for (int k=0;k<SMART_MAX+1;k++) printf("%d," ,router_stat [i][p].bypass_counter[k]);
+	    	printf("\n");
 	    	router_stat_accum [i].flit_num_in              += router_stat [i][p].flit_num_in;
 	    	router_stat_accum [i].pck_num_in               += router_stat [i][p].pck_num_in;
 	    	router_stat_accum [i].flit_num_out             += router_stat [i][p].flit_num_out;
 	    	router_stat_accum [i].pck_num_out              += router_stat [i][p].pck_num_out;
 	    	router_stat_accum [i].flit_num_in_buffered     += router_stat [i][p].flit_num_in_buffered;
 	    	router_stat_accum [i].flit_num_in_bypassed     += router_stat [i][p].flit_num_in_bypassed;
+	    	if(SMART_MAX>0) for (int k=0;k<SMART_MAX+1;k++) router_stat_accum [i].bypass_counter[k]+= router_stat [i][p].bypass_counter[k];
+
 	   	}
 	   	printf("\t%u,total,",i);
-	   	myout(
+	   	printf("%d,%d,%d,%d,%d,%d,",
 		router_stat_accum [i].flit_num_in,
 		router_stat_accum [i].pck_num_in,
 		router_stat_accum [i].flit_num_out,
@@ -1620,5 +1629,7 @@ void print_router_st (void) {
 		router_stat_accum [i].flit_num_in_buffered,
 		router_stat_accum [i].flit_num_in_bypassed
 	   	);
+	   	if(SMART_MAX>0) for (int k=0;k<SMART_MAX+1;k++) printf("%d," , router_stat_accum [i].bypass_counter[k]);
+	   	printf("\n");
 	  }
 }

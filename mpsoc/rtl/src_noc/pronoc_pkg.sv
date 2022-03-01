@@ -243,13 +243,14 @@ localparam
 	} flit_chanel_t;
 	localparam FLIT_CHANEL_w = $bits(flit_chanel_t); 
 	
-	
+	localparam BYPASSw = log2(SMART_NUM);
 	typedef struct packed {
 		logic [SMART_NUM-1: 0] requests;
 		logic [V-1   	: 0] ovc;		
 		logic [EAw-1 	: 0] dest_e_addr;
 		bit   hdr_flit;
 		bit   flit_in_bypassed; 
+		logic [BYPASSw-1 : 0] bypassed_num;
 	} smart_chanel_t;
 	localparam SMART_CHANEL_w = $bits(smart_chanel_t);
 	
@@ -310,11 +311,12 @@ localparam
     localparam PCK_INJCT_w = $bits(pck_injct_t); 
     
     typedef struct packed {
+    	logic [BYPASSw-1 : 0] bypassed_num;
     	bit flit_wr_i;
     	bit pck_wr_i;
     	bit flit_wr_o;
     	bit pck_wr_o;
-    	bit flit_in_bypassed;
+    	bit flit_in_bypassed;    	
     } router_event_t;
     localparam ROUTER_EVENT_w = $bits(router_event_t); 
     

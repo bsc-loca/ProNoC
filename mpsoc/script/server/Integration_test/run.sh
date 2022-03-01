@@ -21,6 +21,7 @@ my_srcs=( "rtl"
     "Integration_test"
 	"src_verilator"
 	"src_c/netrace-1.0"
+	"src_c/synfull"
 	"script"
 	"/perl_gui/lib/perl" )
 

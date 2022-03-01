@@ -161,13 +161,27 @@ typedef struct  avg_st_struct {
 
 } avg_st_t;
 
+/*
+ typedef struct packed {
+    	bit flit_wr_i;
+    	bit pck_wr_i;
+    	bit flit_wr_o;
+    	bit pck_wr_o;
+    	bit flit_in_bypassed;
+    	logic [BYPASSw-1 : 0] bypassed_num;
+    } router_event_t;
 
+    localparam BYPASSw = log2(SMART_NUM);
+*/
+
+
+
+#define BYPASS_LSB          5
 #define FLIT_IN_WR_FLG    	(1<<4)
 #define PCK_IN_WR_FLG 		(1<<3)
 #define FLIT_OUT_WR_FLG 	(1<<2)
 #define PCK_OUT_WR_FLG		(1<<1)
 #define FLIT_IN_BYPASSED 	(1<<0)
-
 
 
 
@@ -179,6 +193,7 @@ typedef struct  router_st_struct {
 	unsigned int flit_num_out;
 	unsigned int flit_num_in_bypassed;
 	unsigned int flit_num_in_buffered;
+	unsigned int bypass_counter [SMART_NUM+1 ] ;
 } router_st_t;
 
 router_st_t router_stat [NR][MAX_P];

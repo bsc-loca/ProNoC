@@ -33,6 +33,19 @@ my $pp;
 #read default param
 
 
+sub recompile_synful {
+
+#recmpile synful
+my 	$cmd ="cd $src_c/synfull/traffic-generator/src; make; wait;\n";
+		#run command in terminal
+		print "*******************compile synful******************\n$cmd\n";
+		my $proc1 = Proc::Background->new($cmd);
+		$proc1->alive;
+		$proc1->wait;
+		$proc1->die;
+		
+}		
+
 sub gen_noc_param_h{
 	my $mpsoc=shift;
 	my $param_h="\n\n//NoC parameters\n";
@@ -341,8 +354,12 @@ sub gen_models {
 		}
 		copy "$src_verilator/simulator.cpp", "$work/$name/obj_dir/testbench.cpp";
 
-		#copy nettrace
+		#copy nettrace & synful
 	    dircopy("$src_c/netrace-1.0","$work/$name/obj_dir/netrace-1.0");
+	    dircopy("$src_c/synfull","$work/$name/obj_dir/synful");
+		
+		
+
 
 		#generate make file
 		gen_verilator_makefile($tops,"$work/$name/obj_dir/Makefile");

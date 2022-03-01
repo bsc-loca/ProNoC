@@ -27,6 +27,7 @@ use warnings;
 use base 'Class::Accessor::Fast';
 
 
+
 # declare the perl command line flags/options we want to allow
 my %options=();
 getopts("hp:u:l:s:m:d:", \%options);
@@ -116,6 +117,7 @@ my @log_report_match =("Error","Warning" );
 
 save_file ("$dirname/report","Verification Results:\n");
 
+recompile_synful();
 
 copy_src_files();
 
