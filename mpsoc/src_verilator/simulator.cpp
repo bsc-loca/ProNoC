@@ -1567,16 +1567,16 @@ void update_router_st (
 ){
 
 	for (int p=0;p<Pnum;p++){
-		if(event[p] & FLIT_IN_WR_FLG ){
-			router_stat [rid][p].flit_num_in++;
-			int bypassed_times = (event[p] >> BYPASS_LSB);
-			router_stat [rid][p].bypass_counter[bypassed_times]++;
-		}
+		if(event[p] & FLIT_IN_WR_FLG ) router_stat [rid][p].flit_num_in++;
 		if(event[p] & PCK_IN_WR_FLG  ) router_stat [rid][p].pck_num_in++;
 		if(event[p] & FLIT_OUT_WR_FLG) router_stat [rid][p].flit_num_out++;
 		if(event[p] & PCK_OUT_WR_FLG ) router_stat [rid][p].pck_num_out++;
 		if(event[p] & FLIT_IN_BYPASSED)router_stat [rid][p].flit_num_in_bypassed++;
-		else if( event[p] & FLIT_IN_WR_FLG) router_stat [rid][p].flit_num_in_buffered++;
+		else if( event[p] & FLIT_IN_WR_FLG){
+			router_stat [rid][p].flit_num_in_buffered++;
+			int bypassed_times = (event[p] >> BYPASS_LSB);
+			router_stat [rid][p].bypass_counter[bypassed_times]++;
+		}
 	}
 }
 
