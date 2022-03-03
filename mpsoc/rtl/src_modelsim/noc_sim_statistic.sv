@@ -74,15 +74,15 @@ module routers_statistic_collector
 	always @ (posedge clk) begin 
 		for(r=0;r<NR;r++) begin			
 			for (p=0;p<MAX_P;p++)begin
-				if( router_event[r][p].flit_wr_i ) begin 
-					router_stat[r][p].flit_num_in++;
-					router_stat[r][p].bypass_counter[router_event[r][p].bypassed_num]++;
-				end
+				if( router_event[r][p].flit_wr_i ) 	router_stat[r][p].flit_num_in++;			
 				if( router_event[r][p].pck_wr_i  ) router_stat[r][p].pck_num_in++;
 				if( router_event[r][p].flit_wr_o ) router_stat[r][p].flit_num_out++;
 				if( router_event[r][p].pck_wr_o  ) router_stat[r][p].pck_num_out++;
 				if(	router_event[r][p].flit_in_bypassed) router_stat[r][p].flit_num_in_bypassed++;
-				else if( router_event[r][p].flit_wr_i) router_stat [r][p].flit_num_in_buffered++;	
+				else if( router_event[r][p].flit_wr_i) begin 
+					router_stat [r][p].flit_num_in_buffered++;
+					router_stat[r][p].bypass_counter[router_event[r][p].bypassed_num]++;
+				end
 				     
 			end//p	
 		end//r		
