@@ -214,7 +214,17 @@ void* _synful_checked_malloc( size_t n, const char* file, int line ) {
 #define synful_checked_malloc(x) _synful_checked_malloc(x,__FILE__,__LINE__)
 
 
-
+void print_msg (int id, int src, int dst, int type, int pkt, int cycle)
+{
+    cout << 
+       "- synfull pktdbg -  id: " << id << 
+       " src: " << src << 
+       " dst: " << dst <<
+       " msg type: " << type <<
+       " pkt type: " << pkt  <<
+       " " << cycle 
+       << endl;
+}
 
 void synful_printPacket(InjectReqMsg msg) {
     cout << msg.id << " ";
@@ -280,6 +290,8 @@ void synful_sendPacket(InjectReqMsg& req) {
         synful_inTransitTransactions[req.address].acks_received = 0;
     }
     synful_messageId++;
+
+    print_msg(req.id,req.source,req.dest,req.msgType,req.coType,synful_cycle);
 
     synful_inTransitPackets[req.id] = req;
     pronoc_pck_t* new_node = (pronoc_pck_t*) synful_checked_malloc( sizeof(pronoc_pck_t) );
@@ -368,9 +380,7 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
     UniformDistribution uni_dist(0, g_resolution/2 -1);
 
     int delta = 0;
-    
-
-
+   
     for(int i = 0; i < writes; i++) {
         delta = uni_dist.Generate() * 2;
         source = g_writeSpat[g_hierClass][synful_state].Generate();
@@ -378,6 +388,8 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
 
         destination = g_writeDest[g_hierClass][synful_state][source].Generate();
         destination = destination * 2 + 1;
+
+        print_msg(-1,source,destination,REQUEST,WRITE,synful_cycle + delta);
 
         synful_QueuePacket(source, destination, REQUEST, WRITE, CONTROL_SIZE,
                 synful_cycle + delta, -1);
@@ -391,6 +403,8 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
         destination = g_readDest[g_hierClass][synful_state][source].Generate();
         destination = destination * 2 + 1;
 
+        print_msg(-1,source,destination,REQUEST,READ,synful_cycle + delta);
+        
         synful_QueuePacket(source, destination, REQUEST, READ, CONTROL_SIZE,
                 synful_cycle + delta, -1);
     }
@@ -402,6 +416,8 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
 
         destination = g_ccrDest[g_hierClass][synful_state][source].Generate();
         destination = destination * 2 + 1;
+        
+        print_msg(-1,source,destination,REQUEST,PUTC,synful_cycle + delta);
 
         synful_QueuePacket(source, destination, REQUEST, PUTC, CONTROL_SIZE,
                 synful_cycle + delta, -1);
@@ -414,6 +430,8 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
 
         destination = g_dcrDest[g_hierClass][synful_state][source].Generate();
         destination = destination * 2 + 1;
+        
+        print_msg(-1,source,destination,REQUEST,PUTD,synful_cycle + delta);
 
         synful_QueuePacket(source, destination, REQUEST, PUTD, DATA_SIZE,
                 synful_cycle + delta, -1);
@@ -607,7 +625,7 @@ void synful_model_init(char * fname, bool ss_exit, int seed,unsigned int max_clk
 
     synful_max_pck =max_pck;
     synful_max_clk =max_clk;
-    mt_rng.seed(seed);
+    //mt_rng.seed(seed);
 
     pronoc_mapping=mapping;
 
@@ -662,7 +680,8 @@ void synful_run_one_cycle (){
                 cout << "all pck injected" << endl;
                 synful_cycle = synful_numCycles; 
             }
-
+                
+            cout << "--------- clk -------------" << endl;
 }
 
 

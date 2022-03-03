@@ -34,6 +34,6 @@ mpsoc/src_c/jtag/jtag_quartus_stp/jtag_quartus_stp
 mpsoc/src_c/jtag/jtag_xilinx_xsct/jtag_xilinx_xsct
 mpsoc/src_c/plot/plot
 
-
+mpsoc_work
 
 

@@ -32,5 +32,6 @@ void synful_run_one_cycle ();
 void synful_print_packet( pronoc_pck_t*) ;
 void synful_Eject (pronoc_pck_t*);
 	
+void print_msg (int id, int src, int dst, int type, int pkt, int cycle);
 	
 #endif
