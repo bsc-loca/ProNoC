@@ -243,7 +243,7 @@ localparam
 	} flit_chanel_t;
 	localparam FLIT_CHANEL_w = $bits(flit_chanel_t); 
 	
-	localparam BYPASSw = log2(SMART_NUM);
+	localparam BYPASSw = log2(SMART_NUM+1);
 	typedef struct packed {
 		logic [SMART_NUM-1: 0] requests;
 		logic [V-1   	: 0] ovc;		
