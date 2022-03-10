@@ -832,27 +832,18 @@ if($topology ne '"CUSTOM"' ){
     }
     
     
-    if($show_noc == 1){    
-        $b1= def_image_button("icons/up.png","NoC Parameters");
-        $table->attach  ( $b1 , 0, 2, $row,$row+1,'fill','shrink',2,2);
-        $row++;    
-    }
-    $b1->signal_connect("clicked" => sub{ 
-        $show_noc=($show_noc==1)?0:1;
-        $mpsoc->object_add_attribute('setting','show_noc_setting',$show_noc);
-        set_gui_status($mpsoc,"ref",1);
-    });
-
+    
     #advance parameter start
-    my $advc;
-    my $adv_set=$mpsoc->object_get_attribute('setting','show_adv_setting');
-    if($adv_set == 0){    
-        $advc= def_image_button("icons/down.png","Advance Parameters");
-        $table->attach ( $advc , 0, 2, $row,$row+1,'fill','shrink',2,2);
-        $row++;    
-    }
+   # my $advc;
+   # my $adv_set=$mpsoc->object_get_attribute('setting','show_adv_setting');
+   #
+   # if($adv_set == 0){    
+   #     $advc= def_image_button("icons/down.png","Advance Parameters");
+   #     $table->attach ( $advc , 0, 2, $row,$row+1,'fill','shrink',2,2);
+   #     $row++;    
+   # }
     
-    
+    my $adv_set= $show_noc;
     #SSA
     $label='SSA Enable'; 
     $param='SSA_EN';
@@ -1058,17 +1049,30 @@ arbiters external priority enable';
     #($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,$wrra_show,'noc_param',undef);  
     
     
-    
-    if($adv_set == 1){    
-        $advc= def_image_button("icons/up.png","Advance Parameters");
-        $table->attach ( $advc , 0, 2, $row,$row+1,'fill','shrink',2,2);
-        $row++;
+    if($show_noc == 1){    
+        $b1= def_image_button("icons/up.png","NoC Parameters");
+        $table->attach  ( $b1 , 0, 2, $row,$row+1,'fill','shrink',2,2);
+        $row++;    
     }
-    $advc->signal_connect("clicked" => sub{ 
-        $adv_set=($adv_set==1)?0:1;
-        $mpsoc->object_add_attribute('setting','show_adv_setting',$adv_set);
+    $b1->signal_connect("clicked" => sub{ 
+        $show_noc=($show_noc==1)?0:1;
+        $mpsoc->object_add_attribute('setting','show_noc_setting',$show_noc);
         set_gui_status($mpsoc,"ref",1);
     });
+    
+    
+    
+    
+  #  if($adv_set == 1){    
+  #      $advc= def_image_button("icons/up.png","Advance Parameters");
+  #      $table->attach ( $advc , 0, 2, $row,$row+1,'fill','shrink',2,2);
+  #      $row++;
+  #  }
+  #  $advc->signal_connect("clicked" => sub{ 
+  #      $adv_set=($adv_set==1)?0:1;
+  #      $mpsoc->object_add_attribute('setting','show_adv_setting',$adv_set);
+   #     set_gui_status($mpsoc,"ref",1);
+  #  });
     
     
     #other fixed parameters       

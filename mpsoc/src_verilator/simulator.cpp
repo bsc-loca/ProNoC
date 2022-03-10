@@ -125,66 +125,67 @@ int main(int argc, char** argv) {
 void  usage(char * bin_name){
 	printf("Usage:\n"
 " %s -t <synthetic Traffic Pattern name> [synthetic Traffic options]\n"
-" %s -f <Task file> [Task options] or\n"
+" %s -f <Task file> [Task options]\n"
 " %s -F <netrace file> [Netrace options] \n"
 " %s -S <synful model file> [synful options]\n\n"
 "synthetic Traffic options:\n"
-"  -t <Traffic Pattern>        \"HOTSPOT\", \"RANDOM\", \"BIT_COMPLEMENT\" , \"BIT_REVERSE\",\n "
+"  -t <Traffic Pattern>        \"HOTSPOT\", \"RANDOM\", \"BIT_COMPLEMENT\" , \"BIT_REVERSE\",\n"
 "                              \"TORNADO\", \"TRANSPOSE1\", \"TRANSPOSE2\", \"SHUFFEL\", \"CUSTOM\"\n"
 "  -m <Packet size info>       packet size format  Random-Range or Random-discrete:\n"
 "                              Random-Range : \"R,MIN,MAX\" : The injected packets' size in flits are\n"
-"                                 randomly selected in range MIN <= PCK_size <=MAX \n"
+"                              randomly selected in range MIN <= PCK_size <=MAX \n"
 "                              Random-discrete: \"D,S1,S2,..Sn,P,P1,P2,P3,...Pn\": Si are the discrete\n"
-"                                 set of numbers representing packet size. The injected packet size is\n"
-"                                 randomly selected among these discrete values according to associated\n"
-"                                 probability values.\n"
-"  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value\n"
-"  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the noc reaches this number\n"
+"                              set of numbers representing packet size. The injected packet size is\n"
+"                              randomly selected among these discrete values according to associated\n"
+"                              probability values.\n"
+"  -c <sim_end_clk_num>        The simulation will stop when the simulation clock number reaches this value\n"
+"  -n <sim_end_pck_num>        The simulation will stop when the total sent packets to the NoC reaches this number\n"
 "  -i <injection ratio>        flit injection ratio in percentage\n"
-"  -p <class traffic ratios>   The percentage of traffic injected for each class. represented in string\n"
-"                              each class ratio is separated by comma. \"n0,n1,n2..\" \n"
-"  -h <HOTSPOT traffic format> represented in a string with following format:\n"
+"  -p <class traffic ratios>   The percentage of traffic injected for each class. Represented in\n"
+"                              comma-separated string format:\"n0,n1,n2..\" \n"
+"  -h <HOTSPOT traffic format> represented in a string with the following format:\n"
 "                              total number of hotspot nodes, first hotspot node ID, first hotspot node\n"
 "                              send enable(1 or 0),first hotspot node percentage x10,second hotspot node ...\n"
 "  -H <custom traffic pattern> custom traffic pattern: represented in a string with following format:\n"
 "                              \"SRC1,DEST1, SRC2,DEST2, .., SRCn, DESTn\"   \n"
-"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
+"  -T <thread-num>             total number of threads. The default is one (no-thread).\n"
 "  -u <Multi/Broadcast format> represented in a string with following format:\n"
-"							   \"ratio,min_pck_size,max_pck_size\"					"
-"							   ratio:The percentage of multicast/broadcast pakets in percentage against total injected"
-"							   traffic.The multicast/Broadcast packet size is randomly selected between min_pck_size"
-"                              and max_pck_size. The max_pck_size must be smaller or equal with router buffer width"
-"							   Valid only when the NoC is configured with Multicast/Broadcast feature.                                                                                    \n "
+"                              \"ratio,min_pck_size,max_pck_size\"\n"
+"                              ratio:The percentage of Multicast/broadcast packets against total injected \n"
+"                              traffic. The Multicast/Broadcast packet size is randomly selected\n"
+"                              between min_pck_size and max_pck_size. The max_pck_size must be smaller or equal\n"
+"                              to the router buffer width. This filed is only valid when the NoC is configured\n"
+"                              with the Multicast/Broadcast feature support.\n"
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
-"                              to speed up simulation time"	
+//"                              to speed up simulation time"
 "\nTrace options:\n"
-"  -f <Task file>              path to the task file. any custom task file can be generated using ProNoC gui\n"
+"  -f <Task file>              Path to the task file. any custom task file can be generated using ProNoC gui\n"
 "  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
-"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
+"  -T <thread-num>             Total number of threads. The default is one (no-thread).\n"
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
-"                              to speed up simulation time"	
+//"                              to speed up simulation time"
 "\nNetrace options:\n"
-"  -F <Netrace file>           path to the task file. any custom task file can be generated using ProNoC gui\n"
-"  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the NoC reaches this number\n"
+"  -F <Netrace file>           Path to the task file. any custom task file can be generated using ProNoC gui\n"
+"  -n <sim_end_pck_num>        The simulation will stop when the total sent packets to the NoC reaches this number\n"
 "  -d                          ignore dependencies\n"
-"  -r <start region>           start region\n"
-"  -l                          reader throttling\n"
-"  -v <level>                  Verbosity level. 0: off, 1:display a live number of injected packet,\n"
-"                              3: print injected/ejected packets details, default is 1\n"
-"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
-"  -s <speed-up-num>		   the speed-up-num  is the ratio of netrace frequency to pronoc.The higher value\n"
-"                              results in higher injection ratio to the NoC. Default is one" 
+"  -r <start region>           Start region\n"
+"  -l                          Reader throttling\n"
+"  -v <level>                  Verbosity level. 0: off, 1:display a live number of injected packets,\n"
+"                              3: print injected/ejected packets details, The default value is 1\n"
+"  -T <thread-num>             Total number of threads. The default is one (no-thread).\n"
+"  -s <speed-up-num>           The speed-up-num  is the ratio of netrace frequency to pronoc.The higher value\n"
+"                              results in higher injection ratio to the NoC. Default is one\n"
 //"  -Q                          Quick (fast) simulation. ignore evaluating non-active routers \n"
-"                              to speed up simulation time"
+//"                              to speed up simulation time"
 "\nsynful options:\n"
-"  -S <model file>           path to the synful application model file\n"
-"  -r <seed value>             Seed value for random function\n "
-"  -c <sim_end_clk_num>        Simulation will stop when simulation clock number reach this value \n"
-"  -s                          exit at steady state\n"
-"  -n <sim_end_pck_num>        Simulation will stop when total of sent packets to the noc reaches this number\n"
-"  -T <thread-num>             total number of threads. The default is one (no-thread).   \n"
-"  -v <level>                  Verbosity level. 0: off, 1:display a live number of injected packet,\n"
-"                              3: print injected/ejected packets details, default is 1\n",
+"  -S <model file>             Path to the synful application model file\n"
+"  -r <seed value>             Seed value for random function\n"
+"  -c <sim_end_clk_num>        The simulation will stop when the simulation clock number reaches this value \n"
+"  -s                          Exit at steady state\n"
+"  -n <sim_end_pck_num>        The simulation will stop when the total of sent packets to the NoC reaches this number\n"
+"  -T <thread-num>             Total number of threads. The default is one (no-thread).\n"
+"  -v <level>                  Verbosity level. 0: off, 1:display a live number of injected packets,\n"
+"                              3: print injected/ejected packets details, The default value is 1\n",
 bin_name,bin_name,bin_name,bin_name
 );
 
@@ -221,7 +222,7 @@ void netrace_processArgs (int argc, char **argv )
 	 	case 'v':
 	 		verbosity= atoi(optarg);
 	 		break;
-	 	case  'T':
+	 	case 'T':
 			thread_num = atoi(optarg);
 			break;
 	 	case 'n':
@@ -662,7 +663,7 @@ void processArgs (int argc, char **argv ){
 			return;
 		}
 	}
-	fprintf (stderr, "you should define one one of Synthetic,Task or nettrace based simulation. \n");
+	fprintf (stderr, "You should pass one of the Synthetic-, Task-, Synfull- or Nettrace- based simulation as input argument. \n");
 	usage(argv[0]);
 	exit(1);
 }

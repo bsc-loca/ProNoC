@@ -490,10 +490,21 @@ sub get_simulator_noc_configuration{
   		$cast_type = $p->{'CAST_TYPE'};  
   		$cast_type=  '"UNICAST"' if (!defined $cast_type);
   	}
-   
+  
+   my $trf_info = "Select of the following traffic models:
+   1- Synthetic
+   2- Task-graph :  The task graph traffic pattern can be generated
+       using ProNoC trace generator	
+   3- Netrace: Dependency-Tracking Trace-Based Network-on-Chip
+       Simulation. For downloading the trace files and more 
+       information referes to https://www.cs.utexas.edu/~netrace/
+   4- SynFull: Synthetic Traffic Models Capturing a Full Range
+       of Cache Coherent Behaviour
+       https://github.com/mariobadr/synfull-isca   
+"; 
    
     my $coltmp=0;
-    ($row,$coltmp)=add_param_widget  ($self, "Traffic Type", "TRAFFIC_TYPE", "Synthetic", 'Combo-box', "Synthetic,Task-graph", undef, $table,$row,undef,1, $sample, 1,'ref_set_win');
+    ($row,$coltmp)=add_param_widget  ($self, "Traffic Type", "TRAFFIC_TYPE", "Synthetic", 'Combo-box', "Synthetic,Task-graph,Synfull,Netrace", $trf_info, $table,$row,undef,1, $sample, 1,'ref_set_win');
     
     my $traffictype=$self->object_get_attribute($sample,"TRAFFIC_TYPE");
     my $MIN_PCK_SIZE=$self->object_get_attribute($sample,"MIN_PCK_SIZE");
