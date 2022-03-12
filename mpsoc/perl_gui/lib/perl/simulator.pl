@@ -837,7 +837,7 @@ sub get_simulator_noc_configuration{
 		my ($flist)=get_file_list_by_extention ("$models_dir",".model");
 	
 		
-		my $model_obj = gen_combobox_object ($self,$sample, "synful_model_name", $flist, undef,undef,undef);	
+		my $model_obj = gen_combobox_object ($self,$sample, "MODEL_NAME", $flist, undef,undef,undef);	
 		attach_widget_to_table ($table,$row,gen_label_in_left(" Traffic Model name:"),gen_button_message ("Select an application traffic model.","icons/help.png"), 
 		$model_obj); $row++;
 		
@@ -848,7 +848,7 @@ sub get_simulator_noc_configuration{
 	    { label=>"Total packet number limit:", param_name=>'PCK_NUM_LIMIT', type=>'Spin-button', default_val=>200000, content=>"2,$max_pck_num,1", info=>"Simulation will stop when total number of sent packets by all nodes reaches packet number limit  or total simulation clock reach its limit", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
 		{ label=>"Simulator clocks limit:", param_name=>'SIM_CLOCK_LIMIT', type=>'Spin-button', default_val=>100000, content=>"2,$max_sim_clk,1", info=>"Each node stops sending packets when it reaches packet number limit  or simulation clock number limit", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
 		{ label=>"Markov Chain Random seed:", param_name=>'RND_SEED', type=>'Spin-button', default_val=>53432145, content=>"0,999999999,1", info=>"The seed valus is passe to synfull random number generator.", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
-		{ label=>"Exit at steady state:", param_name=>'EXIT_STRADY', type=>'Check-box', default_val=>0, content=>"1", info=>"Exit the simulation when it reaches to a steady state.", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
+		{ label=>"Exit at steady state:", param_name=>'EXIT_STEADY', type=>'Check-box', default_val=>0, content=>"1", info=>"Exit the simulation when it reaches to a steady state.", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
 		
 	
 	
@@ -863,7 +863,7 @@ sub get_simulator_noc_configuration{
 		
 		$ok->signal_connect("clicked"=> sub{
 			#check if sof file has been selected
-			my $s=$self->object_get_attribute($sample,"synful_model_name");
+			my $s=$self->object_get_attribute($sample,"MODEL_NAME");
 			if(!defined $s){
 					message_dialog("Please select a SynFull traffic model"); 
 					return;
@@ -887,7 +887,7 @@ sub get_simulator_noc_configuration{
 		my $models_dir  = "$ENV{PRONOC_WORK}/simulate/netrace";		
 		my ($flist)=get_file_list_by_extention ("$models_dir",".bz2");
 	
-		my $model_obj = gen_combobox_object ($self,$sample, "netrace_model_name", $flist, undef,undef,undef);	
+		my $model_obj = gen_combobox_object ($self,$sample, "MODEL_NAME", $flist, undef,undef,undef);	
 		my $download=def_image_button("icons/download.png",'Download');	
 		my $box =def_hbox(FALSE, 0);
 		$box->pack_start( $model_obj , 1,1, 0);
@@ -909,6 +909,7 @@ sub get_simulator_noc_configuration{
 		{ label=>"Enable reader throttling:", param_name=>'READER_THRL', type=>'Check-box', default_val=>0, content=>"1", info=>"If Reader throttling is enabled, simulators offloads much of the work of reading and tracking packets to the Netrace reader,
 which simplifies the code in the network simulator.", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
 		{ label=>"trace file start region:", param_name=>'START_RGN', type=>'Spin-button', default_val=>0, content=>"0,10000,1", info=>undef, param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
+		{ label=>"Netrace to Pronoc clk ratio:", param_name=>'SPEED_UP', type=>'Spin-button', default_val=>1, content=>"1,99,1", info=>"The ratio of netrace frequency to pronoc.The higher value results in higher injection ratio to the NoC. Default is one\n", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
 		
 		
 		
@@ -926,7 +927,7 @@ which simplifies the code in the network simulator.", param_parent=>$sample, ref
 		
 		$ok->signal_connect("clicked"=> sub{
 			#check if sof file has been selected
-			my $s=$self->object_get_attribute($sample,"synful_model_name");
+			my $s=$self->object_get_attribute($sample,"MODEL_NAME");
 			if(!defined $s){
 					message_dialog("Please select a SynFull traffic model"); 
 					return;
@@ -980,9 +981,9 @@ sub run_simulator {
 		next if($status ne "run");
 		next if(!check_sim_sample($simulate,$sample,$info));
 		my $traffictype=$simulate->object_get_attribute($sample,"TRAFFIC_TYPE");
-		run_synthetic_simulation($simulate,$info,$sample,$name) if($traffictype eq "Synthetic");
-		run_task_simulation($simulate,$info,$sample,$name) if($traffictype eq "Task-graph");
-		
+		if($traffictype eq "Synthetic") {run_synthetic_simulation($simulate,$info,$sample,$name);} 
+		elsif($traffictype eq "Task-graph"){run_task_simulation($simulate,$info,$sample,$name) ;}
+		else {run_trace_simulation($simulate,$info,$sample,$name);}
     	
 	}
 	
@@ -1454,6 +1455,101 @@ sub run_task_simulation{
 	
 	$simulate->object_add_attribute ($sample,"status","done");	
 }	
+
+
+
+
+sub run_trace_simulation{
+	my ($simulate,$info,$sample,$name)=@_;
+	my $log= (defined $name)? "$ENV{PRONOC_WORK}/simulate/$name.log": "$ENV{PRONOC_WORK}/simulate/sim.log";
+	
+		
+	my $bin=get_sim_bin_path($simulate,$sample,$info);
+	
+	
+	my $project_dir	  = get_project_dir();
+	$bin= "$project_dir/$bin"   if(!(-f $bin));
+	
+	
+	my $cpu_num = $simulate->object_get_attribute('compile', 'cpu_num');
+	$cpu_num = 1 if (!defined $cpu_num);
+	
+	my @paralel_ratio;
+	
+	my $jobs=0;	
+	my $c=0;
+	my $cmds="";
+	my $out_path ="$ENV{PRONOC_WORK}/simulate/"; 
+	my $thread_num = $simulate->object_get_attribute('compile', 'thread_num');
+	$thread_num = 1 if (!defined $thread_num);
+	
+	my $model= $simulate->object_get_attribute($sample,'MODEL_NAME');
+	
+	add_info($info, "Run $bin for $model model \n");
+	
+	my $cmd="$bin -T $thread_num ";	
+	my $traffictype=$simulate->object_get_attribute($sample,"TRAFFIC_TYPE");
+	if($traffictype eq "Netrace"){
+		my $PCK_NUM_LIMIT=$simulate->object_get_attribute ($sample,"PCK_NUM_LIMIT");		
+		my $IGNORE_DPNDCY=$simulate->object_get_attribute ($sample,"IGNORE_DPNDCY");
+		my $READER_THRL=$simulate->object_get_attribute ($sample,"READER_THRL");
+		my $START_RGN=$simulate->object_get_attribute ($sample,"START_RGN");
+		my $SPEED_UP=$simulate->object_get_attribute ($sample,"SPEED_UP");
+	
+		my $models_dir  = "$ENV{PRONOC_WORK}/simulate/netrace";		
+		
+		$cmd .="-F $models_dir/$model.bz2 -n $PCK_NUM_LIMIT -r $START_RGN  -v 0 -s $SPEED_UP";
+		$cmd .=" -l " if ($READER_THRL eq "1\'b1" );
+		$cmd .=" -d " if ($IGNORE_DPNDCY eq "1\'b1");
+		
+		
+	
+		
+		
+	}else{#synful
+		my $SIM_CLOCK_LIMIT=$simulate->object_get_attribute ($sample,"SIM_CLOCK_LIMIT");
+		my $PCK_NUM_LIMIT=$simulate->object_get_attribute ($sample,"PCK_NUM_LIMIT");
+		my $RND_SEED=$simulate->object_get_attribute ($sample,"RND_SEED");
+		my $EXIT_STEADY=$simulate->object_get_attribute ($sample,"EXIT_STEADY");
+		
+		my $models_dir  = get_project_dir()."/mpsoc/src_c/synfull/generated-models/";	
+		$cmd .="-S $models_dir/$model.model -n $PCK_NUM_LIMIT -r $RND_SEED 	-c $SIM_CLOCK_LIMIT ";
+		$cmd .=" -s " if ($EXIT_STEADY eq "1\'b1");
+		
+		
+		
+	}
+	$cmd .=" > $out_path/sim_out";	
+	add_info($info, "$cmd \n");
+	
+	my ($stdout,$exit,$stderr)=run_cmd_in_back_ground_get_stdout("$cmd\n wait\n");
+	if($exit || (length $stderr >4)){
+		add_colored_info($info, "Error in running simulation: $stderr \n",'red');
+		$simulate->object_add_attribute ($sample,"status","failed");	
+		$simulate->object_add_attribute('status',undef,'ideal');
+		return;
+	 } 
+		
+	
+		 
+	$stdout = load_file("$out_path/sim_out");
+	my @errors = unix_grep("$out_path/sim_out","ERROR:");
+	if (scalar @errors  ){
+		add_colored_info($info, "Error in running simulation: @errors \n",'red');
+		$simulate->object_add_attribute ($sample,"status","failed");	
+		$simulate->object_add_attribute('status',undef,'ideal');
+		return;						
+	}		
+			
+	extract_and_update_noc_sim_statistic ($simulate,$sample,0,$stdout);
+	
+			
+	set_gui_status($simulate,"ref",2);	
+		
+	
+	$simulate->object_add_attribute ($sample,"status","done");	
+}	
+
 
 
 
