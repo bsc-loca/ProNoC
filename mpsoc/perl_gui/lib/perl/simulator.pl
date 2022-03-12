@@ -45,8 +45,8 @@ sub generate_sim_bin_file {
 	$tops{Vpck_inj} = "--top-module packet_injector_verilator";	
 	my $target_dir= "$ENV{PRONOC_WORK}/simulate";
 	
-	my $dir = Cwd::getcwd();
-	my $project_dir	  = abs_path("$dir/..");
+	
+	my $project_dir	  = get_project_dir()."/mpsoc/";
 	my $src_verilator_dir="$project_dir/src_verilator";
 	my $src_c="$project_dir/src_c";
 	my $src_noc_dir="$project_dir/rtl/src_noc";	
@@ -493,18 +493,21 @@ sub get_simulator_noc_configuration{
   
    my $trf_info = "Select of the following traffic models:
    1- Synthetic
-   2- Task-graph :  The task graph traffic pattern can be generated
+   2- Task-graph :  
+       The task graph traffic pattern can be generated
        using ProNoC trace generator	
-   3- Netrace: Dependency-Tracking Trace-Based Network-on-Chip
+   3- Netrace: 
+       Dependency-Tracking Trace-Based Network-on-Chip
        Simulation. For downloading the trace files and more 
-       information referes to https://www.cs.utexas.edu/~netrace/
-   4- SynFull: Synthetic Traffic Models Capturing a Full Range
+       information refere to https://www.cs.utexas.edu/~netrace/
+   4- SynFull: 
+       Synthetic Traffic Models Capturing a Full Range
        of Cache Coherent Behaviour
        https://github.com/mariobadr/synfull-isca   
 "; 
    
     my $coltmp=0;
-    ($row,$coltmp)=add_param_widget  ($self, "Traffic Type", "TRAFFIC_TYPE", "Synthetic", 'Combo-box', "Synthetic,Task-graph,Synfull,Netrace", $trf_info, $table,$row,undef,1, $sample, 1,'ref_set_win');
+    ($row,$coltmp)=add_param_widget  ($self, "Traffic Type", "TRAFFIC_TYPE", "Synthetic", 'Combo-box', "Synthetic,Task-graph,SynFull,Netrace", $trf_info, $table,$row,undef,1, $sample, 1,'ref_set_win');
     
     my $traffictype=$self->object_get_attribute($sample,"TRAFFIC_TYPE");
     my $MIN_PCK_SIZE=$self->object_get_attribute($sample,"MIN_PCK_SIZE");
@@ -826,6 +829,126 @@ sub get_simulator_noc_configuration{
 		 
 		 
 	}
+	
+	
+	if($traffictype eq "SynFull"){
+		#get the synful model names
+		my $models_dir  = get_project_dir()."/mpsoc/src_c/synfull/generated-models/";		
+		my ($flist)=get_file_list_by_extention ("$models_dir",".model");
+	
+		
+		my $model_obj = gen_combobox_object ($self,$sample, "synful_model_name", $flist, undef,undef,undef);	
+		attach_widget_to_table ($table,$row,gen_label_in_left(" Traffic Model name:"),gen_button_message ("Select an application traffic model.","icons/help.png"), 
+		$model_obj); $row++;
+		
+		
+		
+		my @custominfo = (
+		{ label=>'Configuration name:', param_name=>'line_name', type=>'Entry', default_val=>$sample, content=>undef, info=>"NoC configuration name. This name will be shown in load-latency graph for this configuration", param_parent=>$sample, ref_delay=> undef, new_status=>undef},
+	    { label=>"Total packet number limit:", param_name=>'PCK_NUM_LIMIT', type=>'Spin-button', default_val=>200000, content=>"2,$max_pck_num,1", info=>"Simulation will stop when total number of sent packets by all nodes reaches packet number limit  or total simulation clock reach its limit", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
+		{ label=>"Simulator clocks limit:", param_name=>'SIM_CLOCK_LIMIT', type=>'Spin-button', default_val=>100000, content=>"2,$max_sim_clk,1", info=>"Each node stops sending packets when it reaches packet number limit  or simulation clock number limit", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
+		{ label=>"Markov Chain Random seed:", param_name=>'RND_SEED', type=>'Spin-button', default_val=>53432145, content=>"0,999999999,1", info=>"The seed valus is passe to synfull random number generator.", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
+		{ label=>"Exit at steady state:", param_name=>'EXIT_STRADY', type=>'Check-box', default_val=>0, content=>"1", info=>"Exit the simulation when it reaches to a steady state.", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
+		
+	
+	
+		);
+		
+		
+		
+		foreach my $d (@custominfo) {
+			($row,$coltmp)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status});
+			
+		}	
+		
+		$ok->signal_connect("clicked"=> sub{
+			#check if sof file has been selected
+			my $s=$self->object_get_attribute($sample,"synful_model_name");
+			if(!defined $s){
+					message_dialog("Please select a SynFull traffic model"); 
+					return;
+			}
+						
+			
+			#$set_win->destroy;
+			$set_win->hide();
+			$self->object_add_attribute("active_setting",undef,undef);
+			set_gui_status($self,"ref",1);
+				
+		});
+		
+		
+		
+	}#SynFull
+	
+	
+	if($traffictype eq "Netrace"){
+		#get the synful model names
+		my $models_dir  = "$ENV{PRONOC_WORK}/simulate/netrace";		
+		my ($flist)=get_file_list_by_extention ("$models_dir",".bz2");
+	
+		my $model_obj = gen_combobox_object ($self,$sample, "netrace_model_name", $flist, undef,undef,undef);	
+		my $download=def_image_button("icons/download.png",'Download');	
+		my $box =def_hbox(FALSE, 0);
+		$box->pack_start( $model_obj , 1,1, 0);
+		$box->pack_start( $download, 0, 1, 3);
+				
+		attach_widget_to_table ($table,$row,gen_label_in_left(" Trace name:"),gen_button_message ("Select a netrace trace file. You can download traces using download button.","icons/help.png"), 
+		$box); 
+		
+		
+		$row++;
+		
+		
+		
+		my @custominfo = (
+		{ label=>'Configuration name:', param_name=>'line_name', type=>'Entry', default_val=>$sample, content=>undef, info=>"NoC configuration name. This name will be shown in load-latency graph for this configuration", param_parent=>$sample, ref_delay=> undef, new_status=>undef},
+	    { label=>"Total packet number limit:", param_name=>'PCK_NUM_LIMIT', type=>'Spin-button', default_val=>200000, content=>"2,$max_pck_num,1", info=>"Simulation will stop when total number of sent packets by all nodes reaches packet number limit  or total simulation clock reach its limit", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
+		#{ label=>"Simulator clocks limit:", param_name=>'SIM_CLOCK_LIMIT', type=>'Spin-button', default_val=>100000, content=>"2,$max_sim_clk,1", info=>"Each node stops sending packets when it reaches packet number limit  or simulation clock number limit", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
+		{ label=>"ignore dependencies:", param_name=>'IGNORE_DPNDCY', type=>'Check-box', default_val=>0, content=>"1", info=>"Ignore dependency between packets", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
+		{ label=>"Enable reader throttling:", param_name=>'READER_THRL', type=>'Check-box', default_val=>0, content=>"1", info=>"If Reader throttling is enabled, simulators offloads much of the work of reading and tracking packets to the Netrace reader,
+which simplifies the code in the network simulator.", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
+		{ label=>"trace file start region:", param_name=>'START_RGN', type=>'Spin-button', default_val=>0, content=>"0,10000,1", info=>undef, param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
+		
+		
+		
+		
+	
+	
+		);
+		
+		
+		
+		foreach my $d (@custominfo) {
+			($row,$coltmp)=add_param_widget ($self, $d->{label}, $d->{param_name}, $d->{default_val}, $d->{type}, $d->{content}, $d->{info}, $table,$row,undef,1, $d->{param_parent}, $d->{ref_delay}, $d->{new_status});
+			
+		}	
+		
+		$ok->signal_connect("clicked"=> sub{
+			#check if sof file has been selected
+			my $s=$self->object_get_attribute($sample,"synful_model_name");
+			if(!defined $s){
+					message_dialog("Please select a SynFull traffic model"); 
+					return;
+			}
+						
+			
+			#$set_win->destroy;
+			$set_win->hide();
+			$self->object_add_attribute("active_setting",undef,undef);
+			set_gui_status($self,"ref",1);
+				
+		});
+		
+		$download->signal_connect("clicked"=> sub{ download_netrace("$models_dir")	});
+
+
+		
+	}#netrace
+	
+	
+	
+	
 	
 	
 	add_widget_to_scrolled_win ($mtable,$set_win);
@@ -1638,3 +1761,65 @@ sub custom_traffic_dest{
 	return ($core_num, -1);#off	
 }
 
+sub download_netrace{
+	my ($path) =@_;
+	#create path if it is not exist
+	unless (-d $path){
+		mkpath("$path",1,01777);
+	}
+	my $window = def_popwin_size(30,85,"Netrace download",'percent');
+	my $table = def_table(1, 1, FALSE);	
+	my $scrolled_win = add_widget_to_scrolled_win($table);
+	
+	
+my @links =(
+{ label=>"blackscholes simlarge (907M) ",name=>"blackscholes_64c_simlarge.tra.bz2" ,url=>"https://www.cs.utexas.edu/~netrace/download/blackscholes_64c_simlarge.tra.bz2"},
+{ label=>"blackscholes simmedium (182M)",name=>"blackscholes_64c_simmedium.tra.bz2",url=>"https://www.cs.utexas.edu/~netrace/download/blackscholes_64c_simmedium.tra.bz2"},
+{ label=>"blackscholes simsmall (55M)  ",name=>"blackscholes_64c_simsmall.tra.bz2" ,url=>"https://www.cs.utexas.edu/~netrace/download/blackscholes_64c_simsmall.tra.bz2"},
+{ label=>"bodytrack simlarge (3.5G)    ",name=>"bodytrack_64c_simlarge.tra.bz2"    ,url=>"https://www.cs.utexas.edu/~netrace/download/bodytrack_64c_simlarge.tra.bz2"},
+{ label=>"canneal simmedium (3.5G)     ",name=>"canneal_64c_simmedium.tra.bz2"     ,url=>"https://www.cs.utexas.edu/~netrace/download/canneal_64c_simmedium.tra.bz2"},
+{ label=>"dedup simmedium (4.1G)       ",name=>"dedup_64c_simmedium.tra.bz2"       ,url=>"https://www.cs.utexas.edu/~netrace/download/dedup_64c_simmedium.tra.bz2"},
+{ label=>"ferret simmedium (2.7G)      ",name=>"ferret_64c_simmedium.tra.bz2"      ,url=>"https://www.cs.utexas.edu/~netrace/download/ferret_64c_simmedium.tra.bz2"},
+{ label=>"fluidanimate simlarge (1.8G) ",name=>"fluidanimate_64c_simlarge.tra.bz2" ,url=>"https://www.cs.utexas.edu/~netrace/download/fluidanimate_64c_simlarge.tra.bz2"},
+{ label=>"fluidanimate simmedium (677M)",name=>"fluidanimate_64c_simmedium.tra.bz2",url=>"https://www.cs.utexas.edu/~netrace/download/fluidanimate_64c_simmedium.tra.bz2"},
+{ label=>"fluidanimate simsmall (317M) ",name=>"fluidanimate_64c_simsmall.tra.bz2" ,url=>"https://www.cs.utexas.edu/~netrace/download/fluidanimate_64c_simsmall.tra.bz2"},
+{ label=>"swaptions simlarge (3.0G)    ",name=>"swaptions_64c_simlarge.tra.bz2"    ,url=>"https://www.cs.utexas.edu/~netrace/download/swaptions_64c_simlarge.tra.bz2"},
+{ label=>"vips simmedium (3.1G)        ",name=>"vips_64c_simmedium.tra.bz2"        ,url=>"https://www.cs.utexas.edu/~netrace/download/vips_64c_simmedium.tra.bz2"},
+{ label=>"x264 simmedium (5.1G)        ",name=>"x264_64c_simmedium.tra.bz2"        ,url=>"https://www.cs.utexas.edu/~netrace/download/x264_64c_simmedium.tra.bz2"},
+{ label=>"x264 simsmall (1.2G)         ",name=>"x264_64c_simsmall.tra.bz2"         ,url=>"https://www.cs.utexas.edu/~netrace/download/x264_64c_simsmall.tra.bz2"},
+);
+
+	my $row=0;
+	
+
+	foreach my $d (@links){
+		my $srow=$row;
+		$table-> attach (gen_label_in_left($d->{label}) , 0, 1,  $row,$row+1,'expand','shrink',2,2); 
+		my $file="$path/$d->{name}";
+		if (-f $file){
+			
+		}else{
+			my $download=def_image_button("icons/download.png",'Download');	
+			$table-> attach ($download , 2, 3,  $row,$row+1,'expand','shrink',2,2);
+			$download->signal_connect("clicked"=> sub{
+					$download ->set_sensitive (FALSE);
+					my $load= show_gif("icons/load.gif");
+				    $table->attach ($load, 1, 2, $srow,$srow+ 1,'shrink','shrink',0,0); 
+				    $load->show_all;
+					my $o=$d->{name};					
+					download_from_google_drive("$d->{url}" ,"$path/$o"  );
+					$load->destroy;
+					$download->destroy if (-f $file);
+			});
+		}
+		$row++;
+	}
+
+
+
+
+
+$window ->add($scrolled_win);
+$window->show_all;
+
+}

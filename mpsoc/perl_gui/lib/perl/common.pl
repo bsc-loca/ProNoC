@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 use strict;
 use warnings;
 
@@ -12,6 +14,9 @@ use Cwd 'abs_path';
 use Term::ANSIColor qw(:constants);
 use IPC::Run qw(start pump finish timeout pumpable);
  
+use FindBin;
+use lib $FindBin::Bin;
+use constant::boolean;
 
 sub log2{
 	my $num=shift;
@@ -1304,6 +1309,20 @@ sub add_param_widget {
     return ($row,$column,$widget);
 }
 
+
+#get the list of files matching the given extention
+sub get_file_list_by_extention {
+	my ($open_in, $ext)=@_;		
+	my @files = glob "$open_in/*";
+	my $file_list="";
+	foreach my $file (@files){
+		my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
+		if($suffix eq $ext || $suffix eq ".$ext" ){
+			$file_list.=",$name";
+		}		
+	}
+	return 	($file_list,\@files);
+}
 
 
 1	 
