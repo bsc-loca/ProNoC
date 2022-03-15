@@ -208,6 +208,7 @@ router_st_t router_stat_accum [NR];
 	statistic_t rsvd_stat [NE];
 #endif
 
+	statistic_t endp_to_endp [NE][NE];
 
 typedef struct mcast_struct {
 	int ratio;
@@ -216,7 +217,7 @@ typedef struct mcast_struct {
 }mcast_t;
 
 
-void update_statistic_at_ejection (	int	, 	unsigned int, unsigned int, unsigned int,  unsigned int, unsigned int );
+void update_statistic_at_ejection (	int	, 	unsigned int, unsigned int, unsigned int,  unsigned int, unsigned int ,unsigned int);
 void update_noc_statistic (	int);
 unsigned char pck_class_in_gen(unsigned int);
 unsigned int pck_dst_gen_task_graph ( unsigned int, unsigned char *);
@@ -244,6 +245,7 @@ void print_statistic_new (unsigned long int);
 void allocate_rsv_pck_counters (void);
 void update_all_router_stat(void);
 void print_router_st(void);
+void print_endp_to_endp_st(const char *);
 
 #include "topology_top.h"
 #include "traffic_task_graph.h"

@@ -26,7 +26,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <random>
 #include <iostream>
 
-extern std::mt19937 mt_rng;
+
+#define RND_ENG_NUM   4
+#define DEFAULT_ENG   0
+#define hierClass_ENG 1
+#define INIT_MSG_ENG  2
+#define REACT_ENG     3
+
+
+extern std::mt19937 mt_rng [RND_ENG_NUM];
 
 template <class T>
 class DiscreteDistribution {
@@ -41,13 +49,13 @@ public:
 	//delete dist;
 	dist = nullptr; }
 
-	int Generate() {
+	int Generate(int num) {
 		if(values.size() == 0) {
 			return -1;
 		}
 
 		create_dist();
-		return (*dist)(mt_rng);
+		return (*dist)(mt_rng[num]);
 	}
 
 	void Print() {
@@ -102,8 +110,8 @@ public:
 		dist = new std::bernoulli_distribution(p);
 	}
 
-	bool Generate() {
-		return (*dist)(mt_rng);
+	bool Generate(int num) {
+		return (*dist)(mt_rng[num]);
 	}
 
 private:
@@ -124,8 +132,8 @@ public:
 		dist = new std::uniform_int_distribution<int>(min, max);
 	}
 
-	int Generate() {
-		return (*dist)(mt_rng);
+	int Generate(int num) {
+		return (*dist)(mt_rng[num]);
 	}
 private:
 	std::uniform_int_distribution<int>* dist;

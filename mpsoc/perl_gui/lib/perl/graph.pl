@@ -176,11 +176,20 @@ sub get_uniq_keys {
 sub gen_graph {
 	my ($self,$chart,$image_scale,@selects)=@_;	
 	if($chart->{type} eq '2D_line') {return gen_2D_line($self,$chart,@selects);}
+	if($chart->{type} eq 'Heat-map') {return gen_heat_map($self,$chart,@selects);}
 	return  gen_3D_bar($self,$chart,$image_scale,@selects);
 }
 
 
-
+sub gen_heat_map{
+	my ($self,$chart,@selects)=@_;
+	my $table = def_table (25, 10, FALSE);
+	
+	
+	
+	return $table;
+	
+}
 
 
 sub gen_3D_bar{

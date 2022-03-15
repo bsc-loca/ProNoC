@@ -372,11 +372,11 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
 
 
     for(int i = 0; i < writes; i++) {
-        delta = uni_dist.Generate() * 2;
-        source = g_writeSpat[g_hierClass][synful_state].Generate();
+        delta = uni_dist.Generate(DEFAULT_ENG) * 2;
+        source = g_writeSpat[g_hierClass][synful_state].Generate(DEFAULT_ENG);
         source = source * 2;
 
-        destination = g_writeDest[g_hierClass][synful_state][source].Generate();
+        destination = g_writeDest[g_hierClass][synful_state][source].Generate(DEFAULT_ENG);
         destination = destination * 2 + 1;
 
         synful_QueuePacket(source, destination, REQUEST, WRITE, CONTROL_SIZE,
@@ -384,11 +384,11 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
     }
 
     for(int i = 0; i < reads; i++) {
-        delta = uni_dist.Generate() * 2;
-        source = g_readSpat[g_hierClass][synful_state].Generate();
+        delta = uni_dist.Generate(DEFAULT_ENG) * 2;
+        source = g_readSpat[g_hierClass][synful_state].Generate(DEFAULT_ENG);
         source = source * 2;
 
-        destination = g_readDest[g_hierClass][synful_state][source].Generate();
+        destination = g_readDest[g_hierClass][synful_state][source].Generate(DEFAULT_ENG);
         destination = destination * 2 + 1;
 
         synful_QueuePacket(source, destination, REQUEST, READ, CONTROL_SIZE,
@@ -396,11 +396,11 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
     }
 
     for(int i = 0; i < ccrs; i++) {
-        delta = uni_dist.Generate() * 2;
-        source = g_ccrSpat[g_hierClass][synful_state].Generate();
+        delta = uni_dist.Generate(DEFAULT_ENG) * 2;
+        source = g_ccrSpat[g_hierClass][synful_state].Generate(DEFAULT_ENG);
         source = source * 2;
 
-        destination = g_ccrDest[g_hierClass][synful_state][source].Generate();
+        destination = g_ccrDest[g_hierClass][synful_state][source].Generate(DEFAULT_ENG);
         destination = destination * 2 + 1;
 
         synful_QueuePacket(source, destination, REQUEST, PUTC, CONTROL_SIZE,
@@ -408,11 +408,11 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
     }
     
     for(int i = 0; i < dcrs; i++) {
-        delta = uni_dist.Generate() * 2;
-        source = g_dcrSpat[g_hierClass][synful_state].Generate();
+        delta = uni_dist.Generate(DEFAULT_ENG) * 2;
+        source = g_dcrSpat[g_hierClass][synful_state].Generate(DEFAULT_ENG);
         source = source * 2;
 
-        destination = g_dcrDest[g_hierClass][synful_state][source].Generate();
+        destination = g_dcrDest[g_hierClass][synful_state][source].Generate(DEFAULT_ENG);
         destination = destination * 2 + 1;
 
         synful_QueuePacket(source, destination, REQUEST, PUTD, DATA_SIZE,
@@ -422,10 +422,10 @@ void synful_UniformInject(int writes, int reads, int ccrs, int dcrs) {
 
 //Volumes
 void synful_InitiateMessages() {
-    int writes = g_writes[g_hierClass][synful_state].Generate();
-    int reads = g_reads[g_hierClass][synful_state].Generate();
-    int ccrs = g_ccrs[g_hierClass][synful_state].Generate();
-    int dcrs = g_dcrs[g_hierClass][synful_state].Generate();
+    int writes = g_writes[g_hierClass][synful_state].Generate(INIT_MSG_ENG);
+    int reads = g_reads[g_hierClass][synful_state].Generate(INIT_MSG_ENG);
+    int ccrs = g_ccrs[g_hierClass][synful_state].Generate(INIT_MSG_ENG);
+    int dcrs = g_dcrs[g_hierClass][synful_state].Generate(INIT_MSG_ENG);
 
     //cout << "synfull: writes " << writes << " reads " << reads << " ccrs " << ccrs << " dcrs " << dcrs  << endl;
     synful_UniformInject(writes, reads, ccrs, dcrs);
@@ -464,10 +464,10 @@ void synful_react(EjectResMsg ePacket) {
         if((int) request.address == request.id) {
             //This is an initiating request. Should we forward it or go to
             //memory?
-            bool isForwarded = g_toForward[g_hierClass][request.dest][request.coType].Generate() == 0;
+            bool isForwarded = g_toForward[g_hierClass][request.dest][request.coType].Generate(REACT_ENG) == 0;
 
             if(isForwarded) {
-                int destination = g_forwardDest[g_hierClass][synful_state][request.dest].Generate();
+                int destination = g_forwardDest[g_hierClass][synful_state][request.dest].Generate(REACT_ENG);
                 destination = destination*2;
                 if(destination % 2 != 0) {
                     cerr << "Error: Invalid destination for forwarded request." << endl;
@@ -479,7 +479,7 @@ void synful_react(EjectResMsg ePacket) {
 
                 if(request.coType == WRITE) {
                     //How many invalidates to send
-                    int numInv = g_numInv[g_hierClass][synful_state][request.dest].Generate();
+                    int numInv = g_numInv[g_hierClass][synful_state][request.dest].Generate(REACT_ENG);
                     int s = synful_state;
 
                     if(numInv <= 0) {
@@ -491,7 +491,7 @@ void synful_react(EjectResMsg ePacket) {
                     set<int> destinations;
                     destinations.insert(destination); //Request already forwarded here
                     while(destinations.size() != (unsigned int) numInv) {
-                        int dest = g_invDest[g_hierClass][s][request.dest].Generate();
+                        int dest = g_invDest[g_hierClass][s][request.dest].Generate(REACT_ENG);
                         dest = dest*2;
                         destinations.insert(dest);
                     }
@@ -607,7 +607,9 @@ void synful_model_init(char * fname, bool ss_exit, int seed,unsigned int max_clk
 
     synful_max_pck =max_pck;
     synful_max_clk =max_clk;
-    mt_rng.seed(seed);
+    for (int i=0;i< RND_ENG_NUM; i++){
+    	mt_rng[i].seed(seed+i);
+    }
 
     pronoc_mapping=mapping;
 
@@ -623,7 +625,7 @@ void synful_run_one_cycle (){
 
                 if(synful_cycle != 0) {
                     synful_lastHState = g_hierClass;
-                    g_hierClass = g_hierState[g_hierClass].Generate() + 1;
+                    g_hierClass = g_hierState[g_hierClass].Generate(hierClass_ENG) + 1;
                     synful_reset_ss();
                 }
 
@@ -646,7 +648,7 @@ void synful_run_one_cycle (){
                 if(synful_cycle != 0) {
                     //Update state
                     synful_lastState = synful_state;
-                    synful_state = g_states1[g_hierClass][synful_state].Generate() + 1;
+                    synful_state = g_states1[g_hierClass][synful_state].Generate(hierClass_ENG) + 1;
                 }
 
                 //Queue up initiating messages for injection

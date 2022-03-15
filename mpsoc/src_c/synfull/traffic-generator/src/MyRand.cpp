@@ -21,7 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "MyRand.h"
 
-std::mt19937 mt_rng(53432145);
+std::mt19937 mt_rng [RND_ENG_NUM];
 
 ExponentialDistribution::ExponentialDistribution(double lambda, int intervals) {
 	_lambda = lambda;
@@ -33,7 +33,7 @@ std::map<int, int> ExponentialDistribution::Generate(int num_samples) {
 	int rolls = num_samples;
 	for(int i = 0; i < rolls; i++) {
 		std::exponential_distribution<double> dist(_lambda);
-		double n = dist(mt_rng);
+		double n = dist(mt_rng[0]);
 		samples[int(_intervals*n)]++;
 	}
 

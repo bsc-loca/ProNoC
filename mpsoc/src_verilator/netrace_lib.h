@@ -307,13 +307,10 @@ void netrace_eval(unsigned int eval_num){
 					(unsigned int) clk_num_h2t, // clk_num_h2t,
 					pck_inj[i]->pck_injct_out_distance, //    distance,
 					pck_inj[i]->pck_injct_out_class_num,//  	class_num,
-					pronoc_src_id//		unsigned int 	src
+					pronoc_src_id,//		unsigned int 	src
+					pck_inj[i]->pck_injct_out_size
 				);
-				#if(C>1)
-					rsvd_stat[i][pck_inj[i]->pck_injct_out_class_num].flit_num +=pck_inj[i]->pck_injct_out_size;
-   				#else
-					rsvd_stat[i].flit_num+=pck_inj[i]->pck_injct_out_size;
-				#endif
+
 				free( temp_node );
 
 			}

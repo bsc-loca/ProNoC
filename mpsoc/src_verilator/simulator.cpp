@@ -1003,11 +1003,6 @@ void traffic_clk_posedge_event(void) {
 			}
 			if(traffic[i]->flit_in_wr==1){
 				total_rsv_flit_number++;
-				#if (C>1)
-					rsvd_stat [i][traffic[i]->pck_class_out].flit_num++;
-				#else
-					rsvd_stat [i].flit_num++;
-				#endif
 			}
 			if(traffic[i]->hdr_flit_sent==1){
 				total_sent_pck_num++;
@@ -1045,6 +1040,38 @@ void traffic_clk_posedge_event(void) {
  *
  *********************************/
 
+void update_rsvd_st (
+		statistic_t * 	rsvd_stat,
+		unsigned int   	clk_num_h2h,
+		unsigned int    clk_num_h2t,
+		unsigned int 	latency,
+		unsigned int    distance,
+		unsigned int    pck_size
+
+) {
+	rsvd_stat->pck_num ++;
+	rsvd_stat->flit_num+=  pck_size;
+	rsvd_stat->sum_clk_h2h +=(double)clk_num_h2h;
+	rsvd_stat->sum_clk_h2t +=(double)clk_num_h2t;
+	rsvd_stat->sum_clk_per_hop+= ((double)clk_num_h2h/(double)distance);
+	if (rsvd_stat->worst_latency < latency ) rsvd_stat->worst_latency=latency;
+	if (rsvd_stat->min_latency==0          ) rsvd_stat->min_latency  =latency;
+	if (rsvd_stat->min_latency   > latency ) rsvd_stat->min_latency  =latency;
+	#if (STND_DEV_EN)
+	  	rsvd_stat->sum_clk_pow2 += (double)clk_num_h2h * (double) clk_num_h2h;
+	#endif
+}
+
+void update_sent_st (
+	statistic_t *  sent_stat,
+	unsigned int 	latency
+) {
+
+	if (sent_stat->worst_latency < latency ) sent_stat->worst_latency=latency;
+	if (sent_stat->min_latency==0          ) sent_stat->min_latency  =latency;
+	if (sent_stat->min_latency   > latency ) sent_stat->min_latency  =latency;
+
+}
 
 
 void update_statistic_at_ejection (
@@ -1053,7 +1080,9 @@ void update_statistic_at_ejection (
 	unsigned int    clk_num_h2t,
 	unsigned int    distance,
 	unsigned int  	class_num,
-	unsigned int 	src  	){
+	unsigned int 	src,
+	unsigned int    pck_size
+	){
 
 	total_rsv_pck_num+=1;
 
@@ -1066,43 +1095,20 @@ void update_statistic_at_ejection (
 	if(verbosity==0 && ( TRAFFIC_TYPE == NETRACE || TRAFFIC_TYPE ==SYNFUL)) if((total_rsv_pck_num & 0X1FFFF )==0 ) printf(" packet sent total=%d\n",total_rsv_pck_num);
     unsigned int latency = (strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)? clk_num_h2t :  clk_num_h2h;
     #if(C>1)
-
-    	rsvd_stat[core_num][class_num].pck_num ++;
-    	rsvd_stat[core_num][class_num].sum_clk_h2h +=clk_num_h2h;
-    	rsvd_stat[core_num][class_num].sum_clk_h2t +=clk_num_h2t;
-    	rsvd_stat[core_num][class_num].sum_clk_per_hop+= ((double)clk_num_h2h/(double)distance);
-    	if (rsvd_stat[core_num][class_num].worst_latency < latency ) rsvd_stat[core_num][class_num].worst_latency =latency;
-    	if (rsvd_stat[core_num][class_num].min_latency==0          ) rsvd_stat[core_num][class_num].min_latency   =latency;
-    	if (rsvd_stat[core_num][class_num].min_latency   > latency ) rsvd_stat[core_num][class_num].min_latency   =latency;
-    	if (sent_stat[src     ][class_num].worst_latency < latency ) sent_stat[src     ][class_num].worst_latency =latency;
-    	if (sent_stat[src     ][class_num].min_latency==0          ) sent_stat[src     ][class_num].min_latency   =latency;
-    	if (sent_stat[src     ][class_num].min_latency   > latency ) sent_stat[src     ][class_num].min_latency   =latency;
-
-		#if (STND_DEV_EN)
-        	rsvd_stat[core_num][class_num].sum_clk_pow2 += (double)clk_num_h2h * (double) clk_num_h2h;
-		#endif
-	#else
-    	rsvd_stat[core_num].pck_num ++;
-        rsvd_stat[core_num].sum_clk_h2h +=(double)clk_num_h2h;
-        rsvd_stat[core_num].sum_clk_h2t +=(double)clk_num_h2t;
-        rsvd_stat[core_num].sum_clk_per_hop+= ((double)clk_num_h2h/(double)distance);
-        if (rsvd_stat[core_num].worst_latency < latency ) rsvd_stat[core_num].worst_latency=latency;
-        if (rsvd_stat[core_num].min_latency==0          ) rsvd_stat[core_num].min_latency  =latency;
-        if (rsvd_stat[core_num].min_latency   > latency ) rsvd_stat[core_num].min_latency  =latency;
-        if (sent_stat[src     ].worst_latency < latency ) sent_stat[src     ].worst_latency=latency;
-        if (sent_stat[src     ].min_latency==0          ) sent_stat[src     ].min_latency  =latency;
-        if (sent_stat[src     ].min_latency   > latency ) sent_stat[src     ].min_latency  =latency;
-
-		#if (STND_DEV_EN)
-        	rsvd_stat[core_num].sum_clk_pow2 += (double)clk_num_h2h * (double) clk_num_h2h;
-		#endif
+    	update_rsvd_st ( &rsvd_stat[core_num][class_num],  	clk_num_h2h,   clk_num_h2t, 	latency,    distance,pck_size);
+    	update_sent_st ( &sent_stat[src     ][class_num],  	latency);
+    #else
+    	update_rsvd_st ( &rsvd_stat[core_num], clk_num_h2h,   clk_num_h2t, 	latency,    distance,pck_size);
+    	update_sent_st ( &sent_stat[src     ], latency);
 	#endif
 
-
-
-
+    update_rsvd_st ( &endp_to_endp[src][core_num],  	clk_num_h2h,   clk_num_h2t, 	latency,    distance, pck_size);
 
 }
+
+
+
+
 
 void update_noc_statistic (	int	core_num){
 	unsigned int   	clk_num_h2h =traffic[core_num]->time_stamp_h2h;
@@ -1111,8 +1117,8 @@ void update_noc_statistic (	int	core_num){
     unsigned int  	class_num=traffic[core_num]->pck_class_out;
     unsigned int    src_e_addr=traffic[core_num]->src_e_addr;
     unsigned int 	src = endp_addr_decoder (src_e_addr);
-
-    update_statistic_at_ejection ( core_num,	clk_num_h2h,  clk_num_h2t,  distance,  	class_num, 	src);
+    unsigned int    pck_size = traffic[core_num]-> pck_size_o;
+    update_statistic_at_ejection ( core_num,	clk_num_h2h,  clk_num_h2t,  distance,  	class_num, 	src,pck_size);
 
 
 }
@@ -1193,9 +1199,11 @@ void print_statistic_new (unsigned long int total_clk){
 
 
 	print_router_st();
+	print_endp_to_endp_st("pck_num");
+	print_endp_to_endp_st("flit_num");
 
 	printf( "\n\tEndpoints Statistics:\n"
-			"\t#node,"
+			"\t#EID,"
 			"sent_stat.pck_num,"
 			"rsvd_stat.pck_num,"
 			"sent_stat.flit_num,"
@@ -1585,7 +1593,7 @@ void update_router_st (
 void print_router_st (void) {
 
 	//report router statistic
-	printf("\n\n\tRouters' statistics\n");
+	printf("\n\n\tRouters' statistics:\n");
 	printf("\t#RID, #Port,"
 	   	"flit_in,"
 	   	"pck_in,"
@@ -1633,4 +1641,19 @@ void print_router_st (void) {
 	   	if(SMART_MAX>0) for (int k=0;k<SMART_MAX+1;k++) printf("%d," , router_stat_accum [i].bypass_counter[k]);
 	   	printf("\n");
 	  }
+}
+
+
+void print_endp_to_endp_st(const char * st)  {
+	printf ("\n\tEndp_to_Endp %s:\n\t#EID,",st);
+	for (int src=0; src<NE; src++) printf ("%u,",src);
+	printf ("\n");
+	for (int src=0; src<NE; src++){
+		printf ("\t%u,",src);
+		for (int dst=0;dst<NE;dst++){
+			if(strcmp(st,"pck_num")==0)  printf("%u,",endp_to_endp[src][dst].pck_num);
+			if(strcmp(st,"flit_num")==0) printf("%u,",endp_to_endp[src][dst].flit_num);
+		}
+		printf ("\n");
+	}
 }

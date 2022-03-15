@@ -1326,45 +1326,59 @@ quit
 	
 }
 
-sub extract_and_update_noc_sim_statistic {
-	my ($simulate,$sample,$ratio_in,$stdout)=@_;
-	my @results = split("#node,",$stdout);
+
+sub extract_st_by_name{
+	my($st_name, $stdout)=@_;
+	
+	my @results = split($st_name,$stdout);
 	my %statistcs;
-	my @lines = split("\n",$results[1]);
-	#first line is statsitic names
+	my @lines = split("\n",$results[1]);	
 	my @names;
 	my $i=0;
 	foreach my $line (@lines){
 		$line=remove_all_white_spaces($line);
 		$line =~ s/^#//g; #remove # from beginig of each line in modelsim 
-		if($i==0){
-			 @names=split(",",$line);
-			
-		}else{
+		if($i==0) {
+			$i++;
+			next;
+		}
+		elsif($i==1){
+			#first line is statsitic names
+			@names=split(",",$line);
+			$i++;
+			next;
+		}elsif(length($line)>1) {
 			my @fileds=split(",",$line);
 			my $j=0;
 			#print ("ff :@fileds\n");
 			foreach my $f (@fileds){				
 				unless($j==0){
-					$statistcs{$fileds[0]}{$names[$j-1]}=$f;	
+					$statistcs{$fileds[0]}{$names[$j]}=$f;	
 				}
 				$j++;
 			}
+			$i++;
+		}else{ #empty line end of endp statistic
+			last;
 		}
-		$i++;
+		
 	}
 	#print Dumper(\%statistcs);
-	
+	return  %statistcs;	
+}
+
+
+
+sub extract_and_update_noc_sim_statistic {
+	my ($simulate,$sample,$ratio_in,$stdout)=@_;
+		
 	
 	
 	my $total_time =capture_number_after("Simulation clock cycles:",$stdout);
 
-	my %packet_rsvd_per_core = capture_cores_data("total number of received packets:",$stdout);
-	my %worst_rsvd_delay_per_core = capture_cores_data('worst-case-delay of received packets \(clks\):',$stdout);
-	my %packet_sent_per_core = capture_cores_data("total number of sent packets:",$stdout);
-	my %worst_sent_delay_per_core = capture_cores_data('worst-case-delay of sent packets \(clks\):',$stdout);
-		
-	next if (!defined $statistcs{"total"}{'avg_latency_pck'});
+	my %statistcs = extract_st_by_name("Endpoints Statistics:",$stdout);
+			
+	return if (!defined $statistcs{"total"}{'avg_latency_pck'});
 	update_result($simulate,$sample,"latency_result",$ratio_in,$statistcs{"total"}{'avg_latency_pck'});
 	update_result($simulate,$sample,"latency_flit_result",$ratio_in,$statistcs{"total"}{'avg_latency_flit'});
 	update_result($simulate,$sample,"sd_latency_result",$ratio_in,$statistcs{"total"}{'avg.std_dev'});
@@ -1382,6 +1396,10 @@ sub extract_and_update_noc_sim_statistic {
 		update_result($simulate,$sample,"packet_sent_result",$ratio_in,$p,$statistcs{$p}{'sent_stat.pck_num'} );
 		update_result($simulate,$sample,"worst_delay_sent_result",$ratio_in,$p,$statistcs{$p}{'sent_stat.worst_latency'});
 	}	
+	
+	my %st = extract_st_by_name("Endp_to_Endp flit_num",$stdout);
+	
+	
 }
 
 
@@ -1734,6 +1752,7 @@ my @pages =(
 	{page_name=>" Injected Packet ", page_num=>1},
 	{page_name=>" Worst-Case Delay ",page_num=>2},
 	{page_name=>" Execution Time ",page_num=>3},
+	{page_name=>" Endp.-to-Endp. ",page_num=>4},
 );
 
 
@@ -1757,6 +1776,8 @@ my @charts = (
 	{ type=>"3D_bar",  page_num=>2, graph_name=> "Received", result_name => "worst_delay_rsvd_result",X_Title=>'Core ID' , Y_Title=>'Worst-Case Delay (clk)', Z_Title=>undef},
 	{ type=>"3D_bar",  page_num=>2, graph_name=> "Sent", result_name => "worst_delay_sent_result",X_Title=>'Core ID' , Y_Title=>'Worst-Case Delay (clk)', Z_Title=>undef},
 	{ type=>"2D_line", page_num=>3, graph_name=> "-", result_name => "exe_time_result",X_Title=>'Desired Avg. Injected Load Per Router (flits/clock (%))' , Y_Title=>'Total Simulation Time (clk)', Z_Title=>undef},
+	{ type=>"Heat-map", page_num=>4, graph_name=> "Flit-num", result_name => "endp-endp-flit",X_Title=>'total flit number sent from an endpoint to another' , Y_Title=> undef, Z_Title=>undef},
+	
 	
 	);
 	

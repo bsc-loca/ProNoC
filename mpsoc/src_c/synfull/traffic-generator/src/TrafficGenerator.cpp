@@ -205,11 +205,11 @@ void UniformInject(int writes, int reads, int ccrs, int dcrs) {
     int delta = 0;
     
     for(int i = 0; i < writes; i++) {
-        delta = uni_dist.Generate() * 2;
-        source = g_writeSpat[g_hierClass][state].Generate();
+        delta = uni_dist.Generate(0) * 2;
+        source = g_writeSpat[g_hierClass][state].Generate(0);
         source = source * 2;
 
-        destination = g_writeDest[g_hierClass][state][source].Generate();
+        destination = g_writeDest[g_hierClass][state][source].Generate(0);
         destination = destination * 2 + 1;
 
         QueuePacket(source, destination, REQUEST, WRITE, CONTROL_SIZE,
@@ -217,11 +217,11 @@ void UniformInject(int writes, int reads, int ccrs, int dcrs) {
     }
 
     for(int i = 0; i < reads; i++) {
-        delta = uni_dist.Generate() * 2;
-        source = g_readSpat[g_hierClass][state].Generate();
+        delta = uni_dist.Generate(0) * 2;
+        source = g_readSpat[g_hierClass][state].Generate(0);
         source = source * 2;
 
-        destination = g_readDest[g_hierClass][state][source].Generate();
+        destination = g_readDest[g_hierClass][state][source].Generate(0);
         destination = destination * 2 + 1;
 
         QueuePacket(source, destination, REQUEST, READ, CONTROL_SIZE,
@@ -229,11 +229,11 @@ void UniformInject(int writes, int reads, int ccrs, int dcrs) {
     }
 
     for(int i = 0; i < ccrs; i++) {
-        delta = uni_dist.Generate() * 2;
-        source = g_ccrSpat[g_hierClass][state].Generate();
+        delta = uni_dist.Generate(0) * 2;
+        source = g_ccrSpat[g_hierClass][state].Generate(0);
         source = source * 2;
 
-        destination = g_ccrDest[g_hierClass][state][source].Generate();
+        destination = g_ccrDest[g_hierClass][state][source].Generate(0);
         destination = destination * 2 + 1;
 
         QueuePacket(source, destination, REQUEST, PUTC, CONTROL_SIZE,
@@ -241,11 +241,11 @@ void UniformInject(int writes, int reads, int ccrs, int dcrs) {
     }
     
     for(int i = 0; i < dcrs; i++) {
-        delta = uni_dist.Generate() * 2;
-        source = g_dcrSpat[g_hierClass][state].Generate();
+        delta = uni_dist.Generate(0) * 2;
+        source = g_dcrSpat[g_hierClass][state].Generate(0);
         source = source * 2;
 
-        destination = g_dcrDest[g_hierClass][state][source].Generate();
+        destination = g_dcrDest[g_hierClass][state][source].Generate(0);
         destination = destination * 2 + 1;
 
         QueuePacket(source, destination, REQUEST, PUTD, DATA_SIZE,
@@ -255,10 +255,10 @@ void UniformInject(int writes, int reads, int ccrs, int dcrs) {
 
 //Volumes
 void InitiateMessages() {
-    int writes = g_writes[g_hierClass][state].Generate();
-    int reads = g_reads[g_hierClass][state].Generate();
-    int ccrs = g_ccrs[g_hierClass][state].Generate();
-    int dcrs = g_dcrs[g_hierClass][state].Generate();
+    int writes = g_writes[g_hierClass][state].Generate(0);
+    int reads = g_reads[g_hierClass][state].Generate(0);
+    int ccrs = g_ccrs[g_hierClass][state].Generate(0);
+    int dcrs = g_dcrs[g_hierClass][state].Generate(0);
 
     //cout << "synfull: writes " << writes << " reads " << reads << " ccrs " << ccrs << " dcrs " << dcrs  << endl;
     UniformInject(writes, reads, ccrs, dcrs);
@@ -297,10 +297,10 @@ void react(EjectResMsg ePacket) {
         if((int) request.address == request.id) {
             //This is an initiating request. Should we forward it or go to
             //memory?
-            bool isForwarded = g_toForward[g_hierClass][request.dest][request.coType].Generate() == 0;
+            bool isForwarded = g_toForward[g_hierClass][request.dest][request.coType].Generate(0) == 0;
 
             if(isForwarded) {
-                int destination = g_forwardDest[g_hierClass][state][request.dest].Generate();
+                int destination = g_forwardDest[g_hierClass][state][request.dest].Generate(0);
                 destination = destination*2;
                 if(destination % 2 != 0) {
                     cerr << "Error: Invalid destination for forwarded request." << endl;
@@ -312,7 +312,7 @@ void react(EjectResMsg ePacket) {
 
                 if(request.coType == WRITE) {
                     //How many invalidates to send
-                    int numInv = g_numInv[g_hierClass][state][request.dest].Generate();
+                    int numInv = g_numInv[g_hierClass][state][request.dest].Generate(0);
                     int s = state;
 
                     if(numInv <= 0) {
@@ -324,7 +324,7 @@ void react(EjectResMsg ePacket) {
                     set<int> destinations;
                     destinations.insert(destination); //Request already forwarded here
                     while(destinations.size() != (unsigned int) numInv) {
-                        int dest = g_invDest[g_hierClass][s][request.dest].Generate();
+                        int dest = g_invDest[g_hierClass][s][request.dest].Generate(0);
                         dest = dest*2;
                         destinations.insert(dest);
                     }
@@ -453,7 +453,7 @@ void Run(unsigned int numCycles, bool ssExit, unsigned int numPackets) {
 
                 if(cycle != 0) {
                     lastHState = g_hierClass;
-                    g_hierClass = g_hierState[g_hierClass].Generate() + 1;
+                    g_hierClass = g_hierState[g_hierClass].Generate(0) + 1;
                     reset_ss();
                 }
 
@@ -474,7 +474,7 @@ void Run(unsigned int numCycles, bool ssExit, unsigned int numPackets) {
                 if(cycle != 0) {
                     //Update state
                     lastState = state;
-                    state = g_states1[g_hierClass][state].Generate() + 1;
+                    state = g_states1[g_hierClass][state].Generate(0) + 1;
                 }
 
                 //Queue up initiating messages for injection

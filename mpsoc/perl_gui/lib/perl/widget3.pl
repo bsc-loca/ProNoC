@@ -1975,7 +1975,8 @@ sub gen_list_store {
 		my $renderer = Gtk3::CellRendererText->new;
 		my $column = Gtk3::TreeViewColumn->new_with_attributes ("$l",
 							       $renderer,
-							       text => $c );
+							       text => $c
+							       );
 		$column->set_sort_column_id ($c );
 		$treeview->append_column ($column);
 		$c++;

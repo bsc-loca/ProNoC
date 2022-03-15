@@ -1,7 +1,7 @@
 Verification Results:
-****************************Fattree_k3_L3_st : Compile *******************************:
+****************************bintree_k3_L3_st : Compile *******************************:
 	 model is generated successfully.
-****************************Fattree_k3_L3_st	: random traffic *******************************:
-	 Passed:   zero load (5,13.7076) saturation (80,170.388)
-****************************Fattree_k3_L3_st	: transposed 1 traffic *******************************:
-	 Passed:   zero load (5,13.4744) saturation (100,-)
+****************************bintree_k3_L3_st	: random traffic *******************************:
+	 Passed:   zero load (5,16.0881) saturation (30,737.172)
+****************************bintree_k3_L3_st	: transposed 1 traffic *******************************:
+	 Passed:   zero load (5,15.6274) saturation (30,408.757)
