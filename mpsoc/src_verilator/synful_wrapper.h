@@ -40,7 +40,7 @@ void synful_final_report(){
 
 	if(verbosity==1) 	printf("\e[?25h");//To re-enable the cursor:
 	printf("\nSynful simulation results-------------------\n"
-			"\tSynful  end clock cycles: %llu\n"
+			"\tSimulation clock cycles: %llu\n"
 	,synful_cycle);
 	print_statistic_new (synful_cycle);
 }

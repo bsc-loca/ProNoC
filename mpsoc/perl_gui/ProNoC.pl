@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl 
 package ProNOC;
 
 
@@ -67,7 +67,8 @@ $| = 1;
 
 
 sub main{
-	# check if envirement variables are defined
+	# check if environment variables are defined
+	#STDERR->autoflush ;
 	my $project_dir	  = get_project_dir(); #mpsoc dir addr
 	my $paths_file= "$project_dir/mpsoc/perl_gui/lib/Paths";
 	if (-f 	$paths_file){#} && defined $ENV{PRONOC_WORK} ) {

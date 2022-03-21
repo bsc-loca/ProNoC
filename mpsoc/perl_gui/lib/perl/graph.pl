@@ -8,7 +8,6 @@ use constant::boolean;
 
 
 
-
 sub gen_multiple_charts{
 	my ($self,$pageref,$charts_ref,$image_scale)=@_;
 	my @pages=@{$pageref};
@@ -181,13 +180,113 @@ sub gen_graph {
 }
 
 
+
+
 sub gen_heat_map{
 	my ($self,$chart,@selects)=@_;
+	
+	my $page_id= "P$chart->{page_num}";
+	my $graph_id= $page_id."$chart->{graph_name}";
+	my $result_name= $chart->{result_name};
+	
+	
 	my $table = def_table (25, 10, FALSE);
 	
+	my $plus = def_image_button('icons/plus.png',undef,TRUE);
+	my $minues = def_image_button('icons/minus.png',undef,TRUE);
+	my $setting = def_image_button('icons/setting.png',undef,TRUE);
+	my $save = def_image_button('icons/save.png',undef,TRUE);
+	
+	my @samples =$self->object_get_attribute_order("samples");	
+	@samples = ('-') if (scalar @samples == 0);
+	my $sample_combx=gen_combobox_object ($self,${graph_id},"sample_sel",join(",", @samples),$samples[0],'ref',2);
+	my $sample = $self->object_get_attribute("${graph_id}","sample_sel");
+	my $ref=$self->object_get_attribute ($sample,$result_name);
+	my @ratios;
+	@ratios = get_uniq_keys($ref,@ratios);
+	@ratios = ('-') if (!defined $ratios[0]);
+	my $rcnt = join(",", @ratios); 
+	my $ratio_combx=gen_combobox_object ($self,${graph_id},"ratio_sel",$rcnt,$ratios[0],'ref',2);
+	my $content=join( ',', @selects); 
+    my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0],'ref',2); 
+	
+	my $image ="$ENV{PRONOC_WORK}/tmp/heatmap.png";
+	
+	my $t = def_table (25, 10, FALSE);
+	#my $dotfile= generate_heat_map_dot_file(undef,40);
+	my $enable= $self->object_get_attribute("Heat-map","regen");
+	$enable = 0 if (!defined $enable);
+	if ($enable==1){
+		
+		
+		generate_heat_map_img_file(undef,40,$image);
+		$self->object_add_attribute("Heat-map","regen",0);
+		
+	}
+	
+	my $r_sel = $self->object_get_attribute("${graph_id}","ratio_sel"); 
+	my $dat;
+	$dat=  $ref->{$r_sel} if (defined $ref->{$r_sel});	 
+	my $scrolled_win = ($chart->{'graph_name'} eq 'Select')?  add_widget_to_scrolled_win($t) : add_widget_to_scrolled_win( generate_heat_map_table($dat,12));
+	
+	      
+     my $scale= $self->object_get_attribute("${graph_id}","scale");
+	 if(!defined $scale){
+	 	$scale = .5; 
+	 	$self->object_add_attribute("${graph_id}","scale", $scale );
+	 }
+     
+   #  my $scrolled_win = add_widget_to_scrolled_win($t);
+	# show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png");	
+      
+      
+    $minues -> signal_connect("clicked" => sub{ 
+		$scale*=.9  if ($scale >0.1);
+		$self->object_add_attribute("${graph_id}","scale", $scale );
+		# show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png");	
+	});	
+
+	$plus  -> signal_connect("clicked" => sub{ 
+		$scale*=1.1 if ($scale <10);
+		
+		$self->object_add_attribute("${graph_id}","scale", $scale );
+		# show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png");	
+	});	  
+    
+    
+  
+    
+   
+    $table->attach_defaults ($scrolled_win , 0, 9, 0, 24);
+	my $row=0;
 	
 	
-	return $table;
+	
+	
+	
+	$table->attach ($active_page, 9, 10, $row, $row+1,'shrink','shrink',2,2);$row++;
+	$table->attach ($sample_combx, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+	$table->attach (gen_label_in_center("Injection-Ratio/"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+	$table->attach (gen_label_in_center("Task-file index"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+	$table->attach ($ratio_combx, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+    
+	
+	$table->attach ($plus , 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+	$table->attach ($minues, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+	$table->attach ($setting, 9, 10, $row,  $row+1,'shrink','shrink',2,2); $row++;
+	$table->attach ($save, 9, 10, $row,  $row+1,'shrink','shrink',2,2); $row++;
+	while ($row<10){
+		my $tmp=gen_label_in_left('');
+		$table->attach_defaults ($tmp, 9, 10, $row,  $row+1);$row++;
+	}
+		
+    return $table;
+        
+	
+    
+	
+	
+	
 	
 }
 
@@ -412,7 +511,7 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 	my $scale= $self->object_get_attribute("${graph_id}_graph_scale",undef);
 	$scale = 5 if(!defined $scale);
 	$minues -> signal_connect("clicked" => sub{ 
-	$self->object_add_attribute("${graph_id}_graph_scale",undef,$scale*1.05);
+		$self->object_add_attribute("${graph_id}_graph_scale",undef,$scale*1.05);
 			set_gui_status($self,"ref",1);	
 	});	
 
@@ -435,12 +534,12 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 		
 		
 		
-	$table->attach_defaults ($align , 0, 9, 0, 25);
+	$table->attach_defaults ($align , 0, 9, 0, 24);
 	my $row=0;
+	$table->attach ($active_page, 0, 9, 24, 25,'shrink','shrink',2,2);	
 	$table->attach (gen_label_in_center("Injection-Ratio/"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 	$table->attach (gen_label_in_center("Task-file index"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
-	$table->attach ($ratio_combx, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
-	$table->attach ($active_page, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+	$table->attach ($ratio_combx, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;	
 	$table->attach ($dimension, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 		
 	#$table->attach ($plus , 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
@@ -452,6 +551,8 @@ my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0
 		my $tmp=gen_label_in_left('');
 		$table->attach_defaults ($tmp, 9, 10, $row,  $row+1);$row++;
 	}
+		
+	
 		
     return $table;
 }

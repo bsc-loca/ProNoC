@@ -822,7 +822,13 @@ sub get_color {
 	0x800080,#Purple
 	0x4B0082,#Indigo
 	0xFFFFFF,#white	
-	0x000000 #Black		
+	0x000000, #Black		
+		#heatmap
+	0xbdff00, #	(189,255,0)
+	0xe3f018, #	(227,240,24)
+	0xffce00, #	(255,206,0)
+	0xff6612, #	(255,102,18)
+	0xc12424, #	(193,36,36)
 		);
 	
 	my $color= 	($num< scalar (@colors))? $colors[$num]: 0xFFFFFF;	
@@ -870,7 +876,15 @@ sub get_color_hex_string {
 	"800080",#Purple
 	"4B0082",#Indigo
 	"FFFFFF",#white	
-	"000000" #Black		
+	"000000", #Black	
+		#heatmap
+	"bdff00", #	(189,255,0)
+	"e3f018", #	(227,240,24)
+	"ffce00", #	(255,206,0)
+	"ff6612", #	(255,102,18)
+	"c12424", #	(193,36,36)
+	
+		
 		);
 	
 	my $color= 	($num< scalar (@colors))? $colors[$num]: "FFFFFF";	
@@ -1063,7 +1077,7 @@ sub generate_and_show_graph_using_graphviz {
 	$scale= 1 if (!defined $scale);	
 	my $diagram;
 	
-	my $cmd = "echo \'$dotfile\' | dot -Tpng";
+	my $cmd = "echo \'$dotfile\' | dot -Tpng -q";
 	my ($stdout,$exit,$stderr)= run_cmd_in_back_ground_get_stdout ($cmd);
 	if ( length( $stderr || '' ) !=0)  {
 		message_dialog("$stderr\nHave you installed graphviz? If not run \n \t \"sudo apt-get install graphviz\" \n in terminal",'error');

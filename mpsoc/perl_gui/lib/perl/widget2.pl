@@ -2047,6 +2047,8 @@ sub run_cmd_in_back_ground_get_stdout
 	my $cmd=shift;
 	my $exit;
 	my ($stdout, $stderr);
+	STDOUT->flush();
+	STDERR->flush();
 	capture { $exit=run_cmd_in_back_ground($cmd) } \$stdout, \$stderr;
 	return ($stdout,$exit,$stderr);
 	

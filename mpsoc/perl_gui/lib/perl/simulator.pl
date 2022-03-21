@@ -1395,9 +1395,31 @@ sub extract_and_update_noc_sim_statistic {
 		update_result($simulate,$sample,"worst_delay_rsvd_result",$ratio_in,$p,$statistcs{$p}{'rsvd_stat.worst_latency'});
 		update_result($simulate,$sample,"packet_sent_result",$ratio_in,$p,$statistcs{$p}{'sent_stat.pck_num'} );
 		update_result($simulate,$sample,"worst_delay_sent_result",$ratio_in,$p,$statistcs{$p}{'sent_stat.worst_latency'});
+		update_result($simulate,$sample,"flit_rsvd_result",$ratio_in,$p,$statistcs{$p}{'rsvd_stat.flit_num'});
+		update_result($simulate,$sample,"flit_sent_result",$ratio_in,$p,$statistcs{$p}{'sent_stat.flit_num'});
 	}	
 	
-	my %st = extract_st_by_name("Endp_to_Endp flit_num",$stdout);
+	my %st1 = extract_st_by_name("Endp_to_Endp flit_num:",$stdout);
+	update_result($simulate,$sample,"endp-endp-flit_result",$ratio_in,\%st1);
+	
+	my %st2 = extract_st_by_name("Endp_to_Endp pck_num:",$stdout);
+	update_result($simulate,$sample,"endp-endp-pck_result",$ratio_in,\%st2);
+	
+	my %st3 = extract_st_by_name("Routers' statistics:",$stdout);
+	foreach my $p (sort keys %st3){
+		update_result($simulate,$sample,"flit_per_router_result",$ratio_in,$p,$st3{$p}{'flit_in'});
+		update_result($simulate,$sample,"packet_per_router_result",$ratio_in,$p,$st3{$p}{'pck_in'});
+		my $tmp= ($st3{$p}{'flit_in_buffered'}*100) / $st3{$p}{'flit_in'};
+		#print " $tmp= ($st3{$p}{'flit_in_buffered'}*100) / $st3{$p}{'flit_in'};\n";
+		update_result($simulate,$sample,"flit_buffered_router_ratio",$ratio_in,$p,$tmp);
+		$tmp= ($st3{$p}{'flit_in_bypassed'}*100) / $st3{$p}{'flit_in'};
+		update_result($simulate,$sample,"flit_bypass_router_ratio",$ratio_in,$p,$tmp);
+		
+	}
+	
+	#my $p= $simulate->object_get_attribute ($sample,"noc_info");    
+   # my $TOPOLOGY=$p->{"TOPOLOGY"};
+	#print "$TOPOLOGY\n";
 	
 	
 }
@@ -1531,7 +1553,7 @@ sub run_trace_simulation{
 		my $EXIT_STEADY=$simulate->object_get_attribute ($sample,"EXIT_STEADY");
 		
 		my $models_dir  = get_project_dir()."/mpsoc/src_c/synfull/generated-models/";	
-		$cmd .="-S $models_dir/$model.model -n $PCK_NUM_LIMIT -r $RND_SEED 	-c $SIM_CLOCK_LIMIT ";
+		$cmd .="-S $models_dir/$model.model -n $PCK_NUM_LIMIT -r $RND_SEED 	-c $SIM_CLOCK_LIMIT -v 0 ";
 		$cmd .=" -s " if ($EXIT_STEADY eq "1\'b1");
 		
 		
@@ -1748,11 +1770,11 @@ sub simulator_main{
 	
 
 my @pages =(
-	{page_name=>" Avg. throughput/latency", page_num=>0},
-	{page_name=>" Injected Packet ", page_num=>1},
-	{page_name=>" Worst-Case Delay ",page_num=>2},
-	{page_name=>" Execution Time ",page_num=>3},
-	{page_name=>" Endp.-to-Endp. ",page_num=>4},
+	{page_name=>" Average/Total ", page_num=>0},
+	{page_name=>" Per node ", page_num=>1},
+	#{page_name=>" Worst-Case Delay ",page_num=>2},
+	#{page_name=>" Execution Time ",page_num=>3},
+	{page_name=>" Heat-Map. ",page_num=>4},
 );
 
 
@@ -1763,20 +1785,40 @@ my @charts = (
   	{ type=>"2D_line", page_num=>0, graph_name=> "Avg. flit Latency per hop", result_name => "latency_perhop_result", X_Title=> 'Desired Avg. Injected Load Per Router (flits/clock (%))', Y_Title=>'Avg. Flit Latency per hop (clock)', Z_Title=>undef, Y_Max=>100},
     { type=>"2D_line", page_num=>0, graph_name=> "Avg. throughput", result_name => "throughput_result", X_Title=> 'Desired Avg. Injected Load Per Router (flits/clock (%))', Y_Title=>'Avg. Throughput (flits/clock (%))', Z_Title=>undef,Y_Max=>100},
   	{ type=>"2D_line", page_num=>0, graph_name=> "Avg. SD latency", result_name => "sd_latency_result", X_Title=> 'Desired Avg. Injected Load Per Router (flits/clock (%))', Y_Title=>'Latency Standard Deviation (clock)', Z_Title=>undef},
-	
 	{ type=>"2D_line", page_num=>0, graph_name=> "Worst pck latency (clk)", result_name => "worst_latency_result", X_Title=> 'Desired Avg. Injected Load Per Router (flits/clock (%))', Y_Title=>'Worst Packet Latency (clock)', Z_Title=>undef},
 	{ type=>"2D_line", page_num=>0, graph_name=> "Min pck latency (clk)", result_name => "min_latency_result", X_Title=> 'Desired Avg. Injected Load Per Router (flits/clock (%))', Y_Title=>'Minimum Packet Latency (clock)', Z_Title=>undef},
 	{ type=>"2D_line", page_num=>0, graph_name=> "Total injected pck", result_name =>"injected_pck_total" , X_Title=> 'Desired Avg. Injected Load Per Router (flits/clock (%))', Y_Title=>'Total Injected packets', Z_Title=>undef},
 	{ type=>"2D_line", page_num=>0, graph_name=> "Total injected flit",result_name =>"injected_flit_total", X_Title=> 'Desired Avg. Injected Load Per Router (flits/clock (%))', Y_Title=>'Total Injected Fslits', Z_Title=>undef},
+	{ type=>"2D_line", page_num=>0, graph_name=> "Execuation Cycles", result_name => "exe_time_result",X_Title=>'Desired Avg. Injected Load Per Router (flits/clock (%))' , Y_Title=>'Total Simulation Time (clk)', Z_Title=>undef},
 	
 	
 
-	{ type=>"3D_bar",  page_num=>1, graph_name=> "Received", result_name => "packet_rsvd_result", X_Title=>'Core ID' , Y_Title=>'Received Packets Per Router', Z_Title=>undef},
-	{ type=>"3D_bar",  page_num=>1, graph_name=> "Sent", result_name => "packet_sent_result", X_Title=>'Core ID' , Y_Title=>'Sent Packets Per Router', Z_Title=>undef},
-	{ type=>"3D_bar",  page_num=>2, graph_name=> "Received", result_name => "worst_delay_rsvd_result",X_Title=>'Core ID' , Y_Title=>'Worst-Case Delay (clk)', Z_Title=>undef},
-	{ type=>"3D_bar",  page_num=>2, graph_name=> "Sent", result_name => "worst_delay_sent_result",X_Title=>'Core ID' , Y_Title=>'Worst-Case Delay (clk)', Z_Title=>undef},
-	{ type=>"2D_line", page_num=>3, graph_name=> "-", result_name => "exe_time_result",X_Title=>'Desired Avg. Injected Load Per Router (flits/clock (%))' , Y_Title=>'Total Simulation Time (clk)', Z_Title=>undef},
-	{ type=>"Heat-map", page_num=>4, graph_name=> "Flit-num", result_name => "endp-endp-flit",X_Title=>'total flit number sent from an endpoint to another' , Y_Title=> undef, Z_Title=>undef},
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Received packets per Endp", result_name => "packet_rsvd_result", X_Title=>'Endpoint ID' , Y_Title=>'Received Packets Per Endpoint', Z_Title=>undef},
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Sent packets per Endp", result_name => "packet_sent_result", X_Title=>'Endpoint ID' , Y_Title=>'Sent Packets Per Endpoint', Z_Title=>undef},
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Received flits per Endp", result_name => "flit_rsvd_result", X_Title=>'Endpoint ID' , Y_Title=>'Received Flits Per Endpoint', Z_Title=>undef},
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Sent flits per Endp", result_name => "flit_sent_result", X_Title=>'Endpoint ID' , Y_Title=>'Sent Packets Flits Endpoint', Z_Title=>undef},
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Flits per Router", result_name => "flit_per_router_result", X_Title=>'Router ID' , Y_Title=>'Received Flits Per Router', Z_Title=>undef},
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Packets per Router", result_name => "packet_per_router_result", X_Title=>'Router ID' , Y_Title=>'Received Packets Per Router', Z_Title=>undef},
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Worst Received pck latency per Endp", result_name => "worst_delay_rsvd_result",X_Title=>'Endpoint ID' , Y_Title=>'Worst-Case Delay (clk)', Z_Title=>undef},
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Worst Sent pck latency per Endp", result_name => "worst_delay_sent_result",X_Title=>'Endpoint ID' , Y_Title=>'Worst-Case Delay (clk)', Z_Title=>undef},
+	
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Buffered Flit in Ratio Per Router", result_name => "flit_buffered_router_ratio",X_Title=>'Router ID' , Y_Title=>'Flit in buffered in router/Flit in (%)', Z_Title=>undef},
+	{ type=>"3D_bar",  page_num=>1, graph_name=> "Bypassed Flit in Ratio Per Router", result_name => "flit_bypass_router_ratio",X_Title=>'Router ID' , Y_Title=>'Flit in bypassed in router/Flit in (%)', Z_Title=>undef},
+	
+	
+	
+	
+		
+	
+	
+	
+	
+	
+	
+	
+	{ type=>"Heat-map", page_num=>4, graph_name=> "Select", result_name => "undef",X_Title=>'-' , Y_Title=> undef, Z_Title=>undef},
+	{ type=>"Heat-map", page_num=>4, graph_name=> "Endp-2-Endp Flit-num", result_name => "endp-endp-flit_result",X_Title=>'total flit number sent from an endpoint to another' , Y_Title=> undef, Z_Title=>undef},
+	{ type=>"Heat-map", page_num=>4, graph_name=> "Endp-2-Endp Packet-num", result_name => "endp-endp-pck_result",X_Title=>'total packet number sent from an endpoint to another' , Y_Title=> undef, Z_Title=>undef},
 	
 	
 	);

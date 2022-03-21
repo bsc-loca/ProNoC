@@ -376,7 +376,8 @@ void netrace_final_report(){
 			"\tNetrace end clock cycles: %llu\n"
 			"\tNetrace duration clock cycles: %llu\n"
 			"\tProNoC  duration clock cycles: %llu\n"
-	,nt_cycle,total_clock,pronoc_total_clock);
+			"\tSimulation clock cycles: %llu\n"
+	,nt_cycle,total_clock,pronoc_total_clock,pronoc_total_clock);
 
 	print_statistic_new (pronoc_total_clock);
 	printf("Netrace simulation results-------------------\n");

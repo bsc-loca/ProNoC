@@ -11,7 +11,7 @@ require "widget.pl";
 require "emulator.pl";
 use File::Copy;
 
-
+use Chart::Gnuplot;
 
 
 sub get_dot_file{
@@ -304,7 +304,7 @@ sub show_topology_diagram {
 		
 	});	
 	$minues  -> signal_connect("clicked" => sub{ 
-		$scale*=.9  if ($scale >0.1); ;
+		$scale*=.9  if ($scale >0.1);
 		$self->object_add_attribute("topology_diagram","scale", $scale );
 		gen_show_diagram($self,$scrolled_win,'topology',"topology_diagram");	
 	});
@@ -390,8 +390,8 @@ sub gen_diagram {
 
 
 sub show_diagram {
-	my ($self,$scrolled_win,$name)=@_;	
-	
+	my ($self,$scrolled_win,$name,$image_name)=@_;	
+	$image_name="diagram.png" if (!defined "diagram.png");
 	my @list = $scrolled_win->get_children();
 	foreach my $l (@list){ 
 		$scrolled_win->remove($l);			
@@ -401,7 +401,7 @@ sub show_diagram {
 	my $scale=$self->object_get_attribute($name,"scale");
 	$scale= 1 if (!defined $scale);
 	my $tmp_dir  = "$ENV{'PRONOC_WORK'}/tmp";
-	my $diagram=open_image("$tmp_dir/diagram.png",70*$scale,70*$scale,'percent');
+	my $diagram=open_image("$tmp_dir/$image_name",70*$scale,70*$scale,'percent');
 	
 	add_widget_to_scrolled_win($diagram,$scrolled_win);
 	$scrolled_win->show_all();	
@@ -669,6 +669,147 @@ sub node_connection2{
 ##################################
 #
 ##################################
+
+
+
+
+sub generate_heat_map_table{
+	my ($d)=@_ ;
+	
+	return def_table (1, 1, FALSE) if (!defined $d);
+	my %data=%{$d};
+	my @xs = (sort {$a<=>$b} keys %data);
+	
+	
+	
+	
+	my $max=0;
+	#for(my $y=0; $y<$dim; $y++){ 		
+	#	for(my $x=0; $x<$dim; $x++){    
+		foreach my $y (@xs){
+			foreach my $x (@xs){
+			#$data{$x}{$y}=int(rand(50000));
+			#$data{$x}{$y}=$y*64+$x;
+			$max = $data{$x}{$y} if( $max < $data{$x}{$y});
+		}
+	}
+	
+
+	my $width_max = length int $max;
+	
+	my $table = def_table (1, 1, FALSE);
+	
+	#for(my $y=0; $y<$dim; $y++){ 
+	foreach my $y (@xs){
+		my $l=gen_label_in_center("$y");
+		$table->attach ($l,	$y+1,$y+2,0,1,'expand','shrink',2,2);  	
+	}			
+	#for(my $x=0; $x<$dim; $x++){
+	foreach my $x (@xs){
+		my $l=gen_label_in_center("$x");
+		$table->attach ($l,	0,1,$x+1,$x+2,'expand','shrink',2,2);  	
+	}
+	
+	#for(my $y=0; $y<$dim; $y++){ 		
+	#	for(my $x=0; $x<$dim; $x++){
+		foreach my $y (@xs){
+			foreach my $x (@xs){
+			my $d=$data{$x}{$y}; 
+			my $c = int (((5*$d))/($max+1));
+			my $v = length int $d;
+			until ($v >= $width_max){
+				$d="  ".$d;
+				$v++;
+			}   
+		
+  		my $l =gen_colored_label( "   " ,32+$c);	
+  		set_tip($l,"E[$x]->E[$y]=$d");
+  		$table->attach ($l, $y+1,$y+2,$x+1,$x+2,'expand','shrink',2,2);  		  
+  	}
+  
+  }   
+   return $table;
+  
+} 
+
+
+sub generate_heat_map_img_file{
+	my ($data,$dim,$image_file)=@_ ;
+	my @data;
+	for(my $y=0; $y<$dim; $y++){ 		
+		for(my $x=0; $x<$dim; $x++){      
+  		my @a=($x,$y, int(rand(64)));
+  		push (@data ,\@a);    
+  	}
+    my @b;
+  	push (@data ,\@b);    
+  }   
+
+my $chart = Chart::Gnuplot->new(
+    bg         => 'white',
+    pm3d       => 'map',
+   palette    => 'defined (0 0 0 1, 1 1 1 0, 2 1 0 0)',
+    output     => "$image_file",
+    title      => "3D plot from arrays of x, y and z coordinates",
+    xlabel     => 'x',
+    ylabel     => 'y',
+   # xtics      => {
+       # labels   => ['"0030" 0', '"0100" 1', '"0130" 2', '"0200" 3'],
+  #      rotate   => 90,
+  #  },
+   # ytics      => {
+       # labels   => ['"04-Oct" 0', '"03-Oct" 1', '"02-Oct" 2', '"01-Oct" 3'],
+  #  },
+);
+my $dataSet = Chart::Gnuplot::DataSet->new( points => \@data );
+$chart->plot3d($dataSet);
+	
+	
+	
+	
+	
+}
+
+
+
+sub generate_heat_map_dot_file{
+	my ($data,$dim)=@_ ;
+	my $dotfile=
+"digraph G {
+	graph [layout = neato, rankdir = RL , splines = true, overlap = true]; 
+	node[shape=record];	
+	";
+	for(my $y=0; $y<$dim; $y++){ 		
+		for(my $x=0; $x<$dim; $x++){
+			my $tx=$x*2+0.5;
+			my $ty=($dim-$y-1)*2+0.5;		
+			my $w=2;
+		
+		    $tx/=2;
+			$ty/=2;		
+			$w/=2;
+		
+			
+			$dotfile.="
+					\"t${x}_$y\"[
+	label = \"8822255\"
+    pos = \"$tx,$ty!\"
+    width =$w
+    height=$w  
+	style=filled
+	fontsize=\"12\"
+	fillcolor=orange
+    
+];
+"					
+		}
+	}
+	
+	$dotfile=$dotfile."\n}\n";
+	return $dotfile;
+	
+}
+
 
 
 sub generate_mesh_dot_file{

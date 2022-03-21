@@ -2189,6 +2189,7 @@ sub run_cmd_in_back_ground
     # This while loop will cause Gtk3 to continue processing events, if
     # there are events pending... *which there are...
     while (Gtk3::events_pending) {
+     
       Gtk3::main_iteration;
     }
     Gtk3::Gdk::flush;
@@ -2226,17 +2227,20 @@ sub run_cmd_in_back_ground_get_stdout
 	my $exit;
 	my ($stdout, $stderr);	
 	
-	open(OLDERR, ">&STDERR");
-	open(STDERR, ">>/tmp/tmp.spderr") or die "Can't dup stdout";
-	select(STDOUT); $| = 1;     # make unbuffered
-	print OLDERR "";  #this fixed an error about OLDERR not being used 
+	#open(OLDERR, ">&STDERR");
+	#open(STDERR, ">>/tmp/tmp.spderr") or die "Can't dup stdout";
+	#select(STDOUT); $| = 1;     # make unbuffered
+	#print OLDERR "";  #this fixed an error about OLDERR not being used 
 
 ## do my stuff here.
 	
+	STDOUT->flush();
+	STDERR->flush();
+	
 	capture { $exit=run_cmd_in_back_ground($cmd) } \$stdout, \$stderr;
 	
-	close(STDERR);
-	open(STDERR, ">&OLDERR");
+	#close(STDERR);
+	#open(STDERR, ">&OLDERR");
 	return ($stdout,$exit,$stderr);
 	
 }		
