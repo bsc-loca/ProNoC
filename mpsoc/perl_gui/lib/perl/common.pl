@@ -17,6 +17,17 @@ use IPC::Run qw(start pump finish timeout pumpable);
 use FindBin;
 use lib $FindBin::Bin;
 use constant::boolean;
+use IO::CaptureOutput qw(capture qxx qxy);
+
+
+our %glob_setting;
+$glob_setting{'FONT_SIZE'}='default';
+$glob_setting{'ICON_SIZE'}='default';
+$glob_setting{'DSPLY_X'}  ='default';
+$glob_setting{'DSPLY_Y'}  ='default';
+
+
+
 
 sub log2{
 	my $num=shift;
@@ -445,7 +456,7 @@ sub source_file {
     while (<$fh>) {
         chomp;
         #FIXME: this regex isn't quite good enough
-        next unless my ($var, $value) = /\s*(\w+)=([^#]+)/;
+        next unless my ($var, $value) = /\s*(\w+)=([^#]+)/; 
         $ENV{$var} = $value;
     }
     return undef;
@@ -1336,6 +1347,61 @@ sub get_file_list_by_extention {
 		}		
 	}
 	return 	($file_list,\@files);
+}
+
+
+
+
+sub set_gui_setting{
+	my $paths=shift;
+	my %p=%{$paths};
+	$glob_setting{'FONT_SIZE'}= $p{'GUI_SETTING'}{'FONT_SIZE'} if (defined $p{'GUI_SETTING'}{'FONT_SIZE'});
+	$glob_setting{'ICON_SIZE'}= $p{'GUI_SETTING'}{'ICON_SIZE'} if (defined $p{'GUI_SETTING'}{'ICON_SIZE'});
+	$glob_setting{'DSPLY_X'}  = $p{'GUI_SETTING'}{'DSPLY_X'}   if (defined $p{'GUI_SETTING'}{'DSPLY_X'});
+	$glob_setting{'DSPLY_Y'}  = $p{'GUI_SETTING'}{'DSPLY_Y'}   if (defined $p{'GUI_SETTING'}{'DSPLY_Y'});
+}
+
+my ($screen_x,$screen_y);
+
+sub get_default_screen_size{
+	return  ($screen_x,$screen_y) if (defined $screen_x && defined $screen_y);
+	
+	my $fh= 'xrandr --current | awk \'$2~/\*/{print $1}\'' ;
+	my ($stdout, $stderr, $success) = qxx( ($fh) );
+	my @a = split ("\n",$stdout);
+	($screen_x,$screen_y) = split ("x",$a[0]);
+	$screen_x = 600 if(!defined $screen_x);
+	$screen_y = 800 if(!defined $screen_y);
+	return  ($screen_x,$screen_y);
+} 
+
+
+sub get_current_monitor_working_area{
+    my $screen = get_default_screen();
+	my $hight = $screen->get_height(); 
+	my $active = $screen->get_active_window();
+	my $monitor =	$screen->get_monitor_at_window($active);
+	my $warea = $screen->get_monitor_workarea($monitor);#get_width(); 
+	#print  Data::Dumper->Dump ([$warea],['ttt']);  
+	return ($warea->{'width'},$warea->{'height'});
+}
+
+
+
+
+sub max_win_size {
+	my ($x,$y);
+	$x= int($glob_setting{'DSPLY_X'}) if ($glob_setting{'DSPLY_X'} ne 'default');
+	$y= int($glob_setting{'DSPLY_Y'}) if ($glob_setting{'DSPLY_Y'} ne 'default');
+	if (!defined $x || !defined $y){
+		my ($X,$Y)=get_current_monitor_working_area();
+		$x=$X if (!defined $x);
+		$y=$Y if (!defined $y);
+	}
+	
+	return ($x,$y); 
+	 
+	
 }
 
 
