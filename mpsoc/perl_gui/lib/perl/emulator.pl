@@ -370,14 +370,24 @@ sub gen_emulation_column {
 			
 			 $l=def_image_button('icons/diagram.png',$name);
 			 $l-> signal_connect("clicked" => sub{ 
+			 	
+			 	__PACKAGE__->mk_accessors(qw{noc_param});
+				my $temp = __PACKAGE__->new();
+			 
+			 	
+						 	
 			 	my $st = ($mode eq "simulate" )?  check_sim_sample($emulate,$sample,$info)   : check_sample($emulate,$sample,$info); 
 			 	return if $st==0;
 			 	my ($topology, $T1, $T2, $T3, $V, $Fpay) = get_sample_emulation_param($emulate,$sample);		
-			 	$emulate->object_add_attribute('noc_param','T1',$T1);
-			 	$emulate->object_add_attribute('noc_param','T2',$T2);
-			 	$emulate->object_add_attribute('noc_param','T3',$T3);
-			 	$emulate->object_add_attribute('noc_param','TOPOLOGY',$topology);
-        		show_topology_diagram ($emulate);
+			  	my $ref=$emulate->object_get_attribute($sample,"noc_info"); 
+			 	if (defined $ref){
+			 		my %noc_info= %$ref;			 	
+			 		foreach my $p (sort keys %noc_info){
+			 			$temp->object_add_attribute('noc_param',$p,$noc_info{$p});			 		
+			 		} 		
+			 	}			 	
+			 	
+        		show_topology_diagram ($temp);
     		 });
     		 
     		 my $traffic = def_button("Pattern");

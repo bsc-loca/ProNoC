@@ -248,14 +248,48 @@ sub gen_show_diagram{
 
 
 sub show_topology_diagram {
-	my $self= shift;
-
+	my ($self)= @_;
+	
 	my $table=def_table(20,20,FALSE);
 	
 	my $window=def_popwin_size(80,80,"NoC-based MPSoC topology block diagram",'percent');	
 	my $scrolled_win = add_widget_to_scrolled_win();
 	
-	$window->add ($table);
+	
+	my $notebook = gen_notebook();
+	$notebook->set_tab_pos ('top');
+	$notebook->set_scrollable(TRUE);
+	$window->add($notebook);
+	
+	
+	
+	
+	my @data;	
+	my $ref =$self->object_get_attribute('noc_param');
+	if(defined $ref){
+		my %param=%{$ref};
+		foreach my $p (sort keys %param){
+			push (@data, {0 => "$p", 1 =>"$param{$p}"});
+		}		
+	}
+	
+	# create list store
+	my @clmn_type =  ('Glib::String',  'Glib::String'); 
+	my @clmns = (" Parameter Name   ", " Value ");
+	my $page2=add_widget_to_scrolled_win(gen_list_store (\@data,\@clmn_type,\@clmns));
+	
+	
+	
+	$notebook->append_page ($table,gen_label_with_mnemonic ("Topology diagram")) ;
+	$notebook->append_page ($page2,gen_label_with_mnemonic ("NoC parameters")) ;
+	
+	
+	
+	
+	
+	
+	
+
 
 	my $plus = def_image_button('icons/plus.png',undef,TRUE);
 	my $minues = def_image_button('icons/minus.png',undef,TRUE);
@@ -331,6 +365,7 @@ sub show_topology_diagram {
 	
 	gen_show_diagram($self,$scrolled_win,'topology',"topology_diagram");	
 	$window->show_all();
+	$notebook->set_current_page (0);
 }
 
 
