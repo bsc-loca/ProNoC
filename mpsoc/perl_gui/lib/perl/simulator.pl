@@ -735,6 +735,7 @@ sub get_simulator_noc_configuration{
 			my $s=$self->object_get_attribute($sample,"sof_file");
 			#check if injection ratios are valid
 			my $r=$self->object_get_attribute($sample,"ratios");
+			
 			my $h;
 			
 			my $t=$self->object_get_attribute($sample,"PCK_SIZ_SEL");
@@ -750,7 +751,12 @@ sub get_simulator_noc_configuration{
 				$h=	check_hotspot_parameters($self,$sample);
 			}
 			
-			if(defined $s && defined $r && !defined $h) {	
+			my $v;
+			if(defined $r ){
+					$v=check_inserted_ratios($r);
+			}
+			
+			if(defined $s && defined $r && defined $v && !defined $h) {	
 					#$set_win->destroy;
 					$set_win->hide();
 					$self->object_add_attribute("active_setting",undef,undef);
@@ -762,7 +768,7 @@ sub get_simulator_noc_configuration{
 					message_dialog($m);  
 				} elsif (! defined $r) {
 					 message_dialog("Please define valid injection ratio(s)!");
-				} else {
+				} elsif (defined $h){
 					 message_dialog("$h");					
 				}
 			}

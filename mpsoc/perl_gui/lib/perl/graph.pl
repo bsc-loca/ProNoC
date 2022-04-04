@@ -197,6 +197,9 @@ sub gen_heat_map{
 	my $setting = def_image_button('icons/setting.png',undef,TRUE);
 	my $save = def_image_button('icons/save.png',undef,TRUE);
 	
+	my $type_combo=gen_combobox_object ($self,"${graph_id}","type","Table,Image",'Table','ref',2);
+	
+	
 	my @samples =$self->object_get_attribute_order("samples");	
 	@samples = ('-') if (scalar @samples == 0);
 	my $sample_combx=gen_combobox_object ($self,${graph_id},"sample_sel",join(",", @samples),$samples[0],'ref',2);
@@ -210,31 +213,50 @@ sub gen_heat_map{
 	my $content=join( ',', @selects); 
     my $active_page=gen_combobox_object ($self,$page_id,"active",$content,$selects[0],'ref',2); 
 	
-	my $image ="$ENV{PRONOC_WORK}/tmp/heatmap.png";
+	
 	
 	my $t = def_table (25, 10, FALSE);
 	#my $dotfile= generate_heat_map_dot_file(undef,40);
-	my $enable= $self->object_get_attribute("Heat-map","regen");
-	$enable = 0 if (!defined $enable);
-	if ($enable==1){
-		
-		
-		generate_heat_map_img_file(undef,40,$image);
-		$self->object_add_attribute("Heat-map","regen",0);
-		
-	}
+	
+	
 	
 	my $r_sel = $self->object_get_attribute("${graph_id}","ratio_sel"); 
 	my $dat;
 	$dat=  $ref->{$r_sel} if (defined $ref->{$r_sel});	 
-	my $scrolled_win = ($chart->{'graph_name'} eq 'Select')?  add_widget_to_scrolled_win($t) : add_widget_to_scrolled_win( generate_heat_map_table($dat,12));
+	my $scrolled_win = add_widget_to_scrolled_win($t);
+	my $regen_img= $self->object_get_attribute("${graph_id}","regen_img");
+	$regen_img = 0 if (!defined $regen_img);
+	
+	my $heatmap_type =$self->object_get_attribute("${graph_id}","type");
+	$heatmap_type = 'Table' if (!defined $heatmap_type);
+
+   my $scale= $self->object_get_attribute("${graph_id}","scale");
+   if(!defined $scale){
+		 	$scale = .5; 
+		 	$self->object_add_attribute("${graph_id}","scale", $scale );
+	}
+
+	if($chart->{'graph_name'} ne 'Select'){
+		if ($heatmap_type eq 'image'){
+			my $image ="$ENV{PRONOC_WORK}/tmp/heatmap.png";
+			if ($regen_img==1){				
+				generate_heat_map_img_file($dat,$image);
+				$self->object_add_attribute("Heat-map","regen_img",0);
+			}			
+			if(-f $image){
+				my $diagram=open_image("$image",70*$scale,70*$scale,'percent');
+				add_widget_to_scrolled_win($diagram,$scrolled_win);
+				$scrolled_win->show_all();	
+			}
+		}
+		else{		#heatmap table
+			add_widget_to_scrolled_win( generate_heat_map_table($dat),$scrolled_win);
+			$scrolled_win->show_all();	
+		}
+	}  
 	
 	      
-     my $scale= $self->object_get_attribute("${graph_id}","scale");
-	 if(!defined $scale){
-	 	$scale = .5; 
-	 	$self->object_add_attribute("${graph_id}","scale", $scale );
-	 }
+     
      
    #  my $scrolled_win = add_widget_to_scrolled_win($t);
 	# show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png");	
@@ -261,7 +283,9 @@ sub gen_heat_map{
 	my $row=0;
 	
 	
-	
+	$type_combo-> signal_connect("changed" => sub{
+		
+	});
 	
 	
 	$table->attach ($active_page, 9, 10, $row, $row+1,'shrink','shrink',2,2);$row++;
@@ -269,7 +293,8 @@ sub gen_heat_map{
 	$table->attach (gen_label_in_center("Injection-Ratio/"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 	$table->attach (gen_label_in_center("Task-file index"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($ratio_combx, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
-    
+    $table->attach (gen_label_in_center("Graph-Type"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+    $table->attach ($type_combo, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 	
 	$table->attach ($plus , 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 	$table->attach ($minues, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;

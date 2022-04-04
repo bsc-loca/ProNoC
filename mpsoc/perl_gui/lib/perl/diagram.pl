@@ -769,16 +769,21 @@ sub generate_heat_map_table{
 
 
 sub generate_heat_map_img_file{
-	my ($data,$dim,$image_file)=@_ ;
+	my ($d,$image_file)=@_ ;
+	return  if (!defined $d);
+	my %hash=%{$d};		
 	my @data;
-	for(my $y=0; $y<$dim; $y++){ 		
-		for(my $x=0; $x<$dim; $x++){      
-  		my @a=($x,$y, int(rand(64)));
-  		push (@data ,\@a);    
-  	}
-    my @b;
-  	push (@data ,\@b);    
-  }   
+	my @xs = (sort {$a<=>$b} keys %hash);
+	foreach my $y (@xs){
+		foreach my $x (@xs){
+			my @a=($x,$y, $hash{$x}{$y});
+			push (@data ,\@a); 
+		}
+		my @b;
+  		push (@data ,\@b);    
+	}
+	
+    
 
 my $chart = Chart::Gnuplot->new(
     bg         => 'white',
