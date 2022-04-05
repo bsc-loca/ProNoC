@@ -224,8 +224,7 @@ sub gen_heat_map{
 	my $dat;
 	$dat=  $ref->{$r_sel} if (defined $ref->{$r_sel});	 
 	my $scrolled_win = add_widget_to_scrolled_win($t);
-	my $regen_img= $self->object_get_attribute("${graph_id}","regen_img");
-	$regen_img = 0 if (!defined $regen_img);
+	
 	
 	my $heatmap_type =$self->object_get_attribute("${graph_id}","type");
 	$heatmap_type = 'Table' if (!defined $heatmap_type);
@@ -236,21 +235,61 @@ sub gen_heat_map{
 		 	$self->object_add_attribute("${graph_id}","scale", $scale );
 	}
 
+	my $diagram;
+	my $map_info;
+    my $image ="$ENV{PRONOC_WORK}/tmp/heatmap.png";
 	if($chart->{'graph_name'} ne 'Select'){
-		if ($heatmap_type eq 'image'){
-			my $image ="$ENV{PRONOC_WORK}/tmp/heatmap.png";
+		if ($heatmap_type eq 'Image'){
+			
+			my $regen_img= $self->object_get_attribute("${graph_id}","regen_img");
+			$regen_img = 0 if (!defined $regen_img);
 			if ($regen_img==1){				
-				generate_heat_map_img_file($dat,$image);
-				$self->object_add_attribute("Heat-map","regen_img",0);
-			}			
-			if(-f $image){
-				my $diagram=open_image("$image",70*$scale,70*$scale,'percent');
-				add_widget_to_scrolled_win($diagram,$scrolled_win);
-				$scrolled_win->show_all();	
-			}
+				my $title= $self->object_get_attribute($page_id,"active");
+				generate_heat_map_img_file($dat,$image,$title);
+				$self->object_add_attribute("${graph_id}","regen_img",0);
+			}	
+					
+			show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png") if(-f $image);
+		
+			$minues -> signal_connect("clicked" => sub{ 
+				$scale*=.9  if ($scale >0.1);
+				$self->object_add_attribute("${graph_id}","scale", $scale );
+				show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png") if(-f $image);									
+			});	
+
+			$plus  -> signal_connect("clicked" => sub{ 
+				$scale*=1.1 if ($scale <10);		
+				$self->object_add_attribute("${graph_id}","scale", $scale );
+				show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png") if(-f $image);	
+			});	  
+		
+			$save-> signal_connect("clicked" => sub{ 
+				my $file;
+				my $title ='Save as';
+				my @extensions=('png');
+				my $open_in=undef;
+				my $dialog=save_file_dialog  ($title, @extensions);
+				$dialog->set_current_folder ($open_in) if(defined  $open_in);
+				if ( "ok" eq $dialog->run ) {
+	    			$file = $dialog->get_filename;
+					my $ext = $dialog->get_filter;
+					$ext=$ext->get_name;
+					my ($name,$path,$suffix) = fileparse("$file",qr"\..[^.]*$");
+					$file = ($suffix eq ".$ext" )? $file : "$file.$ext";
+					copy("$image","$file");
+					
+				}
+				$dialog->destroy;
+			});	
+			set_tip($save, "Save graph");
+		
+		
+		
 		}
 		else{		#heatmap table
-			add_widget_to_scrolled_win( generate_heat_map_table($dat),$scrolled_win);
+		   my $t;
+		   ($t,$map_info)=generate_heat_map_table($dat);
+			add_widget_to_scrolled_win($t ,$scrolled_win);
 			$scrolled_win->show_all();	
 		}
 	}  
@@ -262,18 +301,7 @@ sub gen_heat_map{
 	# show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png");	
       
       
-    $minues -> signal_connect("clicked" => sub{ 
-		$scale*=.9  if ($scale >0.1);
-		$self->object_add_attribute("${graph_id}","scale", $scale );
-		# show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png");	
-	});	
-
-	$plus  -> signal_connect("clicked" => sub{ 
-		$scale*=1.1 if ($scale <10);
-		
-		$self->object_add_attribute("${graph_id}","scale", $scale );
-		# show_diagram ($self,$scrolled_win,${graph_id},"heatmap.png");	
-	});	  
+   
     
     
   
@@ -284,6 +312,7 @@ sub gen_heat_map{
 	
 	
 	$type_combo-> signal_connect("changed" => sub{
+		$self->object_add_attribute("${graph_id}","regen_img",1);
 		
 	});
 	
@@ -296,18 +325,22 @@ sub gen_heat_map{
     $table->attach (gen_label_in_center("Graph-Type"), 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
     $table->attach ($type_combo, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
 	
-	$table->attach ($plus , 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
-	$table->attach ($minues, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
-	$table->attach ($setting, 9, 10, $row,  $row+1,'shrink','shrink',2,2); $row++;
-	$table->attach ($save, 9, 10, $row,  $row+1,'shrink','shrink',2,2); $row++;
+	if ($heatmap_type eq 'Image'){
+		$table->attach ($plus , 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+		$table->attach ($minues, 9, 10, $row, $row+1,'shrink','shrink',2,2); $row++;
+		$table->attach ($save, 9, 10, $row,  $row+1,'shrink','shrink',2,2); $row++;
+	}elsif(defined $map_info){
+		$table->attach ($map_info , 9, 10, $row, $row+1,'shrink','shrink',2,2); $row+=6;
+		
+	}
+	#$table->attach ($setting, 9, 10, $row,  $row+1,'shrink','shrink',2,2); $row++;
+	
 	while ($row<10){
 		my $tmp=gen_label_in_left('');
 		$table->attach_defaults ($tmp, 9, 10, $row,  $row+1);$row++;
 	}
 		
     return $table;
-        
-	
     
 	
 	

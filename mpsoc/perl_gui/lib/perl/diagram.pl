@@ -426,7 +426,7 @@ sub gen_diagram {
 
 sub show_diagram {
 	my ($self,$scrolled_win,$name,$image_name)=@_;	
-	$image_name="diagram.png" if (!defined "diagram.png");
+	$image_name="diagram.png" if (!defined $image_name);
 	my @list = $scrolled_win->get_children();
 	foreach my $l (@list){ 
 		$scrolled_win->remove($l);			
@@ -711,7 +711,7 @@ sub node_connection2{
 sub generate_heat_map_table{
 	my ($d)=@_ ;
 	
-	return def_table (1, 1, FALSE) if (!defined $d);
+	return (def_table (1, 1, FALSE),def_table (1, 1, FALSE)) if (!defined $d);
 	my %data=%{$d};
 	my @xs = (sort {$a<=>$b} keys %data);
 	
@@ -763,46 +763,75 @@ sub generate_heat_map_table{
   	}
   
   }   
-   return $table;
+  
+  my $scale = def_table (1, 1, FALSE);
+  my $v=gen_label_in_center("0");	
+  $scale->attach ($v, 1,2,0,1,'expand','shrink',2,2); 
+  for (my $i=0; $i<5; $i++){
+  	my $l =gen_colored_label( "   " ,32+$i);
+  	my $val =int( (2*$i+1)*$max/10); 
+  	my $v=gen_label_in_center($val);	
+  	$scale->attach ($v, 0,1,$i+1,$i+2,'expand','shrink',2,2); 		  
+  	$scale->attach ($l, 1,2,$i+1,$i+2,'expand','shrink',2,2); 
+  	$scale->attach (gen_label_in_center("$max"), 1,2,$i+2,$i+3,'expand','shrink',2,2) if($i==4);
+  }
+  
+  
+   return ($table,$scale);
   
 } 
 
 
 sub generate_heat_map_img_file{
-	my ($d,$image_file)=@_ ;
+	my ($d,$image_file,$title)=@_ ;
 	return  if (!defined $d);
 	my %hash=%{$d};		
 	my @data;
 	my @xs = (sort {$a<=>$b} keys %hash);
 	foreach my $y (@xs){
+		my @b;
+  		push (@data ,\@b) if ($y!=0);   
 		foreach my $x (@xs){
 			my @a=($x,$y, $hash{$x}{$y});
 			push (@data ,\@a); 
 		}
-		my @b;
-  		push (@data ,\@b);    
+		 
 	}
-	
-    
+		
+my $length = @xs;
+$length+=1;
 
 my $chart = Chart::Gnuplot->new(
     bg         => 'white',
-    pm3d       => 'map',
-   palette    => 'defined (0 0 0 1, 1 1 1 0, 2 1 0 0)',
+    view       => 'map',
+    palette    => 'defined (0 0 0 1, 1 1 1 0, 2 1 0 0)',
     output     => "$image_file",
-    title      => "3D plot from arrays of x, y and z coordinates",
-    xlabel     => 'x',
-    ylabel     => 'y',
-   # xtics      => {
-       # labels   => ['"0030" 0', '"0100" 1', '"0130" 2', '"0200" 3'],
-  #      rotate   => 90,
-  #  },
-   # ytics      => {
-       # labels   => ['"04-Oct" 0', '"03-Oct" 1', '"02-Oct" 2', '"01-Oct" 3'],
-  #  },
+    title      => "$title",
+    xlabel     => 'Endp-ID',
+    ylabel     => 'Endp-ID',
+    xrange	   => [-1, $length],
+    size       => 'ratio -1',
+    xtics      => {
+    	labels   => \@xs,
+    },
+    ytics      => {
+       labels   => \@xs,
+    },
+    mxtics => '2',
+    mytics => '2',
+    border => undef,
+    grid   => 'front mxtics mytics lw 1.5 lt -1 lc rgb \'white\'',
+        
 );
-my $dataSet = Chart::Gnuplot::DataSet->new( points => \@data );
-$chart->plot3d($dataSet);
+my $dataSet = Chart::Gnuplot::DataSet->new(
+	points => \@data,
+	view   => 'map',
+  	type   => 'matrix',
+    using  => "1:2:3 with image",	 
+);
+
+
+$chart->plot2d($dataSet);
 	
 	
 	
