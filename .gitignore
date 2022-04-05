@@ -17,6 +17,9 @@ mpsoc/perl_gui/ProNoC
 mpsoc/script/synfull/transcript
 mpsoc/perl_gui/lib/simulate/*.SIM
 mpsoc/perl_gui/lib/simulate/*.TRC
+mpsoc/perl_gui/lib/netwmaker/*.NWM
+!mpsoc/perl_gui/lib/netwmaker/custom1.NWM
+
 
 mpsoc/script/synfull/tgen
 mpsoc/src_c/synfull/traffic-generator/src/tgen
