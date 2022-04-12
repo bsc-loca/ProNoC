@@ -185,6 +185,9 @@ void  usage(char * bin_name){
 "  -n <sim_end_pck_num>        The simulation will stop when the total of sent packets to the NoC reaches this number\n"
 "  -T <thread-num>             Total number of threads. The default is one (no-thread).\n"
 "  -v <level>                  Verbosity level. 0: off, 1:display a live number of injected packets,\n"
+"  -w <flit-size>              The synful flit size in Byte. It defines the number of flits that should be set to\n"
+"                              ProNoC for each synful packets. The ProNoC packet size is:\n"
+"                              Ceil(synful packet size/synful flit size).\n"
 "                              3: print injected/ejected packets details, The default value is 1\n",
 bin_name,bin_name,bin_name,bin_name
 );
@@ -340,7 +343,7 @@ void synful_processArgs (int argc, char **argv)
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage(argv[0]);
-   while ((c = getopt (argc, argv, "S:c:sn:v:T:r:")) != -1)
+   while ((c = getopt (argc, argv, "S:c:sn:v:T:r:w:")) != -1)
    {
 	 switch (c)
 	 {
@@ -361,6 +364,9 @@ void synful_processArgs (int argc, char **argv)
 	 		break;
 	 	case 'v':
 	 		 verbosity= atoi(optarg);
+	 		 break;
+	 	case 'w':
+	 		 synful_flitw= atoi(optarg);
 	 		 break;
 	 	case 'T':
 	 		thread_num = atoi(optarg);

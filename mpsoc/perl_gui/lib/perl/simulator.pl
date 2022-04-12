@@ -850,6 +850,8 @@ sub get_simulator_noc_configuration{
 		
 		
 		my @custominfo = (
+		{ label=>"Synful Flit-size:(Bytes)", param_name=>'SYNFUL_FLITw', type=>'Spin-button', default_val=>4, content=>"4,72,4", info=>"The synful flit size in Byte. It defines the number of flits that should be set to ProNoC for each synful packets. The ProNoC packet size is : 
+		\t Ceil( synful packet size/synful flit size).  ", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
 		{ label=>'Configuration name:', param_name=>'line_name', type=>'Entry', default_val=>$sample, content=>undef, info=>"NoC configuration name. This name will be shown in load-latency graph for this configuration", param_parent=>$sample, ref_delay=> undef, new_status=>undef},
 	    { label=>"Total packet number limit:", param_name=>'PCK_NUM_LIMIT', type=>'Spin-button', default_val=>200000, content=>"2,$max_pck_num,1", info=>"Simulation will stop when total number of sent packets by all nodes reaches packet number limit  or total simulation clock reach its limit", param_parent=>$sample, ref_delay=>undef, new_status=>undef},
 		{ label=>"Simulator clocks limit:", param_name=>'SIM_CLOCK_LIMIT', type=>'Spin-button', default_val=>100000, content=>"2,$max_sim_clk,1", info=>"Each node stops sending packets when it reaches packet number limit  or simulation clock number limit", param_parent=>$sample, ref_delay=>undef,  new_status=>undef},
@@ -1557,11 +1559,13 @@ sub run_trace_simulation{
 		my $PCK_NUM_LIMIT=$simulate->object_get_attribute ($sample,"PCK_NUM_LIMIT");
 		my $RND_SEED=$simulate->object_get_attribute ($sample,"RND_SEED");
 		my $EXIT_STEADY=$simulate->object_get_attribute ($sample,"EXIT_STEADY");
+		my $FLITw=$simulate->object_get_attribute ($sample,"SYNFUL_FLITw");
+		
 		
 		my $models_dir  = get_project_dir()."/mpsoc/src_c/synfull/generated-models/";	
-		$cmd .="-S $models_dir/$model.model -n $PCK_NUM_LIMIT -r $RND_SEED 	-c $SIM_CLOCK_LIMIT -v 0 ";
+		$cmd .=" -S $models_dir/$model.model -n $PCK_NUM_LIMIT -r $RND_SEED -c $SIM_CLOCK_LIMIT -v 0 -w $FLITw";
 		$cmd .=" -s " if ($EXIT_STEADY eq "1\'b1");
-		
+
 		
 		
 	}

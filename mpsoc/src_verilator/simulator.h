@@ -326,6 +326,33 @@ mcast_t mcast;
 #endif
 
 
+	// set data[bit] to 1
+	#define VL_BIT_SET_I(data, bit) data |= (VL_UL(1) << VL_BITBIT_I(bit))
+	#define VL_BIT_SET_Q(data, bit) data |= (1ULL << VL_BITBIT_Q(bit))
+	#define VL_BIT_SET_E(data, bit) data |= (VL_EUL(1) << VL_BITBIT_E(bit))
+	#define VL_BIT_SET_W(data, bit) (data)[VL_BITWORD_E(bit)] |= (VL_EUL(1) << VL_BITBIT_E(bit))
+
+	// set data[bit] to 0
+	#define VL_BIT_CLR_I(data, bit) data &= ~(VL_UL(1) << VL_BITBIT_I(bit))
+	#define VL_BIT_CLR_Q(data, bit) data &= ~(1ULL << VL_BITBIT_Q(bit))
+	#define VL_BIT_CLR_E(data, bit) data &= ~ (VL_EUL(1) << VL_BITBIT_E(bit))
+	#define VL_BIT_CLR_W(data, bit) (data)[VL_BITWORD_E(bit)] &= ~ (VL_EUL(1) << VL_BITBIT_E(bit))
+
+
+	#define DEST_ADDR_BIT_SET(data, bit, siz)  \
+	if ((siz)<=VL_IDATASIZE)  VL_BIT_SET_I(*((IData*)(&data)), bit);\
+	else if ((siz)<=VL_QUADSIZE) VL_BIT_SET_Q(*((QData*)(&data)), bit);\
+	else VL_BIT_SET_W((IData*)(&data), bit);
+
+	#define DEST_ADDR_BIT_CLR(data, bit, siz)  \
+	if ((siz)<=VL_IDATASIZE)  VL_BIT_CLR_I(*((IData*)(&data)), bit);\
+	else if ((siz)<=VL_QUADSIZE) VL_BIT_CLR_Q(*((QData*)(&data)), bit);\
+	else VL_BIT_CLR_W((IData*)(&data), bit);
+
+	#define DEST_ADDR_ASSIGN_RAND(data,siz) \
+	if ((siz)<=VL_IDATASIZE) *((IData*)(&data)) =rand();\
+	else if ((siz)<=VL_QUADSIZE){ *((QData*)(&data)) =rand()&0xFFFFFFFF; *((QData*)(&data)) |=(QData)rand()<<32;}\
+	else{ for(int n=0;n<siz/32;n++) {((IData*)(&data))[n]=rand();}}
 
 
 #endif

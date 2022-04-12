@@ -9,6 +9,7 @@
 bool synful_SSExit;
 int  synful_random_seed=53432145;
 int  synful_packets_left = 0;
+int  synful_flitw =4;
 
 extern queue_t** synful_inject;
        queue_t** synful_traverse;
@@ -53,7 +54,7 @@ void synful_eval( ){
 
 	if((reset==1) || (count_en==0))	return;
 
-	if((( synful_cycle > sim_end_clk_num) || (synful_injection_done==1)) && synful_packets_left==0 )  simulation_done=1;
+	if((( synful_cycle > sim_end_clk_num) || (total_sent_pck_num>= end_sim_pck_num )) && synful_packets_left==0 )  simulation_done=1;
 
 	// Reset packets remaining check
 	synful_packets_left = 0;
@@ -90,9 +91,10 @@ void synful_eval( ){
 
 			pronoc_dst_id =  traffic_model_mapping[temp_node->dest];
 			queue_push( synful_traverse[pronoc_dst_id], temp_node, synful_cycle );
-			int flit_num = temp_node->packetSize; //TODO set according to Fpay size
+			int flit_num =  temp_node->packetSize / synful_flitw ;
+			if (flit_num*synful_flitw !=temp_node->packetSize) flit_num++;
+			if (flit_num < pck_inj[i]->min_pck_size) flit_num = pck_inj[i]->min_pck_size;
 
-			if(flit_num< pck_inj[i]->min_pck_size) flit_num = pck_inj[i]->min_pck_size;
 			if(IS_SELF_LOOP_EN ==0){
 				if(pronoc_dst_id == i ){
 					 fprintf(stderr,"ERROR: ProNoC is not configured with self-loop enable and Netrace aims to inject\n a "

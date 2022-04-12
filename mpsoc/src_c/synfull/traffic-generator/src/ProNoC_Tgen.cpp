@@ -337,7 +337,7 @@ bool synful_InHSteadyState(int synful_numCycles) {
 void synful_QueuePacket(int source, int destination, int msgType, int coType,
         int packetSize, int time, int address) {
 
-	 if((synful_total_pck_queud >  synful_max_pck) || (synful_cycle > synful_max_clk)    ||  (synful_steady_exit_activated==1)){
+	 if((synful_total_pck_queud >=  synful_max_pck) || (synful_cycle > synful_max_clk)    ||  (synful_steady_exit_activated==1)){
 	    	if(synful_injection_done!=1){
 	    		if (synful_total_pck_queud >  synful_max_pck)  cout << "Reaching max injected packet limit: " << synful_total_pck_queud << " Ending simulation: " << synful_cycle << endl;
 	    		if (synful_cycle > synful_max_clk)     		   cout << "Ending simulation at max simulation clk: " << synful_cycle << endl;
