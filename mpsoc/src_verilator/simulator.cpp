@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 	}
 	else if (TRAFFIC_TYPE ==SYNFUL) {
 		pck_inj_init(SYNFUL_ENDP_NUM); //should be called first to initiate node mapping needed by synful lib
-		synful_init(synful_file,synful_SSExit,synful_random_seed,sim_end_clk_num,end_sim_pck_num);
+		synful_init(synful_file,synful_SSExit,synful_random_seed,sim_end_clk_num,end_sim_pck_num,gclass);
 	}
 	else 	traffic_gen_init();
 
@@ -340,7 +340,7 @@ void synful_processArgs (int argc, char **argv)
    /* don't want getopt to moan - I can do that just fine thanks! */
    opterr = 0;
    if (argc < 2)  usage(argv[0]);
-   while ((c = getopt (argc, argv, "S:c:sn:v:T:r:")) != -1)
+   while ((c = getopt (argc, argv, "S:c:sn:v:T:r:m:")) != -1)
    {
 	 switch (c)
 	 {
@@ -352,6 +352,9 @@ void synful_processArgs (int argc, char **argv)
 	 		break;
 	 	case 'c':
 	 		sim_end_clk_num=atoi(optarg);
+	 		break;
+	 	case 'm':
+	 		gclass=atoi(optarg);
 	 		break;
 	 	case 's':
 	 		synful_SSExit =true;

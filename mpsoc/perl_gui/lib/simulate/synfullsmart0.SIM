@@ -1,0 +1,210 @@
+#######################################################################
+##	File: synfullsmart0.SIM
+##    
+##	Copyright (C) 2014-2021  Alireza Monemi
+##    
+##	This file is part of ProNoC 2.0.0 
+##
+## 	WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT 
+##	MAY CAUSE UNEXPECTED BEHAVIOR.
+################################################################################
+
+$simulate = bless( {
+                     'gui_status' => {
+                                       'timeout' => 0,
+                                       'status' => 'ideal'
+                                     },
+                     'chart_notebook' => {},
+                     'emulation_column' => {
+                                             'va' => '0',
+                                             'ha' => '0'
+                                           },
+                     'P3-' => {
+                                'type' => '2D_line'
+                              },
+                     'process_notebook' => {
+                                             'currentpage' => 1
+                                           },
+                     'setting' => {
+                                    'show_tile_setting' => 0,
+                                    'soc_path' => 'lib/soc',
+                                    'show_noc_setting' => 1,
+                                    'show_adv_setting' => 0
+                                  },
+                     'samples' => undef,
+                     'Simulator' => 'Verilator',
+                     'file_name' => undef,
+                     'noc_type' => {
+                                     'ROUTER_TYPE' => '"INPUT_QUEUED"'
+                                   },
+                     'P1Received_param' => {
+                                             'label_font' => 'MediumBold',
+                                             'X_MAX' => 100,
+                                             'X_MIN' => 0,
+                                             'Y_Title' => 'Received Packets Per Router',
+                                             'legend_font' => 'MediumBold',
+                                             'X_Title' => 'Core ID',
+                                             'Y_MIN' => 0,
+                                             'legend_placement' => 'BL',
+                                             'LINEw' => 3,
+                                             'x_axis_font' => 'MediumBold'
+                                           },
+                     'P2Received_param' => {
+                                             'X_MIN' => 0,
+                                             'X_MAX' => 100,
+                                             'label_font' => 'MediumBold',
+                                             'legend_placement' => 'BL',
+                                             'Y_MIN' => 0,
+                                             'x_axis_font' => 'MediumBold',
+                                             'LINEw' => 3,
+                                             'X_Title' => 'Core ID',
+                                             'legend_font' => 'MediumBold',
+                                             'Y_Title' => 'Worst-Case Delay (clk)'
+                                           },
+                     'P3' => {
+                               'active' => '-'
+                             },
+                     'P2Received' => {
+                                       'type' => '3D_bar',
+                                       'dimension' => '3D'
+                                     },
+                     'fpga_param' => {
+                                       'TIMSTMP_FIFO_NUM' => 16
+                                     },
+                     'P0' => {
+                               'active' => 'Avg. packet Latency'
+                             },
+                     'noc_setting_gui' => {
+                                            'va' => '442.513108614232',
+                                            'ha' => '0'
+                                          },
+                     'graph_save' => {
+                                       'save_all_result' => 0
+                                     },
+                     'no_name' => {},
+                     'P1' => {
+                               'active' => 'Received'
+                             },
+                     'simulate_name' => 'synfullsmart0',
+                     'P2' => {
+                               'active' => 'Received'
+                             },
+                     'status' => 'ideal',
+                     'P0Avg. packet Latency' => {
+                                                  'type' => '2D_line'
+                                                },
+                     'parameters_order' => {
+                                             'noc_param' => [
+                                                              'TOPOLOGY',
+                                                              'T1',
+                                                              'T2',
+                                                              'T3',
+                                                              'V',
+                                                              'B',
+                                                              'LB',
+                                                              'Fpay',
+                                                              'ROUTE_NAME',
+                                                              'PCK_TYPE',
+                                                              'MIN_PCK_SIZE',
+                                                              'BYTE_EN',
+                                                              'CAST_TYPE',
+                                                              'MCAST_ENDP_LIST',
+                                                              'SSA_EN',
+                                                              'SMART_MAX',
+                                                              'CONGESTION_INDEX',
+                                                              'ESCAP_VC_MASK',
+                                                              'VC_REALLOCATION_TYPE',
+                                                              'COMBINATION_TYPE',
+                                                              'MUX_TYPE',
+                                                              'C',
+                                                              'DEBUG_EN',
+                                                              'ADD_PIPREG_AFTER_CROSSBAR',
+                                                              'FIRST_ARBITER_EXT_P_EN',
+                                                              'SWA_ARBITER_TYPE',
+                                                              'WEIGHTw',
+                                                              'SELF_LOOP_EN',
+                                                              'AVC_ATOMIC_EN'
+                                                            ],
+                                             'fpga_param' => [
+                                                               'TIMSTMP_FIFO_NUM'
+                                                             ],
+                                             'noc_type' => [
+                                                             'ROUTER_TYPE'
+                                                           ],
+                                             'sim_param' => [
+                                                              'SAVE_NAME',
+                                                              'BIN_DIR'
+                                                            ],
+                                             'compile' => [
+                                                            'cpu_num',
+                                                            'thread_num'
+                                                          ]
+                                           },
+                     'compile' => {
+                                    'cpu_num' => 1,
+                                    'thread_num' => 1
+                                  },
+                     'P1Received' => {
+                                       'dimension' => '3D',
+                                       'type' => '3D_bar'
+                                     },
+                     'P0Avg. packet Latency_param' => {
+                                                        'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                                        'legend_font' => 'MediumBold',
+                                                        'Y_Title' => 'Avg. Packet Latency (clock)',
+                                                        'legend_placement' => 'BL',
+                                                        'Y_MIN' => 0,
+                                                        'x_axis_font' => 'MediumBold',
+                                                        'LINEw' => 3,
+                                                        'label_font' => 'MediumBold',
+                                                        'X_MAX' => 100,
+                                                        'X_MIN' => 0
+                                                      },
+                     'sim_param' => {
+                                      'BIN_DIR' => '/home/neiel/2022_phd/pronoc_synfull/dev_pronoc_synfull/pronoc_noseedeng/mpsoc_work/simulate',
+                                      'SAVE_NAME' => 'simulate1'
+                                    },
+                     'noc_param' => {
+                                      'CONGESTION_INDEX' => 3,
+                                      'WEIGHTw' => '4',
+                                      'DEBUG_EN' => '1',
+                                      'COMBINATION_TYPE' => '"COMB_NONSPEC"',
+                                      'PCK_TYPE' => '"MULTI_FLIT"',
+                                      'CAST_TYPE' => '"UNICAST"',
+                                      'SELF_LOOP_EN' => '"YES"',
+                                      'FIRST_ARBITER_EXT_P_EN' => 1,
+                                      'LB' => '16',
+                                      'SMART_MAX' => '0',
+                                      'V' => 1,
+                                      'ROUTE_NAME' => '"XY"',
+                                      'SSA_EN' => '"NO"',
+                                      'C' => 0,
+                                      'MCAST_ENDP_LIST' => '\'hf',
+                                      'SWA_ARBITER_TYPE' => '"RRA"',
+                                      'AVC_ATOMIC_EN' => 0,
+                                      'B' => '16',
+                                      'TOPOLOGY' => '"MESH"',
+                                      'T3' => '2',
+                                      'T2' => '4',
+                                      'ADD_PIPREG_AFTER_CROSSBAR' => '1\'b1',
+                                      'BYTE_EN' => 0,
+                                      'Fpay' => '64',
+                                      'MIN_PCK_SIZE' => '2',
+                                      'VC_REALLOCATION_TYPE' => '"NONATOMIC"',
+                                      'ESCAP_VC_MASK' => '1\'b1',
+                                      'MUX_TYPE' => '"BINARY"',
+                                      'T1' => '4'
+                                    },
+                     'P3-_param' => {
+                                      'Y_Title' => 'Total Simulation Time (clk)',
+                                      'legend_font' => 'MediumBold',
+                                      'X_Title' => 'Desired Avg. Injected Load Per Router (flits/clock (%))',
+                                      'LINEw' => 3,
+                                      'x_axis_font' => 'MediumBold',
+                                      'Y_MIN' => 0,
+                                      'legend_placement' => 'BL',
+                                      'label_font' => 'MediumBold',
+                                      'X_MAX' => 100,
+                                      'X_MIN' => 0
+                                    }
+                   }, 'emulator' );

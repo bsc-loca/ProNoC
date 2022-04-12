@@ -27,6 +27,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
  *
  * @param modelFile The model file stream
  */
-void ReadModel(std::ifstream& modelFile);
+void ReadModel(std::ifstream& modelFile,int gstate);
 
 #endif /* MODELREAD_H_ */

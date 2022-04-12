@@ -22,4 +22,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 void Run(unsigned int numCycles, bool ssExit, unsigned int numPackets);
 
+int g_state_in;
+
 #endif /* TRAFFICGENERATOR_H_ */

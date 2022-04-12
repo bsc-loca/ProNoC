@@ -359,7 +359,7 @@ void ReadInvalidates(ifstream& modelFile) {
  *
  * @param modelFile The model file stream
  */
-void ReadModel(ifstream& modelFile) {
+void ReadModel(ifstream& modelFile,int gstate) {
 	cout << "Reading model\n";
 	ReadHierarchy(modelFile);
 	string header;
@@ -390,7 +390,7 @@ void ReadModel(ifstream& modelFile) {
 		modelFile >> header;
 		cout << "*\n";
 	}
-	g_hierClass = 1;
+	g_hierClass = gstate;
 
 	cout << " Done!" << endl;
 }

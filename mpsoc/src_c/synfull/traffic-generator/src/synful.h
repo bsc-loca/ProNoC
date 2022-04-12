@@ -26,7 +26,7 @@ extern int synful_injection_done;
 
 	
 void synful_eval ();
-void synful_model_init(char *, bool , int,unsigned int,unsigned int, int *);
+void synful_model_init(char *, bool , int,unsigned int,unsigned int, int *,int);
 void synful_run_one_cycle ();
 
 void synful_print_packet( pronoc_pck_t*) ;

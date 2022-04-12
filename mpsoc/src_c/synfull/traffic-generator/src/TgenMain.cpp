@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 	}
 
 	//Parses the file and stores all information in global variables
-	ReadModel(modelFile);
+	ReadModel(modelFile,1);
 
 	//Close the file stream
 	modelFile.close();

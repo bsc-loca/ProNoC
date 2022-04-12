@@ -577,7 +577,7 @@ void synful_reset_ss() {
 
 
 
-void synful_model_init(char * fname, bool ss_exit, int seed,unsigned int max_clk, unsigned int max_pck, int * mapping){
+void synful_model_init(char * fname, bool ss_exit, int seed,unsigned int max_clk, unsigned int max_pck, int * mapping, int gstate){
     cout << "Initiating synful with: " << fname << "random seed:" << seed << endl;
 	synful_ssExit = ss_exit;
 
@@ -590,11 +590,13 @@ void synful_model_init(char * fname, bool ss_exit, int seed,unsigned int max_clk
 
 
 	//Parses the file and stores all information in global variables
-	ReadModel(modelFile);
+	ReadModel(modelFile,gstate);
 
 	//Close the file stream
 	modelFile.close(); 	
- 	
+ 
+    g_state_in = gstate;
+
  	synful_next_interval = 0;
     synful_next_hinterval = 0;
  	//Calculate an acceptable MSE for the Markovian Steady-State
@@ -623,7 +625,8 @@ void synful_run_one_cycle (){
 
                 if(synful_cycle != 0) {
                     synful_lastHState = g_hierClass;
-                    g_hierClass = g_hierState[g_hierClass].Generate() + 1;
+                    //g_hierClass = g_hierState[g_hierClass].Generate() + 1;
+                    g_hierClass = g_state_in;
                     synful_reset_ss();
                 }
 

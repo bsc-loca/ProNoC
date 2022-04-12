@@ -8,6 +8,7 @@
 
 bool synful_SSExit;
 int  synful_random_seed=53432145;
+int  gclass=1;
 int  synful_packets_left = 0;
 
 extern queue_t** synful_inject;
@@ -17,9 +18,9 @@ extern queue_t** synful_inject;
 
 
 
-void synful_init(char * fname, bool ss_exit, int seed,unsigned int max_clk, unsigned int max_pck){
+void synful_init(char * fname, bool ss_exit, int seed,unsigned int max_clk, unsigned int max_pck, int gstate){
 	//std::cout << "Initiating synful with: " << fname << "random seed:" << seed << std::endl;
-    synful_model_init(fname, ss_exit,seed,max_clk, max_pck, traffic_model_mapping );
+    synful_model_init(fname, ss_exit,seed,max_clk, max_pck, traffic_model_mapping, gstate);
 
  	synful_inject   = (queue_t**) malloc( NE * sizeof(queue_t*) );
  	synful_traverse = (queue_t**) malloc( NE * sizeof(queue_t*) );
@@ -90,7 +91,7 @@ void synful_eval( ){
 
 			pronoc_dst_id =  traffic_model_mapping[temp_node->dest];
 			queue_push( synful_traverse[pronoc_dst_id], temp_node, synful_cycle );
-			int flit_num = temp_node->packetSize; //TODO set according to Fpay size
+			int flit_num = temp_node->packetSize/8; //TODO set according to Fpay size
 
 			if(flit_num< pck_inj[i]->min_pck_size) flit_num = pck_inj[i]->min_pck_size;
 			if(IS_SELF_LOOP_EN ==0){
