@@ -380,6 +380,20 @@ sub mesh_tori_addr_join {
 }
 
 
+sub mcast_partial_width {
+        my ($p,$NE)=@_;
+        my $m=0;
+        $p=remove_not_hex($p);
+        my @arr=split (//, $p);
+        foreach my $i (@arr) {        	
+        	my $n=hex($i);
+        	$m++ if($n & 0x1);
+        	$m++ if($n & 0x2);
+        	$m++ if($n & 0x4);
+        	$m++ if($n & 0x8);
+        }
+       return $m;
+}
 
 
 
@@ -390,12 +404,27 @@ sub get_noc_verilator_top_modules_info {
 	my $T1=$self->object_get_attribute('noc_param','T1');
 	my $T2=$self->object_get_attribute('noc_param','T2');
 	my $T3=$self->object_get_attribute('noc_param','T3');
+	my $cast = $self->object_get_attribute('noc_param','MCAST_ENDP_LIST');	
+	my $CAST_TYPE= $self->object_get_attribute('noc_param','CAST_TYPE');	
+	my $DAw_OFFSETw  =  ($topology eq '"MESH"' || $topology eq '"TORUS"' || $topology eq '"FMESH"')?  $T1 : 0; 
+	
 	
 	my %tops;
 	my %nr_p; # number of routers have $p port num
 	my $router_p; #number of routers with different port number in topology 
 	
 	my ($ne, $nr, $RAw, $EAw)=get_topology_info($self); 
+
+	my $MCAST_PRTLw= mcast_partial_width($cast,$ne);
+	my $MCASTw =
+            ($CAST_TYPE eq '"MULTICAST_FULL"') ? $ne :
+            ($CAST_TYPE eq '"MULTICAST_PARTIAL"' && $EAw >= $MCAST_PRTLw) ? $EAw +1 : 
+            ($CAST_TYPE eq '"MULTICAST_PARTIAL"' && $EAw <  $MCAST_PRTLw) ? $MCAST_PRTLw +1 :
+            $EAw +1; #broadcast
+	
+	my $DAw = ($CAST_TYPE eq '"UNICAST"') ?   $EAw: $MCASTw +  $DAw_OFFSETw;           
+	
+	print "$DAw=$DAw\n";
 
 	my $custom_include="";
 	if($topology eq '"FATTREE"') {
@@ -531,6 +560,9 @@ sub get_noc_verilator_top_modules_info {
 		 $max_p = $pnum if($max_p < $pnum);
 	}
 	$includ_h.="#define MAX_P  $max_p //The maximum number of ports available in a router in this topology\n";
+	
+	$includ_h.="#define DAw $DAw //The traffic generator's destination address width\n";
+	
 	
 	my $st1='';
 	my $st2='';

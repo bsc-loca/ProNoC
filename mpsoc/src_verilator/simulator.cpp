@@ -412,36 +412,47 @@ unsigned int pck_dst_gen_unicast ( 	unsigned int core_num, unsigned char * injec
 }
 
 
-unsigned int mcast_full_rnd (unsigned int core_num){
+void mcast_full_rnd (unsigned int core_num){
 	unsigned int rnd;
+	int a;
 	for(;;)  {
-		rnd = rand() & ~(0x1<<core_num);
-		rnd &= ((1<<NE) -1);
-		if(rnd!=0) return rnd;
+		DEST_ADDR_ASSIGN_RAND(traffic[core_num]->dest_e_addr);
+		DEST_ADDR_BIT_CLR(traffic[core_num]->dest_e_addr,core_num);
+		DEST_ADDR_IS_ZERO(a,traffic[core_num]->dest_e_addr);
+		//rnd = rand() & ~(0x1<<core_num);
+		//rnd &= ((1<<NE) -1);
+		//if(rnd!=0) return rnd;
+		if(a!=1) return;
 	}
 }
 
 
-
-
-
-unsigned int mcast_partial_rnd (unsigned int core_num){
-	unsigned int rnd;
+void mcast_partial_rnd (unsigned int core_num){
+	unsigned int rnd;int a;
 	//printf("m[%d]=%d\n",core_num,mcast_list_array[core_num]);
 	if(mcast_list_array[core_num] == 1){ // the current node is located in multicast partial list
 		unsigned int self_node_addr = endp_id_to_mcast_id(core_num);//current node location in multicast list
-
+		self_node_addr++;
 		for(;;){
-			rnd = rand() & ~((0x1<<(self_node_addr+1))|0x1); // generate a random multicast destination. remove the current node flag and unicast_flag from destination list
-			rnd &= ((1<<(MCAST_PRTLw+1)) -1);
+			DEST_ADDR_ASSIGN_RAND(traffic[core_num]->dest_e_addr);
+			DEST_ADDR_BIT_CLR(traffic[core_num]->dest_e_addr,0);
+			DEST_ADDR_BIT_CLR(traffic[core_num]->dest_e_addr,self_node_addr);
+			//rnd = rand() & ~((0x1<<(self_node_addr+1))|0x1); // generate a random multicast destination. remove the current node flag and unicast_flag from destination list
+			//rnd &= ((1<<(MCAST_PRTLw+1)) -1);
 			//printf("rnd=%d\n",rnd);
-			if(rnd!=0) return rnd;
+			DEST_ADDR_IS_ZERO(a,traffic[core_num]->dest_e_addr);
+			if(a!=1) return;
+			//if(rnd!=0) return rnd;
 		}
 	}else{
 		for(;;){
-			rnd = rand() & ~0x1;// deassert the unicast flag
-			rnd &= ((1<<(MCAST_PRTLw+1)) -1);
-			if(rnd!=0) return rnd;
+			DEST_ADDR_ASSIGN_RAND(traffic[core_num]->dest_e_addr);
+			DEST_ADDR_BIT_CLR(traffic[core_num]->dest_e_addr,0);
+			DEST_ADDR_IS_ZERO(a,traffic[core_num]->dest_e_addr);
+			if(a!=1) return;
+			//rnd = rand() & ~0x1;// deassert the unicast flag
+			//rnd &= ((1<<(MCAST_PRTLw+1)) -1);
+			//if(rnd!=0) return rnd;
 		}
 	}
 //this function should not come here
@@ -451,11 +462,17 @@ unsigned int mcast_partial_rnd (unsigned int core_num){
 
 
 
-unsigned int pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
+void pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
+
 	unsigned int dest = pck_dst_gen_unicast (core_num, inject_en);
-	if(IS_UNICAST) return  dest;
-	else if (*inject_en==0) return  dest;
+	if(IS_UNICAST){
+		traffic[core_num]->dest_e_addr= dest;
+		return;
+	}
+	else if (*inject_en==0) return;
 	//multicast
+	DEST_ADDR_ASSIGN_ZERO(traffic[core_num]->dest_e_addr);//reset traffic[core_num]->dest_e_addr
+
 	unsigned int dest_id = endp_addr_decoder (dest);
 	*inject_en = dest_id !=core_num;
 
@@ -463,15 +480,28 @@ unsigned int pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
 	if(rnd >= mcast.ratio){
 		//send a unicast packet
 
-		if(IS_MCAST_FULL)  return (0x1<<dest_id);// for mcast-full
+		if(IS_MCAST_FULL){
+			//return (0x1<<dest_id);// for mcast-full
+			DEST_ADDR_BIT_SET(traffic[core_num]->dest_e_addr,dest_id);
+			return;
+		}
 		// IS_MCAST_PARTIAL | IS_BCAST_FULL | IS_BCAST_PARTIAL
-		return (dest << 1) | 0x1; // {dest_coded,unicast_flag}
+		dest = (dest << 1) | 0x1; // {dest_coded,unicast_flag}
+		DEST_ADDR_ASSIGN_INT(traffic[core_num]->dest_e_addr,dest);
+		return;
 	}
 	traffic[core_num]->pck_size_in=rnd_between(mcast.min,mcast.max);
 
-	if (IS_MCAST_FULL) return  mcast_full_rnd (core_num);
-	if (IS_MCAST_PARTIAL) return mcast_partial_rnd(core_num);
-	return 0; //IS_BCAST_FULL | IS_BCAST_PARTIAL
+	if (IS_MCAST_FULL) {
+		mcast_full_rnd (core_num);
+		return;
+	}
+	if (IS_MCAST_PARTIAL){
+		mcast_partial_rnd(core_num);
+		return;
+	}
+
+	return; //IS_BCAST_FULL | IS_BCAST_PARTIAL  traffic[core_num]->dest_e_addr=0;
 }
 
 
@@ -724,8 +754,8 @@ void traffic_gen_init( void ){
 	    	traffic[i]->start=0;
 	    	traffic[i]->pck_class_in=  pck_class_in_gen( i);
 	    	traffic[i]->pck_size_in=get_new_pck_size();
-	    	dest_e_addr=pck_dst_gen (i, &inject_en);
-	    	traffic[i]->dest_e_addr= dest_e_addr;
+	    	pck_dst_gen (i, &inject_en);
+	    	//traffic[i]->dest_e_addr= dest_e_addr;
 	    	if(inject_en == 0) traffic[i]->stop=1;
 	    	//printf("src=%u, des_eaddr=%x, dest=%x\n", i,dest_e_addr, endp_addr_decoder(dest_e_addr));
 	    	if(inject_done) traffic[i]->stop=1;
@@ -983,8 +1013,8 @@ void traffic_clk_posedge_event(void) {
 			traffic[i]->pck_class_in=  pck_class_in_gen( i);
 			traffic[i]->pck_size_in=get_new_pck_size();
 			if((!FIXED_SRC_DST_PAIR)| (!IS_UNICAST)){
-				dest_e_addr=pck_dst_gen (i, &inject_en);
-				traffic[i]->dest_e_addr= dest_e_addr;
+				pck_dst_gen (i, &inject_en);
+				//traffic[i]->dest_e_addr= dest_e_addr;
 				if(inject_en == 0) traffic[i]->stop=1;
 				//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
 			}
@@ -1371,6 +1401,9 @@ void print_parameter (){
 	}
 	if( TRAFFIC_TYPE == SYNTHETIC) printf("\tFlit injection ratio per router is =%f (flits/clk/Total Endpoint %%)\n",(float)ratio*100/MAX_RATIO);
 	printf ("Simulation parameters-------------\n");
+
+
+
 }
 
 

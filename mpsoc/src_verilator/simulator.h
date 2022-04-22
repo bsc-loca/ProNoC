@@ -327,32 +327,48 @@ mcast_t mcast;
 
 
 	// set data[bit] to 1
-	#define VL_BIT_SET_I(data, bit) data |= (VL_UL(1) << VL_BITBIT_I(bit))
-	#define VL_BIT_SET_Q(data, bit) data |= (1ULL << VL_BITBIT_Q(bit))
-	#define VL_BIT_SET_E(data, bit) data |= (VL_EUL(1) << VL_BITBIT_E(bit))
-	#define VL_BIT_SET_W(data, bit) (data)[VL_BITWORD_E(bit)] |= (VL_EUL(1) << VL_BITBIT_E(bit))
+		#define VL_BIT_SET_I(data, bit) data |= (VL_UL(1) << VL_BITBIT_I(bit))
+		#define VL_BIT_SET_Q(data, bit) data |= (1ULL << VL_BITBIT_Q(bit))
+		#define VL_BIT_SET_E(data, bit) data |= (VL_EUL(1) << VL_BITBIT_E(bit))
+		#define VL_BIT_SET_W(data, bit) (data)[VL_BITWORD_E(bit)] |= (VL_EUL(1) << VL_BITBIT_E(bit))
 
-	// set data[bit] to 0
-	#define VL_BIT_CLR_I(data, bit) data &= ~(VL_UL(1) << VL_BITBIT_I(bit))
-	#define VL_BIT_CLR_Q(data, bit) data &= ~(1ULL << VL_BITBIT_Q(bit))
-	#define VL_BIT_CLR_E(data, bit) data &= ~ (VL_EUL(1) << VL_BITBIT_E(bit))
-	#define VL_BIT_CLR_W(data, bit) (data)[VL_BITWORD_E(bit)] &= ~ (VL_EUL(1) << VL_BITBIT_E(bit))
+		// set data[bit] to 0
+		#define VL_BIT_CLR_I(data, bit) data &= ~(VL_UL(1) << VL_BITBIT_I(bit))
+		#define VL_BIT_CLR_Q(data, bit) data &= ~(1ULL << VL_BITBIT_Q(bit))
+		#define VL_BIT_CLR_E(data, bit) data &= ~ (VL_EUL(1) << VL_BITBIT_E(bit))
+		#define VL_BIT_CLR_W(data, bit) (data)[VL_BITWORD_E(bit)] &= ~ (VL_EUL(1) << VL_BITBIT_E(bit))
 
 
-	#define DEST_ADDR_BIT_SET(data, bit, siz)  \
-	if ((siz)<=VL_IDATASIZE)  VL_BIT_SET_I(*((IData*)(&data)), bit);\
-	else if ((siz)<=VL_QUADSIZE) VL_BIT_SET_Q(*((QData*)(&data)), bit);\
-	else VL_BIT_SET_W((IData*)(&data), bit);
+		#if   (DAw<=VL_IDATASIZE)
+			#define DEST_ADDR_BIT_SET(data, bit)  VL_BIT_SET_I(data, bit)
+			#define DEST_ADDR_BIT_CLR(data, bit)  VL_BIT_CLR_I(data, bit)
+			#define DEST_ADDR_ASSIGN_RAND(data)   data = rand() & ((1<<DAw) -1)
+			#define DEST_ADDR_ASSIGN_ZERO(data)   data = 0
+			#define DEST_ADDR_ASSIGN_INT(data,val) data = val & ((1<<DAw) -1)
+			#define DEST_ADDR_IS_ZERO(a,data) a= (data ==0)
+		#elif (DAw<=VL_QUADSIZE)
+			#define DEST_ADDR_BIT_SET(data, bit)  VL_BIT_SET_Q(data, bit)
+			#define DEST_ADDR_BIT_CLR(data, bit)  VL_BIT_CLR_Q(data, bit)
+			#define DEST_ADDR_ASSIGN_RAND(data)   data = (rand()&0xFFFFFFFF) | \
+			(QData)	(rand() & ((1ULL<<(DAw-32)) -1))	<<32
+			#define DEST_ADDR_ASSIGN_ZERO(data)   data = 0ULL
+			#define DEST_ADDR_ASSIGN_INT(data,val) data = val & ((1ULL<<32) -1)
+			#define DEST_ADDR_IS_ZERO(a,data) a= (data == 0ULL)
+		#else
+			#define DEST_ADDR_BIT_SET(data, bit)  VL_BIT_SET_W(data, bit)
+			#define DEST_ADDR_BIT_CLR(data, bit)  VL_BIT_CLR_W(data, bit)
+			#define DEST_ADDR_ASSIGN_RAND(data) \
+			for(int n=0;n<=VL_BITWORD_E(DAw-1)-1;n++)  (data)[n]=rand();\
+			(data)[VL_BITWORD_E(DAw-1)]=rand() & ((1ULL<<(VL_BITBIT_E(DAw-1)+1)) -1)
+			#define DEST_ADDR_ASSIGN_ZERO(data) \
+			for(int n=0;n<=VL_BITWORD_E(DAw-1);n++)  (data)[n]= 0
+			#define DEST_ADDR_ASSIGN_INT(data,val) (data)[0] = val
 
-	#define DEST_ADDR_BIT_CLR(data, bit, siz)  \
-	if ((siz)<=VL_IDATASIZE)  VL_BIT_CLR_I(*((IData*)(&data)), bit);\
-	else if ((siz)<=VL_QUADSIZE) VL_BIT_CLR_Q(*((QData*)(&data)), bit);\
-	else VL_BIT_CLR_W((IData*)(&data), bit);
-
-	#define DEST_ADDR_ASSIGN_RAND(data,siz) \
-	if ((siz)<=VL_IDATASIZE) *((IData*)(&data)) =rand();\
-	else if ((siz)<=VL_QUADSIZE){ *((QData*)(&data)) =rand()&0xFFFFFFFF; *((QData*)(&data)) |=(QData)rand()<<32;}\
-	else{ for(int n=0;n<siz/32;n++) {((IData*)(&data))[n]=rand();}}
+			#define DEST_ADDR_IS_ZERO(a,data) \
+			a=1; for(int n=0;n<=VL_BITWORD_E(DAw-1)-1;n++) 	\
+			if (a==1) a= ((data)[n]==0);\
+			if (a==1) a= ((data)[VL_BITWORD_E(DAw-1)] & ((1ULL<<(VL_BITBIT_E(DAw-1)+1)) -1))==0
+		#endif
 
 
 #endif
