@@ -64,6 +64,11 @@ module router_top
 			$display("ERROR: The minimum packet size must be set as one for single-flit packet type NoC");
 			$finish;	
 		end
+		if(((SSA_EN=="YES")  || (SMART_EN==1'b1) ) && CAST_TYPE!="UNICAST") begin
+			$display("ERROR: SMART or SAA do not support muticast/braodcast packets");
+			$finish;        
+		end
+		
 	end	
 	/* verilator lint_on WIDTH */
 	
@@ -167,6 +172,28 @@ module router_top
 					.flit_in_wr(chan_in[i].flit_chanel.flit_wr),
 					.vc_num_in(chan_in[i].flit_chanel.flit.vc)
 				);
+				
+				check_pck_size #(
+						.V(V),
+						.MIN_PCK_SIZE(MIN_PCK_SIZE),
+						.Fw(Fw),
+						.DAw(DAw),
+						.CAST_TYPE(CAST_TYPE),
+						.NE(NE),
+						.B(B),
+						.LB(LB)
+					)
+					check_pck_siz
+					(
+						.clk(clk),
+						.reset(reset),
+						.hdr_flg_in(chan_in[i].flit_chanel.flit.hdr_flag),
+						.tail_flg_in(chan_in[i].flit_chanel.flit.tail_flag),
+						.flit_in_wr(chan_in[i].flit_chanel.flit_wr),
+						.vc_num_in(chan_in[i].flit_chanel.flit.vc),
+						.dest_e_addr_in(chan_in[i].flit_chanel.flit.payload[E_DST_MSB : E_DST_LSB])
+					);
+				
 		
 			end
 		

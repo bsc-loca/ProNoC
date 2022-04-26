@@ -152,8 +152,9 @@ module flit_buffer
 			/* verilator lint_off WIDTH */ 
 			if (CAST_TYPE != "UNICAST") begin 
 				/* verilator lint_on WIDTH */ 
-				assign  rd_ptr_array[(i+1)*PTRw- 1 :   i*PTRw]   =       sub_rd_ptr[i];   
-				pronoc_register #(.W(PTRw)) reg4 (.in(sub_rd_ptr_next[i]), .out(sub_rd_ptr[i]), .reset(reset), .clk(clk));
+				assign  rd_ptr_array[(i+1)*PTRw- 1 :   i*PTRw]   =       sub_rd_ptr[i]; 
+				localparam RESET_TO = ((2**Bw)==B)? 0 : B*i;
+				pronoc_register #(.W(PTRw),.RESET_TO(RESET_TO)) reg4 (.in(sub_rd_ptr_next[i]), .out(sub_rd_ptr[i]), .reset(reset), .clk(clk));
 				
 				
 				pronoc_register #(.W(DEPTHw)) sub_depth_reg (.in(sub_depth_next[i] ), .out(sub_depth [i]), .reset(reset), .clk(clk));
@@ -341,7 +342,7 @@ module flit_buffer
       
 					always @ (*)begin 
 						sub_rd_ptr_next[i] = sub_rd_ptr[i];
-						if (sub_restore[i]) sub_rd_ptr_next[i] = rd_ptr [i];
+						if (sub_restore[i]) sub_rd_ptr_next[i] = rd_ptr_next [i];
 						/* verilator lint_off WIDTH */ 
 						else if(sub_rd[i])  sub_rd_ptr_next[i] = (sub_rd_ptr[i]==(B*(i+1))-1)? (B*i) : sub_rd_ptr [i]+ 1'h1; 
 						/* verilator lint_on WIDTH */ 

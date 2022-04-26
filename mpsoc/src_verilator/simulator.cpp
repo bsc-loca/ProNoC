@@ -417,7 +417,7 @@ void mcast_full_rnd (unsigned int core_num){
 	int a;
 	for(;;)  {
 		DEST_ADDR_ASSIGN_RAND(traffic[core_num]->dest_e_addr);
-		DEST_ADDR_BIT_CLR(traffic[core_num]->dest_e_addr,core_num);
+		if((strcmp (SELF_LOOP_EN,"NO")==0)) DEST_ADDR_BIT_CLR(traffic[core_num]->dest_e_addr,core_num);
 		DEST_ADDR_IS_ZERO(a,traffic[core_num]->dest_e_addr);
 		//rnd = rand() & ~(0x1<<core_num);
 		//rnd &= ((1<<NE) -1);
@@ -436,7 +436,7 @@ void mcast_partial_rnd (unsigned int core_num){
 		for(;;){
 			DEST_ADDR_ASSIGN_RAND(traffic[core_num]->dest_e_addr);
 			DEST_ADDR_BIT_CLR(traffic[core_num]->dest_e_addr,0);
-			DEST_ADDR_BIT_CLR(traffic[core_num]->dest_e_addr,self_node_addr);
+			if((strcmp (SELF_LOOP_EN,"NO")==0))	DEST_ADDR_BIT_CLR(traffic[core_num]->dest_e_addr,self_node_addr);
 			//rnd = rand() & ~((0x1<<(self_node_addr+1))|0x1); // generate a random multicast destination. remove the current node flag and unicast_flag from destination list
 			//rnd &= ((1<<(MCAST_PRTLw+1)) -1);
 			//printf("rnd=%d\n",rnd);
@@ -474,12 +474,15 @@ void pck_dst_gen ( 	unsigned int core_num, unsigned char * inject_en) {
 	DEST_ADDR_ASSIGN_ZERO(traffic[core_num]->dest_e_addr);//reset traffic[core_num]->dest_e_addr
 
 	unsigned int dest_id = endp_addr_decoder (dest);
-	*inject_en = dest_id !=core_num;
+    //*inject_en = dest_id !=core_num;
 
 	unsigned int rnd = rand() % 100; // 0~99
 	if(rnd >= mcast.ratio){
 		//send a unicast packet
-
+		if((strcmp (SELF_LOOP_EN,"NO")==0) && dest_id==core_num){
+			*inject_en=0;
+			return;
+		}
 		if(IS_MCAST_FULL){
 			//return (0x1<<dest_id);// for mcast-full
 			DEST_ADDR_BIT_SET(traffic[core_num]->dest_e_addr,dest_id);
@@ -1367,7 +1370,7 @@ void print_parameter (){
 	printf ("\tNumber of multihop bypass (SMART max):%d \n",SMART_MAX);
 	printf ("\tCastying type:%s.\n",CAST_TYPE);
 	if (IS_MCAST_PARTIAL){
-		printf ("\tCAST LIST:" str (MCAST_ENDP_LIST) "\n");
+		printf ("\tCAST LIST:%s\n",MCAST_ENDP_LIST);
 	}
 	printf ("NoC parameters:---------------- \n");
 	printf ("\nSimulation parameters-------------\n");

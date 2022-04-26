@@ -10,36 +10,36 @@
 ################################################################################
 
 $setting = bless( {
-                    'gui_status' => {
-                                      'status' => 'ref',
-                                      'timeout' => 10
-                                    },
                     'parameters_order' => {
-                                            'GUI_SETTING' => [
-                                                               'FONT_SIZE',
-                                                               'ICON_SIZE',
-                                                               'DSPLY_X',
-                                                               'DSPLY_Y'
-                                                             ],
                                             'PATH' => [
                                                         'PRONOC_WORK',
                                                         'QUARTUS_BIN',
                                                         'VIVADO_BIN',
                                                         'SDK_BIN',
                                                         'MODELSIM_BIN'
-                                                      ]
+                                                      ],
+                                            'GUI_SETTING' => [
+                                                               'FONT_SIZE',
+                                                               'ICON_SIZE',
+                                                               'DSPLY_X',
+                                                               'DSPLY_Y'
+                                                             ]
                                           },
+                    'gui_status' => {
+                                      'timeout' => 10,
+                                      'status' => 'ref'
+                                    },
                     'GUI_SETTING' => {
                                        'DSPLY_Y' => 'default',
-                                       'DSPLY_X' => 'default',
                                        'FONT_SIZE' => 'default',
+                                       'DSPLY_X' => 'default',
                                        'ICON_SIZE' => 'default'
                                      },
                     'PATH' => {
+                                'MODELSIM_BIN' => '/home/alireza/intelFPGA_lite/questa/questasim/bin',
                                 'QUARTUS_BIN' => '/home/alireza/intelFPGA_lite/18.1/quartus/bin',
-                                'MODELSIM_BIN' => '/home/alireza/work/questasim/QUESTA-CORE-PRIME_2020.4/questasim/bin',
-                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin',
                                 'PRONOC_WORK' => '/home/alireza/work/git/hca_git/mpsoc_work',
-                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin'
+                                'SDK_BIN' => '/home/alireza/xilinx/SDK/2019.1/bin',
+                                'VIVADO_BIN' => '/home/alireza/xilinx/Vivado/2019.1/bin'
                               }
                   }, 'ProNOC' );

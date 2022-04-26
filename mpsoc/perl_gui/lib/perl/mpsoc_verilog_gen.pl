@@ -382,6 +382,10 @@ sub gen_noc_param_h{
 	$topology =~ s/"//g;
 	$param_h.="\t#define  IS_${topology}\n";
 	
+	my ($NE, $NR, $RAw, $EAw, $Fw) = get_topology_info($mpsoc);
+	
+	
+	
 	
 	my @params=$mpsoc->object_get_attribute_order('noc_param');
 	my $custom_topology = $mpsoc->object_get_attribute('noc_param','CUSTOM_TOPOLOGY_NAME');
@@ -389,6 +393,12 @@ sub gen_noc_param_h{
 		my $val=$mpsoc->object_get_attribute('noc_param',$p);
 		next if($p eq "CUSTOM_TOPOLOGY_NAME");
 		$val=$custom_topology if($p eq "TOPOLOGY" && $val eq "\"CUSTOM\"");
+		if($p eq "MCAST_ENDP_LIST" || $p eq "ESCAP_VC_MASK"){
+			$val="$NE".$val if($p eq 'MCAST_ENDP_LIST');
+			$val =~ s/\'/\\\'/g;
+			$val="\"$val\"";			
+		}
+		
 		$param_h=$param_h."\t#define $p\t$val\n";
 		
 		#print "$p:$val\n";
@@ -422,8 +432,8 @@ sub gen_noc_param_h{
 	
 	
 	#remove 'b and 'h
-	$param_h =~ s/\d\'b/ /g;
-	$param_h =~ s/\'h/ /g;
+	#$param_h =~ s/\d\'b/ /g;
+	#$param_h =~ s/\'h/ /g;
 	
 	return  $param_h;	
 }

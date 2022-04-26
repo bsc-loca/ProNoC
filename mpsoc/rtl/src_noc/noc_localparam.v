@@ -33,7 +33,7 @@
     
 
 //NoC parameters
-    localparam TOPOLOGY="FMESH";
+    localparam TOPOLOGY="MESH";
     localparam T1=3;
     localparam T2=3;
     localparam T3=1;
@@ -45,8 +45,8 @@
     localparam PCK_TYPE="MULTI_FLIT";
     localparam MIN_PCK_SIZE=2;
     localparam BYTE_EN=0;
-    localparam CAST_TYPE="MULTICAST_FULL";
-    localparam MCAST_ENDP_LIST=21'hf;
+    localparam CAST_TYPE="MULTICAST_PARTIAL";
+    localparam MCAST_ENDP_LIST=9'hf;
     localparam SSA_EN="NO";
     localparam SMART_MAX=0;
     localparam CONGESTION_INDEX=3;
@@ -55,7 +55,7 @@
     localparam COMBINATION_TYPE="COMB_NONSPEC";
     localparam MUX_TYPE="BINARY";
     localparam C=0;
-    localparam DEBUG_EN=0;
+    localparam DEBUG_EN=1;
     localparam ADD_PIPREG_AFTER_CROSSBAR=1'b0;
     localparam FIRST_ARBITER_EXT_P_EN=1;
     localparam SWA_ARBITER_TYPE="RRA";
@@ -63,7 +63,7 @@
     localparam SELF_LOOP_EN="NO";
     localparam AVC_ATOMIC_EN=0;
     localparam CLASS_SETTING={V{1'b1}};
-    localparam  CVw=(C==0)? V : C * V;
+    localparam CVw=(C==0)? V : C * V;
   
     
     

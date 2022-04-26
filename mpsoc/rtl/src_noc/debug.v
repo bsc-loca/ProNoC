@@ -591,3 +591,131 @@ module endp_addr_decoder  #(
 endmodule  
   
 
+module check_pck_size #(
+    parameter V=2,
+    parameter MIN_PCK_SIZE=2,
+    parameter Fw=36,
+    parameter DAw=4,
+    parameter CAST_TYPE="UNICAST",
+    parameter NE=4,
+    parameter B=4,
+    parameter LB=4
+)(
+    hdr_flg_in,
+    flit_in_wr,
+    tail_flg_in,
+    vc_num_in,  
+    dest_e_addr_in,
+    clk,
+    reset  
+
+);
+
+    input clk, reset;
+    input hdr_flg_in, tail_flg_in, flit_in_wr;
+    input [V-1 : 0] vc_num_in;
+    input [DAw-1: 0] dest_e_addr_in;
+
+    wire [NE-1 : 0] dest_mcast_all_endp [V-1 : 0];
+    wire [31 : 0] pck_size_counter [V-1: 0];
+    reg  [31 : 0] pck_size_counter_next [V-1: 0];
+    wire [DAw-1 : 0] dest_e_addr [V-1:0];
+    wire [V-1 : 0] vc_hdr_wr_en;
+    wire [V-1 : 0] onehot;
+
+    localparam MIN_B =  (B<LB)? B : LB;
+  
+    
+   
+  
+        
+        
+   genvar i;
+   generate 
+   for (i=0;i<V;i=i+1) begin 
+        
+        always @(*) begin 
+            pck_size_counter_next [i] = pck_size_counter [i];
+            if (vc_num_in == i)begin 
+                if(flit_in_wr) begin  
+                    if(hdr_flg_in) pck_size_counter_next[i]= 1;
+                    else pck_size_counter_next[i]=pck_size_counter[i]+1;      
+                end 
+            end
+        end     
+        
+        
+        pronoc_register #(.W(32)) reg1(
+            .in     (pck_size_counter_next[i]), 
+            .reset  (reset ), 
+            .clk    (clk   ), 
+            .out    (pck_size_counter[i]   ));
+            
+         always @(posedge clk) begin 
+            if (vc_num_in == i)begin 
+                if(flit_in_wr & tail_flg_in) begin 
+                    if( pck_size_counter_next[i] < MIN_PCK_SIZE) begin 
+                        $display ( "%t\t  ERROR: A packet is injected to the router with packet size (%d flits) that is smaller than MIN_PCK_SIZE (%d flits) parameter  %m",$time,pck_size_counter_next[i],MIN_PCK_SIZE);
+                        $finish;
+                    end
+                end       
+            end
+         end
+         
+        /* verilator lint_off WIDTH */   
+        if(CAST_TYPE!="UNICAST") begin
+        /* verilator lint_on WIDTH */   
+        //Check that the size of multicast/broadcast packets <= buffer size
+            assign vc_hdr_wr_en [i] = flit_in_wr & hdr_flg_in & (vc_num_in == i);
+            pronoc_register_ld_en #(.W(DAw)) reg2(
+                .in     (dest_e_addr_in), 
+                .reset  (reset ), 
+                .clk    (clk   ), 
+                .ld     (vc_hdr_wr_en [i] ),
+                .out    (dest_e_addr[i])
+            );
+            
+            
+            mcast_dest_list_decode decode (
+                .dest_e_addr(dest_e_addr[i]),
+                .dest_o(dest_mcast_all_endp[i]),
+                .row_has_any_dest(),
+                .is_unicast()
+            ); 
+            
+            is_onehot0 #(
+                .IN_WIDTH(NE)    
+            )
+            one_h
+            (
+                .in(dest_mcast_all_endp[i]),
+                .result(onehot[i])
+    
+            );
+            
+            
+            
+            
+            always @(posedge clk) begin 
+                if (vc_num_in == i)begin 
+                    if(flit_in_wr & ~onehot[i])begin 
+                        if(pck_size_counter_next[i]>MIN_B) begin 
+                            $display ( "%t\t  ERROR: A multicast packet is injected to the router with packet size (%d flits) that is larger than the minimum router buffer size (%d flits) parameter  %m",$time,pck_size_counter_next[i],MIN_B);
+                            $finish;
+                        end// size
+                    end//flit_wr
+                end//vc_num
+            end//always
+            
+        end//multicast
+   
+            
+    
+   
+   end  //for
+   endgenerate
+    
+    
+
+endmodule
+

@@ -297,34 +297,66 @@ char * mcast_list_array;
 unsigned int MCAST_PRTLw=0;
 
 void mcast_init(){
-	char * temp_str;
-	temp_str = (char *) malloc( strlen(str (MCAST_ENDP_LIST)) * sizeof(char));
-	sscanf(xstr(MCAST_ENDP_LIST),"%s",temp_str );
-	int size = strlen(temp_str);
-	reverse(temp_str, 0, size - 1);
 	mcast_list_array = (char *) malloc(NE * sizeof(char));
-	int i=0;
-    char u [2];
-    u [1] =0;
-    if (IS_MCAST_FULL){
-    	for(i=0; i< NE; i++) {
+	if (IS_MCAST_FULL){
+    	for(int i=0; i< NE; i++) {
     		mcast_list_array[i]=1;
+    		MCAST_PRTLw=NE;
     	}
     	return;
     }
-    //partial
-	for(i=0; i< size; i++) {
-		unsigned int ch ;
-		u[0] = temp_str[i];
-		sscanf(u , "%x", &ch);
-		ch&=0xf;
-	   	mcast_list_array[i*4  ] = (ch & 0x1);
-		mcast_list_array[i*4+1] = (ch & 0x2)>>1;
-		mcast_list_array[i*4+2] = (ch & 0x4)>>2;
-		mcast_list_array[i*4+3] = (ch & 0x8)>>3;
+	//partial
+
+	int hex=0;
+	int bin=0;
+	char * temp_str;
+	temp_str = (char *) malloc(strlen(MCAST_ENDP_LIST) * sizeof(char));
+	sscanf(MCAST_ENDP_LIST,"%s",temp_str );
+
+	char * t = strstr(temp_str, "\'h");
+	if(t) hex=1;
+	else  t = strstr(temp_str, "\'b");
+	if(t) bin=1;
+	if(hex==0 && bin == 0){
+		fprintf (stderr,"ERROR: MCAST_ENDP_LIST (%s) is given in wrong format. Only hex ('h) and bin ('b) format is accepted. \n",MCAST_ENDP_LIST);
+		exit(1);
 	}
 
-	for (i=0;i<NE;i++) if(mcast_list_array[i] ==1) MCAST_PRTLw++;
+	t+=2;
+	int size = strlen(t);
+	reverse(t, 0, size - 1);
+
+	int i=0;
+    char u [2];
+    u [1] =0;
+
+    if(hex){
+		for(i=0; i< size; i++) {
+			unsigned int ch ;
+			u[0] = t[i];
+			sscanf(u , "%x", &ch);
+			ch&=0xf;
+		   	mcast_list_array[i*4  ] = (ch & 0x1);
+			mcast_list_array[i*4+1] = (ch & 0x2)>>1;
+			mcast_list_array[i*4+2] = (ch & 0x4)>>2;
+			mcast_list_array[i*4+3] = (ch & 0x8)>>3;
+		}
+	}else if(bin){
+		for(i=0; i< size; i++) {
+			unsigned int ch ;
+			u[0] = t[i];
+			sscanf(u , "%x", &ch);
+			ch&=0xf;
+			mcast_list_array[i  ] = ch;
+		}
+
+	}
+
+	for (i=0;i<NE;i++){
+		if(mcast_list_array[i] ==1) MCAST_PRTLw++;
+//	printf("mcast_list_array[%u]=%u\n",i,mcast_list_array[i]);
+	}
+//	printf("mcastw=%u\n",MCAST_PRTLw);
 
 }
 

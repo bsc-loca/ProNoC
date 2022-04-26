@@ -38,12 +38,13 @@ STEP=4
 dir="models"
 
 
+
 models_path=$(realpath $ProNoC/Integration_test/synthetic_sim)
 
 
 
 
-while getopts "h?p:u:l:s:d:" opt; do
+while getopts "h?p:u:l:s:d:m:" opt; do
   case "$opt" in
     h|\?)
       echo "./run [options]
@@ -92,7 +93,9 @@ while getopts "h?p:u:l:s:d:" opt; do
     s) STEP=$OPTARG
       ;;  
     d) dir=$OPTARG
-      ;;            
+      ;; 
+    m) model="-m $OPTARG"
+      ;;           
   esac
 done
 
@@ -100,9 +103,11 @@ shift $((OPTIND-1))
 
 [ "${1:-}" = "--" ] && shift
 
-echo "paralel_run=$paralel_run, MAX=$MAX, MIN=$MIN, STEP=$STEP, dir=$dir Leftovers: $@"
+echo "paralel_run=$paralel_run, MAX=$MAX, MIN=$MIN, STEP=$STEP, dir=$dir models=$model Leftovers: $@"
 
-args="-p $paralel_run -u $MAX -l $MIN -s $STEP -d $dir"
+
+
+args="-p $paralel_run -u $MAX -l $MIN -s $STEP -d $dir $model"
 
 
 

@@ -962,7 +962,8 @@ module input_queue_per_port
 			
 			
 			
-			/*
+			
+			 /* 
 			
 			always @(posedge clk) 
 				if ((ivc_not_empty & flit_is_tail2) != (ivc_not_empty & flit_is_tail))begin 
@@ -1082,6 +1083,8 @@ module input_queue_per_port
 	//synopsys  translate_off
 	generate 
 	if(DEBUG_EN) begin :debg
+		
+		
 		
 		always @ (posedge clk) begin			
 			if((|vsa_ctrl_in.ivc_num_getting_sw_grant)  & (|ssa_ctrl_in.ivc_num_getting_sw_grant))begin 

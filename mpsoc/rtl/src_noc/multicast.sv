@@ -37,7 +37,9 @@ module multicast_routing
 	output  [DSTPw-1  :   0] destport;
 	
  	generate
+ 	/* verilator lint_off WIDTH */	
  	if(TOPOLOGY=="MESH") begin: mesh
+ 	/* verilator lint_on WIDTH */	
 		multicast_routing_mesh
  		#(
  			.P(P) ,
@@ -49,8 +51,9 @@ module multicast_routing
  			.dest_e_addr(dest_e_addr),  // destination endpoint address		
  			.destport(destport)		
  		);
- 		
+ 	/* verilator lint_off WIDTH */	
  	end else if (TOPOLOGY == "FMESH") begin : fmesh 
+ 	/* verilator lint_on WIDTH */
  		multicast_routing_fmesh
  		#(
  			.P(P) ,
@@ -63,6 +66,11 @@ module multicast_routing
  			.destport(destport)		
  		);
  	
+ 	end else begin 
+ 		initial begin 
+ 			$display ("ERROR: Multicast/Broadcast is not yet supported for %s Topology",TOPOLOGY);
+ 			$finish;
+ 		end
  	end
  	endgenerate
  	
@@ -134,13 +142,7 @@ module multicast_routing_mesh
 			.row_has_any_dest(row_has_any_dest),
 			.is_unicast()
 		);
-			
-					
-			
-		
-		
-		
-			
+				
 		genvar i,j;
 		generate 
 			
@@ -223,6 +225,9 @@ module multicast_routing_mesh
 	endgenerate
 	
 endmodule
+
+
+
 
 
 
