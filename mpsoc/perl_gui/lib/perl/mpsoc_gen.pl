@@ -788,7 +788,7 @@ if($topology ne '"CUSTOM"' ){
     $label='Casting Type';
     $param='CAST_TYPE';
     $default= '"UNICAST"';
-    $info=''; 
+    $info='Configure a NoC as Unicast, Multicast, or Broadcast NoC. In Unicast NoC, a packet can be sent to only one destination. In  Multicast, a single packet can have multiple target destination nodes, whereas,  Broadcast packets are sent to all other destination nodes. For Multicast and Broadcast NoC, only one copy of a packet must be injected into the source router. The routers in the path then fork the packets to different output ports when necessary. Multicast and Broadcast can be selected as FULL, where all destinations can be included in packet destination list, or as PARTIAL where a user-defined subset of nodes (defined with MCAST_ENDP_LIST parameter) can be targeted in destination lists. The other nodes not marked in MCAST_ENDP_LIST can only receive unicast packets. '; 
     $content='"UNICAST","MULTICAST_PARTIAL","MULTICAST_FULL","BROADCAST_PARTIAL","BROADCAST_FULL"';
     $type="Combo-box";
     ($row,$coltmp)=add_param_widget ($mpsoc,$label,$param, $default,$type,$content,$info, $table,$row,undef,$show_noc,'noc_param',1);
@@ -819,10 +819,17 @@ if($topology ne '"CUSTOM"' ){
     }
     
     if($cast_type eq '"MULTICAST_PARTIAL"' || $cast_type eq '"BROADCAST_PARTIAL"') {
-    	$table->attach  ( gen_label_in_left("Muticast Node list"),0 , 1, $row,$row+1,'fill','shrink',2,2);    
+    	#$table->attach  ( gen_label_help($info,"Muticast Node list"),0 , 2, $row,$row+1,'fill','shrink',2,2);    
+    	$info='MCAST_ENDP_LIST is a one-hot coded number where the asserted bit indicates that the corresponding destination ID can be targeted in multicast/broadcast packets. The corresponding destinations with zero bit can only receive unicast packets.'; 
+  
     	my $b1= def_image_button("icons/setting.png","Set");
-    	my$bb=def_pack_hbox(FALSE,0,gen_label_in_left("$cast"),$b1);
-        $table->attach  ( $bb , 2, 3, $row,$row+1,'fill','shrink',2,2);
+    	my $bb= def_pack_hbox(FALSE,0,gen_label_in_left("$cast"),$b1);
+    	my $label=gen_label_in_left("Muticast Node list");
+    	my $inf_bt= (defined $info)? gen_button_message ($info,"icons/help.png"):gen_label_in_left(" ");
+		attach_widget_to_table ($table,$row,$label,$inf_bt,$bb,0);
+    	
+    	
+       # $table->attach  ( $bb , 2, 3, $row,$row+1,'fill','shrink',2,2);
         $row++;  
         
          $b1->signal_connect("clicked" => sub{ 
