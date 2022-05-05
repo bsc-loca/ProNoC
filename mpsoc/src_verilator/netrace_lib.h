@@ -347,7 +347,7 @@ void netrace_posedge_event(){
 	clk = 1;       // Toggle clock
 	update_all_router_stat();
 	for(i=0;i<netrace_speed_up; i++)  netrace_eval(i);
-	connect_clk_reset_start_all();
+	//connect_clk_reset_start_all();
 	sim_eval_all();
 	//print total sent packet each 1024 clock cycles
 	if(verbosity==1) if(nt_cycle&0x3FF) printf("\rTotal sent packet: %9d", total_sent_pck_num);
@@ -358,7 +358,7 @@ void netrace_negedge_event( ){
 	int i;
 	clk = 0;
 	topology_connect_all_nodes ();
-	connect_clk_reset_start_all();
+	//connect_clk_reset_start_all();
 	sim_eval_all();
 }
 
