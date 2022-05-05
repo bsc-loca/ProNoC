@@ -421,8 +421,10 @@ sub generate_topology_top_genvar_v{
 	';
 	my $offset=0;
 	my $assign="";
-	my $assign_h="";
+	my $assign_r2r="";
+	my $assign_r2e="";
 	my $init_h="";
+	my $init_gnd_h="";
 	my %new_h;
 	my $addr=0;
 	for ( my $i=2;$i<=12; $i++){
@@ -436,6 +438,7 @@ sub generate_topology_top_genvar_v{
 				$new_h{"RNUM_${pos}"}="$rr";
 				
 				$init_h.="router${Tnum}[$rr]->current_r_addr=$addr;\n";
+				$init_h.="router${Tnum}[$rr]->current_r_id=$addr;\n";
 				$addr++;
 			}	
 			$offset+=	$n;
@@ -450,7 +453,7 @@ sub generate_topology_top_genvar_v{
 	
 	
 	$offset=0;
-	
+	my $R_num=0;
 	for ( my $i=2;$i<=12; $i++){
 		my $n= $self->object_get_attribute("ROUTER${i}","NUM");
 		$n=0 if(!defined $n);
@@ -484,10 +487,14 @@ sub generate_topology_top_genvar_v{
 	
 			for ( my $j=0;$j<$n; $j++){
 				my $rname ="ROUTER${i}_$j";
-				my ($ass_v,$ass_h)=get_wires_assignment_genvar_v($self,$rname,0,\%new_h);
+				my ($ass_v,$r2r_h,$r2e_h, $int_h,$gnd_h);
+				($ass_v,$r2r_h,$r2e_h, $int_h,$gnd_h,$R_num) = get_wires_assignment_genvar_v($self,$rname,0,\%new_h,$R_num);
 				
 				$assign=$assign.$ass_v;
-				$assign_h.=$ass_h;
+				$assign_r2r.=$r2r_h;
+				$assign_r2e.=$r2e_h;
+				$init_h.=$int_h;
+				$init_gnd_h.=$gnd_h;
 			}
 			
 		$offset+=	$n;
@@ -559,16 +566,46 @@ endmodule
     	add_colored_info($info,"Error in creating $top: $r",'red');
 		return;
     } 
+    
+  my $fr2r="";
+  for (my $i=0;$i<$R_num ; $i++){ 
+  	$fr2r.="\n" if($i%10==0); 	
+  	$fr2r.=($i==0) ? "single_r2r$i" : ",single_r2r$i";
+  	
+  }  
+  
+  my $fr2e="";
+  for (my $i=0;$i<$NE ; $i++){ 
+  	$fr2e.="\n" if($i%10==0); 	
+  	$fr2e.=($i==0) ? "single_r2e$i" : ",single_r2e$i";  	
+  }   
+  
+    
     print $fd "
 
 
+$assign_r2r
 
-void topology_connect_all_nodes (void){
-   	 $assign_h
+$assign_r2e
+
+
+void (*r2r_func_ptr[$R_num])() = {$fr2r};
+void (*r2e_func_ptr[$NE])() = {$fr2e};
+
+void topology_connect_r2r (int n){
+	 (*r2r_func_ptr[n])();
 }
+
+void topology_connect_r2e (int n){
+	 (*r2e_func_ptr[n])();
+}
+
+
 
 void topology_init(void){
 	$init_h
+	R2R_TABLE_SIZ=$R_num;
+	$init_gnd_h 	 
 }
 ";
     close $fd;
@@ -615,7 +652,7 @@ return $router_v;
 
 
 sub get_wires_assignment_genvar_v{
-	my ($self,$rname,$reverse,$cref)=@_;
+	my ($self,$rname,$reverse,$cref,$R_num)=@_;
     $reverse = 0 if(!defined $reverse);
 	my $instance= $self->object_get_attribute("$rname","NAME");		
 	my $Pnum=$self->object_get_attribute("$rname",'PNUM');
@@ -625,7 +662,12 @@ sub get_wires_assignment_genvar_v{
      my @ports= @{$self->object_get_attribute('Verilog','Router_ports')}; 
 
 	my $assign="";
-	my $ass_h="";
+	my $r2e_h="";
+	my $r2r_h="";
+	my $init_h="";
+	my $gnd_h="";
+	
+	
 
 	my @ends=get_list_of_all_endpoints($self);
     my @routers=get_list_of_all_routers($self);
@@ -649,7 +691,7 @@ for (my $i=0;$i<$Pnum; $i++){
 		my $ctype = $self->object_get_attribute("$cname",'TYPE'); 		
 		my ($cp)= sscanf("Port[%u]","$pnode");
 		$assign.="//Connect $instance input ports $i to  $cinstance output ports $cp\n";
-		$ass_h.="//Connect $instance input ports $i to  $cinstance output ports $cp\n";
+		
 		
 		my $cpos =($ctype eq 'ENDP')?  get_scolar_pos($cname,@ends) :  get_scolar_pos($cname,@routers);
 		
@@ -665,20 +707,24 @@ for (my $i=0;$i<$Pnum; $i++){
 		
 		#$assign = $assign."//connet  $instance input port $i to  $cinstance output port $cp\n";
 		if($type  ne 'ENDP'  &&  $ctype eq 'ENDP'){
+			
 			$assign=  $assign."\t\tassign  router_chan_in \[$pos\]\[$i\] = chan_in_all \[$cpos\];\n" if($reverse==0);
 			$assign=  $assign."\t\tassign  chan_in_all \[$cpos\] = router_chan_in \[$pos\]\[$i\];\n" if($reverse==1);
 		
 			$assign=  $assign."\t\tassign  chan_out_all \[$cpos\] = router_chan_out \[$pos\]\[$i\];\n" if($reverse==0);
 			$assign=  $assign."\t\tassign  router_chan_out \[$pos\]\[$i\] = chan_out_all \[$cpos\];\n" if($reverse==1);
 			
-			$ass_h.=  "\tconnect_r2e($TNUM_pos,$RNUM_pos,$i,$cpos);\n"	if (defined $TNUM_pos);	
+			$r2e_h.="//Connect $instance input ports $i to  $cinstance output ports $cp\n";			
+			$r2e_h.=  "void single_r2e$cpos(void) {connect_r2e($TNUM_pos,$RNUM_pos,$i,$cpos);}\n"	if (defined $TNUM_pos);	
 			
 		
 		}elsif ($type  ne 'ENDP'  &&  $ctype ne 'ENDP'){
 			$assign=  $assign."\t\tassign  router_chan_in \[$pos\]\[$i\] = router_chan_out \[$cpos\]\[$cp\];\n" if($reverse==0);
 			$assign=  $assign."\t\tassign  router_chan_out \[$cpos\]\[$cp\] = router_chan_in \[$pos\]\[$i\];\n" if($reverse==1);			
-			$ass_h.=  "\tconect_r2r($TNUM_pos,$RNUM_pos,$i,$TNUM_cpos,$RNUM_cpos,$cp);\n" if (defined $TNUM_pos);	
-			
+			$r2r_h.="//Connect $instance input ports $i to  $cinstance output ports $cp\n";
+			$r2r_h.=  "void single_r2r$R_num(void){conect_r2r($TNUM_pos,$RNUM_pos,$i,$TNUM_cpos,$RNUM_cpos,$cp);}\n" if (defined $TNUM_pos);	
+			$init_h.="\tr2r_cnt_all[$R_num] =(r2r_cnt_table_t){.id1=$pos, .t1=$TNUM_pos, .r1=$RNUM_pos, .p1=$i,.id2=$cpos, .t2=$TNUM_cpos, .r2=$RNUM_cpos, .p2=$cp };\n";
+			$R_num++;
 		}
 				
 		
@@ -689,16 +735,19 @@ for (my $i=0;$i<$Pnum; $i++){
 			my $TNUM_pos  = $rinfo{"TNUM_${pos}" };  
 			my $RNUM_pos  = $rinfo{"RNUM_${pos}" };  
 		
-			$assign = $assign."//Connect $instance port $i to  ground\n";
-			$ass_h.="//Connect $instance port $i to  ground\n";
+			$assign = $assign."//Connect $instance port $i to  ground\n";		
 			$assign=  $assign."\t\tassign  router_chan_in  \[$pos\]\[$i\] ={SMARTFLIT_CHANEL_w{1'b0}};\n	" if($reverse==0);
 			$assign=  $assign."\t\tassign  router_chan_out \[$pos\]\[$i\] ={SMARTFLIT_CHANEL_w{1'b0}};\n	" if($reverse==1);	
-			$ass_h.=  "\tconnect_r2gnd($TNUM_pos,$RNUM_pos,$i);\n" if (defined $TNUM_pos);			
+			
+			$gnd_h.="//Connect $instance port $i to  ground\n";
+			$gnd_h.=  "\tconnect_r2gnd($TNUM_pos,$RNUM_pos,$i);\n" if (defined $TNUM_pos);			
 	}		
 			
 }	
 
-	return ($assign,$ass_h);
+	
+
+	return ($assign,$r2r_h,$r2e_h,$init_h,$gnd_h,$R_num);
 }
 
 
@@ -1336,7 +1385,7 @@ print $fd '
 	';
 	my $offset=0;
 	my $assign="";
-	
+	my $R_num=0;
 	for ( my $i=2;$i<=12; $i++){
 		my $n= $self->object_get_attribute("ROUTER${i}","NUM");
 		$n=0 if(!defined $n);
@@ -1353,7 +1402,7 @@ print $fd '
 			
 			for ( my $j=0;$j<$n; $j++){
 				my $rname ="ROUTER${i}_$j";		
-				my ($ass_v, $ass_h)=	get_wires_assignment_genvar_v($self,$rname,1);
+				my ($ass_v, $r2r_h,$r2e_h, $int_h,$gnd_h,$R_num)=	get_wires_assignment_genvar_v($self,$rname,1,undef,$R_num);
 				$assign=$assign.$ass_v;
 			}
 			
@@ -1469,7 +1518,36 @@ endmodule
 	
 }
 
-
+sub add_noc_custom_h{
+	my ($self,$info,$dir)=@_;
+	my $name=$self->object_get_attribute('save_as');
+	my $str="
+		//do not modify this line ===${name}===
+		#ifdef IS_${name}_noc
+			#include \"${name}_noc.h\"
+		#endif
+	";
+	
+	
+	my $file = "$dir/../../../src_verilator/topology/custom/custom.h";	
+	#check if ***$name**** exist in the file
+	unless (-f $file){
+		add_colored_info($info,"$file dose not exist\n",'red');
+		return; 
+	}	
+	my $r = check_file_has_string($file, "===${name}==="); 
+	if ($r==1){
+		add_info($info,"The instance  ${name}_noc exists in $file. This file is not modified\n  ",'blue');
+	
+	}else{
+		my $text = read_file_cntent($file,' ');
+        my @a = split('endgenerate',$text);
+        save_file($file,"$a[0] $str $a[1]");
+        add_info($info,"$file has been modified. The  ${name}_noc has been added to the file\n  ",'blue');
+		
+	}
+	
+}
 
 
 

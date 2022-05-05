@@ -568,7 +568,9 @@ module endp_addr_decoder  #(
             ) addr_coder (
             .id    (id   ), 
             .code  (code ));
+      /* verilator lint_off WIDTH */          
      end else if (TOPOLOGY == "FMESH") begin :fmesh
+      /* verilator lint_on WIDTH */   
         fmesh_addr_coder #(
             .NX(T1),
             .NY(T2),

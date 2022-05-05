@@ -493,6 +493,7 @@ sub get_noc_verilator_top_modules_info {
     }elsif ($topology eq '"STAR"') { 
      	 $router_p=1;# number of router with different port number
      	 my $ports= $T1;
+     	 $nr_p{p1}=$ports;
      	 $nr_p{1}=1;
      	  %tops = (
         	#"Vrouter1" => "router_top_v_p${ports}.v",
@@ -538,7 +539,7 @@ sub get_noc_verilator_top_modules_info {
 		}	
 		$router_p=$i-1;	
 		${topology_name} =~ s/\"+//g;
-		$custom_include="#include \"${topology_name}_noc.h\"\n";
+		$custom_include="#define IS_${topology_name}_noc\n";
 	}#else
 	
 		
@@ -571,7 +572,8 @@ sub get_noc_verilator_top_modules_info {
 	my $st5='';
 	my $st6='';
 	my $st7='';
-	
+	my $st8='';
+		
 	my $i=1;
 	my $j=0;
 	my $accum=0;
@@ -613,6 +615,9 @@ $st6=$st6."
 ";
 
 
+
+
+
 $st7.="
 	if (i<NR${i}){ 
 		update_router_st(
@@ -624,6 +629,17 @@ $st7.="
 	}
 	i-=	NR${i};
 ";
+
+$st8=$st8."
+	if (i<NR${i}){ 
+		router${i}[i]->reset= reset;
+		router${i}[i]->clk= clk ;
+		return;
+	}
+	i-=	NR${i};
+";
+
+
 
 	$i++;
 	$j++;
@@ -678,6 +694,11 @@ extern void update_router_st (
 void  single_router_st_update(int i){
 	$st7
 }
+
+void  inline single_router_reset_clk(int i){
+	$st8
+}
+
 	
 ";	
 

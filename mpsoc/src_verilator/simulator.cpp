@@ -849,7 +849,9 @@ class alignas(64) Vthread
 {
     // Access specifier
     public:
-	std::atomic<bool> ready;
+	std::atomic<bool> eval;
+	std::atomic<bool> copy;
+	std::atomic<bool> update;
     // Data Members
     int n;//thread num
 	int nr_per_thread;
@@ -862,25 +864,78 @@ class alignas(64) Vthread
 		int i; 
 		unsigned int node=0;
 		while(1){ 
-			while(!ready) std::this_thread::yield();
-			for(i=0;i<nr_per_thread;i++){
-				node= (n * nr_per_thread)+i;
-				if (node >= NR) break;
-				//if(router_is_active[node] | (Quick_sim_en==0))
-				single_router_eval(node);
-			}	
-			for(i=0;i<ne_per_thread;i++){
-				node= (n * ne_per_thread)+i;
-				if (node >= NE) break;
-				if(ENDP_TYPE == PCK_INJECTOR)   pck_inj[node]->eval();
-				else   traffic[node]->eval();
-			}	
+			while(!eval && !copy && !update) std::this_thread::yield();
+			if(eval){
+				//connect_clk_reset_start
+				for(i=0;i<ne_per_thread;i++){
+					node= (n * ne_per_thread)+i;
+					if (node >= NE) break;
+					if(ENDP_TYPE == PCK_INJECTOR){
+						pck_inj[node]->reset= reset;
+						pck_inj[node]->clk	= clk;
+					}
+					else {
+						traffic[node]->start= start_i;
+						traffic[node]->reset= reset;
+						traffic[node]->clk	= clk;
+					}
+				}//endp
+				for(i=0;i<nr_per_thread;i++){
+					node= (n * nr_per_thread)+i;
+					if (node >= NR) break;
+					//if(router_is_active[node] | (Quick_sim_en==0))
+					single_router_reset_clk(node);
+				}
+
+				//eval
+				for(i=0;i<nr_per_thread;i++){
+					node= (n * nr_per_thread)+i;
+					if (node >= NR) break;
+					//if(router_is_active[node] | (Quick_sim_en==0))
+					single_router_eval(node);
+				}
+				for(i=0;i<ne_per_thread;i++){
+					node= (n * ne_per_thread)+i;
+					if (node >= NE) break;
+					if(ENDP_TYPE == PCK_INJECTOR)   pck_inj[node]->eval();
+					else   traffic[node]->eval();
+				}
+				eval=false;
+			}
+
+			if(copy){
+				for  (int i=0;   i<R2R_TABLE_SIZ; i++) {
+					if(
+					r2r_cnt_all[i].id1 >= (n * nr_per_thread)
+					&&
+					r2r_cnt_all[i].id1 <  ((n+1) * nr_per_thread)
+					)
+					topology_connect_r2r(i);
+				}
+
+
+				for(i=0;i<ne_per_thread;i++){
+					node= (n * ne_per_thread)+i;
+					if (node >= NE) break;
+					topology_connect_r2e(node);
+				}
+				copy=false;
+			}
 			
+			if(update){
+				for(i=0;i<nr_per_thread;i++){
+					node= (n * nr_per_thread)+i;
+					if (node >= NR) break;
+					single_router_st_update(node);
+				}
+				update=false;
+			}
+
 			//router1[n]->eval();
 			//if( TRAFFIC_TYPE == NETRACE)   pck_inj[n]->eval();
 			//else   traffic[n]->eval();
 		
-			ready=false;
+
 			if(n==0) break;//first thread is the main process 
 		}
 	}
@@ -888,7 +943,9 @@ class alignas(64) Vthread
 	Vthread(int x,int r,int e)
     {
        n=x; nr_per_thread=r; ne_per_thread=e;
-       ready=false;
+       eval=false;
+       copy =false;
+       update=false;
        if(n!=0) {
 		 std::thread th {&Vthread::function,this};     
          th.detach();      
@@ -935,11 +992,14 @@ void initial_threads (void){
 void sim_eval_all (void){
 	int i;
 	if(thread_num>1) {
-		for(i=0;i<thread_num;i++) thread[i]->ready=true;
+		for(i=0;i<thread_num;i++) thread[i]->eval=true;
 		//thread_function (0);		
 		thread[0]->function();
-		for(i=0;i<thread_num;i++)while(thread[i]->ready);
+		for(i=0;i<thread_num;i++)while(thread[i]->eval);
 	}else{// no thread
+
+		connect_clk_reset_start_all();
+
 		//routers_eval();
 		for(i=0;i<NR;i++){
 			//if(router_is_active[i] | (Quick_sim_en==0)) 
@@ -949,6 +1009,30 @@ void sim_eval_all (void){
 		else for(i=0;i<NE;i++) traffic[i]->eval();
 	}
 }	
+
+
+void topology_connect_all_nodes (void){
+
+
+	int i;
+	if(thread_num>1) {
+		for(i=0;i<thread_num;i++) thread[i]->copy=true;
+		//thread_function (0);
+		thread[0]->function();
+		for(i=0;i<thread_num;i++){
+			while(thread[i]->copy==true);
+		}
+		return;
+	}//no thread
+	for  (int n=0; n<R2R_TABLE_SIZ; n++) {
+		topology_connect_r2r(n);
+	}
+
+	for (int n=0;n<NE; n++){
+		topology_connect_r2e(n);
+	}
+}
+
 
 void sim_final_all (void){
 	int i;
@@ -969,8 +1053,7 @@ void connect_clk_reset_start_all(void){
 		}
 	}else {
 		for(i=0;i<NE;i++)	{
-			start_o[i]=start_i;
-			traffic[i]->start= start_o[i];
+			traffic[i]->start= start_i;
 			traffic[i]->reset= reset;
 			traffic[i]->clk	= clk;
 		}
@@ -988,85 +1071,90 @@ void traffic_clk_negedge_event(void){
 	for (i=0;i<NE;i++){
 		if(inject_done) traffic[i]->stop=1;
 	}
-	connect_clk_reset_start_all();
+
 	sim_eval_all();
 }	
 
+void update_traffic_injector_st (unsigned int i){
+	unsigned char inject_en;
+	// a packet has been received
+	if(traffic[i]->update & ~reset){
+		total_rsv_pck_num+=1;
+		update_noc_statistic (i) ;
+	}
+	// the header flit has been sent out
+	if(traffic[i]->hdr_flit_sent ){
+		traffic[i]->pck_class_in=  pck_class_in_gen( i);
+		traffic[i]->pck_size_in=get_new_pck_size();
+		if((!FIXED_SRC_DST_PAIR)| (!IS_UNICAST)){
+			pck_dst_gen (i, &inject_en);
+			//traffic[i]->dest_e_addr= dest_e_addr;
+			if(inject_en == 0) traffic[i]->stop=1;
+			//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
+		}
+	}
+
+	if(traffic[i]->flit_out_wr==1){
+		total_sent_flit_number++;
+		if (!IS_UNICAST){
+			total_expect_rsv_flit_num+=traffic[i]->mcast_dst_num_o;
+		}else{
+			total_expect_rsv_flit_num++;
+		}
+		#if (C>1)
+			sent_stat [i][traffic[i]->flit_out_class].flit_num++;
+		#else
+		sent_stat [i].flit_num++;
+		#endif
+	}
+
+	if(traffic[i]->flit_in_wr==1){
+		total_rsv_flit_number++;
+	}
+
+	if(traffic[i]->hdr_flit_sent==1){
+		total_sent_pck_num++;
+		#if (C>1)
+			sent_stat [i][traffic[i]->flit_out_class].pck_num++;
+		#else
+			sent_stat [i].pck_num++;
+		#endif
+	}
+}
+
+void update_all_traffic_injector_st(){
+	for (int i=0;i<NE;i++){
+			update_traffic_injector_st(i);
+		}
+
+}
 
 
 
 void traffic_clk_posedge_event(void) {
 	int i;
 	unsigned int dest_e_addr;
-	unsigned char inject_en;
+
 	clk = 1;       // Toggle clock
 	if(count_en) clk_counter++;
 	inject_done= ((total_sent_pck_num >= end_sim_pck_num) || (clk_counter>= sim_end_clk_num) || total_active_routers == 0);
 	//if(inject_done) printf("clk_counter=========%d\n",clk_counter);
 	total_rsv_flit_number_old=total_rsv_flit_number;
 	update_all_router_stat();
+	update_all_traffic_injector_st();
 
-	for (i=0;i<NE;i++){
-		// a packet has been received
-		if(traffic[i]->update & ~reset){
-			update_noc_statistic (i) ;
-		}
-		// the header flit has been sent out
-		if(traffic[i]->hdr_flit_sent ){
-			traffic[i]->pck_class_in=  pck_class_in_gen( i);
-			traffic[i]->pck_size_in=get_new_pck_size();
-			if((!FIXED_SRC_DST_PAIR)| (!IS_UNICAST)){
-				pck_dst_gen (i, &inject_en);
-				//traffic[i]->dest_e_addr= dest_e_addr;
-				if(inject_en == 0) traffic[i]->stop=1;
-				//printf("src=%u, dest=%x\n", i,endp_addr_decoder(dest_e_addr));
+	if(inject_done){
+		if(total_rsv_flit_number_old == total_rsv_flit_number){
+			ideal_rsv_cnt++;
+			if(ideal_rsv_cnt >= NE*10){
+				traffic_gen_final_report( );
+				fprintf(stderr,"ERROR: The number of expected (%u) & received flits (%u) were not equal at the end of simulation\n",total_expect_rsv_flit_num, total_rsv_flit_number);
+				exit(1);
 			}
-		}
+		}else ideal_rsv_cnt=0;
+		if(total_expect_rsv_flit_num == total_rsv_flit_number ) simulation_done=1;
+	}
 
-			if(traffic[i]->flit_out_wr==1){
-				total_sent_flit_number++;
-				if (!IS_UNICAST){
-					total_expect_rsv_flit_num+=traffic[i]->mcast_dst_num_o;
-
-				}else{
-					total_expect_rsv_flit_num++;
-				}
-
-
-
-				#if (C>1)
-					sent_stat [i][traffic[i]->flit_out_class].flit_num++;
-				#else
-					sent_stat [i].flit_num++;
-				#endif
-			}
-			if(traffic[i]->flit_in_wr==1){
-				total_rsv_flit_number++;
-			}
-			if(traffic[i]->hdr_flit_sent==1){
-				total_sent_pck_num++;
-				#if (C>1)
-					sent_stat [i][traffic[i]->flit_out_class].pck_num++;
-				#else
-					sent_stat [i].pck_num++;
-				#endif
-			}
-
-		}//for
-
-
-			if(inject_done){
-				if(total_rsv_flit_number_old == total_rsv_flit_number){
-						ideal_rsv_cnt++;
-						if(ideal_rsv_cnt >= NE*10){
-							traffic_gen_final_report( );
-							fprintf(stderr,"ERROR: The number of expected (%u) & received flits (%u) were not equal at the end of simulation\n",total_expect_rsv_flit_num, total_rsv_flit_number);
-							exit(1);
-						}
-				}else ideal_rsv_cnt=0; 
-				if(total_expect_rsv_flit_num == total_rsv_flit_number ) simulation_done=1;
-			}
-	connect_clk_reset_start_all();
 	sim_eval_all();
 			
 }			
@@ -1123,7 +1211,7 @@ void update_statistic_at_ejection (
 	unsigned int    pck_size
 	){
 
-	total_rsv_pck_num+=1;
+
 
 	if(ENDP_TYPE == TRFC_INJECTOR) {
 		if( traffic[core_num]->pck_size_o >= MIN_PACKET_SIZE && traffic[core_num]->pck_size_o <=MAX_PACKET_SIZE){
@@ -1607,6 +1695,15 @@ unsigned int pck_dst_gen_task_graph ( unsigned int src, unsigned char * inject_e
 
 
 void update_all_router_stat(void){
+	if(thread_num>1) {
+		int i;
+		for(i=0;i<thread_num;i++) thread[i]->update=true;
+		//thread_function (0);
+		thread[0]->function();
+		for(i=0;i<thread_num;i++)while(thread[i]->update==true);
+		return;
+	}
+	//no thread
 	for (int i=0; i<NR; i++) single_router_st_update(i);
 }
 

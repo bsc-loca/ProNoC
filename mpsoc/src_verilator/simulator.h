@@ -70,8 +70,7 @@
 int TRAFFIC_TYPE=SYNTHETIC;
 int ENDP_TYPE   =TRFC_INJECTOR;
 
-void * addr1;
-void * addr2;
+
    
 int get_router_num (int , int );
 	
@@ -85,17 +84,25 @@ int get_router_num (int , int );
 	#define CHAN_SIZE   sizeof(router1[0]->chan_in[0])
 
 	#define conect_r2r(T1,r1,p1,T2,r2,p2)  \
-		memcpy(&router##T1 [r1]->chan_in[p1] , &router##T2 [r2]->chan_out[p2], CHAN_SIZE );
+		memcpy(&router##T1 [r1]->chan_in[p1] , &router##T2 [r2]->chan_out[p2], CHAN_SIZE )
+
 //		router_is_active[get_router_num(T1,r1)] |=(( router##T1 [r1]-> ideal_port!=0) |  (router##T2 [r2]-> active_port[p2]==1))
 
 	#define connect_r2gnd(T,r,p)\
-		memset(&router##T [r]->chan_in [p],0x00,CHAN_SIZE)
+		memset(&router##T [r]->chan_in [p],0x00,CHAN_SIZE);
+
 
 	#define connect_r2e(T,r,p,e) \
+		void * addr1, * addr2;\
 		addr1=(ENDP_TYPE == PCK_INJECTOR)? &pck_inj[e]->chan_out  : &traffic[e]->chan_out;\
 		addr2=(ENDP_TYPE == PCK_INJECTOR)? &pck_inj[e]->chan_in  : &traffic[e]->chan_in;\
 		memcpy(&router##T [r]->chan_in[p], addr1, CHAN_SIZE );\
-		memcpy(addr2, &router##T [r]->chan_out[p], CHAN_SIZE );
+		memcpy(addr2, &router##T [r]->chan_out[p], CHAN_SIZE )
+
+
+
+
+
 //		router_is_active[get_router_num(T,r)] |= (ENDP_TYPE == PCK_INJECTOR)? \
 			(( router##T [r]-> ideal_port!=0) |  (pck_inj[e]->pck_active_port==1)):\
 			(( router##T [r]-> ideal_port!=0) |  (traffic[e]->traffic_active_port==1))
@@ -113,10 +120,15 @@ int get_router_num (int , int );
 #include "parameter.h"
 //alignas(64) int router_is_active [NR]={1};
 
+
 int reset,clk;
 
 Vtraffic		*traffic[NE]; // for synthetic and trace traffic pattern
 Vpck_inj        *pck_inj[NE]; // for netrace
+
+
+
+
 
 unsigned int total_rsv_pck_num=0;
 unsigned int total_sent_pck_num=0;
@@ -186,7 +198,7 @@ typedef struct  avg_st_struct {
 
 
 
-typedef struct  router_st_struct {
+typedef  struct  router_st_struct {
 	unsigned int pck_num_in;
 	unsigned int flit_num_in;
 	unsigned int pck_num_out;
@@ -196,7 +208,7 @@ typedef struct  router_st_struct {
 	unsigned int bypass_counter [SMART_NUM+1 ] ;
 } router_st_t;
 
-router_st_t router_stat [NR][MAX_P];
+alignas(64) router_st_t router_stat [NR][MAX_P];
 router_st_t router_stat_accum [NR];
 
 
@@ -246,6 +258,7 @@ void allocate_rsv_pck_counters (void);
 void update_all_router_stat(void);
 void print_router_st(void);
 void print_endp_to_endp_st(const char *);
+void update_traffic_injector_st (unsigned int );
 
 #include "topology_top.h"
 #include "traffic_task_graph.h"
@@ -372,4 +385,3 @@ mcast_t mcast;
 
 
 #endif
-
