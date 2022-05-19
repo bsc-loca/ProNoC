@@ -133,6 +133,7 @@ module  traffic_gen_top
 	endgenerate
 	
 	assign chan_out.ctrl_chanel.endp_port =1'b1;
+	assign chan_out.ctrl_chanel.credit_release_en={V{1'b0}};
 	
 	//old traffic.v file
 		

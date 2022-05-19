@@ -260,8 +260,11 @@ localparam
 		bit    endp_port;  // if it is one, it means the corresponding port is connected o an endpoint
 		logic [RAw-1:   0]  neighbors_r_addr;
 		logic [V-1  :0] [CRDTw-1: 0] credit_init_val; // the connected port initial credit value. It is taken at reset time	
+		logic [V-1  :0] credit_release_en;
 	} ctrl_chanel_t; 
 	localparam CTRL_CHANEL_w = $bits(ctrl_chanel_t);
+	
+	
 	
 	typedef struct packed {
 		flit_chanel_t    flit_chanel;

@@ -113,7 +113,7 @@ module router_two_stage
 	wire  [PV-1 :  0]  credit_in_all;
 	wire  [CONG_ALw-1 :  0]  congestion_out_all;
     
-	
+	wire  [PV-1 : 0] credit_release_out;
 	
 
 	// old router verilog code
@@ -206,7 +206,7 @@ module router_two_stage
 			
 			assign  chan_out[i].flit=          flit_out_all       [(i+1)*Fw-1:  i*Fw];       
 			assign  chan_out[i].flit_wr=       flit_out_wr_all    [i];                       
-			assign  chan_out[i].credit=        credit_out_all     [(i+1)*V-1:  i*V];         
+			assign  chan_out[i].credit=        credit_out_all     [(i+1)*V-1:  i*V] | credit_release_out [(i+1)*V-1:  i*V];         
 			assign  chan_out[i].congestion=    congestion_out_all [(i+1)*CONGw-1:  i*CONGw];
 			
 			
@@ -237,8 +237,25 @@ module router_two_stage
 			end
 			
 			for (j=0;j<V;j++)begin :V_
-				assign credit_init_val_in[i][j]      = ctrl_in[i].credit_init_val[j];
-				assign ctrl_out[i].credit_init_val[j] = credit_init_val_out [i][j];				
+				
+				//credit_release. Only activated for local ports as credit_release_en never be asserted in router to router connection.  
+				credit_release_gen #(
+					.CREDIT_NUM  (LB)
+				) credit_release_gen (
+					.clk         (clk        ), 
+					.reset       (reset      ), 
+					.en          (ctrl_out[i].credit_release_en[j] ), 
+					.credit_out  (credit_release_out[i*V+j] )
+				);
+				
+				
+				assign ctrl_out[i].credit_release_en[j] =1'b0;
+				assign credit_init_val_in[i][j]       = ctrl_in[i].credit_init_val[j];
+				assign ctrl_out[i].credit_init_val[j] = credit_init_val_out [i][j];		
+				
+				
+				
+				
 			end
 			
 			
@@ -539,4 +556,47 @@ module router_two_stage
 
 
 endmodule
+
+
+
+module credit_release_gen
+	import pronoc_pkg::*;
+#(
+	parameter CREDIT_NUM=4
+)(
+	clk,
+	reset,
+	en,
+	credit_out		
+);
+	input  clk,	reset;
+	input  en;
+	output reg credit_out;		
+	
+	localparam W=log2(CREDIT_NUM +1);
+	
+	reg [W-1 : 0] counter;
+	wire counter_is_zero = counter=={W{1'b0}};	
+	wire counter_is_max = counter==CREDIT_NUM;
+	wire counter_incr = (en & counter_is_zero ) | (~counter_is_zero & ~counter_is_max);
+	
+	
+	
+			
+	always @ (`pronoc_clk_reset_edge )begin 
+		if(`pronoc_reset) begin 
+			counter <= {W{1'b0}};	
+			credit_out<=1'b0;
+		end else begin 
+			if(counter_incr) begin 
+				counter<= counter +1'b1;
+				credit_out<=1'b1;
+			end else begin 
+				credit_out<=1'b0;				
+			end
+		end
+	end
+			
+	
+endmodule	
 

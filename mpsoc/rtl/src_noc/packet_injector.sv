@@ -423,6 +423,8 @@ module packet_injector
 	assign chan_out.flit_chanel.congestion = {CONGw{1'b0}};
 	assign chan_out.flit_chanel.credit= credit_o;	
 	assign chan_out.ctrl_chanel.credit_init_val= LB;	
+	assign chan_out.ctrl_chanel.credit_release_en={V{1'b0}};
+	assign chan_out.ctrl_chanel.endp_port =1'b1;
 	
 	
 	
