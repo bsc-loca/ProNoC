@@ -244,7 +244,7 @@ module router_two_stage
 				) credit_release_gen (
 					.clk         (clk        ), 
 					.reset       (reset      ), 
-					.en          (ctrl_out[i].credit_release_en[j] ), 
+					.en          (ctrl_in[i].credit_release_en[j] ), 
 					.credit_out  (credit_release_out[i*V+j] )
 				);
 				
