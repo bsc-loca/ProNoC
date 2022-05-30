@@ -42,7 +42,7 @@ module  star_noc_top
 			.current_r_addr  (1'b0), 
 			.chan_in         (chan_in_all), 
 			.chan_out        (chan_out_all), 
-			.router_event    (router_event),
+			.router_event    (router_event[0]),
 			.clk             (clk            ), 
 			.reset           (reset          )
 		);
