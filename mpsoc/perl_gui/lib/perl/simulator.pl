@@ -1758,7 +1758,7 @@ sub noc_sim_ctrl{
 	});	
 	
 	
-	return $table;
+	return add_widget_to_scrolled_win($table,gen_scr_win_with_adjst($simulate,"ctrl_sc_win"));
 	
 }
 
@@ -1860,7 +1860,7 @@ my @charts = (
 	$main_table->attach_defaults ($h1  , 0, 12, 0,24);
 	$main_table->attach ($ctrl, 0,12, 24,25,'fill','fill',2,2);
 	
-	
+	my $sc_win=add_widget_to_scrolled_win($main_table);
 
 
 	#check soc status every 0.5 second. refresh device table if there is any changes 
@@ -1883,6 +1883,7 @@ my @charts = (
 		
 		#refresh GUI
 		
+		
 		$ctrl->destroy();							
 		$conf_box->destroy();
 		$chart->destroy();
@@ -1892,7 +1893,7 @@ my @charts = (
 		$chart = gen_multiple_charts  ($simulate,\@pages,\@charts,0.4);
 		$ctrl  = noc_sim_ctrl ($simulate,$info);
 		$main_table->attach ($ctrl,0, 12, 24,25,'fill','fill',2,2);
-        $v1 -> pack1($conf_box, TRUE, TRUE); 	
+		$v1 -> pack1($conf_box, TRUE, TRUE); 	
 		$v1 -> pack2($image, TRUE, TRUE); 		
 		$v2 -> pack2($chart, TRUE, TRUE); 	
 		
@@ -1903,6 +1904,7 @@ my @charts = (
 		$main_table->show_all();			
 		set_gui_status($simulate,"ideal",0);
 		
+		
 		return TRUE;
 		
 	} );
@@ -1912,7 +1914,7 @@ my @charts = (
 		
 	
 
-	return add_widget_to_scrolled_win($main_table);	
+	return $sc_win;
 
 		
 
