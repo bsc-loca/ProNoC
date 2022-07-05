@@ -1417,10 +1417,10 @@ sub extract_and_update_noc_sim_statistic {
 	foreach my $p (sort keys %st3){
 		update_result($simulate,$sample,"flit_per_router_result",$ratio_in,$p,$st3{$p}{'flit_in'});
 		update_result($simulate,$sample,"packet_per_router_result",$ratio_in,$p,$st3{$p}{'pck_in'});
-		my $tmp= ($st3{$p}{'flit_in_buffered'}*100) / $st3{$p}{'flit_in'};
+		my $tmp= ($st3{$p}{'flit_in'}==0)? 0 : ($st3{$p}{'flit_in_buffered'}*100) / $st3{$p}{'flit_in'};
 		#print " $tmp= ($st3{$p}{'flit_in_buffered'}*100) / $st3{$p}{'flit_in'};\n";
 		update_result($simulate,$sample,"flit_buffered_router_ratio",$ratio_in,$p,$tmp);
-		$tmp= ($st3{$p}{'flit_in_bypassed'}*100) / $st3{$p}{'flit_in'};
+		$tmp= ($st3{$p}{'flit_in'}==0)? 0 : ($st3{$p}{'flit_in_bypassed'}*100) / $st3{$p}{'flit_in'};
 		update_result($simulate,$sample,"flit_bypass_router_ratio",$ratio_in,$p,$tmp);
 		
 	}
