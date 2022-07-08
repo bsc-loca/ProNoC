@@ -15,6 +15,8 @@ Verification Results:
 	 model is generated successfully.
 ****************************mesh_4x4_2cycle_mcast_f : Compile *******************************:
 	 model is generated successfully.
+****************************mesh_4x4_v1_B15 : Compile *******************************:
+	 model is generated successfully.
 ****************************mesh_4x4x3_2cycle_xy : Compile *******************************:
 	 model is generated successfully.
 ****************************mesh_8x8_2cycle_adaptive : Compile *******************************:
@@ -53,6 +55,8 @@ Verification Results:
 	 Passed:   zero load (2,9.29771) saturation (62,76.6373)
 ****************************mesh_4x4_2cycle_mcast_f	: random traffic *******************************:
 	 Passed:   zero load (2,14.7167) saturation (22,242.263)
+****************************mesh_4x4_v1_B15	: random traffic *******************************:
+	 Passed:   zero load (2,12.5437) saturation (58,94.2388)
 ****************************mesh_4x4x3_2cycle_xy	: random traffic *******************************:
 	 Passed:   zero load (2,12.6819) saturation (26,180.178)
 ****************************mesh_8x8_2cycle_adaptive	: random traffic *******************************:
