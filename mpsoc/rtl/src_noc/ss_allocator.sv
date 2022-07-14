@@ -51,7 +51,8 @@ import pronoc_pkg::*;
        // dest_port_encoded_all,
        // assigned_ovc_num_all,
        // ovc_is_assigned_all,    
-        ivc_info,   
+        ivc_info,
+        ovc_info,   
         ssa_ctrl_o
    );
 
@@ -88,6 +89,7 @@ import pronoc_pkg::*;
    
     input   reset,clk;
     input   ivc_info_t   ivc_info   [P-1 : 0][V-1 : 0];
+    input   ovc_info_t   ovc_info   [P-1 : 0][V-1 : 0];
     output  ssa_ctrl_t   ssa_ctrl_o [P-1 : 0]; 
 
 
@@ -125,7 +127,9 @@ import pronoc_pkg::*;
         localparam  SS_PORT = strieght_port (P,C_PORT);
         
         assign ivc_request_all[i] = ivc_info[C_PORT][i%V].ivc_req;
-        assign assigned_ovc_not_full_all[i] = ivc_info[C_PORT][i%V].assigned_ovc_not_full;
+        assign assigned_ovc_not_full_all[i] = ~ovc_info[SS_PORT][i%V].full;
+        //assign assigned_ovc_not_full_all[i] = ivc_info[C_PORT][i%V].assigned_ovc_not_full;
+        
         assign dest_port_encoded_all [(i+1)*DSTPw-1 : i*DSTPw] = ivc_info[C_PORT][i%V].dest_port_encoded;
         assign assigned_ovc_num_all[(i+1)*V-1 : i*V] = ivc_info[C_PORT][i%V].assigned_ovc_num;
         assign ovc_is_assigned_all[i] = ivc_info[C_PORT][i%V].ovc_is_assigned;
@@ -574,9 +578,9 @@ module ssa_check_destport
     			.dest_port_encoded(destport_in_encoded),             
     			.dest_port_out( ),   
     			.endp_localp_num(endp_p_in),
-    			.swap_port_presel(0),
-    			.port_pre_sel(0),
-    			.odd_column(0)
+    			.swap_port_presel(1'b0),
+    			.port_pre_sel({PPSw{1'b0}}),
+    			.odd_column(1'b0)
     		);
     	
     	
