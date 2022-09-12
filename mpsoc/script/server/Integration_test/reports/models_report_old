@@ -59,6 +59,8 @@ Verification Results:
 	 Passed:   zero load (2,9.28244) saturation (66,88.8756)
 ****************************mesh_4x4_2cycle_mcast_f	: random traffic *******************************:
 	 Passed:   zero load (2,14.7167) saturation (22,242.263)
+****************************mesh_4x4_smart3	: random traffic *******************************:
+	 Passed:   zero load (2,10.0519) saturation (42,86.8551)
 ****************************mesh_4x4_v1_B15	: random traffic *******************************:
 	 Passed:   zero load (2,12.5437) saturation (58,94.2388)
 ****************************mesh_4x4x3_2cycle_xy	: random traffic *******************************:
@@ -76,7 +78,7 @@ Verification Results:
 ****************************mesh_8x8_sbp6_xy	: random traffic *******************************:
 	 Passed:   zero load (2,10.8919) saturation (34,100.072)
 ****************************mesh_8x8_single_flit	: random traffic *******************************:
-	 Passed:   zero load (2,12.7139) saturation (50,64.3926)
+	 Passed:   zero load (2,12.7139) saturation (50,65.6381)
 ****************************mesh_8x8_ssa_xy	: random traffic *******************************:
 	 Passed:   zero load (2,14.4171) saturation (34,110.365)
 ****************************star_6	: random traffic *******************************:
@@ -101,6 +103,8 @@ Verification Results:
 	 Passed:   zero load (2,8.56164) saturation (100,-)
 ****************************mesh_4x4_2cycle_mcast_f	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,14.85) saturation (26,155.544)
+****************************mesh_4x4_smart3	: transposed 1 traffic *******************************:
+	 Passed:   zero load (2,10.5207) saturation (34,62.7645)
 ****************************mesh_4x4_v1_B15	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,13.6747) saturation (38,107.991)
 ****************************mesh_4x4x3_2cycle_xy	: transposed 1 traffic *******************************:
@@ -118,7 +122,7 @@ Verification Results:
 ****************************mesh_8x8_sbp6_xy	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,11.5074) saturation (18,121.926)
 ****************************mesh_8x8_single_flit	: transposed 1 traffic *******************************:
-	 Passed:   zero load (2,14.0508) saturation (26,75.5254)
+	 Passed:   zero load (2,14.0508) saturation (26,75.031)
 ****************************mesh_8x8_ssa_xy	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,15.6419) saturation (18,124.613)
 ****************************star_6	: transposed 1 traffic *******************************:
