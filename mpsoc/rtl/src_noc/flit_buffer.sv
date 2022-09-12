@@ -1137,7 +1137,7 @@ module fwft_fifo_bram #(
 		if (wr_en & ~rd_en) depth_next =   depth + 1'h1;
 		else if (~wr_en & rd_en) depth_next  = depth - 1'h1;  
 		if(pass_din_to_out_reg) out_reg_next = din;
-		if(bram_out_is_valid)   out_reg_next = bram_dout; 
+		else if(bram_out_is_valid)   out_reg_next = bram_dout; 
 	end  
     
        
