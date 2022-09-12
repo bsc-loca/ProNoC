@@ -48,15 +48,15 @@ Verification Results:
 ****************************Fattree_k3_L3_st	: random traffic *******************************:
 	 Passed:   zero load (2,13.6462) saturation (62,103.363)
 ****************************fmesh_1x1_openpiton	: random traffic *******************************:
-	 Passed:   zero load (14,7.19153) saturation (70,63.5224)
+	 Passed:   zero load (14,7.19577) saturation (66,48.0279)
 ****************************fmesh_2x2_openpiton	: random traffic *******************************:
-	 Passed:   zero load (2,8.31183) saturation (54,45.2369)
+	 Passed:   zero load (2,8.31183) saturation (54,62.1191)
 ****************************fmesh_8x8_2cycle_xy	: random traffic *******************************:
 	 Passed:   zero load (2,19.402) saturation (18,149.089)
 ****************************fmesh_8x8_openpiton	: random traffic *******************************:
-	 Passed:   zero load (2,14.6276) saturation (30,101.821)
+	 Passed:   zero load (2,14.6285) saturation (30,96.9426)
 ****************************mesh_2x2_openpiton	: random traffic *******************************:
-	 Passed:   zero load (2,9.28244) saturation (66,70.8767)
+	 Passed:   zero load (2,9.28244) saturation (66,88.8756)
 ****************************mesh_4x4_2cycle_mcast_f	: random traffic *******************************:
 	 Passed:   zero load (2,14.7167) saturation (22,242.263)
 ****************************mesh_4x4_v1_B15	: random traffic *******************************:
@@ -78,7 +78,7 @@ Verification Results:
 ****************************mesh_8x8_single_flit	: random traffic *******************************:
 	 Passed:   zero load (2,12.7139) saturation (50,64.3926)
 ****************************mesh_8x8_ssa_xy	: random traffic *******************************:
-	 Passed:   zero load (2,14.4171) saturation (34,116.666)
+	 Passed:   zero load (2,14.4171) saturation (34,110.365)
 ****************************star_6	: random traffic *******************************:
 	 Passed:   zero load (10,7.47698) saturation (62,71.5438)
 ****************************torus_8x8_2cycle_xy	: random traffic *******************************:
@@ -92,11 +92,11 @@ Verification Results:
 ****************************fmesh_1x1_openpiton	: transposed 1 traffic *******************************:
 	 Passed:   zero load (50,6.98951) saturation (100,-)
 ****************************fmesh_2x2_openpiton	: transposed 1 traffic *******************************:
-	 Passed:   zero load (2,8.92982) saturation (54,72.7928)
+	 Passed:   zero load (2,8.92982) saturation (54,72.5814)
 ****************************fmesh_8x8_2cycle_xy	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,21.7065) saturation (14,149.295)
 ****************************fmesh_8x8_openpiton	: transposed 1 traffic *******************************:
-	 Passed:   zero load (2,16.1779) saturation (26,117.307)
+	 Passed:   zero load (2,16.1807) saturation (26,118.515)
 ****************************mesh_2x2_openpiton	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,8.56164) saturation (100,-)
 ****************************mesh_4x4_2cycle_mcast_f	: transposed 1 traffic *******************************:
@@ -120,7 +120,7 @@ Verification Results:
 ****************************mesh_8x8_single_flit	: transposed 1 traffic *******************************:
 	 Passed:   zero load (2,14.0508) saturation (26,75.5254)
 ****************************mesh_8x8_ssa_xy	: transposed 1 traffic *******************************:
-	 Passed:   zero load (2,15.6414) saturation (18,123.054)
+	 Passed:   zero load (2,15.6419) saturation (18,124.613)
 ****************************star_6	: transposed 1 traffic *******************************:
 	 Passed:   zero load (6,6.85161) saturation (100,-)
 ****************************torus_8x8_2cycle_xy	: transposed 1 traffic *******************************:

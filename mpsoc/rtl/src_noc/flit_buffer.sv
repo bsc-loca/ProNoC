@@ -1034,12 +1034,9 @@ module fwft_fifo_with_output_clear #(
 endmodule   
 
 
-
-
-
-
-
-
+/***************
+fwft_fifo_bram
+****************/
 
 module fwft_fifo_bram #(
 		parameter DATA_WIDTH = 2,
@@ -1082,6 +1079,9 @@ module fwft_fifo_bram #(
 	wire [DATA_WIDTH-1 : 0] bram_dout;
 	wire [DATA_WIDTH-1 : 0] out_reg;
 	reg  [DATA_WIDTH-1 : 0] out_reg_next;
+	
+	wire [DEPTH_DATA_WIDTH-1         :   0]  depth;
+	reg  [DEPTH_DATA_WIDTH-1         :   0]  depth_next;
      
 	assign dout = (bram_out_is_valid)?  bram_dout : out_reg;
 
@@ -1100,8 +1100,9 @@ module fwft_fifo_bram #(
    
 	always @(*) begin
 		valid_next = valid;
-		if(out_reg_wr_en) valid_next =1'b1;
-		else if( bram_empty & rd_en) valid_next =1'b0;
+		if(depth_next == {DEPTH_DATA_WIDTH{1'b0}}) valid_next =1'b0;
+		else if(out_reg_wr_en) valid_next =1'b1;
+		else if(bram_empty & rd_en) valid_next =1'b0;
 	end   
     
     
@@ -1120,8 +1121,7 @@ module fwft_fifo_bram #(
 			.clk(clk)
 		);
     
-	wire [DEPTH_DATA_WIDTH-1         :   0]  depth;
-	reg  [DEPTH_DATA_WIDTH-1         :   0]  depth_next;
+	
    
    
 	pronoc_register #(.W(DATA_WIDTH)      ) reg1 (.in(out_reg_next           ), .out(out_reg), .reset(reset), .clk(clk));

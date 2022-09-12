@@ -1,0 +1,17 @@
+Verification Results:
+****************************mesh_4x4_openpiton_mcast_f : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_4x4_smart3 : Compile *******************************:
+	 model is generated successfully.
+****************************mesh_4x4_openpiton_mcast_f	: random traffic *******************************:
+	 Error in running simulation: ERROR: SMART or SAA do not support muticast/braodcast packets
+ ERROR: SMART or SAA do not support muticast/braodcast packets
+ 
+****************************mesh_4x4_smart3	: random traffic *******************************:
+	 Passed:   zero load (2,10.0519) saturation (42,86.8551)
+****************************mesh_4x4_openpiton_mcast_f	: transposed 1 traffic *******************************:
+	 Error in running simulation: ERROR: SMART or SAA do not support muticast/braodcast packets
+ ERROR: SMART or SAA do not support muticast/braodcast packets
+ 
+****************************mesh_4x4_smart3	: transposed 1 traffic *******************************:
+	 Passed:   zero load (2,10.5207) saturation (34,62.7645)

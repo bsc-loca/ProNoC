@@ -2,6 +2,7 @@
 package ProNOC;
 
 use Getopt::Std;
+use lib perl_lib;
 
 
 # perl verify.pl [model-name] p min max step

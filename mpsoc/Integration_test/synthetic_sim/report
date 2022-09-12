@@ -1,13 +1,7 @@
 Verification Results:
-****************************mesh_4x4_v1_B15 : Compile *******************************:
-	 model generation is FAILED.
-	 %Error: Unknown warning specified: -Wno-TIMESCALEMOD
-
-	 %Error: Unknown warning specified: -Wno-TIMESCALEMOD
-
-	 %Error: Unknown warning specified: -Wno-TIMESCALEMOD
-
-****************************mesh_4x4_v1_B15	: random traffic *******************************:
-	 failed. Simulation model is not avaialable
-****************************mesh_4x4_v1_B15	: transposed 1 traffic *******************************:
-	 failed. Simulation model is not avaialable
+****************************bintree_k3_L3_st : Compile *******************************:
+	 model is generated successfully.
+****************************bintree_k3_L3_st	: random traffic *******************************:
+	 Passed:   zero load (5,16.0881) saturation (30,737.172)
+****************************bintree_k3_L3_st	: transposed 1 traffic *******************************:
+	 Passed:   zero load (5,15.6274) saturation (30,408.757)

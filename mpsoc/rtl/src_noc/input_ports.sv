@@ -719,7 +719,7 @@ module input_queue_per_port
 				assign clear_dspt_mulicast [i] = (reset_ivc[i] & multiple_dest[i]) ? dest_port_encoded[i] : {DSTPw{1'b0}}; 
 				
 				// a fix priority arbiter. 
-				multicast_dst_sel  sel(
+				multicast_dst_sel  sel_arb(
 					.destport_in(dest_port_multi[i]),
 					.destport_out(dest_port_encoded[i])						
 				);
