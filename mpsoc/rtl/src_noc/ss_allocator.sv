@@ -61,21 +61,7 @@ module  ss_allocator (
                 PFw         =   P   *   Fw;
                 
     localparam    DISABLED = P;                       
-                
-    //MESH, TORUS Topology p=5           
-    localparam    EAST    =   1,
-                  NORTH   =   2, 
-                  WEST    =   3,
-                  SOUTH   =   4;
-                   
-               
-      
-    //LINE RING Topology p=3           
-    localparam  FORWARD =  1,
-                BACKWARD=  2;
-                  
-                
-                
+             
 
     input   [PFw-1          :   0]  flit_in_all;
     input   [P-1            :   0]  flit_in_wr_all;
@@ -287,7 +273,7 @@ module ssa_per_vc
                 V_LOCAL            =V_GLOBAL%V;
 
     /* verilator lint_off WIDTH */ 
-    localparam SSA_EN = ((TOPOLOGY== "MESH" || TOPOLOGY == "TORUS") && (ROUTE_TYPE == "FULL_ADAPTIVE") && (SS_PORT==2 || SS_PORT == 4) && ((1<<V_LOCAL &  ~ESCAP_VC_MASK ) != {V{1'b0}})) ? 1'b0 :1'b1;
+    localparam SSA_EN_IN_PORT = ((TOPOLOGY== "MESH" || TOPOLOGY == "TORUS") && (ROUTE_TYPE == "FULL_ADAPTIVE") && (SS_PORT==2 || SS_PORT == 4) && ((1<<V_LOCAL &  ~ESCAP_VC_MASK ) != {V{1'b0}})) ? 1'b0 :1'b1;
     /* verilator lint_on WIDTH */   
       
                
@@ -415,7 +401,7 @@ wire ssa_permited_by_iport;
 
 
 generate
-if (SSA_EN) begin : enable
+if (SSA_EN_IN_PORT) begin : enable
     assign ssa_permited_by_iport = ss_ovc_ready & (~ivc_request) & condition_1_2_valid;  
 end else begin : disabled
     assign ssa_permited_by_iport = 1'b0;

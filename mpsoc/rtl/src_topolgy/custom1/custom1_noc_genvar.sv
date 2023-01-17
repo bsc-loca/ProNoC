@@ -10,7 +10,7 @@
 **    
 **	Copyright (C) 2014-2021  Alireza Monemi
 **    
-**	This file is part of ProNoC 2.0.0 
+**	This file is part of ProNoC 2.1.0 
 **
 **	ProNoC ( stands for Prototype Network-on-chip)  is free software: 
 **	you can redistribute it and/or modify it under the terms of the GNU
@@ -28,8 +28,7 @@
 
 `include "pronoc_def.v"
 
-module   custom1_noc_genvar 
-   import pronoc_pkg::*; 
+module   custom1_noc_genvar    
 	(
 
     reset,
@@ -39,14 +38,7 @@ module   custom1_noc_genvar
     router_event  
 );
 
-	 function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end 	   
-      end   
-    endfunction // log2 
+	 `NOC_CONF
 
 	localparam 
 		NE = 16,

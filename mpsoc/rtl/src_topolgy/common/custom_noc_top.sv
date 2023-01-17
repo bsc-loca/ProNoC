@@ -1,7 +1,7 @@
 `include "pronoc_def.v"
 
 module   custom_noc_top 
-    	import pronoc_pkg::*; 
+
 	(
 
     reset,
@@ -11,6 +11,7 @@ module   custom_noc_top
     router_event  
 );
 
+    `NOC_CONF
     
 	input   clk,reset;
 	//local ports 

@@ -134,19 +134,12 @@ sub generate_topology_top_v {
 	
 	 print $fd "
 module   ${name}_noc
-	import pronoc_pkg::*; 
+	
 	(
    $ports
 );
 	
-	 function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end 	   
-      end   
-    endfunction // log2 
+	 `NOC_CONF
 
 	localparam 
 		NE = $NE,
@@ -511,8 +504,7 @@ $routers.="endgenerate\n";
 	
 	
 	 print $fd "
-module   ${name}_noc_genvar 
-   import pronoc_pkg::*; 
+module   ${name}_noc_genvar    
 	(
 
     reset,
@@ -522,14 +514,7 @@ module   ${name}_noc_genvar
     router_event  
 );
 
-	 function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end 	   
-      end   
-    endfunction // log2 
+	 `NOC_CONF
 
 	localparam 
 		NE = $NE,
@@ -1446,19 +1431,12 @@ print $fd '
 	
 		 print $fd "
 module  ${name}_connection 
-	import pronoc_pkg::*; 
+	
 (
     $ports
 );
 
-	 function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end 	   
-      end   
-    endfunction // log2 
+	`NOC_CONF
 
 	localparam 
 		NE = $NE,

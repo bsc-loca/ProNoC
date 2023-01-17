@@ -97,8 +97,6 @@ module multicast_routing_mesh
 
     
 	localparam
-		NX = T1,
-		NY = T2,
 		RXw = log2(NX),   
 		RYw = log2(NY),  
 		EXw = RXw,
@@ -248,9 +246,7 @@ module multicast_routing_fmesh
 
 	localparam Pw = log2(MAX_P_FMESH);
 	
-	localparam
-		NX = T1,
-		NY = T2,
+	localparam		
 		RXw = log2(NX),   
 		RYw = log2(NY),  
 		EXw = RXw,

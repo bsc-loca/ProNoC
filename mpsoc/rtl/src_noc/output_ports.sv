@@ -59,16 +59,6 @@ module output_ports
 
 	 parameter P=5;
 	`NOC_CONF    
- 
-   
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end 	   
-      end   
-    endfunction // log2 
     
     localparam      PV      =    V        *    P,
                     VV      =   V       *  V,
@@ -77,10 +67,7 @@ module output_ports
                     VP_1    =    V        *     P_1,                
                     PP_1    =    P_1    *    P,
                     PVP_1    =    PV        *    P_1;
-                   
-
-    localparam  NORTH  =       2,  
-                SOUTH  =       4; 
+    
     localparam [V-1     :   0] ADAPTIVE_VC_MASK = ~ ESCAP_VC_MASK;   
     localparam  CONG_ALw=   CONGw * P;   //  congestion width per router;             
                     

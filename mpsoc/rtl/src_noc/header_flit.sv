@@ -45,27 +45,10 @@ module header_flit_generator
 
 	parameter DATA_w = 9; // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
     
-	`NOC_CONF
-    
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end       
-      end   
-    endfunction // log2 
-   
-/* verilator lint_off WIDTH */ 
-    localparam
-        Cw   =  (C>1)? log2(C): 1,
-        HDR_FLAG  =   2'b10,
-        BEw = (BYTE_EN)? log2(Fpay/8) : 1;
-/* verilator lint_on WIDTH */      
-
-
+	`NOC_CONF   
  
-
+    localparam    HDR_FLAG  =   2'b10;
+        
 
     localparam 
         Dw = (DATA_w==0)? 1 : DATA_w,      
@@ -157,21 +140,10 @@ module extract_header_flit_info
 
  	parameter DATA_w = 0;
     
-       `NOC_CONF
-    
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end       
-      end   
-    endfunction // log2 
-   
+ 	`NOC_CONF
+       
     localparam       
-        Cw = (C>1)? log2(C): 1,
-        W = WEIGHTw,
-        BEw = (BYTE_EN)? log2(Fpay/8) : 1;
+        W = WEIGHTw;
      
     localparam 
         Dw = (DATA_w==0)? 1 : DATA_w;
@@ -415,24 +387,8 @@ module hdr_flit_weight_update
     flit_out    
 );
 
-	`NOC_CONF 
-
-
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end       
-      end   
-    endfunction // log2 
-
-
-     localparam  
-       
-        Cw = (C>1)? log2(C): 1;
-                 
-
+	`NOC_CONF
+    
     input [WEIGHTw-1 : 0] new_weight;
     input [Fw-1 : 0] flit_in;
     output [Fw-1 : 0] flit_out;

@@ -10,7 +10,7 @@
 **    
 **	Copyright (C) 2014-2021  Alireza Monemi
 **    
-**	This file is part of ProNoC 2.0.0 
+**	This file is part of ProNoC 2.1.0 
 **
 **	ProNoC ( stands for Prototype Network-on-chip)  is free software: 
 **	you can redistribute it and/or modify it under the terms of the GNU

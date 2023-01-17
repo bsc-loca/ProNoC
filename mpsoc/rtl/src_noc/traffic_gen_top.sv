@@ -60,11 +60,9 @@ module  traffic_gen_top
    
 	localparam
 		PCK_CNTw = log2(MAX_PCK_NUM+1),
-		CLK_CNTw = log2(MAX_SIM_CLKs+1),
-		PCK_SIZw = log2(MAX_PCK_SIZ+1),
+		CLK_CNTw = log2(MAX_SIM_CLKs+1),		
 		AVG_PCK_SIZw = log2(10*MAX_PCK_SIZ+1),
-		/* verilator lint_off WIDTH */
-		DISTw = (TOPOLOGY=="FATTREE" || TOPOLOGY=="TREE" ) ? log2(2*L+1): log2(NR+1),
+		/* verilator lint_off WIDTH */		
 		W=WEIGHTw,
 		PORT_B = (TOPOLOGY!="FMESH")?  LB :
 		(ENDP_ID < NE_MESH_TORI)? LB :B; // in FMESH, the buffer size of endpoints connected to edge routers non-local ports are B not LB  
@@ -1006,21 +1004,11 @@ module packet_gen
 	
 
 	`NOC_CONF
-
- 
-	function integer log2;
-	input integer number; begin   
-		log2=(number <=1) ? 1: 0;    
-		while(2**log2<number) begin    
-			log2=log2+1;    
-		end       
-	end   
-	endfunction // log2 
      
 	localparam 
 	PCK_CNTw    =   log2(MAX_PCK_NUM+1),
-	CLK_CNTw    =   log2(MAX_SIM_CLKs+1),
-	PCK_SIZw    =   log2(MAX_PCK_SIZ);
+	CLK_CNTw    =   log2(MAX_SIM_CLKs+1);
+
  
 	input  reset,clk, pck_wr, pck_rd;
 	input  [RAw-1  :0] current_r_addr;

@@ -1,13 +1,16 @@
+
 `include "pronoc_def.v"
 /****************************************************************************
  * pronoc_pkg.sv
  ****************************************************************************/
 
+`ifdef PRONOC_PKG	
+
 `ifdef IMPORT_PRONOC_PCK
 package pronoc_pkg; 
 `endif  
 	
-		
+	
 	
   
 `define NOC_LOCAL_PARAM
@@ -296,7 +299,7 @@ localparam
  	
  	//packet injector interface
  	localparam PCK_INJ_Dw =64;//TODO to be defined by user
- 	localparam PCK_SIZw= log2(MAX_PCK_SIZ);
+ 	localparam PCK_SIZw= log2(MAX_PCK_SIZ+1);
 	
  	
 
@@ -329,3 +332,4 @@ localparam
 endpackage : pronoc_pkg
 `endif
 
+`endif
