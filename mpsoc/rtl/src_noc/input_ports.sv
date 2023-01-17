@@ -32,10 +32,7 @@
 
 
 module input_ports 
-	import pronoc_pkg::*; 	
-#(
-	parameter P=5	
-)(
+	(
 			current_r_addr,
 			neighbors_r_addr,
 			ivc_num_getting_sw_grant,// for non spec ivc_num_getting_first_sw_grant,
@@ -72,7 +69,8 @@ module input_ports
 			clk
 		);
     
-         
+     parameter P=5;
+	`NOC_CONF    
      
 	localparam
 		PV = V * P,
@@ -196,11 +194,7 @@ endmodule
  **************************/
 
 module input_queue_per_port 
-		import pronoc_pkg::*; 	
-	#(
-		parameter P = 5,     // router port num
-		parameter SW_LOC = 0
-		)(
+(
 			current_r_addr,
 			credit_out,
 			neighbors_r_addr,
@@ -236,7 +230,9 @@ module input_queue_per_port
 			credit_init_val_out
 		);
 
- 
+ 	parameter P = 5;     // router port num
+	parameter SW_LOC = 0;
+	`NOC_CONF
 	
    
 	
@@ -974,8 +970,13 @@ module input_queue_per_port
 			
            
 			flit_buffer #(
+					.V(V),
 					.B(PORT_B),   // buffer space :flit per VC 
-					.SSA_EN(SSA_EN)
+					.SSA_EN(SSA_EN),
+        			.Fw(Fw),
+					.PCK_TYPE(PCK_TYPE),
+					.CAST_TYPE(CAST_TYPE),
+					.DEBUG_EN(DEBUG_EN)
 				)
 				the_flit_buffer
 				(
@@ -999,8 +1000,13 @@ module input_queue_per_port
  
 
 			flit_buffer #(
+					.V(V),
 					.B(PORT_B),   // buffer space :flit per VC 
-					.SSA_EN(SSA_EN)
+					.SSA_EN(SSA_EN),
+        			.Fw(Fw),
+					.PCK_TYPE(PCK_TYPE),
+					.CAST_TYPE(CAST_TYPE),
+					.DEBUG_EN(DEBUG_EN)
 				)
 				the_flit_buffer
 				(

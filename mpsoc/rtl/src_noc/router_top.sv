@@ -11,23 +11,21 @@
  *  add optional bypass links to two stage router.
  */
 module router_top 
-		import pronoc_pkg::*;
-        
-	# (
-		parameter P = 5     // router port num         
-		)(
-			current_r_id,
-			current_r_addr,
+(
+		current_r_id,
+		current_r_addr,
 					
-			chan_in,
-			chan_out,
+		chan_in,
+		chan_out,
         
-			router_event,
-			
-			clk,
-			reset			
-			
-		);
+		router_event,
+					
+		clk,
+		reset						
+);
+	
+	 parameter P=5;
+	`NOC_CONF    
 	
 	
 	localparam DISABLED =P;
@@ -418,11 +416,7 @@ endmodule
 
 
 module router_top_v //to be used as top module in veralator
-		import pronoc_pkg::*;
-        
-	# (
-		parameter P = 5     // router port num         
-		)(
+	(
 			current_r_addr,
 			current_r_id,
         
@@ -434,9 +428,10 @@ module router_top_v //to be used as top module in veralator
 			clk,
 			reset
 
-		);
+);
   
-	
+	 parameter P=5;
+	`NOC_CONF    	
 
 	input  [RAw-1 : 0] current_r_addr;
 	input [31:0] current_r_id;

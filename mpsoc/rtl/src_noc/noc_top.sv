@@ -27,8 +27,7 @@
 
 
 
-module  noc_top 
-	import pronoc_pkg::*; 
+module  noc_top 	
 (
 	reset,
 	clk,    
@@ -37,6 +36,7 @@ module  noc_top
 	router_event
 );
   
+  	`NOC_CONF
   	
 	input   clk,reset;
 	//Endpoints ports 
@@ -113,8 +113,7 @@ The noc top module that can be called in Verilog module.
 
 ***********************************/
 
-module  noc_top_v 
-   import pronoc_pkg::*; 
+module  noc_top_v  
    (
     flit_out_all,
     flit_out_wr_all,
@@ -126,6 +125,7 @@ module  noc_top_v
     clk
  );
 
+	`NOC_CONF
 	
 	input   clk,reset;
 	output [NEFw-1 : 0] flit_out_all;

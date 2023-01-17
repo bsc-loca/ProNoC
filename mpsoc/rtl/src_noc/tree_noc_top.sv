@@ -14,7 +14,6 @@ Description:
 
  
 module  tree_noc_top 
-		import pronoc_pkg::*; 
 	(
 		reset,
 		clk,    
@@ -23,7 +22,8 @@ module  tree_noc_top
 		router_event
 	);
   
-  
+  	`NOC_CONF 
+  	
 	input   clk,reset;
 	//Endpoints ports 
 	input   smartflit_chanel_t chan_in_all  [NE-1 : 0];

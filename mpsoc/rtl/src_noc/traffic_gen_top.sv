@@ -1,11 +1,6 @@
 `include "pronoc_def.v"
 
-module  traffic_gen_top
-		import pronoc_pkg::*; 
-	#(
-		parameter MAX_RATIO = 1000,
-		parameter ENDP_ID   = 100000
-	)
+module  traffic_gen_top	
 	(
 					
 		//noc port
@@ -45,6 +40,12 @@ module  traffic_gen_top
 		clk
 			
 	);
+	
+	parameter MAX_RATIO = 1000;
+	parameter ENDP_ID   = 100000;
+	`NOC_CONF
+	
+	
 		
 	localparam
 		RATIOw= $clog2(MAX_RATIO);
@@ -303,14 +304,7 @@ module  traffic_gen_top
 		
     
 		packet_gen #(
-				.P(MAX_P),	
-				.PCK_TYPE(PCK_TYPE),
-				.ROUTE_TYPE(ROUTE_TYPE),
-				.MAX_PCK_NUM(MAX_PCK_NUM),
-				.MAX_SIM_CLKs(MAX_SIM_CLKs),
-				.TIMSTMP_FIFO_NUM(TIMSTMP_FIFO_NUM),
-				.MIN_PCK_SIZE(MIN_PCK_SIZE),
-				.MAX_PCK_SIZ(MAX_PCK_SIZ)			
+				.P(MAX_P)				
 			)
 			packet_buffer
 			(
@@ -985,16 +979,8 @@ endmodule
 
  
 module packet_gen 
-	import pronoc_pkg::*; 		
-	#(   
-	parameter P = 5,
-	parameter PCK_TYPE = "SINGLE_FLIT",
-	parameter ROUTE_TYPE = "DETERMINISTIC",
-	parameter MAX_PCK_NUM   = 10000,
-	parameter MAX_SIM_CLKs  = 100000,
-	parameter TIMSTMP_FIFO_NUM=16,
-	parameter MIN_PCK_SIZE=2,
-	parameter MAX_PCK_SIZ=100
+#(   
+	
 )(
 	clk_counter,
 	pck_wr,
@@ -1014,6 +1000,12 @@ module packet_gen
 	clk,
 	reset 
 );
+
+
+	parameter P = 5;
+	
+
+	`NOC_CONF
 
  
 	function integer log2;

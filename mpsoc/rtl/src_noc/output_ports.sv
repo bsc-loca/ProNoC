@@ -27,10 +27,7 @@
 
 
 module output_ports 
-    import pronoc_pkg::*;
- #(   
-    parameter P = 5 // router port num       
-)(
+ (
     vsa_ovc_allocated_all,
     flit_is_tail_all,
    
@@ -60,7 +57,8 @@ module output_ports
     credit_init_val_in
 );
 
-
+	 parameter P=5;
+	`NOC_CONF    
  
    
     function integer log2;
@@ -490,10 +488,7 @@ endmodule
  ********************/
  
 module   credit_monitor_per_ovc  
- 	import pronoc_pkg::*;
-	#( 
-	parameter SW_LOC=0
-	)(
+ 	(
 		credit_init_val_i,
 		credit_increased,
 		credit_decreased,
@@ -505,6 +500,9 @@ module   credit_monitor_per_ovc
 		clk
 	);
 
+	parameter SW_LOC=0;
+	`NOC_CONF    
+	
 	
 	localparam 
 	PORT_B = port_buffer_size(SW_LOC),	

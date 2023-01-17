@@ -137,14 +137,17 @@ endmodule
 
 
 module header_flit_info
-	import pronoc_pkg::*;
-#(
-	parameter DATA_w = 0
-)(
+(
 	flit,
 	hdr_flit,		
 	data_o    
 );
+
+
+ 	parameter DATA_w = 0;	
+ 	
+ 	`NOC_CONF
+ 	
  	localparam 
 	Dw = (DATA_w==0)? 1 : DATA_w;
 	
@@ -205,13 +208,14 @@ endmodule
 //synopsys  translate_off
 
 module smart_chanel_check 
-		import pronoc_pkg::*;
 	(
 		flit_chanel,
 		smart_chanel,
 		reset,
 		clk		
 	);
+
+	`NOC_CONF
 
 	input flit_chanel_t  flit_chanel;
 	input smart_chanel_t   smart_chanel; 		
@@ -255,10 +259,7 @@ endmodule
 
 
 module smart_forward_ivc_info
-	import pronoc_pkg::*;
-	#(
-	parameter P=5
-)(			
+(			
 		ivc_info,
 		iport_info,
 		oport_info,
@@ -266,8 +267,10 @@ module smart_forward_ivc_info
 		ovc_locally_requested,
 		reset,clk
 );
-		
 	
+	parameter P=5;	
+	
+	`NOC_CONF	
 	
 	//ivc info 
 	input reset,clk;
@@ -407,10 +410,7 @@ endmodule
  
  
 module smart_bypass_chanels
- 	import pronoc_pkg::*;
-#(
-	parameter P=5
-)(			
+ (			
 	ivc_info,
 	iport_info,
 	oport_info,
@@ -422,6 +422,10 @@ module smart_bypass_chanels
 	clk
 	
 );
+
+	parameter P=5;	
+	
+	`NOC_CONF	
 
 	input reset,clk;	
 	input smart_chanel_t smart_chanel_new  [P-1 : 0];
@@ -552,10 +556,7 @@ endmodule
 
 	
 module smart_validity_check_per_ivc  
-	import pronoc_pkg::*;
-#(
-	parameter IVC_NUM = 0
-)(
+	(
 	reset                  ,
 	clk                    ,
 	//smart channel
@@ -589,6 +590,12 @@ module smart_validity_check_per_ivc
 	smart_ivc_reset_o,			
 	smart_ivc_granted_ovc_num_o
 );
+	
+	
+	parameter IVC_NUM = 0;
+	`NOC_CONF
+
+	
 	
 input reset, clk;
 //smart channel
@@ -696,12 +703,7 @@ endmodule
 	
 	
 module smart_allocator_per_iport 
-	import pronoc_pkg::*;
-#(
-	parameter P=5,
-	parameter SW_LOC=0,
-	parameter SS_PORT_LOC=1
-	)(
+(
 	//general
 	clk,
 	reset,
@@ -732,6 +734,14 @@ module smart_allocator_per_iport
 	smart_ivc_single_flit_pck_o,
 	smart_ovc_single_flit_pck_o
 );
+
+	parameter P=5;
+	parameter SW_LOC=0;
+	parameter SS_PORT_LOC=1;
+	
+	`NOC_CONF
+
+
 	//general
  	input clk, reset;
  	input [RAw-1   :0]  current_r_addr_i;

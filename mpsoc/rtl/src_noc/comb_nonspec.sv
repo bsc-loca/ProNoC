@@ -30,10 +30,7 @@
 
     
 module comb_nonspec_allocator 
-   import pronoc_pkg::*;
-#(
-    parameter P = 5 //port number
-)
+  
 (
     //VC allocator
     //input 
@@ -65,6 +62,10 @@ module comb_nonspec_allocator
     reset
 
 );
+
+    parameter P = 5; //port number
+
+	`NOC_CONF
        
     localparam
         P_1 = (SELF_LOOP_EN == "NO")? P-1 : P,

@@ -13,8 +13,7 @@ Description:
  ***************************************/
 
  
-module  star_noc_top 
-		import pronoc_pkg::*; 
+module  star_noc_top 		
 	(
 		reset,
 		clk,    
@@ -23,6 +22,7 @@ module  star_noc_top
 		router_event
 	);
   
+  	`NOC_CONF
   
 	input   clk,reset;
 	//Endpoints ports 

@@ -1,17 +1,37 @@
 Verification Results:
+****************************Line_3x2_v2 : Compile *******************************:
+	 model is generated successfully.
+	 %Error: Exiting due to 8 warning(s)
+
+	 %Warning-WIDTH: /gpfs/home/bsc18/bsc18759/pronoc_verify/mpsoc/Integration_test/synthetic_sim/../../mpsoc_work/verify/rtl/src_noc/mesh_torus.sv:1284:31: Operator ASSIGNW expects 5 bits on the Assign RHS, but Assign RHS's VARREF 'e_addr' generates 4 bits.
+
+	 %Warning-WIDTH: /gpfs/home/bsc18/bsc18759/pronoc_verify/mpsoc/Integration_test/synthetic_sim/../../mpsoc_work/verify/rtl/src_noc/input_ports.sv:984:7: Input port connection 'vc_num_wr' expects 1 bits on the pin connection, but pin connection's VARREF 'vc_num_in' generates 2 bits.
+
+	 %Warning-WIDTH: /gpfs/home/bsc18/bsc18759/pronoc_verify/mpsoc/Integration_test/synthetic_sim/../../mpsoc_work/verify/rtl/src_noc/input_ports.sv:985:7: Input port connection 'vc_num_rd' expects 1 bits on the pin connection, but pin connection's VARREF 'nonspec_first_arbiter_granted_ivc' generates 2 bits.
+
+	 %Warning-WIDTH: /gpfs/home/bsc18/bsc18759/pronoc_verify/mpsoc/Integration_test/synthetic_sim/../../mpsoc_work/verify/rtl/src_noc/input_ports.sv:989:7: Output port connection 'vc_not_empty' expects 1 bits on the pin connection, but pin connection's VARREF 'ivc_not_empty' generates 2 bits.
+
+	 %Warning-WIDTH: /gpfs/home/bsc18/bsc18759/pronoc_verify/mpsoc/Integration_test/synthetic_sim/../../mpsoc_work/verify/rtl/src_noc/input_ports.sv:992:7: Input port connection 'ssa_rd' expects 1 bits on the pin connection, but pin connection's SEL generates 2 bits.
+
+	 %Warning-WIDTH: /gpfs/home/bsc18/bsc18759/pronoc_verify/mpsoc/Integration_test/synthetic_sim/../../mpsoc_work/verify/rtl/src_noc/input_ports.sv:993:7: Input port connection 'multiple_dest' expects 1 bits on the pin connection, but pin connection's VARREF 'multiple_dest' generates 2 bits.
+
+	 %Warning-WIDTH: /gpfs/home/bsc18/bsc18759/pronoc_verify/mpsoc/Integration_test/synthetic_sim/../../mpsoc_work/verify/rtl/src_noc/input_ports.sv:994:7: Input port connection 'sub_rd_ptr_ld' expects 1 bits on the pin connection, but pin connection's VARREF 'reset_ivc' generates 2 bits.
+
+	 %Warning-WIDTH: /gpfs/home/bsc18/bsc18759/pronoc_verify/mpsoc/Integration_test/synthetic_sim/../../mpsoc_work/verify/rtl/src_noc/input_ports.sv:995:7: Output port connection 'flit_is_tail' expects 1 bits on the pin connection, but pin connection's VARREF 'flit_is_tail' generates 2 bits.
+
 ****************************mesh_4x4_openpiton_mcast_f : Compile *******************************:
 	 model is generated successfully.
-****************************mesh_4x4_smart3 : Compile *******************************:
-	 model is generated successfully.
+****************************Line_3x2_v2	: random traffic *******************************:
+	 Error in running simulation:                    0: ERROR: Attempt to write when no wr VC is asserted: TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[2].the_input_queue_per_port.nonspec.the_flit_buffer.dbg
+ 
 ****************************mesh_4x4_openpiton_mcast_f	: random traffic *******************************:
 	 Error in running simulation: ERROR: SMART or SAA do not support muticast/braodcast packets
  ERROR: SMART or SAA do not support muticast/braodcast packets
  
-****************************mesh_4x4_smart3	: random traffic *******************************:
-	 Passed:   zero load (2,10.0519) saturation (42,86.8551)
+****************************Line_3x2_v2	: transposed 1 traffic *******************************:
+	 Error in running simulation:                    0: ERROR: Attempt to write when no wr VC is asserted: TOP.router_top_v.router.router_ref.the_inout_ports.the_input_port.Port_[2].the_input_queue_per_port.nonspec.the_flit_buffer.dbg
+ 
 ****************************mesh_4x4_openpiton_mcast_f	: transposed 1 traffic *******************************:
 	 Error in running simulation: ERROR: SMART or SAA do not support muticast/braodcast packets
  ERROR: SMART or SAA do not support muticast/braodcast packets
  
-****************************mesh_4x4_smart3	: transposed 1 traffic *******************************:
-	 Passed:   zero load (2,10.5207) saturation (34,62.7645)

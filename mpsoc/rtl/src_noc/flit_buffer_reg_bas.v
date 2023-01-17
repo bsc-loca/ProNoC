@@ -133,8 +133,13 @@ module  flit_buffer_reg_base #(
     
 
     flit_buffer #(
+		.V(V),
         .B(B),
-        .SSA_EN("NO")// should be "NO" even if SSA is enabled
+        .SSA_EN("NO"),// should be "NO" even if SSA is enabled
+        .Fw(Fw),
+		.PCK_TYPE(PCK_TYPE),
+		.CAST_TYPE(CAST_TYPE),
+		.DEBUG_EN(DEBUG_EN)
     )
     flit_buffer
     (

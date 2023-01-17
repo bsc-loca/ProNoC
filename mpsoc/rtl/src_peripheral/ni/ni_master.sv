@@ -988,8 +988,13 @@ end
     localparam LBw = log2(LB);
     
     flit_buffer #(
+        .V(V),
         .B(LB),
-        .SSA_EN("NO")
+        .SSA_EN("NO"),
+        .Fw(Fw),
+		.PCK_TYPE(PCK_TYPE),
+		.CAST_TYPE(CAST_TYPE),
+		.DEBUG_EN(DEBUG_EN)
      )
      the_ififo
      (

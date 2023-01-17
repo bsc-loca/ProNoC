@@ -18,8 +18,7 @@ Description:
 ***************************************/
 
 
-module  fattree_noc_top 
-		import pronoc_pkg::*; 
+module  fattree_noc_top 		
 	(
 		reset,
 		clk,    
@@ -28,6 +27,7 @@ module  fattree_noc_top
 		router_event
 	);
   
+     `NOC_CONF
   
 	input   clk,reset;
 	//Endpoints ports 

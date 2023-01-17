@@ -8,7 +8,7 @@ SCRPT_DIR_PATH=$(dirname $SCRPT_FULL_PATH)
 echo "\$SCRPT_DIR_PATH is $SCRPT_DIR_PATH"
 
 export PRONOC_WORK=$SCRPT_DIR_PATH/../../mpsoc_work
-export VERILATOR_ROOT=~/scratch/`whoami`/verilator
+export VERILATOR_ROOT=~/scratch/`whoami`/verilator_4_104
 export PATH=$PATH:$VERILATOR_ROOT/bin
 export C_INCLUDE_PATH=$VERILATOR_ROOT/include
 export CPLUS_INCLUDE_PATH=$VERILATOR_ROOT/include

@@ -26,10 +26,6 @@
 **************************************************************/
 
 module inout_ports
-import pronoc_pkg::*;
-#(
-    parameter P = 5  
-)
 (
     current_r_addr,
     neighbors_r_addr,
@@ -88,6 +84,8 @@ import pronoc_pkg::*;
     smart_ctrl_in    
 );
 
+	parameter P=5;
+	`NOC_CONF
    
     localparam
         PV = V * P,
@@ -484,12 +482,7 @@ endmodule
 
 
 module  vc_alloc_request_gen
-import pronoc_pkg::*;
-#(
-   
-    parameter P = 5
-   
-)(
+(
 	ivc_info,
 	ovc_avalable_all,
     dest_port_decoded_all,
@@ -504,6 +497,9 @@ import pronoc_pkg::*;
     smart_ctrl_in,
     ssa_ctrl_in
 );
+
+	parameter P=5;
+	`NOC_CONF
 
     localparam  P_1     = (SELF_LOOP_EN == "NO")?  P-1 : P,
     			PV      =   V       *   P,

@@ -547,8 +547,14 @@ generate
     /* verilator lint_on WIDTH */ 
            
         flit_buffer #(
+            .V(V),
             .B(B),   // buffer space :flit per VC 
-            .SSA_EN(SSA_EN)
+            .SSA_EN(SSA_EN),
+        	.Fw(Fw),
+			.PCK_TYPE(PCK_TYPE),
+			.CAST_TYPE(CAST_TYPE),
+			.DEBUG_EN(DEBUG_EN)
+		
         )
         the_flit_buffer
         (
@@ -581,8 +587,7 @@ generate
             .V(V),
             .B(B),
             .Fpay(Fpay),
-            .DEBUG_EN(DEBUG_EN),
-            
+            .DEBUG_EN(DEBUG_EN),            
             .DSTPw(DSTPw)
            
         )
@@ -631,8 +636,13 @@ generate
  
 
         flit_buffer #(
+            .V(V),
             .B(B),   // buffer space :flit per VC 
-            .SSA_EN(SSA_EN)
+            .SSA_EN(SSA_EN),
+        	.Fw(Fw),
+			.PCK_TYPE(PCK_TYPE),
+			.CAST_TYPE(CAST_TYPE),
+			.DEBUG_EN(DEBUG_EN)
         )
         the_flit_buffer
         (

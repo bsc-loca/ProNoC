@@ -7,7 +7,6 @@
 
 
 module packet_injector 
-		import pronoc_pkg::*; 
 	(
 		//general
 		current_e_addr,
@@ -20,6 +19,8 @@ module packet_injector
 		pck_injct_in,
 		pck_injct_out		
 	);
+	
+	`NOC_CONF
 	
 	//general
 	input reset,clk;
@@ -562,7 +563,6 @@ endmodule
 
 
 module packet_injector_verilator 
-		import pronoc_pkg::*; 
 	(
 		//general
 		current_e_addr,
@@ -596,7 +596,8 @@ module packet_injector_verilator
 	
 	);
 
-
+	`NOC_CONF 
+	
 	//general
 	input reset,clk;
 	input [EAw-1 :0 ] current_e_addr;

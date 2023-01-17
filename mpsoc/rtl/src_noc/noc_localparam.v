@@ -6,7 +6,7 @@
 
 
 /**********************************************************************
-**  File: noc_localparam.v
+**  File: noc_parameter.v
 **    
 **  Copyright (C) 2014-2021  Alireza Monemi
 **    
@@ -33,46 +33,46 @@
     
 
 //NoC parameters
-    localparam TOPOLOGY="MESH";
-    localparam T1=3;
-    localparam T2=3;
-    localparam T3=1;
-    localparam V=2;
-    localparam B=4;
-    localparam LB=4;
-    localparam Fpay=64;
-    localparam ROUTE_NAME="XY";
-    localparam PCK_TYPE="MULTI_FLIT";
-    localparam MIN_PCK_SIZE=2;
-    localparam BYTE_EN=0;
-    localparam CAST_TYPE="MULTICAST_PARTIAL";
-    localparam MCAST_ENDP_LIST=9'hf;
-    localparam SSA_EN="NO";
-    localparam SMART_MAX=0;
-    localparam CONGESTION_INDEX=3;
-    localparam ESCAP_VC_MASK=2'b01;
-    localparam VC_REALLOCATION_TYPE="NONATOMIC";
-    localparam COMBINATION_TYPE="COMB_NONSPEC";
-    localparam MUX_TYPE="BINARY";
-    localparam C=0;
-    localparam DEBUG_EN=1;
-    localparam ADD_PIPREG_AFTER_CROSSBAR=1'b0;
-    localparam FIRST_ARBITER_EXT_P_EN=1;
-    localparam SWA_ARBITER_TYPE="RRA";
-    localparam WEIGHTw=4;
-    localparam SELF_LOOP_EN="NO";
-    localparam AVC_ATOMIC_EN=0;
-    localparam CLASS_SETTING={V{1'b1}};
-    localparam CVw=(C==0)? V : C * V;
+    parameter TOPOLOGY="MESH";
+    parameter T1=3;
+    parameter T2=3;
+    parameter T3=1;
+    parameter V=2;
+    parameter B=4;
+    parameter LB=4;
+    parameter Fpay=64;
+    parameter ROUTE_NAME="XY";
+    parameter PCK_TYPE="MULTI_FLIT";
+    parameter MIN_PCK_SIZE=2;
+    parameter BYTE_EN=0;
+    parameter CAST_TYPE="MULTICAST_PARTIAL";
+    parameter MCAST_ENDP_LIST=9'hf;
+    parameter SSA_EN="NO";
+    parameter SMART_MAX=0;
+    parameter CONGESTION_INDEX=3;
+    parameter ESCAP_VC_MASK=2'b01;
+    parameter VC_REALLOCATION_TYPE="NONATOMIC";
+    parameter COMBINATION_TYPE="COMB_NONSPEC";
+    parameter MUX_TYPE="BINARY";
+    parameter C=0;
+    parameter DEBUG_EN=1;
+    parameter ADD_PIPREG_AFTER_CROSSBAR=1'b0;
+    parameter FIRST_ARBITER_EXT_P_EN=1;
+    parameter SWA_ARBITER_TYPE="RRA";
+    parameter WEIGHTw=4;
+    parameter SELF_LOOP_EN="NO";
+    parameter AVC_ATOMIC_EN=0;
+    parameter CLASS_SETTING={V{1'b1}};
+    parameter CVw=(C==0)? V : C * V;
   
     
     
     //simulation parameter  
-    //localparam MAX_RATIO = 1000;
-    localparam MAX_PCK_NUM = 1000000000;
-    localparam MAX_PCK_SIZ = 16383; 
-    localparam MAX_SIM_CLKs=  1000000000;
-    localparam TIMSTMP_FIFO_NUM = 16;   
+    //parameter MAX_RATIO = 1000;
+    parameter MAX_PCK_NUM = 1000000000;
+    parameter MAX_PCK_SIZ = 16383; 
+    parameter MAX_SIM_CLKs=  1000000000;
+    parameter TIMSTMP_FIFO_NUM = 16;   
     
         
 

@@ -26,11 +26,7 @@
 *************************************/
 
 
-module combined_vc_sw_alloc 
-	import pronoc_pkg::*;
-#(
-    parameter P = 5 //port number
-)
+module combined_vc_sw_alloc 	
 (
     ivc_info,
     dest_port_all,
@@ -54,6 +50,10 @@ module combined_vc_sw_alloc
     reset
 
 );
+
+	 parameter P = 5; //port number
+
+	`NOC_CONF
 
 
     localparam

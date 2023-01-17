@@ -30,11 +30,7 @@
 ***************/
 
 module header_flit_generator
-import pronoc_pkg::*; 
-#(
-    parameter DATA_w = 9 // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
-   
-)(
+(
     
     flit_out,    
     src_e_addr_in,
@@ -47,6 +43,9 @@ import pronoc_pkg::*;
     data_in    
 );
 
+	parameter DATA_w = 9; // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
+    
+	`NOC_CONF
     
     function integer log2;
       input integer number; begin   
@@ -137,10 +136,7 @@ endmodule
 
 
 module extract_header_flit_info
-		import pronoc_pkg::*; 		
-#(
-    parameter DATA_w = 0
-)(
+(
     //inputs
     flit_in,
     flit_in_wr,
@@ -159,7 +155,9 @@ module extract_header_flit_info
     
 );
 
- 
+ 	parameter DATA_w = 0;
+    
+       `NOC_CONF
     
     function integer log2;
       input integer number; begin   
@@ -268,10 +266,7 @@ endmodule
 **********************************/
 
 module header_flit_update_lk_route_ovc
-		import pronoc_pkg::*;
-#(   
-    parameter P = 5   
-)(
+(
     flit_in ,
     flit_out,
     vc_num_in,
@@ -284,12 +279,13 @@ module header_flit_update_lk_route_ovc
     clk
 );
 
-
+	parameter P = 5; 
+	
+	`NOC_CONF
+	
     localparam  
         VDSTPw = V * DSTPw,
-        VV = V * V;
-                 
-        
+        VV = V * V;   
      
 
     input [Fw-1 : 0]  flit_in;
@@ -412,13 +408,15 @@ endmodule
  *  hdr_flit_weight_update
  * ****************/
 
-module hdr_flit_weight_update 
-		import pronoc_pkg::*;
+module hdr_flit_weight_update 		
 (
     new_weight,
     flit_in,
     flit_out    
 );
+
+	`NOC_CONF 
+
 
     function integer log2;
       input integer number; begin   

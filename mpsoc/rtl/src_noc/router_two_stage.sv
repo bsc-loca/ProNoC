@@ -31,11 +31,7 @@
 
 
 module router_two_stage 
-		import pronoc_pkg::*;
-		
-		# (
-			parameter P = 6     // router port num		   
-		)(
+		(
 		current_r_id,
 		current_r_addr,// connected to constant parameter  
 		
@@ -57,7 +53,8 @@ module router_two_stage
 		reset
 
 		);
- 
+ 	 parameter P=5;
+	`NOC_CONF    
                 
 
 	// The current/neighbor routers addresses/port. These values are fixed in each router and they are supposed to be given as parameter. 
@@ -611,15 +608,16 @@ endmodule
 
 
 module credit_release_gen
-	import pronoc_pkg::*;
-#(
-	parameter CREDIT_NUM=4
-)(
+(
 	clk,
 	reset,
 	en,
 	credit_out		
 );
+
+	parameter CREDIT_NUM=4;
+	`NOC_CONF
+	
 	input  clk,	reset;
 	input  en;
 	output reg credit_out;		
@@ -656,18 +654,18 @@ endmodule
 
 //synthesis translate_off
 module pronoc_trace_dump
-	import pronoc_pkg::*;
-#(
-	parameter P = 6,
-	parameter TRACE_DUMP_PER= "ROUTER", //NOC, ROUTER, PORT 
-	parameter CYCLE_REPORT=0 // 1 : enable, 0 : disable
-	
-)(
+(
 	current_r_id,
 	chan_in,
 	chan_out,
 	clk
 );
+
+	parameter P = 6;
+	parameter TRACE_DUMP_PER= "ROUTER"; //NOC, ROUTER, PORT 
+	parameter CYCLE_REPORT=0; // 1 : enable, 0 : disable
+
+	`NOC_CONF
 
 	input  [31:0] current_r_id;
 	input   flit_chanel_t chan_in  [P-1 : 0];
@@ -702,29 +700,31 @@ module pronoc_trace_dump
 endmodule
 
 module pronoc_trace_dump_sub 
-	import pronoc_pkg::*;
-#(
-	parameter P = 6,
-	parameter TRACE_DUMP_PER= "ROUTER", //NOC, ROUTER, PORT 
-	parameter DIRECTION="in", // in,out
-	parameter CYCLE_REPORT=0 // 1 : enable, 0 : disable
-	
-)(
+	(
 	current_r_id,
 	chan_in,
 	clk
-);
+	);
 
-input  [31:0] current_r_id;
-input   flit_chanel_t chan_in  [P-1 : 0];
-input   clk;
+	parameter P = 6;
+	parameter TRACE_DUMP_PER= "ROUTER"; //NOC, ROUTER, PORT 
+	parameter DIRECTION="in"; // in,out
+	parameter CYCLE_REPORT=0; // 1 : enable, 0 : disable
+	
+	`NOC_CONF
 
-integer out;
-string fname [P-1 : 0];
 
-genvar p;
-generate 
-for (p=0;p<P;p++)begin 
+
+	input  [31:0] current_r_id;
+	input   flit_chanel_t chan_in  [P-1 : 0];
+	input   clk;
+
+	integer out;
+	string fname [P-1 : 0];
+
+	genvar p;
+	generate 
+	for (p=0;p<P;p++)begin 
 	initial begin 
 	/* verilator lint_off WIDTH */ 
 		if(TRACE_DUMP_PER == "PORT"  ) fname[p] = $sformatf("trace_dump_R%0d_P%0d.out",current_r_id,p);
@@ -751,8 +751,8 @@ for (p=0;p<P;p++)begin
 		end		
 	end
 
-end
-endgenerate
+	end
+	endgenerate
 endmodule
 //synthesis translate_on	
 

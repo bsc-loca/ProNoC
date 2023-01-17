@@ -34,12 +34,7 @@
 ***************************************/
 
 
-module  ss_allocator
-import pronoc_pkg::*;
-#(
-    parameter P = 5   
-   )
-   (
+module  ss_allocator (
    		clk,
    		reset,  
    		flit_in_wr_all,
@@ -56,7 +51,9 @@ import pronoc_pkg::*;
         ssa_ctrl_o
    );
 
-
+	 parameter P=5;
+	`NOC_CONF    	
+	
     localparam  PV          =   V   *   P,
     			VV			=   V * V,
                 PVV         =   PV  *   V,
@@ -248,12 +245,6 @@ endmodule
  * ***********/
 
 module ssa_per_vc 
-    import pronoc_pkg::*;
-#(
-    parameter SS_PORT = "WEST",
-    parameter V_GLOBAL = 1,
-    parameter P=5
-    )
     (
         flit_in_wr,
         flit_in,
@@ -282,6 +273,13 @@ module ssa_per_vc
           
         
    );             
+     
+     
+    parameter P=5;
+    parameter SS_PORT = "WEST";
+    parameter V_GLOBAL = 1;
+    
+    `NOC_CONF    	
         
     
     //header packet filds width
@@ -456,12 +454,7 @@ endmodule
 
 
 module ssa_check_destport
-	import pronoc_pkg::*;	
-#(
-    parameter SW_LOC = 0,
-    parameter P=5,
-    parameter SS_PORT=0
-)(
+	(
     destport_encoded, //non header flit dest port
     destport_in_encoded, // header flit packet dest port
     ss_port_hdr_flit, // asserted if the header incomming flit goes to ss port
@@ -477,6 +470,17 @@ module ssa_check_destport
 //synopsys  translate_on
 //synthesis translate_on    
 );
+
+
+
+    parameter SW_LOC = 0;
+    parameter P=5;
+    parameter SS_PORT=0;
+
+	`NOC_CONF
+
+
+
 
 //synthesis translate_off 
 //synopsys  translate_off
