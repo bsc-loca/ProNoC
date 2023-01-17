@@ -33,8 +33,7 @@
 
 
 
-module mesh_torus_noc_top 
-		import pronoc_pkg::*; 
+module mesh_torus_noc_top 		
 	(
 
     reset,
@@ -45,6 +44,7 @@ module mesh_torus_noc_top
 );
 
 
+    `NOC_CONF
     
 	input   clk,reset;
 	//Endpoints ports 

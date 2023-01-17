@@ -7,7 +7,8 @@
    //`define ACTIVE_LOW_RESET_MODE /* Reset is active high by deafult. Uncomment this line for having active low reset*/
 
     
-   `define IMPORT_PRONOC_PCK   /* pronoc.sv is imported by default. Inorder to support Multiple physical NoCs with different 
+   `define IMPORT_PRONOC_PCK   
+  								 /* pronoc.sv is imported by default. Inorder to support Multiple physical NoCs with different 
                                   you need to compile each NoC as a separate library (passing USE_LIB in compilationtime).
                                   Comment IMPORT_PRONOC_PCK macro to include pronoc_pck.sv as a file instead of importing.
                                   Including pronoc.sv allows having Multiple physical NoCs with different configurations 
@@ -45,7 +46,7 @@
    `ifdef IMPORT_PRONOC_PCK
       `define NOC_CONF  import pronoc_pkg::*; 
    `else
-      `define NOC_CONF  ``include "pronoc_pkg.sv" 
+      `define NOC_CONF  ```include "pronoc_pkg.sv" 
    `endif
    
    

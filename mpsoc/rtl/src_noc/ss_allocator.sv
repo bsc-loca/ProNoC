@@ -622,14 +622,18 @@ If no output is granted replace the output port with ss one
  
 
 module add_ss_port 
- 	import pronoc_pkg::*;
-#( 
-    parameter SW_LOC=1,    
-    parameter P=5
-)(
+(
     destport_in,
     destport_out 
 );
+
+
+ 	 parameter SW_LOC=0;    
+ 	 parameter P=5;
+    
+
+	`NOC_CONF
+
 
 	localparam SS_PORT = strieght_port(P,SW_LOC);
 	localparam DISABLED = P;   

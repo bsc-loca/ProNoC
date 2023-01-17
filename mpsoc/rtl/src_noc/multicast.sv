@@ -21,16 +21,17 @@
  *************************************/
  
 module multicast_routing
-		import pronoc_pkg::*;
-	#(
-		parameter P = 5,
-		parameter SW_LOC = 0		
-		)
-		(
-			current_r_addr,  //current router  address
-			dest_e_addr,  // destination endpoint address		
-			destport		
-		);
+	(
+		current_r_addr,  //current router  address
+		dest_e_addr,  // destination endpoint address		
+		destport		
+	);
+
+	 parameter SW_LOC=0;    
+ 	 parameter P=5;
+
+	`NOC_CONF	
+		
 	
 	input   [RAw-1   :   0]  current_r_addr;
 	input   [DAw-1   :   0]  dest_e_addr;
@@ -78,19 +79,17 @@ module multicast_routing
  
 endmodule
 
-module multicast_routing_mesh
-	import pronoc_pkg::*;
-	#(
-		parameter P = 5,
-		parameter SW_LOC = 0		
-	)
+module multicast_routing_mesh	
 	(
 		current_r_addr,  //current router  address
 		dest_e_addr,  // destination endpoint address		
 		destport		
 	);
      	
-   
+    parameter SW_LOC=0;    
+ 	parameter P=5;
+    
+    `NOC_CONF
 	
 	input   [RAw-1   :   0]  current_r_addr;
 	input   [DAw-1   :   0]  dest_e_addr;
@@ -232,17 +231,17 @@ endmodule
 
 
 module multicast_routing_fmesh
-	import pronoc_pkg::*;
-	#(
-	parameter P = 5,
-	parameter SW_LOC = 0		
-	)
 	(
 	current_r_addr,  //current router  address
 	dest_e_addr,  // destination endpoint address		
 	destport		
 	);
      	
+	 parameter SW_LOC=0;    
+ 	 parameter P=5;
+
+	`NOC_CONF
+	
 	input   [RAw-1   :   0]  current_r_addr;
 	input   [DAw-1   :   0]  dest_e_addr;
 	output  [DSTPw-1 :   0]  destport;
@@ -394,14 +393,14 @@ endmodule
 
 
 module mcast_dest_list_decode
-		import pronoc_pkg::*;
-		(
-		dest_e_addr,
-		dest_o,
-		row_has_any_dest,
-		is_unicast
-		);
+(
+	dest_e_addr,
+	dest_o,
+	row_has_any_dest,
+	is_unicast
+);
 	
+	`NOC_CONF
 	
 	input  [DAw-1 :0]  dest_e_addr;
 	output [NE-1 : 0]  dest_o;
@@ -533,13 +532,7 @@ endmodule
 
 
 
-module multicast_chan_in_process 		
-		import pronoc_pkg::*;
-	#(
-		parameter P = 5,
-		parameter SW_LOC = 0			
-		
-	)
+module multicast_chan_in_process 				
 	(
 		endp_port,
 		current_r_addr,
@@ -547,6 +540,12 @@ module multicast_chan_in_process
 		chan_out,
 		clk
 	);
+	
+	 parameter SW_LOC=0;    
+ 	 parameter P=5;
+    
+
+	`NOC_CONF
 	
 	input endp_port;
 	input   [RAw-1   :   0]  current_r_addr;
@@ -735,14 +734,15 @@ endmodule
 
 
 
-module multicast_dst_sel 
-		import pronoc_pkg::*;   
+module multicast_dst_sel 	
 	(
 
 		destport_in,
 		destport_out    
 	);
 
+	`NOC_CONF
+	
 	input  [DSTPw-1 : 0] destport_in;
 	output [DSTPw-1 : 0] destport_out; 
 
