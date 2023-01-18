@@ -6,20 +6,20 @@
  * *************************/
 
 
-module multicast_injector 
-		
-	(
-		//general
-		current_e_addr,
-		reset,
-		clk,		
-		//noc port
-		chan_in,
-		chan_out,  
-		//control interafce
-		pck_injct_in,
-		pck_injct_out		
-	);
+module multicast_injector #(
+	parameter NOC_ID=0
+)(
+	//general
+	current_e_addr,
+	reset,
+	clk,		
+	//noc port
+	chan_in,
+	chan_out,  
+	//control interafce
+	pck_injct_in,
+	pck_injct_out		
+);
 	
 	`NOC_CONF
 	
@@ -40,19 +40,13 @@ module multicast_injector
 	wire  [RAw-1 :0 ] current_r_addr;    
 	
 	wire  [DSTPw-1 : 0 ] destport;   
-	reg flit_wr;
-	
-	
-	
-	
-		
+	reg flit_wr;	
 	
 	assign current_r_addr = chan_in.ctrl_chanel.neighbors_r_addr;
-	
-	
-	
+		
 	/*
 	conventional_routing #(
+		.NOC_ID(NOC_ID),
 		.TOPOLOGY(TOPOLOGY),
 		.ROUTE_NAME(ROUTE_NAME),
 		.ROUTE_TYPE(ROUTE_TYPE),
@@ -76,8 +70,7 @@ module multicast_injector
 	
 */
 
-assign destport = 7;
-
+	assign destport = 7;
 
 	localparam 
 		HDR_BYTE_NUM =	HDR_MAX_DATw / 8, // = HDR_MAX_DATw / (8 - HDR_MAX_DATw %8)
@@ -88,10 +81,9 @@ assign destport = 7;
 	wire [Fw-1 : 0] hdr_flit_out;
 	
 	header_flit_generator #(
+		.NOC_ID(NOC_ID),
 		.DATA_w(HDR_DATA_w)				
-	)
-	the_header_flit_generator
-	(
+	) the_header_flit_generator (
 		.flit_out			(hdr_flit_out),
 		.vc_num_in			(pck_injct_in.vc),
 		.class_in			(pck_injct_in.class_num),
@@ -236,12 +228,7 @@ assign destport = 7;
 		.empty_vc( ),
 		.clk(clk),
 		.reset(reset)
-	);  
-	
-	
-	
-		
-	
+	); 
 		
 	
 	wire [HDR_DATA_w-1 : 0]	hdr_data_o;
@@ -249,7 +236,8 @@ assign destport = 7;
 	
 	header_flit_info
 	#(
-		.DATA_w         (HDR_DATA_w       )
+		.NOC_ID (NOC_ID),	
+		.DATA_w (HDR_DATA_w)
 	) extractor (
 		.flit(chan_in.flit_chanel.flit),
 		.hdr_flit(hdr_flit_i),		

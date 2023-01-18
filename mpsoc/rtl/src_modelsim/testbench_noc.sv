@@ -4,7 +4,7 @@
 `define STND_DEV_EN
 
 module testbench_noc;
-	
+	parameter NOC_ID=0;
 	`NOC_CONF
 	 
 	`define INCLUDE_SIM_PARAM
@@ -123,11 +123,6 @@ module testbench_noc;
 	end
 
 	
-		
-		
-	
-
-	
 	task  reset_st;
 		output  statistic_t stat_in;
 		begin
@@ -200,15 +195,15 @@ module testbench_noc;
 	end//always
     
        
-	noc_top
-		the_noc
-		(
-			.reset(reset),
-			.clk(clk),    
-			.chan_in_all(chan_in_all),
-			.chan_out_all(chan_out_all),
-			.router_event(router_event)
-		);
+	noc_top  #( 
+		.NOC_ID(NOC_ID)
+	) the_noc (
+		.reset(reset),
+		.clk(clk),    
+		.chan_in_all(chan_in_all),
+		.chan_out_all(chan_out_all),
+		.router_event(router_event)
+	);
           
       
     
@@ -264,6 +259,7 @@ module testbench_noc;
 			        
 			    
 			traffic_gen_top #(
+				.NOC_ID(NOC_ID),
 				.MAX_RATIO(100),
 				.ENDP_ID(i)
 			)
@@ -334,6 +330,7 @@ module testbench_noc;
    
   
 			pck_dst_gen #(
+				.NOC_ID(NOC_ID),
 				.TRAFFIC(TRAFFIC),
 				.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM),
 				.MCAST_TRAFFIC_RATIO(MCAST_TRAFFIC_RATIO),
@@ -482,21 +479,6 @@ module testbench_noc;
 				if (rsvd_core_worst_delay[core_num] < time_stamp_h2t[core_num]) rsvd_core_worst_delay[core_num] = ( AVG_LATENCY_METRIC == "HEAD_2_TAIL")? time_stamp_h2t[core_num] : time_stamp_h2h[core_num];
 				if (sent_core_worst_delay[src_id[core_num]] < time_stamp_h2t[core_num]) sent_core_worst_delay[src_id[core_num]] = (AVG_LATENCY_METRIC == "HEAD_2_TAIL")?  time_stamp_h2t[core_num] : time_stamp_h2h[core_num];
 				if (pck_size_o[core_num] >= MIN_PACKET_SIZE && pck_size_o[core_num] <=MAX_PACKET_SIZE) rsv_size_array[pck_size_o[core_num]-MIN_PACKET_SIZE] = rsv_size_array[pck_size_o[core_num]-MIN_PACKET_SIZE]+1;
-
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
 
 					
 			end			
@@ -919,7 +901,9 @@ module testbench_noc;
 	 */
 	
 	
-	routers_statistic_collector router_stat( 
+	routers_statistic_collector #(
+		.NOC_ID(NOC_ID)
+	) router_stat ( 
 		.reset(reset),
 		.clk(clk),		
 		.router_event(router_event),

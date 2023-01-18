@@ -33,16 +33,15 @@
 
 
 
-module mesh_torus_noc_top 		
-	(
-
+module mesh_torus_noc_top #(
+	parameter NOC_ID=0
+) (
     reset,
     clk,    
     chan_in_all,
     chan_out_all,
     router_event
 );
-
 
     `NOC_CONF
     
@@ -58,9 +57,7 @@ module mesh_torus_noc_top
 	smartflit_chanel_t    router_chan_in   [NR-1 :0][MAX_P-1 : 0];
 	smartflit_chanel_t    router_chan_out  [NR-1 :0][MAX_P-1 : 0];
 
-	wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
-
-	
+	wire [RAw-1 : 0] current_r_addr [NR-1 : 0];	
 
 	genvar x,y,l;
 	generate 
@@ -73,6 +70,7 @@ module mesh_torus_noc_top
 				assign current_r_addr [x] = x[RAw-1: 0];   
 	
 				router_top #(
+					.NOC_ID(NOC_ID),
 					.P               (MAX_P          )
 					) the_router (
 					.current_r_id    (x),
@@ -125,6 +123,7 @@ module mesh_torus_noc_top
 				assign current_r_addr [RID] = R_ADDR[RAw-1 :0];
              	
 					router_top #(
+						.NOC_ID(NOC_ID),
 						.P               (MAX_P          )
 					) the_router (					
 						.current_r_id    (RID),

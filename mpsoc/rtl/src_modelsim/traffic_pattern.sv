@@ -75,7 +75,8 @@ endmodule
 *********************************/
 module  pck_dst_gen
    #(
-    parameter TRAFFIC =   "RANDOM",
+    parameter NOC_ID=0,
+	parameter TRAFFIC = "RANDOM",
     parameter HOTSPOT_NODE_NUM =  4,
     parameter MCAST_TRAFFIC_RATIO =50,
     parameter MCAST_PCK_SIZ_MIN = 2,
@@ -133,6 +134,7 @@ module  pck_dst_gen
 	wire [PCK_SIZw-1 : 0] pck_size_uni;
 
 	pck_dst_gen_unicast #(
+		.NOC_ID(NOC_ID),
 		.TRAFFIC(TRAFFIC),
 		.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
 	)
@@ -152,6 +154,7 @@ module  pck_dst_gen
 	); 
 	
 	pck_size_gen #(
+		.NOC_ID(NOC_ID),
 		.MIN(MIN_PACKET_SIZE),
 		.MAX(MAX_PACKET_SIZE),
 		.PCK_SIZ_SEL(PCK_SIZ_SEL),
@@ -164,11 +167,7 @@ module  pck_dst_gen
 		.en(en),
 		.pck_size(pck_size_uni) ,
 		.rnd_discrete(rnd_discrete)
-	);
-	
-	
-	
-	
+	);	
 	
 
 	generate
@@ -184,37 +183,32 @@ module  pck_dst_gen
 			
 			
 		endp_addr_decoder  #(
-				.T1(T1),
-				.T2(T2),
-				.T3(T3),
-				.NE(NE),
-				.EAw(EAw),
-				.TOPOLOGY(TOPOLOGY)
-			)enc
-			(
-				.code(unicast_dest_e_addr),
-				.id(unicast_id_num)
-			);    
+			.T1(T1),
+			.T2(T2),
+			.T3(T3),
+			.NE(NE),
+			.EAw(EAw),
+			.TOPOLOGY(TOPOLOGY)
+		) enc (
+			.code(unicast_dest_e_addr),
+			.id(unicast_id_num)
+		);    
 		
 		
 		pck_size_gen #(
+			.NOC_ID(NOC_ID),
 			.PCK_SIZw(PCK_SIZw),
 			.MIN(MCAST_PCK_SIZ_MIN),
 			.MAX(MCAST_PCK_SIZ_MAX),
 			.PCK_SIZ_SEL("random-range"),
 			.DISCRETE_PCK_SIZ_NUM(DISCRETE_PCK_SIZ_NUM)
-		)
-		mcast_pck_size
-		(
+		) mcast_pck_size (
 			.reset(reset),
 			.clk(clk),
 			.en(en),
 			.pck_size(pck_size_mcast) ,
 			.rnd_discrete(rnd_discrete)
-		);
-		
-		
-		
+		);	
 		
 		always @(posedge clk ) begin 
 			if(en | reset) begin 
@@ -289,24 +283,12 @@ module  pck_dst_gen
 	end endgenerate
 
 endmodule
-
-
-
-
-
-
-
-
-
-
-
-
-
  
  
 module  pck_dst_gen_unicast  
 #(
-    parameter TRAFFIC =   "RANDOM",
+    parameter NOC_ID=0,
+	parameter TRAFFIC =   "RANDOM",
     parameter HOTSPOT_NODE_NUM =  4
 )(
     en,
@@ -341,10 +323,11 @@ module  pck_dst_gen_unicast
     input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
  
  
-     generate 
-     if ( ADDR_DIMENSION == 2) begin :two_dim
+    generate 
+    if ( ADDR_DIMENSION == 2) begin :two_dim
      
         two_dimension_pck_dst_gen #(
+			.NOC_ID(NOC_ID),
         	.TRAFFIC(TRAFFIC),
         	.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
         	
@@ -364,10 +347,11 @@ module  pck_dst_gen_unicast
 			.custom_traffic_en(custom_traffic_en)
         );
         
-     end else begin : one_dim
+    end else begin : one_dim
       
         one_dimension_pck_dst_gen #(
-       		.TRAFFIC(TRAFFIC),
+       		.NOC_ID(NOC_ID),
+			.TRAFFIC(TRAFFIC),
        		.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
         )
         the_one_dimension_pck_dst_gen
@@ -385,16 +369,17 @@ module  pck_dst_gen_unicast
 			.custom_traffic_en(custom_traffic_en)
         );       
        
-     end     
-     endgenerate 
- endmodule
+    end     
+    endgenerate 
+endmodule
  
  
  
  
 module two_dimension_pck_dst_gen  
 #(
-    parameter TRAFFIC =   "RANDOM",
+    parameter NOC_ID=0,
+	parameter TRAFFIC =   "RANDOM",
     parameter HOTSPOT_NODE_NUM =  4
 
 )(
@@ -494,19 +479,19 @@ module two_dimension_pck_dst_gen
      end else if (TRAFFIC == "HOTSPOT") begin 
                       
      	hot_spot_dest_gen  #(
-     			.HOTSPOT_NUM(HOTSPOT_NUM),	
-     			.NE(NE),
-     			.NEw(NEw)
-     		)hspot
-     		(
-     			.reset(reset),
-     			.clk(clk),
-     			.en(en),
-     			.hotspot_info(hotspot_info),
-     			.dest_ip_num (dest_ip_num),
-     			.core_num(core_num),
-     			.off_flag(off_flag)
-     		);
+			.NOC_ID(NOC_ID),
+     		.HOTSPOT_NUM(HOTSPOT_NUM),	
+     		.NE(NE),
+     		.NEw(NEw)
+     	) hspot (
+     		.reset(reset),
+     		.clk(clk),
+     		.en(en),
+     		.hotspot_info(hotspot_info),
+     		.dest_ip_num (dest_ip_num),
+     		.core_num(core_num),
+     		.off_flag(off_flag)
+     	);
        
         endp_addr_encoder #(
             .T1(T1),
@@ -515,13 +500,10 @@ module two_dimension_pck_dst_gen
             .NE(NE),
             .EAw(EAw),
             .TOPOLOGY(TOPOLOGY)
-        )
-        addr_encoder
-        (
+        ) addr_encoder (
             .id(dest_ip_num),
             .code(dest_e_addr)
-        );
-   
+        ); 
        
         
     end else if( TRAFFIC == "TRANSPOSE1") begin 
@@ -750,8 +732,9 @@ endmodule
 
 module one_dimension_pck_dst_gen 
 #(
-   parameter TRAFFIC =   "RANDOM",
-   parameter HOTSPOT_NODE_NUM =  4
+	parameter NOC_ID=0,
+	parameter TRAFFIC =   "RANDOM",
+	parameter HOTSPOT_NODE_NUM =  4
 
 )(
     en,
@@ -770,7 +753,7 @@ module one_dimension_pck_dst_gen
     `NOC_CONF 
 
      
-     localparam 
+    localparam 
         PCK_CNTw = log2(MAX_PCK_NUM+1),
         HOTSPOT_NUM= (TRAFFIC=="HOTSPOT")? HOTSPOT_NODE_NUM : 1;
     
@@ -803,19 +786,18 @@ module one_dimension_pck_dst_gen
      end else if (TRAFFIC == "HOTSPOT") begin 
         
      	hot_spot_dest_gen  #(
-     		.HOTSPOT_NUM(HOTSPOT_NUM),	
+     		.NOC_ID(NOC_ID),
+			.HOTSPOT_NUM(HOTSPOT_NUM),	
      		.NE(NE),
      		.NEw(NEw)
-		)hspot
-		(
+		) hspot (
      		.clk(clk),
      		.en(en),
      		.hotspot_info(hotspot_info),
      		.dest_ip_num (dest_ip_num),
      		.core_num(core_num),
      		.off_flag(off_flag)
-     	);
-     	
+     	);     	
      	
        
     end else if( TRAFFIC == "TRANSPOSE1") begin :tran1
@@ -891,7 +873,8 @@ endmodule
 
 module pck_size_gen
 #(
-    parameter MIN = 2,
+    parameter NOC_ID=0,
+	parameter MIN = 2,
     parameter MAX = 5,
     parameter PCK_SIZ_SEL="random-discrete",	
     parameter DISCRETE_PCK_SIZ_NUM=1
@@ -965,9 +948,9 @@ endmodule
 
 module hot_spot_dest_gen 
 #(
+   parameter NOC_ID=0,
    parameter HOTSPOT_NUM=2
-)
-(
+) (
    clk,
    reset,
    en,

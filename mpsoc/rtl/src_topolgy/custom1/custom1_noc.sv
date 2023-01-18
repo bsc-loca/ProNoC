@@ -29,9 +29,11 @@
 `include "pronoc_def.v"
 
 module   custom1_noc
-	
-	(
-   	reset,
+#(
+	parameter NOC_ID=0
+)
+(
+		reset,
 	clk,
 	//T0,
 	T0_chan_in,
@@ -99,7 +101,7 @@ module   custom1_noc
 	T15_router_event
 );
 	
-	 `NOC_CONF
+	`NOC_CONF
 	 
     input reset,clk;    
        
@@ -430,6 +432,7 @@ module   custom1_noc
 	*		R0
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(3)		
 	)
 	R0
@@ -459,6 +462,7 @@ module   custom1_noc
 	*		R1
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(3)		
 	)
 	R1
@@ -488,6 +492,7 @@ module   custom1_noc
 	*		R2
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(3)		
 	)
 	R2
@@ -517,6 +522,7 @@ module   custom1_noc
 	*		R3
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(3)		
 	)
 	R3
@@ -546,6 +552,7 @@ module   custom1_noc
 	*		R4
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(4)		
 	)
 	R4
@@ -577,6 +584,7 @@ module   custom1_noc
 	*		R5
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(4)		
 	)
 	R5
@@ -608,6 +616,7 @@ module   custom1_noc
 	*		R6
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(4)		
 	)
 	R6
@@ -639,6 +648,7 @@ module   custom1_noc
 	*		R7
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(4)		
 	)
 	R7
@@ -670,6 +680,7 @@ module   custom1_noc
 	*		R12
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(4)		
 	)
 	R12
@@ -701,6 +712,7 @@ module   custom1_noc
 	*		R13
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(4)		
 	)
 	R13
@@ -732,6 +744,7 @@ module   custom1_noc
 	*		R14
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(4)		
 	)
 	R14
@@ -763,6 +776,7 @@ module   custom1_noc
 	*		R15
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(4)		
 	)
 	R15
@@ -794,6 +808,7 @@ module   custom1_noc
 	*		R8
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(5)		
 	)
 	R8
@@ -827,6 +842,7 @@ module   custom1_noc
 	*		R9
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(5)		
 	)
 	R9
@@ -860,6 +876,7 @@ module   custom1_noc
 	*		R10
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(5)		
 	)
 	R10
@@ -893,6 +910,7 @@ module   custom1_noc
 	*		R11
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(5)		
 	)
 	R11

@@ -1,5 +1,6 @@
 
 `include "pronoc_def.v"
+parameter NOC_ID=0;
 `NOC_CONF
 import dpi_int_pkg::*; 
 

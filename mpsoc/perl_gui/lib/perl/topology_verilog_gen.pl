@@ -134,12 +134,14 @@ sub generate_topology_top_v {
 	
 	 print $fd "
 module   ${name}_noc
-	
-	(
-   $ports
+#(
+	parameter NOC_ID=0
+)
+(
+	$ports
 );
 	
-	 `NOC_CONF
+	`NOC_CONF
 	 
     input reset,clk;    
        
@@ -194,6 +196,7 @@ sub get_router_instance_v {
 	*		$instance
 	*******************/
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P($Pnum)		
 	)
 	$instance
@@ -452,6 +455,7 @@ sub generate_topology_top_genvar_v{
 	assign current_r_addr [RID] = RID[RAw-1: 0]; 
 
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P($i)
 	)
 	router_${i}_port
@@ -497,7 +501,9 @@ $routers.="endgenerate\n";
 	
 	 print $fd "
 module   ${name}_noc_genvar    
-	(
+#(
+	parameter NOC_ID=0
+)(
 
     reset,
     clk,    
@@ -598,6 +604,7 @@ sub get_router_genvar_instance_v{
 	my $router_v="	
 	
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P($Pnum)
 	)
 	router_${Pnum}_port
@@ -1416,8 +1423,9 @@ print $fd '
 	
 		 print $fd "
 module  ${name}_connection 
-	
-(
+#(
+	parameter NOC_ID=0
+)(
     $ports
 );
 
@@ -1509,7 +1517,8 @@ sub add_routing_instance_v{
     if(TOPOLOGY == \"$name\" && ROUTE_NAME== \"$rname\" ) begin : $Vname
     
         ${Vname}_conventional_routing  #(
-            .RAw(RAw),  
+            .NOC_ID(NOC_ID),
+			.RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
         )
@@ -1554,7 +1563,8 @@ sub add_routing_instance_v{
     if(TOPOLOGY == \"$name\" && ROUTE_NAME== \"$rname\" ) begin : ${Vname}
      
 	   ${Vname}_look_ahead_routing  #(
-            .RAw(RAw),  
+            .NOC_ID(NOC_ID),
+			.RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
         )
@@ -1624,8 +1634,9 @@ sub add_noc_instance_v{
 	//do not modify this line ===${name}===
     if(TOPOLOGY == \"$name\" ) begin : T$name
     
-        ${name}_connection  connection
-        (
+        ${name}_connection  #(
+			.NOC_ID(NOC_ID)
+		) connection (
 $ports     
         );    
     
@@ -1670,16 +1681,15 @@ $ports
 	
 	$ports="\t\t.reset(reset),
 \t\t.clk(clk)";
-	
-	
-	
+		
 	
 	$str="
 	//do not modify this line ===${name}===
     if(TOPOLOGY == \"$name\" ) begin : T$name
     
-		${name}_noc_genvar the_noc			
-		(	
+		${name}_noc_genvar #(
+			.NOC_ID(NOC_ID)
+		) the_noc (	
 		    .reset(reset),
 		    .clk(clk),    
 		    .chan_in_all(chan_in_all),

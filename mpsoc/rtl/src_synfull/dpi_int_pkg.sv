@@ -4,6 +4,8 @@
 
 package dpi_int_pkg;
 
+parameter NOC_ID=0;
+
 `NOC_CONF
 
  typedef struct packed {

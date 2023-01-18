@@ -13,14 +13,15 @@ Description:
  ***************************************/
 
  
-module  tree_noc_top 
-	(
-		reset,
-		clk,    
-		chan_in_all,
-		chan_out_all,
-		router_event
-	);
+module  tree_noc_top #(
+	parameter NOC_ID=0
+) (
+	reset,
+	clk,    
+	chan_in_all,
+	chan_out_all,
+	router_event
+);
   
   	`NOC_CONF 
   	
@@ -84,6 +85,7 @@ module  tree_noc_top
 
  
 	router_top # (
+		.NOC_ID(NOC_ID),
 			.P(K)
 		)
 		root_router
@@ -109,7 +111,8 @@ module  tree_noc_top
 			for( pos=0; pos<NPOS1; pos=pos+1) begin : pos_lp 
                 localparam RID = NRATTOP1+pos;
 				router_top # (
-						.P(K+1)// leaves have K+1 port number						
+					.NOC_ID(NOC_ID),
+					.P(K+1)// leaves have K+1 port number						
 					)
 					the_router
 					(                                  

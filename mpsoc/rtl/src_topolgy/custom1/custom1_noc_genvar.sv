@@ -29,7 +29,9 @@
 `include "pronoc_def.v"
 
 module   custom1_noc_genvar    
-	(
+#(
+	parameter NOC_ID=0
+)(
 
     reset,
     clk,    
@@ -72,6 +74,7 @@ module   custom1_noc_genvar
 	assign current_r_addr [RID] = RID[RAw-1: 0]; 
 
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(3)
 	)
 	router_3_port
@@ -94,6 +97,7 @@ module   custom1_noc_genvar
 	assign current_r_addr [RID] = RID[RAw-1: 0]; 
 
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(4)
 	)
 	router_4_port
@@ -116,6 +120,7 @@ module   custom1_noc_genvar
 	assign current_r_addr [RID] = RID[RAw-1: 0]; 
 
 	router_top #(
+		.NOC_ID(NOC_ID),
 		.P(5)
 	)
 	router_5_port

@@ -27,8 +27,9 @@
 
 
 
-module  noc_top 	
-(
+module  noc_top #(	
+	parameter NOC_ID=0
+) (
 	reset,
 	clk,    
 	chan_in_all,
@@ -52,28 +53,33 @@ module  noc_top
 	/* verilator lint_off WIDTH */
 	if (TOPOLOGY ==    "MESH" || TOPOLOGY ==    "FMESH" || TOPOLOGY ==  "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin : tori_noc 
 	/* verilator lint_on WIDTH */
-		mesh_torus_noc_top noc_top (
+		mesh_torus_noc_top #(
+			.NOC_ID(NOC_ID)
+		) noc_top (
 			.reset         (reset        ), 
 			.clk           (clk          ), 
 			.chan_in_all   (chan_in_all  ), 
 			.chan_out_all  (chan_out_all ),
 			.router_event  (router_event )
-		);
-	
+		);	
     
     end else if (TOPOLOGY == "FATTREE") begin : fat_
     
-        fattree_noc_top noc_top (
-        		.reset         (reset        ), 
-        		.clk           (clk          ), 
-        		.chan_in_all   (chan_in_all  ), 
-        		.chan_out_all  (chan_out_all ),
-        		.router_event  (router_event )
+        fattree_noc_top #(
+			.NOC_ID(NOC_ID)
+		) noc_top (
+        	.reset         (reset        ), 
+        	.clk           (clk          ), 
+        	.chan_in_all   (chan_in_all  ), 
+        	.chan_out_all  (chan_out_all ),
+        	.router_event  (router_event )
         );
         
         
     end else if (TOPOLOGY == "TREE") begin : tree_
-        tree_noc_top  noc_top ( 
+        tree_noc_top  #(
+			.NOC_ID(NOC_ID)
+		) noc_top ( 
         	.reset         (reset        ), 
         	.clk           (clk          ), 
         	.chan_in_all   (chan_in_all  ), 
@@ -81,17 +87,21 @@ module  noc_top
         	.router_event  (router_event )
         );
     end else if (TOPOLOGY == "STAR") begin : star_
-    	star_noc_top  noc_top ( 
+    	star_noc_top  #(
+			.NOC_ID(NOC_ID)
+		) noc_top ( 
     			.reset         (reset        ), 
     			.clk           (clk          ), 
     			.chan_in_all   (chan_in_all  ), 
     			.chan_out_all  (chan_out_all ),
     			.router_event  (router_event )
-    		);
+    	);
     	
     end else begin :custom_
 
-	custom_noc_top noc_top ( 
+	custom_noc_top #(
+			.NOC_ID(NOC_ID)
+		) noc_top ( 
 			.reset         (reset        ), 
 			.clk           (clk          ), 
 			.chan_in_all   (chan_in_all  ), 
@@ -113,8 +123,9 @@ The noc top module that can be called in Verilog module.
 
 ***********************************/
 
-module  noc_top_v  
-   (
+module  noc_top_v  #(
+	parameter NOC_ID=0
+)(
     flit_out_all,
     flit_out_wr_all,
     credit_in_all,
@@ -140,7 +151,9 @@ module  noc_top_v
 	smartflit_chanel_t chan_in_all  [NE-1 : 0];
 	smartflit_chanel_t chan_out_all [NE-1 : 0];
 
-	noc_top the_top(
+	noc_top  #( 
+		.NOC_ID(NOC_ID)
+	) the_top(
 		.reset(reset),
 		.clk(clk),    
 		.chan_in_all(chan_in_all),
@@ -148,9 +161,7 @@ module  noc_top_v
 		.router_event  (  )
 	);
 
-	
-	
-	
+		
 	genvar i;
 	generate 
 	for (i=0; i<NE; i=i+1) begin : lp1

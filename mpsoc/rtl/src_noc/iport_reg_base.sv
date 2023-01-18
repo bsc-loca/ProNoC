@@ -36,6 +36,7 @@
 **************************/
 
 module iport_reg_base  #(
+    parameter NOC_ID=0,
     parameter PCK_TYPE = "MULTI_FLIT",
     parameter V = 4,     // vc_num_per_port
     parameter P = 5,     // router port num
@@ -184,28 +185,25 @@ module iport_reg_base  #(
     wire [ELw-1 : 0] endp_l_in;
     logic  [WEIGHTw-1 : 0] iport_weight_next;       
 
-//extract header flit info
+    //extract header flit info
     extract_header_flit_info #(
+        .NOC_ID(NOC_ID),
         .DATA_w(0)
-     )
-     header_extractor
-     (
-         .flit_in(flit_in),
-         .flit_in_wr(flit_in_wr),         
-         .class_o(class_in),
-         .destport_o(destport_in),
-         .dest_e_addr_o(dest_e_addr_in),
-         .src_e_addr_o(src_e_addr_in),
-         .vc_num_o(vc_num_in),
-         .hdr_flit_wr_o(hdr_flit_wr),
-         .hdr_flg_o(hdr_flg_in),
-         .tail_flg_o(tail_flg_in),
-         .weight_o(weight_in),
-         .be_o( ),
-         .data_o( )
-     );
-     
-            
+    ) header_extractor (
+        .flit_in(flit_in),
+        .flit_in_wr(flit_in_wr),         
+        .class_o(class_in),
+        .destport_o(destport_in),
+        .dest_e_addr_o(dest_e_addr_in),
+        .src_e_addr_o(src_e_addr_in),
+        .vc_num_o(vc_num_in),
+        .hdr_flit_wr_o(hdr_flit_wr),
+        .hdr_flg_o(hdr_flg_in),
+        .tail_flg_o(tail_flg_in),
+        .weight_o(weight_in),
+        .be_o( ),
+        .data_o( )
+    );            
      
      
     // synopsys  translate_off
@@ -584,6 +582,7 @@ generate
         
         
         flit_buffer_reg_base #(           
+            .NOC_ID(NOC_ID),
             .V(V),
             .B(B),
             .SSA_EN(SSA_EN),
@@ -680,9 +679,7 @@ endgenerate
     	.TOPOLOGY(TOPOLOGY),
     	.ROUTE_NAME(ROUTE_NAME),
     	.ROUTE_TYPE(ROUTE_TYPE)
-    )
-    lk_routing
-    (
+    ) lk_routing (
         .current_r_addr(current_r_addr),
         .neighbors_r_addr(neighbors_r_addr),
         .dest_e_addr(dest_e_addr_in),
@@ -694,18 +691,9 @@ endgenerate
      );
 
     header_flit_update_lk_route_ovc #(
-        .V(V),
-        .P(P),
-      
-        .TOPOLOGY(TOPOLOGY),     
-        .EAw(EAw),
-        .DSTPw(DSTPw),
-        .SSA_EN(SSA_EN),          
-        .ROUTE_TYPE(ROUTE_TYPE)
-    
-    )
-    the_flit_update
-    (
+        .NOC_ID(NOC_ID),
+        .P(P)   
+    ) the_flit_update (
         .flit_in (buffer_out),
         .flit_out (flit_out),
         .vc_num_in(ivc_num_getting_sw_grant),

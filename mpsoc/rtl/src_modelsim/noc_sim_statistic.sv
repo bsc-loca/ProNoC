@@ -1,8 +1,9 @@
 // synthesis translate_off
 `timescale   1ns/1ns
 `include "pronoc_def.v"
-module routers_statistic_collector 
-(
+module routers_statistic_collector #(
+	parameter NOC_ID=0
+)(
 	reset,
 	clk,		
 	router_event,

@@ -34,7 +34,10 @@
 ***************************************/
 
 
-module  ss_allocator (
+module  ss_allocator #(
+    parameter NOC_ID=0,
+    parameter P=5     
+)(
    		clk,
    		reset,  
    		flit_in_wr_all,
@@ -51,7 +54,7 @@ module  ss_allocator (
         ssa_ctrl_o
    );
 
-	 parameter P=5;
+
 	`NOC_CONF    	
 	
     localparam  PV          =   V   *   P,
@@ -150,6 +153,7 @@ module  ss_allocator (
              
        
             ssa_per_vc #(
+                .NOC_ID(NOC_ID),
                 .SS_PORT(SS_PORT),
                 .V_GLOBAL(i),
                 .P(P)              
@@ -230,7 +234,12 @@ endmodule
  *  ssa_per_vc 
  * ***********/
 
-module ssa_per_vc 
+module ssa_per_vc #(
+    parameter NOC_ID=0,
+    parameter P=5,
+    parameter SS_PORT = "WEST",
+    parameter V_GLOBAL = 1
+)
     (
         flit_in_wr,
         flit_in,
@@ -258,12 +267,8 @@ module ssa_per_vc
 //synthesis translate_on 
           
         
-   );             
-     
-     
-    parameter P=5;
-    parameter SS_PORT = "WEST";
-    parameter V_GLOBAL = 1;
+   );      
+    
     
     `NOC_CONF    	
         
@@ -335,10 +340,9 @@ module ssa_per_vc
     wire [DAw-1 : 0]  dest_e_addr_in;
    
     extract_header_flit_info #(
+        .NOC_ID(NOC_ID),
     	.DATA_w(0)	
-       )
-       extractor
-       (
+    ) extractor (
         .flit_in(flit_in),
         .flit_in_wr(flit_in_wr),
         .class_o(),
@@ -352,7 +356,7 @@ module ssa_per_vc
         .weight_o( ),
         .be_o( ),
         .data_o( )
-   );
+    );
    
     
 
@@ -363,7 +367,8 @@ assign condition_1_2_valid = ~(any_ovc_granted_in_ss_port  | any_ivc_sw_request_
 //check destination port is ss
 wire ss_port_hdr_flit, ss_port_nonhdr_flit;
 
-ssa_check_destport #(    
+ssa_check_destport #(   
+    .NOC_ID(NOC_ID),
     .SW_LOC(SW_LOC),
     .P(P),  
     .SS_PORT(SS_PORT)
@@ -439,7 +444,12 @@ endmodule
 
 
 
-module ssa_check_destport
+module ssa_check_destport #(
+    parameter NOC_ID=0,
+    parameter SW_LOC = 0,
+    parameter P=5,
+    parameter SS_PORT=0
+)
 	(
     destport_encoded, //non header flit dest port
     destport_in_encoded, // header flit packet dest port
@@ -456,12 +466,7 @@ module ssa_check_destport
 //synopsys  translate_on
 //synthesis translate_on    
 );
-
-
-
-    parameter SW_LOC = 0;
-    parameter P=5;
-    parameter SS_PORT=0;
+   
 
 	`NOC_CONF
 
@@ -607,16 +612,15 @@ If no output is granted replace the output port with ss one
 **************************/
  
 
-module add_ss_port 
-(
+module add_ss_port #(
+    parameter NOC_ID=0,
+    parameter SW_LOC=0,    
+ 	parameter P=5
+)(
     destport_in,
     destport_out 
 );
 
-
- 	 parameter SW_LOC=0;    
- 	 parameter P=5;
-    
 
 	`NOC_CONF
 

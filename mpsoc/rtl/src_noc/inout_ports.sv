@@ -25,8 +25,10 @@
 **
 **************************************************************/
 
-module inout_ports
-(
+module inout_ports #(
+    parameter NOC_ID=0,
+    parameter P=5    
+) (
     current_r_addr,
     neighbors_r_addr,
     clk,
@@ -83,8 +85,7 @@ module inout_ports
     vsa_ctrl_in,
     smart_ctrl_in    
 );
-
-	parameter P=5;
+	
 	`NOC_CONF
    
     localparam
@@ -159,10 +160,7 @@ module inout_ports
     input   smart_ctrl_t   smart_ctrl_in [P-1 : 0];
     input   vsa_ctrl_t   vsa_ctrl_in [P-1 : 0];
     input   [CRDTw-1 : 0 ] credit_init_val_in  [P-1 : 0][V-1 : 0];
-    output  [CRDTw-1 : 0 ] credit_init_val_out [P-1 : 0][V-1 : 0];
-   
-  
-   
+    output  [CRDTw-1 : 0 ] credit_init_val_out [P-1 : 0][V-1 : 0]; 
  
 
     wire [PPSw-1 : 0] port_pre_sel;
@@ -174,16 +172,13 @@ module inout_ports
     wire [DSTPw-1 : 0] destport_clear [P-1 : 0][V-1 : 0];   // clear non preferable ports in adaptive routing     
     wire [PV-1 : 0] ivc_num_getting_sw_grant; 
     
-    ssa_ctrl_t ssa_ctrl [P-1 : 0];
-    
+    ssa_ctrl_t ssa_ctrl [P-1 : 0];   
     
 
-	input_ports
-	#(
-		.P(P)        
-	)
-	the_input_port
-	(
+	input_ports #(
+		.NOC_ID(NOC_ID),
+        .P(P)        
+	) the_input_port (
 		.current_r_addr (current_r_addr),    
 		.neighbors_r_addr(neighbors_r_addr),
 		.ivc_num_getting_sw_grant (ivc_num_getting_sw_grant ),
@@ -221,11 +216,9 @@ module inout_ports
 	
 	
 	output_ports #(
+        .NOC_ID(NOC_ID),
 		.P (P)               
-	)
-	output_ports
-	(
-		
+	) output_ports (		
 		.vsa_ovc_allocated_all                      (vsa_ovc_allocated_all),
 		.flit_is_tail_all                           (flit_is_tail_all),
 		.dest_port_all                              (dest_port_all),
@@ -257,10 +250,9 @@ module inout_ports
 
 
     vc_alloc_request_gen #(
-       	.P(P)    	
-    )
-    vc_alloc_req_gen
-    (
+       	.NOC_ID(NOC_ID),
+        .P(P)    	
+    ) vc_alloc_req_gen (
     	.ivc_info(ivc_info),
     	.ovc_avalable_all(ovc_avalable_all),    	
     	.dest_port_decoded_all(dest_port_all),
@@ -309,7 +301,8 @@ module inout_ports
 	   	if( SSA_EN =="YES" ) begin : ssa 
 	   	/* verilator lint_on WIDTH */
 		   	ss_allocator #(
-		   		.P(P)
+		   		.NOC_ID(NOC_ID),
+                .P(P)
 		   	)
 		   	the_ssa
 		   	(
@@ -481,8 +474,10 @@ endmodule
 ************************/
 
 
-module  vc_alloc_request_gen
-(
+module  vc_alloc_request_gen #(
+    parameter NOC_ID=0,
+    parameter P=5
+) (
 	ivc_info,
 	ovc_avalable_all,
     dest_port_decoded_all,
@@ -497,8 +492,7 @@ module  vc_alloc_request_gen
     smart_ctrl_in,
     ssa_ctrl_in
 );
-
-	parameter P=5;
+	
 	`NOC_CONF
 
     localparam  P_1     = (SELF_LOOP_EN == "NO")?  P-1 : P,

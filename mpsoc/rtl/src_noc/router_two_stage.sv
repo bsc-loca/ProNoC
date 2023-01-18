@@ -30,8 +30,10 @@
  **************************************************************/
 
 
-module router_two_stage 
-		(
+module router_two_stage #(
+	parameter NOC_ID=0,
+	parameter P=5
+) (
 		current_r_id,
 		current_r_addr,// connected to constant parameter  
 		
@@ -52,8 +54,8 @@ module router_two_stage
 		clk,
 		reset
 
-		);
- 	 parameter P=5;
+);
+ 
 	`NOC_CONF    
                 
 
@@ -178,6 +180,7 @@ module router_two_stage
 				assign chan_in_tmp[i] = chan_in[i];			
 			end else begin : multi
 				multicast_chan_in_process #(
+					.NOC_ID(NOC_ID),
 					.P(P), 
 					.SW_LOC  (i)
 				) multicast_process (
@@ -237,6 +240,7 @@ module router_two_stage
 				
 				//credit_release. Only activated for local ports as credit_release_en never be asserted in router to router connection.  
 				credit_release_gen #(
+					.NOC_ID(NOC_ID),
 					.CREDIT_NUM  (LB)
 				) credit_release_gen (
 					.clk         (clk        ), 
@@ -263,102 +267,98 @@ module router_two_stage
 	
 	
             
-	inout_ports
-		#(		
-			.P(P)
-		)
-		the_inout_ports
-		(
-			.current_r_addr(current_r_addr),
-			.neighbors_r_addr(neighbors_r_addr),
-			.flit_in_all(flit_in_all),
-			.flit_in_wr_all(flit_in_wr_all),
-			.credit_out_all(credit_out_all),
-			.credit_in_all(credit_in_all),
-			.masked_ovc_request_all(masked_ovc_request_all),			
-			.granted_dst_is_from_a_single_flit_pck(granted_dst_is_from_a_single_flit_pck),
-			.vsa_ovc_allocated_all(ovc_allocated_all), 
-			.granted_ovc_num_all(granted_ovc_num_all), 
-			.ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant), 
-			.spec_ovc_num_all(spec_ovc_num_all), 
-			.nonspec_first_arbiter_granted_ivc_all(nonspec_first_arbiter_granted_ivc_all), 
-			.spec_first_arbiter_granted_ivc_all(spec_first_arbiter_granted_ivc_all), 
-			.nonspec_granted_dest_port_all(nonspec_granted_dest_port_all), 
-			.spec_granted_dest_port_all(spec_granted_dest_port_all), 
-			.granted_dest_port_all(granted_dest_port_all), 
-			.any_ivc_sw_request_granted_all(any_ivc_sw_request_granted_all), 
-			.any_ovc_granted_in_outport_all(any_ovc_granted_in_outport_all),
-			.dest_port_all(dest_port_all), 
-			.ovc_is_assigned_all(ovc_is_assigned_all), 
-			.ivc_request_all(ivc_request_all), 
-			.assigned_ovc_not_full_all(assigned_ovc_not_full_all), 
-			.flit_out_all(iport_flit_out_all),
-			.congestion_in_all(congestion_in_all),
-			.congestion_out_all(congestion_out_all),
-			//  .lk_destination_all(lk_destination_all),
-			.ssa_flit_wr_all(ssa_flit_wr_all),
-			.iport_weight_all(iport_weight_all),
-			.oports_weight_all(oports_weight_all),
-			.vc_weight_is_consumed_all(vc_weight_is_consumed_all),
-			.iport_weight_is_consumed_all(iport_weight_is_consumed_all), 
-			.refresh_w_counter(refresh_w_counter), 
-			.clk(clk), 
-			.reset(reset),
-			.ivc_info(ivc_info),
-			.ovc_info(ovc_info),
-			.oport_info(oport_info),
-			.smart_ctrl_in(smart_ctrl_in),
-			.vsa_ctrl_in(vsa_ctrl),
-			.credit_init_val_in (credit_init_val_in),
-			.credit_init_val_out (credit_init_val_out),
-			.flit_is_tail_all(flit_is_tail_all),			
-			.crossbar_flit_out_wr_all(crossbar_flit_out_wr_all),
-			.vsa_ovc_released_all(vsa_ovc_released_all),
-			.vsa_credit_decreased_all(vsa_credit_decreased_all)
-		);
+	inout_ports #(		
+		.NOC_ID(NOC_ID),
+		.P(P)
+	) the_inout_ports (
+		.current_r_addr(current_r_addr),
+		.neighbors_r_addr(neighbors_r_addr),
+		.flit_in_all(flit_in_all),
+		.flit_in_wr_all(flit_in_wr_all),
+		.credit_out_all(credit_out_all),
+		.credit_in_all(credit_in_all),
+		.masked_ovc_request_all(masked_ovc_request_all),			
+		.granted_dst_is_from_a_single_flit_pck(granted_dst_is_from_a_single_flit_pck),
+		.vsa_ovc_allocated_all(ovc_allocated_all), 
+		.granted_ovc_num_all(granted_ovc_num_all), 
+		.ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant), 
+		.spec_ovc_num_all(spec_ovc_num_all), 
+		.nonspec_first_arbiter_granted_ivc_all(nonspec_first_arbiter_granted_ivc_all), 
+		.spec_first_arbiter_granted_ivc_all(spec_first_arbiter_granted_ivc_all), 
+		.nonspec_granted_dest_port_all(nonspec_granted_dest_port_all), 
+		.spec_granted_dest_port_all(spec_granted_dest_port_all), 
+		.granted_dest_port_all(granted_dest_port_all), 
+		.any_ivc_sw_request_granted_all(any_ivc_sw_request_granted_all), 
+		.any_ovc_granted_in_outport_all(any_ovc_granted_in_outport_all),
+		.dest_port_all(dest_port_all), 
+		.ovc_is_assigned_all(ovc_is_assigned_all), 
+		.ivc_request_all(ivc_request_all), 
+		.assigned_ovc_not_full_all(assigned_ovc_not_full_all), 
+		.flit_out_all(iport_flit_out_all),
+		.congestion_in_all(congestion_in_all),
+		.congestion_out_all(congestion_out_all),
+		//  .lk_destination_all(lk_destination_all),
+		.ssa_flit_wr_all(ssa_flit_wr_all),
+		.iport_weight_all(iport_weight_all),
+		.oports_weight_all(oports_weight_all),
+		.vc_weight_is_consumed_all(vc_weight_is_consumed_all),
+		.iport_weight_is_consumed_all(iport_weight_is_consumed_all), 
+		.refresh_w_counter(refresh_w_counter), 
+		.clk(clk), 
+		.reset(reset),
+		.ivc_info(ivc_info),
+		.ovc_info(ovc_info),
+		.oport_info(oport_info),
+		.smart_ctrl_in(smart_ctrl_in),
+		.vsa_ctrl_in(vsa_ctrl),
+		.credit_init_val_in (credit_init_val_in),
+		.credit_init_val_out (credit_init_val_out),
+		.flit_is_tail_all(flit_is_tail_all),			
+		.crossbar_flit_out_wr_all(crossbar_flit_out_wr_all),
+		.vsa_ovc_released_all(vsa_ovc_released_all),
+		.vsa_credit_decreased_all(vsa_credit_decreased_all)
+	);
 
 
 	combined_vc_sw_alloc #(
-			.P(P)			
-		)
-		vsa
-		(
-			.dest_port_all(dest_port_all), 
-			.masked_ovc_request_all(masked_ovc_request_all),			
-			.granted_dst_is_from_a_single_flit_pck(granted_dst_is_from_a_single_flit_pck),
-			.ovc_allocated_all(ovc_allocated_all), 
-			.granted_ovc_num_all(granted_ovc_num_all), 
-			.ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant), 
-			.ivc_num_getting_sw_grant(ivc_num_getting_sw_grant), 
-			.spec_first_arbiter_granted_ivc_all(spec_first_arbiter_granted_ivc_all), 
-			.nonspec_first_arbiter_granted_ivc_all(nonspec_first_arbiter_granted_ivc_all), 
-			.nonspec_granted_dest_port_all(nonspec_granted_dest_port_all), 
-			.spec_granted_dest_port_all(spec_granted_dest_port_all), 
-			.granted_dest_port_all(granted_dest_port_all), 
-			.any_ivc_sw_request_granted_all(any_ivc_sw_request_granted_all), 
-			.any_ovc_granted_in_outport_all(any_ovc_granted_in_outport_all),
-			.spec_ovc_num_all(spec_ovc_num_all),       
-			// .lk_destination_all(lk_destination_all),  
-			.vc_weight_is_consumed_all(vc_weight_is_consumed_all),  
-			.iport_weight_is_consumed_all(iport_weight_is_consumed_all),  
-			.ivc_info(ivc_info),
-			.clk(clk), 
-			.reset(reset)
-		);
+		.NOC_ID(NOC_ID),
+		.P(P)			
+	) vsa (
+		.dest_port_all(dest_port_all), 
+		.masked_ovc_request_all(masked_ovc_request_all),			
+		.granted_dst_is_from_a_single_flit_pck(granted_dst_is_from_a_single_flit_pck),
+		.ovc_allocated_all(ovc_allocated_all), 
+		.granted_ovc_num_all(granted_ovc_num_all), 
+		.ivc_num_getting_ovc_grant(ivc_num_getting_ovc_grant), 
+		.ivc_num_getting_sw_grant(ivc_num_getting_sw_grant), 
+		.spec_first_arbiter_granted_ivc_all(spec_first_arbiter_granted_ivc_all), 
+		.nonspec_first_arbiter_granted_ivc_all(nonspec_first_arbiter_granted_ivc_all), 
+		.nonspec_granted_dest_port_all(nonspec_granted_dest_port_all), 
+		.spec_granted_dest_port_all(spec_granted_dest_port_all), 
+		.granted_dest_port_all(granted_dest_port_all), 
+		.any_ivc_sw_request_granted_all(any_ivc_sw_request_granted_all), 
+		.any_ovc_granted_in_outport_all(any_ovc_granted_in_outport_all),
+		.spec_ovc_num_all(spec_ovc_num_all),       
+		// .lk_destination_all(lk_destination_all),  
+		.vc_weight_is_consumed_all(vc_weight_is_consumed_all),  
+		.iport_weight_is_consumed_all(iport_weight_is_consumed_all),  
+		.ivc_info(ivc_info),
+		.clk(clk), 
+		.reset(reset)
+	);
         
 	pronoc_register #(.W(PP_1)) reg2 (.in(granted_dest_port_all ), .out(granted_dest_port_all_delayed), .reset(reset), .clk(clk));
 	
 	    
-		crossbar #(
-				
+		crossbar #(	
+				.NOC_ID(NOC_ID),			
 				.TOPOLOGY(TOPOLOGY),
 				.V (V),     // vc_num_per_port
 				.P (P),     // router port num
 				.Fw (Fw),
 				.MUX_TYPE (MUX_TYPE),				
 				.SSA_EN (SSA_EN),
-				.SELF_LOOP_EN(SELF_LOOP_EN)
-				
+				.SELF_LOOP_EN(SELF_LOOP_EN)				
 			)
 			the_crossbar
 			(
@@ -366,8 +366,7 @@ module router_two_stage
 				.flit_in_all (iport_flit_out_all),				
 				.ssa_flit_wr_all (ssa_flit_wr_all),
 				.flit_out_all (crossbar_flit_out_all),				
-				.flit_out_wr_all (crossbar_flit_out_wr_all)
-        
+				.flit_out_wr_all (crossbar_flit_out_wr_all)        
 			);    
      
 		//link reg 
@@ -422,6 +421,7 @@ module router_two_stage
 			); 
         
 			weights_update #(
+				.NOC_ID(NOC_ID),
 				.ARBITER_TYPE(SWA_ARBITER_TYPE),
 				.V(V),
 				.P(P),
@@ -553,6 +553,7 @@ module router_two_stage
  
 `ifdef TRACE_DUMP_PER_NoC
 	pronoc_trace_dump #(
+		.NOC_ID(NOC_ID),
 		.P(P),
 		.TRACE_DUMP_PER("NOC"), //NOC, ROUTER, PORT 
 		.CYCLE_REPORT(0) // 1 : enable, 0 : disable
@@ -567,6 +568,7 @@ module router_two_stage
 `endif	
 `ifdef TRACE_DUMP_PER_ROUTER
 	pronoc_trace_dump #(
+		.NOC_ID(NOC_ID),
 		.P(P),
 		.TRACE_DUMP_PER("ROUTER"), //NOC, ROUTER, PORT 
 		.CYCLE_REPORT(0) // 1 : enable, 0 : disable
@@ -581,6 +583,7 @@ module router_two_stage
 `endif	
 `ifdef TRACE_DUMP_PER_PORT
 	pronoc_trace_dump #(
+		.NOC_ID(NOC_ID),
 		.P(P),
 		.TRACE_DUMP_PER("PORT"), //NOC, ROUTER, PORT 
 		.CYCLE_REPORT(0) // 1 : enable, 0 : disable
@@ -607,15 +610,17 @@ endmodule
 
 
 
-module credit_release_gen
+module credit_release_gen #(
+	parameter NOC_ID=0,
+	parameter CREDIT_NUM=4
+)
 (
 	clk,
 	reset,
 	en,
 	credit_out		
 );
-
-	parameter CREDIT_NUM=4;
+	
 	`NOC_CONF
 	
 	input  clk,	reset;
@@ -653,17 +658,19 @@ endmodule
 
 
 //synthesis translate_off
-module pronoc_trace_dump
+module pronoc_trace_dump #(
+	parameter NOC_ID=0,
+	parameter P = 6,
+	parameter TRACE_DUMP_PER= "ROUTER", //NOC, ROUTER, PORT 
+	parameter CYCLE_REPORT=0 // 1 : enable, 0 : disable
+)
 (
 	current_r_id,
 	chan_in,
 	chan_out,
 	clk
 );
-
-	parameter P = 6;
-	parameter TRACE_DUMP_PER= "ROUTER"; //NOC, ROUTER, PORT 
-	parameter CYCLE_REPORT=0; // 1 : enable, 0 : disable
+	
 
 	`NOC_CONF
 
@@ -673,6 +680,7 @@ module pronoc_trace_dump
 	input   clk;
 
 	pronoc_trace_dump_sub #(
+		.NOC_ID(NOC_ID),
 		.P(P),
 		.TRACE_DUMP_PER(TRACE_DUMP_PER), //NOC, ROUTER, PORT 
 		.DIRECTION("in"), // in,out
@@ -686,6 +694,7 @@ module pronoc_trace_dump
 	);
 
 	pronoc_trace_dump_sub #(
+		.NOC_ID(NOC_ID),
 		.P(P),
 		.TRACE_DUMP_PER(TRACE_DUMP_PER), //NOC, ROUTER, PORT 
 		.DIRECTION("out"), // in,out
@@ -699,17 +708,19 @@ module pronoc_trace_dump
 	);
 endmodule
 
-module pronoc_trace_dump_sub 
-	(
+module pronoc_trace_dump_sub #(
+	parameter NOC_ID=0,
+	parameter P = 6,
+	parameter TRACE_DUMP_PER= "ROUTER", //NOC, ROUTER, PORT 
+	parameter DIRECTION="in", // in,out
+	parameter CYCLE_REPORT=0 // 1 : enable, 0 : disable
+) (
 	current_r_id,
 	chan_in,
 	clk
-	);
+);
 
-	parameter P = 6;
-	parameter TRACE_DUMP_PER= "ROUTER"; //NOC, ROUTER, PORT 
-	parameter DIRECTION="in"; // in,out
-	parameter CYCLE_REPORT=0; // 1 : enable, 0 : disable
+	
 	
 	`NOC_CONF
 

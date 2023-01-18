@@ -1,7 +1,9 @@
 `include "pronoc_def.v"
 
 module quartus_pronoc
-(
+#(
+ 	parameter NOC_ID = 0
+)(
 	clk,
 	reset,
 	chan_in,
@@ -10,9 +12,7 @@ module quartus_pronoc
 	sel_out	
 );
 
-	`NOC_CONF
-				
-				
+	`NOC_CONF				
 
 	input  [NE-1      :   0]  sel_in;
 	input  [NEw-1     :   0]  sel_out;
@@ -27,15 +27,15 @@ module quartus_pronoc
 	
 	wire noc_reset;
 
-	noc_top top  
-	(
-	.reset(noc_reset),
-	.clk(clk),    
-	.chan_in_all(chan_in_all),
-	.chan_out_all(chan_out_all),
-	.router_event( )
+	noc_top #(
+		.NOC_ID(NOC_ID)
+	) top (
+		.reset(noc_reset),
+		.clk(clk),    
+		.chan_in_all(chan_in_all),
+		.chan_out_all(chan_out_all),
+		.router_event( )
 	);
-
 	
 	
 	altera_reset_synchronizer sync(
@@ -63,8 +63,5 @@ module quartus_pronoc
 			end          
     end
 	endgenerate
-   
-
-
 
 endmodule

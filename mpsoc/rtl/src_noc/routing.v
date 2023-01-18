@@ -28,6 +28,7 @@
 
 
 module conventional_routing #(
+    parameter NOC_ID            = 0,
     parameter TOPOLOGY          = "MESH", 
     parameter ROUTE_NAME        = "XY",
     parameter ROUTE_TYPE        = "DETERMINISTIC", 
@@ -231,6 +232,7 @@ module conventional_routing #(
     end else begin :custom
     
         custom_ni_routing  #(
+            .NOC_ID(NOC_ID),
             .TOPOLOGY(TOPOLOGY),
             .ROUTE_NAME(ROUTE_NAME),
             .ROUTE_TYPE(ROUTE_TYPE),
@@ -266,6 +268,7 @@ endmodule
 *************************************/
 
 module look_ahead_routing #(
+    parameter NOC_ID=0,
     parameter P = 5,
     parameter T1= 8,
     parameter T2= 8,
@@ -478,6 +481,7 @@ module look_ahead_routing #(
      end else begin : custom
     
         custom_lkh_routing  #(
+            .NOC_ID(NOC_ID),
             .TOPOLOGY(TOPOLOGY),
             .ROUTE_NAME(ROUTE_NAME),
             .ROUTE_TYPE(ROUTE_TYPE),
