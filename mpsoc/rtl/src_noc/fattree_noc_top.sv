@@ -46,8 +46,6 @@ module  fattree_noc_top
 			PV = V * MAX_P,
 			PFw = MAX_P * Fw,       
 			NRL= NE/K, //number of router in  each layer       
-			NEFw = NE * Fw,
-			NEV = NE * V,
 			CONG_ALw = CONGw * MAX_P,
 			PLKw = MAX_P * LKw,
 			PLw = MAX_P * Lw,       

@@ -15,7 +15,9 @@ module  flit_buffer_reg_base #(
     parameter DEBUG_EN =   1,
     parameter C=1,
     parameter DSTPw=4,
-    parameter SSA_EN="YES" // "YES" , "NO"       
+    parameter SSA_EN="YES", // "YES" , "NO"  
+    parameter CAST_TYPE="UNI_CAST"
+         
 )(
     din,
     vc_num_wr,

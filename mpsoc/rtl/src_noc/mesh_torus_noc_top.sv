@@ -60,17 +60,7 @@ module mesh_torus_noc_top
 
 	wire [RAw-1 : 0] current_r_addr [NR-1 : 0];
 
-	// mesh torus            
-	localparam
-		EAST   =       3'd1, 
-		NORTH  =       3'd2,  
-		WEST   =       3'd3,  
-		SOUTH  =       3'd4;
-	//ring line            
-	localparam 
-		FORWARD =  2'd1,
-		BACKWARD=  2'd2;
-
+	
 
 	genvar x,y,l;
 	generate 

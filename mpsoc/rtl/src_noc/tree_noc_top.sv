@@ -56,8 +56,6 @@ module  tree_noc_top
 	localparam
 		PV = V * MAX_P,		
 		PFw = MAX_P * Fw,
-		NEFw = NE * Fw,
-		NEV = NE * V,
 		CONG_ALw = CONGw * MAX_P,
 		PLKw = MAX_P * LKw,
 		PLw = MAX_P * Lw,       

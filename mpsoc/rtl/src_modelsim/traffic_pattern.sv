@@ -6,7 +6,7 @@
 * Description: 
 ***************************************/
 
-`timescale  1ns/1ps
+`include "pronoc_def.v"
 
 
  
@@ -74,16 +74,12 @@ endmodule
 
 *********************************/
 module  pck_dst_gen
-	import pronoc_pkg::*; 	
-	#(
-    parameter NE=4,
+   #(
     parameter TRAFFIC =   "RANDOM",
-    parameter MAX_PCK_NUM = 10000,
     parameter HOTSPOT_NODE_NUM =  4,
     parameter MCAST_TRAFFIC_RATIO =50,
     parameter MCAST_PCK_SIZ_MIN = 2,
     parameter MCAST_PCK_SIZ_MAX = 4,
-    parameter PCK_SIZw=5,
     parameter MIN_PACKET_SIZE=5,
     parameter MAX_PACKET_SIZE=5,
     parameter PCK_SIZ_SEL="random-discrete",	
@@ -107,14 +103,14 @@ module  pck_dst_gen
     
 ); 
  
+    `NOC_CONF
  
     localparam      ADDR_DIMENSION =   (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS") ? 2 : 1;  // "RING" and FULLY_CONNECT 
  
  
  
      
-    localparam  NEw= log2(NE),
-                PCK_CNTw = log2(MAX_PCK_NUM+1),
+    localparam  PCK_CNTw = log2(MAX_PCK_NUM+1),
                 HOTSPOT_NUM= (TRAFFIC=="HOTSPOT")? HOTSPOT_NODE_NUM : 1;
     
     input                       reset,clk,en;
@@ -137,9 +133,7 @@ module  pck_dst_gen
 	wire [PCK_SIZw-1 : 0] pck_size_uni;
 
 	pck_dst_gen_unicast #(
-		.NE(NE),
 		.TRAFFIC(TRAFFIC),
-		.MAX_PCK_NUM(MAX_PCK_NUM),
 		.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
 	)
 	unicast
@@ -158,7 +152,6 @@ module  pck_dst_gen
 	); 
 	
 	pck_size_gen #(
-		.PCK_SIZw(PCK_SIZw),
 		.MIN(MIN_PACKET_SIZE),
 		.MAX(MAX_PACKET_SIZE),
 		.PCK_SIZ_SEL(PCK_SIZ_SEL),
@@ -312,11 +305,8 @@ endmodule
  
  
 module  pck_dst_gen_unicast  
-	import pronoc_pkg::*; 	
-	#(
-    parameter NE=4,
+#(
     parameter TRAFFIC =   "RANDOM",
-    parameter MAX_PCK_NUM = 10000,
     parameter HOTSPOT_NODE_NUM =  4
 )(
     en,
@@ -332,22 +322,11 @@ module  pck_dst_gen_unicast
 	custom_traffic_en
 ); 
  
- 
+    `NOC_CONF
     localparam      ADDR_DIMENSION =   (TOPOLOGY ==    "MESH" || TOPOLOGY ==  "TORUS") ? 2 : 1;  // "RING" and FULLY_CONNECT 
- 
- 
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end 	   
-      end   
-    endfunction // log2 
+    
      
-     
-    localparam  NEw= log2(NE),
-                PCK_CNTw = log2(MAX_PCK_NUM+1),
+    localparam  PCK_CNTw = log2(MAX_PCK_NUM+1),
                 HOTSPOT_NUM= (TRAFFIC=="HOTSPOT")? HOTSPOT_NODE_NUM : 1;
     
     input                       reset,clk,en;
@@ -366,9 +345,7 @@ module  pck_dst_gen_unicast
      if ( ADDR_DIMENSION == 2) begin :two_dim
      
         two_dimension_pck_dst_gen #(
-        	.NE(NE),
         	.TRAFFIC(TRAFFIC),
-        	.MAX_PCK_NUM(MAX_PCK_NUM),
         	.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
         	
         )
@@ -390,10 +367,8 @@ module  pck_dst_gen_unicast
      end else begin : one_dim
       
         one_dimension_pck_dst_gen #(
-        		.NE(NE),
-        		.TRAFFIC(TRAFFIC),
-        		.MAX_PCK_NUM(MAX_PCK_NUM),
-        		.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
+       		.TRAFFIC(TRAFFIC),
+       		.HOTSPOT_NODE_NUM(HOTSPOT_NODE_NUM)
         )
         the_one_dimension_pck_dst_gen
         (
@@ -418,12 +393,9 @@ module  pck_dst_gen_unicast
  
  
 module two_dimension_pck_dst_gen  
-		import pronoc_pkg::*; 	
-	#(
-		parameter NE=4,
-		parameter TRAFFIC =   "RANDOM",
-		parameter MAX_PCK_NUM = 10000,
-		parameter HOTSPOT_NODE_NUM =  4
+#(
+    parameter TRAFFIC =   "RANDOM",
+    parameter HOTSPOT_NODE_NUM =  4
 
 )(
     en,
@@ -435,23 +407,16 @@ module two_dimension_pck_dst_gen
     reset,
     valid_dst,
     hotspot_info,
-	custom_traffic_t,
-	custom_traffic_en
+    custom_traffic_t,
+    custom_traffic_en
 );    
     
+    `NOC_CONF
+
    
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end 	   
-      end   
-    endfunction // log2 
      
      
-    localparam NEw= log2(NE),
-                PCK_CNTw = log2(MAX_PCK_NUM+1),
+    localparam  PCK_CNTw = log2(MAX_PCK_NUM+1),
                 HOTSPOT_NUM= (TRAFFIC=="HOTSPOT")? HOTSPOT_NODE_NUM : 1;
     
     input                       reset,clk,en;
@@ -464,13 +429,7 @@ module two_dimension_pck_dst_gen
 	input  [NEw-1 : 0] custom_traffic_t;
 	input  custom_traffic_en;
     
-    localparam 
-        NX = T1,
-        NY = T2,    
-        NL = T3,
-        NXw = log2(NX),
-        NYw= log2(NY),
-        NLw= log2(NL);
+  
     
     wire [NXw-1 : 0] current_x; 
     wire [NYw-1 : 0] current_y;  
@@ -702,7 +661,7 @@ module two_dimension_pck_dst_gen
 		 
 		 
 	end else if( TRAFFIC == "SHUFFLE") begin: shuffle
-		//di = si−1 mod b
+		//di = siÃ¢ÂÂ1 mod b
 		for(i=1; i<(EAw); i=i+1'b1) begin :lp//reverse the address
             assign dest_ip_num[i]  = current_e_addr [i-1];
         end
@@ -790,12 +749,9 @@ endmodule
 
 
 module one_dimension_pck_dst_gen 
-import pronoc_pkg::*; 	
 #(
-		parameter NE=4,
-		parameter TRAFFIC =   "RANDOM",
-		parameter MAX_PCK_NUM = 10000,
-		parameter HOTSPOT_NODE_NUM =  4
+   parameter TRAFFIC =   "RANDOM",
+   parameter HOTSPOT_NODE_NUM =  4
 
 )(
     en,
@@ -807,22 +763,14 @@ import pronoc_pkg::*;
     reset,
     valid_dst,
     hotspot_info,
-	custom_traffic_t,
-	custom_traffic_en
+    custom_traffic_t,
+    custom_traffic_en
 ); 
       
-    function integer log2;
-      input integer number; begin   
-         log2=(number <=1) ? 1: 0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end 	   
-      end   
-    endfunction // log2 
-     
+    `NOC_CONF 
+
      
      localparam 
-        NEw= log2(NE),
         PCK_CNTw = log2(MAX_PCK_NUM+1),
         HOTSPOT_NUM= (TRAFFIC=="HOTSPOT")? HOTSPOT_NODE_NUM : 1;
     
@@ -893,7 +841,7 @@ import pronoc_pkg::*;
 		 assign dest_ip_num = ((core_num + 1) >= NE) ? 0 : (core_num + 1);
 		
 	end else if( TRAFFIC == "SHUFFLE") begin: shuffle
-		//di = si−1 mod b
+		//di = siÃ¢ÂÂ1 mod b
 		for(i=1; i<(NEw); i=i+1'b1) begin :lp
             assign dest_ip_num[i]  = core_num [i-1];
         end
@@ -942,13 +890,11 @@ endmodule
  * *************************/
 
 module pck_size_gen
-		import pronoc_pkg::*; 
 #(
-		parameter PCK_SIZw=4,
-        parameter MIN = 2,
-        parameter MAX = 5,
-        parameter PCK_SIZ_SEL="random-discrete",	
-        parameter DISCRETE_PCK_SIZ_NUM=1
+    parameter MIN = 2,
+    parameter MAX = 5,
+    parameter PCK_SIZ_SEL="random-discrete",	
+    parameter DISCRETE_PCK_SIZ_NUM=1
 )
 (
     reset,
@@ -957,6 +903,8 @@ module pck_size_gen
     pck_size,
     rnd_discrete
 );
+
+	`NOC_CONF
 
 	input rnd_discrete_t rnd_discrete [DISCRETE_PCK_SIZ_NUM-1: 0];
      
@@ -1016,22 +964,21 @@ endmodule
 
 
 module hot_spot_dest_gen 
-	import pronoc_pkg::*; 
 #(
-	parameter HOTSPOT_NUM=2,	
-	parameter NE=16,
-	parameter NEw=4
+   parameter HOTSPOT_NUM=2
 )
 (
-clk,
-reset,
-en,
-hotspot_info,
-core_num,
-dest_ip_num,
-off_flag
+   clk,
+   reset,
+   en,
+   hotspot_info,
+   core_num,
+   dest_ip_num,
+   off_flag
 );
 	
+   `NOC_CONF
+
 	input clk,en,reset;
 	input hotspot_t  hotspot_info [HOTSPOT_NUM-1 : 0];
 	input   [NEw-1 : 0] core_num;

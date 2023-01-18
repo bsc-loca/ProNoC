@@ -339,7 +339,7 @@ sub gen_noc_param_v{
 			
 			$val="$NE".$val;
 		}
-		$param_v= $param_v."\tparameter $p=$val;\n";
+		$param_v= $param_v."\tlocalparam $p=$val;\n";
 		$pass_param=$pass_param."\t\t.$p($p),\n";
 		#print "$p:$val\n";
 		
@@ -350,7 +350,7 @@ sub gen_noc_param_v{
 		for (my $i=0; $i<=$class-1; $i++){
 			my $n="Cn_$i";
 			my $val=$mpsoc->object_get_attribute('class_param',$n);
-			$param_v=$param_v."\tparameter $n=$val;\n";
+			$param_v=$param_v."\tlocalparam $n=$val;\n";
 		}
 		$str="CLASS_SETTING={";
 		for (my $i=$class-1; $i>=0;$i--){
@@ -359,15 +359,15 @@ sub gen_noc_param_v{
 	}else {
 		$str="CLASS_SETTING={V{1\'b1}};\n";
 	}	
-	$param_v=$param_v."\tparameter $str";
+	$param_v=$param_v."\tlocalparam $str";
 	$pass_param=$pass_param."\t\t.CLASS_SETTING(CLASS_SETTING),\n";
 	my $v=$mpsoc->object_get_attribute('noc_param',"V")-1;
 	my $escape=$mpsoc->object_get_attribute('noc_param',"ESCAP_VC_MASK");
 	if (! defined $escape){
-		$param_v=$param_v."\tparameter [$v	:0] ESCAP_VC_MASK=1;\n";
+		$param_v=$param_v."\tlocalparam [$v	:0] ESCAP_VC_MASK=1;\n";
 		$pass_param=$pass_param.".\t\tESCAP_VC_MASK(ESCAP_VC_MASK),\n"; 
 	}
-	$param_v=$param_v." \tparameter  CVw=(C==0)? V : C * V;\n";
+	$param_v=$param_v." \tlocalparam  CVw=(C==0)? V : C * V;\n";
 	$pass_param=$pass_param."\t\t.CVw(CVw)\n";	
 	return ($param_v,$pass_param);	
 	

@@ -1,4 +1,5 @@
-`timescale  1ns/1ps
+`include "pronoc_def.v"
+
 /****************************
  * This module can inject and eject packets from the NoC.
  * It can be used in simulation for injecting real application traces to the NoC 
@@ -6,7 +7,7 @@
 
 
 module multicast_injector 
-		import pronoc_pkg::*; 
+		
 	(
 		//general
 		current_e_addr,
@@ -19,6 +20,8 @@ module multicast_injector
 		pck_injct_in,
 		pck_injct_out		
 	);
+	
+	`NOC_CONF
 	
 	//general
 	input reset,clk;
@@ -218,7 +221,7 @@ assign destport = 7;
 	
 	
 		
-	injector_ovc_status #(
+	multi_cast_injector_ovc_status #(
 		.V(V),
 		.B(LB),
 		.CRDTw(CRDTw)    
@@ -462,7 +465,7 @@ endmodule
  *   ovc_status
  *******************/
  
-module injector_ovc_status #(
+module multi_cast_injector_ovc_status #(
 		parameter V     =   4,
 		parameter B =   16,
 		parameter CRDTw =4
@@ -518,143 +521,4 @@ module injector_ovc_status #(
 				assign  empty_vc[i]  = (credit[i] == credit_init_val_in[i][DEPTH_WIDTH-1:0]);
 			end//for
 			endgenerate
-endmodule
-
-
-
-
-/**************************************
- * 
- * 
- * ***********************************/
-
-
-
-module packet_injector_verilator 
-import pronoc_pkg::*; 
-(
-	//general
-	current_e_addr,
-	reset,
-	clk,		
-	//noc port
-	chan_in,
-	chan_out,  
-	//control interafce
-	pck_injct_in_data,         
-	pck_injct_in_size,         
-	pck_injct_in_endp_addr,    
-	pck_injct_in_class_num,    
-	pck_injct_in_init_weight,  
-	pck_injct_in_vc,           
-	pck_injct_in_pck_wr,  	 
-	pck_injct_in_ready,        
-	                            
-	pck_injct_out_data,       
-	pck_injct_out_size,       
-	pck_injct_out_endp_addr,  
-	pck_injct_out_class_num,  
-	pck_injct_out_init_weight,
-	pck_injct_out_vc,         
-	pck_injct_out_pck_wr,  	 
-	pck_injct_out_ready,
-	pck_injct_out_distance,
-	pck_injct_out_h2t_delay,
-	min_pck_size
-	                            
-	
-);
-
-
-//general
-input reset,clk;
-input [EAw-1 :0 ] current_e_addr;
-	
-// the destination endpoint address
-//NoC interface
-input   smartflit_chanel_t 	chan_in;
-output  smartflit_chanel_t 	chan_out;	
-//control interafce
-	
-	
- input [PCK_INJ_Dw-1 : 0] pck_injct_in_data;
- input [PCK_SIZw-1   : 0] pck_injct_in_size;
- input [EAw-1        : 0] pck_injct_in_endp_addr; 
- input [Cw-1         : 0] pck_injct_in_class_num; 
- input [WEIGHTw-1    : 0] pck_injct_in_init_weight;
- input [V-1          : 0] pck_injct_in_vc;
- input                    pck_injct_in_pck_wr;  	
- input [V-1          : 0] pck_injct_in_ready;
-
- output [PCK_INJ_Dw-1 : 0] pck_injct_out_data;             
- output [PCK_SIZw-1   : 0] pck_injct_out_size;             
- output [EAw-1        : 0] pck_injct_out_endp_addr;        
- output [Cw-1         : 0] pck_injct_out_class_num;        
- output [WEIGHTw-1    : 0] pck_injct_out_init_weight;      
- output [V-1          : 0] pck_injct_out_vc;               
- output                    pck_injct_out_pck_wr;  	     
- output [V-1          : 0] pck_injct_out_ready;  
- output [DISTw-1 	  : 0] pck_injct_out_distance;
- output [15			  : 0] pck_injct_out_h2t_delay;
- output [4			  : 0] min_pck_size;
- 
- pck_injct_t pck_injct_in;
- pck_injct_t pck_injct_out;
-
- assign pck_injct_in.data         = pck_injct_in_data;                  
- assign pck_injct_in.size         = pck_injct_in_size;                 
- assign pck_injct_in.endp_addr    = pck_injct_in_endp_addr;            
- assign pck_injct_in.class_num    = pck_injct_in_class_num;            
- assign pck_injct_in.init_weight  = pck_injct_in_init_weight;          
- assign pck_injct_in.vc           = pck_injct_in_vc;                   
- assign pck_injct_in.pck_wr  	  = pck_injct_in_pck_wr;  	        
- assign pck_injct_in.ready        = pck_injct_in_ready;                
-                                                                   
- assign pck_injct_out_data        = pck_injct_out.data;           
- assign pck_injct_out_size        = pck_injct_out.size;           
- assign pck_injct_out_endp_addr   = pck_injct_out.endp_addr;      
- assign pck_injct_out_class_num   = pck_injct_out.class_num;      
- assign pck_injct_out_init_weight = pck_injct_out.init_weight;    
- assign pck_injct_out_vc          = pck_injct_out.vc;             
- assign pck_injct_out_pck_wr  	  = pck_injct_out.pck_wr;  	     
- assign pck_injct_out_ready       = pck_injct_out.ready;          
- assign pck_injct_out_distance    = pck_injct_out.distance;
- assign pck_injct_out_h2t_delay   = pck_injct_out.h2t_delay;
- 	
- packet_injector injector (
-	.current_e_addr  (current_e_addr ), 
-	.reset           (reset          ), 
-	.clk             (clk            ), 
-	.chan_in         (chan_in        ), 
-	.chan_out        (chan_out       ), 
-	.pck_injct_in    (pck_injct_in   ), 
-	.pck_injct_out   (pck_injct_out  ));
- 
- 
- localparam 
- 	HDR_BYTE_NUM =	HDR_MAX_DATw / 8, // = HDR_MAX_DATw / (8 - HDR_MAX_DATw %8)
- 	HDR_DATA_w_tmp   =  HDR_BYTE_NUM * 8,
- 	HDR_DATA_w = (PCK_INJ_Dw < HDR_DATA_w_tmp)? PCK_INJ_Dw : HDR_DATA_w_tmp,
- 	REMAIN_DATw =  PCK_INJ_Dw - HDR_DATA_w,
- 	REMAIN_DAT_FLIT_I = (REMAIN_DATw / Fpay),
- 	REMAIN_DAT_FLIT_F = (REMAIN_DATw % Fpay == 0)? 0 : 1,
- 	REMAIN_DAT_FLIT   = REMAIN_DAT_FLIT_I + REMAIN_DAT_FLIT_F,
- 	CNTw = log2(REMAIN_DAT_FLIT),
- 	MIN_PCK_SIZ = REMAIN_DAT_FLIT +1;
- 
- assign  min_pck_size = MIN_PCK_SIZ[4:0];
-
-
-// `ifdef VERILATOR
-// 	logic  endp_is_active   /*verilator public_flat_rd*/ ;
-//			
-// 	always @ (*) begin 
-//		endp_is_active  = 1'b0;		
-// 		if (chan_out.flit_chanel.flit_wr) endp_is_active=1'b1;
-// 		if (chan_out.flit_chanel.credit > {V{1'b0}} ) endp_is_active=1'b1;
-// 		if (chan_out.smart_chanel.requests > {SMART_NUM{1'b0}} ) endp_is_active=1'b1;
-// 	end	
-// `endif 
- 
- 
 endmodule

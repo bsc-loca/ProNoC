@@ -176,7 +176,7 @@ sub gen_noc_localparam_v {
 
 	my $param_v="`ifdef NOC_LOCAL_PARAM \n";
 	foreach my $p (@params){
-		$param_v.="parameter $p = $temp{$p};\n";
+		$param_v.="localparam $p = $temp{$p};\n";
 	}
 	$param_v.="`endif\n";
 

@@ -66,7 +66,8 @@ module iport_reg_base  #(
     parameter WRRA_CONFIG_INDEX=0,
     parameter PPSw=4,
     parameter MIN_PCK_SIZE=2, //minimum packet size in flits. The minimum value is 1.
-    parameter BYTE_EN=0
+    parameter BYTE_EN=0,
+    parameter CAST_TYPE= "UNICAST"
 
 )(
     current_r_addr,
@@ -582,14 +583,15 @@ generate
         
         
         
-        flit_buffer_reg_base #(
-            .PCK_TYPE(PCK_TYPE),
+        flit_buffer_reg_base #(           
             .V(V),
             .B(B),
+            .SSA_EN(SSA_EN),
             .Fpay(Fpay),
             .DEBUG_EN(DEBUG_EN),            
-            .DSTPw(DSTPw)
-           
+            .DSTPw(DSTPw),
+            .PCK_TYPE(PCK_TYPE),
+           	.CAST_TYPE(CAST_TYPE)           
         )
         nn
         (

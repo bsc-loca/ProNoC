@@ -1,10 +1,10 @@
 // synthesis translate_off
-`timescale   1ns/1ns
+`include "pronoc_def.v"
 
 
 module pck_injector_test;
 	
-	import pronoc_pkg::*; 
+    `NOC_CONF
 	
 	reg     reset ,clk;
 	

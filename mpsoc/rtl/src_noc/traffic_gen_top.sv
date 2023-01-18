@@ -978,7 +978,7 @@ endmodule
  
 module packet_gen 
 #(   
-	
+	parameter P = 5
 )(
 	clk_counter,
 	pck_wr,
@@ -1000,7 +1000,7 @@ module packet_gen
 );
 
 
-	parameter P = 5;
+	
 	
 
 	`NOC_CONF
