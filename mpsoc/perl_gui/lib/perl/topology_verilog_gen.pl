@@ -140,15 +140,7 @@ module   ${name}_noc
 );
 	
 	 `NOC_CONF
-
-	localparam 
-		NE = $NE,
-		NR = $NR,
-		RAw=log2(NR);
-       
-      
-
-    
+	 
     input reset,clk;    
        
     $wires
@@ -514,14 +506,7 @@ module   ${name}_noc_genvar
     router_event  
 );
 
-	 `NOC_CONF
-
-	localparam 
-		NE = $NE,
-		NR = $NR,
-		RAw=log2(NR),
-		MAX_P=$MAX_P;
-	
+`NOC_CONF
     
 $ports_def
 
@@ -1438,31 +1423,13 @@ module  ${name}_connection
 
 	`NOC_CONF
 
-	localparam 
-		NE = $NE,
-		NR = $NR,
-		RAw=log2(NR),
-		MAX_P=$MAX_P;
-	
-	
-	
-	                
-    
-	
-	
-	
 	
 	localparam
 		P= MAX_P,
         PV = V * P,
         PFw = P * Fw,
         CONG_ALw = CONGw * P,
-        PRAw = P * RAw;    
-    	
-		
-       
-      
-
+        PRAw = P * RAw; 
     
 $ports_def
 

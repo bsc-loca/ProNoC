@@ -30,15 +30,11 @@
 **
 *******************************************************************/
 
+`include "pronoc_def.v"
 
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
 
 module  ni_master 
-		import pronoc_pkg::*; 
-		
-		#(    
+	#(    
     parameter MAX_TRANSACTION_WIDTH=10, // Maximum transaction size will be 2 power of MAX_DMA_TRANSACTION_WIDTH words 
     parameter MAX_BURST_SIZE =256, // in words
     parameter CRC_EN= "NO",// "YES","NO" if CRC is enable then the CRC32 of all packet data is calculated and sent via tail flit. 
@@ -52,8 +48,7 @@ module  ni_master
     parameter S_Aw          =   7,
     parameter M_Aw          =   32,
     parameter TAGw          =   3,
-    parameter SELw          =   4,
-    parameter PCK_TYPE      =  "MULTI_FLIT"
+    parameter SELw          =   4
 )
 (
     //general 
@@ -102,7 +97,7 @@ module  ni_master
 
 );
 
-   
+   `NOC_CONF
 
    
  
@@ -247,8 +242,7 @@ module  ni_master
         OFFSETw= log2(WORLD_SIZE),        
         HDw = Fpay - (2*EAw) -  DSTPw - WEIGHTw,
         PRE_Dw = (HDATA_PRECAPw>0)? HDATA_PRECAPw : 1,
-        MAX_PCK_SIZE_IN_BYTE = MAX_TRANSACTION_WIDTH + log2(Fpay/8),
-        BEw = (BYTE_EN)? log2(Fpay/8) : 1; 
+        MAX_PCK_SIZE_IN_BYTE = MAX_TRANSACTION_WIDTH + log2(Fpay/8);
       
         
  

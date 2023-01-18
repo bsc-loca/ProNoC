@@ -100,15 +100,7 @@ module   custom1_noc
 );
 	
 	 `NOC_CONF
-
-	localparam 
-		NE = 16,
-		NR = 16,
-		RAw=log2(NR);
-       
-      
-
-    
+	 
     input reset,clk;    
        
     

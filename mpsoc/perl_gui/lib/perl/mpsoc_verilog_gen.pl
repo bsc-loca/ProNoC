@@ -48,10 +48,9 @@ sub mpsoc_generate_verilog{
 	my $functions=get_functions();
 	
 	my $global_localparam=get_golal_param_v();	
-	
-	my $mpsoc_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule $mpsoc_name\n\t import pronoc_pkg::*;\n\t #(\n $param_as_in_v\n)(\n$io_short\n);\n": "`timescale	 1ns/1ps\nmodule $mpsoc_name\n \t import pronoc_pkg::*;\n\t(\n$io_short\n);\n";
+	my $pdef = "`include \"pronoc_def.v\"";
+	my $mpsoc_v = (defined $param_as_in_v )? " $pdef\nmodule $mpsoc_name\n\t  #(\n $param_as_in_v\n)(\n$io_short\n);\n\t`NOC_CONF": "$pdef\nmodule $mpsoc_name\n \t (\n$io_short\n);\n\t`NOC_CONF";
 	$mpsoc_v=$mpsoc_v. "
-$functions
 $global_localparam	
 $socs_param
 $io_full
@@ -61,7 +60,7 @@ endmodule
 ";
 	
 	
-	my $top_v = (defined $param_as_in_v )? "`timescale	 1ns/1ps\nmodule ${mpsoc_name}_top #(\n $param_as_in_v\n)(\n$top_io_short\n);\n": "`timescale	 1ns/1ps\nmodule ${mpsoc_name}_top (\n $top_io_short\n);\n";
+	my $top_v = (defined $param_as_in_v )? "$pdef\nmodule ${mpsoc_name}_top #(\n $param_as_in_v\n)(\n$top_io_short\n);\n": "$pdef\nmodule ${mpsoc_name}_top (\n $top_io_short\n);\n";
 
 $top_v=$top_v."
 $global_localparam	

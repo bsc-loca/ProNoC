@@ -5,10 +5,9 @@
 *
 * Description: 
 ***************************************/
+`include "pronoc_def.v"
 
-
-module  noc_emulator
-	import pronoc_pkg::*; 
+module  noc_emulator	
  #(
        
     // simulation
@@ -22,6 +21,7 @@ module  noc_emulator
     done
 );
 
+    `NOC_CONF
 
 	parameter MAX_RATIO = 100;
     parameter RAM_Aw=7;
@@ -117,7 +117,6 @@ endmodule
 ****************/
 
 module  Jtag_traffic_gen 
-	import pronoc_pkg::*; 
 #(
     parameter PATTERN_VJTAG_INDEX=125,
     parameter STATISTIC_VJTAG_INDEX=124, 
@@ -140,6 +139,7 @@ module  Jtag_traffic_gen
     clk
 );
 
+`NOC_CONF
 
     
     
@@ -318,7 +318,6 @@ endmodule
 *********************/
 
 module  traffic_gen_ram 
-	import pronoc_pkg::*; 
 #(
     parameter RAM_Aw=7,
     parameter STATISTIC_NUM=8,  // the last 8 rows of RAM is reserved for collecting statistic values;   
@@ -354,15 +353,8 @@ module  traffic_gen_ram
     clk
 );
 
-
-    function integer log2;
-      input integer number; begin   
-         log2=0;    
-         while(2**log2<number) begin    
-            log2=log2+1;    
-         end    
-      end   
-    endfunction // log2  
+    `NOC_CONF
+   
 
   
   //  localparam   MAX_PATTERN =  (2**RAM_Aw)-1;   // support up to MAX_PATTERN different injections pattern

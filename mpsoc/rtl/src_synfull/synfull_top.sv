@@ -1,10 +1,10 @@
 // synthesis translate_off
-`timescale   1ns/1ns
+`include "pronoc_def.v"
 
 
 module synfull_top;
     
-    import pronoc_pkg::*; 
+    `NOC_CONF
     import dpi_int_pkg::*; 
     
     reg     reset ,clk;

@@ -28,7 +28,6 @@
 
 
 module flit_buffer 
-		//import pronoc_pkg::*;  
 	#(
 		parameter B =4,
 		parameter SSA_EN="YES", // "YES" , "NO" 

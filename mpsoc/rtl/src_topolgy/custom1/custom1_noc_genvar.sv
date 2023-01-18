@@ -38,14 +38,7 @@ module   custom1_noc_genvar
     router_event  
 );
 
-	 `NOC_CONF
-
-	localparam 
-		NE = 16,
-		NR = 16,
-		RAw=log2(NR),
-		MAX_P=5;
-	
+`NOC_CONF
     
 
 	input  reset;
