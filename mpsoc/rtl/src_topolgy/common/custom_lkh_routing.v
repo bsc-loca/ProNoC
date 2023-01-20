@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
 module custom_lkh_routing  #(
-	parameter NOC_ID = 0,
 	parameter TOPOLOGY = "CUSTOM_NAME",
     parameter ROUTE_NAME = "CUSTOM_NAME",
 	parameter ROUTE_TYPE = "DETERMINISTIC",
@@ -26,14 +25,13 @@ module custom_lkh_routing  #(
 
     generate 
     
-    
+       
      
 	//do not modify this line ===Tcustom1Rcustom===
     if(TOPOLOGY == "custom1" && ROUTE_NAME== "custom" ) begin : Tcustom1Rcustom
      
 	   Tcustom1Rcustom_look_ahead_routing  #(
-            .NOC_ID(NOC_ID),
-			.RAw(RAw),  
+            .RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
         )
@@ -50,6 +48,10 @@ module custom_lkh_routing  #(
     end	
     
     endgenerate
+    	
+ 
+    	
+ 
     	
  
     	

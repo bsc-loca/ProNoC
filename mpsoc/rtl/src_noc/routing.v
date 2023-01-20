@@ -232,7 +232,6 @@ module conventional_routing #(
     end else begin :custom
     
         custom_ni_routing  #(
-            .NOC_ID(NOC_ID),
             .TOPOLOGY(TOPOLOGY),
             .ROUTE_NAME(ROUTE_NAME),
             .ROUTE_TYPE(ROUTE_TYPE),
@@ -481,7 +480,6 @@ module look_ahead_routing #(
      end else begin : custom
     
         custom_lkh_routing  #(
-            .NOC_ID(NOC_ID),
             .TOPOLOGY(TOPOLOGY),
             .ROUTE_NAME(ROUTE_NAME),
             .ROUTE_TYPE(ROUTE_TYPE),

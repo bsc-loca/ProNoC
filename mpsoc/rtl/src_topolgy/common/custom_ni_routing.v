@@ -22,22 +22,13 @@ module custom_ni_routing  #(
 
    generate 
     
-     
-     
-	
-    
-     
-	
-     
-	
-    
+        
      
 	//do not modify this line ===Tcustom1Rcustom===
     if(TOPOLOGY == "custom1" && ROUTE_NAME== "custom" ) begin : Tcustom1Rcustom
     
         Tcustom1Rcustom_conventional_routing  #(
-            .NOC_ID(NOC_ID),
-			.RAw(RAw),  
+           	.RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
         )
@@ -51,6 +42,8 @@ module custom_ni_routing  #(
     end	
     
     endgenerate
+    	
+ 
     	
  
     	

@@ -6,7 +6,7 @@
 
 
 /**********************************************************************
-**	File: /home/alireza/work/git/hca_git/ProNoC/mpsoc/rtl/src_topolgy/custom1/custom1_noc_genvar.sv
+**	File: /home/alireza/work/git/pronoc/mpsoc/rtl/src_topolgy/custom1/custom1_noc_genvar.sv
 **    
 **	Copyright (C) 2014-2021  Alireza Monemi
 **    

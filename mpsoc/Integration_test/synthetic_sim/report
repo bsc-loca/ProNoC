@@ -1,7 +1,13 @@
 Verification Results:
-****************************bintree_k3_L3_st : Compile *******************************:
-	 model is generated successfully.
-****************************bintree_k3_L3_st	: random traffic *******************************:
-	 Passed:   zero load (5,16.0881) saturation (30,737.172)
-****************************bintree_k3_L3_st	: transposed 1 traffic *******************************:
-	 Passed:   zero load (5,15.6274) saturation (30,408.757)
+****************************star_6 : Compile *******************************:
+	 model generation is FAILED.
+	 %Error: Unknown warning specified: -Wno-TIMESCALEMOD
+
+	 %Error: Unknown warning specified: -Wno-TIMESCALEMOD
+
+	 %Error: Unknown warning specified: -Wno-TIMESCALEMOD
+
+****************************star_6	: random traffic *******************************:
+	 failed. Simulation model is not avaialable
+****************************star_6	: transposed 1 traffic *******************************:
+	 failed. Simulation model is not avaialable

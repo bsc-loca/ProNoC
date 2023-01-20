@@ -1517,8 +1517,7 @@ sub add_routing_instance_v{
     if(TOPOLOGY == \"$name\" && ROUTE_NAME== \"$rname\" ) begin : $Vname
     
         ${Vname}_conventional_routing  #(
-            .NOC_ID(NOC_ID),
-			.RAw(RAw),  
+           	.RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
         )
@@ -1563,8 +1562,7 @@ sub add_routing_instance_v{
     if(TOPOLOGY == \"$name\" && ROUTE_NAME== \"$rname\" ) begin : ${Vname}
      
 	   ${Vname}_look_ahead_routing  #(
-            .NOC_ID(NOC_ID),
-			.RAw(RAw),  
+            .RAw(RAw),  
             .EAw(EAw),   
             .DSTPw(DSTPw)  
         )
