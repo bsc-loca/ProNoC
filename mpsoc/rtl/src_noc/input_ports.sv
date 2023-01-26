@@ -419,7 +419,7 @@ module input_queue_per_port #(
 				
 		
 				mesh_tori_endp_addr_decode #(
-					.TOPOLOGY("MESH"),
+					.TOPOLOGY(TOPOLOGY),
 					.T1(T1),
 					.T2(T2),
 					.T3(T3),

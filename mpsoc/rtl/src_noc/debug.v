@@ -141,9 +141,9 @@ module debug_mesh_tori_route_ckeck #(
       NX = T1,
       NY = T2,
       RXw = log2(NX),    // number of node in x axis
-      RYw = log2(NY),
+      RYw = (TOPOLOGY=="RING" || TOPOLOGY == "LINE") ? 1 : log2(NY),
       EXw = log2(NX),    // number of node in x axis
-      EYw = log2(NY);   // number of node in y axis
+      EYw = (TOPOLOGY=="RING" || TOPOLOGY == "LINE") ? 1 : log2(NY);   // number of node in y axis
     
     
     wire [RXw-1 : 0] current_x;
@@ -563,6 +563,7 @@ module endp_addr_decoder  #(
     end else if  (TOPOLOGY == "MESH" || TOPOLOGY == "TORUS" || TOPOLOGY == "RING" || TOPOLOGY == "LINE") begin :tori
     /* verilator lint_on WIDTH */      
         mesh_tori_addr_coder #(
+            .TOPOLOGY(TOPOLOGY),
             .NX    (T1   ), 
             .NY    (T2   ), 
             .NL    (T3   ), 

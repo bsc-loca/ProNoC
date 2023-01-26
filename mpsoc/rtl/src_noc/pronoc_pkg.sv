@@ -284,7 +284,7 @@ localparam
  * simulation
  * **********/
 	
-	localparam DELAYw = EAw+2; //Injector start delay counter width
+	localparam DELAYw = 9; //Injector start delay counter width. 10 to 500 clk cycles delay randomly selected
 	
  	typedef struct packed {
  		integer   ip_num;

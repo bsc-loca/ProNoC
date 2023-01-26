@@ -322,6 +322,17 @@ sub get_model_names {
 }
 
 
+sub check_models_are_exsited {
+	my ($mref, $inref) = @_;
+	my @models = get_model_names(@_);
+	foreach my $m (@models){
+		unless (-f $m ){
+			die "Error: no such file $m";
+		}
+	}
+}
+
+
 sub gen_models {
 	my ($mref, $inref) = @_;
 	my @models = get_model_names(@_);
@@ -330,6 +341,9 @@ sub gen_models {
     mkdir("$work", 0700);
 	foreach my $m (@models){
 		print "$m\n";
+		unless (-f $m ){
+			die "Error: no such file $m";
+		}
 		#make noc localparam
 		my $o;
 		$o= do $m;

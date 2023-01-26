@@ -144,6 +144,10 @@ module  traffic_gen_top	#(
 	reg                                 inject_en,cand_wr_vc_en,pck_rd;
 	reg    [PCK_SIZw-1              :0] pck_size;    
 	logic  [DAw-1                   :0] dest_e_addr_reg,dest_e_addr_o;
+
+
+
+
 		
 	// synopsys  translate_off
 	// synthesis translate_off
@@ -801,12 +805,8 @@ module  traffic_gen_top	#(
 //						if (chan_out.smart_chanel.requests > {SMART_NUM{1'b0}} ) endp_is_active=1'b1;
 //					end	
 //				`endif
-
 				
 endmodule
-
-
-
 
 
 /*****************************
