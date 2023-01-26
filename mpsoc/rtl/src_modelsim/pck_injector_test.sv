@@ -29,7 +29,8 @@ module pck_injector_test;
 		.router_event( )
 	);
 		
-	reg [NEw-1 : 0] dest_id [NE-1 : 0];
+	reg  [NEw-1 : 0] dest_id [NE-1 : 0];
+	wire [NEw-1 : 0] src_id  [NE-1 : 0];
 	wire [NEw-1: 0] current_e_addr [NE-1 : 0];
 		
 	genvar i;
@@ -99,10 +100,12 @@ module pck_injector_test;
 			
 		end
 		
+		endp_addr_decoder  #(   .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decode1 ( .id(src_id[i]), .code(pck_injct_out[i].endp_addr));    
+		
 		always @(posedge clk) begin
 			if(pck_injct_out[i].pck_wr) begin 
-				$display ("%t:pck_inj(%d) got a packet: source=%d, size=%d, data=%h",$time,i,
-						pck_injct_out[i].endp_addr,pck_injct_out[i].size,pck_injct_out[i].data);
+				$display ("%t:pck_inj(%d) got a packet from source_id=%d, with size=%d flits and data=%h",$time,i,
+						src_id[i],pck_injct_out[i].size,pck_injct_out[i].data);
 			end		
 			
 		end

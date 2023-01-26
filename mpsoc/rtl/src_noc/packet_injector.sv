@@ -312,12 +312,12 @@ module packet_injector #(
 							//synthesis translate_off
 							if(CAST_TYPE == "UNICAST") begin
 								if(hdr_flit_i.dest_e_addr[EAw-1:0] != current_e_addr) begin 
-									$display("%t: ERROR: packet destination address %d does not match reciver endp address %d. %m",$time,hdr_flit_i.dest_e_addr , current_e_addr );
+									$display("%t: ERROR: packet destination address %d does not match receiver endp address %d. %m",$time,hdr_flit_i.dest_e_addr , current_e_addr );
 									$finish;
 								end//if hdr_flit_i
 							end else begin 
 								if(dest_mcast_all_endp[current_id] !=1'b1 ) begin 
-									$display("%t: ERROR: packet destination address %b does not match reciver endp address %d. %m",$time,hdr_flit_i.dest_e_addr , current_e_addr ,current_id );
+									$display("%t: ERROR: packet destination address %b does not match receiver endp address %d. %m",$time,hdr_flit_i.dest_e_addr , current_e_addr ,current_id );
 									$finish;
 								end
 							end//if hdr_flit_i
