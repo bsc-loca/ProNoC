@@ -1,12 +1,16 @@
+
 `include "pronoc_def.v"
 /****************************************************************************
  * pronoc_pkg.sv
  ****************************************************************************/
 
+`ifdef PRONOC_PKG	
+
+`ifdef IMPORT_PRONOC_PCK
 package pronoc_pkg; 
-  
+`endif  
 	
-		
+	
 	
   
 `define NOC_LOCAL_PARAM
@@ -280,7 +284,7 @@ localparam
  * simulation
  * **********/
 	
-	localparam DELAYw = EAw+2; //Injector start delay counter width
+	localparam DELAYw = 9; //Injector start delay counter width. 10 to 500 clk cycles delay randomly selected
 	
  	typedef struct packed {
  		integer   ip_num;
@@ -295,7 +299,7 @@ localparam
  	
  	//packet injector interface
  	localparam PCK_INJ_Dw =64;//TODO to be defined by user
- 	localparam PCK_SIZw= log2(MAX_PCK_SIZ);
+ 	localparam PCK_SIZw= log2(MAX_PCK_SIZ+1);
 	
  	
 
@@ -323,7 +327,9 @@ localparam
     } router_event_t;
     localparam ROUTER_EVENT_w = $bits(router_event_t); 
     
-	
+
+`ifdef IMPORT_PRONOC_PCK	
 endpackage : pronoc_pkg
+`endif
 
-
+`endif

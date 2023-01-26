@@ -1,10 +1,12 @@
 // synthesis translate_off
-`timescale   1ns/1ns
+`include "pronoc_def.v"
 
 
 module multicast_test;
 	
-	import pronoc_pkg::*; 
+	parameter NOC_ID=0;
+
+	`NOC_CONF
 	
 	reg     reset ,clk;
 	
@@ -21,8 +23,9 @@ module multicast_test;
 	pck_injct_t pck_injct_out[NE-1 : 0];
 	
 	
-	noc_top 	the_noc
-	(
+	noc_top  # ( 
+		.NOC_ID(NOC_ID)
+	) the_noc (
 		.reset(reset),
 		.clk(clk),    
 		.chan_in_all(chan_in_all),
@@ -39,7 +42,9 @@ module multicast_test;
 		
 		endp_addr_encoder #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) encode1 ( .id(i[NEw-1 :0]), .code(current_e_addr[i]));
 		
-		multicast_injector pck_inj(
+		multicast_injector #(
+			.NOC_ID(NOC_ID)
+		) pck_inj(
 			//general
 			.current_e_addr(current_e_addr[i]),
 			.reset(reset),

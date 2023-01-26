@@ -28,10 +28,14 @@
 
 
 module flit_buffer 
-		import pronoc_pkg::*;  
 	#(
 		parameter B =4,
-		parameter SSA_EN="YES" // "YES" , "NO"       
+		parameter SSA_EN="YES", // "YES" , "NO" 
+		parameter Fw=32,
+		parameter PCK_TYPE ="MULTI_FLIT",
+		parameter CAST_TYPE = "UNICAST",
+		parameter DEBUG_EN = 1,
+		parameter V=1
 		)	
 		(
 			din,     // Data in
@@ -51,7 +55,14 @@ module flit_buffer
 			flit_is_tail
 		);
 
-   
+     function  integer log2;
+      input integer number; begin   
+         log2=(number <=1) ? 1: 0;    
+         while(2**log2<number) begin    
+            log2=log2+1;    
+         end       
+      end   
+    endfunction // log2 
    
     
 	localparam      
