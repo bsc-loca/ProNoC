@@ -51,7 +51,8 @@ module  ss_allocator #(
        // ovc_is_assigned_all,    
         ivc_info,
         ovc_info,   
-        ssa_ctrl_o
+        ssa_ctrl_o,
+        smart_allows_ssa
    );
 
 
@@ -77,6 +78,7 @@ module  ss_allocator #(
     input   ivc_info_t   ivc_info   [P-1 : 0][V-1 : 0];
     input   ovc_info_t   ovc_info   [P-1 : 0][V-1 : 0];
     output  ssa_ctrl_t   ssa_ctrl_o [P-1 : 0]; 
+    input   [P-1 : 0]    smart_allows_ssa;
 
 
     wire   [PV-1      :   0] ovc_allocated_all;
@@ -178,7 +180,8 @@ module  ss_allocator #(
                 .ivc_reset(ivc_reset_all[i]), 
                 .single_flit_pck(single_flit_pck_all[i]),
                 .destport_one_hot(destport_one_hot[i]),
-                .decreased_credit_in_ss_ovc(decreased_credit_in_ss_ovc[i])
+                .decreased_credit_in_ss_ovc(decreased_credit_in_ss_ovc[i]),
+                .smart_allows_ssa(smart_allows_ssa[i/V])
                 //synthesis translate_off 
                 //synopsys  translate_off
                 ,.clk(clk)
@@ -259,7 +262,8 @@ module ssa_per_vc #(
         decreased_credit_in_ss_ovc,
         single_flit_pck,
         destport_one_hot,
-        ivc_reset      
+        ivc_reset,
+        smart_allows_ssa      
 //synthesis translate_off 
 //synopsys  translate_off
         ,clk
@@ -294,6 +298,7 @@ module ssa_per_vc #(
     input                          assigned_to_ssovc;
     input                          ovc_is_assigned;
     input   [MAX_P-1       :    0]  destport_one_hot;
+    input                           smart_allows_ssa;
     
     output reg [V-1          :   0]  granted_ovc_num;
     output                        ivc_num_getting_sw_grant;
@@ -406,8 +411,12 @@ wire ssa_permited_by_iport;
 
 
 generate
-if (SSA_EN_IN_PORT) begin : enable
-    assign ssa_permited_by_iport = ss_ovc_ready & (~ivc_request) & condition_1_2_valid;  
+if (SSA_EN_IN_PORT) begin : enable      
+    if(SMART_EN) begin :smart  
+        assign ssa_permited_by_iport = ss_ovc_ready & (~ivc_request) & condition_1_2_valid &  smart_allows_ssa;
+    end else begin 
+        assign ssa_permited_by_iport = ss_ovc_ready & (~ivc_request) & condition_1_2_valid;
+    end
 end else begin : disabled
     assign ssa_permited_by_iport = 1'b0;
 end

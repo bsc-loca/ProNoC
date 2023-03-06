@@ -162,7 +162,7 @@ module inout_ports #(
     input   [CRDTw-1 : 0 ] credit_init_val_in  [P-1 : 0][V-1 : 0];
     output  [CRDTw-1 : 0 ] credit_init_val_out [P-1 : 0][V-1 : 0]; 
  
-
+    wire [P-1 : 0] smart_allows_ssa;
     wire [PPSw-1 : 0] port_pre_sel;
     wire [PV-1 :  0]  swap_port_presel;
     wire [PV-1 : 0] reset_ivc_all;     
@@ -315,7 +315,8 @@ module inout_ports #(
 		   		.ovc_avalable_all(ovc_avalable_all),
 		   		.clk(clk),
 		   		.reset(reset),		    	    	
-		    	.ssa_ctrl_o(ssa_ctrl)
+		    	.ssa_ctrl_o(ssa_ctrl),
+                .smart_allows_ssa (smart_allows_ssa)
 		    );
 	
 		end else begin :non_ssa
@@ -327,7 +328,8 @@ module inout_ports #(
     	
     	   	
 	    for(i=0;i< P;i=i+1) begin :p_	    	
-	    	assign ssa_flit_wr_all [i] = ssa_ctrl[i].ssa_flit_wr;
+	    	assign ssa_flit_wr_all [i] = ssa_ctrl[i].ssa_flit_wr;            
+            pronoc_register #(.W(1)) reg1 (.in(~smart_ctrl_in[i].ssa_allowed), .reset(reset), .clk(clk), .out(smart_allows_ssa [i]));
 	    end//for    
 
     	//synthesis translate_off 

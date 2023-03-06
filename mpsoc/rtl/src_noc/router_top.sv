@@ -53,7 +53,7 @@ module router_top #(
 	initial begin
 		if((SSA_EN=="YES")  &&(SMART_EN==1'b1))begin
 			$display("ERROR: Only one of the SMART or SAA can be enabled at the same time");
-			$finish;        
+			//$finish;        
 		end
 		if((SMART_EN==1'b1) && COMBINATION_TYPE!="COMB_NONSPEC")begin
 			$display("ERROR: SMART only works with non-speculative VSA");
@@ -297,8 +297,8 @@ module router_top #(
 						.smart_ovc_single_flit_pck_o(smart_ctrl[SS_PORT].ovc_single_flit_pck),
 						.smart_ss_ovc_is_allocated_o(smart_ctrl[SS_PORT].ovc_is_allocated),     
 						.smart_ss_ovc_is_released_o	(smart_ctrl[SS_PORT].ovc_is_released), 
-						.smart_mask_available_ss_ovc_o(smart_ctrl[SS_PORT].mask_available_ovc)	
-					
+						.smart_mask_available_ss_ovc_o(smart_ctrl[SS_PORT].mask_available_ovc),	
+						.ssa_allowed_o(smart_ctrl[i].ssa_allowed)
 					);
 				    
 					assign smart_ctrl[i].ivc_smart_en = ivc_smart_en[i];
@@ -309,6 +309,7 @@ module router_top #(
 				
 					// synthesis translate_off
 					//assign chan_out[i].smart_chanel =(smart_chanel[i].requests[0]) ? smart_chanel_new[i] : take ss shifted smart;	
+					
 					smart_chanel_check #(
 						.NOC_ID(NOC_ID)
 					) check(
@@ -317,6 +318,7 @@ module router_top #(
 						.reset(reset),
 						.clk(clk)		
 					);
+					
 					// synthesis translate_on
 					
 					assign smart_chanel_in[i] =   chan_in[i].smart_chanel;

@@ -731,7 +731,8 @@ module smart_allocator_per_iport # (
 	smart_hdr_flit_req_o,
 	smart_ivc_granted_ovc_num_o,	
 	smart_ivc_single_flit_pck_o,
-	smart_ovc_single_flit_pck_o
+	smart_ovc_single_flit_pck_o,
+	ssa_allowed_o
 );
 	
 	`NOC_CONF
@@ -765,6 +766,7 @@ module smart_allocator_per_iport # (
 		smart_ivc_single_flit_pck_o,
 		smart_ovc_single_flit_pck_o;	
 	output [V*V-1 : 0] smart_ivc_granted_ovc_num_o;
+	output ssa_allowed_o;
 	
 	assign smart_ovc_single_flit_pck_o = smart_ivc_single_flit_pck_o;
 	wire  [DSTPw-1  :   0]  destport,lkdestport;
@@ -837,6 +839,26 @@ module smart_allocator_per_iport # (
 	
 	pronoc_register #(.W(DSTPw)) reg2 (.in(lkdestport), .reset(reset), .clk(clk), .out(smart_lk_destport_o));
 	
+	generate 
+	if(SSA_EN=="YES") begin :ssa_
+		wire lk_goes_straight;
+		check_straight_oport #(
+			.TOPOLOGY      ( TOPOLOGY),
+			.ROUTE_NAME    ( ROUTE_NAME),
+			.ROUTE_TYPE    ( ROUTE_TYPE),
+			.DSTPw         ( DSTPw),
+			.SS_PORT_LOC   ( SS_PORT_LOC)
+		) check_straight (
+			.destport_coded_i (lkdestport),
+			.goes_straight_o  (lk_goes_straight)
+		);   
+		//pronoc_register #(.W(1)) reg2 (.in(~lk_goes_straight), .reset(reset), .clk(clk), .out(ssa_allowed_o));
+		assign ssa_allowed_o = ~lk_goes_straight;
+	end else begin 
+		assign ssa_allowed_o = 1'bx;
+	end
+	endgenerate
+
 	wire [V-1 : 0] ss_ovc_crossbar_wr;//If asserted, a flit will be injected to ovc at next clk cycle 
 	assign ss_ovc_crossbar_wr = (ss_smart_chanel_new.requests[0]) ? ss_smart_chanel_new.ovc : {V{1'b0}};
 	

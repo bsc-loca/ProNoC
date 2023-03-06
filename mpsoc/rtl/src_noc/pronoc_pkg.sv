@@ -124,6 +124,7 @@ localparam
 	typedef struct packed {
 		bit		smart_en;
 		bit     hdr_flit_req;
+		bit     ssa_allowed;
 		logic 	[V-1 : 0]        ivc_smart_en;
 		logic   [DSTPw-1  :   0] lk_destport;
 		logic   [DSTPw-1  :   0] destport;
@@ -137,6 +138,7 @@ localparam
 		logic   [V-1 : 0] ivc_single_flit_pck;
 		logic   [V-1 : 0] ovc_single_flit_pck;
 		logic   [V*V-1: 0] ivc_granted_ovc_num;
+		
 	} smart_ctrl_t;	
 	localparam  SMART_CTRL_w = $bits(smart_ctrl_t);
 	
