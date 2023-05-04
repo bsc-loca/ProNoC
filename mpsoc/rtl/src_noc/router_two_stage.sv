@@ -740,7 +740,7 @@ module pronoc_trace_dump_sub #(
 	/* verilator lint_off WIDTH */ 
 		if(TRACE_DUMP_PER == "PORT"  ) fname[p] = $sformatf("trace_dump_R%0d_P%0d.out",current_r_id,p);
 		if(TRACE_DUMP_PER == "ROUTER") fname[p] = $sformatf("trace_dump_R%0d.out",current_r_id);
-		if(TRACE_DUMP_PER == "NOC"   ) fname[p] = $sformatf("trace_dump.out",current_r_id,p);
+		if(TRACE_DUMP_PER == "NOC"   ) fname[p] = $sformatf("trace_dump.out");
 	/* verilator lint_on WIDTH */ 
 		out = $fopen(fname[p],"w");
 		$fclose(out);
