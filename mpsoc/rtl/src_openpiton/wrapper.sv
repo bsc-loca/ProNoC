@@ -13,7 +13,7 @@
 `include "pronoc_def.v"
  
 `define PRESERVED_DATw (`MSG_LENGTH_WIDTH + `MSG_TYPE_WIDTH + `MSG_MSHRID_WIDTH + `MSG_OPTIONS_1_WIDTH )
-`define HEAD_DATw  (FPAYw-MSB_BE-1) 
+`define HEAD_DATw  (64-MSB_BE-1) 
 `define ADDR_CODED (`HEAD_DATw-`PRESERVED_DATw)
 
 module piton_to_pronoc_endp_addr_converter
@@ -96,7 +96,7 @@ module piton_to_pronoc_endp_addr_converter_diffrent_topology
     piton_end_addr_coded_o
 );
      
-     `NOC_CONF   
+    `NOC_CONF   
     input  [`NOC_CHIPID_WIDTH-1:0]  default_chipid_i;
     input  [`NOC_CHIPID_WIDTH-1:0]  piton_chipid_i;
     input  [`NOC_X_WIDTH-1:0]       piton_coreid_x_i;
@@ -340,10 +340,6 @@ module piton_to_pronoc_wrapper
     
     input reset,clk;
     
-    enum bit [1:0] {HEADER, BODY,TAIL} flit_type,flit_type_next;
-    
-    
-    
     wire [`MSG_DST_CHIPID_WIDTH-1   :0] dest_chipid = dataIn [ `MSG_DST_CHIPID];
     wire [`MSG_DST_X_WIDTH-1        :0] dest_x      = dataIn [ `MSG_DST_X];
     wire [`MSG_DST_Y_WIDTH-1        :0] dest_y      = dataIn [ `MSG_DST_Y];
@@ -353,51 +349,18 @@ module piton_to_pronoc_wrapper
     wire [`MSG_MSHRID_WIDTH-1       :0] mshrid      = dataIn [ `MSG_MSHRID ];
     wire [`MSG_OPTIONS_1_WIDTH-1    :0] option1     = dataIn [ `MSG_OPTIONS_1];
     
-    reg [`MSG_LENGTH_WIDTH-1       :0] counter, counter_next;
-    reg tail,head;
-    
-    always @ (*) begin 
-        counter_next = counter;
-        flit_type_next =flit_type;
-        tail=1'b0;
-        head=1'b0;
-        if(validIn)begin 
-            case(flit_type) 
-                HEADER:begin 
-                    counter_next = length;
-                    head=1'b1;
-                    if(length == 0)begin
-                        tail=1'b1;
-                    end else if (length == 1) begin 
-                        flit_type_next = TAIL;
-                    end else begin 
-                        flit_type_next = BODY;
-                    end 
-                end
-                BODY: begin 
-                    counter_next = counter -1'b1;
-                    if(counter == 2) begin 
-                        flit_type_next = TAIL;
-                    end
-                end
-                TAIL: begin 
-                    flit_type_next = HEADER;
-                    tail=1'b1;
-                end
-            endcase
-                
-        end
-    end
-    
-    always @ (posedge clk) begin 
-        if(reset) begin 
-            flit_type<=HEADER;
-            counter<=0;
-        end else begin 
-            flit_type<=flit_type_next;
-            counter<=counter_next;
-        end
-    end
+    wire tail,head;
+    tail_hdr_detect #(
+        .FLIT_WIDTH(Fpay)
+    )piton_hdr(
+        .reset(reset),
+        .clk(clk),
+        .flit_in(dataIn),
+        .valid(validIn),
+        .ready(1'b1),
+        .is_tail(tail),
+        .is_header(head)
+    );    
     
     wire [EAw-1 : 0] src_e_addr, dest_e_addr;
     wire [DSTPw-1 : 0] destport;
@@ -425,59 +388,58 @@ module piton_to_pronoc_wrapper
         .piton_chipid_i    (dest_chipid),
         .piton_coreid_x_i  (dest_x),
         .piton_coreid_y_i  (dest_y),
-        .piton_fbits_i        (dest_fbits),
+        .piton_fbits_i     (dest_fbits),
         .pronoc_endp_addr_o (dest_e_addr),
         .piton_end_addr_coded_o(dest_coded)
         
-    );    
-        
-    
+    );     
     
     conventional_routing #(
-            .TOPOLOGY(TOPOLOGY),
-            .ROUTE_NAME(ROUTE_NAME),
-            .ROUTE_TYPE(ROUTE_TYPE),
-            .T1(T1),
-            .T2(T2),
-            .T3(T3),
-            .RAw(RAw),
-            .EAw(EAw),
-            .DSTPw(DSTPw),
-            .LOCATED_IN_NI(1)
-        )
-        routing_module
-        (
-            .reset(reset),
-            .clk(clk),
-            .current_r_addr(current_r_addr_i),
-            .dest_e_addr(dest_e_addr),
-            .src_e_addr(src_e_addr),
-            .destport(destport)
-        );
-    
-            
+        .TOPOLOGY(TOPOLOGY),
+        .ROUTE_NAME(ROUTE_NAME),
+        .ROUTE_TYPE(ROUTE_TYPE),
+        .T1(T1),
+        .T2(T2),
+        .T3(T3),
+        .RAw(RAw),
+        .EAw(EAw),
+        .DSTPw(DSTPw),
+        .LOCATED_IN_NI(1)
+    ) routing_module (
+        .reset(reset),
+        .clk(clk),
+        .current_r_addr(current_r_addr_i),
+        .dest_e_addr(dest_e_addr),
+        .src_e_addr(src_e_addr),
+        .destport(destport)
+    );
+               
     
     //endp_addr_decoder  #( .TOPOLOGY(TOPOLOGY), .T1(T1), .T2(T2), .T3(T3), .EAw(EAw),  .NE(NE)) decod1 ( .id(TILE_NUM), .code(current_e_addr));
-    
-    
-        
-    
-    wire [`HEAD_DATw-1 : 0] head_data= {dest_coded ,length, msg_type,  mshrid,option1}; 
-    
+      
+    localparam DATA_w = `HEAD_DATw + Fpay - 64; 
+    wire [DATA_w-1 : 0] head_data;
+    generate 
+        if(Fpay == 64) begin :F64
+            assign head_data=  {dest_coded ,length, msg_type,  mshrid,option1}; 
+        end else begin : FL 
+            assign head_data=  {dataIn[Fpay -1  : 64],dest_coded ,length, msg_type,  mshrid,option1}; 
+        end
+    endgenerate
+
     wire [Fw-1 : 0] header_flit;
     reg [WEIGHTw-1 : 0] win;
     
     always @(*) begin 
         win={WEIGHTw{1'b0}};
         win[0]=1'b1;
-    end
-    
+    end    
     
     
     header_flit_generator    #(
         .NOC_ID(NOC_ID),
-		.DATA_w(`HEAD_DATw) // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
-       )head_gen(
+		.DATA_w(DATA_w) // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
+    )head_gen(
         .flit_out(header_flit),    
         .src_e_addr_in(src_e_addr),
         .dest_e_addr_in(dest_e_addr),
@@ -496,7 +458,7 @@ module piton_to_pronoc_wrapper
     assign chan_out.flit_chanel.flit.vc=1'b1;
     assign chan_out.flit_chanel.flit_wr=validIn;
     assign chan_out.flit_chanel.credit=yummyIn;
-    assign chan_out.flit_chanel.flit.payload = (flit_type==    HEADER)? header_flit[Fpay-1 : 0] : dataIn;
+    assign chan_out.flit_chanel.flit.payload = (head)? header_flit[Fpay-1 : 0] : dataIn;
     assign chan_out.smart_chanel = {SMART_CHANEL_w{1'b0}};
     assign chan_out.flit_chanel.congestion = {CONGw{1'b0}};
     
@@ -545,7 +507,7 @@ module pronoc_to_piton_wrapper
     chan_in
 );    
 
- `NOC_CONF
+    `NOC_CONF
  
     //piton out
     input  [`NOC_CHIPID_WIDTH-1:0]  default_chipid;
@@ -575,13 +537,14 @@ module pronoc_to_piton_wrapper
     
     enum bit [1:0] {HEADER, BODY,TAIL} flit_type,flit_type_next;
     
+    localparam DATA_w = `HEAD_DATw + Fpay - 64; 
     hdr_flit_t hdr_flit;
-    wire [`HEAD_DATw-1 : 0] head_dat;
+    wire [DATA_w-1 : 0] head_dat;
 
     //extract ProNoC header flit data
     header_flit_info #(
 		.NOC_ID(NOC_ID),
-        .DATA_w(`HEAD_DATw)
+        .DATA_w(DATA_w)
     )extract(
         .flit(chan_in.flit_chanel.flit),
         .hdr_flit(hdr_flit),        
@@ -601,7 +564,8 @@ module pronoc_to_piton_wrapper
     
     wire [`ADDR_CODED-1 : 0] dest_coded;
     
-    assign {dest_coded, length, msg_type, mshrid, option1}  =     head_dat; 
+
+    assign {dest_coded, length, msg_type, mshrid, option1}  =  head_dat [`HEAD_DATw-1 : 0]; 
     
     pronoc_to_piton_endp_addr_converter#(
 		.NOC_ID(NOC_ID)
@@ -610,11 +574,8 @@ module pronoc_to_piton_wrapper
         .piton_chipid_o (dest_chipid),
         .piton_coreid_x_o(dest_x),
         .piton_coreid_y_o(dest_y)    
-    );
-                                                       
-    
-    
-    
+    );              
+       
     
     wire [MAX_P-1:0] destport_one_hot;
     
@@ -731,6 +692,12 @@ module pronoc_to_piton_wrapper
     assign header_flit [ `MSG_TYPE ]      = msg_type; 
     assign header_flit [ `MSG_MSHRID ]    = mshrid; 
     assign header_flit [ `MSG_OPTIONS_1]  = option1; 
+    
+    generate 
+    if(Fpay > 64) begin :R_           
+        assign  header_flit [Fpay - 1 : 64] =  head_dat[Fpay + `HEAD_DATw -65 :`HEAD_DATw]; 
+    end
+    endgenerate
         
     
     wire head = chan_in.flit_chanel.flit.hdr_flag;
