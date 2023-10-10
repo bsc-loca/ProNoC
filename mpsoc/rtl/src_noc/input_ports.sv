@@ -1147,7 +1147,7 @@ module input_queue_per_port #(
 		generate
 			for (j=0;j<V;j=j+1)begin : lp        
 				always @(posedge clk) begin
-					if(reset)begin 
+					if(`pronoc_reset)begin 
 						t1[j]<=1'b0;               
 					end else begin 
 						if(flit_in_wr >0 && vc_num_in[j] && t1[j]==0)begin 

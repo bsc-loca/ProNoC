@@ -195,7 +195,7 @@ module multicast_injector #(
 		reg [V-1 : 0] credit_o;
 		
 		always @ (posedge clk) begin 
-			if(reset) begin 
+			if(`pronoc_reset) begin 
 				flit_type<=HEADER;
 				counter<=0;
 				counter2<=0;
@@ -276,8 +276,8 @@ module multicast_injector #(
 			
 			
 			
-			always_ff @(posedge clk or posedge reset) begin
-				if (reset)  begin
+			always_ff @(`pronoc_clk_reset_edge) begin
+				if (`pronoc_reset)  begin
 					rsv_counter[i]<= {PCK_SIZw{1'b0}};
 					h2t_counter[i]<= 16'd0;
 					sender_endp_addr_reg [i]<= {EAw{1'b0}};
@@ -304,8 +304,8 @@ module multicast_injector #(
 
 			for (k=0;k< REMAIN_DAT_FLIT+1;k++)begin : K_
 			
-				always_ff @(posedge clk or posedge reset) begin
-					if (reset)  begin
+				always_ff @(`pronoc_clk_reset_edge) begin
+					if (`pronoc_reset)  begin
 						pck_data_o_gen [i][k] <= {Fpay{1'b0}};
 						
 					end else begin
@@ -490,23 +490,19 @@ module multi_cast_injector_ovc_status #(
     
 	genvar i;
 	generate
-		for(i=0;i<V;i=i+1) begin : vc_loop
-			`ifdef SYNC_RESET_MODE 
-				always @ (posedge clk )begin 
-				`else 
-					always @ (posedge clk or posedge reset)begin 
-					`endif  
-					if(reset)begin
-						credit[i]<= credit_init_val_in[i][DEPTH_WIDTH-1:0];
-					end else begin
-						if(  wr_in[i]  && ~credit_in[i])   credit[i] <= credit[i]-1'b1;
-						if( ~wr_in[i]  &&  credit_in[i])   credit[i] <= credit[i]+1'b1;
-					end //reset
-				end//always
+    for(i=0;i<V;i=i+1) begin : vc_loop
+        always @ (`pronoc_clk_reset_edge)begin 
+            if(`pronoc_reset)begin
+                credit[i]<= credit_init_val_in[i][DEPTH_WIDTH-1:0];
+            end else begin
+                if(  wr_in[i]  && ~credit_in[i])   credit[i] <= credit[i]-1'b1;
+                if( ~wr_in[i]  &&  credit_in[i])   credit[i] <= credit[i]+1'b1;
+            end //reset
+        end//always
 
-				assign  full_vc[i]   = (credit[i] == {DEPTH_WIDTH{1'b0}});
-				assign  nearly_full_vc[i]=  (credit[i] == 1) |  full_vc[i];
-				assign  empty_vc[i]  = (credit[i] == credit_init_val_in[i][DEPTH_WIDTH-1:0]);
-			end//for
-			endgenerate
+        assign  full_vc[i]   = (credit[i] == {DEPTH_WIDTH{1'b0}});
+        assign  nearly_full_vc[i]=  (credit[i] == 1) |  full_vc[i];
+        assign  empty_vc[i]  = (credit[i] == credit_init_val_in[i][DEPTH_WIDTH-1:0]);
+    end//for
+    endgenerate
 endmodule

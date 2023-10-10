@@ -729,7 +729,7 @@ module fwft_fifo #(
        
 				for(i=0;i<DATA_WIDTH; i=i+1) begin : lp
 					always @(posedge clk ) begin 
-						//if (reset) begin 
+						//if (`pronoc_reset) begin 
 						//  shiftreg[i] <= {MAX_DEPTH{1'b0}};
 						//end else begin
 						if(wr_en) shiftreg[i] <= {shiftreg[i][MAX_DEPTH-3   :   0]  ,din[i]};
@@ -931,7 +931,7 @@ module fwft_fifo_with_output_clear #(
        
 				for(i=0;i<DATA_WIDTH; i=i+1) begin : lp
 					always @(posedge clk ) begin 
-						//if (reset) begin 
+						//if (`pronoc_reset) begin 
 						//  shiftreg[i] <= {MAX_DEPTH{1'b0}};
 						//end else begin
 						if(wr_en) shiftreg[i] <= {shiftreg[i][MAX_DEPTH-3   :   0]  ,din[i]};
@@ -1022,7 +1022,7 @@ module fwft_fifo_with_output_clear #(
 	always @(posedge clk)
 
 	begin
-		if(~reset)begin
+		if(`pronoc_reset==0)begin
 			if (wr_en && ~rd_en && full) begin
 				$display("%t: ERROR: Attempt to write to full FIFO:FIFO size is %d. %m",$time,MAX_DEPTH);
 				$finish;
@@ -1267,7 +1267,7 @@ module bram_based_fifo  #(
 
 	always @(posedge clk)
 	begin
-		if (reset) begin
+		if (`pronoc_reset) begin
 			rd_ptr <= {Bw{1'b0}};
 			wr_ptr <= {Bw{1'b0}};
 			depth  <= {DEPTHw{1'b0}};
@@ -1292,7 +1292,7 @@ module bram_based_fifo  #(
 	//synopsys  translate_off
 	always @(posedge clk)
 	begin
-		if(~reset)begin
+		if(`pronoc_reset==1'b0)begin
 			if (wr_en && depth == B[DEPTHw-1   :   0] && !rd_en) begin
 				$display(" %t: ERROR: Attempt to write to full FIFO: %m",$time);
 				$finish;

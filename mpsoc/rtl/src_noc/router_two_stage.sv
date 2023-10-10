@@ -499,7 +499,7 @@ module router_two_stage #(
     
    
 				always @(posedge clk) begin
-					if(reset)begin 
+					if(`pronoc_reset)begin 
 						t1[i]<=1'b0;
 						t2[i]<=1'b0;             
 					end else begin 

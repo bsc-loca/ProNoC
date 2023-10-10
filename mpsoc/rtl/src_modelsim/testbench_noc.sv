@@ -38,12 +38,17 @@ module testbench_noc;
 	
 
 	initial begin 
-		reset = 1'b1;
+`ifdef ACTIVE_LOW_RESET_MODE 
+        reset = 1'b0;
+ `else 
+        reset = 1'b1;
+`endif  
+		
 		start = 1'b0;
 		stop  = 1'b0;
 		ratio =INJRATIO;
 		#80
-		@(posedge clk) reset = 1'b0;
+		@(posedge clk) reset = ~reset;
 		#200
 		@(posedge clk) start = 1'b1;
 		@(posedge clk) start = 1'b0;
@@ -185,8 +190,8 @@ module testbench_noc;
   		
   	
     
-	always @(posedge    clk or posedge reset) begin 
-		if (reset) begin 
+	always @(`pronoc_clk_reset_edge) begin 
+		if (`pronoc_reset) begin 
 			count_en <=1'b0;
 		end else begin 
 			if(start) count_en <=1'b1;
@@ -207,8 +212,8 @@ module testbench_noc;
           
       
     
-	always @ (posedge clk or posedge reset)begin 
-		if          (reset  ) begin clk_counter  <= 0;  end
+	always @ (`pronoc_clk_reset_edge)begin 
+		if (`pronoc_reset  ) begin clk_counter  <= 0;  end
 		else  begin 
 			if  (count_en) clk_counter  <= clk_counter+1'b1;    
 	        
@@ -386,8 +391,8 @@ module testbench_noc;
 	integer				total_sent_pck_num,total_sent_flit_number,total_expect_rsv_flit_num;
 	
 	integer core_num,k;
-	always @(posedge clk or posedge reset)begin
-		if (reset) begin 
+	always @(`pronoc_clk_reset_edge)begin
+		if (`pronoc_reset) begin 
 			total_rsv_pck_num=0;
 			total_sent_pck_num=0;
 			sum_clk_h2h=0;
@@ -495,8 +500,9 @@ module testbench_noc;
 	wire all_done_in;
 	assign all_done_in = (clk_counter > STOP_SIM_CLK) || ( total_sent_pck_num >  STOP_PCK_NUM );
 	assign sent_done = all_done_in & ~ all_done_reg;
-	always @(posedge clk or posedge reset)begin 
-		if(reset) begin 
+	
+	always @(`pronoc_clk_reset_edge)begin
+		if (`pronoc_reset) begin 
 			all_done_reg <= 1'b0;
 			rsv_ideal_cnt<=0;
 			done<=1'b0;
@@ -595,12 +601,6 @@ module testbench_noc;
 				end
 			end
 		end
-	 
-	
-
-
-
-
 	
 
 	

@@ -52,7 +52,7 @@ module pck_class_in_gen #(
    
  // generate a random num between 0 to 99
     always @(posedge clk ) begin 
-    	if(en | reset) begin 
+    	if(en | `pronoc_reset) begin 
     		rnd =     $urandom_range(99,0);    		
     	end    		
     end
@@ -454,7 +454,7 @@ module two_dimension_pck_dst_gen
     	logic [6 : 0] rnd_reg;
     
     	always @(posedge clk ) begin 
-    		if(en | reset) begin 
+    		if(en | `pronoc_reset) begin 
     			rnd_reg =     $urandom_range(NE-1,0);
     			if(SELF_LOOP_EN	== "NO")	while(rnd_reg==core_num) rnd_reg =     $urandom_range(NE-1,0);// get a random IP core, make sure its not same as sender core   			
     			
@@ -775,7 +775,7 @@ module one_dimension_pck_dst_gen
     	logic [6 : 0] rnd_reg;
     
     	always @(posedge clk ) begin 
-    		if(en | reset) begin 
+    		if(en | `pronoc_reset) begin 
     			rnd_reg =     $urandom_range(NE-1,0);
     			if(SELF_LOOP_EN	== "NO")	while(rnd_reg==core_num) rnd_reg =     $urandom_range(NE-1,0);// get a random IP core, make sure its not same as sender core   			
      		end    		
@@ -916,7 +916,7 @@ module pck_size_gen
 			
 			
 			always @(posedge clk) begin 
-				if(reset)  begin 
+				if(`pronoc_reset)  begin 
 					rnd2<= 0;
 					rnd <= rnd_discrete[0].value;					
 				end else  begin 
@@ -934,7 +934,7 @@ module pck_size_gen
 	    end  else begin :noteq
 	        reg [PCK_SIZw-1 : 0] rnd;
 	        always @(posedge clk) begin 
-	            if(reset) rnd = MIN;
+	            if(`pronoc_reset) rnd = MIN;
 	            else if(en) rnd = $urandom_range(MAX,MIN);
 	        end
 	        assign pck_size = rnd;
@@ -971,7 +971,7 @@ module hot_spot_dest_gen
 	logic [6 : 0] rnd_reg, hotspot_node;
 	reg [9 : 0] rnd1000;
 	always @(posedge clk ) begin 
-		if(en | reset) begin 
+		if(en | `pronoc_reset) begin 
 			rnd_reg =     $urandom_range(NE-1,0);
 			if(SELF_LOOP_EN	== "NO")	while(rnd_reg==core_num) rnd_reg =     $urandom_range(NE-1,0);// get a random IP core, make sure its not same as sender core    			
      			

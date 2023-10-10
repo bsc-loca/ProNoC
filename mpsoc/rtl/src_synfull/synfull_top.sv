@@ -169,7 +169,11 @@ module synfull_top;
        
 
         initial begin 
-            reset = 1'b1;
+`ifdef ACTIVE_LOW_RESET_MODE 
+        reset = 1'b0;
+ `else 
+        reset = 1'b1;
+`endif  
             k=0;
             init_socket[i] = 1'b0;
             wakeup_synfull[i] = 1'b0;
@@ -181,7 +185,7 @@ module synfull_top;
             _pck_injct_in[i].vc=1;
             #100
             @(posedge clk) #1;
-            reset=1'b0;
+            reset=~reset;
             #100
             init_socket[i] = 1'b1;
             @(posedge clk) #1;
@@ -221,7 +225,7 @@ module synfull_top;
     integer k;
      
     always @(posedge clk) begin
-    	if(reset) begin 
+    	if(`pronoc_reset) begin 
     		clk_count =0;
     		total_sent_pck_count =0;
     		total_sent_flit_count=0;

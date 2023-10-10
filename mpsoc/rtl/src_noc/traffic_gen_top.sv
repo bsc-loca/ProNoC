@@ -157,7 +157,7 @@ module  traffic_gen_top	#(
    
 		reg tt;
 		always @(posedge clk) begin
-			if(reset)begin 
+			if(`pronoc_reset)begin 
 				tt<=1'b0;               
 			end else begin 
 				if(flit_out_wr && tt==1'b0 )begin

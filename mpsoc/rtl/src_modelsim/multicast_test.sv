@@ -63,8 +63,12 @@ module multicast_test;
 		
 	   reg [31:0]k;
 
-		initial begin 
-			reset = 1'b1;
+    initial begin 
+`ifdef ACTIVE_LOW_RESET_MODE 
+        reset = 1'b0;
+ `else 
+        reset = 1'b1;
+`endif  
 			k=0;
 			pck_injct_in[i].data =0;
 			#10
@@ -74,7 +78,7 @@ module multicast_test;
 			pck_injct_in[i].pck_wr=1'b0; 
 			#100
 			@(posedge clk) #1;
-			reset=1'b0;
+			reset=~reset;
 			#100
 			@(posedge clk) #1;
 			//if(i==1) begin 
