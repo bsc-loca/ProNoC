@@ -53,8 +53,8 @@ int main(int argc, char** argv) {
     /********************
     *    initialize input
     *********************/
-
     reset=1;
+    reset_active_high=1;
     reset_all_register();
     start_i=0;
 
@@ -80,14 +80,15 @@ int main(int argc, char** argv) {
     if( thread_num>1) initial_threads();
 
     while (!Verilated::gotFinish()) {
+        if(main_time - saved_time < 50) {//set reset and start
+            reset_active_high = ((router1[0]->router_event[0] & ACTIVE_HIGH_RST)==1)? 1 : 0;
+            if (main_time-saved_time >= 10 ) reset = (reset_active_high)? 0 :1;           
+            else reset = reset_active_high;     ;//keep system in reset
 
-        if (main_time-saved_time >= 10 ) {
-            reset = 0;
+            if(main_time == saved_time+21){ count_en=1; start_i=1;}
+            if(main_time == saved_time+23) start_i=0;
         }
-
-        if(main_time == saved_time+21){ count_en=1; start_i=1;}
-        if(main_time == saved_time+23) start_i=0;
-
+        
         if(TRAFFIC_TYPE==NETRACE) netrace_posedge_event();
         else if(TRAFFIC_TYPE ==SYNFUL) synful_posedge_event();
         else traffic_clk_posedge_event();
@@ -1077,7 +1078,7 @@ void traffic_clk_negedge_event(void){
 void update_traffic_injector_st (unsigned int i){
     unsigned char inject_en;
     // a packet has been received
-    if(traffic[i]->update & ~reset){
+    if(traffic[i]->update & (main_time-saved_time >= 10 )){
         total_rsv_pck_num+=1;
         update_noc_statistic (i) ;
     }
@@ -1465,7 +1466,8 @@ void print_parameter (){
         printf ("\tDebuging is enabled\n");
     #else
         printf ("\tDebuging is disabled\n");
-    #endif
+    #endif   
+   
     //if(strcmp (AVG_LATENCY_METRIC,"HEAD_2_TAIL")==0)printf ("\tOutput is the average latency on sending the packet header until receiving tail\n");
     //else printf ("\tOutput is the average latency on sending the packet header until receiving header flit at destination node\n");
     printf ("\tTraffic pattern:%s\n",TRAFFIC);
@@ -1709,19 +1711,34 @@ void update_all_router_stat(void){
 void update_router_st (
         unsigned int Pnum,
         unsigned int rid,
-        EVENT * event
-
+        void * event,
+        size_t size
 ){
+    unsigned int port_event;
 
     for (int p=0;p<Pnum;p++){
-        if(event[p] & FLIT_IN_WR_FLG ) router_stat [rid][p].flit_num_in++;
-        if(event[p] & PCK_IN_WR_FLG  ) router_stat [rid][p].pck_num_in++;
-        if(event[p] & FLIT_OUT_WR_FLG) router_stat [rid][p].flit_num_out++;
-        if(event[p] & PCK_OUT_WR_FLG ) router_stat [rid][p].pck_num_out++;
-        if(event[p] & FLIT_IN_BYPASSED)router_stat [rid][p].flit_num_in_bypassed++;
-        else if( event[p] & FLIT_IN_WR_FLG){
+        if (size == sizeof(unsigned char)) {
+            unsigned char * eventArr = (unsigned char *)event;
+            port_event = eventArr[p];
+        }
+        if (size == sizeof(short int)) {
+            unsigned short int * eventArr = (unsigned short int *)event;
+            port_event = eventArr[p];
+        }
+        if (size == sizeof(int)) {
+            unsigned int * eventArr = (unsigned int *)event;
+            port_event = eventArr[p];
+        }
+        
+           
+        if(port_event & FLIT_IN_WR_FLG ) router_stat [rid][p].flit_num_in++;
+        if(port_event & PCK_IN_WR_FLG  ) router_stat [rid][p].pck_num_in++;
+        if(port_event & FLIT_OUT_WR_FLG) router_stat [rid][p].flit_num_out++;
+        if(port_event & PCK_OUT_WR_FLG ) router_stat [rid][p].pck_num_out++;
+        if(port_event & FLIT_IN_BYPASSED)router_stat [rid][p].flit_num_in_bypassed++;
+        else if(port_event & FLIT_IN_WR_FLG){
             router_stat [rid][p].flit_num_in_buffered++;
-            int bypassed_times = (event[p] >> BYPASS_LSB);
+            unsigned int bypassed_times = (port_event >> BYPASS_LSB);
             router_stat [rid][p].bypass_counter[bypassed_times]++;
         }
     }

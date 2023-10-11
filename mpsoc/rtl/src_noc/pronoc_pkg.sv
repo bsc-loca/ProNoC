@@ -264,7 +264,7 @@ localparam
 		bit    endp_port;  // if it is one, it means the corresponding port is connected o an endpoint
 		logic [RAw-1:   0]  neighbors_r_addr;
 		logic [V-1  :0] [CRDTw-1: 0] credit_init_val; // the connected port initial credit value. It is taken at reset time	
-		logic [V-1  :0] credit_release_en;
+		logic [V-1  :0] credit_release_en;		
 	} ctrl_chanel_t; 
 	localparam CTRL_CHANEL_w = $bits(ctrl_chanel_t);
 	
@@ -323,7 +323,8 @@ localparam
     	bit pck_wr_i;
     	bit flit_wr_o;
     	bit pck_wr_o;
-    	bit flit_in_bypassed;    	
+    	bit flit_in_bypassed;
+    	bit active_high_reset; // if asserted means ProNoC is configured with active high reset    	
     } router_event_t;
     localparam ROUTER_EVENT_w = $bits(router_event_t); 
     

@@ -638,7 +638,8 @@ $st7.="
 		update_router_st(
 			NR${i}_PNUM,
 			router${i}[i]->current_r_id,   
-			router${i}[i]->router_event
+			router${i}[i]->router_event,
+			sizeof(router${i}[i]->router_event[0])
 		); 
 		return;
 	}
@@ -694,16 +695,13 @@ void inline single_router_eval(int i){
 }
 
 #define SMART_NUM  ((SMART_MAX==0)? 1 : SMART_MAX)
-#if SMART_NUM > 8
-	typedef unsigned int EVENT;
-#else
-	typedef unsigned char EVENT;
-#endif
+
 
 extern void update_router_st (
   unsigned int,
   unsigned int, 
-  EVENT *  
+  void * ,
+  size_t
 );
  
 void  single_router_st_update(int i){

@@ -100,7 +100,11 @@ module router_top #(
 		assign router_event[i].flit_wr_o = chan_out[i].flit_chanel.flit_wr;
 		assign router_event[i].pck_wr_o  = chan_out[i].flit_chanel.flit_wr & chan_out[i].flit_chanel.flit.hdr_flag;
 		assign router_event[i].flit_in_bypassed = chan_out[i].smart_chanel.flit_in_bypassed;
-		
+`ifdef ACTIVE_LOW_RESET_MODE 
+        assign router_event[i].active_high_reset = 1'b0;
+ `else 
+        assign router_event[i].active_high_reset = 1'b1;
+`endif  		
 	end
 	endgenerate
 	
