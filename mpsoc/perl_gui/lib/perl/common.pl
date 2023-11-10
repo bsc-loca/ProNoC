@@ -1389,8 +1389,7 @@ sub get_current_monitor_working_area{
 	    #print  Data::Dumper->Dump ([$warea],['ttt']);  
 	    return ($Xaxis_max,$Yaxis_max);
 	}	
-	$Xaxis_max=`xrandr --current | grep '*' | uniq | awk '{print \$1}' | cut -d 'x' -f1`;
-    $Yaxis_max=`xrandr --current | grep '*' | uniq | awk '{print \$1}' | cut -d 'x' -f2`;
+	($Xaxis_max, $Yaxis_max)=get_default_screen_size();
     return ($Xaxis_max,$Yaxis_max);	
 }
 
