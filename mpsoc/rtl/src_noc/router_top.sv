@@ -104,7 +104,8 @@ module router_top #(
         assign router_event[i].active_high_reset = 1'b0;
  `else 
         assign router_event[i].active_high_reset = 1'b1;
-`endif  		
+`endif  
+        assign router_event[i].empty = ~(|iport_info[i].ivc_req) && (router_event[i].flit_wr_o==1'b0);		
 	end
 	endgenerate
 	

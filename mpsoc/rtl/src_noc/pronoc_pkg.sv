@@ -324,7 +324,8 @@ localparam
     	bit flit_wr_o;
     	bit pck_wr_o;
     	bit flit_in_bypassed;
-    	bit active_high_reset; // if asserted means ProNoC is configured with active high reset    	
+    	bit active_high_reset; // if asserted means ProNoC is configured with active high reset
+    	bit empty;  // if asseted mrans there is no flit in this router port    	
     } router_event_t;
     localparam ROUTER_EVENT_w = $bits(router_event_t); 
     
