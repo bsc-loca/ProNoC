@@ -55,7 +55,7 @@ done
 echo "#This file is created by ${SCRPT_DIR_PATH}/intsall.sh
 package Consts;
 
-use constant VERSION  => '2.1.0'; 
+use constant VERSION  => '2.2.0'; 
 use constant END_YEAR => '2022';
 use constant GTK_VERSION => '$gtk_version';
 
@@ -94,17 +94,12 @@ else
 	cpanm $PERL_GTK3
 fi
 
-#install icon
-cp $SCRPT_DIR_PATH/perl_gui/icons/ProNoC.png  /usr/local/share/icons/hicolor/128x128/apps/
-cp $SCRPT_DIR_PATH/perl_gui/icons/ProNoC.svg  /usr/local/share/icons/hicolor/scalable/apps/
-
-#install python
-echo "install python" 
-apt-get install -y python2
-echo "install python-pipe. Installation may take several minutes" 
-curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-sudo python2 get-pip.py 
-pip install trueskill numpy "networkx<2.0"
+#install python3
+echo "install python3" 
+apt-get install -y python3
+apt-get install -y python3-pip
+pip3 install networkx
+pip3 install trueskill
 
 #make pronoc application/executable file
 cd $SCRPT_DIR_PATH/src_c/app_executable
@@ -113,6 +108,8 @@ mv ./ProNoC $SCRPT_DIR_PATH/perl_gui/
 chown -R $user $SCRPT_DIR_PATH/perl_gui/ProNoC 
 echo "pronoc application/executable file is generated!"
 cd $SCRPT_DIR_PATH
+
+
 
 
 
