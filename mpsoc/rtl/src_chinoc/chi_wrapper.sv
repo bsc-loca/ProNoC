@@ -1,4 +1,5 @@
 `include "pronoc_def.v"
+`include "chi_noc_def.v"
 
 /**************************************
 * Module: chi_wrapper
@@ -23,7 +24,7 @@ module  chi_to_pronoc_wrapper #(
     reset
 );
 
-import amba_5_chi_c_pkg::*;
+
 
     `NOC_CONF 
 	
@@ -33,6 +34,14 @@ import amba_5_chi_c_pkg::*;
 
 	output smartflit_chanel_t pronoc_chan_out;   
 	
+ 
+    import `CHI_PCKG::*;
+    parameter type DATA_T = 
+        (NOC_ID == REQ_CHI)?  `REQ_FLIT_T :
+        (NOC_ID == DAT_CHI)?  `DAT_FLIT_T :
+        (NOC_ID == RSP_CHI)?  `RSP_FLIT_T :
+        `SNP_FLIT_T ;
+         
  
 	wire [QOS_REQ-1 : 0] qos;
     wire [TGTID_REQ-1 : 0] target_id;
