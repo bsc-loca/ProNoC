@@ -141,9 +141,11 @@ module  chi_noc_top #(
         assign chi_noc_txflit[i] = link_in[i].flit;        
         assign link_out.flit [i] = noc_chi_rxflit[i];
                       
-            
             chi_to_pronoc_wrapper #(.NOC_ID(NOC_ID)) chi_to_pronoc        
             (
+                
+                .target_id (link_in[i].flit.`TGT_ID_E),
+                .src_id    (link_in[i].flit.`SRC_ID_E),
                 .chi_flitpend_i (link_in[i].flit_pend),
                 .chi_flitv_i    (link_in[i].flit_v),
                 .chi_lcrdv_i    (link_out[i].lcrd_v),        
