@@ -35,7 +35,7 @@
 	   T1= (TOPOLOGY == "STAR")? `NUM_PORTS : $clog2(`NUM_PORTS),
 	   T2=`NUM_PORTS /$clog2(`NUM_PORTS),
 	   T3= 1,
-	   B= 15,
+	   B= 15;
 
 //NoC parameters
 	localparam V=1;

@@ -1,7 +1,7 @@
 
 
 //These defintion should be define based on amba_chi_pck
-`define CHI_PCKG      amba_5_chi_c_pkg
+`define CHI_PCKG      chi_pkg // amba_5_chi_c_pkg
 `define REQ_FLIT_T    reqflit_t
 `define RSP_FLIT_T    rspflit_t
 `define DAT_FLIT_T    datflit_t
