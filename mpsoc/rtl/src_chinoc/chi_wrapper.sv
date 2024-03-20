@@ -38,7 +38,7 @@ module  chi_to_pronoc_wrapper #(
 	output smartflit_chanel_t pronoc_chan_out;   
 	
  
-    input [NEw-1 : ] target_id, src_id;
+    input [NEw-1 : 0] target_id, src_id;
  
             
  

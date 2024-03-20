@@ -32,12 +32,14 @@
  
 	localparam 
 	   TOPOLOGY = `NOC_TOPOLOGY,
+	   ROUTE_NAME = "XY",
 	   T1= (TOPOLOGY == "STAR")? `NUM_PORTS : $clog2(`NUM_PORTS),
 	   T2=`NUM_PORTS /$clog2(`NUM_PORTS),
 	   T3= 1,
 	   B= 15;
 
 //NoC parameters
+	localparam DEBUG_EN=0;
 	localparam V=1;
 	localparam LB=B;
 	

@@ -30,23 +30,23 @@ module pronoc_top_ep0
 
    chi_nocs_top
 (
-	req_a_link_in(req_a_link_in),
-	req_a_link_out(req_a_link_out),
+	.req_a_link_in(req_a_link_in),
+	.req_a_link_out(req_a_link_out),
 	
-	req_b_link_in(req_b_link_in),
-	req_b_link_out(req_b_link_out),
+	.req_b_link_in(req_b_link_in),
+	.req_b_link_out(req_b_link_out),
 	
-	rsp_link_in(rsp_link_in),
-	rsp_link_out(rsp_link_out),
+	.rsp_link_in(rsp_link_in),
+	.rsp_link_out(rsp_link_out),
 	
-	data_link_in(data_link_in),
-	data_link_out(data_link_out),
+	.data_link_in(data_link_in),
+	.data_link_out(data_link_out),
 	
-	snp_link_in(snp_link_in),
-	snp_link_out(snp_link_out),
+	.snp_link_in(snp_link_in),
+	.snp_link_out(snp_link_out),
 	
-	clk(clk), reset(~arst_n),
-	debug_noc_empty_o(debug_noc_empty_o)
+	.clk(clk), .reset(~arst_n),
+	.debug_noc_empty_o(debug_noc_empty_o)
 );
 
 
