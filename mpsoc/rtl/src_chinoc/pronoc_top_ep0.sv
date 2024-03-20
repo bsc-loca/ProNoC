@@ -28,7 +28,7 @@ module pronoc_top_ep0
 );
 
 
-   chi_nocs_top
+   chi_nocs_top chi_nocs
 (
 	.req_a_link_in(req_a_link_in),
 	.req_a_link_out(req_a_link_out),

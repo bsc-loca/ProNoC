@@ -130,15 +130,15 @@ module  chi_noc_top #(
         .router_event(router_event)  
     );
     
-    wire  [Fpay-1:0]    chi_noc_txflit [NE-1 : 0]; 
-    wire  [Fpay-1:0]    noc_chi_rxflit [NE-1 : 0]; 
+   // wire  [Fpay-1:0]    chi_noc_txflit [NE-1 : 0]; 
+   // wire  [Fpay-1:0]    noc_chi_rxflit [NE-1 : 0]; 
     
     genvar i;
     generate
     for(i=0;i<NE;i=i+1)begin :ne_
         assign current_r_addr[i] = router_event[i][0].router_addr;   
-        assign chi_noc_txflit[i] = link_in[i].flit;        
-        assign link_out.flit [i] = noc_chi_rxflit[i];
+        //assign chi_noc_txflit[i] = link_in[i].flit;        
+       // assign link_out[i].flit = noc_chi_rxflit[i];
                       
             chi_to_pronoc_wrapper #(.NOC_ID(NOC_ID)) chi_to_pronoc        
             (

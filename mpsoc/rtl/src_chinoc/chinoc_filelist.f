@@ -53,7 +53,7 @@
 ../src_topolgy/custom1/Tcustom1Rcustom_conventional_routing.v
 ../src_topolgy/custom1/Tcustom1Rcustom_conventional_routing_genvar.v
 
-./chi_chan.sv          
+         
 ./chi_nocs.sv        
 ./pronoc_top_ep0.sv
 ./chi_wrapper.sv     
