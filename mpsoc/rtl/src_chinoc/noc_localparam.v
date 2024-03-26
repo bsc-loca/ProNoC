@@ -39,7 +39,7 @@
 	   B= 15;
 
 //NoC parameters
-	localparam DEBUG_EN=0;
+	localparam DEBUG_EN=1;
 	localparam V=1;
 	localparam LB=B;
 	

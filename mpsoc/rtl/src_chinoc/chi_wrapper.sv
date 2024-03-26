@@ -19,7 +19,8 @@ module  chi_to_pronoc_wrapper #(
     chi_flit_i,
     chi_flitpend_i,
     chi_flitv_i,
-    chi_lcrdv_i,   
+    chi_lcrdv_i,
+    credit_release_en,   
    
     current_r_addr_i,
     pronoc_chan_out,    
@@ -39,8 +40,7 @@ module  chi_to_pronoc_wrapper #(
     
  
     input [NEw-1 : 0] target_id, src_id;
- 
-            
+    input logic credit_release_en;
  
         
     wire [ EAw-1 : 0] dest_e_addr;// = target_id[ EAw-1 : 0];//TODO need to check how they code the destiation adreeses
@@ -129,7 +129,7 @@ module  chi_to_pronoc_wrapper #(
     assign  pronoc_chan_out.flit_chanel.flit.tail_flag= 1'b1;
     assign  pronoc_chan_out.flit_chanel.flit.vc= 1'b1;
     assign  pronoc_chan_out.flit_chanel.flit.payload= pronoc_hdr_flit[FPAYw-1 : 0];    
-
+/*
     //credit release should be asserted externaly via register. For simulation we just use a counter to set it few cycles after reset
     reg [3:0] counter;
     always @(posedge clk or posedge reset)begin 
@@ -138,12 +138,12 @@ module  chi_to_pronoc_wrapper #(
     end
     
     wire credit_release = counter==4;
-    
+    */
     genvar i;
     generate
     for (i=0; i<V;i++) begin :V_
         assign pronoc_chan_out.ctrl_chanel.credit_init_val[i]= 0;
-        assign pronoc_chan_out.ctrl_chanel.credit_release_en[i]= credit_release;
+        assign pronoc_chan_out.ctrl_chanel.credit_release_en[i]= credit_release_en;
     end
     endgenerate
  

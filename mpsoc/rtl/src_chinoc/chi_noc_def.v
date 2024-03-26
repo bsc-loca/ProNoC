@@ -17,6 +17,16 @@
 `define NUM_PORTS   6  // 
 `define NOC_TOPOLOGY   "STAR"  // "STAR", "MESH", "FATTREE" ...
 
+/*
+localparam int RVOOO_RNI_NOC_PORT_ID  [HART_NUM    ] = '{0, 1};   1,0
+  localparam int EACC_RNI_NOC_PORT_ID   [EACC_RNI_NUM] = '{2};       3,2
+  localparam int L2C_HN_NOC_PORT_ID     [L2HN_NUM    ] = '{3, 4};  7,6,9,8
+  localparam int CHI_XBAR_NOC_PORT_ID                  = 5;
+*/
+ 
+
+ `define TGIDS_DEF localparam int CHI_NOC_PORT_ID  [`NUM_PORTS ] = '{10,9,8,2,1,0}  
+
 //Do not change anything from here
 `define REQ_CHI   1
 `define DAT_CHI   2
