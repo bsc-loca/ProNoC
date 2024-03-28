@@ -1,4 +1,5 @@
 `include "pronoc_def.v"
+`include "chi_noc_def.v"
 
 module chi_nocs_top
 (
@@ -22,7 +23,7 @@ module chi_nocs_top
     credit_release_en    
 );
 
-    `include "chi_noc_def.v"
+    
 
     input logic clk, reset;
     output logic debug_noc_empty_o;
@@ -155,21 +156,28 @@ module  chi_noc_top #(
    // wire  [Fpay-1:0]    chi_noc_txflit [NE-1 : 0]; 
    // wire  [Fpay-1:0]    noc_chi_rxflit [NE-1 : 0]; 
   
+  
+  `TGIDS_DEF
+  function automatic logic [63:0] tgid_to_port(
+    input logic [7:0]  tgid
+  );
+    logic [7:0] port_id;
+    port_id  =     `NUM_PORTS-1;
+    for(int i=0; i< `NUM_PORTS; i++) if(CHI_NOC_PORT_ID[i]==tgid) port_id  = i;
+    return port_id;
+  endfunction : tgid_to_port
+         
+  
     genvar i;
     generate
     for(i=0;i<NE;i=i+1)begin :ne_
         assign current_r_addr[i] = pronoc_chan_out[i].ctrl_chanel.neighbors_r_addr;   
-        //assign chi_noc_txflit[i] = link_in[i].flit;        
-       // assign link_out[i].flit = noc_chi_rxflit[i];
-              
-            
-         
-              
+                
                       
             chi_to_pronoc_wrapper #(.NOC_ID(NOC_ID)) chi_to_pronoc        
             (
                 
-                .target_id (link_in[i].flit.`TGT_ID_E),
+                .target_id (tgid_to_port(link_in[i].flit.`TGT_ID_E)),
                 .src_id    (i[NEw-1 : 0]),
                 .chi_flitpend_i (link_in[i].flit_pend),
                 .chi_flitv_i    (link_in[i].flit_v),

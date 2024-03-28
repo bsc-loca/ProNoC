@@ -7,9 +7,10 @@ module tgid_to_port #(
 )(
     tgid,
     port_id
-)
+);
 
     `NOC_CONF 
+    
     `TGIDS_DEF
      
     input [TGTID_WIDTH-1 : 0]  tgid;
@@ -30,7 +31,9 @@ module port_to_tgid #(
 )(
     tgid,
     port_id
-)
+);
+
+
 
     `NOC_CONF 
     `TGIDS_DEF

@@ -25,7 +25,7 @@ localparam int RVOOO_RNI_NOC_PORT_ID  [HART_NUM    ] = '{0, 1};   1,0
 */
  
 
- `define TGIDS_DEF localparam int CHI_NOC_PORT_ID  [`NUM_PORTS ] = '{10,9,8,2,1,0}  
+ `define TGIDS_DEF localparam int CHI_NOC_PORT_ID  [`NUM_PORTS ] = '{10,9,8,2,1,0};  
 
 //Do not change anything from here
 `define REQ_CHI   1

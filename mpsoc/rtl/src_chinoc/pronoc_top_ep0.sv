@@ -79,40 +79,16 @@ end
 
 
 
-
-    chi_chan #(.DATA_T(`REQ_FLIT_T)) req_a_link_in_m  [NUM_PORTS]();
+    
+    chi_chan #(.DATA_T(`REQ_FLIT_T)) req_a_link_in_m   [NUM_PORTS]();
 	chi_chan #(.DATA_T(`REQ_FLIT_T)) req_a_link_out_m  [NUM_PORTS]();
 	
-	chi_chan req_b_link_in_m  [NUM_PORTS];
-	chi_chan req_b_link_out_m  [NUM_PORTS];
 	
-	chi_chan rsp_link_in_m     [NUM_PORTS];
-	chi_chan rsp_link_out_m    [NUM_PORTS];
-	
-	chi_chan data_link_in_m    [NUM_PORTS];
-	chi_chan data_link_out_m  [NUM_PORTS];
-	
-	chi_chan snp_link_in_m     [NUM_PORTS];
-	chi_chan snp_link_out_m   [NUM_PORTS];
-
 genvar i;
 generate 
 for (i=0;i<NUM_PORTS;i++) begin 
-    tgid_to_port_modifier m_reqa_in (.link_in(req_a_link_in[i]), .link_out(req_a_link_in_m[i]));
+    tgid_to_port_modifier m_reqa_in  (.link_in(req_a_link_in[i]),    .link_out(req_a_link_in_m[i]));
     port_to_tgid_modifier m_reqa_out (.link_in(req_a_link_out_m[i]), .link_out(req_a_link_out[i]));
-    
-    tgid_to_port_modifier m_reqb_in (.link_in(req_b_link_in[i]), .link_out(req_b_link_in_m[i]));
-    port_to_tgid_modifier m_reqb_out (.link_in(req_b_link_out_m[i]), .link_out(req_b_link_out[i]));
-    
-    tgid_to_port_modifier m_rsp_in (.link_in(rsp_link_in[i]), .link_out(rsp_link_in_m[i]));
-    port_to_tgid_modifier m_rsp_out (.link_in(rsp_link_out_m[i]), .link_out(rsp_link_out[i]));
-    
-    tgid_to_port_modifier data_in (.link_in(data_link_in[i]), .link_out(data_link_in_m[i]));
-    port_to_tgid_modifier data_out (.link_in(data_link_out_m[i]), .link_out(data_link_out[i]));
-    
-    tgid_to_port_modifier m_snp_in (.link_in(req_a_link_in[i]), .link_out(req_a_link_in_m[i]));
-    port_to_tgid_modifier m_snp_out (.link_in(req_a_link_out_m[i]), .link_out(req_a_link_out[i])); 
-
 end
 endgenerate
 
@@ -123,17 +99,17 @@ endgenerate
 	.req_a_link_in(req_a_link_in_m),
 	.req_a_link_out(req_a_link_out_m),
 	
-	.req_b_link_in(req_b_link_in_m),
-	.req_b_link_out(req_b_link_out_m),
+	.req_b_link_in(req_b_link_in),
+	.req_b_link_out(req_b_link_out),
 	
-	.rsp_link_in(rsp_link_in_m),
-	.rsp_link_out(rsp_link_out_m),
+	.rsp_link_in(rsp_link_in),
+	.rsp_link_out(rsp_link_out),
 	
-	.data_link_in(data_link_in_m),
-	.data_link_out(data_link_out_m),
+	.data_link_in(data_link_in),
+	.data_link_out(data_link_out),
 	
-	.snp_link_in(snp_link_in_m),
-	.snp_link_out(snp_link_out_m),
+	.snp_link_in(snp_link_in),
+	.snp_link_out(snp_link_out),
 	
 	.clk(clk), .reset(~arst_n),
 	.debug_noc_empty_o(debug_noc_empty_o),
@@ -151,15 +127,9 @@ module tgid_to_port_modifier
 	chi_chan.tx link_out 
 );
 
-     wire [6: 0] port_id;
+     wire [6: 0] port_id=3;
      
-     tgid_to_port #(
-          .TGTID_WIDTH(7)
-      )conv (
-          .tgid(link_in.flit.tgt_id),
-          .port_id(port_id)                
-     );
-
+   
     always @(*) begin 
          
          link_out.flit_pend = link_in.flit_pend;
@@ -182,14 +152,9 @@ module port_to_tgid_modifier
 	chi_chan.tx link_out 
 );
 
-     wire [6: 0] tgid;
+     wire [6: 0] tgid=3;
      
-     tgid_to_port #(
-          .TGTID_WIDTH(7)
-      )conv (
-          .tgid(link_in.flit.tgt_id),
-          .port_id(tgid)                
-     );
+    
 
     always @(*) begin 
          

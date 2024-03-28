@@ -57,7 +57,7 @@
 ./chi_nocs.sv        
 ./pronoc_top_ep0.sv
 ./chi_wrapper.sv     
-
+./tgid_to_port.sv
 
 
 
