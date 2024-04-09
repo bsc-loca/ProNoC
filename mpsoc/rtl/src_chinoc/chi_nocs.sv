@@ -49,7 +49,7 @@ module chi_nocs_top
     assign debug_noc_empty_o = & empty;
 
     chi_noc_top #(
-        .NOC_ID(`REQ_CHI)
+        .NOC_ID(`REQA_CHI)
     )req_a_noc(
         .reset(reset),
         .clk(clk),
@@ -62,7 +62,7 @@ module chi_nocs_top
     
 
     chi_noc_top #(
-        .NOC_ID(`REQ_CHI)
+        .NOC_ID(`REQB_CHI)
     )req_b_noc(
         .reset(reset),
         .clk(clk),
@@ -157,27 +157,59 @@ module  chi_noc_top #(
    // wire  [Fpay-1:0]    noc_chi_rxflit [NE-1 : 0]; 
   
   
-  `TGIDS_DEF
-  function automatic logic [63:0] tgid_to_port(
-    input logic [7:0]  tgid
-  );
-    logic [7:0] port_id;
-    port_id  =     `NUM_PORTS-1;
-    for(int i=0; i< `NUM_PORTS; i++) if(CHI_NOC_PORT_ID[i]==tgid) port_id  = i;
-    return port_id;
-  endfunction : tgid_to_port
+   `TGIDS_DEF
+   `HOME_NODE_IDS_DEF
+   
+      
+   function automatic logic [63:0] tgid_to_port(
+      input logic [7:0]  tgid
+   );
+       logic [7:0] port_id;
+       port_id  =     `NUM_PORTS-1;
+       for(int i=0; i< `NUM_PORTS; i++) if(CHI_NOC_PORT_ID[i]==tgid) port_id  = i;
+       return port_id;
+   endfunction : tgid_to_port
          
-  
-    genvar i;
-    generate
-    for(i=0;i<NE;i=i+1)begin :ne_
+   localparam 
+        NUM_HOME_NODES =`NUM_HOME_NODES,
+        HOME_SELW =(NUM_HOME_NODES==1)? 1 : $clog2(NUM_HOME_NODES);           
+    
+   //assume SAM direct consequative cache blocks to consequaive homenode ID   
+   function automatic logic [7:0] sam (
+      input integer addr 
+   );  
+      logic [7:0] hmn_id;
+      logic [HOME_SELW-1 : 0 ] sel;
+      if(`NUM_HOME_NODES==1) sel=0;
+      else begin 
+        sel = addr[6+HOME_SELW : 6];
+        if (sel >= NUM_HOME_NODES ) sel = NUM_HOME_NODES-1;
+      end 
+      hmn_id = HOME_NODE_IDS[sel];
+      return hmn_id;
+  endfunction : sam  
+    
+    
+   logic [7: 0] tg_ids [NE-1 : 0]; 
+   genvar i;
+   generate
+   for(i=0;i<NE;i=i+1)begin :ne_
         assign current_r_addr[i] = pronoc_chan_out[i].ctrl_chanel.neighbors_r_addr;   
-                
-                      
+        if (`IS_EMBEDED_SAM) begin :sam_
+            always @(*) begin 
+                tg_ids[i]=0;
+                tg_ids[i] = sam (link_in[i].flit.`ADDR_E);                
+            end        
+        end else begin :no_sam
+            always @(*) begin 
+                tg_ids[i]=0;
+                tg_ids[i]= link_in[i].flit.`TGT_ID_E;
+            end        
+        end              
             chi_to_pronoc_wrapper #(.NOC_ID(NOC_ID)) chi_to_pronoc        
             (
                 
-                .target_id (tgid_to_port(link_in[i].flit.`TGT_ID_E)),
+                .target_id (tgid_to_port(tg_ids[i])),
                 .src_id    (i[NEw-1 : 0]),
                 .chi_flitpend_i (link_in[i].flit_pend),
                 .chi_flitv_i    (link_in[i].flit_v),

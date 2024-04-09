@@ -75,10 +75,11 @@
 	localparam TIMSTMP_FIFO_NUM = 16;	
 	
     localparam Fpay =
-        (NOC_ID ==`REQ_CHI)? $bits(`REQ_FLIT_T) :
+        (NOC_ID ==`REQA_CHI)? $bits(`REQ_FLIT_T) :
+        (NOC_ID ==`REQB_CHI)? $bits(`REQ_FLIT_T) :
         (NOC_ID ==`DAT_CHI)? $bits(`DAT_FLIT_T) :
         (NOC_ID ==`RSP_CHI)? $bits(`RSP_FLIT_T) :       
-	    (NOC_ID ==`SNP_CHI)? $bits(`SNP_FLIT_T) : 32; 
+        (NOC_ID ==`SNP_CHI)? $bits(`SNP_FLIT_T) : 32; 
 
 
  

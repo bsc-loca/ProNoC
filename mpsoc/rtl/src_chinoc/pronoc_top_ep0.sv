@@ -80,24 +80,11 @@ end
 
 
     
-    chi_chan #(.DATA_T(`REQ_FLIT_T)) req_a_link_in_m   [NUM_PORTS]();
-	chi_chan #(.DATA_T(`REQ_FLIT_T)) req_a_link_out_m  [NUM_PORTS]();
-	
-	
-genvar i;
-generate 
-for (i=0;i<NUM_PORTS;i++) begin 
-    tgid_to_port_modifier m_reqa_in  (.link_in(req_a_link_in[i]),    .link_out(req_a_link_in_m[i]));
-    port_to_tgid_modifier m_reqa_out (.link_in(req_a_link_out_m[i]), .link_out(req_a_link_out[i]));
-end
-endgenerate
-
-
 
    chi_nocs_top chi_nocs
 (
-	.req_a_link_in(req_a_link_in_m),
-	.req_a_link_out(req_a_link_out_m),
+	.req_a_link_in(req_a_link_in),
+	.req_a_link_out(req_a_link_out),
 	
 	.req_b_link_in(req_b_link_in),
 	.req_b_link_out(req_b_link_out),
@@ -119,54 +106,7 @@ endgenerate
 endmodule
 
 
-module tgid_to_port_modifier
-    import chi_pkg::*;
-	import noc_router_pkg::*;
-(
-	chi_chan.rx link_in  ,
-	chi_chan.tx link_out 
-);
 
-     wire [6: 0] port_id=3;
-     
-   
-    always @(*) begin 
-         
-         link_out.flit_pend = link_in.flit_pend;
-         link_out.flit_v = link_in.flit_v;
-         link_in.lcrd_v = link_out.lcrd_v;
-         link_out.flit = link_in.flit;
-       //replace target id  
-         link_out.flit.tgt_id = port_id; 
-    end
-
-endmodule
-
-
-
-module port_to_tgid_modifier 
-    import chi_pkg::*;
-	import noc_router_pkg::*;
-(
-	chi_chan.rx link_in  ,
-	chi_chan.tx link_out 
-);
-
-     wire [6: 0] tgid=3;
-     
-    
-
-    always @(*) begin 
-         
-         link_out.flit_pend = link_in.flit_pend;
-         link_out.flit_v = link_in.flit_v;
-         link_in.lcrd_v = link_out.lcrd_v;
-         link_out.flit = link_in.flit;
-       //replace target id  
-         link_out.flit.tgt_id = tgid; 
-    end
-
-endmodule
 
 
 
