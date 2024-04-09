@@ -1715,7 +1715,7 @@ void update_router_st (
         size_t size
 ){
     unsigned int port_event;
-
+  
     for (int p=0;p<Pnum;p++){
         if (size == sizeof(unsigned char)) {
             unsigned char * eventArr = (unsigned char *)event;

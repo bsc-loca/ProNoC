@@ -317,16 +317,15 @@ localparam
     }	pck_injct_t;
     localparam PCK_INJCT_w = $bits(pck_injct_t); 
     
-    typedef struct packed {
-    	bit empty;  // if asseted mrans there is no flit in this router port   
-    	logic [RAw-1 :  0] router_addr;  	
+    typedef struct packed {    	
     	logic [BYPASSw-1 : 0] bypassed_num;
     	bit flit_wr_i;
     	bit pck_wr_i;
     	bit flit_wr_o;
     	bit pck_wr_o;
     	bit flit_in_bypassed;
-    	bit active_high_reset; // if asserted means ProNoC is configured with active high reset    	
+    	bit active_high_reset; // if asserted means ProNoC is configured with active high reset 
+    	bit empty;  // if asseted means there is no flit in this router port      	
     } router_event_t;
     localparam ROUTER_EVENT_w = $bits(router_event_t); 
     

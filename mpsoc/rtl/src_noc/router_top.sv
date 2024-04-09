@@ -105,10 +105,7 @@ module router_top #(
  `else 
         assign router_event[i].active_high_reset = 1'b1;
 `endif  
-        assign router_event[i].empty = ~(|iport_info[i].ivc_req) && (chan_out[i].flit_chanel.flit_wr==1'b0);
-        if(i==0) assign router_event[i].router_addr = current_r_addr;
-        else if(i==1) assign router_event[i].router_addr =	current_r_id [RAw-1 :  0];
-	    else assign router_event[i].router_addr ='0;
+        assign router_event[i].empty = ~(|iport_info[i].ivc_req) && (chan_out[i].flit_chanel.flit_wr==1'b0);        
 	end
 	endgenerate
 	
