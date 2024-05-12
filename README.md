@@ -4,7 +4,7 @@
 
 Prototype-network-on-chip (ProNoC) is an EDA tool that facilitates prototyping of custom heterogeneous NoC-based many-core-SoC (MCSoC). ProNoC is enhanced using a parameterizable virtual channel based low-latency NoC that is optimized for FPGA implementation. Moreover, ProNoC can also be used as a custom Wishbone bus based SoC generator (SoC without NoC) using available Intellectual Properties (IPs) in ProNoC library. The ProNoC IP library can be easily extended to support more IPs.
 
-![abstract](https://opencores.org/usercontent/img/1483515008)
+![abstract](./doc/fig/pronoc_overview.jpg)
 
 ## ProNoC GUI MCSoC Generator
 
