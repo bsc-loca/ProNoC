@@ -20,7 +20,7 @@ module piton_to_pronoc_endp_addr_converter
       
 #(
        parameter CHIP_SET_PORT = 3,
-	   parameter NOC_ID=0
+       parameter NOC_ID=0
 )      
 (
        default_chipid_i,
@@ -48,7 +48,7 @@ module piton_to_pronoc_endp_addr_converter
         if(T3==1) begin:same
             piton_to_pronoc_endp_addr_converter_same_topology  #(
                 .CHIP_SET_PORT(CHIP_SET_PORT),
-				.NOC_ID(NOC_ID)
+                .NOC_ID(NOC_ID)
             ) conv (
                 .default_chipid_i  (default_chipid_i),
                 .piton_chipid_i    (piton_chipid_i),
@@ -62,7 +62,7 @@ module piton_to_pronoc_endp_addr_converter
         end else begin :diff
             piton_to_pronoc_endp_addr_converter_diffrent_topology  #(
                 .CHIP_SET_PORT(CHIP_SET_PORT),
-				.NOC_ID(NOC_ID)
+                .NOC_ID(NOC_ID)
             ) conv (
                 .default_chipid_i  (default_chipid_i),
                 .piton_chipid_i    (piton_chipid_i),
@@ -83,7 +83,7 @@ endmodule
 module piton_to_pronoc_endp_addr_converter_diffrent_topology
 #(
     parameter CHIP_SET_PORT = 3,
-	parameter NOC_ID=0
+    parameter NOC_ID=0
 )      
 (
     default_chipid_i,
@@ -191,7 +191,7 @@ endmodule
 module piton_to_pronoc_endp_addr_converter_same_topology 
 #(
     parameter CHIP_SET_PORT = 3,
-	parameter NOC_ID=0
+    parameter NOC_ID=0
 )    
 (
     default_chipid_i,
@@ -271,7 +271,7 @@ endmodule
 
 
 module pronoc_to_piton_endp_addr_converter #(
-	parameter NOC_ID=0
+    parameter NOC_ID=0
 )(
     piton_end_addr_coded_i,    
     
@@ -367,9 +367,9 @@ module piton_to_pronoc_wrapper
     wire [`ADDR_CODED-1 : 0] dest_coded;
     
     piton_to_pronoc_endp_addr_converter #(
-		.NOC_ID(NOC_ID),
-		.CHIP_SET_PORT(CHIP_SET_PORT)
-		) src_conv (
+        .NOC_ID(NOC_ID),
+        .CHIP_SET_PORT(CHIP_SET_PORT)
+        ) src_conv (
         .default_chipid_i  (default_chipid),
         .piton_chipid_i    (default_chipid),
         .piton_coreid_x_i  (default_coreid_x),
@@ -382,8 +382,8 @@ module piton_to_pronoc_wrapper
     );    
     
     piton_to_pronoc_endp_addr_converter  #(
-		.NOC_ID(NOC_ID)
-	)dst_conv (
+        .NOC_ID(NOC_ID)
+    )dst_conv (
         .default_chipid_i  (default_chipid),
         .piton_chipid_i    (dest_chipid),
         .piton_coreid_x_i  (dest_x),
@@ -438,7 +438,7 @@ module piton_to_pronoc_wrapper
     
     header_flit_generator    #(
         .NOC_ID(NOC_ID),
-		.DATA_w(DATA_w) // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
+        .DATA_w(DATA_w) // header flit can carry Optional data. The data will be placed after control data.  Fpay >= DATA_w + CTRL_BITS_w  
     )head_gen(
         .flit_out(header_flit),    
         .src_e_addr_in(src_e_addr),
@@ -543,7 +543,7 @@ module pronoc_to_piton_wrapper
 
     //extract ProNoC header flit data
     header_flit_info #(
-		.NOC_ID(NOC_ID),
+        .NOC_ID(NOC_ID),
         .DATA_w(DATA_w)
     )extract(
         .flit(chan_in.flit_chanel.flit),
@@ -568,8 +568,8 @@ module pronoc_to_piton_wrapper
     assign {dest_coded, length, msg_type, mshrid, option1}  =  head_dat [`HEAD_DATw-1 : 0]; 
     
     pronoc_to_piton_endp_addr_converter#(
-		.NOC_ID(NOC_ID)
-		)addr_conv ( 
+        .NOC_ID(NOC_ID)
+        )addr_conv ( 
         .piton_end_addr_coded_i(dest_coded),        
         .piton_chipid_o (dest_chipid),
         .piton_coreid_x_o(dest_x),
@@ -720,7 +720,7 @@ endmodule
     
     
 module  noc_top_packed #(
-	parameter NOC_ID=0
+    parameter NOC_ID=0
 )
 (
     reset,
@@ -751,8 +751,8 @@ module  noc_top_packed #(
     
     
     noc_top #(
-		.NOC_ID(NOC_ID)
-		)unpacked (
+        .NOC_ID(NOC_ID)
+        )unpacked (
         .reset(reset),
         .clk(clk),    
         .chan_in_all(chan_in_all_unpacked),
@@ -916,8 +916,8 @@ module pronoc_noc
     
     
     noc_top #(
-		.NOC_ID(NOC_ID)
-		)noc (
+        .NOC_ID(NOC_ID)
+        )noc (
         .reset(reset),
         .clk(clk),    
         .chan_in_all (pronoc_chan_in ),
@@ -928,4 +928,116 @@ module pronoc_noc
     
     
 endmodule    
+
+
+//ProNoC router with OpenPiton Interface
+module pronoc_router
+    #(
+    parameter NOC_ID=0,
+    parameter CHIP_SET_PORT=3,
+    parameter FLATID_WIDTH=8
+    )(
+        dataIn,
+        validIn,
+        yummyIn,
+
+        dataOut,
+        validOut,
+        yummyOut,
+
+        default_chipid,
+        default_coreid_x,
+        default_coreid_y,
+        flat_tileid,
+
+        current_r_id,
+        reset,
+        clk
+    );
+
+    `NOC_CONF
+
+    input clk,reset;
+    input [Fpay-1:0] dataIn [MAX_P-1 : 0];
+    input [MAX_P-1 : 0] validIn;
+    input [MAX_P-1 : 0] yummyIn;
+
+    output [Fpay-1:0] dataOut [MAX_P-1 : 0];
+    output [MAX_P-1 : 0] validOut;
+    output [MAX_P-1 : 0] yummyOut; 
+    
+    input  [`NOC_CHIPID_WIDTH-1:0]  default_chipid;
+    input  [`NOC_X_WIDTH-1:0]    default_coreid_x;
+    input  [`NOC_Y_WIDTH-1:0]    default_coreid_y;
+    input  [FLATID_WIDTH-1:0]    flat_tileid;
+    input  [31 : 0]              current_r_id;
+
+    smartflit_chanel_t pronoc_chan_in [MAX_P-1 : 0];
+    smartflit_chanel_t pronoc_chan_out[MAX_P-1 : 0];
+    wire [RAw-1 : 0] current_r_addr [MAX_P-1 : 0];;
+
+genvar i;
+generate 
+for(i=0;i<MAX_P;i++) begin: P_
+    pronoc_to_piton_wrapper 
+    #(
+        .NOC_ID(NOC_ID),
+        .PORT_NUM(0),
+        .TILE_NUM(0),
+        .FLATID_WIDTH(FLATID_WIDTH)
+    )pr2pi
+    (
+        .default_chipid(default_chipid),
+        .default_coreid_x(default_coreid_x), 
+        .default_coreid_y(default_coreid_y),
+        .flat_tileid(flat_tileid),    
+        .reset(reset),
+        .clk(clk),
+        .dataOut(dataOut[i]),
+        .validOut(validOut[i]),
+        .yummyOut(yummyOut[i]),
+        .current_r_addr_o(current_r_addr[i]),
+        .chan_in(pronoc_chan_out[i])
+    );
+
+    piton_to_pronoc_wrapper      
+    #(
+        .NOC_ID(NOC_ID),
+        .TILE_NUM(0),
+        .CHIP_SET_PORT(CHIP_SET_PORT),
+        .FLATID_WIDTH(FLATID_WIDTH)
+    )pi2pr
+    (
+        .default_chipid (default_chipid),
+        .default_coreid_x(default_coreid_x),
+        .default_coreid_y(default_coreid_y),
+        .flat_tileid(flat_tileid),    
+        .reset(reset),
+        .clk(clk),
+        .dataIn(dataIn[i]),
+        .validIn(validIn[i]),
+        .yummyIn(yummyIn[i]),
+        .current_r_addr_i(current_r_addr[i]),
+        .chan_out(pronoc_chan_in[i])
+    );
+end
+endgenerate
+
+    router_top #(
+        .P(MAX_P),
+        .NOC_ID(NOC_ID),
+    ) the_router (
+        .current_r_id    (current_r_id),
+        .current_r_addr  (current_r_addr[0]), 
+        .chan_in         (pronoc_chan_in), 
+        .chan_out        (pronoc_chan_out), 
+        .router_event    (),
+        .clk             (clk ), 
+        .reset           (reset )
+    );
+
+endmodule
+
+
+
 

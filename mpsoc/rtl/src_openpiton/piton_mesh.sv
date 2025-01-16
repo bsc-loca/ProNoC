@@ -406,7 +406,7 @@ module piton_mesh_pronoc_wrap
 			
 		end
 		
-		piton_to_pronoc_wrapper #(.NOC_NUM(1),.TILE_NUM(i),.CHIP_SET_PORT(0),.FLATID_WIDTH(FLATID_WIDTH)) pi2pr_wrapper1
+		piton_to_pronoc_wrapper #(.NOC_ID(1),.TILE_NUM(i),.CHIP_SET_PORT(0),.FLATID_WIDTH(FLATID_WIDTH)) pi2pr_wrapper1
 			(
 				.default_chipid(myChipID[i]), .default_coreid_x(myLocX[i]), .default_coreid_y(myLocY[i]), .flat_tileid(i[FLATID_WIDTH-1 : 0]),	
 				.reset(reset),
@@ -418,7 +418,7 @@ module piton_mesh_pronoc_wrap
 				.current_r_addr_i(i[RAw-1:0])
 			);	
 
-		pronoc_to_piton_wrapper  #(.NOC_NUM(1),.TILE_NUM(i),.FLATID_WIDTH(FLATID_WIDTH)) pr2pi_wrapper1
+		pronoc_to_piton_wrapper  #(.NOC_ID(1),.TILE_NUM(i),.FLATID_WIDTH(FLATID_WIDTH)) pr2pi_wrapper1
 			(
 				.default_chipid(myChipID[i]), .default_coreid_x(myLocX[i]), .default_coreid_y(myLocY[i]), .flat_tileid(i[FLATID_WIDTH-1:0]),	
 				.reset(reset),
